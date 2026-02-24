@@ -3,6 +3,8 @@
  * Loads and manages report definitions from the reporting library
  */
 
+import logger from '@/utils/logger';
+
 export interface ReportFilter {
   name: string;
   type: 'dateRange' | 'select' | 'multiSelect';
@@ -170,7 +172,7 @@ class ReportLoaderService {
       this.registry = registry;
       return registry;
     } catch (error) {
-      console.error('Error loading report registry:', error);
+      logger.error('Error loading report registry:', error);
       throw error;
     }
   }
@@ -234,7 +236,7 @@ class ReportLoaderService {
 
       return reportDef;
     } catch (error) {
-      console.error(`Error loading report ${reportId}:`, error);
+      logger.error(`Error loading report ${reportId}:`, error);
       throw error;
     }
   }
@@ -284,7 +286,9 @@ class ReportLoaderService {
    * Preload multiple reports (useful for performance)
    */
   public async preloadReports(reportIds: string[]): Promise<void> {
-    const promises = reportIds.map(id => this.loadReport(id).catch(() => {}));
+    const promises = reportIds.map(id => this.loadReport(id).catch(err => {
+      logger.warn('Failed to preload report', { reportId: id, error: String(err) });
+    }));
 
     await Promise.all(promises);
   }

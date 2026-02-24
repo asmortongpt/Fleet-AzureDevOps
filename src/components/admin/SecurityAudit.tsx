@@ -25,6 +25,7 @@ import { auditSecurityHeaders } from '@/lib/security/headers';
 import { apiRateLimiter } from '@/lib/security/rate-limiter';
 import { auditResourceSRI } from '@/lib/security/sri';
 import logger from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface SecurityCheck {
   name: string;
@@ -366,7 +367,7 @@ export function SecurityAudit() {
               <h2 className="text-sm font-bold">Security Audit</h2>
               <p className="text-sm text-muted-foreground">
                 {lastAudit
-                  ? `Last audit: ${lastAudit.toLocaleString()}`
+                  ? `Last audit: ${formatDateTime(lastAudit)}`
                   : 'Run security audit to check your application'}
               </p>
             </div>
@@ -418,9 +419,9 @@ export function SecurityAudit() {
               <p>No audit results yet. Click "Run Audit" to get started.</p>
             </div>
           ) : (
-            checks.map((check, index) => (
+            checks.map((check) => (
               <div
-                key={index}
+                key={check.name}
                 className="flex items-start justify-between p-2 border rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="flex-1">
@@ -492,8 +493,8 @@ export function SecurityAudit() {
           <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
             {checks
               .filter((c) => c.status === 'fail')
-              .map((check, index) => (
-                <li key={index}>{check.name}</li>
+              .map((check) => (
+                <li key={check.name}>{check.name}</li>
               ))}
           </ul>
         </Card>

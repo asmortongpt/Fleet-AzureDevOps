@@ -33,6 +33,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import apiClient from "@/lib/api-client"
+import { formatDate } from "@/utils/format-helpers"
 import logger from '@/utils/logger'
 import { brandColors } from '@/theme/designSystem'
 
@@ -222,7 +223,7 @@ export function CustomReportBuilder() {
 
   const loadTemplateMutation = useMutation({
     mutationFn: async ({ templateId, templateName }: { templateId: string; templateName: string }) => {
-      const reportName = `${templateName} - ${new Date().toLocaleDateString()}`
+      const reportName = `${templateName} - ${formatDate(new Date())}`
       return (await apiClient.post(`/custom-reports/from-template/${templateId}`, { report_name: reportName }) as unknown as { data: CustomReport }).data
     },
     onSuccess: (report: CustomReport) => {

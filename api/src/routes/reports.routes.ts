@@ -22,6 +22,7 @@ import { body, validationResult } from 'express-validator';
 
 import { pool } from '../db/connection';
 import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 import { multiLLMOrchestrator } from '../services/multi-llm-orchestrator.service';
 import { logger } from '../utils/logger';
 
@@ -127,6 +128,7 @@ router.get(
 router.post(
   '/scheduled',
   authenticateJWT,
+  csrfProtection,
   reportRateLimiter,
   [
     body('templateId').isString().trim().notEmpty(),
@@ -278,6 +280,7 @@ router.get(
 router.post(
   '/execute',
   authenticateJWT,
+  csrfProtection,
   reportRateLimiter,
   [
     body('reportId').isString().trim().notEmpty(),
@@ -352,6 +355,7 @@ router.post(
 router.post(
   '/ai/generate',
   authenticateJWT,
+  csrfProtection,
   aiRateLimiter,
   [
     body('prompt').isString().trim().isLength({ min: 10, max: 1000 }),
@@ -407,6 +411,7 @@ router.post(
 router.post(
   '/chat',
   authenticateJWT,
+  csrfProtection,
   aiRateLimiter,
   [
     body('message').isString().trim().isLength({ min: 1, max: 500 }),
@@ -462,6 +467,7 @@ router.post(
 router.post(
   '/export',
   authenticateJWT,
+  csrfProtection,
   reportRateLimiter,
   [
     body('reportId').isString().trim().notEmpty(),
@@ -526,6 +532,7 @@ router.post(
 router.post(
   '/custom',
   authenticateJWT,
+  csrfProtection,
   [
     body('definition').isObject(),
     body('name').isString().trim().isLength({ min: 1, max: 200 })
@@ -695,7 +702,7 @@ async function executeReport(
         COUNT(*) FILTER (WHERE status = 'active') as active_count,
         COUNT(*) as total_count
        FROM vehicles
-       WHERE tenant_id = $1`,
+       WHERE tenant_id = $1 AND status != 'retired'`,
       [tenantId]
     )
 

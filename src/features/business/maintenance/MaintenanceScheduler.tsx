@@ -4,6 +4,7 @@ import { maintenanceService } from '../../services/maintenanceService';
 import { vehicleService, Vehicle } from '../../services/vehicleService';
 
 import logger from '@/utils/logger';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 interface MaintenanceSchedulerProps {
   currentTheme: any;
@@ -72,11 +73,43 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
     setSuccessMessage(null);
     setLoading(true);
 
+    if (!formData.vehicleId) {
+      setError('Please select a vehicle');
+      setLoading(false);
+      return;
+    }
+    if (!formData.serviceType) {
+      setError('Please select a service type');
+      setLoading(false);
+      return;
+    }
+    if (!formData.serviceDate) {
+      setError('Please select a service date');
+      setLoading(false);
+      return;
+    }
+    const serviceDate = new Date(formData.serviceDate);
+    if (isNaN(serviceDate.getTime())) {
+      setError('Please enter a valid service date');
+      setLoading(false);
+      return;
+    }
+    if (formData.cost && parseFloat(formData.cost) < 0) {
+      setError('Cost cannot be negative');
+      setLoading(false);
+      return;
+    }
+    if (formData.mileageAtService && parseInt(formData.mileageAtService) < 0) {
+      setError('Mileage cannot be negative');
+      setLoading(false);
+      return;
+    }
+
     try {
       const record = {
         vehicleId: formData.vehicleId,
         serviceType: formData.serviceType,
-        serviceDate: new Date(formData.serviceDate),
+        serviceDate: serviceDate,
         mileageAtService: formData.mileageAtService ? parseInt(formData.mileageAtService) : undefined,
         cost: formData.cost ? parseFloat(formData.cost) : undefined,
         vendor: formData.vendor || undefined,
@@ -199,7 +232,7 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
               <option value="">Select a vehicle</option>
               {vehicles.map(vehicle => (
                 <option key={vehicle.id} value={vehicle.id}>
-                  {vehicle.licensePlate || vehicle.vin} - {vehicle.make} {vehicle.model}
+                  {vehicle.licensePlate || vehicle.vin} - {formatVehicleShortName(vehicle)}
                 </option>
               ))}
             </select>

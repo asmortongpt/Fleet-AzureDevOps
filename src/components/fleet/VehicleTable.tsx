@@ -14,6 +14,7 @@ import { StatusChip } from '@/shared/design-system/components/StatusChip'
 import { Table } from '@/shared/design-system/components/Table'
 import type { Column } from '@/shared/design-system/components/Table'
 import type { VehicleRow, Status, RecordRow } from '@/shared/design-system/types'
+import { formatNumber } from '@/utils/format-helpers'
 
 interface VehicleTableProps {
   vehicles: VehicleRow[]
@@ -68,7 +69,7 @@ export function VehicleTable({ vehicles, onRowClick, onRecordOpen }: VehicleTabl
       sortable: true,
       width: '120',
       accessor: (row: VehicleRow) => (
-        <span style={{ color: 'var(--text)' }}>{row.odometer.toLocaleString()} mi</span>
+        <span style={{ color: 'var(--text)' }}>{formatNumber(row.odometer)} mi</span>
       )
     },
     {
@@ -228,7 +229,7 @@ export function VehicleTable({ vehicles, onRowClick, onRecordOpen }: VehicleTabl
     if (typeof row.odometer === 'number') {
       anomalies.push({
         status: 'info',
-        label: `${row.odometer.toLocaleString()} mi`
+        label: `${formatNumber(row.odometer)} mi`
       })
     }
 

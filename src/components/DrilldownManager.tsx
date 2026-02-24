@@ -6,6 +6,7 @@
 import React from 'react'
 
 import { DrilldownBreadcrumbs } from '@/components/DrilldownBreadcrumbs'
+import { formatDateTime, formatTime, formatCurrency } from '@/utils/format-helpers'
 import { DrilldownPanel } from '@/components/DrilldownPanel'
 import {
   IncidentsDrilldown,
@@ -81,9 +82,111 @@ import {
 } from '@/components/drilldown/RecordDetailPanels'
 import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'
 import { VehicleDetailPanel } from '@/components/drilldown/VehicleDetailPanel'
+import { HealthScoreBreakdown } from '@/components/drilldown/HealthScoreBreakdown'
 import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
+import { ViolationDetailPanel } from '@/components/drilldown/ViolationDetailPanel'
 import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
+import { VehicleAssignmentDrilldown } from '@/components/drilldown/VehicleAssignmentDrilldown'
+import { GarageBayDrilldown } from '@/components/drilldown/GarageBayDrilldown'
+import { HazardZoneDetailPanel } from '@/components/drilldown/HazardZoneDetailPanel'
+import { PolicyDetailPanel } from '@/components/drilldown/PolicyDetailPanel'
 import { DrilldownProvider, useDrilldown } from '@/contexts/DrilldownContext'
+
+// ============================================================================
+// INLINE DETAIL COMPONENTS FOR COMPLIANCE DRILLDOWNS
+// ============================================================================
+
+function ComplianceItemDrilldown() {
+  const { currentLevel } = useDrilldown()
+  const data = currentLevel?.data || {}
+  const rate = data.rate || 0
+  const status = data.status || 'unknown'
+
+  return (
+    <div className="space-y-3 p-1">
+      <div>
+        <h3 className="text-base font-semibold">{data.category || 'Compliance Item'}</h3>
+        <p className="text-sm text-muted-foreground mt-1">Compliance category details</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-2xl font-bold text-emerald-400">{rate}%</div>
+          <div className="text-xs text-white/60 mt-1">Compliance Rate</div>
+        </div>
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className={`text-sm font-semibold px-2 py-1 rounded-full inline-block ${
+            status === 'Compliant' ? 'bg-emerald-500/20 text-emerald-400' :
+            status === 'Warning' ? 'bg-yellow-500/20 text-yellow-400' :
+            'bg-red-500/20 text-red-400'
+          }`}>{status}</div>
+          <div className="text-xs text-white/60 mt-1">Status</div>
+        </div>
+      </div>
+      {data.details && (
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-sm font-medium mb-1">Details</div>
+          <p className="text-sm text-white/60">{data.details}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PolicyCategoryDrilldown() {
+  const { currentLevel } = useDrilldown()
+  const data = currentLevel?.data || {}
+
+  return (
+    <div className="space-y-3 p-1">
+      <div>
+        <h3 className="text-base font-semibold">{data.category || 'Policy Category'}</h3>
+        <p className="text-sm text-muted-foreground mt-1">Policy category overview</p>
+      </div>
+      <div className="bg-white/[0.03] rounded-lg p-3">
+        <div className="text-sm text-white/60">
+          View all policies in the <span className="font-medium text-white/80">{data.category}</span> category.
+          Use the Policies tab to manage individual policy templates and enforcement rules.
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SecurityEventDrilldown() {
+  const { currentLevel } = useDrilldown()
+  const data = currentLevel?.data || {}
+
+  return (
+    <div className="space-y-3 p-1">
+      <div>
+        <h3 className="text-base font-semibold">{currentLevel?.label || 'Security Event'}</h3>
+        <p className="text-sm text-muted-foreground mt-1">Security / policy event details</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-xs text-white/40 mb-1">Event Type</div>
+          <div className="text-sm font-medium">{data.eventType || '\u2014'}</div>
+        </div>
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-xs text-white/40 mb-1">Status</div>
+          <div className="text-sm font-semibold px-2 py-0.5 rounded-full inline-block bg-red-500/20 text-red-400">Review</div>
+        </div>
+      </div>
+      {data.message && (
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-xs text-white/40 mb-1">Details</div>
+          <p className="text-sm text-white/60">{data.message}</p>
+        </div>
+      )}
+      {data.timestamp && (
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-xs text-white/40 mb-1">Occurred</div>
+          <p className="text-sm text-white/60">{formatDateTime(data.timestamp)}</p>
+        </div>
+      )}
+    </div>
+  )
+}
 
 // ============================================================================
 // INLINE DETAIL COMPONENTS FOR COMMUNICATION DRILLDOWNS
@@ -106,11 +209,11 @@ function MessageDetailDrilldown() {
         <p className="text-sm">{data.content || 'Message content not available'}</p>
       </div>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        {data.time && <span>Sent: {new Date(data.time).toLocaleString()}</span>}
+        {data.time && <span>Sent: {formatDateTime(data.time)}</span>}
         {data.reactions !== undefined && <span>Reactions: {data.reactions}</span>}
       </div>
       <div className="flex gap-2">
-        <button className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md">Reply</button>
+        <button className="px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-md">Reply</button>
         <button className="px-3 py-1.5 text-sm border rounded-md">React</button>
         <button className="px-3 py-1.5 text-sm border rounded-md">Share</button>
       </div>
@@ -133,8 +236,8 @@ function ConversationDetailDrilldown() {
         </div>
         <span className={`px-2 py-1 text-xs rounded ${
           data.status === 'resolved' ? 'bg-green-100 text-green-800' :
-          data.status === 'active' ? 'bg-blue-100 text-blue-800' :
-          'bg-yellow-100 text-yellow-800'
+          data.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' :
+          'bg-yellow-500/20 text-yellow-400'
         }`}>
           {data.status || 'unknown'}
         </span>
@@ -146,7 +249,7 @@ function ConversationDetailDrilldown() {
           messages.map((msg: any) => (
             <div key={msg.id || msg.timestamp} className={`flex ${msg.sender === 'ai' ? 'justify-start' : 'justify-end'}`}>
               <div className={`max-w-[80%] p-3 rounded-lg ${
-                msg.sender === 'ai' ? 'bg-muted' : 'bg-primary text-primary-foreground'
+                msg.sender === 'ai' ? 'bg-muted' : 'bg-emerald-600 text-white'
               }`}>
                 <p className="text-sm">{msg.content}</p>
               </div>
@@ -175,7 +278,7 @@ function EmailTemplateDrilldown() {
       <div className="border rounded-lg p-2">
         <div className="mb-2">
           <label className="text-sm font-medium text-muted-foreground">Subject Line</label>
-          <p className="mt-1">{data.subject || data.name || 'N/A'}</p>
+          <p className="mt-1">{data.subject || data.name || '—'}</p>
         </div>
         <div>
           <label className="text-sm font-medium text-muted-foreground">Template Body</label>
@@ -189,7 +292,7 @@ function EmailTemplateDrilldown() {
         </div>
       </div>
       <div className="flex gap-2">
-        <button className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md">Use Template</button>
+        <button className="px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-md">Use Template</button>
         <button className="px-3 py-1.5 text-sm border rounded-md">Edit</button>
         <button className="px-3 py-1.5 text-sm border rounded-md">Preview</button>
       </div>
@@ -238,7 +341,7 @@ function CampaignDetailDrilldown() {
         </div>
       </div>
       <div className="flex gap-2">
-        <button className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md">Resend</button>
+        <button className="px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-md">Resend</button>
         <button className="px-3 py-1.5 text-sm border rounded-md">Export Report</button>
       </div>
     </div>
@@ -262,7 +365,7 @@ function MaintenanceRequestsDrilldown() {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold">{data.title || 'Maintenance Requests'}</h2>
-        <span className="px-2 py-1 text-xs rounded bg-primary/20 text-primary">{requests.length} requests</span>
+        <span className="px-2 py-1 text-xs rounded bg-emerald-500/20 text-emerald-400">{requests.length} requests</span>
       </div>
       <div className="space-y-2">
         {requests.length === 0 ? (
@@ -282,7 +385,7 @@ function MaintenanceRequestsDrilldown() {
               <div className="flex items-center gap-2">
                 <span className={`px-2 py-1 text-xs rounded ${
                   req.priority === 'high' ? 'bg-red-100 text-red-800' :
-                  req.priority === 'normal' ? 'bg-blue-100 text-blue-800' :
+                  req.priority === 'normal' ? 'bg-emerald-500/20 text-emerald-400' :
                   'bg-gray-100 text-gray-800'
                 }`}>{req.priority}</span>
                 <span className="text-xs text-muted-foreground">→</span>
@@ -340,7 +443,7 @@ function SafetyAlertsDrilldown() {
                 </div>
               </div>
               <span className="text-xs text-muted-foreground">
-                {alert.time ? new Date(alert.time).toLocaleTimeString() : 'N/A'}
+                {alert.time ? formatTime(alert.time) : '—'}
               </span>
             </div>
           </div>
@@ -385,7 +488,7 @@ function OperationsCalendarDrilldown() {
                 </div>
               </div>
               <span className={`px-2 py-1 text-xs rounded ${
-                evt.status === 'in-progress' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                evt.status === 'in-progress' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-100 text-gray-800'
               }`}>{evt.status}</span>
             </div>
           </div>
@@ -423,7 +526,7 @@ function DriverShiftsDrilldown() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold">
+                <div className="w-10 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center font-bold">
                   {shift.driver.split(' ').map((n: string) => n[0]).join('')}
                 </div>
                 <div>
@@ -438,6 +541,98 @@ function DriverShiftsDrilldown() {
           </div>
           ))
         )}
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// WORK ORDER CREATE DRILLDOWN
+// ============================================================================
+function WorkOrderCreateDrilldown() {
+  const { currentLevel, push } = useDrilldown()
+  const data = currentLevel?.data || {}
+
+  const quickTypes = [
+    { type: 'preventive', label: 'Preventive Maintenance', desc: 'Scheduled service based on mileage or time interval' },
+    { type: 'corrective', label: 'Corrective Repair', desc: 'Fix a reported issue or breakdown' },
+    { type: 'inspection', label: 'Inspection', desc: 'DOT, safety, or pre-trip inspection' },
+    { type: 'emergency', label: 'Emergency Repair', desc: 'Urgent breakdown requiring immediate attention' },
+  ]
+
+  return (
+    <div className="space-y-2">
+      <div>
+        <h2 className="text-base font-bold">New Work Order</h2>
+        <p className="text-sm text-muted-foreground">Select a work order type to get started</p>
+      </div>
+      <div className="space-y-2">
+        {quickTypes.map(qt => (
+          <div
+            key={qt.type}
+            className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+            onClick={() => push({
+              id: `new-wo-${qt.type}`,
+              type: 'work-orders',
+              label: qt.label,
+              data: { createType: qt.type, ...data }
+            })}
+          >
+            <p className="font-medium">{qt.label}</p>
+            <p className="text-sm text-muted-foreground">{qt.desc}</p>
+          </div>
+        ))}
+      </div>
+      {data.vehicleId && (
+        <div className="bg-muted/30 rounded-lg p-2">
+          <p className="text-sm text-muted-foreground">Vehicle: {data.vehicleName || data.vehicleId}</p>
+        </div>
+      )}
+      {data.requestId && (
+        <div className="bg-muted/30 rounded-lg p-2">
+          <p className="text-sm text-muted-foreground">From maintenance request #{data.requestId}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================================================
+// ASSET CREATE DRILLDOWN
+// ============================================================================
+function AssetCreateDrilldown() {
+  const { currentLevel, push } = useDrilldown()
+  const data = currentLevel?.data || {}
+
+  const assetTypes = [
+    { type: 'vehicle', label: 'Vehicle', desc: 'Trucks, vans, cars, and other road vehicles' },
+    { type: 'trailer', label: 'Trailer', desc: 'Flatbed, dry van, reefer, and specialty trailers' },
+    { type: 'heavy_equipment', label: 'Heavy Equipment', desc: 'Excavators, loaders, forklifts, and cranes' },
+    { type: 'tools', label: 'Tools & Equipment', desc: 'Power tools, diagnostic tools, and shop equipment' },
+  ]
+
+  return (
+    <div className="space-y-2">
+      <div>
+        <h2 className="text-base font-bold">Add New Asset</h2>
+        <p className="text-sm text-muted-foreground">Select an asset category to register</p>
+      </div>
+      <div className="space-y-2">
+        {assetTypes.map(at => (
+          <div
+            key={at.type}
+            className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+            onClick={() => push({
+              id: `new-asset-${at.type}`,
+              type: 'asset-value',
+              label: at.label,
+              data: { createType: at.type, category: at.label, ...data }
+            })}
+          >
+            <p className="font-medium">{at.label}</p>
+            <p className="text-sm text-muted-foreground">{at.desc}</p>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -465,11 +660,11 @@ function AssetValueDrilldown() {
       </div>
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-muted/30 rounded-lg p-2 text-center">
-          <div className="text-sm font-bold">${((data.totalValue || 4200000) / 1000000).toFixed(1)}M</div>
+          <div className="text-sm font-bold">{formatCurrency(data.totalValue || 4200000)}</div>
           <div className="text-sm text-muted-foreground">Total Value</div>
         </div>
         <div className="bg-muted/30 rounded-lg p-2 text-center">
-          <div className="text-sm font-bold text-red-600">${((data.depreciation || 320000) / 1000).toFixed(0)}K</div>
+          <div className="text-sm font-bold text-red-600">{formatCurrency(data.depreciation || 320000)}</div>
           <div className="text-sm text-muted-foreground">YTD Depreciation</div>
         </div>
         <div className="bg-muted/30 rounded-lg p-2 text-center">
@@ -492,8 +687,8 @@ function AssetValueDrilldown() {
                   <p className="text-sm text-muted-foreground">{cat.count} assets</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">${(cat.value / 1000000).toFixed(2)}M</p>
-                  <p className="text-xs text-red-500">-${(cat.depreciation / 1000).toFixed(0)}K/yr</p>
+                  <p className="font-medium">{formatCurrency(cat.value)}</p>
+                  <p className="text-xs text-red-500">-{formatCurrency(cat.depreciation)}/yr</p>
                 </div>
               </div>
             </div>
@@ -558,10 +753,18 @@ function DrilldownContent() {
     // Vehicle drilldown hierarchy
     // ============================================
     case 'vehicle':
+    case 'vehicle-detail':
+    case 'vehicle-details':
       return <VehicleDetailPanel vehicleId={currentLevel.data?.vehicleId} />
 
-    case 'vehicle-detail':
-      return <VehicleDetailPanel vehicleId={currentLevel.data?.vehicleId} />
+    case 'health-breakdown':
+      return (
+        <HealthScoreBreakdown
+          vehicleId={currentLevel.data?.vehicleId}
+          condition={currentLevel.data?.condition}
+          healthScore={currentLevel.data?.healthScore}
+        />
+      )
 
     case 'vehicle-trips':
       return (
@@ -570,6 +773,21 @@ function DrilldownContent() {
           vehicleName={currentLevel.data?.vehicleName}
         />
       )
+
+    case 'vehicle-assignments':
+      return (
+        <VehicleAssignmentDrilldown
+          filter={currentLevel.data?.vehicleId}
+        />
+      )
+
+    case 'vehicle-maintenance':
+    case 'vehicle-service-history':
+    case 'asset-maintenance':
+      return <MaintenanceDrilldown />
+
+    case 'vehicle-alerts':
+      return <SafetyAlertsDrilldown />
 
     case 'trip-telemetry':
       return (
@@ -608,7 +826,9 @@ function DrilldownContent() {
     // Maintenance drilldown hierarchy
     // ============================================
     case 'workOrder':
-      return <WorkOrderDetailPanel workOrderId={currentLevel.data?.workOrderId} />
+    case 'work-order':
+    case 'workorder':
+      return <WorkOrderDetailPanel workOrderId={currentLevel.data?.workOrderId || currentLevel.data?.id} />
 
     case 'work-order-detail':
       return <WorkOrderDetailPanel workOrderId={currentLevel.data?.workOrderId} />
@@ -629,6 +849,9 @@ function DrilldownContent() {
         />
       )
 
+    case 'work-order-create':
+    case 'create-work-order':
+      return <WorkOrderCreateDrilldown />
 
     // ============================================
     // Drivers Hub Drilldowns
@@ -636,11 +859,13 @@ function DrilldownContent() {
     case 'drivers-roster':
     case 'total-drivers':
     case 'on-duty':
+    case 'drivers-list':
       return <DriversRosterDrilldown />
 
     case 'driver-performance-hub':
     case 'top-performers':
     case 'needs-coaching':
+    case 'driver-rankings':
       return <DriverPerformanceDrilldown />
 
     case 'driver-scorecard':
@@ -666,7 +891,27 @@ function DrilldownContent() {
       return <MaintenanceCalendarDrilldown />
 
     case 'maintenance-requests':
+    case 'maintenance-request-detail':
       return <MaintenanceRequestsDrilldown />
+
+    case 'garage-bay':
+    case 'service-bay':
+      return (
+        <GarageBayDrilldown
+          bayId={currentLevel.data?.bayId}
+          bayNumber={currentLevel.data?.bayNumber}
+        />
+      )
+
+    case 'maintenance-schedule':
+    case 'scheduled-item':
+      return <MaintenanceCalendarDrilldown />
+
+    case 'cost-breakdown':
+      return <CostAnalysisDrilldown />
+
+    case 'create-corrective-actions':
+      return <WorkOrderCreateDrilldown />
 
     // ============================================
     // Analytics Hub Drilldowns
@@ -702,7 +947,15 @@ function DrilldownContent() {
       return <VideoTelematicsDrilldown />
 
     case 'safety-alerts':
+    case 'safety-alert':
       return <SafetyAlertsDrilldown />
+
+    case 'hazard-zone':
+      return (
+        <HazardZoneDetailPanel
+          hazardZoneId={currentLevel.data?.zoneId}
+        />
+      )
 
     // ============================================
     // Operations Hub Drilldowns
@@ -716,6 +969,7 @@ function DrilldownContent() {
     case 'routes':
     case 'active-routes':
     case 'optimized-today':
+    case 'routes-list':
       return <RoutesDrilldown />
 
     case 'tasks':
@@ -745,10 +999,16 @@ function DrilldownContent() {
     case 'purchase-orders':
     case 'open-pos':
     case 'in-transit-pos':
+    case 'vendor-orders':
+    case 'po-create':
       return <PurchaseOrdersDrilldown />
+
+    case 'vendor-invoices':
+      return <InvoiceDetailPanel invoiceId={currentLevel.data?.invoiceId || currentLevel.data?.id} />
 
     case 'fuel-purchasing':
     case 'fuel-cards':
+    case 'fuel-transaction':
       return <FuelPurchasingDrilldown />
 
     // ============================================
@@ -825,6 +1085,26 @@ function DrilldownContent() {
     case 'days-safe':
       return <CSADrilldown />
 
+    case 'compliance-item':
+    case 'compliance-renewal':
+    case 'compliance-zone':
+      return <ComplianceItemDrilldown />
+
+    case 'policy':
+    case 'policies':
+      return <PolicyDetailPanel policyId={currentLevel.data?.policyId || currentLevel.id} />
+
+    case 'policy-category':
+      return <PolicyCategoryDrilldown />
+
+    case 'violation':
+      // Security events (from audit log) pass eventType in data — show inline
+      // Real policy violations have a UUID violationId — use ViolationDetailPanel
+      if (currentLevel.data?.eventType) {
+        return <SecurityEventDrilldown />
+      }
+      return <ViolationDetailPanel violationId={currentLevel.data?.violationId || currentLevel.id} />
+
     // ============================================
     // Admin Hub Drilldowns
     // ============================================
@@ -837,6 +1117,7 @@ function DrilldownContent() {
     case 'critical-alerts':
     case 'resolved-today':
     case 'suppressed':
+    case 'alert-detail':
       return <AlertsDrilldown />
 
     case 'files':
@@ -867,7 +1148,11 @@ function DrilldownContent() {
     case 'asset':
     case 'asset-detail':
     case 'equipment':
+    case 'asset-history':
       return <AssetDetailPanel assetId={currentLevel.data?.assetId || currentLevel.data?.id} />
+
+    case 'asset-create':
+      return <AssetCreateDrilldown />
 
     case 'asset-value':
       return <AssetValueDrilldown />
@@ -884,6 +1169,7 @@ function DrilldownContent() {
     // ============================================
     case 'route':
     case 'route-detail':
+    case 'route-stops':
       return <RouteDetailPanel routeId={currentLevel.data?.routeId || currentLevel.data?.id} />
 
     // ============================================
@@ -898,7 +1184,11 @@ function DrilldownContent() {
     // ============================================
     case 'incident':
     case 'incident-detail':
+    case 'incident-documents':
       return <IncidentDetailPanel incidentId={currentLevel.data?.incidentId || currentLevel.data?.id} />
+
+    case 'incident-create':
+      return <IncidentsDrilldown />
 
     // ============================================
     // Vendor drilldown hierarchy (single vendor detail)
@@ -912,6 +1202,7 @@ function DrilldownContent() {
     // ============================================
     case 'part':
     case 'part-detail':
+    case 'part-history':
       return <PartDetailPanel partId={currentLevel.data?.partId || currentLevel.data?.id} />
 
     // ============================================
@@ -934,6 +1225,60 @@ function DrilldownContent() {
     case 'inspection':
     case 'inspection-detail':
       return <InspectionDetailPanel inspectionId={currentLevel.data?.inspectionId || currentLevel.data?.id} />
+
+    // ============================================
+    // Training / Certification drilldowns
+    // ============================================
+    case 'training-schedule':
+    case 'training-renewal':
+    case 'training-certificate':
+      return <ComplianceItemDrilldown />
+
+    // ============================================
+    // Policy execution detail
+    // ============================================
+    case 'execution-detail':
+      return <ComplianceItemDrilldown />
+
+    // ============================================
+    // Audit / User / Report drilldowns (Admin & Compliance)
+    // ============================================
+    case 'audit':
+    case 'audit-log':
+    case 'report':
+      return <ComplianceItemDrilldown />
+
+    case 'user':
+    case 'technician':
+      return <SystemHealthDrilldown />
+
+    // ============================================
+    // Equipment / Inventory item detail (Asset Hub)
+    // ============================================
+    case 'equipment-detail':
+    case 'inventory-item-detail':
+      return <AssetDetailPanel assetId={currentLevel.data?.assetId || currentLevel.data?.id} />
+
+    // ============================================
+    // Service record / vendor detail (Maintenance Hub)
+    // ============================================
+    case 'service-record-detail':
+      return <WorkOrderDetailPanel workOrderId={currentLevel.data?.workOrderId || currentLevel.data?.id} />
+
+    case 'service-vendor-detail':
+      return <VendorDetailPanel vendorId={currentLevel.data?.vendorId || currentLevel.data?.id} />
+
+    // ============================================
+    // Schedule (calendar item from HubDrilldowns)
+    // ============================================
+    case 'schedule':
+      return <MaintenanceCalendarDrilldown />
+
+    // ============================================
+    // Job (from TaskDetailPanel)
+    // ============================================
+    case 'job':
+      return <TasksDrilldown />
 
     // ============================================
     // Fallback for unknown types

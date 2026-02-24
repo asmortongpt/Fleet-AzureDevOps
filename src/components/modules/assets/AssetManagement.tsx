@@ -25,6 +25,8 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { useAuth } from "@/contexts"
+import { formatEnum } from "@/utils/format-enum"
+import { formatCurrency } from "@/utils/format-helpers"
 
 
 
@@ -174,21 +176,21 @@ export function AssetManagement() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{asset.asset_type}</Badge>
+                    <Badge variant="outline">{formatEnum(asset.asset_type)}</Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className={getStatusColor(asset.status)}>
-                      {asset.status}
+                      {formatEnum(asset.status)}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className={getConditionColor(asset.condition)}>
-                      {asset.condition}
+                      {formatEnum(asset.condition)}
                     </Badge>
                   </TableCell>
-                  <TableCell>{asset.location || "N/A"}</TableCell>
-                  <TableCell>{asset.assigned_to_name || "Unassigned"}</TableCell>
-                  <TableCell>${asset.current_value?.toLocaleString() || "0"}</TableCell>
+                  <TableCell>{asset.location || "—"}</TableCell>
+                  <TableCell>{asset.assigned_to_name || "—"}</TableCell>
+                  <TableCell>{formatCurrency(asset.current_value ?? 0)}</TableCell>
                 </TableRow>
               ))}
               {filteredAssets.length === 0 && (

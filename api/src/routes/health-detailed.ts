@@ -161,12 +161,10 @@ async function checkDatabase(): Promise<ComponentHealth> {
       lastCheck: new Date().toISOString()
     };
   } catch (error: unknown) {
+    logger.error('Database health check failed:', error);
     return {
       status: 'critical',
       message: 'Database connection failed',
-      details: {
-        error: error instanceof Error ? error.message : 'An unexpected error occurred'
-      },
       latency: Date.now() - startTime,
       lastCheck: new Date().toISOString()
     };
@@ -190,8 +188,8 @@ async function checkAzureAd(): Promise<ComponentHealth> {
       status: 'critical',
       message: 'Azure AD not fully configured',
       details: {
-        missingVariables: missingVars,
-        configured: requiredVars.filter(v => process.env[v])
+        missingCount: missingVars.length,
+        totalRequired: requiredVars.length
       }
     };
   }
@@ -200,8 +198,8 @@ async function checkAzureAd(): Promise<ComponentHealth> {
     status: 'healthy',
     message: 'Azure AD properly configured',
     details: {
-      clientId: process.env.AZURE_AD_CLIENT_ID?.substring(0, 8) + '...',
-      tenantId: process.env.AZURE_AD_TENANT_ID?.substring(0, 8) + '...',
+      clientIdConfigured: !!process.env.AZURE_AD_CLIENT_ID,
+      tenantIdConfigured: !!process.env.AZURE_AD_TENANT_ID,
       hasSecret: !!process.env.AZURE_AD_CLIENT_SECRET
     }
   };
@@ -289,11 +287,11 @@ async function checkCache(): Promise<ComponentHealth> {
       }
     };
   } catch (error: unknown) {
+    logger.error('Redis health check failed:', error);
     return {
       status: 'critical',
       message: 'Redis connection failed',
       details: {
-        error: error instanceof Error ? error.message : 'An unexpected error occurred',
         configured: true
       }
     };
@@ -325,12 +323,10 @@ async function checkDisk(): Promise<ComponentHealth> {
       }
     };
   } catch (error: unknown) {
+    logger.error('Disk health check failed:', error);
     return {
       status: 'degraded',
-      message: `Could not check disk space`,
-      details: {
-        error: error instanceof Error ? error.message : 'An unexpected error occurred'
-      }
+      message: 'Could not check disk space'
     };
   }
 }
@@ -469,10 +465,10 @@ overallStatus = 'degraded';
     res.status(httpStatus).json(response);
 
   } catch (error: unknown) {
+    logger.error('Health check failed:', error);
     res.status(500).json({
       status: 'critical',
       message: 'Health check failed',
-      error: error instanceof Error ? error.message : 'An unexpected error occurred',
       timestamp: new Date().toISOString()
     });
   }
@@ -515,11 +511,11 @@ router.get('/component/:name', requireAdmin, async (req: Request, res: Response)
       timestamp: new Date().toISOString()
     });
   } catch (error: unknown) {
+    logger.error(`Health check for component ${name} failed:`, error);
     res.status(500).json({
       component: name,
       status: 'critical',
-      message: 'Check failed',
-      error: error instanceof Error ? error.message : 'An unexpected error occurred'
+      message: 'Check failed'
     });
   }
 });

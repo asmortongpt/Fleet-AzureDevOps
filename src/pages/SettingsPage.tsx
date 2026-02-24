@@ -7,6 +7,7 @@ import { useAtom } from 'jotai'
 import { Settings, Palette, Bell, Car, ShieldCheck, Lock, Code, Save, Check } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { AdvancedSettings } from '@/components/settings/AdvancedSettings'
 import { AppearanceSettings } from '@/components/settings/AppearanceSettings'
 import { DataPrivacySettings } from '@/components/settings/DataPrivacySettings'
@@ -92,12 +93,29 @@ const settingsCategories: SettingsCategory[] = [
   },
 ]
 
+const validSettingsTabs = new Set<SettingsTab>(['general', 'appearance', 'notifications', 'fleet', 'security', 'privacy', 'advanced'])
+
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('general')
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    const hash = window.location.hash.replace('#', '') as SettingsTab
+    return validSettingsTabs.has(hash) ? hash : 'general'
+  })
   const [hasUnsavedChanges, setHasUnsavedChanges] = useAtom(hasUnsavedChangesAtom)
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
   const [pendingTab, setPendingTab] = useState<SettingsTab | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
+
+  // Sync from hash changes (e.g. navigated from AdminConfigurationHub with a hash)
+  useEffect(() => {
+    const onHashChange = () => {
+      const hash = window.location.hash.replace('#', '') as SettingsTab
+      if (validSettingsTabs.has(hash) && !hasUnsavedChanges) {
+        setActiveTab(hash)
+      }
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [hasUnsavedChanges])
 
   // Handle keyboard shortcuts (Cmd+S / Ctrl+S to save)
   useEffect(() => {
@@ -175,6 +193,7 @@ export default function SettingsPage() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -292,5 +311,6 @@ export default function SettingsPage() {
         Press <kbd className="px-2 py-1 bg-muted rounded">Cmd/Ctrl + S</kbd> to save changes
       </div>
     </div>
+    </ErrorBoundary>
   )
 }

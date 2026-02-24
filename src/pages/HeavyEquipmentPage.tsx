@@ -1,5 +1,7 @@
 import { lazy, Suspense } from "react"
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+
 // Re-export EquipmentDashboard as the Heavy Equipment page
 const EquipmentDashboard = lazy(() =>
     import("@/components/modules/assets/EquipmentDashboard").then(m => ({ default: m.EquipmentDashboard }))
@@ -16,8 +18,10 @@ const LoadingSpinner = () => (
 
 export default function HeavyEquipmentPage() {
     return (
+        <ErrorBoundary>
         <Suspense fallback={<LoadingSpinner />}>
             <EquipmentDashboard />
         </Suspense>
+        </ErrorBoundary>
     )
 }

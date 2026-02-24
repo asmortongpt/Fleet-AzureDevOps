@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { flexUuid } from '../middleware/validation';
+
 /**
  * Comprehensive Zod validation schemas for Vehicles
  * Implements CRIT-B-003: Input validation across all API endpoints
@@ -17,7 +19,17 @@ const vehicleStatusEnum = z.enum([
   'maintenance',
   'sold',
   'retired',
-  'out_of_service'
+  'out_of_service',
+  'idle',
+  'charging',
+  'service',
+  'emergency',
+  'offline',
+  'assigned',
+  'dispatched',
+  'en_route',
+  'on_site',
+  'completed'
 ]);
 
 // Fuel type enum
@@ -158,11 +170,11 @@ export const vehicleCreateSchema = z.object({
 
   isRoadLegal: z.boolean().optional(),
 
-  locationId: z.string().uuid('Invalid location ID format').optional(),
+  locationId: flexUuid.optional(),
 
-  groupId: z.string().uuid('Invalid group ID format').optional(),
+  groupId: flexUuid.optional(),
 
-  fleetId: z.string().uuid('Invalid fleet ID format').optional(),
+  fleetId: flexUuid.optional(),
 }).refine(data => {
   // Validate that nextServiceDate is after lastServiceDate if both provided
   if (data.lastServiceDate && data.nextServiceDate) {
@@ -291,11 +303,11 @@ export const vehicleUpdateSchema = z.object({
 
   isRoadLegal: z.boolean().optional(),
 
-  locationId: z.string().uuid('Invalid location ID format').nullable().optional(),
+  locationId: flexUuid.nullable().optional(),
 
-  groupId: z.string().uuid('Invalid group ID format').nullable().optional(),
+  groupId: flexUuid.nullable().optional(),
 
-  fleetId: z.string().uuid('Invalid fleet ID format').nullable().optional(),
+  fleetId: flexUuid.nullable().optional(),
 });
 
 /**
@@ -311,9 +323,9 @@ export const vehicleQuerySchema = z.object({
   operational_status: z.string().optional(),
   primary_metric: z.string().optional(),
   is_road_legal: z.enum(['true', 'false']).optional(),
-  location_id: z.string().uuid().optional(),
-  group_id: z.string().uuid().optional(),
-  fleet_id: z.string().uuid().optional(),
+  location_id: flexUuid.optional(),
+  group_id: flexUuid.optional(),
+  fleet_id: flexUuid.optional(),
   status: vehicleStatusEnum.optional(),
   fuel_type: fuelTypeEnum.optional(),
   sort: z.string().optional(),
@@ -324,7 +336,7 @@ export const vehicleQuerySchema = z.object({
  * Vehicle ID parameter schema
  */
 export const vehicleIdSchema = z.object({
-  id: z.string().uuid('Invalid vehicle ID format')
+  id: flexUuid
 });
 
 // Type exports

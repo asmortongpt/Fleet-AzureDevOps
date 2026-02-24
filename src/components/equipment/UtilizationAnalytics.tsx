@@ -32,6 +32,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { apiClient } from '@/lib/api-client'
 import { isSuccessResponse } from '@/lib/schemas/responses'
 import type { ApiResponse } from '@/lib/schemas/responses'
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 interface UtilizationSummary {
@@ -123,7 +124,7 @@ export function UtilizationAnalytics({
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold text-green-600">
-              {utilization.utilization_rate.toFixed(1)}%
+              {(utilization.utilization_rate ?? 0).toFixed(1)}%
             </div>
             <Progress value={utilization.utilization_rate} className="mt-2" />
           </CardContent>
@@ -138,7 +139,7 @@ export function UtilizationAnalytics({
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold">
-              {utilization.total_productive_hours.toFixed(1)}
+              {(utilization.total_productive_hours ?? 0).toFixed(1)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {totalHours > 0 ? ((utilization.total_productive_hours / totalHours) * 100).toFixed(1) : 0}% of total
@@ -155,10 +156,10 @@ export function UtilizationAnalytics({
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold text-blue-800">
-              ${utilization.total_revenue.toLocaleString()}
+              {formatCurrency(utilization.total_revenue)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              ${revenuePerHour.toFixed(2)}/hr
+              {formatCurrency(revenuePerHour)}/hr
             </p>
           </CardContent>
         </Card>
@@ -172,7 +173,7 @@ export function UtilizationAnalytics({
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold">
-              {utilization.total_billable_hours.toFixed(1)}
+              {(utilization.total_billable_hours ?? 0).toFixed(1)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {utilization.total_productive_hours > 0
@@ -203,7 +204,7 @@ export function UtilizationAnalytics({
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Productive Hours</span>
                   <span className="text-sm font-semibold text-green-600">
-                    {utilization.total_productive_hours.toFixed(1)} hrs
+                    {(utilization.total_productive_hours ?? 0).toFixed(1)} hrs
                   </span>
                 </div>
                 <Progress
@@ -216,7 +217,7 @@ export function UtilizationAnalytics({
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Idle Hours</span>
                   <span className="text-sm font-semibold text-yellow-600">
-                    {utilization.total_idle_hours.toFixed(1)} hrs
+                    {(utilization.total_idle_hours ?? 0).toFixed(1)} hrs
                   </span>
                 </div>
                 <Progress
@@ -229,7 +230,7 @@ export function UtilizationAnalytics({
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Maintenance Hours</span>
                   <span className="text-sm font-semibold text-orange-600">
-                    {utilization.total_maintenance_hours.toFixed(1)} hrs
+                    {(utilization.total_maintenance_hours ?? 0).toFixed(1)} hrs
                   </span>
                 </div>
                 <Progress
@@ -242,7 +243,7 @@ export function UtilizationAnalytics({
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Down Time</span>
                   <span className="text-sm font-semibold text-red-600">
-                    {utilization.total_down_hours.toFixed(1)} hrs
+                    {(utilization.total_down_hours ?? 0).toFixed(1)} hrs
                   </span>
                 </div>
                 <Progress
@@ -271,7 +272,7 @@ export function UtilizationAnalytics({
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm">Utilization Rate</span>
-                  <span className="font-semibold">{utilization.utilization_rate.toFixed(1)}%</span>
+                  <span className="font-semibold">{(utilization.utilization_rate ?? 0).toFixed(1)}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm">Billable Rate</span>
@@ -304,21 +305,21 @@ export function UtilizationAnalytics({
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm">Revenue/Hour</span>
-                  <span className="font-semibold">${revenuePerHour.toFixed(2)}</span>
+                  <span className="font-semibold">{formatCurrency(revenuePerHour)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm">Revenue/Day</span>
                   <span className="font-semibold">
-                    ${utilization.records.length > 0
-                      ? (utilization.total_revenue / utilization.records.length).toFixed(2)
-                      : '0.00'
+                    {utilization.records.length > 0
+                      ? formatCurrency(utilization.total_revenue / utilization.records.length)
+                      : '$0.00'
                     }
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm">Total Revenue</span>
                   <span className="font-semibold text-blue-800">
-                    ${utilization.total_revenue.toLocaleString()}
+                    {formatCurrency(utilization.total_revenue)}
                   </span>
                 </div>
               </CardContent>
@@ -360,7 +361,7 @@ export function UtilizationAnalytics({
                     utilization.records.map((record) => (
                       <TableRow key={record.id}>
                         <TableCell className="font-medium">
-                          {new Date(record.log_date).toLocaleDateString()}
+                          {formatDate(record.log_date)}
                         </TableCell>
                         <TableCell>{record.operator_name || '-'}</TableCell>
                         <TableCell className="text-sm">{record.job_site || '-'}</TableCell>
@@ -374,7 +375,7 @@ export function UtilizationAnalytics({
                           {parseFloat(record.billable_hours.toString()).toFixed(1)}h
                         </TableCell>
                         <TableCell className="text-blue-800 font-semibold">
-                          ${parseFloat(record.total_revenue.toString()).toLocaleString()}
+                          {formatCurrency(parseFloat(record.total_revenue.toString()))}
                         </TableCell>
                       </TableRow>
                     ))

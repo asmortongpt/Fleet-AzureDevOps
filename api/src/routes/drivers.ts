@@ -230,7 +230,22 @@ router.get(
         })
       }
 
-      // TODO: Get trip statistics when trips table is implemented
+      // Get trip statistics from the trips table
+      const tripStatsResult = await tenantSafeQuery(
+        `SELECT
+          COUNT(DISTINCT driver_id) as drivers_with_trips,
+          COUNT(*) as total_trips,
+          COALESCE(SUM(distance_miles), 0) as total_miles,
+          COALESCE(AVG(driver_score), 0) as avg_driver_score
+        FROM trips
+        WHERE tenant_id = $1
+          AND start_time >= NOW() - INTERVAL '30 days'`,
+        [req.user!.tenant_id!],
+        req.user!.tenant_id!
+      )
+
+      const tripStats = tripStatsResult.rows[0] || {}
+
       res.json({
         data: {
           total_drivers: parseInt(stats.total_drivers) || 0,
@@ -238,15 +253,52 @@ router.get(
           inactive_drivers: parseInt(stats.inactive_drivers) || 0,
           suspended_drivers: parseInt(stats.suspended_drivers) || 0,
           avg_performance_score: stats.avg_performance_score !== null && stats.avg_performance_score !== undefined ? parseFloat(stats.avg_performance_score) : 0,
-          drivers_with_trips_last_30_days: 0,
-          total_trips_last_30_days: 0,
-          total_miles_last_30_days: 0,
-          avg_driver_score_last_30_days: 0
+          drivers_with_trips_last_30_days: parseInt(tripStats.drivers_with_trips) || 0,
+          total_trips_last_30_days: parseInt(tripStats.total_trips) || 0,
+          total_miles_last_30_days: parseFloat(tripStats.total_miles) || 0,
+          avg_driver_score_last_30_days: parseFloat(tripStats.avg_driver_score) || 0
         }
       })
     } catch (error) {
       logger.error(`Get driver statistics error:`, error)
       res.status(500).json({ error: `Internal server error` })
+    }
+  }
+)
+
+// GET /drivers/performance-trend - Monthly driver performance trend data (MUST be before /:id)
+router.get(
+  '/performance-trend',
+  requirePermission('driver:view:team'),
+  auditLog({ action: 'READ', resourceType: 'driver_scores_history' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const tenantId = req.user!.tenant_id!
+
+      const result = await tenantSafeQuery(
+        `SELECT
+          TO_CHAR(DATE_TRUNC('month', date), 'Mon YY') as month_label,
+          DATE_TRUNC('month', date) as month,
+          ROUND(AVG(safety_score)) as avg_score,
+          SUM(harsh_events_count + speeding_events_count) as violations
+        FROM driver_scores_history
+        WHERE tenant_id = $1
+        GROUP BY DATE_TRUNC('month', date)
+        ORDER BY month`,
+        [tenantId],
+        tenantId
+      )
+
+      const data = result.rows.map((row: any) => ({
+        date: row.month_label,
+        avgScore: row.avg_score !== null ? Number(row.avg_score) : 0,
+        violations: row.violations !== null ? Number(row.violations) : 0
+      }))
+
+      res.json({ success: true, data })
+    } catch (error) {
+      logger.error('Get driver performance trend error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -273,9 +325,15 @@ router.get(
           d.termination_date,
           d.status,
           d.performance_score,
+          d.safety_score,
           d.emergency_contact_name,
           d.emergency_contact_phone,
           d.metadata,
+          d.department,
+          d.avatar_url,
+          d.hos_status,
+          d.hours_available,
+          d.assigned_vehicle_id,
           u.first_name,
           u.last_name,
           u.email,
@@ -711,7 +769,7 @@ router.delete(
         return res.status(404).json({ error: 'Driver not found' })
       }
 
-      res.json({ message: 'Driver deleted successfully' })
+      res.json({ success: true, message: 'Driver deleted successfully' })
     } catch (error) {
       logger.error('Delete driver error:', error)
       res.status(500).json({ error: 'Internal server error' })

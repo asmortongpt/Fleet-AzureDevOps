@@ -56,6 +56,9 @@ export function CompactMetricCard({
     <div
       className={cn("metric-card-compact", className)}
       onClick={onClick}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
       data-testid={testId}
     >
       {icon && (

@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 import { HardwareConfigurationPanel } from './HardwareConfigurationPanel'
 
 import { Badge } from '@/components/ui/badge'
+import { formatTime } from '@/utils/format-helpers'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import logger from '@/utils/logger';
@@ -38,7 +39,7 @@ export function WithEventHandlersExample() {
   const [activityLog, setActivityLog] = useState<string[]>([])
 
   const handleProviderAdded = (provider: string) => {
-    const message = `Added ${provider} provider at ${new Date().toLocaleTimeString()}`
+    const message = `Added ${provider} provider at ${formatTime(new Date())}`
     setProviderCount(prev => prev + 1)
     setActivityLog(prev => [message, ...prev].slice(0, 10))
     toast.success(`${provider} provider added successfully!`, {
@@ -47,7 +48,7 @@ export function WithEventHandlersExample() {
   }
 
   const handleProviderRemoved = (provider: string) => {
-    const message = `Removed ${provider} provider at ${new Date().toLocaleTimeString()}`
+    const message = `Removed ${provider} provider at ${formatTime(new Date())}`
     setProviderCount(prev => prev - 1)
     setActivityLog(prev => [message, ...prev].slice(0, 10))
     toast(`${provider} provider removed`, {
@@ -84,8 +85,8 @@ export function WithEventHandlersExample() {
               <p className="text-sm text-muted-foreground">No activity yet</p>
             ) : (
               <ul className="space-y-2">
-                {activityLog.map((log, index) => (
-                  <li key={index} className="text-sm border-l-2 border-primary pl-3 py-1">
+                {activityLog.map((log) => (
+                  <li key={log} className="text-sm border-l-2 border-primary pl-3 py-1">
                     {log}
                   </li>
                 ))}

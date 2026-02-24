@@ -21,7 +21,8 @@ import {
 import { AlertTriangle, Car } from 'lucide-react';
 import React, { useMemo } from 'react';
 import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+
+import { useNavigation } from '@/contexts/NavigationContext';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -71,7 +72,7 @@ export function MaintenanceManagerDashboard() {
         ? (workOrders as any).data
         : [];
 
-    const open = rows.filter((order: any) => ['open', 'pending'].includes(String(order.status || '').toLowerCase())).length;
+    const open = rows.filter((order: any) => ['pending'].includes(String(order.status || '').toLowerCase())).length;
     const in_progress = rows.filter((order: any) => ['in-progress', 'in_progress', 'active'].includes(String(order.status || '').toLowerCase())).length;
     const completed_this_week = rows.filter((order: any) => {
       const date = new Date(order.completedDate || order.completed_date || order.completed_at || order.updated_at || order.created_at || 0);
@@ -125,56 +126,55 @@ export function MaintenanceManagerDashboard() {
     return { total_items, below_reorder, in_stock };
   }, [fleetData]);
 
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
 
-  // Quick actions
+  // Quick actions - Navigate to specific pages
   const handleCreateWorkOrder = (vehicleId?: number) => {
     if (vehicleId) {
       toast.success(`Creating work order for Vehicle #${vehicleId}...`);
-      navigate(`/maintenance?action=new-work-order&vehicleId=${vehicleId}`);
     } else {
       toast.success('Opening work order creation form...');
-      navigate('/maintenance?action=new-work-order');
     }
+    navigateTo('maintenance');
   };
 
   const handleSchedulePM = () => {
     toast.success('Opening preventive maintenance scheduler...');
-    navigate('/maintenance?tab=scheduling');
+    navigateTo('maintenance');
   };
 
   const handleSearchParts = () => {
     toast.success('Opening parts search interface...');
-    navigate('/maintenance?tab=parts');
+    navigateTo('assets');
   };
 
   const handleAssignMechanic = () => {
     toast('Opening mechanic assignment dialog...');
-    navigate('/maintenance?tab=queue&action=assign');
+    navigateTo('maintenance');
   };
 
   const handleViewQueue = () => {
     toast('Navigating to work order queue...');
-    navigate('/maintenance?tab=queue');
+    navigateTo('maintenance');
   };
 
   const handleViewCalendar = () => {
     toast('Opening maintenance calendar...');
-    navigate('/maintenance?tab=calendar');
+    navigateTo('maintenance');
   };
 
   const handleReorderParts = () => {
     toast.success('Opening parts reorder form...');
-    navigate('/maintenance?tab=parts&action=reorder');
+    navigateTo('procurement');
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 p-2">
+    <div className="min-h-screen bg-[#111] p-2">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h1 className="text-sm font-bold text-white mb-1">Maintenance Dashboard</h1>
-          <p className="text-sm text-slate-700">Work Order Management & Preventive Maintenance</p>
+          <p className="text-sm text-white/40">Work Order Management & Preventive Maintenance</p>
         </div>
         <Button size="sm"
           onClick={handleViewCalendar}
@@ -187,7 +187,7 @@ export function MaintenanceManagerDashboard() {
       </div>
 
       {/* Work Queue Summary */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-amber-500/30 p-2 mb-3">
+      <Card className="bg-[#242424] backdrop-blur-xl border-amber-500/30 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <Wrench className="w-4 h-4 text-amber-400" />
           <h2 className="text-sm font-bold text-white">Work Queue</h2>
@@ -218,13 +218,13 @@ export function MaintenanceManagerDashboard() {
 
           {/* In Progress */}
           <div
-            className="bg-blue-950/30 rounded-md p-2 border border-blue-500/30 hover:border-blue-400/50 transition-all"
+            className="bg-white/[0.04] rounded-md p-2 border border-white/[0.08] hover:border-white/[0.12] transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Wrench className="w-4 h-4 text-blue-700" />
+              <Wrench className="w-4 h-4 text-emerald-400" />
               <span className="text-sm font-black text-white">{workOrderStats.in_progress}</span>
             </div>
-            <p className="text-blue-300 font-semibold">In Progress</p>
+            <p className="text-emerald-300 font-semibold">In Progress</p>
           </div>
 
           {/* Completed This Week */}
@@ -271,7 +271,7 @@ export function MaintenanceManagerDashboard() {
         </Button>
         <Button size="sm"
           onClick={handleSearchParts}
-          className="bg-slate-600 hover:bg-slate-700 text-white"
+          className="bg-white/[0.15] hover:bg-white/[0.06] text-white"
         >
           <Package className="w-4 h-4 mr-2" />
           Parts Search
@@ -280,7 +280,7 @@ export function MaintenanceManagerDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Overdue Maintenance */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+        <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-red-400" />
@@ -301,7 +301,7 @@ export function MaintenanceManagerDashboard() {
                     <Car className="w-4 h-4 text-red-400" />
                     <div>
                       <p className="font-bold text-white">{item.vehicle_name}</p>
-                      <p className="text-sm text-slate-300">{item.maintenance_type}</p>
+                      <p className="text-sm text-white/60">{item.maintenance_type}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -327,17 +327,17 @@ export function MaintenanceManagerDashboard() {
         {/* Upcoming Maintenance & Parts Inventory */}
         <div className="space-y-2">
           {/* Upcoming Maintenance */}
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+          <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
             <div className="flex items-center gap-2 mb-3">
               <Calendar className="w-4 h-4 text-cyan-400" />
               <h2 className="text-sm font-bold text-white">Upcoming Maintenance (Next 7 Days)</h2>
             </div>
 
             <div className="space-y-3">
-              {upcomingSchedule.map((schedule, idx) => (
+              {upcomingSchedule.map((schedule) => (
                 <div
-                  key={idx}
-                  className="flex items-center justify-between bg-slate-900/50 rounded-lg p-3 border border-slate-700"
+                  key={schedule.date}
+                  className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.08]"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-9 bg-cyan-950/50 rounded-lg flex items-center justify-center border border-cyan-500/30">
@@ -345,7 +345,7 @@ export function MaintenanceManagerDashboard() {
                     </div>
                     <div>
                       <p className="font-bold text-white">{schedule.date}</p>
-                      <p className="text-sm text-slate-700">{schedule.count} vehicles scheduled</p>
+                      <p className="text-sm text-white/40">{schedule.count} vehicles scheduled</p>
                     </div>
                   </div>
                   <Button size="sm"
@@ -368,7 +368,7 @@ export function MaintenanceManagerDashboard() {
           </Card>
 
           {/* Parts Inventory Status */}
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+          <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
             <div className="flex items-center gap-2 mb-3">
               <Package className="w-4 h-4 text-violet-400" />
               <h2 className="text-sm font-bold text-white">Parts Inventory Status</h2>
@@ -381,14 +381,14 @@ export function MaintenanceManagerDashboard() {
                   "rounded-lg p-2 border transition-all cursor-pointer",
                   partsInventory.below_reorder > 0
                     ? "bg-amber-950/30 border-amber-500/30 hover:border-amber-400/50"
-                    : "bg-slate-900/50 border-slate-700"
+                    : "bg-white/[0.03] border-white/[0.08]"
                 )}
                 onClick={handleReorderParts}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-400" />
-                    <span className="text-sm text-slate-300">Below Reorder Level</span>
+                    <span className="text-sm text-white/60">Below Reorder Level</span>
                   </div>
                   <span className="text-sm font-bold text-white">
                     {partsInventory.below_reorder}
@@ -412,7 +412,7 @@ export function MaintenanceManagerDashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-slate-300">In Stock</span>
+                    <span className="text-sm text-white/60">In Stock</span>
                   </div>
                   <span className="text-sm font-bold text-white">
                     {partsInventory.in_stock}
@@ -421,9 +421,9 @@ export function MaintenanceManagerDashboard() {
               </div>
 
               {/* Total Items */}
-              <div className="bg-slate-900/50 rounded-lg p-3 border border-slate-700">
+              <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.08]">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-700 text-sm">Total Inventory Items</span>
+                  <span className="text-white/40 text-sm">Total Inventory Items</span>
                   <span className="text-sm font-bold text-white">
                     {partsInventory.total_items}
                   </span>

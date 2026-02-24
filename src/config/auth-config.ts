@@ -1,3 +1,5 @@
+import logger from '@/utils/logger';
+
 /**
  * Azure AD Authentication Configuration
  *
@@ -348,10 +350,10 @@ export function getMsalConfig() {
           const prefix = '[MSAL]';
           switch (level) {
             case 0: // Error
-              console.error(prefix, message);
+              logger.error(prefix, message);
               break;
             case 1: // Warning
-              console.warn(prefix, message);
+              logger.warn(prefix, message);
               break;
           }
         },

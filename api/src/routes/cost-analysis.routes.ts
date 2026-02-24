@@ -229,7 +229,7 @@ router.post(
         parseInt(fiscalQuarter)
       )
 
-      res.json({ message: 'Budget allocation set successfully' })
+      res.json({ success: true, message: 'Budget allocation set successfully' })
     } catch (error) {
       logger.error('Set budget allocation error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })

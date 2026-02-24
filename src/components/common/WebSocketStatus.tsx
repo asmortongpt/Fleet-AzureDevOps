@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useWebSocketStatus, useReconnect } from '@/hooks/useWebSocketSubscriptions';
 import { cn } from '@/lib/utils';
+import { formatTime } from '@/utils/format-helpers';
 
 interface WebSocketStatusProps {
   variant?: 'badge' | 'button' | 'icon';
@@ -197,6 +198,10 @@ export function WebSocketStatus({
         className
       )}
       onClick={() => !isConnected && reconnect()}
+      onKeyDown={(e) => e.key === 'Enter' && !isConnected && reconnect()}
+      role="button"
+      tabIndex={0}
+      aria-label={`WebSocket ${statusInfo.label}`}
       title={`WebSocket ${statusInfo.label}`}
     >
       {statusInfo.icon}
@@ -313,7 +318,7 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
           <div className="text-xs text-slate-500">
             Last connected:{' '}
             <span className="font-mono">
-              {stats.lastConnectedAt.toLocaleTimeString()}
+              {formatTime(stats.lastConnectedAt)}
             </span>
           </div>
         </div>

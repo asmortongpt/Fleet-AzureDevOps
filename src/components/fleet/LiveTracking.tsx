@@ -2,11 +2,13 @@ import { MapPin, Navigation, Clock } from "lucide-react"
 import { useMemo } from "react"
 import useSWR from "swr"
 
+import { apiFetcher } from "@/lib/api-fetcher"
 import { GoogleMapView } from "@/components/Maps/GoogleMapView"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { Vehicle } from "@/types/Vehicle"
+import { formatEnum } from "@/utils/format-enum"
 
 
 interface GpsRecord {
@@ -22,10 +24,7 @@ interface GpsRecord {
   address?: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((r) => r.json())
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 export default function LiveTracking() {
   const { data, isLoading } = useSWR<GpsRecord[]>(
@@ -143,11 +142,11 @@ export default function LiveTracking() {
                   <div className="flex items-center gap-3">
                     <div className={`p-2 rounded-full ${
                       vehicle.status === "active" ? "bg-green-100" :
-                      vehicle.status === "idle" ? "bg-yellow-100" : "bg-slate-100"
+                      vehicle.status === "idle" ? "bg-yellow-100" : "bg-neutral-100"
                     }`}>
                       <Navigation className={`h-4 w-4 ${
                         vehicle.status === "active" ? "text-green-600" :
-                        vehicle.status === "idle" ? "text-yellow-600" : "text-slate-600"
+                        vehicle.status === "idle" ? "text-yellow-600" : "text-neutral-600"
                       }`} />
                     </div>
                     <div>
@@ -159,7 +158,7 @@ export default function LiveTracking() {
                     vehicle.status === "active" ? "default" :
                     vehicle.status === "idle" ? "secondary" : "outline"
                   }>
-                    {vehicle.status}
+                    {formatEnum(vehicle.status)}
                   </Badge>
                 </div>
               ))
@@ -200,7 +199,7 @@ export default function LiveTracking() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
-              <Navigation className="h-4 w-4 text-blue-500" />
+              <Navigation className="h-4 w-4 text-emerald-500" />
               <span className="text-2xl font-bold">{vehicles.length}</span>
             </div>
             <p className="text-sm text-muted-foreground">Total Vehicles</p>

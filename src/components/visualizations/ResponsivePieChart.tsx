@@ -26,28 +26,18 @@ interface ResponsivePieChartProps {
   colors?: string[]
   showPercentages?: boolean
   enableHover?: boolean
+  compact?: boolean
 }
 
 const DEFAULT_COLORS = [
-  'url(#gradient-primary)',
-  'url(#gradient-secondary)',
-  'url(#gradient-success)',
-  'url(#gradient-warning)',
-  'url(#gradient-danger)',
-  'url(#gradient-info)',
-  'url(#gradient-purple)',
-  'url(#gradient-pink)',
-]
-
-const GRADIENT_DEFINITIONS = [
-  { id: 'gradient-primary', start: 'hsl(var(--chart-1))', end: 'hsl(var(--chart-1))' },
-  { id: 'gradient-secondary', start: 'hsl(var(--chart-4))', end: 'hsl(var(--chart-4))' },
-  { id: 'gradient-success', start: 'hsl(var(--chart-2))', end: 'hsl(var(--chart-2))' },
-  { id: 'gradient-warning', start: 'hsl(var(--chart-3))', end: 'hsl(var(--chart-3))' },
-  { id: 'gradient-danger', start: 'hsl(var(--chart-6))', end: 'hsl(var(--chart-6))' },
-  { id: 'gradient-info', start: 'hsl(var(--chart-5))', end: 'hsl(var(--chart-5))' },
-  { id: 'gradient-purple', start: 'hsl(var(--chart-8))', end: 'hsl(var(--chart-8))' },
-  { id: 'gradient-pink', start: 'hsl(var(--chart-7))', end: 'hsl(var(--chart-7))' },
+  '#3B82F6', // Blue
+  '#10B981', // Green
+  '#F59E0B', // Amber
+  '#EF4444', // Red
+  '#8B5CF6', // Purple
+  '#06B6D4', // Cyan
+  '#EC4899', // Pink
+  '#94A3B8', // Slate
 ]
 
 // Active shape renderer for hover effect
@@ -121,15 +111,16 @@ export function ResponsivePieChart({
   colors = DEFAULT_COLORS,
   showPercentages = true,
   enableHover = true,
+  compact = false,
 }: ResponsivePieChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
 
   const chartColors = {
-    text: 'hsl(var(--foreground))',
+    text: 'var(--foreground)',
     tooltip: {
-      background: 'hsl(var(--card))',
-      border: 'hsl(var(--border))',
-      text: 'hsl(var(--foreground))',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -162,6 +153,87 @@ export function ResponsivePieChart({
     return null
   }
 
+  const pieChartContent = loading ? (
+    <div
+      className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
+      style={{ height: compact ? '100%' : height }}
+    />
+  ) : (
+    <ResponsiveContainer width="100%" height={compact ? '100%' : height}>
+      <PieChart>
+        <Pie
+          data={data as any}
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          label={showPercentages ? ({
+            cx,
+            cy,
+            midAngle = 0,
+            innerRadius,
+            outerRadius,
+            percent = 0,
+          }: any) => {
+            if (percent < 0.05) return null // Don't show label for small slices
+            const RADIAN = Math.PI / 180
+            const radius = innerRadius + (outerRadius - innerRadius) * 0.5
+            const x = cx + radius * Math.cos(-midAngle * RADIAN)
+            const y = cy + radius * Math.sin(-midAngle * RADIAN)
+
+            return (
+              <text
+                x={x}
+                y={y}
+                fill="white"
+                textAnchor={x > cx ? 'start' : 'end'}
+                dominantBaseline="central"
+                className="text-xs font-bold drop-shadow-md"
+              >
+                {`${((percent ?? 0) * 100).toFixed(0)}%`}
+              </text>
+            )
+          } : undefined}
+          outerRadius={innerRadius ? 100 : 110}
+          innerRadius={innerRadius}
+          fill="#3B82F6"
+          dataKey="value"
+          animationDuration={1200}
+          animationBegin={0}
+          // @ts-expect-error - activeIndex and activeShape are valid Recharts Pie props
+          // but are missing from @types/recharts type definitions (known gap)
+          activeIndex={activeIndex}
+          activeShape={enableHover ? renderActiveShape : undefined}
+          onMouseEnter={onPieEnter}
+          onMouseLeave={onPieLeave}
+        >
+          {data.map((entry, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={entry.fill || colors[index % colors.length]}
+              stroke="transparent"
+              strokeWidth={2}
+              className="transition-all duration-300 hover:opacity-90"
+            />
+          ))}
+        </Pie>
+        <Tooltip content={<CustomTooltip />} />
+        <Legend
+          wrapperStyle={{ color: chartColors.text }}
+          iconType="circle"
+          formatter={(value, entry: any) => (
+            <span className="text-sm font-medium">
+              {value} ({entry.payload.value})
+            </span>
+          )}
+        />
+      </PieChart>
+    </ResponsiveContainer>
+  )
+
+  if (compact) {
+    return <div className="w-full h-full">{pieChartContent}</div>
+  }
+
   return (
     <div>
       <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -170,90 +242,7 @@ export function ResponsivePieChart({
           {description && <CardDescription className="text-sm">{description}</CardDescription>}
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div
-              className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
-              style={{ height }}
-            />
-          ) : (
-            <ResponsiveContainer width="100%" height={height}>
-              <PieChart>
-                <defs>
-                  {GRADIENT_DEFINITIONS.map((gradient) => (
-                    <linearGradient key={gradient.id} id={gradient.id} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={gradient.start} stopOpacity={1} />
-                      <stop offset="100%" stopColor={gradient.end} stopOpacity={0.9} />
-                    </linearGradient>
-                  ))}
-                </defs>
-                <Pie
-                  data={data as any}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={showPercentages ? ({
-                    cx,
-                    cy,
-                    midAngle = 0,
-                    innerRadius,
-                    outerRadius,
-                    percent = 0,
-                  }: any) => {
-                    if (percent < 0.05) return null // Don't show label for small slices
-                    const RADIAN = Math.PI / 180
-                    const radius = innerRadius + (outerRadius - innerRadius) * 0.5
-                    const x = cx + radius * Math.cos(-midAngle * RADIAN)
-                    const y = cy + radius * Math.sin(-midAngle * RADIAN)
-
-                    return (
-                      <text
-                        x={x}
-                        y={y}
-                        fill="hsl(var(--background))"
-                        textAnchor={x > cx ? 'start' : 'end'}
-                        dominantBaseline="central"
-                        className="text-xs font-bold drop-shadow-md"
-                      >
-                        {`${((percent ?? 0) * 100).toFixed(0)}%`}
-                      </text>
-                    )
-                  } : undefined}
-                  outerRadius={innerRadius ? 100 : 110}
-                  innerRadius={innerRadius}
-                  fill="hsl(var(--chart-4))"
-                  dataKey="value"
-                  animationDuration={1200}
-                  animationBegin={0}
-                  // @ts-expect-error - activeIndex and activeShape are valid Recharts Pie props
-                  // but are missing from @types/recharts type definitions (known gap)
-                  activeIndex={activeIndex}
-                  activeShape={enableHover ? renderActiveShape : undefined}
-                  onMouseEnter={onPieEnter}
-                  onMouseLeave={onPieLeave}
-                >
-                  {data.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.fill || colors[index % colors.length]}
-                      stroke="hsl(var(--background))"
-                      strokeWidth={2}
-                      className="transition-all duration-300 hover:opacity-90"
-                    />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend
-                  wrapperStyle={{ color: chartColors.text }}
-                  iconType="circle"
-                  formatter={(value, entry: any) => (
-                    <span className="text-sm font-medium">
-                      {value} ({entry.payload.value})
-                    </span>
-                  )}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
+          {pieChartContent}
         </CardContent>
       </Card>
     </div>

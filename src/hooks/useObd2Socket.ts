@@ -125,9 +125,9 @@ export function useObd2Socket(options: UseObd2SocketOptions = {}) {
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
             const res = await fetch(`${apiUrl}/api/obd2-emulator/start`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Ensure we send auth if needed (though emulator might be public)
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ profile, scenario })
             });
@@ -153,9 +153,7 @@ export function useObd2Socket(options: UseObd2SocketOptions = {}) {
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
             await fetch(`${apiUrl}/api/obd2-emulator/stop/${sessionId}`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                credentials: 'include'
             });
             disconnect();
         } catch (err) {

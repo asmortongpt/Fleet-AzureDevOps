@@ -119,7 +119,10 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     last_service_date AS "lastServiceDate",
     next_service_date AS "nextServiceDate",
     next_service_mileage AS "nextServiceMileage",
-    metadata
+    metadata,
+    health_score::float8 AS health_score,
+    department,
+    registration_expiry
   `
 
   /**
@@ -169,7 +172,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
       `SELECT
          ${VehiclesRepository.selectColumns}
        FROM vehicles
-       WHERE tenant_id = $1
+       WHERE tenant_id = $1 AND status != 'retired'
        ORDER BY ${safeSortBy} ${safeSortOrder}
        LIMIT $2 OFFSET $3`,
       [tenantId, limit, offset]
@@ -194,7 +197,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     const safeSortBy = allowedSortColumns.includes(requestedSortBy) ? requestedSortBy : 'created_at'
     const safeSortOrder = String(opts.sortOrder ?? 'desc').toUpperCase() === 'ASC' ? 'ASC' : 'DESC'
 
-    const clauses: string[] = ['tenant_id = $1']
+    const clauses: string[] = ['tenant_id = $1', "status != 'retired'"]
     const params: any[] = [tenantId]
     let idx = 2
 
@@ -406,7 +409,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
    */
   async countByTenant(tenantId: string): Promise<number> {
     const result = await this.pool.query(
-      'SELECT COUNT(*) FROM vehicles WHERE tenant_id = $1',
+      "SELECT COUNT(*) FROM vehicles WHERE tenant_id = $1 AND status != 'retired'",
       [tenantId]
     )
     return parseInt(result.rows[0].count, 10)
@@ -423,6 +426,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     const result = await this.pool.query(
       `SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles
        WHERE tenant_id = $1
+       AND status != 'retired'
        AND (
          make ILIKE $2 OR
          model ILIKE $2 OR
@@ -481,7 +485,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
         d.email as driver_email
       FROM vehicles v
       LEFT JOIN drivers d ON v.assigned_driver_id = d.id AND d.tenant_id = $1
-      WHERE v.tenant_id = $1
+      WHERE v.tenant_id = $1 AND v.status != 'retired'
       ORDER BY ${safeSortBy} ${safeSortOrder}
       LIMIT $2 OFFSET $3`,
       [tenantId, limit, offset]
@@ -553,7 +557,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
         d.id as driver_id, d.first_name || ' ' || d.last_name as driver_name
       FROM vehicles v
       LEFT JOIN drivers d ON v.assigned_driver_id = d.id
-      WHERE v.tenant_id = $1
+      WHERE v.tenant_id = $1 AND v.status != 'retired'
       ORDER BY v.created_at DESC
     `;
     const result = await this.pool.query(query, [tenantId]);

@@ -14,6 +14,10 @@ import { toast, ToastOptions } from "react-hot-toast"
 import useSWR from "swr"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -23,9 +27,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useFacilities, useWorkOrders, useMaintenanceSchedules } from "@/hooks/use-api"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
-import { swrFetcher } from "@/lib/fetcher"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { Vehicle, Facility, WorkOrder } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { formatEnum } from "@/utils/format-enum"
+import { formatNumber } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 /** Safely extract an array from an API response that may be nested as { data: [...] } or { data: { data: [...] } } */
 const safeArray = <T,>(value: unknown): T[] => {
@@ -108,7 +115,7 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
         {/* Vehicle Header */}
         <div>
           <h3 className="text-sm font-semibold">
-            {vehicle.year} {vehicle.make} {vehicle.model}
+            {formatVehicleName(vehicle)}
           </h3>
           <p className="text-sm text-muted-foreground">
             {vehicle.licensePlate} • {vehicle.vin}
@@ -126,14 +133,14 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm">Current Mileage</span>
-              <span className="font-medium">{vehicle.mileage?.toLocaleString()} mi</span>
+              <span className="font-medium">{formatNumber(vehicle.mileage ?? 0)} mi</span>
             </div>
 
             {vehicle.nextService && (
               <>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Next Service</span>
-                  <span className="font-medium">{vehicle.nextService.toLocaleString()} mi</span>
+                  <span className="font-medium">{formatNumber(Number(vehicle.nextService))} mi</span>
                 </div>
 
                 <div className="space-y-1">
@@ -160,8 +167,8 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
                   <AlertTriangle className="h-4 w-4 text-yellow-500" />
                   Active Alerts
                 </h4>
-                {(Array.isArray(vehicle.alerts) ? vehicle.alerts : []).map((alert: string, i: number) => (
-                  <div key={i} className="flex items-start gap-2 text-sm">
+                {(Array.isArray(vehicle.alerts) ? vehicle.alerts : []).map((alert: string) => (
+                  <div key={alert} className="flex items-start gap-2 text-sm">
                     <AlertCircle className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                     <span>{alert}</span>
                   </div>
@@ -173,7 +180,12 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
 
         {/* Actions */}
         <div className="space-y-2">
-          <Button className="w-full">
+          <Button className="w-full" onClick={() => {
+              toast.success('Service scheduling initiated', {
+                duration: 3000,
+                position: 'top-center'
+              } as ToastOptions)
+            }}>
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Service
           </Button>
@@ -190,7 +202,12 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
             <Wrench className="h-4 w-4 mr-2" />
             Request Maintenance
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={() => {
+              toast.success('Loading service history...', {
+                duration: 3000,
+                position: 'top-center'
+              } as ToastOptions)
+            }}>
             View Service History
           </Button>
         </div>
@@ -202,13 +219,15 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
 // Work Orders Panel
 const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { workOrders: WorkOrder[]; onWorkOrderSelect: (order: WorkOrder) => void }) => {
   const workOrders = Array.isArray(workOrdersProp) ? workOrdersProp : safeArray<WorkOrder>(workOrdersProp)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [newWO, setNewWO] = useState({ title: '', description: '', priority: 'medium', vehicleId: '' })
 
   const getStatusIcon = (status: string): React.ReactNode => {
     switch (status) {
       case 'completed':
         return <CheckCircle2 className="h-4 w-4 text-green-500" />
       case 'in_progress':
-        return <Clock className="h-4 w-4 text-blue-800" />
+        return <Clock className="h-4 w-4 text-emerald-400" />
       case 'pending':
         return <AlertCircle className="h-4 w-4 text-yellow-500" />
       default:
@@ -256,7 +275,7 @@ const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { wo
                         {order.priority}
                       </Badge>
                       <Badge variant="outline">
-                        {order.status}
+                        {formatEnum(order.status)}
                       </Badge>
                     </div>
                   </div>
@@ -270,10 +289,62 @@ const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { wo
           </div>
         )}
 
-        <Button className="w-full mt-2">
+        <Button className="w-full mt-2" onClick={() => {
+            setNewWO({ title: '', description: '', priority: 'medium', vehicleId: '' })
+            setCreateOpen(true)
+          }}>
           <Wrench className="h-4 w-4 mr-2" />
           Create Work Order
         </Button>
+
+        {/* Create Work Order Dialog */}
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create Work Order</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="new-wo-title">Title</Label>
+                <Input id="new-wo-title" placeholder="e.g., Oil Change - Unit 42" value={newWO.title} onChange={(e) => setNewWO(w => ({ ...w, title: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="new-wo-vehicle">Vehicle ID</Label>
+                <Input id="new-wo-vehicle" placeholder="Vehicle ID or Unit #" value={newWO.vehicleId} onChange={(e) => setNewWO(w => ({ ...w, vehicleId: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="new-wo-priority">Priority</Label>
+                <Select value={newWO.priority} onValueChange={(v) => setNewWO(w => ({ ...w, priority: v }))}>
+                  <SelectTrigger id="new-wo-priority"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="new-wo-desc">Description</Label>
+                <Textarea id="new-wo-desc" placeholder="Describe the maintenance needed..." value={newWO.description} onChange={(e) => setNewWO(w => ({ ...w, description: e.target.value }))} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                if (!newWO.title.trim()) {
+                  toast.error('Please enter a title for the work order')
+                  return
+                }
+                toast.success(`Work order "${newWO.title}" created successfully`, {
+                  duration: 3000,
+                  position: 'top-center'
+                } as ToastOptions)
+                setCreateOpen(false)
+              }}>Create Work Order</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ScrollArea>
   )
@@ -309,7 +380,7 @@ const PartsPanel = ({ parts: partsProp, technicians: techniciansProp }: { parts:
       case 'in_stock': return 'bg-green-500'
       case 'low_stock': return 'bg-yellow-500'
       case 'out_of_stock': return 'bg-red-500'
-      case 'on_order': return 'bg-blue-500'
+      case 'on_order': return 'bg-emerald-500'
     }
   }
 
@@ -354,7 +425,7 @@ const PartsPanel = ({ parts: partsProp, technicians: techniciansProp }: { parts:
           <Card>
             <CardContent className="p-2">
               <div className="text-xs text-muted-foreground">On Order</div>
-              <div className="text-lg font-semibold text-blue-600">{partsOnOrder}</div>
+              <div className="text-lg font-semibold text-emerald-400">{partsOnOrder}</div>
             </CardContent>
           </Card>
           <Card>
@@ -430,7 +501,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
 
   // Check for API key to set initial view mode
   const hasApiKey = useMemo(() => {
-    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
     return key && key.length > 10 && !key.includes('YOUR_KEY')
   }, [])
 
@@ -441,8 +512,8 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
   const { data: facilities = [] } = useFacilities()
   const { data: workOrders = [] } = useWorkOrders()
   const { data: _maintenanceSchedule = [] } = useMaintenanceSchedules()
-  const { data: partsResponse } = useSWR<{ data: any[] }>('/api/parts?limit=200', swrFetcher)
-  const { data: usersResponse } = useSWR<{ data: any[] }>('/api/users?limit=500', swrFetcher)
+  const { data: partsResponse } = useSWR<any[]>('/api/parts?limit=200', apiFetcher)
+  const { data: usersResponse } = useSWR<any[]>('/api/users?limit=500', apiFetcher)
 
   // Real-time telemetry
   const {

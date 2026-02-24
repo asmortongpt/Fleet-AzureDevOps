@@ -12,6 +12,7 @@ import React from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { formatCurrency } from "@/utils/format-helpers"
 
 interface DepartmentKPI {
   name: string
@@ -154,7 +155,7 @@ export function KPIsTab({
         <Card>
           <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
                 <GasPump className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Avg Fuel Efficiency</p>
@@ -291,7 +292,7 @@ export function KPIsTab({
                           </div>
                         </td>
                         <td className="p-2 text-sm text-right">{dept.utilization}%</td>
-                        <td className="p-2 text-sm text-right font-medium">${dept.costPerMile.toFixed(2)}</td>
+                        <td className="p-2 text-sm text-right font-medium">{formatCurrency(dept.costPerMile)}</td>
                       </tr>
                     )
                   })}

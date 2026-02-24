@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
 
 interface Route {
   id: string
@@ -51,28 +51,28 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
 
   const { data: routeResponse } = useSWR<any>(
     routeId ? `/api/routes/${routeId}` : null,
-    swrFetcher
+    apiFetcher
   )
-  const routeDetails = (routeResponse?.data || routeResponse || route) as Route
+  const routeDetails = (routeResponse || route) as Route
 
   const vehicleId = routeDetails.vehicleId || routeDetails.vehicle_id
-  const { data: gpsResponse } = useSWR<any>(
+  const { data: gpsResponse } = useSWR<any[]>(
     vehicleId ? `/api/gps-tracks?vehicleId=${vehicleId}&limit=200` : null,
-    swrFetcher
+    apiFetcher
   )
-  const { data: incidentResponse } = useSWR<{ data: any[] }>(
+  const { data: incidentResponse } = useSWR<any[]>(
     vehicleId ? `/api/safety-incidents?vehicle_id=${vehicleId}&limit=100` : null,
-    swrFetcher
+    apiFetcher
   )
 
-  const gpsTracks = Array.isArray(gpsResponse) ? gpsResponse : (gpsResponse as any)?.data || []
-  const incidents = incidentResponse?.data || []
+  const gpsTracks = Array.isArray(gpsResponse) ? gpsResponse : []
+  const incidents = Array.isArray(incidentResponse) ? incidentResponse : []
 
   const routeOverview = useMemo(() => {
     const totalDistance = Number(routeDetails.distance ?? routeDetails.total_distance ?? 0)
     const start = routeDetails.startTime || routeDetails.start_time
     const end = routeDetails.endTime || routeDetails.end_time
-    let totalDuration = 'N/A'
+    let totalDuration = '—'
     if (start && end) {
       const startDate = new Date(start)
       const endDate = new Date(end)
@@ -86,7 +86,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
     const stops = Number(routeDetails.stops ?? routeDetails.stop_count ?? 0)
     const fuelUsed = Number(routeDetails.fuel_used ?? 0)
     const fuelEfficiency = Number(routeDetails.fuel_efficiency ?? 0)
-    const idleTime = routeDetails.idle_time || 'N/A'
+    const idleTime = routeDetails.idle_time || '—'
 
     return {
       totalDistance,
@@ -106,11 +106,11 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
 
   const events = useMemo(() => {
     return incidents.map((incident: any) => ({
-      time: incident.occurred_at || incident.date || incident.created_at || 'N/A',
+      time: incident.occurred_at || incident.date || incident.created_at || '—',
       type: incident.type || incident.category || 'incident',
       severity: incident.severity || incident.priority || 'info',
       description: incident.title || incident.summary || incident.description || 'Incident',
-      location: incident.location || incident.address || 'N/A'
+      location: incident.location || incident.address || '—'
     }))
   }, [incidents])
 
@@ -125,7 +125,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
       case 'end':
         return <Flag className="w-4 h-4 text-red-600" />
       case 'delivery':
-        return <MapPin className="w-4 h-4 text-blue-800" />
+        return <MapPin className="w-4 h-4 text-emerald-400" />
       case 'fuel':
         return <Fuel className="w-4 h-4 text-orange-600" />
       case 'service':
@@ -329,28 +329,28 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               <CardContent className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center justify-between p-2 bg-muted rounded-md">
                   <div className="flex items-center gap-2">
-                    <Gauge className="w-4 h-4 text-blue-800" />
+                    <Gauge className="w-4 h-4 text-emerald-400" />
                     Avg Speed
                   </div>
                   <span>{routeOverview.avgSpeed || 0} mph</span>
                 </div>
                 <div className="flex items-center justify-between p-2 bg-muted rounded-md">
                   <div className="flex items-center gap-2">
-                    <Gauge className="w-4 h-4 text-blue-800" />
+                    <Gauge className="w-4 h-4 text-emerald-400" />
                     Max Speed
                   </div>
                   <span>{routeOverview.maxSpeed || 0} mph</span>
                 </div>
                 <div className="flex items-center justify-between p-2 bg-muted rounded-md">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-blue-800" />
+                    <Clock className="w-4 h-4 text-emerald-400" />
                     Idle Time
                   </div>
                   <span>{routeOverview.idleTime}</span>
                 </div>
                 <div className="flex items-center justify-between p-2 bg-muted rounded-md">
                   <div className="flex items-center gap-2">
-                    <Fuel className="w-4 h-4 text-blue-800" />
+                    <Fuel className="w-4 h-4 text-emerald-400" />
                     Fuel Used
                   </div>
                   <span>{routeOverview.fuelUsed || 0} gal</span>

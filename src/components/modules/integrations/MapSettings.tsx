@@ -551,8 +551,8 @@ export function MapSettings() {
                     Advantages
                   </h4>
                   <ul className="space-y-1.5">
-                    {selectedOption.pros.map((pro, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
+                    {selectedOption.pros.map((pro) => (
+                      <li key={pro} className="flex items-start gap-2 text-sm">
                         <Check className="h-4 w-4 text-green-500 mt-0.5" />
                         {pro}
                       </li>
@@ -566,8 +566,8 @@ export function MapSettings() {
                     Considerations
                   </h4>
                   <ul className="space-y-1.5">
-                    {selectedOption.cons.map((con, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
+                    {selectedOption.cons.map((con) => (
+                      <li key={con} className="flex items-start gap-2 text-sm">
                         <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5" />
                         {con}
                       </li>

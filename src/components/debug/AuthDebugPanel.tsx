@@ -24,11 +24,14 @@ import {
   Shield
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts';
+import { formatDateTime } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 
 
 interface DecodedToken {
@@ -79,7 +82,7 @@ export function AuthDebugPanel() {
         }
       }
     } catch (error) {
-      console.error('[AuthDebugPanel] Error decoding token:', error);
+      logger.error('[AuthDebugPanel] Error decoding token:', error);
     }
   }, [isAuthenticated, accounts]);
 
@@ -122,16 +125,16 @@ export function AuthDebugPanel() {
       setCopiedField(field);
       setTimeout(() => setCopiedField(null), 2000);
     } catch (error) {
-      console.error('Failed to copy:', error);
+      logger.error('Failed to copy:', error);
     }
   };
 
   const handleRefresh = async () => {
     try {
       await refreshToken();
-      alert('Token refreshed successfully!');
+      toast.success('Token refreshed successfully!');
     } catch (error) {
-      alert('Token refresh failed: ' + (error as Error).message);
+      toast.error('Token refresh failed: ' + (error as Error).message);
     }
   };
 
@@ -152,6 +155,9 @@ export function AuthDebugPanel() {
         <div
           className="flex items-center justify-between border-b border-yellow-500/30 bg-yellow-500/10 p-3 cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
+          onKeyDown={(e) => e.key === 'Enter' && setIsExpanded(!isExpanded)}
+          role="button"
+          tabIndex={0}
         >
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-yellow-500" />
@@ -263,14 +269,14 @@ export function AuthDebugPanel() {
                           : 'text-green-400'
                       }`}
                     >
-                      {timeToExpiry || 'N/A'}
+                      {timeToExpiry || '—'}
                     </span>
                   </div>
 
                   {tokenInfo.payload.exp && (
                     <div className="text-xs text-slate-400">
                       Expires:{' '}
-                      {new Date(tokenInfo.payload.exp * 1000).toLocaleString()}
+                      {formatDateTime(new Date(tokenInfo.payload.exp * 1000))}
                     </div>
                   )}
                 </div>

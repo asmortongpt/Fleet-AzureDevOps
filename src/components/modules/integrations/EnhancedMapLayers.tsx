@@ -371,7 +371,7 @@ export function EnhancedMapLayers() {
 
       const weatherConditions: WeatherConditions = {
         temperature: currentPeriod.temperature || 0,
-        conditions: currentPeriod.shortForecast || 'Unknown',
+        conditions: currentPeriod.shortForecast || '—',
         windSpeed: parseInt(currentPeriod.windSpeed) || 0,
         windDirection: currentPeriod.windDirection || 'N',
         humidity: currentPeriod.relativeHumidity?.value || 0,

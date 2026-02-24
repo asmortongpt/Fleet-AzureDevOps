@@ -18,6 +18,8 @@ import ragEngineService from '../services/rag-engine.service'
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
@@ -296,7 +298,7 @@ router.get(
 // ============================================================================
 
 const MaintenancePredictionSchema = z.object({
-  vehicle_id: z.string().uuid()
+  vehicle_id: flexUuid
 })
 
 /**
@@ -333,7 +335,7 @@ router.post(
 )
 
 const DriverBehaviorScoreSchema = z.object({
-  driver_id: z.string().uuid(),
+  driver_id: flexUuid,
   period: z.enum(['7d', '30d', '90d']).optional().default('30d')
 })
 
@@ -472,7 +474,7 @@ router.put(
         req.user!.id
       )
 
-      res.json({ message: 'Outcome recorded successfully' })
+      res.json({ success: true, message: 'Outcome recorded successfully' })
     } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to record outcome', message: getErrorMessage(error) })
     }
@@ -592,7 +594,7 @@ router.post(
         feedback
       )
 
-      res.json({ message: 'Feedback recorded' })
+      res.json({ success: true, message: 'Feedback recorded' })
     } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) })
     }
@@ -724,7 +726,7 @@ router.post(
     try {
       await mlTrainingService.deployModel(req.params.id, req.user!.tenant_id ?? '', req.user!.id)
 
-      res.json({ message: 'Model deployed successfully' })
+      res.json({ success: true, message: 'Model deployed successfully' })
     } catch (error: unknown) {
       res.status(500).json({ error: 'Deployment failed', message: getErrorMessage(error) })
     }

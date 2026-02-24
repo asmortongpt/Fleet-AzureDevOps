@@ -45,12 +45,14 @@ import { ExcelStyleTable, ExcelColumn } from '@/components/shared/ExcelStyleTabl
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+import { formatEnum } from '@/utils/format-enum'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers'
 
 // ============================================
 // TYPE DEFINITIONS
@@ -228,12 +230,12 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
 
   const { data: schedule, error, isLoading } = useSWR<PreventiveMaintenanceSchedule>(
     `/api/maintenance/drilldowns/pm-schedules/${scheduleId}`,
-    fetcher
+    apiFetcher
   )
 
   const { data: serviceHistory } = useSWR<ServiceHistoryRecord[]>(
     schedule?.vehicleId ? `/api/maintenance/drilldowns/vehicles/${schedule.vehicleId}/service-history?serviceType=${schedule.serviceType}` : null,
-    fetcher
+    apiFetcher
   )
 
   const getStatusVariant = (status: string) => {
@@ -283,14 +285,14 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             />
             <DrilldownCard
               title="Current Mileage"
-              value={schedule.currentMileage.toLocaleString()}
+              value={formatNumber(schedule.currentMileage)}
               icon={<Car className="w-3 h-3" />}
               color="primary"
               variant="compact"
             />
             <DrilldownCard
               title="Est. Cost"
-              value={`$${schedule.estimatedCost.toFixed(0)}`}
+              value={formatCurrency(schedule.estimatedCost)}
               icon={<DollarSign className="w-3 h-3" />}
               color="success"
               variant="compact"
@@ -324,12 +326,12 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Next Due Date</p>
-                      <p className="font-medium">{new Date(schedule.nextDueDate).toLocaleDateString()}</p>
+                      <p className="font-medium">{formatDate(schedule.nextDueDate)}</p>
                     </div>
                     {schedule.nextDueMileage && (
                       <div>
                         <p className="text-sm text-muted-foreground">Next Due Mileage</p>
-                        <p className="font-medium">{schedule.nextDueMileage.toLocaleString()} mi</p>
+                        <p className="font-medium">{formatNumber(schedule.nextDueMileage)} mi</p>
                       </div>
                     )}
                   </div>
@@ -340,12 +342,12 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-xs text-muted-foreground">Date</p>
-                          <p className="font-medium">{new Date(schedule.lastServiceDate).toLocaleDateString()}</p>
+                          <p className="font-medium">{formatDate(schedule.lastServiceDate)}</p>
                         </div>
                         {schedule.lastServiceMileage && (
                           <div>
                             <p className="text-xs text-muted-foreground">Mileage</p>
-                            <p className="font-medium">{schedule.lastServiceMileage.toLocaleString()} mi</p>
+                            <p className="font-medium">{formatNumber(schedule.lastServiceMileage)} mi</p>
                           </div>
                         )}
                       </div>
@@ -415,22 +417,22 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                                   {record.workOrderNumber}
                                 </span>
                                 <Badge variant="outline" className="text-xs">
-                                  {record.status}
+                                  {formatEnum(record.status)}
                                 </Badge>
                               </div>
                               <p className="text-sm">{record.description}</p>
                               <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
-                                  {new Date(record.serviceDate).toLocaleDateString()}
+                                  {formatDate(record.serviceDate)}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Car className="w-3 h-3" />
-                                  {record.mileage.toLocaleString()} mi
+                                  {formatNumber(record.mileage)} mi
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <DollarSign className="w-3 h-3" />
-                                  ${record.totalCost.toFixed(2)}
+                                  {formatCurrency(record.totalCost)}
                                 </span>
                               </div>
                             </div>
@@ -498,16 +500,13 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                       </div>
                     </a>
 
-                    <a
-                      href={`mailto:${schedule.serviceProviderContact.email}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
-                    >
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{schedule.serviceProviderContact.email}</p>
-                        <p className="text-xs text-muted-foreground">Click to email</p>
-                      </div>
-                    </a>
+                    <EmailButton
+                      to={schedule.serviceProviderContact.email}
+                      context={{ type: 'vendor_contact', entityName: schedule.serviceProviderContact?.name, recipientName: schedule.serviceProviderContact?.name }}
+                      label={schedule.serviceProviderContact.email}
+                      variant="ghost"
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors h-auto justify-start"
+                    />
                   </div>
 
                   <Button
@@ -545,7 +544,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Current Mileage</p>
-                      <p className="font-medium">{schedule.currentMileage.toLocaleString()} mi</p>
+                      <p className="font-medium">{formatNumber(schedule.currentMileage)} mi</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Make/Model</p>
@@ -615,7 +614,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
 
   const { data: repair, error, isLoading } = useSWR<RepairRecord>(
     `/api/maintenance/drilldowns/repairs/${repairId}`,
-    fetcher
+    apiFetcher
   )
 
   const getPriorityVariant = (priority: string) => {
@@ -671,21 +670,21 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
           <DrilldownCardGrid columns={3} gap="sm">
             <DrilldownCard
               title="Estimated Cost"
-              value={repair.estimatedCost ? `$${repair.estimatedCost.toFixed(2)}` : 'TBD'}
+              value={repair.estimatedCost ? formatCurrency(repair.estimatedCost) : 'TBD'}
               icon={<DollarSign className="w-3 h-3" />}
               color="primary"
               variant="compact"
             />
             <DrilldownCard
               title="Parts Cost"
-              value={`$${repair.partsUsed.reduce((sum, p) => sum + p.unitCost * p.quantity, 0).toFixed(2)}`}
+              value={formatCurrency(repair.partsUsed.reduce((sum, p) => sum + p.unitCost * p.quantity, 0))}
               icon={<Package className="w-3 h-3" />}
               color="warning"
               variant="compact"
             />
             <DrilldownCard
               title="Labor Cost"
-              value={`$${repair.laborEntries.reduce((sum, l) => sum + l.hours * l.rate, 0).toFixed(2)}`}
+              value={formatCurrency(repair.laborEntries.reduce((sum, l) => sum + l.hours * l.rate, 0))}
               icon={<Users className="w-3 h-3" />}
               color="success"
               variant="compact"
@@ -716,7 +715,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Reported Date</p>
-                      <p className="font-medium">{new Date(repair.reportedDate).toLocaleDateString()}</p>
+                      <p className="font-medium">{formatDate(repair.reportedDate)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Reported By</p>
@@ -726,20 +725,20 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       <>
                         <div>
                           <p className="text-sm text-muted-foreground">Diagnosis Date</p>
-                          <p className="font-medium">{new Date(repair.diagnosisDate).toLocaleDateString()}</p>
+                          <p className="font-medium">{formatDate(repair.diagnosisDate)}</p>
                         </div>
                       </>
                     )}
                     {repair.startDate && (
                       <div>
                         <p className="text-sm text-muted-foreground">Start Date</p>
-                        <p className="font-medium">{new Date(repair.startDate).toLocaleDateString()}</p>
+                        <p className="font-medium">{formatDate(repair.startDate)}</p>
                       </div>
                     )}
                     {repair.completionDate && (
                       <div>
                         <p className="text-sm text-muted-foreground">Completion Date</p>
-                        <p className="font-medium">{new Date(repair.completionDate).toLocaleDateString()}</p>
+                        <p className="font-medium">{formatDate(repair.completionDate)}</p>
                       </div>
                     )}
                   </div>
@@ -766,20 +765,20 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                     {repair.technicianPhone && (
                       <a
                         href={`tel:${repair.technicianPhone}`}
-                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
+                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
                       >
                         <Phone className="w-4 h-4" />
                         {repair.technicianPhone}
                       </a>
                     )}
                     {repair.technicianEmail && (
-                      <a
-                        href={`mailto:${repair.technicianEmail}`}
-                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
-                      >
-                        <Mail className="w-4 h-4" />
-                        {repair.technicianEmail}
-                      </a>
+                      <EmailButton
+                        to={repair.technicianEmail}
+                        context={{ type: 'maintenance_reminder', recipientName: repair.assignedTechnician }}
+                        label={repair.technicianEmail}
+                        variant="ghost"
+                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline h-auto p-0 font-normal"
+                      />
                     )}
                   </CardContent>
                 </Card>
@@ -806,9 +805,9 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                               <p className="text-sm text-muted-foreground">PN: {part.partNumber}</p>
                               <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                                 <span>Qty: {part.quantity}</span>
-                                <span>Unit: ${part.unitCost.toFixed(2)}</span>
+                                <span>Unit: {formatCurrency(part.unitCost)}</span>
                                 <span className="font-medium text-foreground">
-                                  Total: ${(part.quantity * part.unitCost).toFixed(2)}
+                                  Total: {formatCurrency(part.quantity * part.unitCost)}
                                 </span>
                               </div>
                               <div className="mt-2">
@@ -874,10 +873,10 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                               </div>
                               <div className="mt-2 flex items-center gap-2 text-sm">
                                 <span className="text-muted-foreground">
-                                  {entry.hours} hrs @ ${entry.rate.toFixed(2)}/hr
+                                  {entry.hours} hrs @ {formatCurrency(entry.rate)}/hr
                                 </span>
                                 <span className="font-medium">
-                                  ${(entry.hours * entry.rate).toFixed(2)}
+                                  {formatCurrency(entry.hours * entry.rate)}
                                 </span>
                               </div>
                             </div>
@@ -921,18 +920,18 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       <p className="font-medium">{repair.reportedBy}</p>
                       <a
                         href={`tel:${repair.reportedByPhone}`}
-                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
+                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
                       >
                         <Phone className="w-4 h-4" />
                         {repair.reportedByPhone}
                       </a>
-                      <a
-                        href={`mailto:${repair.reportedByEmail}`}
-                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
-                      >
-                        <Mail className="w-4 h-4" />
-                        {repair.reportedByEmail}
-                      </a>
+                      <EmailButton
+                        to={repair.reportedByEmail}
+                        context={{ type: 'general', recipientName: repair.reportedBy }}
+                        label={repair.reportedByEmail}
+                        variant="ghost"
+                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline h-auto p-0 font-normal"
+                      />
                     </div>
                   </div>
 
@@ -944,20 +943,20 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                         {repair.technicianPhone && (
                           <a
                             href={`tel:${repair.technicianPhone}`}
-                            className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
+                            className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
                           >
                             <Phone className="w-4 h-4" />
                             {repair.technicianPhone}
                           </a>
                         )}
                         {repair.technicianEmail && (
-                          <a
-                            href={`mailto:${repair.technicianEmail}`}
-                            className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
-                          >
-                            <Mail className="w-4 h-4" />
-                            {repair.technicianEmail}
-                          </a>
+                          <EmailButton
+                            to={repair.technicianEmail}
+                            context={{ type: 'work_order_update', recipientName: repair.assignedTechnician }}
+                            label={repair.technicianEmail}
+                            variant="ghost"
+                            className="flex items-center gap-2 text-sm text-emerald-400 hover:underline h-auto p-0 font-normal"
+                          />
                         )}
                       </div>
                     </div>
@@ -1033,7 +1032,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
 
   const { data: inspection, error, isLoading } = useSWR<InspectionRecord>(
     `/api/maintenance/drilldowns/inspections/${inspectionId}`,
-    fetcher
+    apiFetcher
   )
 
   const getResultVariant = (result: string) => {
@@ -1159,12 +1158,12 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                     <div>
                       <p className="text-sm text-muted-foreground">Inspection Date</p>
                       <p className="font-medium">
-                        {new Date(inspection.inspectionDate).toLocaleDateString()}
+                        {formatDate(inspection.inspectionDate)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Mileage</p>
-                      <p className="font-medium">{inspection.mileage.toLocaleString()} mi</p>
+                      <p className="font-medium">{formatNumber(inspection.mileage)} mi</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Location</p>
@@ -1174,7 +1173,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                       <div>
                         <p className="text-sm text-muted-foreground">Next Due</p>
                         <p className="font-medium">
-                          {new Date(inspection.nextInspectionDue).toLocaleDateString()}
+                          {formatDate(inspection.nextInspectionDue)}
                         </p>
                       </div>
                     )}
@@ -1184,7 +1183,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                     <div className="pt-2 border-t">
                       <p className="text-sm text-muted-foreground">Expiration Date</p>
                       <p className="font-medium">
-                        {new Date(inspection.expirationDate).toLocaleDateString()}
+                        {formatDate(inspection.expirationDate)}
                       </p>
                     </div>
                   )}
@@ -1272,11 +1271,11 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                             </Badge>
                             {item.severity && (
                               <Badge variant={getSeverityVariant(item.severity)} className="text-xs">
-                                {item.severity}
+                                {formatEnum(item.severity)}
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground">{item.category}</p>
+                          <p className="text-xs text-muted-foreground">{formatEnum(item.category)}</p>
                           {item.notes && (
                             <p className="text-xs text-muted-foreground mt-1">{item.notes}</p>
                           )}
@@ -1307,7 +1306,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                               <div className="flex items-center gap-2">
                                 <p className="font-medium">{item.item}</p>
                                 <Badge variant={getSeverityVariant(item.severity)}>
-                                  {item.severity}
+                                  {formatEnum(item.severity)}
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground mt-1">{item.notes}</p>
@@ -1332,7 +1331,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                               </Badge>
                               {item.estimatedCost && (
                                 <span className="text-sm text-muted-foreground">
-                                  Est. Cost: ${item.estimatedCost.toFixed(2)}
+                                  Est. Cost: {formatCurrency(item.estimatedCost)}
                                 </span>
                               )}
                             </div>
@@ -1379,16 +1378,13 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                       </div>
                     </a>
 
-                    <a
-                      href={`mailto:${inspection.inspector.email}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
-                    >
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{inspection.inspector.email}</p>
-                        <p className="text-xs text-muted-foreground">Click to email</p>
-                      </div>
-                    </a>
+                    <EmailButton
+                      to={inspection.inspector.email}
+                      context={{ type: 'inspection_notice', recipientName: inspection.inspector?.name }}
+                      label={inspection.inspector.email}
+                      variant="ghost"
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors h-auto justify-start"
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -1405,7 +1401,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                   <p className="text-sm text-muted-foreground">{inspection.location.address}</p>
                   <a
                     href={`tel:${inspection.location.phone}`}
-                    className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
+                    className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
                   >
                     <Phone className="w-4 h-4" />
                     {inspection.location.phone}
@@ -1469,7 +1465,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
 
   const { data: record, error, isLoading } = useSWR<ServiceHistoryRecord>(
     `/api/maintenance/drilldowns/service-records/${serviceRecordId}`,
-    fetcher
+    apiFetcher
   )
 
   return (
@@ -1482,7 +1478,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
               <h3 className="text-sm font-bold">{record.serviceType}</h3>
               <p className="text-sm text-muted-foreground">WO #{record.workOrderNumber}</p>
               <Badge variant={record.status === 'completed' ? 'outline' : 'destructive'}>
-                {record.status}
+                {formatEnum(record.status)}
               </Badge>
             </div>
             <FileText className="w-12 h-9 text-muted-foreground" />
@@ -1492,21 +1488,21 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
           <DrilldownCardGrid columns={3} gap="sm">
             <DrilldownCard
               title="Labor Cost"
-              value={`$${record.laborCost.toFixed(2)}`}
+              value={formatCurrency(record.laborCost)}
               icon={<Users className="w-3 h-3" />}
               color="primary"
               variant="compact"
             />
             <DrilldownCard
               title="Parts Cost"
-              value={`$${record.partsCost.toFixed(2)}`}
+              value={formatCurrency(record.partsCost)}
               icon={<Package className="w-3 h-3" />}
               color="warning"
               variant="compact"
             />
             <DrilldownCard
               title="Total Cost"
-              value={`$${record.totalCost.toFixed(2)}`}
+              value={formatCurrency(record.totalCost)}
               icon={<DollarSign className="w-3 h-3" />}
               color="success"
               variant="compact"
@@ -1537,12 +1533,12 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                     <div>
                       <p className="text-sm text-muted-foreground">Service Date</p>
                       <p className="font-medium">
-                        {new Date(record.serviceDate).toLocaleDateString()}
+                        {formatDate(record.serviceDate)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Mileage</p>
-                      <p className="font-medium">{record.mileage.toLocaleString()} mi</p>
+                      <p className="font-medium">{formatNumber(record.mileage)} mi</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Labor Hours</p>
@@ -1551,7 +1547,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                     <div>
                       <p className="text-sm text-muted-foreground">Labor Rate</p>
                       <p className="font-medium">
-                        ${(record.laborCost / record.laborHours).toFixed(2)}/hr
+                        {formatCurrency(record.laborCost / record.laborHours)}/hr
                       </p>
                     </div>
                   </div>
@@ -1596,7 +1592,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                           <div>
                             <p className="text-sm text-muted-foreground">Expiration Date</p>
                             <p className="font-medium">
-                              {new Date(record.warranty.expirationDate).toLocaleDateString()}
+                              {formatDate(record.warranty.expirationDate)}
                             </p>
                           </div>
                         )}
@@ -1604,7 +1600,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                           <div>
                             <p className="text-sm text-muted-foreground">Expiration Mileage</p>
                             <p className="font-medium">
-                              {record.warranty.expirationMileage.toLocaleString()} mi
+                              {formatNumber(record.warranty.expirationMileage)} mi
                             </p>
                           </div>
                         )}
@@ -1646,16 +1642,13 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                       </div>
                     </a>
 
-                    <a
-                      href={`mailto:${record.technicianEmail}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
-                    >
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{record.technicianEmail}</p>
-                        <p className="text-xs text-muted-foreground">Click to email</p>
-                      </div>
-                    </a>
+                    <EmailButton
+                      to={record.technicianEmail}
+                      context={{ type: 'maintenance_reminder', recipientName: record.technician }}
+                      label={record.technicianEmail}
+                      variant="ghost"
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors h-auto justify-start"
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -1681,7 +1674,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
 
   const { data: vendor, error, isLoading } = useSWR<ServiceVendor>(
     `/api/maintenance/drilldowns/vendors/${vendorId}`,
-    fetcher
+    apiFetcher
   )
 
   return (
@@ -1714,7 +1707,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
             />
             <DrilldownCard
               title="Total Cost YTD"
-              value={`$${vendor.totalCostYTD.toLocaleString()}`}
+              value={formatCurrency(vendor.totalCostYTD)}
               icon={<DollarSign className="w-3 h-3" />}
               color="success"
               variant="compact"
@@ -1808,16 +1801,13 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                       </div>
                     </a>
 
-                    <a
-                      href={`mailto:${vendor.email}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
-                    >
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{vendor.email}</p>
-                        <p className="text-xs text-muted-foreground">Click to email</p>
-                      </div>
-                    </a>
+                    <EmailButton
+                      to={vendor.email}
+                      context={{ type: 'vendor_contact', entityName: vendor.vendorName, recipientName: vendor.contactPerson || vendor.vendorName }}
+                      label={vendor.email}
+                      variant="ghost"
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors h-auto justify-start"
+                    />
                   </div>
 
                   <div className="pt-2 border-t">
@@ -1832,7 +1822,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                         href={vendor.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-blue-800 hover:underline"
+                        className="text-sm text-emerald-400 hover:underline"
                       >
                         {vendor.website}
                       </a>
@@ -1883,7 +1873,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                     <div>
                       <p className="text-sm text-muted-foreground">Total Cost YTD</p>
                       <p className="text-sm font-bold">
-                        ${vendor.totalCostYTD.toLocaleString()}
+                        {formatCurrency(vendor.totalCostYTD)}
                       </p>
                     </div>
                   </div>
@@ -1891,7 +1881,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Average Cost per Service</p>
                     <p className="text-sm font-medium">
-                      ${(vendor.totalCostYTD / vendor.totalServicesYTD).toFixed(2)}
+                      {formatCurrency(vendor.totalCostYTD / vendor.totalServicesYTD)}
                     </p>
                   </div>
                 </CardContent>
@@ -1928,9 +1918,9 @@ interface GarageBayMatrixRow {
 }
 
 export function GarageBaysMatrixPanel() {
-  const { data: baysData, error, isLoading } = useSWR<{ data: GarageBayMatrixRow[] }>(
+  const { data: baysData, error, isLoading } = useSWR<GarageBayMatrixRow[]>(
     '/api/maintenance/drilldowns/garage-bays/matrix',
-    fetcher
+    apiFetcher
   )
 
   const columns: ExcelColumn<GarageBayMatrixRow>[] = [
@@ -1955,7 +1945,7 @@ export function GarageBaysMatrixPanel() {
         { label: 'Reserved', value: 'reserved' },
       ],
       colorRules: [
-        { condition: (v) => v === 'occupied', className: 'bg-blue-50 dark:bg-blue-950' },
+        { condition: (v) => v === 'occupied', className: 'bg-white/[0.04] dark:bg-white/[0.04]' },
         { condition: (v) => v === 'available', className: 'bg-green-50 dark:bg-green-950' },
         { condition: (v) => v === 'maintenance', className: 'bg-orange-50 dark:bg-orange-950' },
         { condition: (v) => v === 'reserved', className: 'bg-yellow-50 dark:bg-yellow-950' },
@@ -2018,7 +2008,7 @@ export function GarageBaysMatrixPanel() {
       cellClassName: 'font-semibold',
       colorRules: [
         { condition: (v) => v >= 75, className: 'text-green-600 dark:text-green-400' },
-        { condition: (v) => v >= 50 && v < 75, className: 'text-blue-800 dark:text-blue-700' },
+        { condition: (v) => v >= 50 && v < 75, className: 'text-emerald-400 dark:text-emerald-400' },
         { condition: (v) => v >= 25 && v < 50, className: 'text-yellow-600 dark:text-yellow-400' },
         { condition: (v) => v < 25, className: 'text-orange-600 dark:text-orange-400' },
       ],
@@ -2053,7 +2043,7 @@ export function GarageBaysMatrixPanel() {
   return (
     <DrilldownContent loading={isLoading} error={error}>
       <ExcelStyleTable
-        data={baysData?.data || []}
+        data={Array.isArray(baysData) ? baysData : []}
         columns={columns}
         title="Garage Bays - Full Matrix View"
         subtitle="All garage bays with current work orders and status"
@@ -2092,9 +2082,9 @@ interface WorkOrderListRow {
 }
 
 export function WorkOrdersListPanel() {
-  const { data: workOrdersData, error, isLoading } = useSWR<{ data: WorkOrderListRow[] }>(
+  const { data: workOrdersData, error, isLoading } = useSWR<WorkOrderListRow[]>(
     '/api/maintenance/drilldowns/work-orders/list',
-    fetcher
+    apiFetcher
   )
 
   const columns: ExcelColumn<WorkOrderListRow>[] = [
@@ -2160,7 +2150,7 @@ export function WorkOrdersListPanel() {
       ],
       colorRules: [
         { condition: (v) => v === 'completed', className: 'bg-green-100 dark:bg-green-950', textClassName: 'text-green-800 dark:text-green-200' },
-        { condition: (v) => v === 'in-progress', className: 'bg-blue-100 dark:bg-blue-950', textClassName: 'text-blue-800 dark:text-blue-200' },
+        { condition: (v) => v === 'in-progress', className: 'bg-white/[0.04] dark:bg-white/[0.04]', textClassName: 'text-emerald-400 dark:text-emerald-300' },
         { condition: (v) => v === 'on-hold', className: 'bg-yellow-100 dark:bg-yellow-950', textClassName: 'text-yellow-800 dark:text-yellow-200' },
         { condition: (v) => v === 'cancelled', className: 'bg-red-100 dark:bg-red-950', textClassName: 'text-red-800 dark:text-red-200' },
       ],
@@ -2216,7 +2206,7 @@ export function WorkOrdersListPanel() {
       type: 'currency',
       width: '110px',
       aggregate: 'sum',
-      render: (value) => value != null ? `$${Number(value).toFixed(2)}` : '-',
+      render: (value) => value != null ? formatCurrency(Number(value)) : '-',
     },
     {
       key: 'partsStatus',
@@ -2242,7 +2232,7 @@ export function WorkOrdersListPanel() {
   return (
     <DrilldownContent loading={isLoading} error={error}>
       <ExcelStyleTable
-        data={workOrdersData?.data || []}
+        data={Array.isArray(workOrdersData) ? workOrdersData : []}
         columns={columns}
         title="Work Orders - Complete List"
         subtitle="All maintenance work orders with full details"
@@ -2283,9 +2273,9 @@ interface PMScheduleMatrixRow {
 }
 
 export function PMSchedulesMatrixPanel() {
-  const { data: pmData, error, isLoading } = useSWR<{ data: PMScheduleMatrixRow[] }>(
+  const { data: pmData, error, isLoading } = useSWR<PMScheduleMatrixRow[]>(
     '/api/maintenance/drilldowns/pm-schedules/matrix',
-    fetcher
+    apiFetcher
   )
 
   const columns: ExcelColumn<PMScheduleMatrixRow>[] = [
@@ -2316,7 +2306,7 @@ export function PMSchedulesMatrixPanel() {
       sortable: true,
       type: 'date',
       width: '140px',
-      render: (value) => value ? formatCellValue(value, 'date') : 'N/A',
+      render: (value) => value ? formatCellValue(value, 'date') : '—',
     },
     {
       key: 'milesSinceService',
@@ -2324,7 +2314,7 @@ export function PMSchedulesMatrixPanel() {
       sortable: true,
       type: 'number',
       width: '110px',
-      render: (value) => value != null ? `${Number(value).toLocaleString()} mi` : '-',
+      render: (value) => value != null ? `${formatNumber(Number(value))} mi` : '-',
     },
     {
       key: 'dueDate',
@@ -2366,7 +2356,7 @@ export function PMSchedulesMatrixPanel() {
         { condition: (v) => v === 'overdue', className: 'bg-red-100 dark:bg-red-950', textClassName: 'text-red-800 dark:text-red-200 font-bold' },
         { condition: (v) => v === 'due-soon', className: 'bg-orange-100 dark:bg-orange-950', textClassName: 'text-orange-800 dark:text-orange-200 font-semibold' },
         { condition: (v) => v === 'upcoming', className: 'bg-green-100 dark:bg-green-950', textClassName: 'text-green-800 dark:text-green-200' },
-        { condition: (v) => v === 'completed', className: 'bg-blue-100 dark:bg-blue-950', textClassName: 'text-blue-800 dark:text-blue-200' },
+        { condition: (v) => v === 'completed', className: 'bg-white/[0.04] dark:bg-white/[0.04]', textClassName: 'text-emerald-400 dark:text-emerald-300' },
       ],
     },
     {
@@ -2380,7 +2370,7 @@ export function PMSchedulesMatrixPanel() {
   return (
     <DrilldownContent loading={isLoading} error={error}>
       <ExcelStyleTable
-        data={pmData?.data || []}
+        data={Array.isArray(pmData) ? pmData : []}
         columns={columns}
         title="PM Schedules - Full Matrix"
         subtitle="All preventive maintenance schedules with due dates and status"
@@ -2419,9 +2409,9 @@ interface PartsInventoryRow {
 }
 
 export function PartsInventoryPanel() {
-  const { data: partsData, error, isLoading } = useSWR<{ data: PartsInventoryRow[] }>(
+  const { data: partsData, error, isLoading } = useSWR<PartsInventoryRow[]>(
     '/api/maintenance/drilldowns/parts/inventory',
-    fetcher
+    apiFetcher
   )
 
   const columns: ExcelColumn<PartsInventoryRow>[] = [
@@ -2510,7 +2500,7 @@ export function PartsInventoryPanel() {
   return (
     <DrilldownContent loading={isLoading} error={error}>
       <ExcelStyleTable
-        data={partsData?.data || []}
+        data={Array.isArray(partsData) ? partsData : []}
         columns={columns}
         title="Parts Inventory - Full Database"
         subtitle="Complete parts inventory with stock levels and values"
@@ -2552,9 +2542,9 @@ interface ServiceHistoryRow {
 }
 
 export function ServiceHistoryPanel() {
-  const { data: historyData, error, isLoading } = useSWR<{ data: ServiceHistoryRow[] }>(
+  const { data: historyData, error, isLoading } = useSWR<ServiceHistoryRow[]>(
     '/api/maintenance/drilldowns/service-history',
-    fetcher
+    apiFetcher
   )
 
   const columns: ExcelColumn<ServiceHistoryRow>[] = [
@@ -2592,7 +2582,7 @@ export function ServiceHistoryPanel() {
       sortable: true,
       type: 'number',
       width: '100px',
-      render: (value) => `${Number(value).toLocaleString()} mi`,
+      render: (value) => `${formatNumber(Number(value))} mi`,
     },
     {
       key: 'technician',
@@ -2638,14 +2628,14 @@ export function ServiceHistoryPanel() {
       type: 'currency',
       width: '120px',
       aggregate: 'sum',
-      className: 'font-semibold bg-blue-50 dark:bg-blue-950',
+      className: 'font-semibold bg-white/[0.04] dark:bg-white/[0.04]',
     },
   ]
 
   return (
     <DrilldownContent loading={isLoading} error={error}>
       <ExcelStyleTable
-        data={historyData?.data || []}
+        data={Array.isArray(historyData) ? historyData : []}
         columns={columns}
         title="Service History - Complete Records"
         subtitle="Full maintenance history with costs and details"
@@ -2672,17 +2662,13 @@ function formatCellValue(value: any, type?: string): React.ReactNode {
 
   switch (type) {
     case 'currency':
-      return `$${Number(value).toFixed(2)}`
+      return formatCurrency(Number(value))
     case 'percentage':
       return `${Number(value).toFixed(1)}%`
     case 'date':
-      return new Date(value).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
+      return formatDate(value)
     case 'number':
-      return Number(value).toLocaleString()
+      return formatNumber(Number(value))
     default:
       return String(value)
   }

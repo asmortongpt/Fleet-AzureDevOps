@@ -23,6 +23,7 @@ import React, { ReactNode, MouseEvent, KeyboardEvent } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
 
 // ============================================================================
 // TYPES
@@ -439,7 +440,7 @@ export function CountCardDrilldown({
   return (
     <DrilldownCard
       title={label}
-      value={count.toLocaleString()}
+      value={formatNumber(count)}
       drilldownType={drilldownType}
       drilldownLabel={drilldownLabel || label}
       drilldownData={{ ...drilldownData, count }}

@@ -45,7 +45,9 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useVehicles, useDrivers } from '@/hooks/use-api'
 import { useFuelMutations, type CreateFuelTransactionInput } from '@/hooks/use-reactive-fuel-data'
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -239,7 +241,7 @@ export function FuelTransactionDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Fuel className="h-5 w-5 text-blue-600" />
+              <Fuel className="h-5 w-5 text-emerald-500" />
               Add Fuel Transaction
             </DialogTitle>
             <DialogDescription>
@@ -261,7 +263,7 @@ export function FuelTransactionDialog({
                   <SelectContent>
                     {vehicles.map(v => (
                       <SelectItem key={v.id} value={v.id.toString()}>
-                        {v.number} - {v.year} {v.make} {v.model}
+                        {formatVehicleName(v)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -358,7 +360,7 @@ export function FuelTransactionDialog({
 
               <div className="space-y-2">
                 <Label>Total Cost</Label>
-                <Input value={`$${totalCost}`} disabled className="bg-muted" />
+                <Input value={formatCurrency(Number(totalCost))} disabled className="bg-muted" />
               </div>
             </div>
 

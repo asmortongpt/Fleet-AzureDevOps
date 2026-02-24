@@ -14,6 +14,7 @@
 import { Html, Sphere } from '@react-three/drei'
 import { useState, useRef } from 'react'
 import * as THREE from 'three'
+import { formatCurrency } from '@/utils/format-helpers'
 
 // =============================================================================
 // TYPES
@@ -131,7 +132,7 @@ function DamageMarker({ point, isSelected, onSelect, onRemove, isEditMode }: Dam
                     style={{ pointerEvents: isSelected ? 'auto' : 'none' }}
                 >
                     <div
-                        className="bg-slate-900/95 backdrop-blur-sm rounded-lg p-3 border border-slate-700 shadow-sm min-w-[200px]"
+                        className="bg-[#111]/95 backdrop-blur-sm rounded-lg p-3 border border-white/[0.08] shadow-sm min-w-[200px]"
                         style={{ transform: 'translateY(-50%)' }}
                     >
                         <div className="flex items-center justify-between mb-2">
@@ -155,13 +156,13 @@ function DamageMarker({ point, isSelected, onSelect, onRemove, isEditMode }: Dam
                         </div>
                         <p className="text-white text-sm mb-1">{point.description || 'Damage point'}</p>
                         <p className="text-green-400 font-semibold text-sm">
-                            ${point.estimatedCost.toLocaleString()}
+                            {formatCurrency(point.estimatedCost)}
                         </p>
                         {point.zone && (
-                            <p className="text-slate-700 text-xs mt-1">Zone: {point.zone}</p>
+                            <p className="text-white/40 text-xs mt-1">Zone: {point.zone}</p>
                         )}
                         {point.photos.length > 0 && (
-                            <p className="text-slate-700 text-xs mt-1">📷 {point.photos.length} photo(s)</p>
+                            <p className="text-white/40 text-xs mt-1">📷 {point.photos.length} photo(s)</p>
                         )}
                     </div>
                 </Html>
@@ -255,7 +256,7 @@ export function DamageSummaryPanel({
 
     if (damagePoints.length === 0) {
         return (
-            <div className="p-2 text-center text-slate-700">
+            <div className="p-2 text-center text-white/40">
                 <p className="text-sm">No damage recorded</p>
                 <p className="text-xs mt-1">Click on vehicle to add damage points</p>
             </div>
@@ -266,13 +267,13 @@ export function DamageSummaryPanel({
         <div className="p-2 space-y-2">
             {/* Summary Stats */}
             <div className="grid grid-cols-2 gap-2">
-                <div className="bg-slate-800/50 rounded-lg p-3 text-center">
+                <div className="bg-white/[0.03] rounded-lg p-3 text-center">
                     <p className="text-sm font-bold text-white">{damagePoints.length}</p>
-                    <p className="text-xs text-slate-700">Damage Points</p>
+                    <p className="text-xs text-white/40">Damage Points</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-lg p-3 text-center">
-                    <p className="text-sm font-bold text-green-400">${totalCost.toLocaleString()}</p>
-                    <p className="text-xs text-slate-700">Est. Total Cost</p>
+                <div className="bg-white/[0.03] rounded-lg p-3 text-center">
+                    <p className="text-sm font-bold text-green-400">{formatCurrency(totalCost)}</p>
+                    <p className="text-xs text-white/40">Est. Total Cost</p>
                 </div>
             </div>
 
@@ -288,7 +289,7 @@ export function DamageSummaryPanel({
                                 className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: SEVERITY_COLORS[severity as DamageSeverity] }}
                             />
-                            <span className="text-slate-300 capitalize">{severity}</span>
+                            <span className="text-white/60 capitalize">{severity}</span>
                         </div>
                         <span className="text-white font-medium">{count}</span>
                     </div>
@@ -297,14 +298,14 @@ export function DamageSummaryPanel({
 
             {/* Damage Point List */}
             <div className="space-y-2 max-h-64 overflow-y-auto" tabIndex={0} role="region" aria-label="Damage points list">
-                <p className="text-xs text-slate-700 uppercase tracking-wider">Damage Points</p>
+                <p className="text-xs text-white/40 uppercase tracking-wider">Damage Points</p>
                 {damagePoints.map((point) => (
                     <button
                         key={point.id}
                         onClick={() => onSelectDamage(point)}
                         className={`w-full text-left p-2 rounded-lg border transition-colors ${selectedDamageId === point.id
-                                ? 'bg-slate-700 border-blue-500'
-                                : 'bg-slate-800/30 border-slate-700 hover:bg-slate-700/50'
+                                ? 'bg-white/[0.08] border-emerald-500'
+                                : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.05]'
                             }`}
                     >
                         <div className="flex items-center justify-between">
@@ -315,10 +316,10 @@ export function DamageSummaryPanel({
                                 />
                                 <span className="text-sm text-white">{point.description || 'Damage'}</span>
                             </div>
-                            <span className="text-xs text-green-400">${point.estimatedCost.toLocaleString()}</span>
+                            <span className="text-xs text-green-400">{formatCurrency(point.estimatedCost)}</span>
                         </div>
                         {point.zone && (
-                            <p className="text-xs text-slate-700 mt-0.5 ml-2">{point.zone}</p>
+                            <p className="text-xs text-white/40 mt-0.5 ml-2">{point.zone}</p>
                         )}
                     </button>
                 ))}

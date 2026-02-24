@@ -35,6 +35,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { formatDateTime } from '@/utils/format-helpers';
 import {
   Table,
   TableBody,
@@ -357,9 +358,9 @@ export function DataDrilldown({
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {currentRecord.relatedEntities.map((entity, idx) => (
+                {currentRecord.relatedEntities.map((entity) => (
                   <Button
-                    key={idx}
+                    key={`${entity.type}-${entity.id}`}
                     variant="outline"
                     className="w-full justify-start"
                     onClick={() => onNavigate?.(entity.type, entity.id)}
@@ -384,10 +385,10 @@ export function DataDrilldown({
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {currentRecord.auditTrail.map((entry, idx) => (
-                  <div key={idx} className="flex gap-2 text-sm border-b pb-3">
+                {currentRecord.auditTrail.map((entry) => (
+                  <div key={`${entry.action}-${entry.timestamp.toISOString()}`} className="flex gap-2 text-sm border-b pb-3">
                     <div className="text-muted-foreground w-32">
-                      {entry.timestamp.toLocaleString()}
+                      {formatDateTime(entry.timestamp)}
                     </div>
                     <div className="flex-1">
                       <div className="font-medium">{entry.action}</div>

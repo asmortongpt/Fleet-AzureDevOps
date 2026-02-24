@@ -79,38 +79,38 @@ const variantStyles = {
     },
     info: {
         bg: 'bg-card',
-        border: 'border-blue-500/20',
-        hoverBorder: 'hover:border-blue-500/40',
-        accent: 'from-blue-500 to-blue-500/70',
-        iconBg: 'bg-blue-500/10',
-        iconColor: 'text-blue-800',
+        border: 'border-emerald-500/20',
+        hoverBorder: 'hover:border-emerald-500/40',
+        accent: 'from-emerald-500 to-emerald-500/70',
+        iconBg: 'bg-emerald-500/10',
+        iconColor: 'text-emerald-400',
         valueColor: 'text-foreground'
     }
 }
 
 const sizeStyles = {
     sm: {
-        padding: 'p-3',
-        title: 'text-xs',
-        value: 'text-sm sm:text-base',
-        subtitle: 'text-xs',
-        icon: 'p-1.5',
-        iconSize: 'w-4 h-4'
-    },
-    default: {
         padding: 'p-2',
         title: 'text-xs',
-        value: 'text-base sm:text-sm',
+        value: 'text-sm',
         subtitle: 'text-xs',
-        icon: 'p-2.5',
+        icon: 'p-1.5',
+        iconSize: 'w-3 h-3'
+    },
+    default: {
+        padding: 'p-1.5',
+        title: 'text-xs',
+        value: 'text-sm',
+        subtitle: 'text-xs',
+        icon: 'p-1.5',
         iconSize: 'w-3 h-3'
     },
     lg: {
-        padding: 'p-5 sm:p-3',
+        padding: 'p-3 sm:p-2',
         title: 'text-xs sm:text-sm',
         value: 'text-sm sm:text-base',
         subtitle: 'text-xs sm:text-sm',
-        icon: 'p-3',
+        icon: 'p-2',
         iconSize: 'w-4 h-4'
     }
 }
@@ -182,7 +182,7 @@ export function StatCard({
             )} />
 
             <div className="relative flex items-start justify-between gap-3">
-                <div className="space-y-1.5 min-w-0 flex-1">
+                <div className="space-y-0.5 min-w-0 flex-1">
                     <p className={cn(
                         'font-semibold text-muted-foreground uppercase tracking-wider truncate',
                         sizes.title

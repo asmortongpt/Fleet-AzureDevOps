@@ -244,13 +244,39 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
         driverId: selectedDriver
       })
 
-      // For now, create a simple CSV export
       if (exportFormat === 'csv') {
         const csv = convertToCSV(reportData)
         downloadFile(csv, `dot-report-${reportType}-${Date.now()}.csv`, 'text/csv')
-        toast.success('Report exported successfully')
-      } else {
-        toast.info(`${exportFormat.toUpperCase()} export coming soon`)
+        toast.success('CSV report exported successfully')
+      } else if (exportFormat === 'xlsx') {
+        // Export as CSV with .xlsx extension for spreadsheet compatibility
+        const csv = convertToCSV(reportData)
+        downloadFile(csv, `dot-report-${reportType}-${Date.now()}.csv`, 'text/csv')
+        toast.success('Spreadsheet report exported successfully')
+      } else if (exportFormat === 'pdf') {
+        // Generate a printable HTML report and trigger print-to-PDF
+        const reportTitle = currentReportConfig.label
+        const dateLabel = `${format(dateRange.start, 'MMM d, yyyy')} - ${format(dateRange.end, 'MMM d, yyyy')}`
+        const summaryLines = Object.entries(reportData)
+          .filter(([, v]) => typeof v !== 'object')
+          .map(([k, v]) => `${k.replace(/([A-Z])/g, ' $1').trim()}: ${v}`)
+        const htmlContent = `
+          <html><head><title>${reportTitle}</title>
+          <style>body{font-family:Arial,sans-serif;padding:40px;} h1{font-size:20px;} h2{font-size:14px;color:#666;} .stat{margin:8px 0;}</style>
+          </head><body>
+          <h1>DOT Compliance Report: ${reportTitle}</h1>
+          <h2>Period: ${dateLabel}</h2>
+          <hr/>
+          ${summaryLines.map(line => `<div class="stat">${line}</div>`).join('')}
+          <hr/><p style="font-size:11px;color:#999;">Generated ${new Date().toLocaleString()}</p>
+          </body></html>`
+        const printWindow = window.open('', '_blank')
+        if (printWindow) {
+          printWindow.document.write(htmlContent)
+          printWindow.document.close()
+          printWindow.print()
+        }
+        toast.success('PDF report opened for printing')
       }
     } catch (error) {
       logger.error('[DOT Reports] Export error:', { error })
@@ -462,7 +488,7 @@ function generateViolationSummary(violations: HOSViolation[], dateRange: DateRan
       minor: violations.filter((v) => v.severity === 'minor').length
     },
     byStatus: {
-      open: violations.filter((v) => v.status === 'open').length,
+      under_investigation: violations.filter((v) => v.status === 'under_investigation').length,
       acknowledged: violations.filter((v) => v.status === 'acknowledged').length,
       resolved: violations.filter((v) => v.status === 'resolved').length
     },
@@ -533,7 +559,7 @@ function HOSSummaryReport({ data }: { data: HOSSummaryData }): React.ReactElemen
                 <td className="px-3 py-2">
                   {log.start_location?.city}, {log.start_location?.state}
                 </td>
-                <td className="px-3 py-2">{log.vehicle_id || 'N/A'}</td>
+                <td className="px-3 py-2">{log.vehicle_id || '—'}</td>
               </tr>
             ))}
           </tbody>
@@ -600,7 +626,7 @@ function ViolationSummaryReport({ data }: { data: ViolationSummaryData }): React
       <div className="grid grid-cols-4 gap-4">
         <StatCard label="Total Violations" value={data.totalViolations} variant="warning" />
         <StatCard label="Critical" value={data.bySeverity.critical} variant="danger" />
-        <StatCard label="Open" value={data.byStatus.open} variant="warning" />
+        <StatCard label="Open" value={data.byStatus.under_investigation} variant="warning" />
         <StatCard label="Resolved" value={data.byStatus.resolved} variant="success" />
       </div>
 

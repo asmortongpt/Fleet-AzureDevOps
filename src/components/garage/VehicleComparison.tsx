@@ -19,6 +19,7 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface ComparisonVehicle {
     id: string
@@ -159,14 +160,12 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
                         <div className="grid grid-cols-2 gap-2">
                             <div className="text-center p-2 bg-slate-800/50 rounded-md border border-slate-700">
                                 <Car className="w-4 h-4 mx-auto mb-2 text-blue-700" />
-                                <h3 className="font-bold text-white">{vehicle1.year} {vehicle1.make}</h3>
-                                <p className="text-sm text-slate-700">{vehicle1.model}</p>
+                                <h3 className="font-bold text-white">{formatVehicleName(vehicle1)}</h3>
                                 <Badge variant="outline" className="mt-2">{vehicle1.licensePlate}</Badge>
                             </div>
                             <div className="text-center p-2 bg-slate-800/50 rounded-md border border-slate-700">
                                 <Car className="w-4 h-4 mx-auto mb-2 text-purple-400" />
-                                <h3 className="font-bold text-white">{vehicle2.year} {vehicle2.make}</h3>
-                                <p className="text-sm text-slate-700">{vehicle2.model}</p>
+                                <h3 className="font-bold text-white">{formatVehicleName(vehicle2)}</h3>
                                 <Badge variant="outline" className="mt-2">{vehicle2.licensePlate}</Badge>
                             </div>
                         </div>

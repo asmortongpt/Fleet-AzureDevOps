@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+import logger from '@/utils/logger';
+
 // Export type for GlobalStateContextType for barrel export compatibility
 export interface GlobalStateContextType {
   currentTenant: Tenant | null;
@@ -32,12 +34,16 @@ export function TenantProvider({ children }: { children: ReactNode }) {
       try {
         const tenantId = typeof window !== 'undefined' ? localStorage.getItem('tenant_id') : null;
         if (tenantId) {
-          const res = await fetch(`/api/tenants/${tenantId}`);
+          const res = await fetch(`/api/tenants/${tenantId}`, {
+            credentials: 'include',
+          });
+          if (!res.ok) throw new Error('Request failed: ' + res.status);
           const tenant = await res.json();
           setCurrentTenant(tenant);
         }
       } catch (error) {
-        // Silent failure for tenant loading - will retry on next mount
+        // Tenant loading failed - will retry on next mount
+        logger.warn('Failed to load tenant', { error: String(error) })
       } finally {
         setIsLoading(false);
       }
@@ -49,7 +55,10 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   const switchTenant = async (tenantId: number) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/tenants/${tenantId}`);
+      const res = await fetch(`/api/tenants/${tenantId}`, {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Request failed: ' + res.status);
       const tenant = await res.json();
       setCurrentTenant(tenant);
       if (typeof window !== 'undefined') {
@@ -121,11 +130,18 @@ export function FeatureFlagsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const loadFeatureFlags = async () => {
       try {
-        const res = await fetch('/api/feature-flags');
+        const res = await fetch('/api/feature-flags', {
+          credentials: 'include',
+        });
+        if (!res.ok) {
+          // Route may not exist (404) or server error — use empty defaults
+          return;
+        }
         const flags = await res.json();
         setFeatureFlags(flags);
       } catch (error) {
-        // Silent failure for feature flags loading - will use defaults
+        // Feature flags loading failed - will use defaults
+        logger.warn('Failed to load feature flags, using defaults', { error: String(error) })
       }
     };
 

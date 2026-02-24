@@ -70,7 +70,7 @@ const DriverSchema = z
 
     return {
       id: row.id,
-      name: name || row.email || 'Unknown',
+      name: name || row.email || '—',
       email: row.email || '',
       phone: row.phone || '',
       licenseNumber: row.licenseNumber || row.license_number || '',
@@ -91,8 +91,8 @@ const DriverSchema = z
       hosStatus: row.hos_status,
       hours_available: row.hours_available,
       hoursAvailable: row.hours_available,
-      medical_card_expiry: row.medical_card_expiry_date,
-      medicalCardExpiry: row.medical_card_expiry_date,
+      medical_card_expiry: row.medical_card_expiry ?? row.medical_card_expiry_date,
+      medicalCardExpiry: row.medical_card_expiry ?? row.medical_card_expiry_date,
       drug_test_date: row.drug_test_date,
       safety_score: safetyScore,
     }
@@ -135,6 +135,13 @@ export type AssignmentStatus = z.infer<typeof AssignmentStatusEnum>
 // API response types
 const DriversResponseSchema = z.array(DriverSchema)
 const AssignmentsResponseSchema = z.array(AssignmentSchema)
+const PerformanceTrendSchema = z.array(
+  z.object({
+    date: z.string(),
+    avgScore: z.coerce.number(),
+    violations: z.coerce.number(),
+  })
+)
 
 // Custom error types
 export class ApiError extends Error {
@@ -311,9 +318,19 @@ export function useReactiveDriversData(): UseReactiveDriversDataReturn {
     retryDelay: RETRY_DELAY,
   })
 
+  // Fetch performance trend from real historical data
+  const trendQuery = useQuery({
+    queryKey: ['drivers-performance-trend'],
+    queryFn: () => secureFetch('/drivers/performance-trend', PerformanceTrendSchema as any) as Promise<PerformanceTrend[]>,
+    refetchInterval: REFETCH_INTERVAL,
+    staleTime: STALE_TIME,
+    retry: RETRY_ATTEMPTS,
+    retryDelay: RETRY_DELAY,
+  })
+
   const drivers = driversQuery.data ?? []
   const assignments = assignmentsQuery.data ?? []
-  const performanceTrend: PerformanceTrend[] = []
+  const performanceTrend = trendQuery.data ?? []
 
   // Memoized metrics calculation - only recalculates when drivers/assignments change
   const metrics = useMemo<DriverMetrics>(() => {
@@ -424,11 +441,11 @@ export function useReactiveDriversData(): UseReactiveDriversDataReturn {
     })
   }, [drivers])
 
-  // Memoized top performers (top 10 by performance rating)
+  // Memoized top performers (top 10 by safety score, descending)
   const topPerformers = useMemo<Driver[]>(() => {
     return drivers
       .filter(d => d.status === 'active')
-      .sort((a, b) => b.performanceRating - a.performanceRating)
+      .sort((a, b) => b.safetyScore - a.safetyScore)
       .slice(0, MAX_TOP_PERFORMERS)
   }, [drivers])
 

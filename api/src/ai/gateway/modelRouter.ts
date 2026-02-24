@@ -8,10 +8,14 @@ import { AI_CONFIG } from '../config';
 import logger from '../../config/logger';
 
 // Initialize OpenAI client based on provider
-const getOpenAIClient = () => {
+const getOpenAIClient = (): OpenAI | null => {
   const provider = AI_CONFIG.provider?.toLowerCase() || 'openai';
 
   if (provider === 'azure' || provider === 'azure-openai') {
+    if (!process.env.AZURE_OPENAI_API_KEY) {
+      logger.warn('[modelRouter] Azure OpenAI API key not configured - AI features disabled');
+      return null;
+    }
     return new OpenAI({
       apiKey: process.env.AZURE_OPENAI_API_KEY,
       baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}`,
@@ -21,6 +25,10 @@ const getOpenAIClient = () => {
   }
 
   // Default to OpenAI
+  if (!process.env.OPENAI_API_KEY) {
+    logger.warn('[modelRouter] OpenAI API key not configured - AI features disabled');
+    return null;
+  }
   return new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -52,6 +60,9 @@ export async function callLLM({
 }: ModelCall): Promise<string> {
   try {
     const client = getOpenAIClient();
+    if (!client) {
+      throw new Error('AI provider not configured (missing API key)');
+    }
 
     const messages: any[] = [];
     if (systemPrompt) {
@@ -85,6 +96,9 @@ export async function callLLM({
 export async function callEmbeddings({ model, input }: EmbeddingCall): Promise<number[]> {
   try {
     const client = getOpenAIClient();
+    if (!client) {
+      throw new Error('AI provider not configured (missing API key)');
+    }
 
     const response = await client.embeddings.create({
       model: model || AI_CONFIG.embeddingModel,

@@ -9,6 +9,7 @@ import {
 } from "./tooltip";
 
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/utils/format-helpers";
 
 /**
  * InteractiveTooltip - Rich tooltips with vehicle data and interactive elements
@@ -127,18 +128,18 @@ export function InteractiveTooltip({
               className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden min-w-[280px] max-w-[320px]"
             >
               {/* Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-2 py-3 text-white">
+              <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-2 py-3 text-white">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
                     <h4 className="font-semibold text-sm leading-tight">{data.name}</h4>
-                    <p className="text-xs text-blue-100 mt-0.5">{data.type}</p>
+                    <p className="text-xs text-emerald-100 mt-0.5">{data.type}</p>
                   </div>
                   <div className={cn(
                     "px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1",
                     "bg-white/20 backdrop-blur-sm"
                   )}>
-                    <div className={cn("w-2 h-2 rounded-full", config.color)} />
-                    {config.label}
+                    <div className={cn("w-2 h-2 rounded-full", config?.color)} />
+                    {config?.label}
                   </div>
                 </div>
               </div>
@@ -191,14 +192,14 @@ export function InteractiveTooltip({
                 {/* Alerts */}
                 {data.alerts && data.alerts.length > 0 && (
                   <div className="space-y-1">
-                    {data.alerts.map((alert, i) => (
+                    {data.alerts.map((alert) => (
                       <div
-                        key={i}
+                        key={alert.message}
                         className={cn(
                           "text-xs p-2 rounded flex items-start gap-2",
                           alert.type === "error" && "bg-red-50 text-red-700",
                           alert.type === "warning" && "bg-yellow-50 text-yellow-700",
-                          alert.type === "info" && "bg-blue-50 text-blue-700"
+                          alert.type === "info" && "bg-emerald-50 text-emerald-400"
                         )}
                       >
                         <span className="flex-shrink-0">
@@ -228,7 +229,7 @@ export function InteractiveTooltip({
                           onViewDetails(data.id);
                           setIsOpen(false);
                         }}
-                        className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors"
+                        className="flex-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-md transition-colors"
                       >
                         View Details
                       </button>
@@ -273,7 +274,7 @@ function MetricItem({ label, value, icon, warning }: MetricItemProps) {
     )}>
       <div className="flex items-center gap-1 mb-1">
         {icon && <span className="text-xs">{icon}</span>}
-        <span className="text-xs text-slate-700">{label}</span>
+        <span className="text-xs text-white/40">{label}</span>
       </div>
       <div className={cn(
         "text-sm font-semibold",
@@ -344,7 +345,7 @@ function formatRelativeTime(date: Date): string {
   } else if (diffHours < 24) {
     return `${diffHours}h ago`;
   } else {
-    return date.toLocaleDateString();
+    return formatDate(date);
   }
 }
 

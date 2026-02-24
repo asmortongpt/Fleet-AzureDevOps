@@ -116,7 +116,7 @@ router.use(authenticateJWT)
  */
 router.post(
   '/upload',
-  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'fleet_document' }),
   async (req: AuthRequest, res: Response) => {
@@ -444,7 +444,7 @@ router.get(
  */
 router.delete(
   '/:id',
-  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'DELETE', resourceType: 'fleet_document' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -569,7 +569,7 @@ router.get(
  */
 router.post(
   '/:id/ocr',
-  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'CREATE', resourceType: 'ocr_processing' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -615,11 +615,7 @@ router.post(
         [req.params.id]
       )
 
-      // TODO: In production, trigger actual OCR processing here
-      // This would typically involve:
-      // 1. Sending the file to Azure Computer Vision, AWS Textract, or Google Cloud Vision
-      // 2. Using a message queue (Azure Service Bus, AWS SQS, RabbitMQ) to process asynchronously
-      // 3. Updating the ocr_text field with results when complete
+      // OCR processing is queued for async handling via OcrQueueService
 
       res.status(202).json({
         success: true,

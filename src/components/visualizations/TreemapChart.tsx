@@ -7,6 +7,7 @@
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatNumber } from '@/utils/format-helpers'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface TreemapDataPoint {
@@ -26,12 +27,12 @@ interface TreemapChartProps {
 }
 
 const COLORS = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-7))',
-  'hsl(var(--chart-5))',
+  '#3B82F6',
+  '#10B981',
+  '#8B5CF6',
+  '#F59E0B',
+  '#EC4899',
+  '#F97316',
 ]
 
 export function TreemapChart({
@@ -43,11 +44,11 @@ export function TreemapChart({
   colors = COLORS,
 }: TreemapChartProps) {
   const chartColors = {
-    text: 'hsl(var(--foreground))',
+    text: 'var(--foreground)',
     tooltip: {
-      background: 'hsl(var(--card))',
-      border: 'hsl(var(--border))',
-      text: 'hsl(var(--foreground))',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -64,7 +65,7 @@ export function TreemapChart({
           width={width}
           height={height}
           fill={colors[index % colors.length]}
-          stroke="hsl(var(--background))"
+          stroke="var(--background)"
           strokeWidth={2}
           fillOpacity={0.8}
           className="transition-all duration-300 hover:opacity-100"
@@ -73,7 +74,7 @@ export function TreemapChart({
           x={x + width / 2}
           y={y + height / 2 - 10}
           textAnchor="middle"
-          fill="hsl(var(--background))"
+          fill="var(--background)"
           fontSize={width > 100 ? 14 : 12}
           fontWeight="600"
         >
@@ -83,11 +84,11 @@ export function TreemapChart({
           x={x + width / 2}
           y={y + height / 2 + 10}
           textAnchor="middle"
-          fill="hsl(var(--background))"
+          fill="var(--background)"
           fontSize={width > 100 ? 12 : 10}
           opacity={0.9}
         >
-          {size.toLocaleString()}
+          {formatNumber(size)}
         </text>
       </g>
     )
@@ -108,7 +109,7 @@ export function TreemapChart({
       >
         <p className="font-semibold mb-1">{data.name}</p>
         <p className="text-sm">
-          Value: <span className="font-mono">{data.size?.toLocaleString()}</span>
+          Value: <span className="font-mono">{formatNumber(data.size)}</span>
         </p>
       </div>
     )
@@ -140,8 +141,8 @@ export function TreemapChart({
             <Treemap
               data={data as readonly any[]}
               dataKey="size"
-              stroke="hsl(var(--background))"
-              fill="hsl(var(--primary))"
+              stroke="var(--background)"
+              fill="var(--primary)"
               content={<CustomizedContent />}
               animationDuration={1000}
             >

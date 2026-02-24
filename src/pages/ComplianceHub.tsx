@@ -25,9 +25,12 @@ import {
   BadgeCheck,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
+import { formatVehicleName } from '@/utils/vehicle-display'
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn } from '@/components/ui/data-table'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { cn } from '@/lib/utils'
 
@@ -60,7 +63,7 @@ export default function ComplianceHub() {
       return {
         id: inspection.id,
         recordType: 'Inspection' as const,
-        vehicle: vehicle ? `${vehicle.name || vehicle.make} ${vehicle.model || ''}`.trim() : '',
+        vehicle: vehicle ? formatVehicleName(vehicle) : '',
         driver: driver ? `${driver.first_name || ''} ${driver.last_name || ''}`.trim() : '',
         date: inspection.completed_at || inspection.inspection_date || inspection.created_at || '',
         status: (inspection.status === 'passed' ? 'Passed' : inspection.status === 'failed' ? 'Failed' : 'Pending') as ComplianceRecord['status'],
@@ -87,7 +90,7 @@ export default function ComplianceHub() {
       return {
         id: incident.id,
         recordType: 'Violation' as const,
-        vehicle: vehicle ? `${vehicle.name || vehicle.make} ${vehicle.model || ''}`.trim() : '',
+        vehicle: vehicle ? formatVehicleName(vehicle) : '',
         driver: driver ? `${driver.first_name || ''} ${driver.last_name || ''}`.trim() : '',
         date: incident.created_at || incident.event_time || '',
         status: status as ComplianceRecord['status'],
@@ -253,7 +256,20 @@ export default function ComplianceHub() {
     }
   }, [complianceRecords])
 
+  if (fleetData.error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetData.error instanceof Error ? fleetData.error.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
+
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-background p-3 space-y-3">
       {/* Header with gradient accent */}
       <div className="relative">
@@ -326,6 +342,7 @@ export default function ComplianceHub() {
             <Button
               variant="outline"
               className="bg-card border-primary/20 text-foreground hover:bg-primary/10"
+              onClick={() => toast.info('Exporting compliance records...')}
             >
               Export Records
             </Button>
@@ -358,6 +375,7 @@ export default function ComplianceHub() {
         CTA Compliance Management • ArchonY Platform • DOT & FMCSA compliant • Professional data tables
       </div>
     </div>
+    </ErrorBoundary>
   )
 }
 

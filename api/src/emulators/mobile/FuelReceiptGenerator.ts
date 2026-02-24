@@ -11,6 +11,7 @@
 
 import { EventEmitter } from 'events'
 
+import logger from '../../config/logger'
 import { PhotoGenerator, GeneratedPhoto } from './PhotoGenerator'
 
 export interface FuelStation {
@@ -153,7 +154,7 @@ export class FuelReceiptGenerator extends EventEmitter {
       }
     )
 
-    console.log(`Initialized ${this.fuelStations.length} fuel stations`)
+    logger.info(`Initialized ${this.fuelStations.length} fuel stations`)
   }
 
   /**

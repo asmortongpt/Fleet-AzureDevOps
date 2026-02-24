@@ -13,12 +13,12 @@ export function UltraLuxuryDashboard() {
   const [hoveredSection, setHoveredSection] = useState<string | null>(null)
 
   const colors = {
-    orange: '#FF6B35',      // CTA Orange
-    blue: '#41B2E3',        // Blue Skies
+    orange: '#f5f5f5',      // Neutral white
+    blue: '#3B82F6',        // Blue Skies
     green: '#10B981',       // For status indicators (approved by spec)
-    gold: '#F0A000',        // Golden Hour
-    red: '#DD3903',         // Noon Red
-    navy: '#2F3359',        // Navy (from spec)
+    gold: '#a0a0a0',        // Neutral gray
+    red: '#f5f5f5',         // Neutral white
+    navy: '#1F3076',        // Navy (from spec)
   }
 
   // Premium metrics with real data
@@ -71,11 +71,11 @@ export function UltraLuxuryDashboard() {
     size: Math.random() * 4 + 1,
     duration: Math.random() * 15 + 20,
     delay: Math.random() * 5,
-    color: [colors.blue, colors.orange, colors.red, colors.gold][i % 4],
+    color: [colors.blue, '#ffffff', '#a0a0a0', colors.blue][i % 4],
   }))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-[#111] via-[#1a1a1a] to-[#111] text-white overflow-hidden relative">
       {/* Ultra-premium ambient background with multi-layered particles and glows */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Dynamic gradient glows */}
@@ -136,7 +136,7 @@ export function UltraLuxuryDashboard() {
         <div className="absolute inset-0" style={{
           backgroundImage: `
             linear-gradient(0deg, transparent 24%, ${colors.blue}05 25%, ${colors.blue}05 26%, transparent 27%, transparent 74%, ${colors.blue}05 75%, ${colors.blue}05 76%, transparent 77%, transparent),
-            linear-gradient(90deg, transparent 24%, ${colors.orange}05 25%, ${colors.orange}05 26%, transparent 27%, transparent 74%, ${colors.orange}05 75%, ${colors.orange}05 76%, transparent 77%, transparent)
+            linear-gradient(90deg, transparent 24%, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.02) 26%, transparent 27%, transparent 74%, rgba(255,255,255,0.02) 75%, rgba(255,255,255,0.02) 76%, transparent 77%, transparent)
           `,
           backgroundSize: '50px 50px',
           opacity: 0.2,
@@ -270,7 +270,7 @@ export function UltraLuxuryDashboard() {
           className="mt-16 p-8 rounded-2xl backdrop-blur-2xl border"
           style={{
             border: `1px solid ${colors.blue}20`,
-            background: `linear-gradient(135deg, ${colors.blue}08, ${colors.red}05)`,
+            background: `linear-gradient(135deg, ${colors.blue}08, rgba(255,255,255,0.02))`,
             boxShadow: `0 8px 32px ${colors.blue}10, inset 0 1px 0 rgba(255,255,255,0.05)`
           }}
           initial={{ opacity: 0, y: 20 }}
@@ -351,7 +351,7 @@ function PremiumInfoCard({
         <div className="space-y-4">
           {stats.map((stat, index) => (
             <motion.div
-              key={index}
+              key={stat.label}
               onMouseEnter={() => setHoveredStat(index)}
               onMouseLeave={() => setHoveredStat(null)}
               className="space-y-2"

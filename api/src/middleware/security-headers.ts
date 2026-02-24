@@ -39,7 +39,7 @@ const DEFAULT_CSP_DIRECTIVES: CSPDirectives = {
   'base-uri': ["'self'"],
   'frame-ancestors': ["'none'"],
   'object-src': ["'none'"],
-  'script-src': ["'self'"],
+  'script-src': ["'self'", "'wasm-unsafe-eval'"],
   'upgrade-insecure-requests': []
 };
 

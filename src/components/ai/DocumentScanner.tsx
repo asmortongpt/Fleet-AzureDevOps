@@ -20,6 +20,7 @@ import {
   Eye
 } from 'lucide-react'
 import React, { useState, useRef } from 'react'
+import { toast } from 'sonner'
 
 import { apiClient } from '../../lib/api'
 import { Alert, AlertDescription } from '../ui/alert'
@@ -125,7 +126,7 @@ export function DocumentScanner({
     } catch (error: unknown) {
       logger.error('Document processing error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      alert(`Error processing document: ${errorMessage}`)
+      toast.error(`Error processing document: ${errorMessage}`)
     } finally {
       setIsProcessing(false)
     }
@@ -316,8 +317,8 @@ export function DocumentScanner({
                         <AlertCircle className="h-4 w-4 text-yellow-600" />
                         <AlertDescription>
                           <p className="font-semibold text-yellow-900 mb-1">Issues Found:</p>
-                          {analysis.validationIssues.map((issue, index) => (
-                            <p key={index} className="text-sm text-yellow-800">• {issue}</p>
+                          {analysis.validationIssues.map((issue) => (
+                            <p key={issue} className="text-sm text-yellow-800">• {issue}</p>
                           ))}
                         </AlertDescription>
                       </Alert>

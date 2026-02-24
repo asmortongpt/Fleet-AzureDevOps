@@ -258,7 +258,15 @@ export class CostAnalysisService {
       date: Date
     }>(
       `SELECT
-         COALESCE(description, source_table) AS description,
+         COALESCE(
+           NULLIF(NULLIF(description, ''), 'Auto-generated cost entry'),
+           CASE COALESCE(source_table, source_type, '')
+             WHEN 'fuel_transactions' THEN INITCAP(REPLACE(cost_category, '_', ' ')) || ' - ' || COALESCE(subcategory, 'Fleet')
+             WHEN 'work_orders' THEN 'Maintenance - ' || COALESCE(subcategory, INITCAP(REPLACE(cost_category, '_', ' ')))
+             WHEN 'invoices' THEN 'Invoice ' || COALESCE(reference_number, '#' || LEFT(source_id::text, 8))
+             ELSE INITCAP(REPLACE(cost_category, '_', ' '))
+           END
+         ) AS description,
          amount::text AS amount,
          cost_category AS category,
          transaction_date AS date

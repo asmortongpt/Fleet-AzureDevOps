@@ -9,6 +9,7 @@ import {
   Moon
 } from "lucide-react"
 import { useState, useMemo } from "react"
+import { toast } from "sonner"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { MapFirstLayout } from "@/components/layout/MapFirstLayout"
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/select"
 import { Driver, Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface DriversMapViewProps {
   drivers: Driver[]
@@ -84,7 +86,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
       case "off-duty":
         return <Clock className="h-3 w-3 text-gray-700" />
       case "on-leave":
-        return <Moon className="h-3 w-3 text-blue-800" />
+        return <Moon className="h-3 w-3 text-emerald-500" />
       default:
         return <User className="h-3 w-3 text-gray-700" />
     }
@@ -143,7 +145,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 bg-blue-500 rounded-full" />
+            <div className="h-2 w-2 bg-emerald-500 rounded-full" />
             <span className="text-sm">
               <span className="font-semibold">{stats.onLeave}</span> On Leave
             </span>
@@ -229,7 +231,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
                 <div className="flex items-center gap-2">
                   <Truck className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">
-                    {selectedDriverVehicle.year} {selectedDriverVehicle.make} {selectedDriverVehicle.model}
+                    {formatVehicleName(selectedDriverVehicle)}
                   </span>
                 </div>
                 <div className="text-xs text-muted-foreground">
@@ -239,11 +241,11 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
             )}
 
             <div className="pt-3 space-y-2">
-              <Button className="w-full" size="sm">
+              <Button className="w-full" size="sm" onClick={() => toast.info('Opening messaging for ' + selectedDriver?.name)}>
                 <Mail className="h-4 w-4 mr-2" />
                 Message Driver
               </Button>
-              <Button variant="outline" className="w-full" size="sm">
+              <Button variant="outline" className="w-full" size="sm" onClick={() => { if (selectedDriver?.phone) window.open('tel:' + selectedDriver.phone) }}>
                 <Phone className="h-4 w-4 mr-2" />
                 Call {selectedDriver.phone}
               </Button>

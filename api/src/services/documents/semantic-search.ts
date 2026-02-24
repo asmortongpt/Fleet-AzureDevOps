@@ -6,9 +6,9 @@ import { Pool } from 'pg';
 
 import logger from '../../config/logger';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 interface SearchOptions {
   query: string;
@@ -42,6 +42,10 @@ export class SemanticSearchService {
    * Generate embedding vector for text using OpenAI
    */
   async generateEmbedding(text: string): Promise<number[]> {
+    if (!openai) {
+      throw new Error('OpenAI API key not configured - semantic search is unavailable');
+    }
+
     // Check cache first
     const cacheKey = this.hashText(text);
     if (this.embeddingCache.has(cacheKey)) {

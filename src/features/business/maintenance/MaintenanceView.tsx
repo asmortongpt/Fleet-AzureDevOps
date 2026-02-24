@@ -1,5 +1,8 @@
 import React from 'react';
 
+import { formatNumber } from '@/utils/format-helpers';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
+
 interface MaintenanceViewProps {
   currentTheme: any;
   vehicles: any[];
@@ -26,9 +29,9 @@ const MaintenanceView: React.FC<MaintenanceViewProps> = ({ currentTheme, vehicle
             borderRadius: '8px',
             border: `1px solid ${currentTheme.border}`
           }}>
-            <h3 style={{ color: currentTheme.text }}>{vehicle.make} {vehicle.model}</h3>
+            <h3 style={{ color: currentTheme.text }}>{formatVehicleShortName(vehicle)}</h3>
             <p style={{ color: currentTheme.textMuted }}>Plate: {vehicle.plateNumber}</p>
-            <p style={{ color: currentTheme.textMuted }}>Mileage: {vehicle.mileage.toLocaleString()}</p>
+            <p style={{ color: currentTheme.textMuted }}>Mileage: {formatNumber(vehicle.mileage)}</p>
             <p style={{ color: currentTheme.warning }}>In Maintenance</p>
           </div>
         ))}

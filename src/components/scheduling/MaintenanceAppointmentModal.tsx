@@ -13,6 +13,7 @@ import * as z from 'zod'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import {
   Dialog,
@@ -44,8 +45,10 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { Vehicle, Technician } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
 import { MaintenanceAppointment, CreateMaintenanceRequest, AppointmentType, ServiceBay } from '@/types/scheduling'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 const appointmentSchema = z.object({
   vehicleId: z.string().min(1, 'Vehicle is required'),
@@ -104,7 +107,7 @@ const generateTimeSlots = () => {
 const TIME_SLOTS = generateTimeSlots()
 
 const PRIORITY_OPTIONS = [
-  { value: 'low', label: 'Low', color: 'text-blue-800' },
+  { value: 'low', label: 'Low', color: 'text-emerald-500' },
   { value: 'medium', label: 'Medium', color: 'text-yellow-600' },
   { value: 'high', label: 'High', color: 'text-orange-600' },
   { value: 'urgent', label: 'Urgent', color: 'text-red-600' },
@@ -276,7 +279,7 @@ export function MaintenanceAppointmentModal({
                     <SelectContent>
                       {vehicles.map((vehicle) => (
                         <SelectItem key={vehicle.id} value={vehicle.id}>
-                          {vehicle.make} {vehicle.model} ({vehicle.licensePlate}) - {vehicle.year}
+                          {formatVehicleName(vehicle)}{vehicle.licensePlate ? ` (${vehicle.licensePlate})` : ''}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -285,7 +288,7 @@ export function MaintenanceAppointmentModal({
                   {selectedVehicle && (
                     <div className="text-sm text-muted-foreground mt-2">
                       <div>VIN: {selectedVehicle.vin}</div>
-                      <div>Mileage: {selectedVehicle.mileage.toLocaleString()} miles</div>
+                      <div>Mileage: {formatNumber(selectedVehicle.mileage)} miles</div>
                     </div>
                   )}
                 </FormItem>
@@ -518,8 +521,8 @@ export function MaintenanceAppointmentModal({
 
             {/* Availability Check */}
             {checking && (
-              <Alert variant="default" className="border-blue-200 bg-blue-50">
-                <Clock className="h-4 w-4 text-blue-800" />
+              <Alert variant="default" className="border-emerald-500/20 bg-emerald-500/5">
+                <Clock className="h-4 w-4 text-emerald-500" />
                 <AlertDescription>Checking availability...</AlertDescription>
               </Alert>
             )}
@@ -567,6 +570,18 @@ export function MaintenanceAppointmentModal({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
+              <EmailButton
+                context={{
+                  type: 'maintenance_reminder',
+                  entityName: selectedVehicle ? formatVehicleName(selectedVehicle) : undefined,
+                  details: watchDate && watchStartTime
+                    ? `Maintenance scheduled ${format(watchDate, 'PPP')} at ${watchStartTime}. Duration: ${watchDuration ?? 60} minutes.${selectedAppointmentType ? ` Service: ${selectedAppointmentType.name}.` : ''}`
+                    : undefined,
+                }}
+                label="Email Notification"
+                size="sm"
+                variant="outline"
+              />
               <Button
                 type="submit"
                 disabled={submitting || checking || conflicts.length > 0}

@@ -9,7 +9,7 @@ export interface Vehicle {
   year: number
   vin: string
   licensePlate: string
-  status: "active" | "idle" | "charging" | "service" | "emergency" | "offline"
+  status: "active" | "idle" | "charging" | "service" | "emergency" | "offline" | "maintenance" | "retired" | "assigned" | "dispatched" | "en_route" | "on_site" | "completed"
   location: {
     lat: number
     lng: number

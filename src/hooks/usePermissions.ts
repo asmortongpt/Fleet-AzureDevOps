@@ -100,7 +100,7 @@ async function fetchPermissions(): Promise<UserPermissions> {
  * Check permission for a specific action
  */
 async function checkPermission(request: PermissionCheckRequest): Promise<PermissionCheckResponse> {
-  const response = await axios.post('/api/v1/permissions/check', request);
+  const response = await axios.get(`/api/permissions/check/${request.action}`);
   return response.data;
 }
 

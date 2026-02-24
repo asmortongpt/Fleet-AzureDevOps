@@ -1,8 +1,11 @@
-import { ArrowLeft, Sparkles, Send, Code, Eye, Save } from 'lucide-react';
+import { ArrowLeft, Sparkles, Send, Code, Eye, Save, X } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import apiClient from '@/lib/api-client';
 import logger from '@/utils/logger';
@@ -30,6 +33,9 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
   const [generatedReport, setGeneratedReport] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [jsonDialogOpen, setJsonDialogOpen] = useState(false);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [previewVisual, setPreviewVisual] = useState<any>(null);
 
   // Example prompts
   const examplePrompts = [
@@ -80,7 +86,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
       onReportCreated(reportId);
     } catch (err) {
       logger.error('Save error:', err);
-      alert('Failed to save report. Please try again.');
+      toast.error('Failed to save report. Please try again.');
     }
   }, [generatedReport, onReportCreated]);
 
@@ -161,9 +167,9 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   Example Prompts
                 </h3>
                 <div className="space-y-2">
-                  {examplePrompts.map((example, index) => (
+                  {examplePrompts.map((example) => (
                     <button
-                      key={index}
+                      key={example}
                       onClick={() => setPrompt(example)}
                       className="w-full text-left px-2 py-3 bg-muted/40 hover:bg-muted/60 rounded-lg transition-colors text-sm text-muted-foreground"
                     >
@@ -216,7 +222,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Edit Prompt
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" onClick={() => setJsonDialogOpen(true)}>
                     <Code className="h-4 w-4 mr-2" />
                     View JSON
                   </Button>
@@ -238,9 +244,9 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                 </div>
 
                 <div className="space-y-2">
-                  {generatedReport.visuals?.map((visual: any, index: number) => (
+                  {generatedReport.visuals?.map((visual: any) => (
                     <div
-                      key={index}
+                      key={visual.title}
                       className="p-2 bg-muted/40 rounded-lg border-2 border-dashed border-border/50"
                     >
                       <div className="flex items-center justify-between mb-2">
@@ -248,7 +254,10 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                           <div className="font-medium text-foreground">{visual.title}</div>
                           <div className="text-xs text-muted-foreground">Type: {visual.type}</div>
                         </div>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => {
+                          setPreviewVisual(visual)
+                          setPreviewDialogOpen(true)
+                        }}>
                           <Eye className="h-4 w-4 mr-1" />
                           Preview
                         </Button>
@@ -286,6 +295,75 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
           )}
         </div>
       </div>
+
+      {/* JSON Schema Dialog */}
+      <Dialog open={jsonDialogOpen} onOpenChange={setJsonDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Code className="h-4 w-4" />
+              Report JSON Schema
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[60vh]">
+            <pre className="text-xs font-mono bg-muted p-4 rounded-lg overflow-x-auto whitespace-pre-wrap">
+              {generatedReport ? JSON.stringify(generatedReport, null, 2) : 'No report generated'}
+            </pre>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Visual Preview Dialog */}
+      <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-4 w-4" />
+              Visual Preview: {previewVisual?.title || 'Untitled'}
+            </DialogTitle>
+          </DialogHeader>
+          {previewVisual && (
+            <div className="space-y-3 py-2">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Type:</span>{' '}
+                  <span className="font-medium">{previewVisual.type}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Measures:</span>{' '}
+                  <span className="font-medium">{previewVisual.measures?.length || 0}</span>
+                </div>
+              </div>
+              {previewVisual.measures && previewVisual.measures.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Configured Measures</h4>
+                  <div className="space-y-1">
+                    {previewVisual.measures.map((m: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between p-2 bg-muted rounded text-sm">
+                        <span>{m.label || m.id}</span>
+                        <span className="text-muted-foreground text-xs">{m.format || m.aggregation || 'value'}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="p-4 border-2 border-dashed rounded-lg text-center text-muted-foreground">
+                <div className="text-3xl mb-2">
+                  {previewVisual.type === 'line' ? '📈' : previewVisual.type === 'bar' ? '📊' : previewVisual.type === 'table' ? '📋' : '📊'}
+                </div>
+                <p className="text-sm">{previewVisual.type} visualization</p>
+                <p className="text-xs mt-1">Data will be populated when the report is executed</p>
+              </div>
+              <div className="mt-2">
+                <h4 className="text-sm font-medium mb-1">Raw Configuration</h4>
+                <pre className="text-xs font-mono bg-muted p-2 rounded overflow-x-auto max-h-32">
+                  {JSON.stringify(previewVisual, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

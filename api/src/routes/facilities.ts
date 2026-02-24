@@ -9,6 +9,8 @@ import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac'
 import { validateParams, validateBody, validateQuery } from '../middleware/validate'
 import { tenantSafeQuery } from '../utils/dbHelpers'
 
+import { flexUuid } from '../middleware/validation'
+
 interface VehicleRow {
   id: string | number
   name: string
@@ -25,7 +27,7 @@ interface VehicleRow {
 const router = Router()
 
 const facilityIdSchema = z.object({
-  id: z.string().uuid()
+  id: flexUuid
 })
 
 const facilityCreateSchema = z.object({
@@ -310,7 +312,7 @@ router.delete(
       return res.status(404).json({ error: 'Facility not found' })
     }
 
-    res.json({ message: 'Facility deleted successfully' })
+    res.json({ success: true, message: 'Facility deleted successfully' })
   })
 )
 
@@ -341,7 +343,7 @@ router.get(
         fuel_level,
         metadata
       FROM vehicles
-      WHERE tenant_id = $1 AND assigned_facility_id = $2
+      WHERE tenant_id = $1 AND assigned_facility_id = $2 AND status != 'retired'
       ORDER BY name ASC`,
       [tenantId, facilityId],
       tenantId

@@ -9,11 +9,15 @@ import {
     Activity
 } from "lucide-react"
 
+import { formatVehicleShortName } from "@/utils/vehicle-display"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { EmailButton } from "@/components/email/EmailButton"
 import { Driver, Vehicle } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatNumber } from "@/utils/format-helpers"
 
 interface DriverDetailPanelProps {
     driver: Driver | null
@@ -36,7 +40,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                 className="absolute right-4 top-20 bottom-8 w-[400px] bg-card/95 backdrop-blur-md border border-border/50 shadow-lg rounded-lg overflow-hidden flex flex-col z-40"
             >
                 {/* Header / Profile Cover */}
-                <div className="relative h-32 bg-gradient-to-br from-slate-900 to-slate-800 shrink-0">
+                <div className="relative h-32 bg-gradient-to-br from-[#111] to-[#1a1a1a] shrink-0">
                     <Button variant="ghost" size="icon" onClick={onClose} className="absolute right-2 top-2 text-white/70 hover:text-white hover:bg-white/10" aria-label="Close driver details">
                         <X className="w-3 h-3" />
                     </Button>
@@ -50,10 +54,18 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                             <Phone className="w-3 h-3 mr-1.5" />
                             Call
                         </Button>
-                        <Button size="sm" variant="secondary" className="h-7 text-xs bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-sm">
-                            <Mail className="w-3 h-3 mr-1.5" />
-                            Email
-                        </Button>
+                        <EmailButton
+                            to={driver.email}
+                            context={{
+                                type: 'driver_notice',
+                                entityName: driver.name,
+                                recipientName: driver.name,
+                            }}
+                            label="Email"
+                            size="sm"
+                            variant="secondary"
+                            className="h-7 text-xs bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-sm"
+                        />
                     </div>
                 </div>
 
@@ -62,7 +74,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
 
                     {/* Identity */}
                     <div>
-                        <h2 className="text-sm font-bold text-slate-900">{driver.name}</h2>
+                        <h2 className="text-sm font-bold text-white/90">{driver.name}</h2>
                         <div className="flex items-center gap-2 mt-1 text-muted-foreground text-sm">
                             <Badge variant="outline" className="rounded-md font-normal">
                                 {driver.id}
@@ -87,7 +99,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                             <div className="text-[10px] uppercase font-bold text-muted-foreground mt-0.5">Rating</div>
                         </div>
                         <div className="bg-muted/40 p-3 rounded-md border border-border/50 text-center">
-                            <div className="text-base font-bold text-blue-800">
+                            <div className="text-base font-bold text-emerald-400">
                                 98%
                             </div>
                             <div className="text-[10px] uppercase font-bold text-muted-foreground mt-0.5">On-Time</div>
@@ -109,14 +121,14 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                     <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Current Status</h4>
                                     <div className="flex items-center justify-between p-3 bg-card/90 border border-border/50 rounded-md shadow-sm">
                                         <div className="flex items-center gap-3">
-                                            <Activity className="w-3 h-3 text-blue-800" />
+                                            <Activity className="w-3 h-3 text-emerald-400" />
                                             <div>
-                                                <div className="font-semibold text-sm capitalize">{driver.status}</div>
+                                                <div className="font-semibold text-sm">{formatEnum(driver.status)}</div>
                                                 <div className="text-xs text-muted-foreground">Since 08:00 AM</div>
                                             </div>
                                         </div>
                                         <Badge variant={driver.status === 'active' ? 'default' : 'secondary'}>
-                                            {driver.status}
+                                            {formatEnum(driver.status)}
                                         </Badge>
                                     </div>
                                 </div>
@@ -125,15 +137,15 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                 <div className="space-y-3">
                                     <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Assigned Vehicle</h4>
                                     {assignment ? (
-                                        <div className="p-3 bg-card/90 border border-border/50 rounded-md shadow-sm hover:border-blue-500/50 transition-colors cursor-pointer group">
+                                        <div className="p-3 bg-card/90 border border-border/50 rounded-md shadow-sm hover:border-emerald-500/50 transition-colors cursor-pointer group">
                                             <div className="flex justify-between items-start">
                                                 <div className="flex gap-3">
                                                     <div className="w-10 h-8 bg-muted/40 rounded-lg flex items-center justify-center">
                                                         <Truck className="w-3 h-3 text-muted-foreground" />
                                                     </div>
                                                     <div>
-                                                        <div className="font-semibold text-sm group-hover:text-blue-200 transition-colors">
-                                                            {assignment.make} {assignment.model}
+                                                        <div className="font-semibold text-sm group-hover:text-emerald-200 transition-colors">
+                                                            {formatVehicleShortName(assignment)}
                                                         </div>
                                                         <div className="text-xs text-muted-foreground mt-0.5">
                                                             {assignment.number}
@@ -176,7 +188,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                 <div className="space-y-2">
                                     {recentActivity.map((item) => (
                                         <div key={item.id} className="relative pl-3 pb-3 border-l border-border/50 last:pb-0">
-                                            <div className={`absolute -left-1.5 top-0 w-3 h-3 rounded-full border-2 border-card ${item.type === 'alert' ? 'bg-red-500' : 'bg-blue-500'
+                                            <div className={`absolute -left-1.5 top-0 w-3 h-3 rounded-full border-2 border-card ${item.type === 'alert' ? 'bg-red-500' : 'bg-emerald-500'
                                                 }`} />
                                             <div className="flex justify-between items-start -mt-1">
                                                 <div>
@@ -198,10 +210,10 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                 {assignment ? (
                                     <div className="space-y-2">
                                         <div className="bg-muted/40 p-2 rounded-md border border-border/50 flex flex-col items-center">
-                                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                                                <Truck className="w-4 h-4 text-blue-800" />
+                                            <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-3">
+                                                <Truck className="w-4 h-4 text-emerald-400" />
                                             </div>
-                                            <h3 className="font-bold text-sm">{assignment.make} {assignment.model}</h3>
+                                            <h3 className="font-bold text-sm">{formatVehicleShortName(assignment)}</h3>
                                             <div className="text-sm text-muted-foreground">{assignment.number}</div>
                                             <Badge className="mt-2" variant={assignment.status === 'active' ? 'default' : 'secondary'}>
                                                 {assignment.status}
@@ -214,7 +226,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                             </div>
                                             <div className="p-3 bg-muted/40 rounded-lg border border-border/50">
                                                 <div className="text-xs text-muted-foreground uppercase font-semibold">Odometer</div>
-                                                <div className="text-sm font-bold text-foreground">{(assignment.mileage || 0).toLocaleString()} mi</div>
+                                                <div className="text-sm font-bold text-foreground">{formatNumber(assignment.mileage || 0)} mi</div>
                                             </div>
                                         </div>
                                     </div>

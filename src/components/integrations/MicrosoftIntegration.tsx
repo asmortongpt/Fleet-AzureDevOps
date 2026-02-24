@@ -4,13 +4,14 @@
 
 import { Mail, MessageSquare, Calendar, Send } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import logger from '@/utils/logger';
 
 // Microsoft Graph API configuration
 const GRAPH_CONFIG = {
-  clientId: process.env.VITE_AZURE_AD_CLIENT_ID || 'baae0851-0c24-4214-8587-e3fabc46bd4a',
-  tenantId: process.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
+  clientId: import.meta.env.VITE_AZURE_AD_CLIENT_ID || 'baae0851-0c24-4214-8587-e3fabc46bd4a',
+  tenantId: import.meta.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
   scopes: ['Mail.Send', 'Chat.ReadWrite', 'Calendars.ReadWrite']
 };
 
@@ -42,13 +43,14 @@ export const OutlookEmailButton: React.FC<{
           }
         })
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       if (response.ok) {
-        alert('Email sent successfully!');
+        toast.success('Email sent successfully!');
       }
     } catch (error) {
       logger.error('Failed to send email:', error);
-      alert('Failed to send email');
+      toast.error('Failed to send email');
     } finally {
       setSending(false);
     }
@@ -91,6 +93,7 @@ export const TeamsChatButton: React.FC<{
           ]
         })
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       const chat = await response.json();
 
@@ -163,13 +166,14 @@ export const CalendarEventButton: React.FC<{
           }))
         })
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       if (response.ok) {
-        alert('Calendar event created!');
+        toast.success('Calendar event created!');
       }
     } catch (error) {
       logger.error('Failed to create event:', error);
-      alert('Failed to create calendar event');
+      toast.error('Failed to create calendar event');
     } finally {
       setCreating(false);
     }

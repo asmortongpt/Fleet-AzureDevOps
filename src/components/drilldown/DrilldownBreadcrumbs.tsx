@@ -17,13 +17,13 @@ export function DrilldownBreadcrumbs() {
   return (
     <nav
       data-testid="breadcrumb"
-      className="flex items-center gap-2 px-3 py-3 bg-slate-800/50 border-b border-slate-700 overflow-x-auto"
+      className="flex items-center gap-2 px-3 py-3 bg-[#242424] border-b border-white/[0.08] overflow-x-auto"
       aria-label="Breadcrumb"
     >
       {/* Home button */}
       <button
         onClick={reset}
-        className="flex items-center gap-2 text-slate-700 hover:text-white transition-colors whitespace-nowrap shrink-0"
+        className="flex items-center gap-2 text-white/40 hover:text-white transition-colors whitespace-nowrap shrink-0"
         data-testid="breadcrumb-0"
         aria-label="Go to home"
       >
@@ -34,14 +34,14 @@ export function DrilldownBreadcrumbs() {
       {/* Breadcrumb trail */}
       {levels.map((level, index) => (
         <div key={level.id} className="flex items-center gap-2 shrink-0">
-          <ChevronRight className="w-4 h-4 text-slate-600" />
+          <ChevronRight className="w-4 h-4 text-white/40" />
           <button
             onClick={() => goToLevel(index)}
             className={cn(
               "text-sm whitespace-nowrap transition-colors",
               index === levels.length - 1
                 ? "text-white font-semibold"
-                : "text-slate-700 hover:text-white font-medium"
+                : "text-white/40 hover:text-white font-medium"
             )}
             data-testid={`breadcrumb-${index + 1}`}
             aria-current={index === levels.length - 1 ? "page" : undefined}

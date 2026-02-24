@@ -54,11 +54,11 @@ export function MiniChart({
         </div>
         <div className="compact-card-content">
           <div className="sparkline">
-            {data.map((point, index) => {
+            {data.map((point) => {
               const height = (point.value / maxValue) * 100
               return (
                 <div
-                  key={index}
+                  key={point.label}
                   className={cn("sparkline-bar", colorClasses[color])}
                   style={{ height: `${height}%` }}
                   title={`${point.label}: ${point.value}`}
@@ -82,11 +82,11 @@ export function MiniChart({
         </div>
         <div className="compact-card-content">
           <div className="flex flex-col gap-1 h-full justify-end">
-            {data.slice(0, 5).map((point, index) => {
+            {data.slice(0, 5).map((point) => {
               const percentage = (point.value / maxValue) * 100
               return (
                 <div
-                  key={index}
+                  key={point.label}
                   className="flex items-center gap-2"
                 >
                   <div className="text-[10px] text-muted-foreground w-12 truncate">
@@ -209,7 +209,7 @@ export function MiniDonutChart({ title, data, total, className }: DonutChartProp
 
                 return (
                   <path
-                    key={index}
+                    key={segment.label}
                     d={pathData}
                     fill="currentColor"
                     className={segment.color}
@@ -220,9 +220,9 @@ export function MiniDonutChart({ title, data, total, className }: DonutChartProp
             </svg>
           </div>
           <div className="flex-1 space-y-1">
-            {segments.map((segment, index) => (
+            {segments.map((segment) => (
               <div
-                key={index}
+                key={segment.label}
                 className="flex items-center justify-between text-[10px]"
               >
                 <div className="flex items-center gap-1">

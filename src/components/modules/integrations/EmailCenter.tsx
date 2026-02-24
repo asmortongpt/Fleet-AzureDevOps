@@ -1,4 +1,4 @@
-import { Mail, Send, Paperclip, Star, ArrowLeft } from "lucide-react"
+import { Mail, Send, Paperclip, Star, ArrowLeft, Forward, Download } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import useSWR from "swr"
@@ -20,10 +20,11 @@ import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
-import { swrFetcher } from "@/lib/fetcher"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
 import { MSOutlookEmail } from "@/lib/types"
 import { brandColors } from '@/theme/designSystem'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
 
 type OutlookMessageRow = {
   id: string
@@ -37,22 +38,16 @@ type OutlookMessageRow = {
   metadata?: any
 }
 
-type OutlookMessagesPayload = {
-  success?: boolean
-  data?: OutlookMessageRow[]
-}
-
-
-
 export function EmailCenter() {
-  const { data: messagesPayload, isLoading: isLoadingInbox } = useSWR<OutlookMessagesPayload>(
+  const { data: messagesPayload, isLoading: isLoadingInbox } = useSWR<OutlookMessageRow[]>(
     '/api/outlook/messages?source=local&top=100',
-    swrFetcher,
+    apiFetcher,
     { revalidateOnFocus: false }
   )
 
   const inboxEmails = useMemo<MSOutlookEmail[]>(() => {
-    const rows = messagesPayload?.data ?? []
+    const raw = messagesPayload ?? []
+    const rows = Array.isArray(raw) ? raw : []
     return rows.map((row) => {
       const meta = row.metadata || {}
       return {
@@ -67,7 +62,7 @@ export function EmailCenter() {
         relatedVendorId: meta.related_vendor_id || meta.relatedVendorId,
       }
     })
-  }, [messagesPayload?.data])
+  }, [messagesPayload])
 
   const [emails, setEmails] = useState<MSOutlookEmail[]>([])
 
@@ -124,9 +119,26 @@ export function EmailCenter() {
       to: email.from,
       cc: "",
       subject: `Re: ${email.subject}`,
-      body: `\n\n---\nOn ${new Date(email.date).toLocaleString()}, ${email.from} wrote:\n${email.body}`
+      body: `\n\n---\nOn ${formatDateTime(email.date)}, ${email.from} wrote:\n${email.body}`
     })
     setIsComposeOpen(true)
+  }
+
+  const handleForward = (email: MSOutlookEmail) => {
+    setNewEmail({
+      to: "",
+      cc: "",
+      subject: `Fwd: ${email.subject}`,
+      body: `\n\n---------- Forwarded message ----------\nFrom: ${email.from}\nDate: ${formatDateTime(email.date)}\nSubject: ${email.subject}\nTo: ${email.to.join(", ")}\n\n${email.body}`
+    })
+    setIsComposeOpen(true)
+  }
+
+  const handleDownloadAttachment = (attachment: { id: string; name: string; type?: string; size: number }) => {
+    // Open the attachment download URL in a new tab
+    const downloadUrl = `/api/outlook/attachments/${attachment.id}/download`
+    window.open(downloadUrl, '_blank', 'noopener,noreferrer')
+    toast.success(`Downloading ${attachment.name}`)
   }
 
   const markAsRead = (emailId: string) => {
@@ -259,7 +271,7 @@ export function EmailCenter() {
                   {filteredEmails.map(email => (
                     <div
                       key={email.id}
-                      className={`p-2 cursor-pointer hover:bg-muted/50 transition-colors ${!email.isRead ? "bg-blue-50/50" : ""
+                      className={`p-2 cursor-pointer hover:bg-muted/50 transition-colors ${!email.isRead ? "bg-emerald-50/50" : ""
                         } ${selectedEmail?.id === email.id ? "bg-muted" : ""}`}
                       onClick={() => {
                         setSelectedEmail(email)
@@ -271,7 +283,7 @@ export function EmailCenter() {
                           {email.from}
                         </div>
                         <div className="text-xs text-muted-foreground ml-2">
-                          {new Date(email.date).toLocaleDateString()}
+                          {formatDate(email.date)}
                         </div>
                       </div>
                       <div className="text-sm font-semibold mb-1 truncate">
@@ -334,7 +346,7 @@ export function EmailCenter() {
                       )}
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">Date:</span>
-                        <span>{new Date(selectedEmail.date).toLocaleString()}</span>
+                        <span>{formatDateTime(selectedEmail.date)}</span>
                       </div>
                     </div>
                   </div>
@@ -354,7 +366,17 @@ export function EmailCenter() {
                           {selectedEmail.attachments.map(attachment => (
                             <div
                               key={attachment.id}
-                              className="flex items-center gap-2 p-2 border rounded-lg"
+                              className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                              onClick={() => handleDownloadAttachment(attachment)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault()
+                                  handleDownloadAttachment(attachment)
+                                }
+                              }}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={`Download attachment ${attachment.name}`}
                             >
                               <Paperclip className="w-4 h-4 text-muted-foreground" />
                               <div className="flex-1">
@@ -363,6 +385,7 @@ export function EmailCenter() {
                                   {(attachment.size / 1024).toFixed(2)} KB
                                 </div>
                               </div>
+                              <Download className="w-4 h-4 text-muted-foreground" />
                             </div>
                           ))}
                         </div>
@@ -377,7 +400,21 @@ export function EmailCenter() {
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       Reply
                     </Button>
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={() => handleForward(selectedEmail)}>
+                      <Forward className="w-4 h-4 mr-2" />
+                      Forward
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setEmails(current =>
+                          current.map(e =>
+                            e.id === selectedEmail.id ? { ...e, starred: !('starred' in e && e.starred) } : e
+                          )
+                        )
+                        toast.success('Email starred')
+                      }}
+                    >
                       <Star className="w-4 h-4 mr-2" />
                       Star
                     </Button>

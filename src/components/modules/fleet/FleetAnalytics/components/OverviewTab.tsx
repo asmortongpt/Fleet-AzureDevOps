@@ -7,6 +7,7 @@ import {
 
 import { ChartCard } from "@/components/ChartCard"
 import { MetricCard } from "@/components/MetricCard"
+import { formatNumber } from "@/utils/format-helpers"
 
 interface MonthlyFleetData {
   name: string
@@ -58,7 +59,7 @@ export function OverviewTab({
         />
         <MetricCard
           title="Avg Mileage"
-          value={`${(avgMileage ?? 0).toLocaleString()}mi`}
+          value={`${formatNumber(avgMileage ?? 0)}mi`}
           subtitle="per vehicle"
           icon={<ChartLine className="w-3 h-3" />}
           status="info"

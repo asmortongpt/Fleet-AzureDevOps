@@ -97,19 +97,17 @@ const AIAssistant: React.FC = () => {
   const [dataLoadError, setDataLoadError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Helper function to get auth token
-  const getAuthHeader = useCallback(() => {
-    const token = localStorage.getItem('token')
-    return { Authorization: `Bearer ${token}` }
-  }, [])
+  // Auth is handled via httpOnly cookies with credentials: 'include'
+  // Configure axios defaults for this component
+  const axiosConfig = useCallback(() => ({
+    withCredentials: true
+  }), [])
 
   // Fetch agents using TanStack Query
   const { data: agents = [], isLoading: agentsLoading, error: agentsError } = useQuery<Agent[]>({
     queryKey: ['agents'],
     queryFn: async () => {
-      const response = await axios.get('/api/langchain/agents', {
-        headers: getAuthHeader()
-      })
+      const response = await axios.get('/api/langchain/agents', axiosConfig())
       return response.data?.agents || []
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -120,9 +118,7 @@ const AIAssistant: React.FC = () => {
   const { data: workflows = [], error: workflowsError } = useQuery<Workflow[]>({
     queryKey: ['workflows'],
     queryFn: async () => {
-      const response = await axios.get('/api/langchain/workflows', {
-        headers: getAuthHeader()
-      })
+      const response = await axios.get('/api/langchain/workflows', axiosConfig())
       return response.data?.workflows || []
     },
     staleTime: 5 * 60 * 1000,
@@ -133,9 +129,7 @@ const AIAssistant: React.FC = () => {
   const { data: mcpServers = [], isLoading: mcpLoading, error: mcpError } = useQuery<unknown[]>({
     queryKey: ['mcpServers'],
     queryFn: async () => {
-      const response = await axios.get('/api/langchain/mcp/servers', {
-        headers: getAuthHeader()
-      })
+      const response = await axios.get('/api/langchain/mcp/servers', axiosConfig())
       return response.data?.servers || []
     },
     staleTime: 5 * 60 * 1000,
@@ -201,9 +195,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
           message: inputMessage,
           sessionId
         },
-        {
-          headers: getAuthHeader()
-        }
+        axiosConfig()
       )
 
       const assistantMessage: Message = {
@@ -239,9 +231,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
 
   const clearChat = async () => {
     try {
-      await axios.delete(`/api/langchain/sessions/${sessionId}`, {
-        headers: getAuthHeader()
-      })
+      await axios.delete(`/api/langchain/sessions/${sessionId}`, axiosConfig())
       setMessages([])
       setMessages([{
         id: 'welcome',
@@ -292,9 +282,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
           parameters: workflowParams,
           sessionId
         },
-        {
-          headers: getAuthHeader()
-        }
+        axiosConfig()
       )
 
       const result = response.data?.result
@@ -613,14 +601,14 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
                 <CircularProgress size={24} />
               ) : (
                 <List dense>
-                  {mcpServers.map((server: unknown, idx: number) => (
-                    <ListItem key={idx} disablePadding sx={{ py: 0.5 }}>
+                  {mcpServers.map((server: unknown) => (
+                    <ListItem key={(server as any)?.name} disablePadding sx={{ py: 0.5 }}>
                       <ListItemIcon sx={{ minWidth: 36 }}>
                         <SpeedIcon />
                       </ListItemIcon>
                       <ListItemText
                         primary={(server as any)?.name || 'Unknown Server'}
-                        secondary={`Load: ${(server as any)?.load || 'N/A'}`}
+                        secondary={`Load: ${(server as any)?.load || '—'}`}
                       />
                       <Chip
                         label={(server as any)?.status || 'unknown'}

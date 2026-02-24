@@ -31,10 +31,10 @@ export class GeotabService {
 
   constructor() {
     this.config = {
-      server: process.env.GEOTAB_SERVER || 'my.geotab.com',
-      database: process.env.GEOTAB_DATABASE || '',
-      username: process.env.GEOTAB_USERNAME || '',
-      password: process.env.GEOTAB_PASSWORD || '',
+      server: import.meta.env.VITE_GEOTAB_SERVER || 'my.geotab.com',
+      database: import.meta.env.VITE_GEOTAB_DATABASE || '',
+      username: import.meta.env.VITE_GEOTAB_USERNAME || '',
+      password: import.meta.env.VITE_GEOTAB_PASSWORD || '',
     };
     this.baseUrl = `https://${this.config.server}/apiv1`;
   }
@@ -189,7 +189,7 @@ export class GeotabService {
 
       if (location) {
         // Update database with latest location
-        await fetch('/api/v1/vehicles/location', {
+        await fetch('/api/gps/location', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { usePermissions } from "@/hooks/usePermissions"
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
 
@@ -179,9 +180,7 @@ export function CostAnalysisCenter() {
       const response = await fetch(
         `/api/cost-analysis/export?startDate=${_dateRange.startDate.toISOString()}&endDate=${_dateRange.endDate.toISOString()}`,
         {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+          credentials: 'include'
         }
       )
 
@@ -212,7 +211,7 @@ export function CostAnalysisCenter() {
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      'Fuel': 'bg-blue-500',
+      'Fuel': 'bg-emerald-500',
       'Maintenance': 'bg-orange-500',
       'Insurance': 'bg-purple-500',
       'Depreciation': 'bg-gray-500',
@@ -242,7 +241,7 @@ export function CostAnalysisCenter() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600 mx-auto mb-2"></div>
           <p className="text-muted-foreground">Loading cost analysis...</p>
         </div>
       </div>
@@ -257,7 +256,7 @@ export function CostAnalysisCenter() {
             <DollarSign className="h-8 w-8 text-green-600" />
             Cost Analysis Command Center
           </h1>
-          <p className="text-slate-700 mt-2">
+          <p className="text-white/40 mt-2">
             Real-time cost tracking, forecasting, and anomaly detection
           </p>
         </div>
@@ -281,7 +280,7 @@ export function CostAnalysisCenter() {
             </CardHeader>
             <CardContent>
               <div className="text-sm font-bold">
-                ${costSummary.totalCost.toLocaleString()}
+                {formatCurrency(costSummary.totalCost)}
               </div>
               <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>Current period</div>
             </CardContent>
@@ -325,7 +324,7 @@ export function CostAnalysisCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-sm font-bold text-blue-800">
+              <div className="text-sm font-bold text-emerald-400">
                 {budgetStatus.filter(b => !b.isOverBudget).length}/{budgetStatus.length}
               </div>
               <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>On track</div>
@@ -363,8 +362,8 @@ export function CostAnalysisCenter() {
                             {getTrendIcon(category.trend)}
                           </div>
                           <div className="text-right">
-                            <div className="font-bold">${category.amount.toLocaleString()}</div>
-                            <div className="text-sm text-slate-700">{category.percentage.toFixed(1)}%</div>
+                            <div className="font-bold">{formatCurrency(category.amount)}</div>
+                            <div className="text-sm text-white/40">{category.percentage.toFixed(1)}%</div>
                           </div>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -396,15 +395,15 @@ export function CostAnalysisCenter() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {costSummary.topExpenses.map((expense, idx) => (
-                        <TableRow key={idx}>
+                      {costSummary.topExpenses.map((expense) => (
+                        <TableRow key={`${expense.description}-${expense.date}`}>
                           <TableCell className="font-medium">{expense.description}</TableCell>
                           <TableCell>
                             <Badge variant="secondary">{expense.category}</Badge>
                           </TableCell>
-                          <TableCell>{new Date(expense.date).toLocaleDateString()}</TableCell>
+                          <TableCell>{formatDate(expense.date)}</TableCell>
                           <TableCell className="text-right font-bold">
-                            ${expense.amount.toLocaleString()}
+                            {formatCurrency(expense.amount)}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -448,13 +447,13 @@ export function CostAnalysisCenter() {
                               {category.category}
                             </div>
                           </TableCell>
-                          <TableCell className="font-bold">${category.amount.toLocaleString()}</TableCell>
+                          <TableCell className="font-bold">{formatCurrency(category.amount)}</TableCell>
                           <TableCell>{category.percentage.toFixed(1)}%</TableCell>
                           <TableCell>{getTrendIcon(category.trend)}</TableCell>
-                          <TableCell>${category.forecastedAmount.toLocaleString()}</TableCell>
+                          <TableCell>{formatCurrency(category.forecastedAmount)}</TableCell>
                           <TableCell>
                             <span className={change > 0 ? 'text-red-600' : 'text-green-600'}>
-                              {change > 0 ? '+' : ''}${change.toLocaleString()}
+                              {change > 0 ? '+' : ''}{formatCurrency(change)}
                               {' '}({changePercent > 0 ? '+' : ''}{changePercent.toFixed(1)}%)
                             </span>
                           </TableCell>
@@ -495,23 +494,23 @@ export function CostAnalysisCenter() {
                           {status.category}
                         </div>
                       </TableCell>
-                      <TableCell>${status.allocated.toLocaleString()}</TableCell>
+                      <TableCell>{formatCurrency(status.allocated)}</TableCell>
                       <TableCell className={status.isOverBudget ? 'text-red-600 font-bold' : ''}>
-                        ${status.spent.toLocaleString()}
+                        {formatCurrency(status.spent)}
                       </TableCell>
                       <TableCell className={status.remaining < 0 ? 'text-red-600' : 'text-green-600'}>
-                        ${status.remaining.toLocaleString()}
+                        {formatCurrency(status.remaining)}
                       </TableCell>
                       <TableCell>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className={`h-2 rounded-full ${status.isOverBudget ? 'bg-red-500' : 'bg-blue-500'}`}
+                            className={`h-2 rounded-full ${status.isOverBudget ? 'bg-red-500' : 'bg-emerald-500'}`}
                             style={{ width: `${Math.min(status.percentageUsed, 100)}%` }}
                           />
                         </div>
                         <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>{status.percentageUsed.toFixed(1)}%</div>
                       </TableCell>
-                      <TableCell>${status.forecastedSpend.toLocaleString()}</TableCell>
+                      <TableCell>{formatCurrency(status.forecastedSpend)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -537,12 +536,12 @@ export function CostAnalysisCenter() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {forecasts.map((forecast, idx) => (
-                    <TableRow key={idx}>
+                  {forecasts.map((forecast) => (
+                    <TableRow key={forecast.period}>
                       <TableCell className="font-medium">{forecast.period}</TableCell>
-                      <TableCell className="font-bold">${forecast.predictedAmount.toLocaleString()}</TableCell>
+                      <TableCell className="font-bold">{formatCurrency(forecast.predictedAmount)}</TableCell>
                       <TableCell>
-                        ${forecast.lowerBound.toLocaleString()} - ${forecast.upperBound.toLocaleString()}
+                        {formatCurrency(forecast.lowerBound)} - {formatCurrency(forecast.upperBound)}
                       </TableCell>
                       <TableCell>{(forecast.confidence * 100).toFixed(1)}%</TableCell>
                     </TableRow>
@@ -574,12 +573,12 @@ export function CostAnalysisCenter() {
                     <TableBody>
                       {costSummary.anomalies.map((anomaly) => (
                         <TableRow key={anomaly.id}>
-                          <TableCell>{new Date(anomaly.date).toLocaleDateString()}</TableCell>
+                          <TableCell>{formatDate(anomaly.date)}</TableCell>
                           <TableCell>
                             <Badge variant="destructive">{anomaly.category}</Badge>
                           </TableCell>
                           <TableCell className="font-bold text-red-600">
-                            ${anomaly.amount.toLocaleString()}
+                            {formatCurrency(anomaly.amount)}
                           </TableCell>
                           <TableCell>{anomaly.reason}</TableCell>
                         </TableRow>

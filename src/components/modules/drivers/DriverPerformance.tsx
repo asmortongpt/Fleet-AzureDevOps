@@ -20,7 +20,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { useInspect } from "@/services/inspect/InspectContext"
+import { formatNumber } from "@/utils/format-helpers"
 
 interface DriverPerformanceProps {
   data?: ReturnType<typeof useFleetData>
@@ -55,10 +57,7 @@ interface LeaderboardEntry {
   achievementCount: number
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((res) => res.json())
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 const parseMetadata = (value: any) => {
   if (!value) return {}
@@ -225,7 +224,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
         />
         <MetricCard
           title="Total Trips"
-          value={metrics.totalTrips.toLocaleString()}
+          value={formatNumber(metrics.totalTrips)}
           subtitle="completed"
           icon={<Target className="w-3 h-3" />}
           status="info"
@@ -316,7 +315,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                     <div className="flex items-start justify-between">
                       <div className="flex gap-2 flex-1">
                         <div className="w-12 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                          {driver.name.split(' ').map((n: string) => n[0]).join('')}
+                          {(driver.name || 'U').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
@@ -344,7 +343,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                             </div>
                             <div>
                               <p className="text-muted-foreground">Miles Driven</p>
-                              <p className="font-semibold text-sm">{safeNum((driver as any).miles).toLocaleString()}</p>
+                              <p className="font-semibold text-sm">{formatNumber(safeNum((driver as any).miles))}</p>
                             </div>
                             <div>
                               <p className="text-muted-foreground">Incidents</p>
@@ -417,7 +416,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                         <p className="text-sm text-muted-foreground">
                           Safety Score: <span className={`font-semibold ${getScoreColor(safeNum(driver.safetyScore))}`}>
                             {safeNum(driver.safetyScore)}
-                          </span> • {safeNum((driver as any).trips)} trips • {safeNum((driver as any).miles).toLocaleString()} miles
+                          </span> • {safeNum((driver as any).trips)} trips • {formatNumber(safeNum((driver as any).miles))} miles
                         </p>
                       </div>
                       <Trophy className="w-4 h-4 text-warning" />

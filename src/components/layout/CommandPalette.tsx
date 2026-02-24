@@ -45,9 +45,10 @@ export function CommandPalette() {
   // Focus input when opened
   useEffect(() => {
     if (commandPaletteOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50)
+      const timerId = setTimeout(() => inputRef.current?.focus(), 50)
       setQuery('')
       setSelectedIndex(0)
+      return () => clearTimeout(timerId)
     }
   }, [commandPaletteOpen])
 
@@ -111,7 +112,7 @@ export function CommandPalette() {
       <div className="relative w-full max-w-lg mx-4 bg-background/95 border border-border/50 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden">
         {/* Search input */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border/50">
-          <Search className="w-4 h-4 text-[#F0A000]/50 shrink-0" />
+          <Search className="w-4 h-4 text-white/50 shrink-0" />
           <input
             ref={inputRef}
             value={query}
@@ -126,6 +127,7 @@ export function CommandPalette() {
           <button
             onClick={close}
             className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Close command palette"
           >
             <X className="w-4 h-4" />
           </button>
@@ -148,7 +150,7 @@ export function CommandPalette() {
           {Object.entries(grouped).map(([cat, mods]) => (
             <div key={cat}>
               <div className="px-4 py-1.5">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#F0A000]/40">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/40">
                   {categoryLabels[cat as ModuleCategory] ?? cat}
                 </span>
               </div>
@@ -164,7 +166,7 @@ export function CommandPalette() {
                     className={cn(
                       'w-full flex items-center justify-between px-4 py-2.5 text-sm transition-all',
                       isSelected
-                        ? 'bg-[#F0A000]/[0.08] text-foreground'
+                        ? 'bg-white/[0.08] text-foreground'
                         : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
                     )}
                   >

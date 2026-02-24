@@ -24,7 +24,12 @@ export const vehicleStatusSchema = statusEnum([
   'offline',
   'maintenance',
   'retired',
-  'available'
+  'available',
+  'assigned',
+  'dispatched',
+  'en_route',
+  'on_site',
+  'completed'
 ])
 
 /**

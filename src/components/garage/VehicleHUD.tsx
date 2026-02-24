@@ -12,18 +12,18 @@
  * Created: 2025-11-24
  */
 
-import { Gauge, Car, Zap, AlertTriangle, Fuel, Thermometer, Settings, Droplet, Cog, Disc } from 'lucide-react'
+import { Gauge, Car, Zap, AlertTriangle, Fuel, Thermometer, Droplet, Cog, Disc } from 'lucide-react'
 
-// Icon aliases for consistency with Phosphor naming
+// Icon aliases
 const Engine = Cog
-const GearSix = Settings
 const Drop = Droplet
 const Tire = Disc
-import React from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface VehicleStats {
   // Basic Info
@@ -64,19 +64,6 @@ interface VehicleHUDProps {
   compact?: boolean
 }
 
-// Helper to get color based on percentage
-function getHealthColor(value: number): string {
-  if (value >= 70) return 'text-green-500'
-  if (value >= 40) return 'text-yellow-500'
-  return 'text-red-500'
-}
-
-function getProgressColor(value: number): string {
-  if (value >= 70) return 'bg-green-500'
-  if (value >= 40) return 'bg-yellow-500'
-  return 'bg-red-500'
-}
-
 // Stat Card Component
 function StatCard({
   icon: Icon,
@@ -98,30 +85,30 @@ function StatCard({
   return (
     <div
       className={cn(
-        'flex flex-col gap-1 p-3 rounded-lg bg-gradient-to-br from-slate-900/90 to-slate-800/90',
-        'border border-slate-700/50 backdrop-blur-sm',
-        warning && 'border-red-500/50 bg-red-950/20',
+        'flex flex-col gap-1 p-2.5 rounded-lg bg-white/[0.04]',
+        'border border-white/[0.06] backdrop-blur-sm',
+        warning && 'border-red-500/30 bg-red-950/20',
         className
       )}
     >
       <div className="flex items-center gap-2">
-        <Icon className={cn('w-4 h-4', warning ? 'text-red-400' : 'text-blue-700')} />
-        <span className="text-xs text-slate-700 uppercase tracking-wider">{label}</span>
+        <Icon className={cn('w-3.5 h-3.5', warning ? 'text-red-400' : 'text-emerald-400/70')} />
+        <span className="text-[10px] text-white/40 uppercase tracking-wider font-medium">{label}</span>
       </div>
       <div className="flex items-baseline gap-1">
         <span className={cn(
-          'text-base font-bold tabular-nums',
+          'text-sm font-bold tabular-nums',
           warning ? 'text-red-400' : 'text-white'
         )}>
-          {typeof value === 'number' ? value.toLocaleString() : value}
+          {typeof value === 'number' ? formatNumber(value) : value}
         </span>
-        {unit && <span className="text-xs text-slate-500">{unit}</span>}
+        {unit && <span className="text-[10px] text-white/30">{unit}</span>}
       </div>
       {percentage !== undefined && (
-        <div className="mt-1">
+        <div className="mt-0.5">
           <Progress
             value={percentage}
-            className="h-1.5 bg-slate-700"
+            className="h-1 bg-white/[0.06]"
           />
         </div>
       )}
@@ -153,7 +140,6 @@ function CircularGauge({
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-24 h-24">
-        {/* Background circle */}
         <svg className="w-full h-full -rotate-90">
           <circle
             cx="48"
@@ -162,7 +148,7 @@ function CircularGauge({
             fill="transparent"
             stroke="currentColor"
             strokeWidth="6"
-            className="text-slate-700"
+            className="text-white/[0.08]"
           />
           <circle
             cx="48"
@@ -176,18 +162,17 @@ function CircularGauge({
             strokeLinecap="round"
             className={cn(
               'transition-all duration-500',
-              warning ? 'text-red-500' : percentage > 70 ? 'text-green-500' : percentage > 40 ? 'text-yellow-500' : 'text-red-500'
+              warning ? 'text-red-500' : percentage > 70 ? 'text-emerald-500' : percentage > 40 ? 'text-amber-500' : 'text-red-500'
             )}
           />
         </svg>
-        {/* Center content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <Icon className={cn('w-4 h-4 mb-0.5', warning ? 'text-red-400' : 'text-blue-700')} />
+          <Icon className={cn('w-4 h-4 mb-0.5', warning ? 'text-red-400' : 'text-emerald-400/70')} />
           <span className="text-sm font-bold text-white tabular-nums">{value}</span>
-          <span className="text-[10px] text-gray-800">{unit}</span>
+          <span className="text-[10px] text-white/30">{unit}</span>
         </div>
       </div>
-      <span className="text-xs text-slate-700 mt-1">{label}</span>
+      <span className="text-[10px] text-white/40 mt-1">{label}</span>
     </div>
   )
 }
@@ -198,9 +183,9 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
   if (compact) {
     return (
       <div className={cn('space-y-2', className)}>
-        {/* AlertTriangle Banner */}
+        {/* Warning Banner */}
         {hasWarning && (
-          <div className="flex items-center gap-2 p-2 rounded-lg bg-red-950/50 border border-red-500/50">
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-red-950/50 border border-red-500/30">
             <AlertTriangle className="w-4 h-4 text-red-400 animate-pulse" />
             <span className="text-xs text-red-300">Check Engine</span>
             {stats.dtcCodes && stats.dtcCodes.length > 0 && (
@@ -211,8 +196,8 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
           </div>
         )}
 
-        {/* Compact Stats Grid */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* Primary Stats — Mileage & Fuel */}
+        <div className="grid grid-cols-2 gap-1.5">
           <StatCard
             icon={Gauge}
             label="Mileage"
@@ -228,6 +213,42 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
             warning={(stats.fuelLevel || 0) < 20}
           />
         </div>
+
+        {/* Health Stats — Oil, Brakes, Tires, Battery */}
+        <div className="grid grid-cols-2 gap-1.5">
+          <StatCard
+            icon={Drop}
+            label="Oil Life"
+            value={stats.oilLife || 0}
+            unit="%"
+            percentage={stats.oilLife || 0}
+            warning={(stats.oilLife || 0) < 20}
+          />
+          <StatCard
+            icon={Tire}
+            label="Brakes"
+            value={stats.brakeLife || 0}
+            unit="%"
+            percentage={stats.brakeLife || 0}
+            warning={(stats.brakeLife || 0) < 20}
+          />
+          <StatCard
+            icon={Tire}
+            label="Tires"
+            value={stats.tireHealth || 0}
+            unit="%"
+            percentage={stats.tireHealth || 0}
+            warning={(stats.tireHealth || 0) < 30}
+          />
+          <StatCard
+            icon={Zap}
+            label="Battery"
+            value={stats.batteryHealth || 0}
+            unit="%"
+            percentage={stats.batteryHealth || 0}
+            warning={(stats.batteryHealth || 0) < 20}
+          />
+        </div>
       </div>
     )
   }
@@ -235,9 +256,9 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
   return (
     <div className={cn('space-y-2', className)}>
       {/* Vehicle Title */}
-      <div className="p-3 rounded-lg bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30">
+      <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
         <h3 className="font-bold text-white text-sm">
-          {stats.name || `${stats.year} ${stats.make} ${stats.model}`}
+          {stats.name || formatVehicleName(stats)}
         </h3>
         <div className="flex gap-2 mt-1">
           {stats.licensePlate && (
@@ -246,24 +267,24 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
             </Badge>
           )}
           {stats.vin && (
-            <Badge variant="outline" className="text-xs font-mono text-slate-700">
+            <Badge variant="outline" className="text-xs font-mono text-white/40">
               VIN: ...{stats.vin.slice(-6)}
             </Badge>
           )}
         </div>
       </div>
 
-      {/* AlertTriangle Banner */}
+      {/* Warning Banner */}
       {hasWarning && (
-        <div className="p-3 rounded-lg bg-red-950/50 border border-red-500/50 animate-pulse">
+        <div className="p-3 rounded-lg bg-red-950/50 border border-red-500/30 animate-pulse">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-3 h-3 text-red-400" />
             <span className="text-sm font-medium text-red-300">Check Engine Light Active</span>
           </div>
           {stats.dtcCodes && stats.dtcCodes.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
-              {stats.dtcCodes.map((code, i) => (
-                <Badge key={i} variant="destructive" className="text-xs font-mono">
+              {stats.dtcCodes.map((code) => (
+                <Badge key={code} variant="destructive" className="text-xs font-mono">
                   {code}
                 </Badge>
               ))}
@@ -273,7 +294,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
       )}
 
       {/* Real-time Gauges */}
-      <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-slate-900/50 border border-slate-700/50">
+      <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
         <CircularGauge
           value={stats.rpm || 0}
           max={8000}
@@ -307,7 +328,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
           unit="miles"
         />
         <StatCard
-          icon={GearSix}
+          icon={Engine}
           label="Engine Hours"
           value={stats.engineHours || 0}
           unit="hrs"
@@ -316,7 +337,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
 
       {/* Health Stats */}
       <div className="space-y-2">
-        <h4 className="text-xs font-medium text-slate-700 uppercase tracking-wider">Health Status</h4>
+        <h4 className="text-[10px] font-medium text-white/30 uppercase tracking-wider">Health Status</h4>
         <div className="grid grid-cols-2 gap-2">
           <StatCard
             icon={Drop}

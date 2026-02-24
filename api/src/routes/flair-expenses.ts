@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection'
@@ -7,6 +8,36 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const createFlairExpenseSchema = z.object({
+  employee_id: z.union([z.string(), z.number()]),
+  employee_name: z.string().optional(),
+  department: z.string().optional(),
+  expense_type: z.string(),
+  amount: z.number(),
+  transaction_date: z.string(),
+  description: z.string().optional(),
+  account_codes: z.unknown().optional(),
+  supporting_documents: z.unknown().optional(),
+  travel_details: z.unknown().optional(),
+  approval_status: z.string().optional(),
+  approval_history: z.unknown().optional(),
+}).passthrough()
+
+const updateFlairExpenseSchema = z.object({
+  employee_id: z.union([z.string(), z.number()]).optional(),
+  employee_name: z.string().optional(),
+  department: z.string().optional(),
+  expense_type: z.string().optional(),
+  amount: z.number().optional(),
+  transaction_date: z.string().optional(),
+  description: z.string().optional(),
+  account_codes: z.unknown().optional(),
+  supporting_documents: z.unknown().optional(),
+  travel_details: z.unknown().optional(),
+  approval_status: z.string().optional(),
+  approval_history: z.unknown().optional(),
+}).passthrough()
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -103,10 +134,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'flair_expenses' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createFlairExpenseSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         ['tenant_id'],
         1
       )
@@ -132,7 +166,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'flair_expenses' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = updateFlairExpenseSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(

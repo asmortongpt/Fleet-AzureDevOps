@@ -11,6 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { DocumentInsight, DocumentMetadata } from '@/lib/documents/types';
+import { formatEnum } from '@/utils/format-enum';
 
 interface DocumentInsightsProps {
   document: DocumentMetadata;
@@ -71,8 +72,8 @@ export function DocumentInsights({ document, insights }: DocumentInsightsProps) 
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {(keyPointsInsight.metadata?.points as string[] || []).map((point, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm">
+                {(keyPointsInsight.metadata?.points as string[] || []).map((point) => (
+                  <li key={point} className="flex items-start gap-2 text-sm">
                     <span className="text-primary mt-1">•</span>
                     <span className="text-muted-foreground">{point}</span>
                   </li>
@@ -117,8 +118,8 @@ export function DocumentInsights({ document, insights }: DocumentInsightsProps) 
                     <span className="text-xs font-semibold text-muted-foreground">Dates</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {(entitiesInsight.metadata.dates as string[]).map((date, i) => (
-                      <Badge key={i} variant="outline">
+                    {(entitiesInsight.metadata.dates as string[]).map((date) => (
+                      <Badge key={date} variant="outline">
                         {date}
                       </Badge>
                     ))}
@@ -158,8 +159,8 @@ export function DocumentInsights({ document, insights }: DocumentInsightsProps) 
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Overall Sentiment</span>
-                  <Badge variant="outline" className="capitalize">
-                    {sentimentInsight.metadata?.sentiment || 'Neutral'}
+                  <Badge variant="outline">
+                    {formatEnum(sentimentInsight.metadata?.sentiment || 'Neutral')}
                   </Badge>
                 </div>
 

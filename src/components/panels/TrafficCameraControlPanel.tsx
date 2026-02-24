@@ -57,13 +57,13 @@ export function TrafficCameraControlPanel({
     if (!isVisible) return null;
 
     return (
-        <Card className="fixed top-24 right-6 w-80 shadow-sm z-40 border border-white/20 bg-white/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-lg overflow-hidden ring-1 ring-black/5">
+        <Card className="fixed top-24 right-2 sm:right-6 w-[calc(100%-1rem)] sm:w-80 shadow-sm z-40 border border-white/20 bg-white/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-lg overflow-hidden ring-1 ring-black/5">
             <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
             <CardHeader className="pb-2 border-b border-black/5 flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/40">
                 <div>
-                    <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800">
-                        <div className="p-1.5 bg-blue-500/10 rounded-md border border-blue-500/20">
-                            <Video className="text-blue-800 w-4 h-4" />
+                    <CardTitle className="text-base font-bold flex items-center gap-2 text-white/80">
+                        <div className="p-1.5 bg-emerald-500/10 rounded-md border border-emerald-500/20">
+                            <Video className="text-emerald-400 w-4 h-4" />
                         </div>
                         Traffic Feed
                     </CardTitle>
@@ -76,7 +76,7 @@ export function TrafficCameraControlPanel({
                     </div>
                 </div>
                 <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose} aria-label="Close traffic camera panel">
-                    <X className="w-4 h-4 text-slate-500" />
+                    <X className="w-4 h-4 text-white/40" />
                 </Button>
             </CardHeader>
             <CardContent className="pt-2 space-y-2">

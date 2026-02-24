@@ -3,6 +3,7 @@ import { AlertTriangle, Zap, Wrench, Info, Circle, Clock } from "lucide-react"
 import { useMemo } from "react"
 
 import { cn } from "@/lib/utils"
+import { formatDate } from "@/utils/format-helpers"
 
 interface Alert {
   id: string
@@ -67,7 +68,7 @@ export function AlertsFeed({
     if (diffMins < 60) return `${diffMins}m ago`
     if (diffHours < 24) return `${diffHours}h ago`
     if (diffDays < 7) return `${diffDays}d ago`
-    return date.toLocaleDateString()
+    return formatDate(date)
   }
 
   const stats = useMemo(() => {
@@ -115,6 +116,9 @@ export function AlertsFeed({
                   alert.isRead && "opacity-80 hover:opacity-100"
                 )}
                 onClick={() => onAlertClick?.(alert)}
+                onKeyDown={(e) => e.key === 'Enter' && onAlertClick?.(alert)}
+                role="button"
+                tabIndex={0}
               >
                 <div className="flex items-start gap-2">
                   <div className={cn("compact-list-item-icon mt-0.5", getAlertStyle(alert.type))}>

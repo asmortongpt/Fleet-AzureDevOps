@@ -92,6 +92,9 @@ function RelatedRecordItem({ reference, config, compact, onNavigate }: RelatedRe
   return (
     <div
       onClick={() => onNavigate(reference)}
+      onKeyDown={(e) => e.key === 'Enter' && onNavigate(reference)}
+      role="button"
+      tabIndex={0}
       className={cn(
         "flex items-center gap-3 p-2 rounded-md cursor-pointer",
         "hover:bg-muted/50 transition-all group border border-transparent",
@@ -345,10 +348,13 @@ export function RelatedRecordsInline({
               <TooltipContent>
                 <div className="text-xs space-y-1">
                   <p className="font-medium">{config.label}</p>
-                  {displayItems.map((item, i) => (
+                  {displayItems.map((item) => (
                     <div
-                      key={i}
+                      key={`${item.type}-${item.id}`}
                       onClick={() => navigateToEntity(item)}
+                      onKeyDown={(e) => e.key === 'Enter' && navigateToEntity(item)}
+                      role="button"
+                      tabIndex={0}
                       className="cursor-pointer hover:text-primary"
                     >
                       {item.label}

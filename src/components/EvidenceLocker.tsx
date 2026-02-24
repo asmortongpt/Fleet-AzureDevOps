@@ -15,6 +15,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { Textarea } from './ui/textarea';
 
 import { cn } from '@/lib/utils';
+import { formatDate, formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 interface EvidenceLocker {
   id: number;
@@ -100,16 +101,13 @@ export default function EvidenceLocker() {
       if (filters.lockerType !== 'all') params.append('lockerType', filters.lockerType);
       if (filters.legalHold !== 'all') params.append('legalHold', filters.legalHold);
 
-      const response = await fetch(`/api/video/evidence-locker?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await fetch(`/api/video-telematics/evidence-locker?${params.toString()}`, {
+        credentials: 'include'
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
-      if (response.ok) {
-        const data = await response.json();
-        setLockers(data.lockers || []);
-      }
+      const data = await response.json();
+      setLockers(data.lockers || []);
     } catch (error) {
       logger.error('Failed to load evidence lockers:', error);
     } finally {
@@ -119,10 +117,8 @@ export default function EvidenceLocker() {
 
   const loadLockerDetails = async (lockerId: number) => {
     try {
-      const response = await fetch(`/api/video/evidence-locker/${lockerId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await fetch(`/api/video-telematics/evidence-locker/${lockerId}`, {
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -137,12 +133,12 @@ export default function EvidenceLocker() {
 
   const handleCreateLocker = async () => {
     try {
-      const response = await fetch('/api/video/evidence-locker', {
+      const response = await fetch('/api/video-telematics/evidence-locker', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(newLocker)
       });
 
@@ -166,10 +162,8 @@ export default function EvidenceLocker() {
 
   const getVideoPlaybackUrl = async (eventId: number) => {
     try {
-      const response = await fetch(`/api/video/events/${eventId}/clip`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await fetch(`/api/video-telematics/events/${eventId}/clip`, {
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -196,7 +190,7 @@ export default function EvidenceLocker() {
 
   const stats = {
     total: lockers.length,
-    open: lockers.filter(l => l.status === 'open').length,
+    open: lockers.filter(l => l.status === 'pending').length,
     legalHold: lockers.filter(l => l.legal_hold).length,
     totalVideos: lockers.reduce((sum, l) => sum + l.video_count, 0)
   };
@@ -361,7 +355,7 @@ export default function EvidenceLocker() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Incident Date:</span>
-                    <span>{new Date(locker.incident_date).toLocaleDateString()}</span>
+                    <span>{formatDate(locker.incident_date)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Created By:</span>
@@ -535,11 +529,11 @@ export default function EvidenceLocker() {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <span className="text-muted-foreground">Incident Date:</span>{' '}
-                      {new Date(selectedLocker.incident_date).toLocaleDateString()}
+                      {formatDate(selectedLocker.incident_date)}
                     </div>
                     <div>
                       <span className="text-muted-foreground">Created:</span>{' '}
-                      {new Date(selectedLocker.created_at).toLocaleDateString()}
+                      {formatDate(selectedLocker.created_at)}
                     </div>
                     <div>
                       <span className="text-muted-foreground">Created By:</span> {selectedLocker.created_by_name}
@@ -586,7 +580,7 @@ export default function EvidenceLocker() {
                           <div className="flex-grow">
                             <p className="font-medium text-sm">{video.event_type.replace('_', ' ')}</p>
                             <p className="text-xs text-muted-foreground">
-                              {video.vehicle_name} • {video.driver_name} • {new Date(video.event_timestamp).toLocaleString()}
+                              {video.vehicle_name} • {video.driver_name} • {formatDateTime(video.event_timestamp)}
                             </p>
                             {video.address && <p className="text-xs text-muted-foreground mt-1">{video.address}</p>}
                           </div>

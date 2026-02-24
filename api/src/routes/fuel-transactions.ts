@@ -99,7 +99,7 @@ router.delete("/:id", csrfProtection, asyncHandler(async (req: Request, res: Res
   if (!deleted) {
 throw new NotFoundError("Fuel transaction not found")
 }
-  res.json({ message: "Fuel transaction deleted successfully" })
+  res.json({ success: true, message: "Fuel transaction deleted successfully" })
 }))
 
 export default router

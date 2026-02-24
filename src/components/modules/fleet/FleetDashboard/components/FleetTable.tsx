@@ -3,6 +3,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Vehicle } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatNumber } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface FleetTableProps {
   vehicles: Vehicle[]
@@ -14,7 +17,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
 
   const handleDriverClick = (e: React.MouseEvent, driverName: string, driverId?: string) => {
     e.stopPropagation()
-    if (!driverName || driverName === "Unassigned") return
+    if (!driverName || driverName === "—") return
     push({
       type: 'driver',
       label: driverName,
@@ -61,7 +64,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                     <div>
                       <p className="font-medium">{vehicle.number}</p>
                       <p className="text-sm text-muted-foreground">
-                        {vehicle.year} {vehicle.make} {vehicle.model}
+                        {formatVehicleName(vehicle)}
                       </p>
                     </div>
                   </td>
@@ -76,7 +79,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                             : "bg-muted text-muted-foreground"
                       }
                     >
-                      {vehicle.status}
+                      {formatEnum(vehicle.status)}
                     </Badge>
                   </td>
                   <td className="p-2">
@@ -166,7 +169,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                     </div>
                   </td>
                   <td className="p-2">
-                    <span className="font-medium">{vehicle.mileage.toLocaleString()} mi</span>
+                    <span className="font-medium">{formatNumber(vehicle.mileage)} mi</span>
                   </td>
                   <td className="p-2">
                     <div>
@@ -181,7 +184,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                       className={`text-sm ${vehicle.assignedDriver ? 'text-primary hover:underline cursor-pointer' : 'text-muted-foreground'}`}
                       onClick={(e) => handleDriverClick(e, vehicle.assignedDriver || '')}
                     >
-                      {vehicle.assignedDriver || "Unassigned"}
+                      {vehicle.assignedDriver || "—"}
                     </span>
                   </td>
                   <td className="p-2">

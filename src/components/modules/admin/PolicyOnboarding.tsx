@@ -37,8 +37,9 @@ import {
   type BottleneckAnalysis
 } from "@/lib/policy-engine/ai-policy-generator"
 import { cn } from "@/lib/utils"
-import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
+import { formatCurrency } from '@/utils/format-helpers'
+import logger from '@/utils/logger';
 
 type OnboardingStep = 'profile' | 'analysis' | 'recommendations' | 'implementation'
 
@@ -236,7 +237,7 @@ export function PolicyOnboarding() {
       case 'critical': return 'bg-red-500'
       case 'high': return 'bg-orange-500'
       case 'medium': return 'bg-yellow-500'
-      case 'low': return 'bg-blue-500'
+      case 'low': return 'bg-emerald-500'
       default: return 'bg-gray-500'
     }
   }
@@ -246,18 +247,18 @@ export function PolicyOnboarding() {
       case 'critical': return 'text-red-600 bg-red-50 border-red-200'
       case 'high': return 'text-orange-600 bg-orange-50 border-orange-200'
       case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200'
-      case 'low': return 'text-blue-800 bg-blue-50 border-blue-200'
-      default: return 'text-slate-700 bg-gray-50 border-gray-200'
+      case 'low': return 'text-emerald-400 bg-emerald-50 border-emerald-200'
+      default: return 'text-white/40 bg-gray-50 border-gray-200'
     }
   }
 
   return (
-    <div className="h-full overflow-auto bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-3">
+    <div className="h-full overflow-auto bg-gradient-to-br from-gray-50 via-emerald-50 to-emerald-50 p-3">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-3">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md">
+            <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-md">
               <Brain className="w-4 h-4 text-white" />
             </div>
             <div>
@@ -281,7 +282,7 @@ export function PolicyOnboarding() {
                     className={cn(
                       "w-12 h-9 rounded-full flex items-center justify-center border-2 transition-all",
                       currentStep === step
-                        ? "bg-blue-500 border-blue-500 text-white"
+                        ? "bg-emerald-500 border-emerald-500 text-white"
                         : arr.indexOf(currentStep) > idx
                         ? "bg-green-500 border-green-500 text-white"
                         : "bg-white border-gray-300 text-gray-700"
@@ -313,7 +314,7 @@ export function PolicyOnboarding() {
         {/* Content */}
         {currentStep === 'profile' && (
           <Card className="border-2 shadow-sm">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+            <CardHeader className="bg-gradient-to-r from-emerald-50 to-emerald-50 border-b">
               <CardTitle className="flex items-center gap-2">
                 <Building className="w-3 h-3" />
                 Organization Profile
@@ -326,7 +327,7 @@ export function PolicyOnboarding() {
               {/* Fleet Basics */}
               <div>
                 <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <Truck className="w-3 h-3 text-blue-800" />
+                  <Truck className="w-3 h-3 text-emerald-400" />
                   Fleet Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -380,7 +381,7 @@ export function PolicyOnboarding() {
               {/* Vehicle Types */}
               <div>
                 <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <Truck className="w-3 h-3 text-blue-800" />
+                  <Truck className="w-3 h-3 text-emerald-400" />
                   Vehicle Types *
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -404,7 +405,7 @@ export function PolicyOnboarding() {
               {/* Operation Types */}
               <div>
                 <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <Target className="w-3 h-3 text-blue-800" />
+                  <Target className="w-3 h-3 text-emerald-400" />
                   Operation Types *
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -428,7 +429,7 @@ export function PolicyOnboarding() {
               {/* Compliance Requirements */}
               <div>
                 <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <Shield className="w-3 h-3 text-blue-800" />
+                  <Shield className="w-3 h-3 text-emerald-400" />
                   Compliance Requirements
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -452,7 +453,7 @@ export function PolicyOnboarding() {
               {/* Current Challenges */}
               <div>
                 <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <AlertTriangle className="w-3 h-3 text-blue-800" />
+                  <AlertTriangle className="w-3 h-3 text-emerald-400" />
                   Current Challenges
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -476,7 +477,7 @@ export function PolicyOnboarding() {
               {/* Staffing */}
               <div>
                 <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <Users className="w-3 h-3 text-blue-800" />
+                  <Users className="w-3 h-3 text-emerald-400" />
                   Staffing Information *
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -545,7 +546,7 @@ export function PolicyOnboarding() {
                   onClick={runAnalysis}
                   disabled={!isProfileComplete() || isAnalyzing}
                   size="lg"
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
                 >
                   {isAnalyzing ? (
                     <>
@@ -566,7 +567,7 @@ export function PolicyOnboarding() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="" style={{ color: brandColors.archon.mediumGray }}>Analysis Progress</span>
-                    <span className="font-medium text-blue-800">{analysisProgress}%</span>
+                    <span className="font-medium text-emerald-400">{analysisProgress}%</span>
                   </div>
                   <Progress value={analysisProgress} className="h-2" />
                 </div>
@@ -579,7 +580,7 @@ export function PolicyOnboarding() {
           <div className="space-y-2">
             {/* AI Analysis Overview */}
             <Card className="border-2 shadow-sm">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+              <CardHeader className="bg-gradient-to-r from-emerald-50 to-emerald-50 border-b">
                 <CardTitle className="flex items-center gap-2">
                   <Brain className="w-3 h-3" />
                   AI Analysis Results
@@ -602,9 +603,9 @@ export function PolicyOnboarding() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Recommendations</p>
-                      <p className="text-base font-bold text-blue-800">{recommendations.length}</p>
+                      <p className="text-base font-bold text-emerald-400">{recommendations.length}</p>
                     </div>
-                    <FileText className="w-4 h-4 text-blue-800" />
+                    <FileText className="w-4 h-4 text-emerald-400" />
                   </div>
                 </CardContent>
               </Card>
@@ -636,7 +637,7 @@ export function PolicyOnboarding() {
                     <div>
                       <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Est. Savings</p>
                       <p className="text-base font-bold text-green-600">
-                        ${recommendations.reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0).toLocaleString()}
+                        {formatCurrency(recommendations.reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0))}
                       </p>
                     </div>
                     <DollarSign className="w-4 h-4 text-green-500" />
@@ -659,8 +660,8 @@ export function PolicyOnboarding() {
               </TabsList>
 
               <TabsContent value="gaps" className="space-y-2 mt-3">
-                {gaps.map((gap, idx) => (
-                  <Card key={idx} className={cn("border-2", getSeverityColor(gap.severity))}>
+                {gaps.map((gap) => (
+                  <Card key={gap.category} className={cn("border-2", getSeverityColor(gap.severity))}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
@@ -678,11 +679,11 @@ export function PolicyOnboarding() {
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-sm font-medium text-gray-700 mb-1">Current State</p>
-                          <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{gap.currentState}</p>
+                          <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{gap.currentState}</p>
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-700 mb-1">Desired State</p>
-                          <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{gap.desiredState}</p>
+                          <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{gap.desiredState}</p>
                         </div>
                       </div>
                       <Separator />
@@ -690,7 +691,7 @@ export function PolicyOnboarding() {
                         <p className="text-sm font-medium text-gray-700 mb-2">Recommendations:</p>
                         <ul className="space-y-1">
                           {gap.recommendations.map((rec, recIdx) => (
-                            <li key={recIdx} className="flex items-start gap-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+                            <li key={recIdx} className="flex items-start gap-2 text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
                               <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                               {rec}
                             </li>
@@ -703,8 +704,8 @@ export function PolicyOnboarding() {
               </TabsContent>
 
               <TabsContent value="bottlenecks" className="space-y-2 mt-3">
-                {bottlenecks.map((bottleneck, idx) => (
-                  <Card key={idx} className="border-2 border-red-200 bg-red-50">
+                {bottlenecks.map((bottleneck) => (
+                  <Card key={bottleneck.process} className="border-2 border-red-200 bg-red-50">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
@@ -724,18 +725,18 @@ export function PolicyOnboarding() {
                     <CardContent className="space-y-3">
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-1">Impact</p>
-                        <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{bottleneck.impact}</p>
+                        <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{bottleneck.impact}</p>
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-1">Root Cause</p>
-                        <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{bottleneck.rootCause}</p>
+                        <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{bottleneck.rootCause}</p>
                       </div>
                       <Separator />
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-2">Solutions:</p>
                         <ul className="space-y-1">
                           {bottleneck.solutions.map((solution, solIdx) => (
-                            <li key={solIdx} className="flex items-start gap-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+                            <li key={solIdx} className="flex items-start gap-2 text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
                               <Lightbulb className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                               {solution}
                             </li>
@@ -753,7 +754,7 @@ export function PolicyOnboarding() {
               <Button
                 onClick={() => setCurrentStep('recommendations')}
                 size="lg"
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
               >
                 View Policy Recommendations
                 <ArrowRight className="w-3 h-3 ml-2" />
@@ -765,7 +766,7 @@ export function PolicyOnboarding() {
         {currentStep === 'recommendations' && (
           <div className="space-y-2">
             <Card className="border-2 shadow-sm">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+              <CardHeader className="bg-gradient-to-r from-emerald-50 to-emerald-50 border-b">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
@@ -787,12 +788,12 @@ export function PolicyOnboarding() {
             <div className="grid grid-cols-1 gap-2">
               {recommendations.map((rec, idx) => (
                 <Card
-                  key={idx}
+                  key={rec.policy.name}
                   className={cn(
                     "border-2 transition-all cursor-pointer hover:shadow-sm",
                     selectedRecommendations.has(idx)
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-blue-300"
+                      ? "border-emerald-500 bg-emerald-50"
+                      : "border-gray-200 hover:border-emerald-300"
                   )}
                   onClick={() => {
                     const newSelected = new Set(selectedRecommendations)
@@ -809,7 +810,7 @@ export function PolicyOnboarding() {
                       <div className={cn(
                         "w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1",
                         selectedRecommendations.has(idx)
-                          ? "bg-blue-500 border-blue-500"
+                          ? "bg-emerald-500 border-emerald-500"
                           : "bg-white border-gray-300"
                       )}>
                         {selectedRecommendations.has(idx) && (
@@ -836,7 +837,7 @@ export function PolicyOnboarding() {
                         <Lightbulb className="w-4 h-4 text-yellow-500" />
                         Rationale
                       </p>
-                      <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{rec.rationale}</p>
+                      <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{rec.rationale}</p>
                     </div>
 
                     {/* Estimated Impact */}
@@ -848,17 +849,17 @@ export function PolicyOnboarding() {
                             <p className="text-xs font-medium text-green-700">Cost Savings</p>
                           </div>
                           <p className="text-sm font-bold text-green-700">
-                            ${rec.estimatedImpact.costSavings.toLocaleString()}
+                            {formatCurrency(rec.estimatedImpact.costSavings)}
                           </p>
                         </div>
                       )}
                       {rec.estimatedImpact.safetyImprovement !== undefined && (
-                        <div className="bg-blue-50 p-2 rounded-lg border border-blue-200">
+                        <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-200">
                           <div className="flex items-center gap-2 mb-1">
-                            <Shield className="w-4 h-4 text-blue-800" />
-                            <p className="text-xs font-medium text-blue-700">Safety Improvement</p>
+                            <Shield className="w-4 h-4 text-emerald-400" />
+                            <p className="text-xs font-medium text-emerald-400">Safety Improvement</p>
                           </div>
-                          <p className="text-sm font-bold text-blue-700">
+                          <p className="text-sm font-bold text-emerald-400">
                             +{rec.estimatedImpact.safetyImprovement}%
                           </p>
                         </div>
@@ -879,12 +880,12 @@ export function PolicyOnboarding() {
                     {/* Implementation Steps */}
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-slate-700" style={{ color: brandColors.archon.mediumGray }} />
+                        <Clock className="w-4 h-4 text-white/40" style={{ color: brandColors.archon.mediumGray }} />
                         Implementation Steps
                       </p>
                       <ol className="space-y-1">
                         {rec.implementationSteps.map((step, stepIdx) => (
-                          <li key={stepIdx} className="flex items-start gap-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+                          <li key={stepIdx} className="flex items-start gap-2 text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
                             <span className="font-medium text-gray-700 flex-shrink-0">
                               {stepIdx + 1}.
                             </span>
@@ -896,7 +897,7 @@ export function PolicyOnboarding() {
 
                     {/* Best Practice Source */}
                     <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                      <p className="text-xs text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+                      <p className="text-xs text-white/40" style={{ color: brandColors.archon.mediumGray }}>
                         <span className="font-medium">Source:</span> {rec.bestPracticeSource}
                       </p>
                     </div>
@@ -965,15 +966,14 @@ export function PolicyOnboarding() {
                 <div className="p-2 bg-green-50 rounded-lg border border-green-200">
                   <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Total Est. Savings</p>
                   <p className="text-sm font-bold text-green-600">
-                    ${recommendations
+                    {formatCurrency(recommendations
                       .filter((_, idx) => selectedRecommendations.has(idx))
-                      .reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0)
-                      .toLocaleString()}
+                      .reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0))}
                   </p>
                 </div>
-                <div className="p-2 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="p-2 bg-emerald-50 rounded-lg border border-emerald-200">
                   <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Avg Safety Improvement</p>
-                  <p className="text-sm font-bold text-blue-800">
+                  <p className="text-sm font-bold text-emerald-400">
                     +{Math.round(
                       recommendations
                         .filter((_, idx) => selectedRecommendations.has(idx))
@@ -1003,25 +1003,25 @@ export function PolicyOnboarding() {
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Monitor Policy Performance</p>
-                      <p className="text-xs text-slate-700" style={{ color: brandColors.archon.mediumGray }}>View real-time execution metrics</p>
+                      <p className="text-xs text-white/40" style={{ color: brandColors.archon.mediumGray }}>View real-time execution metrics</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Configure Notifications</p>
-                      <p className="text-xs text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Set up alerts and approvals</p>
+                      <p className="text-xs text-white/40" style={{ color: brandColors.archon.mediumGray }}>Set up alerts and approvals</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Train Your Team</p>
-                      <p className="text-xs text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Share policy documentation</p>
+                      <p className="text-xs text-white/40" style={{ color: brandColors.archon.mediumGray }}>Share policy documentation</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Review & Refine</p>
-                      <p className="text-xs text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Adjust based on results</p>
+                      <p className="text-xs text-white/40" style={{ color: brandColors.archon.mediumGray }}>Adjust based on results</p>
                     </div>
                   </Button>
                 </div>
@@ -1044,7 +1044,7 @@ export function PolicyOnboarding() {
                 <Button
                   onClick={() => window.location.href = '#/policy-management'}
                   size="lg"
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
                 >
                   Go to Policy Engine
                   <ArrowRight className="w-3 h-3 ml-2" />

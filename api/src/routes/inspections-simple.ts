@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection'
@@ -7,6 +8,36 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const createInspectionSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  type: z.string(),
+  status: z.string().optional(),
+  started_at: z.string().optional(),
+  completed_at: z.string().nullable().optional(),
+  passed_inspection: z.boolean().optional(),
+  odometer_reading: z.number().optional(),
+  notes: z.string().optional(),
+  defects: z.unknown().optional(),
+  checklist: z.unknown().optional(),
+  signature: z.string().optional(),
+}).passthrough()
+
+const updateInspectionSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  type: z.string().optional(),
+  status: z.string().optional(),
+  started_at: z.string().optional(),
+  completed_at: z.string().nullable().optional(),
+  passed_inspection: z.boolean().optional(),
+  odometer_reading: z.number().optional(),
+  notes: z.string().optional(),
+  defects: z.unknown().optional(),
+  checklist: z.unknown().optional(),
+  signature: z.string().optional(),
+}).passthrough()
 
 /**
  * Simple DB-backed inspections router
@@ -65,6 +96,45 @@ router.get(
   }
 )
 
+// GET /api/inspections/:id/violations — policy violations near the inspection date
+router.get(
+  '/:id/violations',
+  requirePermission('inspection:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const inspectionId = req.params.id
+
+      const result = await pool.query(
+        `SELECT
+          pv.id,
+          pv.violation_date,
+          pv.violation_description as description,
+          pv.severity,
+          pv.case_status as status,
+          pv.location,
+          pv.employee_number as driver_id,
+          d.first_name || ' ' || d.last_name as driver_name,
+          pt.policy_name
+        FROM policy_violations pv
+        LEFT JOIN drivers d ON pv.employee_number = d.id
+        LEFT JOIN policy_templates pt ON pv.policy_id = pt.id
+        JOIN inspections i ON i.id = $1
+        WHERE pv.vehicle_id = i.vehicle_id
+          AND pv.violation_date BETWEEN
+            (i.started_at::date - INTERVAL '30 days')
+            AND (i.started_at::date + INTERVAL '30 days')
+        ORDER BY pv.violation_date DESC`,
+        [inspectionId]
+      )
+
+      res.json(result.rows)
+    } catch (error) {
+      logger.error('Get inspection violations error:', error)
+      res.json([])
+    }
+  }
+)
+
 // GET /api/inspections/:id
 router.get(
   '/:id',
@@ -101,8 +171,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const parsed = createInspectionSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+
       const { columnNames, placeholders, values } = buildInsertClause(
-        req.body,
+        parsed.data,
         ['tenant_id'],
         1
       )
@@ -128,7 +203,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { fields, values } = buildUpdateClause(req.body, 3)
+      const parsed = updateInspectionSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+      const data = parsed.data
+      const { fields, values } = buildUpdateClause(data, 3)
       const result = await pool.query(
         `UPDATE inspections
          SET ${fields}, updated_at = NOW()

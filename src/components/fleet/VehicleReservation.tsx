@@ -41,6 +41,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDateTime } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 import { useTenant } from '@/contexts/TenantContext'
 import { useVehicles } from '@/hooks/use-api'
 import { useCreateReservation } from '@/hooks/use-reservations'
@@ -139,7 +142,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
   const availableVehicles = (vehiclesData || [])
     .map(v => ({
       id: String(v.id),
-      name: `Vehicle ${v.number || v.id} - ${v.make} ${v.model} (${v.year})`,
+      name: formatVehicleName(v),
       status: v.status === 'active' || v.status === 'idle' ? 'available' : v.status === 'service' ? 'maintenance' : v.status,
     }))
     .filter(v => v.name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -185,7 +188,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
                       <div className="flex items-center justify-between w-full">
                         <span>{vehicle.name}</span>
                         <Badge variant={vehicle.status === 'available' ? 'default' : 'secondary'}>
-                          {vehicle.status}
+                          {formatEnum(vehicle.status)}
                         </Badge>
                       </div>
                     </SelectItem>
@@ -328,7 +331,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
                         >
                           <div className="flex items-center gap-3">
                             {event.type === 'reservation' ? (
-                              <User className="h-5 w-5 text-blue-500" />
+                              <User className="h-5 w-5 text-emerald-500" />
                             ) : (
                               <FileText className="h-5 w-5 text-orange-500" />
                             )}
@@ -337,7 +340,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
                                 {event.type === 'reservation' ? 'Reservation' : 'Maintenance'}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {event.start.toLocaleString()} - {event.end.toLocaleString()}
+                                {formatDateTime(event.start)} - {formatDateTime(event.end)}
                               </p>
                             </div>
                           </div>

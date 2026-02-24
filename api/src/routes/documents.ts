@@ -1,9 +1,9 @@
-// TODO: Verify tenant isolation in all queries
 import fs from 'fs/promises'
 import path from 'path'
 
 import express, { Response } from 'express'
 import multer from 'multer'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { fileUploadLimiter } from '../config/rate-limiters'
@@ -14,6 +14,58 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission, validateScope } from '../middleware/permissions'
 import { secureFileValidation } from '../utils/file-validation'
+
+// ── Zod Schemas ──────────────────────────────────────────────────────────────
+
+const uploadDocumentSchema = z.object({
+  document_type: z.string().default('Other'),
+  category: z.string().default('General'),
+  description: z.string().optional(),
+  related_entity_type: z.string().optional(),
+  related_entity_id: z.coerce.string().optional(),
+  tags: z.union([z.array(z.string()), z.string()]).default([]),
+})
+
+const cameraCaptureSchema = z.object({
+  document_type: z.string().default('Receipt'),
+  category: z.string().default('Expense'),
+  description: z.string().optional(),
+  related_entity_type: z.string().optional(),
+  related_entity_id: z.coerce.string().optional(),
+  device_manufacturer: z.string().optional(),
+  device_model: z.string().optional(),
+  device_os: z.string().optional(),
+  device_os_version: z.string().optional(),
+  photo_taken_at: z.string().optional(),
+  camera_make: z.string().optional(),
+  latitude: z.coerce.string().optional(),
+  longitude: z.coerce.string().optional(),
+  auto_crop_applied: z.union([z.boolean(), z.string()]).default(false),
+  auto_rotate_applied: z.union([z.boolean(), z.string()]).default(false),
+})
+
+const updateDocumentSchema = z.object({
+  description: z.string().nullish(),
+  category: z.string().nullish(),
+  tags: z.union([z.array(z.string()), z.string()]).nullish(),
+  related_entity_type: z.string().nullish(),
+  related_entity_id: z.coerce.string().nullish(),
+})
+
+const receiptLineItemSchema = z.object({
+  item_description: z.string(),
+  quantity: z.number().optional(),
+  unit_price: z.number().optional(),
+  line_total: z.number().optional(),
+  tax_amount: z.number().optional(),
+  category: z.string().optional(),
+  is_taxable: z.boolean().optional(),
+  ai_confidence: z.number().nullish(),
+})
+
+const updateReceiptItemsSchema = z.object({
+  line_items: z.array(receiptLineItemSchema),
+})
 
 
 const router = express.Router()
@@ -61,6 +113,9 @@ router.get(
         category,
         entity_type,
         entity_id,
+        vehicle_id,
+        driver_id,
+        work_order_id,
         search
       } = req.query
       const offset = (Number(page) - 1) * Number(limit)
@@ -96,6 +151,24 @@ router.get(
       if (entity_id) {
         query += ` AND d.related_entity_id = $${paramIndex}`
         params.push(entity_id)
+        paramIndex++
+      }
+
+      if (vehicle_id) {
+        query += ` AND d.vehicle_id = $${paramIndex}`
+        params.push(vehicle_id)
+        paramIndex++
+      }
+
+      if (driver_id) {
+        query += ` AND d.driver_id = $${paramIndex}`
+        params.push(driver_id)
+        paramIndex++
+      }
+
+      if (work_order_id) {
+        query += ` AND d.work_order_id = $${paramIndex}`
+        params.push(work_order_id)
         paramIndex++
       }
 
@@ -208,7 +281,7 @@ router.get(
 
       // Get OCR data if exists
       const ocrResult = await pool.query(
-        `SELECT id, tenant_id, document_id, status, confidence_score, text_content, processed_at FROM ocr_processing_log WHERE document_id = $1 ORDER BY processed_at DESC LIMIT 1`,
+        `SELECT id, document_id, processing_status, confidence, extracted_text, processed_at FROM ocr_processing_log WHERE document_id = $1 ORDER BY processed_at DESC LIMIT 1`,
         [req.params.id]
       )
 
@@ -275,14 +348,19 @@ router.post(
         })
       }
 
+      const parsed = uploadDocumentSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+
       const {
-        document_type = 'Other',
-        category = 'General',
+        document_type,
+        category,
         description,
         related_entity_type,
         related_entity_id,
-        tags = []
-      } = req.body
+        tags
+      } = parsed.data
 
       // Create upload directory if it doesn't exist
       const uploadDir = process.env.UPLOAD_DIR || '/tmp/uploads'
@@ -299,11 +377,11 @@ router.post(
       // Insert document record
       const result = await pool.query(
         `INSERT INTO documents (
-          document_type, category, filename, original_filename,
-          file_size_bytes, mime_type, file_path, description,
+          document_type, category, file_name, original_filename,
+          file_size_bytes, mime_type, storage_path, description,
           related_entity_type, related_entity_id, tags,
           uploaded_by, uploaded_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
         RETURNING *`,
         [
           document_type,
@@ -321,8 +399,7 @@ router.post(
         ]
       )
 
-      // TODO: Trigger OCR processing in background
-      // This would typically be done via a message queue or background job
+      // OCR processing is triggered separately via POST /documents/:id/ocr
 
       res.status(201).json(result.rows[0])
     } catch (error) {
@@ -355,9 +432,14 @@ router.post(
         })
       }
 
+      const parsed = cameraCaptureSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+
       const {
-        document_type = 'Receipt',
-        category = 'Expense',
+        document_type,
+        category,
         description,
         related_entity_type,
         related_entity_id,
@@ -370,9 +452,9 @@ router.post(
         camera_make,
         latitude,
         longitude,
-        auto_crop_applied = false,
-        auto_rotate_applied = false
-      } = req.body
+        auto_crop_applied,
+        auto_rotate_applied
+      } = parsed.data
 
       // Create upload directory if it doesn't exist
       const uploadDir = process.env.UPLOAD_DIR || '/tmp/uploads'
@@ -389,11 +471,11 @@ router.post(
       // Insert document
       const docResult = await pool.query(
         `INSERT INTO documents (
-          document_type, category, filename, original_filename,
-          file_size_bytes, mime_type, file_path, description,
+          document_type, category, file_name, original_filename,
+          file_size_bytes, mime_type, storage_path, description,
           related_entity_type, related_entity_id,
-          uploaded_by, uploaded_at, is_mobile_capture
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), TRUE)
+          uploaded_by, uploaded_at, upload_method
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), 'camera_capture')
         RETURNING *`,
         [
           document_type,
@@ -416,7 +498,7 @@ router.post(
       await pool.query(
         `INSERT INTO camera_capture_metadata (
           document_id, device_manufacturer, device_model,
-          device_os, device_os_version, photo_taken_at,
+          os_name, os_version, photo_taken_at,
           camera_make, latitude, longitude,
           auto_crop_applied, auto_rotate_applied
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
@@ -435,7 +517,7 @@ router.post(
         ]
       )
 
-      // TODO: Trigger OCR and receipt parsing in background
+      // OCR/receipt parsing is triggered separately via POST /documents/:id/ocr or /parse-receipt
 
       res.status(201).json(docResult.rows[0])
     } catch (error) {
@@ -453,7 +535,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { description, category, tags, related_entity_type, related_entity_id } = req.body
+      const parsed = updateDocumentSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+
+      const { description, category, tags, related_entity_type, related_entity_id } = parsed.data
 
       // First verify tenant isolation before update
       const checkResult = await pool.query(
@@ -526,7 +613,7 @@ router.delete(
 
       // TODO: Delete physical file from storage
 
-      res.json({ message: `Document deleted successfully` })
+      res.json({ success: true, message: `Document deleted successfully` })
     } catch (error) {
       logger.error('Delete document error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
@@ -565,7 +652,7 @@ router.post(
         throw new NotFoundError("Document not found")
       }
 
-      // For now, create a placeholder OCR log entry
+      // Create an OCR processing log entry (actual OCR processing is async via background jobs)
       const ocrResult = await pool.query(
         `INSERT INTO ocr_processing_log (
           document_id, processing_status, processed_at
@@ -635,11 +722,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'receipt_line_items' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { line_items } = req.body
-
-      if (!Array.isArray(line_items)) {
-        throw new ValidationError("line_items must be an array")
+      const parsed = updateReceiptItemsSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
       }
+
+      const { line_items } = parsed.data
 
       // First verify tenant isolation
       const docResult = await pool.query(
@@ -671,8 +759,8 @@ router.put(
           `INSERT INTO receipt_line_items (
             document_id, line_number, item_description,
             quantity, unit_price, line_total, tax_amount,
-            category, is_taxable, ai_confidence
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            product_category, is_taxable
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
           [
             req.params.id,
             index + 1,
@@ -682,8 +770,7 @@ router.put(
             item.line_total || 0,
             item.tax_amount || 0,
             item.category,
-            item.is_taxable !== false,
-            item.ai_confidence || null
+            item.is_taxable !== false
           ]
         )
       )
@@ -736,10 +823,10 @@ router.get(
       // Total documents
       const totalResult = await pool.query(
         `SELECT COUNT(*) as total_documents,
-                COUNT(CASE WHEN is_mobile_capture = TRUE THEN 1 END) as mobile_captures,
+                COUNT(CASE WHEN upload_method = 'camera_capture' THEN 1 END) as mobile_captures,
                 SUM(file_size_bytes) as total_storage_bytes
          FROM documents d
-         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1`,
         [req.user!.tenant_id]
       )
@@ -748,7 +835,7 @@ router.get(
       const byCategoryResult = await pool.query(
         `SELECT category, COUNT(*) as count
          FROM documents d
-         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1
          GROUP BY category
          ORDER BY count DESC
@@ -761,7 +848,7 @@ router.get(
         `SELECT processing_status, COUNT(*) as count
          FROM ocr_processing_log opl
          JOIN documents d ON opl.document_id = d.id
-         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1
          GROUP BY processing_status`,
         [req.user!.tenant_id]
@@ -771,7 +858,7 @@ router.get(
       const recentResult = await pool.query(
         `SELECT d.*, uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
          FROM documents d
-         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1
          ORDER BY d.uploaded_at DESC
          LIMIT 10`,

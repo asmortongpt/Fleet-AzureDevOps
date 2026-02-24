@@ -441,9 +441,9 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
 
     return (
       <div className="flex gap-3 mb-3">
-        {report.exports.map((exp, idx) => (
+        {report.exports.map((exp) => (
           <button
-            key={idx}
+            key={exp.format}
             onClick={() => onExport(exp.format)}
             className="flex items-center gap-2 px-2 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
           >

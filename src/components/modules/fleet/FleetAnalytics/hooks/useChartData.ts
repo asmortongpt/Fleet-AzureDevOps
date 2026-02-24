@@ -194,7 +194,7 @@ export function useChartData(
 
     const grouped = new Map<string, { total: number; active: number }>()
     vehicles.forEach((vehicle) => {
-      const type = String(vehicle.type || vehicle.asset_type || "Unknown")
+      const type = String(vehicle.type || vehicle.asset_type || "—")
       if (!grouped.has(type)) grouped.set(type, { total: 0, active: 0 })
       const entry = grouped.get(type)!
       entry.total += 1

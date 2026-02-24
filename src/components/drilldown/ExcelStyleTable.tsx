@@ -60,7 +60,6 @@ import {
   Filter,
 } from 'lucide-react'
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import * as XLSX from 'xlsx'
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -88,6 +87,7 @@ import {
 import { useDebounce } from '@/hooks/useDebounce'
 import { useBreakpoints } from '@/hooks/useMediaQuery'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
 
 // ============================================================================
 // TYPES
@@ -565,7 +565,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                 ? format(new Date(value as string | number | Date), 'MMM d, yyyy')
                 : String(value)
             case 'number':
-              return typeof value === 'number' ? value.toLocaleString() : String(value)
+              return typeof value === 'number' ? formatNumber(value) : String(value)
             case 'boolean':
               return value ? 'Yes' : 'No'
             default:
@@ -691,7 +691,9 @@ export function ExcelStyleTable<T extends Record<string, any>>({
   // EXPORT FUNCTIONS
   // ============================================================================
 
-  const exportToExcel = useCallback(() => {
+  const exportToExcel = useCallback(async () => {
+    // Dynamic import — xlsx (~900KB) is only loaded when user clicks "Export"
+    const XLSX = await import('xlsx') as any
     const exportColumns = columns.filter(col => col.exportable !== false)
     const exportData = table.getFilteredRowModel().rows.map(row => {
       const rowData: Record<string, any> = {}
@@ -707,10 +709,12 @@ export function ExcelStyleTable<T extends Record<string, any>>({
     const ws = XLSX.utils.json_to_sheet(exportData)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Data')
-    ;(XLSX as any).writeFile(wb, `export_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.xlsx`)
+    XLSX.writeFile(wb, `export_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.xlsx`)
   }, [columns, table])
 
-  const exportToCSV = useCallback(() => {
+  const exportToCSV = useCallback(async () => {
+    // Dynamic import — xlsx (~900KB) is only loaded when user clicks "Export"
+    const XLSX = await import('xlsx') as any
     const exportColumns = columns.filter(col => col.exportable !== false)
     const exportData = table.getFilteredRowModel().rows.map(row => {
       const rowData: Record<string, any> = {}
@@ -762,6 +766,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                 <button
                   onClick={() => setGlobalFilter('')}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label="Clear search"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -895,6 +900,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                                   'p-1 rounded hover:bg-muted-foreground/20',
                                   hasFilter && 'text-primary'
                                 )}
+                                aria-label={`Filter ${header.column.columnDef.header as string ?? 'column'}`}
                               >
                                 <Filter className="h-3 w-3" />
                               </button>

@@ -13,6 +13,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 // Type declarations for Okta SDK (packages not installed - this is an optional enterprise feature)
 // These types provide compile-time safety without requiring the actual @okta packages
@@ -271,9 +272,9 @@ const ROLE_PERMISSIONS = {
 // Get Okta configuration from environment variables
 const getOktaConfig = (): OktaConfig => {
   const config: OktaConfig = {
-    issuer: process.env.REACT_APP_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
-    clientId: process.env.REACT_APP_OKTA_CLIENT_ID || 'your-client-id',
-    redirectUri: process.env.REACT_APP_OKTA_REDIRECT_URI || window.location.origin + '/login/callback',
+    issuer: import.meta.env.VITE_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
+    clientId: import.meta.env.VITE_OKTA_CLIENT_ID || 'your-client-id',
+    redirectUri: import.meta.env.VITE_OKTA_REDIRECT_URI || window.location.origin + '/login/callback',
     scopes: ['openid', 'profile', 'email', 'groups'],
     pkce: true,
     disableHttpsCheck: import.meta.env.MODE === 'development'
@@ -333,8 +334,9 @@ const logAuthEvent = (event: string, details: any = {}) => {
 
   // In production, send to audit logging API
   if (import.meta.env.MODE === 'production') {
-    fetch('/api/audit/auth', {
+    fetch('/api/audit-logs/auth', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -589,7 +591,7 @@ export const OktaAuthProvider: React.FC<OktaAuthProviderProps> = ({
         );
         if (shouldExtend) {
           extendSession().catch(() => {
-            alert('Failed to extend session. Please log in again.');
+            toast.error('Failed to extend session. Please log in again.');
             logout();
           });
         }
@@ -879,7 +881,7 @@ export const UserProfile: React.FC = () => {
 
         <div>
           <label className="text-sm font-medium text-gray-700">Employee ID</label>
-          <p className="text-sm text-gray-900">{user.employee_id || 'N/A'}</p>
+          <p className="text-sm text-gray-900">{user.employee_id || '—'}</p>
         </div>
 
         <div>

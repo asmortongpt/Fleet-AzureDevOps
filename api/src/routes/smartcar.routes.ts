@@ -77,7 +77,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
     })
   } catch (error: unknown) {
     logger.error('Smartcar connect error:', error) // Wave 24: Winston logger
-    res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+    res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -188,7 +188,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     logger.error('Smartcar callback error:', error) // Wave 24: Winston logger
     const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
       error: 'smartcar_auth_failed',
-      message: error instanceof Error ? error.message : 'Connection failed'
+      message: 'Connection failed'
     })
     res.redirect(safeErrorUrl)
   }
@@ -222,7 +222,7 @@ router.get(
       res.json(location)
     } catch (error: unknown) {
       logger.error('Get Smartcar location error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -255,7 +255,7 @@ router.get(
       res.json(battery)
     } catch (error: unknown) {
       logger.error('Get Smartcar battery error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -288,7 +288,7 @@ router.get(
       res.json(charge)
     } catch (error: unknown) {
       logger.error('Get Smartcar charge error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -299,7 +299,7 @@ router.get(
  */
 router.post(
   '/vehicles/:id/lock',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_security' }),
   async (req: AuthRequest, res: Response) => {
@@ -321,7 +321,7 @@ router.post(
       res.json(result)
     } catch (error: unknown) {
       logger.error('Lock vehicle error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -332,7 +332,7 @@ router.post(
  */
 router.post(
   '/vehicles/:id/unlock',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_security' }),
   async (req: AuthRequest, res: Response) => {
@@ -354,7 +354,7 @@ router.post(
       res.json(result)
     } catch (error: unknown) {
       logger.error('Unlock vehicle error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -365,7 +365,7 @@ router.post(
  */
 router.post(
   '/vehicles/:id/charge/start',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_charge' }),
   async (req: AuthRequest, res: Response) => {
@@ -387,7 +387,7 @@ router.post(
       res.json(result)
     } catch (error: unknown) {
       logger.error('Start charging error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -398,7 +398,7 @@ router.post(
  */
 router.post(
   '/vehicles/:id/charge/stop',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_charge' }),
   async (req: AuthRequest, res: Response) => {
@@ -420,7 +420,7 @@ router.post(
       res.json(result)
     } catch (error: unknown) {
       logger.error('Stop charging error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -431,7 +431,7 @@ router.post(
  */
 router.delete(
   '/vehicles/:id/disconnect',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('vehicle:manage:global'),
   auditLog({ action: 'DELETE', resourceType: 'smartcar_connection' }),
   async (req: AuthRequest, res: Response) => {
@@ -459,10 +459,10 @@ router.delete(
         [vehicleId, req.user!.tenant_id]
       )
 
-      res.json({ message: 'Smartcar disconnected successfully' })
+      res.json({ success: true, message: 'Smartcar disconnected successfully' })
     } catch (error: unknown) {
       logger.error('Disconnect Smartcar error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -473,7 +473,7 @@ router.delete(
  */
 router.post(
   '/vehicles/:id/sync',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'smartcar_sync' }),
   async (req: AuthRequest, res: Response) => {
@@ -486,10 +486,10 @@ router.post(
 
       await smartcarService.syncVehicleData(vehicleId)
 
-      res.json({ message: 'Vehicle data synced successfully' })
+      res.json({ success: true, message: 'Vehicle data synced successfully' })
     } catch (error: unknown) {
       logger.error('Sync Smartcar data error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

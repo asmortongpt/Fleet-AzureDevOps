@@ -22,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
@@ -94,7 +95,7 @@ function getColorForTimestamp(timestamp: string, oldestTime: number, newestTime:
  * Format speed for display
  */
 function formatSpeed(mph?: number): string {
-  if (mph === undefined || mph === null) return 'N/A';
+  if (mph === undefined || mph === null) return '—';
   return `${Math.round(mph)} mph`;
 }
 
@@ -102,7 +103,7 @@ function formatSpeed(mph?: number): string {
  * Format heading for display
  */
 function formatHeading(degrees?: number): string {
-  if (degrees === undefined || degrees === null) return 'N/A';
+  if (degrees === undefined || degrees === null) return '—';
   const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
   const index = Math.round(degrees / 45) % 8;
   return `${directions[index]} (${Math.round(degrees)}°)`;
@@ -144,7 +145,7 @@ export function VehicleHistoryTrail({
     });
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
-    return `/api/v1/vehicles/${vehicleId}/location-history?${params.toString()}`;
+    return `/api/vehicle-history/${vehicleId}/location-history?${params.toString()}`;
   }, [vehicleId, startDate, endDate]);
 
   // Fetch location history data
@@ -448,7 +449,7 @@ export function VehicleHistoryTrail({
                 </div>
                 <div>
                   <p className="text-muted-foreground">Total Points</p>
-                  <p className="font-semibold">{data.pagination.total.toLocaleString()}</p>
+                  <p className="font-semibold">{formatNumber(data.pagination.total)}</p>
                 </div>
               </div>
             )}

@@ -44,6 +44,8 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { getCsrfToken } from "@/hooks/use-api"
+import { apiFetcher } from "@/lib/api-fetcher"
+import { formatDate, formatTime } from "@/utils/format-helpers"
 import { brandColors } from "@/theme/designSystem"
 
 
@@ -96,10 +98,7 @@ interface PrivacySettings {
   enableVideoEncryption: boolean
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((res) => res.json())
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 const mapVideoEvent = (row: any): VideoEvent => ({
   id: row.id,
@@ -289,7 +288,7 @@ export function VideoTelematics() {
 
   const getSeverityColor = (severity: VideoEvent["severity"]) => {
     const colors = {
-      low: "bg-blue-100 text-blue-700",
+      low: "bg-emerald-100 text-emerald-700",
       medium: "bg-yellow-100 text-yellow-700",
       high: "bg-orange-100 text-orange-700",
       critical: "bg-red-100 text-red-700"
@@ -300,7 +299,7 @@ export function VideoTelematics() {
   const getCoachingStatusColor = (status: VideoEvent["coaching"]["status"]) => {
     const colors = {
       pending: "bg-gray-100 text-gray-700",
-      "in-progress": "bg-blue-100 text-blue-700",
+      "in-progress": "bg-emerald-100 text-emerald-700",
       completed: "bg-green-100 text-green-700"
     }
     return colors[status]
@@ -471,10 +470,10 @@ export function VideoTelematics() {
                     <TableCell>
                       <div className="text-sm">
                         <div className="font-medium">
-                          {new Date(event.timestamp).toLocaleDateString()}
+                          {formatDate(event.timestamp)}
                         </div>
                         <div className="text-muted-foreground">
-                          {new Date(event.timestamp).toLocaleTimeString()}
+                          {formatTime(event.timestamp)}
                         </div>
                       </div>
                     </TableCell>
@@ -615,7 +614,7 @@ export function VideoTelematics() {
             <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
               Close
             </Button>
-            <Button>
+            <Button onClick={() => toast.success(`Downloading video clip for event: ${selectedEvent?.vehicleNumber || 'unknown'}`)}>
               <Download className="w-4 h-4 mr-2" />
               Download Clip
             </Button>

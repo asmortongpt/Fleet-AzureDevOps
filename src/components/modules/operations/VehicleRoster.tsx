@@ -23,6 +23,7 @@ import { useDrilldown } from "@/contexts/DrilldownContext";
 import { useFleetData } from "@/hooks/use-fleet-data";
 import { Vehicle } from "@/lib/types";
 import { brandColors } from "@/theme/designSystem"
+import { formatEnum } from "@/utils/format-enum"
 
 interface VehicleRosterProps {
     open: boolean;
@@ -102,7 +103,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                                     className="pl-9"
                                 />
                             </div>
-                            <Button variant="outline" size="icon">
+                            <Button variant="outline" size="icon" aria-label="Filter vehicles">
                                 <Filter className="w-4 h-4" />
                             </Button>
                         </div>
@@ -155,7 +156,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                                         </div>
                                     </div>
                                     <Badge variant="outline" className={getStatusColor(vehicle.status)}>
-                                        {vehicle.status}
+                                        {formatEnum(vehicle.status)}
                                     </Badge>
                                 </div>
 
@@ -166,7 +167,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                         <Fuel className="w-4 h-4" />
-                                        <span>{vehicle.fuelType || 'Unknown'}</span>
+                                        <span>{vehicle.fuelType || '—'}</span>
                                     </div>
                                 </div>
                             </div>

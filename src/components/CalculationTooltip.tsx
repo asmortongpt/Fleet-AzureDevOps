@@ -2,6 +2,7 @@ import { InfoIcon, Copy } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface CalculationTooltipProps {
   metricName: string;
@@ -26,8 +27,7 @@ export default function CalculationTooltip({
   };
 
   const formatDate = (date: Date | string) => {
-    const d = typeof date === 'string' ? new Date(date) : date;
-    return d.toLocaleString();
+    return formatDateTime(date);
   };
 
   return (

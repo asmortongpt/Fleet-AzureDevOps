@@ -26,6 +26,7 @@ import { apiClient } from '@/lib/api-client'
 import { isSuccessResponse } from '@/lib/schemas/responses'
 import type { ApiResponse } from '@/lib/schemas/responses'
 import logger from '@/utils/logger'
+import { formatDateTime, formatTime } from '@/utils/format-helpers'
 
 interface TelematicsData {
   equipment_id: string
@@ -125,7 +126,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 Live Telematics
               </CardTitle>
               <CardDescription>
-                Last updated: {lastUpdate.toLocaleTimeString()}
+                Last updated: {formatTime(lastUpdate)}
               </CardDescription>
             </div>
             <Badge variant={health.color === 'green' ? 'default' : health.color === 'yellow' ? 'secondary' : 'destructive'}>
@@ -154,7 +155,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm font-bold">{telematicsData.engine_hours.toFixed(1)}</div>
+                <div className="text-sm font-bold">{(telematicsData.engine_hours ?? 0).toFixed(1)}</div>
                 <Progress value={(telematicsData.engine_hours % 100)} className="mt-2" />
               </CardContent>
             </Card>
@@ -235,7 +236,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm">Current Rate</span>
-                    <span className="font-semibold">{telematicsData.fuel_consumption_rate.toFixed(2)} gal/hr</span>
+                    <span className="font-semibold">{(telematicsData.fuel_consumption_rate ?? 0).toFixed(2)} gal/hr</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm">Fuel Level</span>
@@ -266,8 +267,8 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {telematicsData.diagnostic_codes.map((code, index) => (
-                    <div key={index} className="flex items-center gap-2 p-2 bg-yellow-50 rounded">
+                  {telematicsData.diagnostic_codes.map((code) => (
+                    <div key={code} className="flex items-center gap-2 p-2 bg-yellow-50 rounded">
                       <Badge variant="secondary">{code}</Badge>
                       <span className="text-sm">Active diagnostic code</span>
                     </div>
@@ -290,11 +291,11 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
             <CardContent className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-sm">Latitude</span>
-                <span className="font-mono">{telematicsData.latitude.toFixed(6)}</span>
+                <span className="font-mono">{(telematicsData.latitude ?? 0).toFixed(6)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Longitude</span>
-                <span className="font-mono">{telematicsData.longitude.toFixed(6)}</span>
+                <span className="font-mono">{(telematicsData.longitude ?? 0).toFixed(6)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Altitude</span>
@@ -335,7 +336,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                         <div>
                           <p className="font-medium">{alert.message}</p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {new Date(alert.timestamp).toLocaleString()}
+                            {formatDateTime(alert.timestamp)}
                           </p>
                         </div>
                       </div>

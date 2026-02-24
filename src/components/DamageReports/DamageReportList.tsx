@@ -1,6 +1,6 @@
 import { Filter, Search, AlertTriangle, Calendar, Car, Eye, Plus } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigation } from '@/contexts/NavigationContext'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { damageReportsApi, DamageReport } from '@/services/damageReportsApi'
+import { formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 interface DamageReportListProps {
@@ -22,7 +23,7 @@ interface DamageReportListProps {
 }
 
 export function DamageReportList({ vehicleId }: DamageReportListProps) {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const [damageReports, setDamageReports] = useState<DamageReport[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -61,11 +62,11 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
   }
 
   const handleViewDetails = (reportId: string) => {
-    navigate(`/damage-reports/${reportId}`)
+    navigateTo('damage-reports')
   }
 
   const handleCreateNew = () => {
-    navigate('/damage-reports/create')
+    navigateTo('damage-reports')
   }
 
   const getSeverityVariant = (
@@ -282,7 +283,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
                         <span>
-                          {new Date(report.created_at || '').toLocaleDateString()}
+                          {formatDate(report.created_at || '')}
                         </span>
                       </div>
                       {report.photos && report.photos.length > 0 && (

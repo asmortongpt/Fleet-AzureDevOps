@@ -192,12 +192,22 @@ export function validateAll(schemas: {
 /**
  * Common validation schemas
  */
+/**
+ * Flexible UUID pattern - accepts any UUID-formatted string (not just RFC 4122 v4).
+ * Our seed data uses fabricated UUIDs like 40000000-0000-0000-0000-000000000001
+ * which don't conform to strict v4 variant bits.
+ */
+export const flexUuid = z.string().regex(
+  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+  'Invalid UUID format'
+)
+
 export const commonSchemas = {
   /**
    * UUID parameter
    */
   uuid: z.object({
-    id: z.string().uuid('Invalid ID format')
+    id: flexUuid
   }),
 
   /**
@@ -384,8 +394,8 @@ export const vehicleSchemas = {
     asset_category: z.enum(['vehicle', 'heavy_equipment', 'trailer', 'specialized']).optional(),
     asset_type: z.string().max(100).optional(),
     power_type: z.enum(['combustion', 'electric', 'hybrid', 'manual', 'hydraulic', 'pneumatic']).optional(),
-    location_id: z.string().uuid().optional(),
-    fleet_id: z.string().uuid().optional()
+    location_id: flexUuid.optional(),
+    fleet_id: flexUuid.optional()
   }),
 
   update: z.object({
@@ -395,7 +405,7 @@ export const vehicleSchemas = {
     license_plate: commonSchemas.licensePlate.optional(),
     status: z.enum(['active', 'inactive', 'maintenance', 'sold', 'retired']).optional(),
     odometer: commonSchemas.nonNegativeNumber.optional(),
-    location_id: z.string().uuid().optional()
+    location_id: flexUuid.optional()
   })
 }
 
@@ -432,14 +442,14 @@ export const driverSchemas = {
  */
 export const workOrderSchemas = {
   create: z.object({
-    vehicle_id: z.string().uuid(),
+    vehicle_id: flexUuid,
     title: z.string().min(1).max(200),
     description: z.string().max(5000).optional(),
     priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
     type: z.enum(['preventive', 'corrective', 'inspection', 'recall']),
     estimated_cost: commonSchemas.currency.optional(),
     scheduled_date: z.coerce.date().optional(),
-    assigned_to: z.string().uuid().optional()
+    assigned_to: flexUuid.optional()
   }),
 
   update: z.object({
@@ -457,8 +467,8 @@ export const workOrderSchemas = {
  */
 export const fuelSchemas = {
   create: z.object({
-    vehicle_id: z.string().uuid(),
-    driver_id: z.string().uuid().optional(),
+    vehicle_id: flexUuid,
+    driver_id: flexUuid.optional(),
     gallons: commonSchemas.positiveNumber,
     price_per_gallon: commonSchemas.currency,
     total_cost: commonSchemas.currency,

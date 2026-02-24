@@ -12,9 +12,13 @@
 
 import { AlertCircle, Box, Plus, Upload, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
+
+import { useNavigation } from '@/contexts/NavigationContext'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 import { Button } from '@/components/ui/button'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import {
   Card,
   CardContent,
@@ -36,6 +40,7 @@ import {
 import { SmartTooltip } from '@/components/ui/smart-tooltip'
 import { Textarea } from '@/components/ui/textarea'
 import { secureFetch } from '@/hooks/use-api'
+import logger from '@/utils/logger'
 
 interface DamageReportFormData {
   vehicle_id: string
@@ -54,7 +59,7 @@ interface FormErrors {
 }
 
 export function CreateDamageReport() {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [vehicles, setVehicles] = useState<{ id: string; make: string; model: string; vin?: string; name?: string }[]>([])
   const [vehiclesLoading, setVehiclesLoading] = useState(true)
@@ -186,19 +191,56 @@ export function CreateDamageReport() {
         throw new Error('Failed to submit damage report')
       }
 
-      navigate('/fleet')
+      navigateTo('fleet-hub-consolidated')
     } catch (error) {
-      console.error('Failed to submit damage report:', error)
+      logger.error('Failed to submit damage report:', error)
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handleSaveDraft = () => {
-    // Save to local storage or API
+    try {
+      // Save form data to localStorage (exclude File objects which can't be serialized)
+      const draftData = {
+        vehicle_id: formData.vehicle_id,
+        damage_severity: formData.damage_severity,
+        damage_description: formData.damage_description,
+        damage_location: formData.damage_location,
+        estimated_repair_cost: formData.estimated_repair_cost,
+        photo_count: formData.photos.length,
+        saved_at: new Date().toISOString(),
+      }
+      localStorage.setItem('damage_report_draft', JSON.stringify(draftData))
+      toast.success('Draft saved successfully')
+    } catch (err) {
+      logger.error('Failed to save draft:', err)
+      toast.error('Failed to save draft')
+    }
   }
 
+  // Restore draft from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('damage_report_draft')
+      if (saved) {
+        const draft = JSON.parse(saved)
+        setFormData((prev) => ({
+          ...prev,
+          vehicle_id: draft.vehicle_id || prev.vehicle_id,
+          damage_severity: draft.damage_severity || prev.damage_severity,
+          damage_description: draft.damage_description || prev.damage_description,
+          damage_location: draft.damage_location || prev.damage_location,
+          estimated_repair_cost: draft.estimated_repair_cost || prev.estimated_repair_cost,
+        }))
+      }
+    } catch {
+      // Ignore parse errors from corrupted localStorage
+    }
+  }, [])
+
   return (
+    <ErrorBoundary>
     <div className="container mx-auto py-3 px-2 max-w-4xl">
       <Card>
         <CardHeader>
@@ -231,7 +273,7 @@ export function CreateDamageReport() {
             <SmartTooltip content="Cancel and return to fleet" shortcut="Esc">
               <Button
                 variant="ghost"
-                onClick={() => navigate('/fleet')}
+                onClick={() => navigateTo('fleet-hub-consolidated')}
                 type="button"
               >
                 <X className="h-4 w-4 mr-2" />
@@ -266,7 +308,7 @@ export function CreateDamageReport() {
                     <SelectItem value="empty" disabled>No vehicles available</SelectItem>
                   ) : vehicles.map((vehicle) => (
                     <SelectItem key={vehicle.id} value={vehicle.id}>
-                      {vehicle.name || `${vehicle.make} ${vehicle.model}`} {vehicle.vin ? `(${vehicle.vin})` : ''}
+                      {formatVehicleName(vehicle)} {vehicle.vin ? `(${vehicle.vin})` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -418,7 +460,7 @@ export function CreateDamageReport() {
 
                 {formData.photos.length >= 3 && (
                   <SmartTooltip content="Generate 3D model from uploaded photos using AI-powered TripoSR">
-                    <Button type="button" variant="secondary">
+                    <Button type="button" variant="secondary" onClick={() => toast.info('3D model generation requires vehicle scan data')}>
                       <Box className="h-4 w-4 mr-2" />
                       Generate 3D Model
                     </Button>
@@ -430,7 +472,7 @@ export function CreateDamageReport() {
               {formData.photos.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {formData.photos.map((photo, index) => (
-                    <div key={index} className="relative group">
+                    <div key={photo.name} className="relative group">
                       <img
                         src={URL.createObjectURL(photo)}
                         alt={`Upload ${index + 1}`}
@@ -480,10 +522,10 @@ export function CreateDamageReport() {
 
             {/* Helpful Notice */}
             {formData.photos.length > 0 && formData.photos.length < 3 && (
-              <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-blue-800 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-blue-800">
+                  <p className="font-medium text-emerald-400">
                     Upload more photos for 3D model generation
                   </p>
                   <p className="text-muted-foreground mt-1">
@@ -499,5 +541,6 @@ export function CreateDamageReport() {
         </CardContent>
       </Card>
     </div>
+    </ErrorBoundary>
   )
 }

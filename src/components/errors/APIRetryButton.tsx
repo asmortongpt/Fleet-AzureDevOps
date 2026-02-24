@@ -12,6 +12,8 @@
 import { RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 
+import logger from '@/utils/logger'
+
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -48,7 +50,8 @@ export function APIRetryButton({
       // Reset on successful retry
       setRetryCount(0)
     } catch (error) {
-      // Error will be handled by caller
+      // Error will be handled by caller; log for debugging
+      logger.warn('API retry attempt failed', { retryCount, error: String(error) })
     } finally {
       setIsRetrying(false)
     }

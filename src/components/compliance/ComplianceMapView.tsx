@@ -11,6 +11,7 @@ import {
   Layers
 } from 'lucide-react'
 import React, { useState, useMemo, useCallback } from 'react'
+import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import { UnifiedFleetMap } from '@/components/Maps/UnifiedFleetMap'
@@ -26,13 +27,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useVehicles, useFacilities } from '@/hooks/use-api'
+import { apiFetcher } from '@/lib/api-fetcher'
 import type { Vehicle, GISFacility } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import logger from '@/utils/logger';
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' }).then((res) => res.json())
+const fetcher = apiFetcher
 
 /**
  * Compliance Map View - Map-First Architecture
@@ -65,14 +66,16 @@ interface ComplianceZone {
 const ComplianceDetailsPanel: React.FC<{
   selectedZone: ComplianceZone | null
   onViewDetails: (zoneId: string) => void
-}> = ({ selectedZone, onViewDetails }) => {
+  onGenerateReport: (zone: ComplianceZone) => void
+  onTakeAction: (zone: ComplianceZone) => void
+}> = ({ selectedZone, onViewDetails, onGenerateReport, onTakeAction }) => {
   const getSeverityColor = (severity: string) => {
     switch(severity) {
       case 'low': return 'text-green-600'
       case 'medium': return 'text-yellow-600'
       case 'high': return 'text-orange-600'
       case 'critical': return 'text-red-600'
-      default: return 'text-slate-700'
+      default: return 'text-white/40'
     }
   }
 
@@ -202,12 +205,12 @@ const ComplianceDetailsPanel: React.FC<{
             <Eye className="h-4 w-4 mr-2" />
             View Full Details
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={() => onGenerateReport(selectedZone)}>
             <FileText className="h-4 w-4 mr-2" />
             Generate Report
           </Button>
-          {selectedZone.status === 'violation' || selectedZone.status === 'expired' && (
-            <Button variant="destructive" className="w-full">
+          {(selectedZone.status === 'violation' || selectedZone.status === 'expired') && (
+            <Button variant="destructive" className="w-full" onClick={() => onTakeAction(selectedZone)}>
               <AlertTriangle className="h-4 w-4 mr-2" />
               Take Action
             </Button>
@@ -223,6 +226,7 @@ export function ComplianceMapView() {
   const [selectedZone, setSelectedZone] = useState<ComplianceZone | null>(null)
   const [filterType, setFilterType] = useState<string>('all')
   const [filterStatus, setFilterStatus] = useState<string>('all')
+  const { push } = useDrilldown()
 
   // API hooks
   const { data: vehicles = [] } = useVehicles()
@@ -230,7 +234,7 @@ export function ComplianceMapView() {
   const { data: zonesResponse } = useSWR('/api/geofences', fetcher)
 
   const complianceZones: ComplianceZone[] = useMemo(() => {
-    const zones = zonesResponse?.data || []
+    const zones = Array.isArray(zonesResponse) ? zonesResponse : []
     return zones.map((zone: any) => {
       const meta = zone.metadata || {}
       return {
@@ -277,9 +281,42 @@ export function ComplianceMapView() {
   }, [complianceZones])
 
   const handleViewDetails = useCallback((zoneId: string) => {
-    logger.info('View details for zone:', zoneId)
-    // In production, this would navigate to detailed compliance view
+    const zone = complianceZones.find(z => z.id === zoneId)
+    push({
+      id: zoneId,
+      type: 'compliance-zone',
+      label: zone?.name || `Zone ${zoneId}`,
+      data: { zoneId, zoneType: zone?.type, status: zone?.status, severity: zone?.severity },
+    })
+  }, [complianceZones, push])
+
+  const handleGenerateReport = useCallback((zone: ComplianceZone) => {
+    const toastId = toast.loading('Generating compliance report...')
+    const rows = [
+      ['Zone', 'Type', 'Status', 'Severity', 'Vehicles', 'Due Date', 'Description'],
+      [zone.name, zone.type, zone.status, zone.severity, zone.vehicles.join('; '), zone.dueDate || '', zone.description],
+    ]
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `compliance-zone-${zone.name.replace(/\s+/g, '-').toLowerCase()}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    toast.success('Report downloaded', { id: toastId })
   }, [])
+
+  const handleTakeAction = useCallback((zone: ComplianceZone) => {
+    push({
+      id: zone.id,
+      type: 'compliance-zone',
+      label: `Action: ${zone.name}`,
+      data: { zoneId: zone.id, zoneType: zone.type, status: zone.status, severity: zone.severity, action: 'resolve' },
+    })
+  }, [push])
 
   return (
     <div className="h-screen flex flex-col" data-testid="compliance-map-view">
@@ -403,6 +440,8 @@ export function ComplianceMapView() {
           <ComplianceDetailsPanel
             selectedZone={selectedZone}
             onViewDetails={handleViewDetails}
+            onGenerateReport={handleGenerateReport}
+            onTakeAction={handleTakeAction}
           />
         </div>
       </div>

@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from "react"
 
 
 import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "@/components/UniversalMap/utils/coordinates"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
+import { buildVehicleMarkerIcon, buildSelectedMarkerIcon, getStatusColor } from "@/utils/vehicle-map-icons"
+import type { MarkerStyle, MarkerSize } from "@/stores/useMapMarkerSettings"
 import logger from '@/utils/logger';
 /**
  * Props for the GoogleMap component
@@ -38,6 +41,22 @@ export interface GoogleMapProps {
   forceSimulatedView?: boolean
   /** Callback when a vehicle action is triggered from the popup */
   onVehicleAction?: (action: string, vehicleId: string) => void
+  /** Currently selected vehicle ID (renders with a larger highlighted marker) */
+  selectedVehicleId?: string | null
+  /** Set of vehicle IDs to show — if provided, vehicles not in the set are hidden */
+  visibleVehicleIds?: Set<string> | null
+  /** Marker visual style */
+  markerStyle?: MarkerStyle
+  /** Marker size */
+  markerSize?: MarkerSize
+  /** Show vehicle name labels below markers */
+  showMarkerLabels?: boolean
+}
+
+/** Methods exposed via ref */
+export interface GoogleMapHandle {
+  fitAll: () => void
+  centerOnVehicle: (vehicleId: string) => void
 }
 
 /**
@@ -109,7 +128,7 @@ let googleMapsLoadingState: LoadingState = "idle"
  * />
  * ```
  */
-export function GoogleMap({
+export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function GoogleMap({
   vehicles = [],
   facilities = [],
   cameras = [],
@@ -125,7 +144,12 @@ export function GoogleMap({
   onError,
   forceSimulatedView = false,
   onVehicleAction,
-}: GoogleMapProps) {
+  selectedVehicleId,
+  visibleVehicleIds,
+  markerStyle = 'pin',
+  markerSize = 'medium',
+  showMarkerLabels = false,
+}, ref) {
   // Refs for DOM and map instances
   const mapRef = useRef<HTMLDivElement>(null)
   const resolvedCenter = center ?? (calculateDynamicCenter(vehicles, facilities, cameras).reverse() as [number, number]) ?? DEFAULT_CENTER
@@ -139,6 +163,35 @@ export function GoogleMap({
   const [error, setError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
   const [forceFallback, setForceFallback] = useState(false)
+
+  // Expose imperative methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    fitAll() {
+      if (!mapInstanceRef.current || !window.google?.maps) return
+      const bounds = new google.maps.LatLngBounds()
+      let any = false
+      for (const { marker } of markersRef.current) {
+        const pos = marker.getPosition()
+        if (pos) { bounds.extend(pos); any = true }
+      }
+      if (any) {
+        mapInstanceRef.current.fitBounds(bounds)
+        google.maps.event.addListenerOnce(mapInstanceRef.current, 'idle', () => {
+          const z = mapInstanceRef.current?.getZoom()
+          if (z !== undefined && z > 15) mapInstanceRef.current?.setZoom(15)
+        })
+      }
+    },
+    centerOnVehicle(vehicleId: string) {
+      if (!mapInstanceRef.current || !window.google?.maps) return
+      const v = vehicles.find(v => v.id === vehicleId)
+      if (!v) return
+      const coords = getVehicleLatLng(v)
+      if (!coords) return
+      mapInstanceRef.current.panTo(coords)
+      mapInstanceRef.current.setZoom(16)
+    },
+  }), [vehicles])
 
   // Get and validate Google Maps API key
   // Try runtime config first (window._env_), then fall back to build-time env
@@ -351,7 +404,7 @@ export function GoogleMap({
 
 
         // Add test IDs to map controls after a short delay to ensure they're rendered
-        setTimeout(() => {
+        const testIdTimer = setTimeout(() => {
           try {
             const mapDiv = mapRef.current
             if (mapDiv) {
@@ -374,6 +427,11 @@ export function GoogleMap({
         // Notify parent component
         if (onReady) {
           onReady()
+        }
+
+        // Cleanup timer if effect re-runs or component unmounts
+        return () => {
+          clearTimeout(testIdTimer)
         }
       } catch (err) {
         const errorObj = err instanceof Error ? err : new Error("Unknown error")
@@ -427,22 +485,35 @@ export function GoogleMap({
       // Add vehicle markers
       if (showVehicles && vehicles.length > 0) {
         vehicles.forEach(vehicle => {
+          // Skip vehicles hidden by filter
+          if (visibleVehicleIds && !visibleVehicleIds.has(vehicle.id)) return
+
           const coords = getVehicleLatLng(vehicle)
           if (!coords) return
+
+          const isSelected = selectedVehicleId === vehicle.id
+          const vehicleType = vehicle.type || (vehicle as any).vehicle_type || 'sedan'
+          const statusClr = getStatusColor(vehicle.status)
+          const markerIcon = isSelected
+            ? buildSelectedMarkerIcon(vehicleType, statusClr, markerStyle, markerSize)
+            : buildVehicleMarkerIcon(vehicleType, statusClr, markerStyle, markerSize)
 
           const marker = new google.maps.Marker({
             position: coords,
             map: mapInstanceRef.current,
-            title: vehicle.name,
+            title: `${vehicle.name || vehicle.number || 'Vehicle'} (${vehicleType})`,
             optimized: true,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: getVehicleColor(vehicle.status),
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
-              strokeWeight: 2,
-              scale: 8,
-            },
+            icon: markerIcon,
+            label: showMarkerLabels
+              ? {
+                  text: vehicle.name || vehicle.number || '',
+                  color: '#fff',
+                  fontSize: '9px',
+                  fontWeight: '500',
+                  className: 'map-vehicle-label',
+                }
+              : undefined,
+            zIndex: isSelected ? 1000 : undefined,
           })
 
           // Add data-testid to marker element when DOM is ready
@@ -462,6 +533,10 @@ export function GoogleMap({
             // Close all other info windows
             markersRef.current.forEach(({ infoWindow: iw }) => iw?.close())
             infoWindow.open(mapInstanceRef.current, marker)
+            // Notify parent of vehicle selection
+            if (onVehicleAction) {
+              onVehicleAction('select', vehicle.id)
+            }
           })
 
           newMarkers.push({ marker, infoWindow })
@@ -596,6 +671,11 @@ export function GoogleMap({
     isLoading,
     error,
     clearMarkers,
+    selectedVehicleId,
+    visibleVehicleIds,
+    markerStyle,
+    markerSize,
+    showMarkerLabels,
   ])
 
   /**
@@ -677,7 +757,18 @@ export function GoogleMap({
               } as any}
             >
               <div className="relative">
-                <div className={`w-3 h-3 rounded-full ${v.status === 'active' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-slate-500'} transition-all`} />
+                <div className={`w-3 h-3 rounded-full ${
+                  v.status === 'active' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' :
+                  v.status === 'assigned' ? 'bg-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.5)]' :
+                  v.status === 'dispatched' ? 'bg-orange-400 shadow-[0_0_10px_rgba(251,146,60,0.5)]' :
+                  v.status === 'en_route' ? 'bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.5)]' :
+                  v.status === 'on_site' ? 'bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]' :
+                  v.status === 'completed' ? 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]' :
+                  v.status === 'service' || v.status === 'maintenance' ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]' :
+                  v.status === 'emergency' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' :
+                  v.status === 'charging' ? 'bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.5)]' :
+                  'bg-gray-500'
+                } transition-all`} />
                 <div className="absolute -inset-2 border border-emerald-500/30 rounded-full opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300" />
 
                 {/* Tooltip */}
@@ -685,7 +776,7 @@ export function GoogleMap({
                   <div className="text-emerald-700 font-bold">{v.name}</div>
                   <div className="text-slate-700">{v.status.toUpperCase()}</div>
                   <div className="text-[9px] text-gray-800 mt-1">
-                    LAT: {typeof v.location?.lat === 'number' ? v.location.lat.toFixed(4) : 'N/A'}
+                    LAT: {typeof v.location?.lat === 'number' ? v.location.lat.toFixed(4) : '—'}
                   </div>
                 </div>
               </div>
@@ -756,24 +847,9 @@ export function GoogleMap({
       )}
     </div>
   )
-}
+})
 
-/**
- * Get color for vehicle status indicator
- * @param status - Vehicle status
- * @returns Hex color code
- */
-function getVehicleColor(status: Vehicle["status"]): string {
-  const colors: Record<Vehicle["status"], string> = {
-    active: "#10b981", // Green
-    idle: "#6b7280", // Gray
-    charging: "#3b82f6", // Blue
-    service: "#f59e0b", // Amber
-    emergency: "#ef4444", // Red
-    offline: "#374151", // Dark gray
-  }
-  return colors[status] || "#6b7280"
-}
+// getVehicleColor removed — now using getStatusColor from vehicle-map-icons.ts
 
 /**
  * Create HTML content for vehicle info window
@@ -781,48 +857,15 @@ function getVehicleColor(status: Vehicle["status"]): string {
  * @returns HTML string for info window
  */
 function createVehicleInfoHTML(vehicle: Vehicle): string {
-  const coords = getVehicleLatLng(vehicle as any)
-  const location =
-    (vehicle as any)?.location?.address ||
-    (vehicle as any)?.location_address ||
-    (vehicle as any)?.locationAddress ||
-    (coords ? `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` : "Unknown")
-
+  // Google Maps InfoWindow has a white container — override it to match charcoal theme
   return `
-    <div data-testid="marker-popup" style="padding: 14px; min-width: 220px; max-width: 320px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
-      <div data-testid="popup-vehicle-id" style="font-weight: 600; font-size: 15px; margin-bottom: 10px; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px;">
-        ${escapeHTML(vehicle.name || "Unknown Vehicle")}
-      </div>
-      <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
-        <strong style="color: #6b7280;">Type:</strong>
-        <span style="text-transform: capitalize;">${escapeHTML(vehicle.type || "Unknown")}</span>
-      </div>
-      <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
-        <strong style="color: #6b7280;">Status:</strong>
-        <span data-testid="popup-vehicle-status" style="color: ${getVehicleColor(vehicle.status)}; font-weight: 600; text-transform: uppercase; font-size: 12px;">
-          ${escapeHTML(vehicle.status)}
-        </span>
-      </div>
-      <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
-        <strong style="color: #6b7280;">Driver:</strong>
-        <span>${escapeHTML(vehicle.driver || "Unassigned")}</span>
-      </div>
-      <div style="font-size: 13px; color: #4b5563; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">
-        <strong style="color: #6b7280; display: block; margin-bottom: 4px;">Location:</strong>
-        <span style="font-size: 12px; color: #6b7280;">${escapeHTML(location)}</span>
-      </div>
-      
-      <div style="margin-top: 12px; display: flex; gap: 8px;">
-        <button 
-          onclick="(function(){ window.dispatchEvent(new CustomEvent('vehicle-action', { detail: { action: 'maintenance', vehicleId: '${escapeHTML(vehicle.id)}' } })); })()"
-          style="flex: 1; border: 1px solid #e5e7eb; background: #f9fafb; color: #374151; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;"
-          onmouseover="this.style.background='#f3f4f6'"
-          onmouseout="this.style.background='#f9fafb'"
-        >
-          Report Issue
-        </button>
-      </div>
-    </div>
+    <style>
+      .gm-style-iw-d { overflow: hidden !important; padding: 0 !important; }
+      .gm-style-iw-c { padding: 0 !important; background: #242424 !important; border-radius: 8px !important; box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important; }
+      .gm-style-iw-tc::after { background: #242424 !important; }
+      .gm-ui-hover-effect > span { background-color: #fff !important; }
+    </style>
+    <div data-testid="marker-popup">${buildVehiclePopupHTML(vehicle, escapeHTML)}</div>
   `
 }
 
@@ -941,7 +984,8 @@ function createCameraInfoHTML(camera: TrafficCamera): string {
  * @param unsafe - Unsafe string
  * @returns HTML-safe string
  */
-function escapeHTML(unsafe: string): string {
+function escapeHTML(unsafe: string | null | undefined): string {
+  if (!unsafe) return ''
   return unsafe
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")

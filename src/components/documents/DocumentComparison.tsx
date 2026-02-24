@@ -32,6 +32,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import logger from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -117,7 +118,7 @@ export function DocumentComparison({
     }
 
     // For PDFs and images, we'd need OCR - use the indexing service
-    const response = await fetch(`/api/documents/${version.id}/content`);
+    const response = await fetch(`/api/documents/${version.id}/content`, { credentials: 'include' });
     if (!response.ok) throw new Error('Failed to fetch content');
 
     const data = await response.json();
@@ -174,6 +175,7 @@ export function DocumentComparison({
       const response = await fetch('/api/ai/summarize-changes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           oldContent: oldContent.substring(0, 5000), // Limit for API
           newContent: newContent.substring(0, 5000),
@@ -206,7 +208,7 @@ export function DocumentComparison({
             <div>
               <h3 className="font-semibold text-sm">Version {oldVersion.version}</h3>
               <p className="text-sm text-muted-foreground">
-                {new Date(oldVersion.created_at).toLocaleString()}
+                {formatDateTime(oldVersion.created_at)}
               </p>
               <p className="text-xs text-muted-foreground">by {oldVersion.created_by}</p>
             </div>
@@ -243,7 +245,7 @@ export function DocumentComparison({
             <div>
               <h3 className="font-semibold text-sm">Version {newVersion.version}</h3>
               <p className="text-sm text-muted-foreground">
-                {new Date(newVersion.created_at).toLocaleString()}
+                {formatDateTime(newVersion.created_at)}
               </p>
               <p className="text-xs text-muted-foreground">by {newVersion.created_by}</p>
             </div>

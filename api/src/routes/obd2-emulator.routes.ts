@@ -140,7 +140,7 @@ router.post('/start', csrfProtection, (req: Request, res: Response) => {
     })
   } catch (error: unknown) {
     logger.error(`Error starting emulation:`, error) // Wave 29: Winston logger
-    res.status(500).json({ error: error instanceof Error ? error.message : 'An unexpected error occurred' })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -174,7 +174,7 @@ router.post('/stop/:sessionId', csrfProtection, (req: Request, res: Response) =>
     })
   } catch (error: unknown) {
     logger.error('Error stopping emulation:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error instanceof Error ? error.message : 'An unexpected error occurred' })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -206,7 +206,7 @@ router.get('/data/:sessionId', (req: Request, res: Response) => {
     res.json(data)
   } catch (error: unknown) {
     logger.error('Error getting emulation data:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error instanceof Error ? error.message : 'An unexpected error occurred' })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -232,7 +232,7 @@ router.get('/sessions', (_req: Request, res: Response) => {
     res.json(sessionDetails)
   } catch (error: unknown) {
     logger.error('Error getting sessions:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error instanceof Error ? error.message : 'An unexpected error occurred' })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -260,7 +260,7 @@ router.get('/sample-data', (req: Request, res: Response) => {
     res.json(data)
   } catch (error: unknown) {
     logger.error('Error generating sample data:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error instanceof Error ? error.message : 'An unexpected error occurred' })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -287,7 +287,7 @@ router.get('/sample-dtcs', (req: Request, res: Response) => {
     res.json(dtcs)
   } catch (error: unknown) {
     logger.error('Error getting sample DTCs:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error instanceof Error ? error.message : 'An unexpected error occurred' })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 

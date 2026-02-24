@@ -50,7 +50,7 @@ export const RowExpandPanel: React.FC<{
           </div>
 
           <div style={{display:'flex', gap:8, flexWrap:'wrap', marginBottom:10}}>
-            {anomalies.map((a,i)=><StatusChip key={i} status={a.status} label={a.label}/>)}
+            {anomalies.map((a)=><StatusChip key={a.label} status={a.status} label={a.label}/>)}
           </div>
 
           {/* Sparkline/Chart Placeholder */}

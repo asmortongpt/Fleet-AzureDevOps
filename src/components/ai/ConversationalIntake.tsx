@@ -7,6 +7,8 @@
 import { Send, Loader2, AlertCircle, Sparkles } from 'lucide-react'
 import React, { useState, useRef, useEffect } from 'react'
 
+import { formatTime } from '@/utils/format-helpers'
+
 import { apiClient } from '../../lib/api'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -161,9 +163,9 @@ export function ConversationalIntake({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-2 space-y-2">
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <div
-            key={index}
+            key={`${message.role}-${message.timestamp.getTime()}`}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
@@ -175,7 +177,7 @@ export function ConversationalIntake({
             >
               <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               <p className="text-xs opacity-70 mt-1">
-                {message.timestamp.toLocaleTimeString()}
+                {formatTime(message.timestamp)}
               </p>
             </div>
           </div>
@@ -211,8 +213,8 @@ export function ConversationalIntake({
         <div className="px-2 py-2 border-t bg-blue-50">
           <p className="text-xs font-semibold mb-2 text-blue-900">Suggestions:</p>
           <div className="space-y-1">
-            {suggestions.map((suggestion, index) => (
-              <div key={index} className="text-xs text-blue-800">
+            {suggestions.map((suggestion) => (
+              <div key={suggestion.field} className="text-xs text-blue-800">
                 <span className="font-medium">{suggestion.field}:</span> {String(suggestion.value)}
                 <span className="text-blue-800 ml-2">({suggestion.reason})</span>
               </div>
@@ -229,8 +231,8 @@ export function ConversationalIntake({
             <p className="text-xs font-semibold text-yellow-900">Warnings:</p>
           </div>
           <div className="space-y-1">
-            {context.validationWarnings.map((warning, index) => (
-              <p key={index} className="text-xs text-yellow-800">{warning}</p>
+            {context.validationWarnings.map((warning) => (
+              <p key={warning} className="text-xs text-yellow-800">{warning}</p>
             ))}
           </div>
         </div>
@@ -251,6 +253,7 @@ export function ConversationalIntake({
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             size="icon"
+            aria-label="Send message"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

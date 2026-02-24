@@ -80,9 +80,9 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
           <Typography variant="body2" fontWeight={600} gutterBottom>
             {label}
           </Typography>
-          {payload.map((entry: any, index: number) => (
-            <Typography key={index} variant="body2" sx={{ color: entry.color }}>
-              {entry.name}: ${entry.value.toFixed(2)}
+          {payload.map((entry: any) => (
+            <Typography key={entry.name} variant="body2" sx={{ color: entry.color }}>
+              {entry.name}: ${(entry.value ?? 0).toFixed(2)}
             </Typography>
           ))}
         </Card>
@@ -196,7 +196,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
               <Box>
                 <Grid container spacing={1}>
                   {pieData.map((item, index) => (
-                    <Grid size={{ xs: 6 }} key={index}>
+                    <Grid size={{ xs: 6 }} key={item.name}>
                       <Chip
                         label={`${item.name}: ${item.percentage}%`}
                         size="small"
@@ -278,7 +278,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
                     Fuel vs Maintenance Ratio
                   </Typography>
                   <Typography variant="h5" fontWeight={600}>
-                    {maintenanceCost > 0 ? (fuelCost / maintenanceCost).toFixed(2) : 'N/A'} : 1
+                    {maintenanceCost > 0 ? (fuelCost / maintenanceCost).toFixed(2) : '—'} : 1
                   </Typography>
                 </Box>
               </Grid>

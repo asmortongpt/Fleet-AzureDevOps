@@ -13,6 +13,7 @@
  */
 
 import { Router } from 'express'
+import { z } from 'zod'
 
 import { pool } from '../config/database';
 import logger from '../config/logger';
@@ -20,6 +21,57 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+
+import { flexUuid } from '../middleware/validation'
+
+// ============================================================================
+// Zod Validation Schemas
+// ============================================================================
+
+const checklistItemSchema = z.object({
+  text: z.string().min(1),
+  completed: z.boolean().optional().default(false),
+})
+
+const createTaskSchema = z.object({
+  title: z.string().min(1).max(500),
+  description: z.string().optional(),
+  category: z.string().max(255).optional(),
+  priority: z.enum(['critical', 'high', 'medium', 'low']).optional().default('medium'),
+  status: z.string().max(50).optional().default('todo'),
+  assigned_to: flexUuid.optional(),
+  due_date: z.string().or(z.date()).optional(),
+  estimated_hours: z.number().nonnegative().optional(),
+  related_vehicle_id: flexUuid.optional(),
+  related_work_order_id: flexUuid.optional(),
+  tags: z.array(z.string()).optional(),
+  checklist_items: z.array(checklistItemSchema).optional(),
+})
+
+const updateTaskSchema = z.object({
+  title: z.string().min(1).max(500).optional(),
+  description: z.string().optional(),
+  category: z.string().max(255).optional(),
+  priority: z.enum(['critical', 'high', 'medium', 'low']).optional(),
+  status: z.string().max(50).optional(),
+  assigned_to: flexUuid.optional(),
+  due_date: z.string().or(z.date()).nullable().optional(),
+  estimated_hours: z.number().nonnegative().nullable().optional(),
+  actual_hours: z.number().nonnegative().nullable().optional(),
+  completion_percentage: z.number().min(0).max(100).optional(),
+  notes: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
+
+const taskCommentSchema = z.object({
+  comment_text: z.string().min(1).max(5000),
+})
+
+const timeEntrySchema = z.object({
+  hours_spent: z.number().positive(),
+  description: z.string().max(2000).optional(),
+})
 
 const router = Router()
 router.use(authenticateJWT)
@@ -112,6 +164,11 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
 
 // Create task
 router.post('/', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+  const parsed = createTaskSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+  }
+
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -120,7 +177,7 @@ router.post('/', csrfProtection, requirePermission('report:generate:global'), as
       title, description, category, priority, status, assigned_to,
       due_date, estimated_hours, related_vehicle_id, related_work_order_id,
       tags, checklist_items
-    } = req.body
+    } = parsed.data
 
     const tenantId = req.user?.tenant_id
     const userId = req.user?.id
@@ -170,12 +227,17 @@ router.post('/', csrfProtection, requirePermission('report:generate:global'), as
 
 // Update task
 router.put('/:id', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+  const parsed = updateTaskSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+  }
+
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
 
     const { id } = req.params
-    const updates = req.body
+    const updates = parsed.data
     const tenantId = req.user?.tenant_id
 
     const setClauses: string[] = []
@@ -229,7 +291,11 @@ router.put('/:id', csrfProtection, requirePermission('report:generate:global'), 
 router.post('/:id/comments', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
-    const { comment_text } = req.body
+    const parsed = taskCommentSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+    }
+    const { comment_text } = parsed.data
     const userId = req.user?.id
 
     const result = await pool.query(
@@ -253,7 +319,11 @@ router.post('/:id/comments', csrfProtection, requirePermission('report:generate:
 router.post('/:id/time-entries', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
-    const { hours_spent, description } = req.body
+    const parsed = timeEntrySchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+    }
+    const { hours_spent, description } = parsed.data
     const userId = req.user?.id
 
     const result = await pool.query(

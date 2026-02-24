@@ -1,8 +1,10 @@
 
 import express, { Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
 
 import pool from '../config/database';
 import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 import { CameraSyncService } from '../services/camera-sync';
 
 // Assuming pool is exported from db/connection or config/database
@@ -11,9 +13,38 @@ const router = express.Router();
 
 const cameraSyncService = new CameraSyncService()
 
+// ============================================================================
+// VALIDATION SCHEMAS
+// ============================================================================
+
+const createCameraSourceSchema = z.object({
+  name: z.string().min(1).max(255),
+  description: z.string().max(1000).optional(),
+  source_type: z.string().min(1).max(100),
+  service_url: z.string().url().max(2048),
+  enabled: z.boolean().optional(),
+  sync_interval_minutes: z.number().int().min(1).max(1440).optional(),
+  authentication: z.record(z.string(), z.unknown()).optional(),
+  field_mapping: z.record(z.string(), z.unknown()),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+})
+
+const updateCameraSourceSchema = z.object({
+  name: z.string().min(1).max(255).optional(),
+  description: z.string().max(1000).optional(),
+  source_type: z.string().min(1).max(100).optional(),
+  service_url: z.string().url().max(2048).optional(),
+  enabled: z.boolean().optional(),
+  sync_interval_minutes: z.number().int().min(1).max(1440).optional(),
+  authentication: z.record(z.string(), z.unknown()).optional(),
+  field_mapping: z.record(z.string(), z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+})
+
 // Camera data sources CRUD endpoints
 // IMPORTANT: These must be defined BEFORE /:id to avoid route conflicts
-router.get('/sources', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+// NOTE: camera_data_sources and traffic_cameras tables are NOT tenant-scoped
+router.get('/sources', authenticateJWT, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await pool.query(
       `SELECT id, name, description, source_type, service_url, enabled,
@@ -30,7 +61,7 @@ router.get('/sources', authenticateJWT, async (req: Request, res: Response, next
 });
 
 // Alias for /sources to match legacy endpoint expectations
-router.get('/sources/list', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/sources/list', authenticateJWT, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await pool.query(
       `SELECT id, name, description, source_type, service_url, enabled,
@@ -65,18 +96,21 @@ router.get('/sources/:id', authenticateJWT, async (req: Request, res: Response, 
   }
 });
 
-router.post('/sources', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/sources', authenticateJWT, csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Validate request body
+    const parsed = createCameraSourceSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      });
+    }
+
     const {
       name, description, source_type, service_url, enabled,
       sync_interval_minutes, authentication, field_mapping, metadata
-    } = req.body;
-
-    if (!name || !source_type || !service_url || !field_mapping) {
-      return res.status(400).json({
-        error: 'Missing required fields: name, source_type, service_url, field_mapping'
-      });
-    }
+    } = parsed.data;
 
     const result = await pool.query(
       `INSERT INTO camera_data_sources
@@ -91,9 +125,9 @@ router.post('/sources', authenticateJWT, async (req: Request, res: Response, nex
         service_url,
         enabled !== undefined ? enabled : true,
         sync_interval_minutes || 60,
-        authentication || null,
-        field_mapping,
-        metadata || null
+        authentication ? JSON.stringify(authentication) : null,
+        JSON.stringify(field_mapping),
+        metadata ? JSON.stringify(metadata) : null
       ]
     );
     res.status(201).json(result.rows[0]);
@@ -105,12 +139,21 @@ router.post('/sources', authenticateJWT, async (req: Request, res: Response, nex
   }
 });
 
-router.put('/sources/:id', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.put('/sources/:id', authenticateJWT, csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Validate request body
+    const parsed = updateCameraSourceSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      });
+    }
+
     const {
       name, description, source_type, service_url, enabled,
       sync_interval_minutes, authentication, field_mapping, metadata
-    } = req.body;
+    } = parsed.data;
 
     const result = await pool.query(
       `UPDATE camera_data_sources
@@ -133,9 +176,9 @@ router.put('/sources/:id', authenticateJWT, async (req: Request, res: Response, 
         service_url || null,
         enabled !== undefined ? enabled : null,
         sync_interval_minutes || null,
-        authentication || null,
-        field_mapping || null,
-        metadata || null,
+        authentication ? JSON.stringify(authentication) : null,
+        field_mapping ? JSON.stringify(field_mapping) : null,
+        metadata ? JSON.stringify(metadata) : null,
         req.params.id
       ]
     );
@@ -151,7 +194,7 @@ router.put('/sources/:id', authenticateJWT, async (req: Request, res: Response, 
   }
 });
 
-router.delete('/sources/:id', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/sources/:id', authenticateJWT, csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await pool.query(
       `DELETE FROM camera_data_sources WHERE id = $1 RETURNING id, name`,
@@ -167,7 +210,7 @@ router.delete('/sources/:id', authenticateJWT, async (req: Request, res: Respons
 });
 
 // Sync endpoints
-router.post('/sync', authenticateJWT, async (_req: Request, res: Response, next: NextFunction) => {
+router.post('/sync', authenticateJWT, csrfProtection, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     await cameraSyncService.syncAll()
     res.json({ success: true, message: 'Camera sync started' })
@@ -176,7 +219,7 @@ router.post('/sync', authenticateJWT, async (_req: Request, res: Response, next:
   }
 })
 
-router.post('/sources/:id/sync', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/sources/:id/sync', authenticateJWT, csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await pool.query(
       `SELECT id, name, source_type, service_url, field_mapping, authentication
@@ -250,7 +293,11 @@ router.get('/nearby', authenticateJWT, async (req: Request, res: Response, next:
 
 router.get('/route/:routeName', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM traffic_cameras WHERE route = $1', [req.params.routeName]);
+    // traffic_cameras table has no 'route' column; filter by name containing route name instead
+    const result = await pool.query(
+      'SELECT * FROM traffic_cameras WHERE name ILIKE $1',
+      [`%${req.params.routeName}%`]
+    );
     res.json(result.rows);
   } catch (err) {
     next(err);

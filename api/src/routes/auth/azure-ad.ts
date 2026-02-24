@@ -96,9 +96,9 @@ app.get('/api/auth/azure/logout', function (req: Request, res: Response) {
 
 app.get('/api/auth/me', function (req: Request, res: Response) {
   if (!req.user) {
-    return res.sendStatus(401);
+    return res.status(401).json({ error: 'Authentication required' });
   }
-  res.send(req.user);
+  res.json({ success: true, data: req.user });
 });
 const next = (err: any) => logger.error('Logout error', { error: err });
 

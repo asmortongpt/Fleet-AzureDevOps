@@ -88,6 +88,30 @@ services:
       retries: 3
       start_period: 40s
 
+  # Vehicle Scanner — Python ML pipeline (YOLOv8 + OpenCV + rembg)
+  vehicle-scanner:
+    build: ./tools/vehicle-scanner
+    container_name: fleet-vehicle-scanner
+    environment:
+      DEVICE: cpu
+    volumes:
+      - scanner_data:/app/data
+    ports:
+      - "8000:8000"
+    networks:
+      - fleet-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
   # Frontend (Docker Hub image)
   frontend:
     image: asmorton/fleet-cta-frontend:latest
@@ -110,6 +134,8 @@ volumes:
   postgres_data:
     driver: local
   redis_data:
+    driver: local
+  scanner_data:
     driver: local
 
 networks:

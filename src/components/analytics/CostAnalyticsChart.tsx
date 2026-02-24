@@ -87,8 +87,8 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
         return (
             <div className="bg-slate-800/95 border border-slate-700 rounded-lg p-2 shadow-sm">
                 <p className="text-slate-300 font-medium mb-2">{label}</p>
-                {payload.map((entry: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between gap-2 text-sm">
+                {payload.map((entry: any) => (
+                    <div key={entry.name} className="flex items-center justify-between gap-2 text-sm">
                         <span className="flex items-center gap-2">
                             <div
                                 className="w-3 h-3 rounded-full"

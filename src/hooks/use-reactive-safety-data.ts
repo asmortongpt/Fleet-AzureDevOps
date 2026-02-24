@@ -545,11 +545,45 @@ export function useReactiveSafetyData(options?: {
   const openIncidents = incidents.filter((i) => i.status !== 'closed')
   const criticalIncidents = incidents.filter((i) => i.severity === 'critical')
 
-  // Mock data for inspections (to be replaced with real data when backend is ready)
-  const inspections: Array<{ id: string; status: string; type: string }> = []
+  // Fetch inspections from backend
+  const { data: inspections = [] } = useQuery<Array<{ id: string; status: string; type: string }>>({
+    queryKey: ['safety-inspections', realTimeUpdate],
+    queryFn: async ({ signal }) => {
+      try {
+        const response = await fetch(`${API_BASE}/inspections?limit=200`, {
+          signal,
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' },
+          credentials: 'include',
+        })
+        if (!response.ok) return []
+        const data = await response.json()
+        const rows = Array.isArray(data) ? data : (data?.data ?? [])
+        return rows.map((r: any) => ({ id: String(r.id), status: String(r.status || ''), type: String(r.type || r.inspection_type || '') }))
+      } catch { return [] }
+    },
+    staleTime: 30000,
+    retry: 1,
+  })
 
-  // Mock data for certifications (to be replaced with real data when backend is ready)
-  const certifications: Array<{ id: string; status: string; type: string }> = []
+  // Fetch certifications from backend
+  const { data: certifications = [] } = useQuery<Array<{ id: string; status: string; type: string }>>({
+    queryKey: ['safety-certifications', realTimeUpdate],
+    queryFn: async ({ signal }) => {
+      try {
+        const response = await fetch(`${API_BASE}/certifications?limit=200`, {
+          signal,
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' },
+          credentials: 'include',
+        })
+        if (!response.ok) return []
+        const data = await response.json()
+        const rows = Array.isArray(data) ? data : (data?.data ?? [])
+        return rows.map((r: any) => ({ id: String(r.id), status: String(r.status || ''), type: String(r.type || r.certification_type || '') }))
+      } catch { return [] }
+    },
+    staleTime: 30000,
+    retry: 1,
+  })
   const expiringCertifications = certifications.filter((c) => c.status === 'expiring_soon')
   const expiredCertifications = certifications.filter((c) => c.status === 'expired')
 
@@ -561,6 +595,8 @@ export function useReactiveSafetyData(options?: {
     queryClient.invalidateQueries({ queryKey: ['vehicle-safety'] })
     queryClient.invalidateQueries({ queryKey: ['training-records'] })
     queryClient.invalidateQueries({ queryKey: ['safety-incidents'] })
+    queryClient.invalidateQueries({ queryKey: ['safety-inspections'] })
+    queryClient.invalidateQueries({ queryKey: ['safety-certifications'] })
   }, [queryClient])
 
   // Enhanced metrics with additional properties

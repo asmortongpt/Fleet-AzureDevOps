@@ -51,9 +51,9 @@ export function BottomDrawer() {
               { time: '12m ago', text: 'New work order WO-7823 created', type: 'info' },
               { time: '15m ago', text: 'Speed violation detected: VEH-2341', type: 'alert' },
               { time: '20m ago', text: 'Vehicle VEH-0456 started trip', type: 'info' },
-            ].map((item, i) => (
+            ].map((item) => (
               <div
-                key={i}
+                key={item.text}
                 className="flex items-start gap-3 py-2 text-xs border-b border-border/50 last:border-0"
               >
                 <span className="text-muted-foreground shrink-0 w-12 sm:w-14 text-right tabular-nums font-mono text-[10px] sm:text-[11px]">
@@ -62,9 +62,9 @@ export function BottomDrawer() {
                 <div className={cn(
                   'w-1.5 h-1.5 rounded-full mt-1 shrink-0',
                   item.type === 'success' ? 'bg-emerald-400' :
-                  item.type === 'warning' ? 'bg-[#F0A000]' :
-                  item.type === 'alert' ? 'bg-[#DD3903]' :
-                  'bg-[#F0A000]/50'
+                  item.type === 'warning' ? 'bg-white/80' :
+                  item.type === 'alert' ? 'bg-white/40' :
+                  'bg-white/20'
                 )} />
                 <span className="text-muted-foreground">{item.text}</span>
               </div>

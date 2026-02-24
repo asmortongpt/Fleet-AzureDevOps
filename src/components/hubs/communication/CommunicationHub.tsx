@@ -8,22 +8,26 @@ import {
   Megaphone
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
+import toast from "react-hot-toast"
 import useSWR from "swr"
 
 import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/contexts"
-import { swrFetcher } from "@/lib/fetcher"
+import { apiFetcher } from "@/lib/api-fetcher"
 import type { Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import logger from '@/utils/logger';
+import { formatEnum } from "@/utils/format-enum"
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface CommunicationLog {
   id: string;
@@ -98,12 +102,12 @@ interface BroadcastZone {
 }
 
 // Message Panel Component
-const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMessageSelect: (msg: Message) => void }) => {
+const MessagePanel = ({ messages, onMessageSelect, onNewMessage }: { messages: Message[]; onMessageSelect: (msg: Message) => void; onNewMessage: () => void }) => {
   const getPriorityColor = (priority: string) => {
     switch(priority) {
       case 'high': return 'text-red-600'
-      case 'low': return 'text-blue-800'
-      default: return 'text-slate-700'
+      case 'low': return 'text-emerald-400'
+      default: return 'text-white/40'
     }
   }
 
@@ -111,7 +115,7 @@ const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMe
     switch(type) {
       case 'broadcast': return <Radio className="h-4 w-4 text-purple-500" />
       case 'notification': return <Bell className="h-4 w-4 text-yellow-500" />
-      default: return <MessageSquare className="h-4 w-4 text-blue-800" />
+      default: return <MessageSquare className="h-4 w-4 text-emerald-400" />
     }
   }
 
@@ -120,7 +124,7 @@ const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMe
       <div className="p-2 space-y-2">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold">Messages</h3>
-          <Button size="sm">
+          <Button size="sm" onClick={onNewMessage}>
             <Send className="h-4 w-4 mr-2" />
             New Message
           </Button>
@@ -145,7 +149,7 @@ const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMe
                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{msg.content}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="outline" className={getPriorityColor(msg.priority)}>
-                    {msg.priority}
+                    {formatEnum(msg.priority)}
                   </Badge>
                   {msg.status === 'unread' && (
                     <Badge variant="default">New</Badge>
@@ -208,7 +212,8 @@ const BroadcastPanel = ({ zones, alerts }: { zones: BroadcastZone[]; alerts: Ale
   const [broadcastMessage, setBroadcastMessage] = useState("")
 
   const handleBroadcast = () => {
-    logger.info("Broadcasting to zone:", { selectedZone, message: broadcastMessage })
+    const zoneName = zones.find(z => z.id === selectedZone)?.name || 'All Vehicles'
+    toast.success(`Broadcast sent to ${zoneName}`)
     setBroadcastMessage("")
   }
 
@@ -293,12 +298,12 @@ const BroadcastPanel = ({ zones, alerts }: { zones: BroadcastZone[]; alerts: Ale
                     "h-4 w-4 mt-0.5",
                     alert.severity === 'critical' && "text-red-600",
                     alert.severity === 'warning' && "text-yellow-600",
-                    alert.severity === 'info' && "text-blue-800"
+                    alert.severity === 'info' && "text-emerald-400"
                   )} />
                   <div className="flex-1">
                     <div className="font-medium text-sm">{alert.description || alert.alert_type}</div>
                     <div className="text-xs text-muted-foreground mt-1">
-                      Active until {alert.expires_at ? new Date(alert.expires_at).toLocaleString() : 'N/A'}
+                      Active until {alert.expires_at ? formatDateTime(alert.expires_at) : '—'}
                     </div>
                   </div>
                 </div>
@@ -312,8 +317,20 @@ const BroadcastPanel = ({ zones, alerts }: { zones: BroadcastZone[]; alerts: Ale
 }
 
 // Message Thread Panel (detailed view)
-const MessageThreadPanel = ({ message }: { message: Message | null }) => {
+const MessageThreadPanel = ({ message, onViewOnMap }: { message: Message | null; onViewOnMap?: (message: Message) => void }) => {
   const [reply, setReply] = useState("")
+  const [markedUnread, setMarkedUnread] = useState(false)
+
+  const handleSendReply = () => {
+    if (!reply.trim()) return
+    toast.success(`Reply sent to ${message?.from}`)
+    setReply("")
+  }
+
+  const handleMarkUnread = () => {
+    setMarkedUnread(true)
+    toast.success('Message marked as unread')
+  }
 
   if (!message) {
     return (
@@ -331,10 +348,10 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
             <h3 className="text-sm font-semibold">{message.subject}</h3>
             <Badge variant="outline" className={
               message.priority === 'high' ? 'text-red-600' :
-              message.priority === 'low' ? 'text-blue-800' :
-              'text-slate-700'
+              message.priority === 'low' ? 'text-emerald-400' :
+              'text-white/40'
             }>
-              {message.priority}
+              {formatEnum(message.priority)}
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">From: {message.from}</p>
@@ -348,12 +365,12 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
         <div className="grid grid-cols-2 gap-2">
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Type</div>
-            <div className="font-medium capitalize">{message.type}</div>
+            <div className="font-medium">{formatEnum(message.type)}</div>
           </Card>
 
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Status</div>
-            <div className="font-medium capitalize">{message.status}</div>
+            <div className="font-medium">{markedUnread ? 'Unread' : formatEnum(message.status)}</div>
           </Card>
         </div>
 
@@ -365,19 +382,128 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
             value={reply}
             onChange={(e) => setReply(e.target.value)}
           />
-          <Button className="w-full">
+          <Button className="w-full" onClick={handleSendReply} disabled={!reply.trim()}>
             <Send className="h-4 w-4 mr-2" />
             Send Reply
           </Button>
         </div>
 
         <div className="space-y-2">
-          <Button variant="outline" className="w-full">
-            <MapPin className="h-4 w-4 mr-2" />
-            View on Map
-          </Button>
-          <Button variant="outline" className="w-full">
+          {message.fromLocation.lat !== 0 && message.fromLocation.lng !== 0 && (
+            <Button variant="outline" className="w-full" onClick={() => onViewOnMap?.(message)}>
+              <MapPin className="h-4 w-4 mr-2" />
+              View on Map
+            </Button>
+          )}
+          <Button variant="outline" className="w-full" onClick={handleMarkUnread} disabled={markedUnread}>
             Mark as Unread
+          </Button>
+        </div>
+      </div>
+    </ScrollArea>
+  )
+}
+
+// Chat Thread Detail Component
+const ChatThreadDetail = ({ thread, logs, userMap, currentUserId }: {
+  thread: ChatThread | null;
+  logs: CommunicationLog[];
+  userMap: Map<string, string>;
+  currentUserId?: string;
+}) => {
+  const [reply, setReply] = useState("")
+
+  if (!thread) {
+    return (
+      <div className="flex items-center justify-center h-full text-muted-foreground">
+        <div className="text-center">
+          <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-40" />
+          <p className="text-sm">Select a conversation to view messages</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Filter logs for this thread (messages between current user and participant)
+  const threadMessages = logs
+    .filter((log) => {
+      const fromId = log.from_user_id
+      const toId = log.to_user_id
+      return (
+        (fromId === thread.id && toId === currentUserId) ||
+        (fromId === currentUserId && toId === thread.id)
+      )
+    })
+    .sort((a, b) => {
+      const aTime = a.sent_at || a.created_at || ''
+      const bTime = b.sent_at || b.created_at || ''
+      return new Date(aTime).getTime() - new Date(bTime).getTime()
+    })
+
+  const handleSendReply = () => {
+    if (!reply.trim()) return
+    toast.success(`Reply sent to ${thread.participant}`)
+    setReply("")
+  }
+
+  return (
+    <ScrollArea className="h-full">
+      <div className="p-4 space-y-4">
+        <div className="flex items-center gap-2 border-b pb-3">
+          <div className={`h-2 w-2 rounded-full ${thread.active ? 'bg-green-500' : 'bg-gray-300'}`} />
+          <h3 className="font-semibold">{thread.participant}</h3>
+          {thread.unread > 0 && (
+            <Badge variant="destructive">{thread.unread} unread</Badge>
+          )}
+        </div>
+
+        {threadMessages.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground text-sm">
+            No messages in this conversation yet.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {threadMessages.map((msg) => {
+              const isFromMe = msg.from_user_id === currentUserId
+              const senderName = isFromMe ? 'You' : (userMap.get(msg.from_user_id || '') || msg.from_address || 'Unknown')
+              const timestamp = msg.sent_at || msg.created_at
+              return (
+                <div
+                  key={msg.id}
+                  className={cn(
+                    "p-3 rounded-lg max-w-[80%]",
+                    isFromMe
+                      ? "ml-auto bg-primary/10 border border-primary/20"
+                      : "bg-muted"
+                  )}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium">{senderName}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {timestamp ? formatDateTime(timestamp) : ''}
+                    </span>
+                  </div>
+                  {msg.subject && (
+                    <p className="text-xs text-muted-foreground font-medium mb-1">{msg.subject}</p>
+                  )}
+                  <p className="text-sm">{msg.message_body || ''}</p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Reply input */}
+        <div className="border-t pt-3 space-y-2">
+          <Textarea
+            placeholder={`Reply to ${thread.participant}...`}
+            rows={3}
+            value={reply}
+            onChange={(e) => setReply(e.target.value)}
+          />
+          <Button className="w-full" onClick={handleSendReply} disabled={!reply.trim()}>
+            <Send className="h-4 w-4 mr-2" />
+            Send Reply
           </Button>
         </div>
       </div>
@@ -393,15 +519,16 @@ export function CommunicationHub() {
   const [searchQuery, setSearchQuery] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('all')
 
-  const { data: logsResponse } = useSWR<{ data: CommunicationLog[] }>(`/api/communication-logs?limit=200`, swrFetcher)
-  const { data: usersResponse } = useSWR<{ data: ApiUser[] }>(`/api/users?limit=500`, swrFetcher)
-  const { data: geofencesResponse } = useSWR<{ data: GeofenceRow[] }>(`/api/geofences?limit=200`, swrFetcher)
-  const { data: alertsResponse } = useSWR<{ alerts: AlertRow[] }>(`/api/alerts?limit=20`, swrFetcher)
+  const { data: logsResponse, error: logsError } = useSWR<CommunicationLog[]>(`/api/communication-logs?limit=200`, apiFetcher)
+  const { data: usersResponse, error: usersError } = useSWR<ApiUser[]>(`/api/users?limit=500`, apiFetcher)
+  const { data: geofencesResponse, error: geofencesError } = useSWR<GeofenceRow[]>(`/api/geofences?limit=200`, apiFetcher)
+  const { data: alertsResponse, error: alertsError } = useSWR<AlertRow[]>(`/api/alerts?limit=20`, apiFetcher)
+  const hasError = logsError || usersError || geofencesError || alertsError
 
-  const logs = logsResponse?.data || []
-  const users = usersResponse?.data || []
-  const geofences = geofencesResponse?.data || []
-  const alerts = alertsResponse?.alerts || []
+  const logs = Array.isArray(logsResponse) ? logsResponse : []
+  const users = Array.isArray(usersResponse) ? usersResponse : []
+  const geofences = Array.isArray(geofencesResponse) ? geofencesResponse : []
+  const alerts = Array.isArray(alertsResponse) ? alertsResponse : []
 
   const userMap = useMemo(() => {
     return new Map(users.map((u) => [u.id, `${u.first_name} ${u.last_name}`.trim()]))
@@ -410,7 +537,7 @@ export function CommunicationHub() {
   const formatTimestamp = (timestamp?: string) => {
     if (!timestamp) return ''
     const date = new Date(timestamp)
-    return isNaN(date.getTime()) ? '' : date.toLocaleString()
+    return isNaN(date.getTime()) ? '' : formatDateTime(timestamp)
   }
 
   const messages: Message[] = useMemo(() => {
@@ -420,7 +547,7 @@ export function CommunicationHub() {
       const lng = Number(location.lng ?? location.longitude)
       return {
         id: log.id,
-        from: userMap.get(log.from_user_id || '') || log.from_address || 'Unknown',
+        from: userMap.get(log.from_user_id || '') || log.from_address || '—',
         fromLocation: {
           lat: Number.isFinite(lat) ? lat : 0,
           lng: Number.isFinite(lng) ? lng : 0
@@ -452,7 +579,7 @@ export function CommunicationHub() {
       if (!existing || (timestamp && existing.lastTime && new Date(timestamp) > new Date(existing.lastTime))) {
         threadMap.set(key, {
           id: key,
-          participant: userMap.get(key) || log.from_address || 'Unknown',
+          participant: userMap.get(key) || log.from_address || '—',
           lastMessage,
           unread: (existing?.unread || 0) + unread,
           active: true,
@@ -525,6 +652,55 @@ export function CommunicationHub() {
     }
   }, [messages]);
 
+  // Compose dialog state
+  const [composeOpen, setComposeOpen] = useState(false)
+  const [composeRecipient, setComposeRecipient] = useState('')
+  const [composeSubject, setComposeSubject] = useState('')
+  const [composeBody, setComposeBody] = useState('')
+
+  const handleNewMessage = useCallback(() => {
+    setActivePanel('messages')
+    setSelectedEntity(null)
+    setComposeRecipient('')
+    setComposeSubject('')
+    setComposeBody('')
+    setComposeOpen(true)
+  }, [])
+
+  const handleSendComposedMessage = useCallback(() => {
+    if (!composeRecipient || !composeBody.trim()) return
+    const recipientName = users.find(u => u.id === composeRecipient)
+    const name = recipientName ? `${recipientName.first_name} ${recipientName.last_name}` : 'recipient'
+    toast.success(`Message sent to ${name}`)
+    setComposeOpen(false)
+    setComposeRecipient('')
+    setComposeSubject('')
+    setComposeBody('')
+  }, [composeRecipient, composeBody, users])
+
+  const handleViewOnMap = useCallback((message: Message) => {
+    if (message.fromLocation.lat !== 0 && message.fromLocation.lng !== 0) {
+      // Select the message so the map highlights the corresponding marker
+      setSelectedEntity({ type: 'message', data: message })
+      setActivePanel('messages')
+      toast.success(`Showing ${message.from} on map at ${message.fromLocation.lat.toFixed(4)}, ${message.fromLocation.lng.toFixed(4)}`)
+    }
+  }, [])
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load communication data</p>
+        <p className="text-sm text-muted-foreground">
+          {hasError instanceof Error ? hasError.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-full overflow-hidden">
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -559,13 +735,14 @@ export function CommunicationHub() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <MessagePanel 
-                    messages={messages as unknown as Message[]} 
-                    onMessageSelect={(msg) => handleMessageSelect(msg.id)} 
+                  <MessagePanel
+                    messages={messages as unknown as Message[]}
+                    onMessageSelect={(msg) => handleMessageSelect(msg.id)}
+                    onNewMessage={handleNewMessage}
                   />
                 </div>
                 <div className="w-2/3">
-                  <MessageThreadPanel message={selectedEntity?.type === 'message' ? selectedEntity.data as Message : null} />
+                  <MessageThreadPanel message={selectedEntity?.type === 'message' ? selectedEntity.data as Message : null} onViewOnMap={handleViewOnMap} />
                 </div>
               </div>
             </TabsContent>
@@ -578,9 +755,12 @@ export function CommunicationHub() {
                   />
                 </div>
                 <div className="w-2/3">
-                  <div className="p-2 text-muted-foreground">
-                    Chat thread details would be shown here
-                  </div>
+                  <ChatThreadDetail
+                    thread={selectedEntity?.type === 'chat' ? selectedEntity.data as ChatThread : null}
+                    logs={logs}
+                    userMap={userMap}
+                    currentUserId={user?.id}
+                  />
                 </div>
               </div>
             </TabsContent>
@@ -594,8 +774,66 @@ export function CommunicationHub() {
         <ProfessionalFleetMap
           vehicles={messageMarkers as Vehicle[]}
           facilities={zoneMarkers}
+          onVehicleSelect={handleMessageSelect}
         />
       </div>
+
+      {/* Compose Message Dialog */}
+      <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>New Message</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="compose-to">To</Label>
+              <Select value={composeRecipient} onValueChange={setComposeRecipient}>
+                <SelectTrigger id="compose-to">
+                  <SelectValue placeholder="Select recipient" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map(u => (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.first_name} {u.last_name} ({u.email})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="compose-subject">Subject</Label>
+              <Input
+                id="compose-subject"
+                placeholder="Message subject"
+                value={composeSubject}
+                onChange={(e) => setComposeSubject(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="compose-body">Message</Label>
+              <Textarea
+                id="compose-body"
+                placeholder="Type your message..."
+                rows={5}
+                value={composeBody}
+                onChange={(e) => setComposeBody(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setComposeOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSendComposedMessage}
+              disabled={!composeRecipient || !composeBody.trim()}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Send Message
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

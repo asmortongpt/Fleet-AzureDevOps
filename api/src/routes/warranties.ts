@@ -30,6 +30,8 @@ import {
     UpdateWarrantyClaimStatusRequest
 } from '../types/warranties';
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router();
 
 // Services
@@ -41,28 +43,28 @@ const warrantyRecoveryService = new WarrantyRecoveryService(pool);
 // ============================================================================
 
 const warrantyIdSchema = z.object({
-    id: z.string().uuid()
+    id: flexUuid
 });
 
 const claimIdSchema = z.object({
-    id: z.string().uuid()
+    id: flexUuid
 });
 
 const vehicleIdParamSchema = z.object({
-    vehicleId: z.string().uuid()
+    vehicleId: flexUuid
 });
 
 const workOrderIdParamSchema = z.object({
-    workOrderId: z.string().uuid()
+    workOrderId: flexUuid
 });
 
 const createWarrantySchema = z.object({
     warranty_number: z.string().optional(),
     warranty_type: z.enum(['manufacturer', 'extended', 'powertrain', 'component', 'other']),
-    vehicle_id: z.string().uuid().optional(),
+    vehicle_id: flexUuid.optional(),
     component: z.string().optional(),
-    part_id: z.string().uuid().optional(),
-    vendor_id: z.string().uuid().optional(),
+    part_id: flexUuid.optional(),
+    vendor_id: flexUuid.optional(),
     start_date: z.string().or(z.date()),
     end_date: z.string().or(z.date()).optional(),
     end_mileage: z.number().int().positive().optional(),
@@ -86,9 +88,9 @@ const updateWarrantySchema = createWarrantySchema.partial().extend({
 });
 
 const createClaimSchema = z.object({
-    warranty_id: z.string().uuid(),
+    warranty_id: flexUuid,
     claim_number: z.string().min(1),
-    work_order_id: z.string().uuid().optional(),
+    work_order_id: flexUuid.optional(),
     claim_date: z.string().or(z.date()),
     failure_description: z.string().min(1),
     failure_date: z.string().or(z.date()),
@@ -127,7 +129,7 @@ const updateClaimStatusSchema = z.object({
 });
 
 const warrantyEligibilitySchema = z.object({
-    vehicle_id: z.string().uuid(),
+    vehicle_id: flexUuid,
     component: z.string().optional(),
     failure_date: z.string().or(z.date()),
     odometer: z.number().int().nonnegative()

@@ -18,6 +18,7 @@ import React, { createContext, useContext, useCallback, useMemo, useState, useEf
 import { useDrilldown } from './DrilldownContext'
 
 import { Vehicle, Driver, WorkOrder, FuelTransaction, Part, Vendor, MaintenanceSchedule } from '@/lib/types'
+import { formatVehicleName, formatVehicleShortName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // ENTITY TYPES & RELATIONSHIP DEFINITIONS
@@ -247,7 +248,7 @@ export function EntityLinkingProvider({
         const driver = drivers.find(d => d.id === vehicle.assignedDriver || d.name === vehicle.assignedDriver)
         if (driver) {
           newRelationships.push({
-            source: { type: 'vehicle', id: vehicle.id, label: `${vehicle.make} ${vehicle.model} (${vehicle.number})` },
+            source: { type: 'vehicle', id: vehicle.id, label: formatVehicleName(vehicle) },
             target: { type: 'driver', id: driver.id, label: driver.name },
             relationshipType: 'assigned-to'
           })
@@ -259,8 +260,8 @@ export function EntityLinkingProvider({
         const parentVehicle = vehicles.find(v => v.id === vehicle.parent_asset_id)
         if (parentVehicle) {
           newRelationships.push({
-            source: { type: 'vehicle', id: parentVehicle.id, label: `${parentVehicle.make} ${parentVehicle.model}` },
-            target: { type: 'vehicle', id: vehicle.id, label: `${vehicle.make} ${vehicle.model}` },
+            source: { type: 'vehicle', id: parentVehicle.id, label: formatVehicleShortName(parentVehicle) },
+            target: { type: 'vehicle', id: vehicle.id, label: formatVehicleShortName(vehicle) },
             relationshipType: 'tows'
           })
         }
@@ -273,7 +274,7 @@ export function EntityLinkingProvider({
       if (vehicle) {
         newRelationships.push({
           source: { type: 'work-order', id: wo.id, label: `WO-${String(wo.id).slice(-6)} - ${wo.serviceType}` },
-          target: { type: 'vehicle', id: vehicle.id, label: `${vehicle.make} ${vehicle.model}` },
+          target: { type: 'vehicle', id: vehicle.id, label: formatVehicleShortName(vehicle) },
           relationshipType: 'serviced-by'
         })
       }
@@ -298,7 +299,7 @@ export function EntityLinkingProvider({
       if (vehicle) {
         newRelationships.push({
           source: { type: 'fuel', id: ft.id, label: `Fuel ${ft.date} - ${ft.gallons}gal` },
-          target: { type: 'vehicle', id: vehicle.id, label: `${vehicle.make} ${vehicle.model}` },
+          target: { type: 'vehicle', id: vehicle.id, label: formatVehicleShortName(vehicle) },
           relationshipType: 'fueled-by'
         })
       }
@@ -310,7 +311,7 @@ export function EntityLinkingProvider({
       if (vehicle) {
         newRelationships.push({
           source: { type: 'maintenance', id: ms.id, label: `${ms.serviceType} - ${ms.status}` },
-          target: { type: 'vehicle', id: vehicle.id, label: `${vehicle.make} ${vehicle.model}` },
+          target: { type: 'vehicle', id: vehicle.id, label: formatVehicleShortName(vehicle) },
           relationshipType: 'maintained-by'
         })
       }
@@ -440,7 +441,7 @@ export function EntityLinkingProvider({
       vehicle: {
         type: 'vehicle',
         id: vehicle.id,
-        label: `${vehicle.make} ${vehicle.model} (${vehicle.number})`,
+        label: formatVehicleName(vehicle),
         data: vehicle
       },
       assignedDriver: linked.drivers.length > 0 ? linked.drivers[0] : null,

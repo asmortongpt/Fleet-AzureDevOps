@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import apiClient from "@/lib/api-client"
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 export interface VehicleInfo {
   vehicleId: string
@@ -90,8 +91,9 @@ function QRScannerView({
 
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.clear().catch(() => {
-          // Ignore cleanup errors
+        scannerRef.current.clear().catch(err => {
+          // Scanner cleanup may fail if DOM element is already removed
+          logger.warn('QR scanner cleanup failed', { error: String(err) })
         })
       }
     }
@@ -306,7 +308,7 @@ export function VehicleIdentification({
               </div>
               {selectedVehicle.make && selectedVehicle.model && (
                 <div className="text-muted-foreground">
-                  {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
+                  {formatVehicleName(selectedVehicle)}
                 </div>
               )}
               {selectedVehicle.vin && (
@@ -392,7 +394,7 @@ export function VehicleIdentification({
                                 <div className="font-semibold">{vehicle.vehicleNumber}</div>
                                 {vehicle.make && vehicle.model && (
                                   <div className="text-sm text-muted-foreground">
-                                    {vehicle.year} {vehicle.make} {vehicle.model}
+                                    {formatVehicleName(vehicle)}
                                   </div>
                                 )}
                                 <div className="text-xs text-muted-foreground mt-1">

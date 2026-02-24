@@ -4,6 +4,8 @@ import { Car, DollarSign, Receipt, Calendar, AlertTriangle, TrendingUp, Check, C
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
+import { formatVehicleShortName } from '@/utils/vehicle-display'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { TripMarker } from '@/components/PersonalUse/TripMarker'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -12,6 +14,7 @@ import { Progress } from '@/components/ui/progress'
 import { Section } from '@/components/ui/section'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 interface DashboardData {
@@ -65,9 +68,8 @@ interface ReimbursementRequest {
 }
 
 const apiClient = async (url: string) => {
-  const token = localStorage.getItem('token')
   const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
+    credentials: 'include'
   })
   if (!response.ok) throw new Error('Failed to fetch')
   return response.json()
@@ -166,6 +168,7 @@ export function PersonalUseDashboard() {
   const yearlyExceeded = yearlyPercentage > 100
 
   return (
+    <ErrorBoundary>
     <div className="p-3 space-y-2">
       {/* Header */}
       <div>
@@ -260,7 +263,7 @@ export function PersonalUseDashboard() {
           contentClassName="space-y-1"
         >
           <div className="text-sm font-bold">
-            ${dashboardData?.pending_charges_amount.toFixed(2) || '0.00'}
+            {formatCurrency(dashboardData?.pending_charges_amount ?? 0)}
           </div>
           <p className="text-xs text-muted-foreground">
             {dashboardData?.pending_charges_count || 0} charges
@@ -273,7 +276,7 @@ export function PersonalUseDashboard() {
           contentClassName="space-y-1"
         >
           <div className="text-sm font-bold">
-            ${dashboardData?.pending_reimbursements_amount.toFixed(2) || '0.00'}
+            {formatCurrency(dashboardData?.pending_reimbursements_amount ?? 0)}
           </div>
           <p className="text-xs text-muted-foreground">
             {dashboardData?.pending_reimbursements_count || 0} requests
@@ -286,7 +289,7 @@ export function PersonalUseDashboard() {
           contentClassName="space-y-1"
         >
           <div className="text-sm font-bold">
-            ${dashboardData?.next_payment_amount?.toFixed(2) || '0.00'}
+            {formatCurrency(dashboardData?.next_payment_amount ?? 0)}
           </div>
           <p className="text-xs text-muted-foreground">
             {dashboardData?.next_payment_date
@@ -344,7 +347,7 @@ export function PersonalUseDashboard() {
                           {format(new Date(trip.trip_date), 'MMM dd, yyyy')}
                         </TableCell>
                         <TableCell>
-                          {trip.make} {trip.model}
+                          {formatVehicleShortName(trip)}
                           <div className="text-xs text-muted-foreground">
                             {trip.license_plate}
                           </div>
@@ -355,7 +358,7 @@ export function PersonalUseDashboard() {
                           </Badge>
                         </TableCell>
                         <TableCell>{trip.miles_personal.toFixed(1)} mi</TableCell>
-                        <TableCell>${trip.estimated_charge.toFixed(2)}</TableCell>
+                        <TableCell>{formatCurrency(trip.estimated_charge)}</TableCell>
                         <TableCell>{getStatusBadge(trip.approval_status)}</TableCell>
                         <TableCell>
                           <Button
@@ -401,10 +404,10 @@ export function PersonalUseDashboard() {
                       <TableRow key={charge.id}>
                         <TableCell>{charge.charge_period}</TableCell>
                         <TableCell>{charge.miles_charged.toFixed(1)} mi</TableCell>
-                        <TableCell>${charge.total_charge.toFixed(2)}</TableCell>
+                        <TableCell>{formatCurrency(charge.total_charge)}</TableCell>
                         <TableCell>{getStatusBadge(charge.charge_status)}</TableCell>
                         <TableCell>
-                          {charge.due_date ? format(new Date(charge.due_date), 'MMM dd, yyyy') : 'N/A'}
+                          {charge.due_date ? format(new Date(charge.due_date), 'MMM dd, yyyy') : '—'}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -442,8 +445,8 @@ export function PersonalUseDashboard() {
                         <TableCell>
                           {format(new Date(request.expense_date), 'MMM dd, yyyy')}
                         </TableCell>
-                        <TableCell>${request.request_amount.toFixed(2)}</TableCell>
-                        <TableCell>{request.category || 'N/A'}</TableCell>
+                        <TableCell>{formatCurrency(request.request_amount)}</TableCell>
+                        <TableCell>{request.category || '—'}</TableCell>
                         <TableCell>{getStatusBadge(request.status)}</TableCell>
                         <TableCell>
                           {format(new Date(request.submitted_at), 'MMM dd, yyyy')}
@@ -465,5 +468,6 @@ export function PersonalUseDashboard() {
         />
       )}
     </div>
+    </ErrorBoundary>
   )
 }

@@ -33,7 +33,6 @@ import {
   User as UserIcon,
   Shield,
   LineChart,
-  Trophy,
   Clock,
   Award,
   Map,
@@ -55,21 +54,21 @@ import {
   Activity,
   UserCheck,
   BedDouble,
-  Siren
+  Siren,
+  CalendarCheck
 } from 'lucide-react'
 import { useState, Suspense, lazy, memo, useMemo } from 'react'
 
-// framer-motion removed - React 19 incompatible animation system caused invisible content
-import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
+import { apiFetcher } from '@/lib/api-fetcher'
+import { AddVehicleDialog } from '@/components/dialogs/AddVehicleDialog'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
-// Tab navigation is custom (pill buttons) - no longer using Radix Tabs
 import { Section } from '@/components/ui/section'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -77,7 +76,7 @@ import {
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
-  AnimatedCounter,
+  GaugeChart,
 } from '@/components/visualizations'
 import { useAuth } from '@/contexts'
 import { useReactiveAssetsData } from '@/hooks/use-reactive-assets-data'
@@ -85,27 +84,49 @@ import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
 import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
 import { useReactiveMaintenanceData } from '@/hooks/use-reactive-maintenance-data'
 import { useReactiveOperationsData } from '@/hooks/use-reactive-operations-data'
-import logger from '@/utils/logger';
+import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
+import { formatDate, formatCurrency, formatNumber } from '@/utils/format-helpers'
 
 
 // ============================================================================
 // LAZY-LOADED COMPONENTS
 // ============================================================================
 
-const LiveTracking = lazy(() => import('@/components/fleet/LiveTracking'))
 const LiveFleetDashboard = lazy(() => import('@/components/dashboard/LiveFleetDashboard').then(m => ({ default: m.LiveFleetDashboard })))
 const VehicleTelemetry = lazy(() => import('@/components/modules/fleet/VehicleTelemetry').then(m => ({ default: m.VehicleTelemetry })))
 const VirtualGarage = lazy(() => import('@/components/modules/fleet/VirtualGarage').then(m => ({ default: m.VirtualGarage })))
-const VideoTelematics = lazy(() => import('@/components/modules/compliance/VideoTelematics').then(m => ({ default: m.VideoTelematics })))
 const EVChargingManagement = lazy(() => import('@/components/modules/charging/EVChargingManagement').then(m => ({ default: m.EVChargingManagement })))
-const FleetManagerDashboard = lazy(() => import('@/components/dashboards/roles/FleetManagerDashboard').then(m => ({ default: m.FleetManagerDashboard })))
-const DriverDashboard = lazy(() => import('@/components/dashboards/roles/DriverDashboard').then(m => ({ default: m.DriverDashboard })))
+const VehicleAssignmentManagement = lazy(() => import('@/components/modules/fleet/VehicleAssignmentManagement').then(m => ({ default: m.default })))
+const ReservationCalendarView = lazy(() => import('@/components/scheduling/ReservationCalendarView').then(m => ({ default: m.ReservationCalendarView })))
 
 
-const swrFetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((res) => res.json())
-    .then((data) => data?.data ?? data)
+// ============================================================================
+// HELPER: Flat progress bar replacing SVG circular gauges
+// ============================================================================
+function ProgressBar({ value, color }: { value: number; color: string }) {
+  const pct = Math.max(0, Math.min(100, value))
+  return (
+    <div className="h-2 bg-white/10 rounded-full">
+      <div className={`h-2 ${color} rounded-full`} style={{ width: `${pct}%` }} />
+    </div>
+  )
+}
+
+function getScoreColor(score: number) {
+  if (score >= 90) return 'text-emerald-400'
+  if (score >= 70) return 'text-foreground'
+  if (score >= 50) return 'text-amber-400'
+  return 'text-rose-400'
+}
+
+function getBarColor(score: number) {
+  if (score >= 90) return 'bg-emerald-500'
+  if (score >= 70) return 'bg-foreground/60'
+  if (score >= 50) return 'bg-amber-500'
+  return 'bg-rose-500'
+}
 
 // ============================================================================
 // TAB CONTENT COMPONENTS
@@ -123,13 +144,39 @@ const OverviewTabContent = memo(function OverviewTabContent() {
     typeDistribution: woTypeDistribution,
     isLoading: maintenanceLoading,
   } = useReactiveMaintenanceData()
+  const { push } = useDrilldown()
 
   const loading = fleetLoading || driversLoading || maintenanceLoading
 
   const fleetHealth = useMemo(() => {
-    const healthScores = vehicles
-      .map((v: any) => v.health_score ?? v.healthScore)
-      .filter((s: any): s is number => typeof s === 'number' && !Number.isNaN(s))
+    // Compute a health score for each vehicle:
+    // 1. Use the DB health_score if present
+    // 2. Otherwise synthesize from available data (fuel_level, status, mileage)
+    const healthScores = vehicles.map((v: any) => {
+      const dbScore = v.health_score ?? v.healthScore
+      if (typeof dbScore === 'number' && !Number.isNaN(dbScore)) return dbScore
+
+      // Synthesize a reasonable health score from available data
+      let score = 80 // base score
+      // Penalize low fuel
+      const fuel = v.fuel_level ?? v.fuelLevel
+      if (typeof fuel === 'number') {
+        if (fuel < 15) score -= 15
+        else if (fuel < 30) score -= 8
+      }
+      // Penalize non-active status
+      const st = (v.status || '').toLowerCase()
+      if (st === 'maintenance') score -= 20
+      else if (st === 'inactive' || st === 'retired' || st === 'offline') score -= 25
+      // Penalize high mileage (over 150k)
+      const miles = v.mileage ?? v.odometer ?? 0
+      if (miles > 200000) score -= 15
+      else if (miles > 150000) score -= 8
+      else if (miles > 100000) score -= 3
+
+      return Math.max(10, Math.min(100, score))
+    })
+
     const avgScore = healthScores.length > 0
       ? Math.round(healthScores.reduce((a: number, b: number) => a + b, 0) / healthScores.length)
       : 0
@@ -185,12 +232,15 @@ const OverviewTabContent = memo(function OverviewTabContent() {
   }, [vehicles])
 
   const maintenanceOverview = useMemo(() => {
+    const openWOs = workOrders.filter(
+      (wo: any) => wo.status !== 'completed' && wo.status !== 'cancelled'
+    )
     const totalDowntimeHours = workOrders.reduce((sum: number, wo: any) =>
-      sum + (wo.actualHours || wo.estimatedHours || 0), 0)
+      sum + Number(wo.downtimeHours || wo.downtime_hours || 0), 0)
     const emergencyCount = workOrders.filter(
       (wo: any) => wo.type === 'emergency' || wo.priority === 'urgent' || wo.priority === 'critical'
     ).length
-    return { totalDowntimeHours: Math.round(totalDowntimeHours), emergencyCount }
+    return { openWorkOrders: openWOs.length, totalDowntimeHours: Math.round(totalDowntimeHours), emergencyCount }
   }, [workOrders])
 
   const complianceAlerts = useMemo(() => {
@@ -208,30 +258,19 @@ const OverviewTabContent = memo(function OverviewTabContent() {
       try { const dt = new Date(expiry); return dt >= now && dt <= thirtyDays } catch { return false }
     }).length
     const overdueDrugTests = drivers.filter((d: any) => {
-      const lastTest = d.drug_test ?? d.drugTest ?? d.last_drug_test ?? d.lastDrugTest ?? d.drug_test_date
-      if (!lastTest) return true
+      const lastTest = d.drug_test_date ?? d.drug_test ?? d.drugTest ?? d.last_drug_test ?? d.lastDrugTest
+      if (!lastTest) return false // No data available -- don't flag as overdue
       try { return new Date(lastTest) < twelveMonthsAgo } catch { return false }
     }).length
     return { expiringRegistrations, expiringMedicalCards, overdueDrugTests, totalAlerts: expiringRegistrations + expiringMedicalCards + overdueDrugTests }
   }, [vehicles, drivers])
 
-  const getHealthColor = (score: number) => {
-    if (score >= 90) return 'text-emerald-600 dark:text-emerald-400'
-    if (score >= 70) return 'text-blue-600 dark:text-blue-400'
-    if (score >= 50) return 'text-amber-600 dark:text-amber-400'
-    return 'text-red-600 dark:text-red-400'
-  }
-  const getHealthBg = (score: number) => {
-    if (score >= 90) return 'bg-emerald-100 dark:bg-emerald-900/40'
-    if (score >= 70) return 'bg-blue-100 dark:bg-blue-900/40'
-    if (score >= 50) return 'bg-amber-100 dark:bg-amber-900/40'
-    return 'bg-red-100 dark:bg-red-900/40'
-  }
-
   if (loading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-32" />)}
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
       </div>
     )
   }
@@ -240,286 +279,274 @@ const OverviewTabContent = memo(function OverviewTabContent() {
     name: d.name.length > 12 ? d.name.slice(0, 12) + '...' : d.name, count: d.count, uptime: d.avgUptime ?? 0,
   }))
   const woTypeChartData = Object.entries(woTypeDistribution).map(([name, value]) => ({
-    name: name.charAt(0).toUpperCase() + name.slice(1), value: value as number,
-    fill: name === 'preventive' ? 'hsl(var(--success))' : name === 'corrective' ? 'hsl(var(--primary))' : name === 'emergency' ? 'hsl(var(--destructive))' : name === 'inspection' ? 'hsl(var(--warning))' : 'hsl(var(--accent))',
+    name: formatEnum(name), value: value as number,
+    fill: name === 'preventive' ? '#10B981' : name === 'corrective' ? '#06b6d4' : name === 'emergency' ? '#EF4444' : name === 'inspection' ? '#F59E0B' : '#8B5CF6',
   }))
   const healthDistributionData = [
-    { name: 'Excellent (90+)', value: fleetHealth.excellent, fill: 'hsl(var(--success))' },
-    { name: 'Good (70-89)', value: fleetHealth.good, fill: 'hsl(var(--primary))' },
-    { name: 'Fair (50-69)', value: fleetHealth.fair, fill: 'hsl(var(--warning))' },
-    { name: 'Poor (<50)', value: fleetHealth.poor, fill: 'hsl(var(--destructive))' },
+    { name: 'Excellent (90+)', value: fleetHealth.excellent, fill: '#10B981' },
+    { name: 'Good (70-89)', value: fleetHealth.good, fill: '#06b6d4' },
+    { name: 'Fair (50-69)', value: fleetHealth.fair, fill: '#F59E0B' },
+    { name: 'Poor (<50)', value: fleetHealth.poor, fill: '#EF4444' },
   ].filter(d => d.value > 0)
   const hosChartData = [
-    { name: 'Driving', value: hosCompliance.statuses.driving, fill: 'hsl(var(--success))' },
-    { name: 'On Duty', value: hosCompliance.statuses.on_duty, fill: 'hsl(var(--primary))' },
-    { name: 'Off Duty', value: hosCompliance.statuses.off_duty, fill: 'hsl(var(--muted-foreground))' },
-    { name: 'Sleeper', value: hosCompliance.statuses.sleeper, fill: 'hsl(var(--accent))' },
+    { name: 'Driving', value: hosCompliance.statuses.driving, fill: '#10B981' },
+    { name: 'On Duty', value: hosCompliance.statuses.on_duty, fill: '#06b6d4' },
+    { name: 'Off Duty', value: hosCompliance.statuses.off_duty, fill: '#6b7280' },
+    { name: 'Sleeper', value: hosCompliance.statuses.sleeper, fill: '#8B5CF6' },
   ].filter(d => d.value > 0)
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* ROW 1: TOP-LEVEL KPI SUMMARY */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Fleet Health Score" value={fleetHealth.avgScore > 0 ? fleetHealth.avgScore : 'N/A'} icon={HeartPulse}
-          description={`${fleetHealth.totalWithScores} vehicles scored`}
-          trend={fleetHealth.avgScore >= 80 ? 'up' : fleetHealth.avgScore >= 60 ? 'neutral' : 'down'} />
-        <StatCard title="Avg Safety Score" value={safetyMetrics.avgSafety > 0 ? safetyMetrics.avgSafety : 'N/A'} icon={Shield}
+      <div className="grid grid-cols-4 gap-1.5">
+        <StatCard title="Fleet Utilization" value={`${(fleetStats?.totalVehicles ?? 0) > 0 ? Math.round(((fleetStats?.activeVehicles ?? 0) / (fleetStats?.totalVehicles ?? 1)) * 100) : 0}%`} icon={Gauge}
+          description={`${fleetStats?.activeVehicles ?? 0} active of ${fleetStats?.totalVehicles ?? vehicles.length} vehicles`}
+          trend={(fleetStats?.totalVehicles ?? 0) > 0 && ((fleetStats?.activeVehicles ?? 0) / (fleetStats?.totalVehicles ?? 1)) >= 0.7 ? 'up' : 'neutral'}
+          loading={loading} />
+        <StatCard title="Avg Safety Score" value={safetyMetrics.avgSafety > 0 ? safetyMetrics.avgSafety : '—'} icon={Shield}
           description={`${safetyMetrics.needsAttention} drivers need attention`}
-          trend={safetyMetrics.avgSafety >= 80 ? 'up' : safetyMetrics.avgSafety >= 60 ? 'neutral' : 'down'} />
-        <StatCard title="Open Work Orders" value={maintenanceMetrics?.totalWorkOrders ?? 0} icon={ClipboardList}
-          description={`${maintenanceOverview.emergencyCount} emergency`}
-          trend={maintenanceOverview.emergencyCount > 3 ? 'down' : 'neutral'} />
+          trend={safetyMetrics.avgSafety >= 80 ? 'up' : safetyMetrics.avgSafety >= 60 ? 'neutral' : 'down'}
+          loading={loading} />
+        <StatCard title="Open Work Orders" value={maintenanceOverview.openWorkOrders} icon={ClipboardList}
+          description={`${maintenanceOverview.emergencyCount} emergency · ${maintenanceOverview.totalDowntimeHours}h downtime`}
+          trend={maintenanceOverview.emergencyCount > 3 ? 'down' : 'neutral'}
+          loading={loading} />
         <StatCard title="Compliance Alerts" value={complianceAlerts.totalAlerts} icon={ShieldAlert}
           description="Items requiring attention"
-          trend={complianceAlerts.totalAlerts > 5 ? 'down' : complianceAlerts.totalAlerts > 0 ? 'neutral' : 'up'} />
+          trend={complianceAlerts.totalAlerts > 5 ? 'down' : complianceAlerts.totalAlerts > 0 ? 'neutral' : 'up'}
+          loading={loading} />
       </div>
 
+      {/* Attention Required Banner */}
+      {(maintenanceOverview.emergencyCount > 0 || complianceAlerts.totalAlerts > 0) && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-2 rounded border border-rose-800/30 bg-rose-950/10">
+          <div className="flex items-center gap-2">
+            <Siren className="h-5 w-5 text-rose-400" />
+            <div>
+              <p className="text-xs font-semibold text-rose-300">{maintenanceOverview.emergencyCount}</p>
+              <p className="text-xs text-white/50">Emergency WOs</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Car className="h-5 w-5 text-amber-400" />
+            <div>
+              <p className="text-xs font-semibold text-amber-300">{complianceAlerts.expiringRegistrations}</p>
+              <p className="text-xs text-white/50">Expiring Registrations</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <UserCheck className="h-5 w-5 text-amber-400" />
+            <div>
+              <p className="text-xs font-semibold text-amber-300">{complianceAlerts.expiringMedicalCards}</p>
+              <p className="text-xs text-white/50">Expiring Med Cards</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="h-5 w-5 text-amber-400" />
+            <div>
+              <p className="text-xs font-semibold text-amber-300">{complianceAlerts.overdueDrugTests}</p>
+              <p className="text-xs text-white/50">Overdue Drug Tests</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ROW 2: FLEET HEALTH + HOS COMPLIANCE */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Section title="Fleet Health Overview" description="Vehicle health score distribution" icon={<HeartPulse className="h-5 w-5" />}>
-          <div className="space-y-4">
-            <div className="flex items-center gap-5">
-              <div className="relative flex items-center justify-center w-24 h-24">
-                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="6" className="text-border/30" />
-                  <circle cx="50" cy="50" r="42" fill="none"
-                    stroke={fleetHealth.avgScore >= 90 ? '#10B981' : fleetHealth.avgScore >= 70 ? '#3B82F6' : fleetHealth.avgScore >= 50 ? '#F59E0B' : '#EF4444'}
-                    strokeWidth="6" strokeLinecap="round"
-                    strokeDasharray={`${(fleetHealth.avgScore / 100) * 263.9} 263.9`}
-                    style={{ transition: 'stroke-dasharray 1s ease-out', filter: `drop-shadow(0 0 6px ${fleetHealth.avgScore >= 90 ? 'rgba(16,185,129,0.4)' : fleetHealth.avgScore >= 70 ? 'rgba(59,130,246,0.4)' : fleetHealth.avgScore >= 50 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'})` }}
-                  />
-                </svg>
-                <span className={`absolute text-2xl font-bold ${getHealthColor(fleetHealth.avgScore)}`}>
-                  {fleetHealth.avgScore > 0 ? <AnimatedCounter value={fleetHealth.avgScore} /> : '--'}
-                </span>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Average Health Score</p>
+      <div className="grid grid-cols-2 gap-1.5">
+        <Section title="Fleet Health Overview" description="Vehicle health score distribution" icon={<HeartPulse className="h-4 w-4" />}>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-4">
+              <GaugeChart title="Fleet Health" value={fleetHealth.avgScore} size={90} height={110} />
+              <div className="flex-1 flex flex-col gap-1">
                 <p className="text-xs text-muted-foreground">{fleetHealth.totalWithScores} of {vehicles.length} vehicles with scores</p>
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="grid grid-cols-4 gap-2">
               {[
-                { label: 'Excellent (90+)', color: 'bg-emerald-500', count: fleetHealth.excellent },
-                { label: 'Good (70-89)', color: 'bg-blue-500', count: fleetHealth.good },
-                { label: 'Fair (50-69)', color: 'bg-amber-500', count: fleetHealth.fair },
-                { label: 'Poor (<50)', color: 'bg-red-500', count: fleetHealth.poor },
+                { label: 'Excellent', count: fleetHealth.excellent, color: 'text-emerald-400' },
+                { label: 'Good', count: fleetHealth.good, color: 'text-foreground' },
+                { label: 'Fair', count: fleetHealth.fair, color: 'text-amber-400' },
+                { label: 'Poor', count: fleetHealth.poor, color: 'text-rose-400' },
               ].map(item => (
-                <div key={item.label} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${item.color}`} />
-                    <span>{item.label}</span>
-                  </div>
-                  <span className="font-semibold">{item.count}</span>
+                <div key={item.label} className="text-center rounded border border-white/[0.08] bg-[#242424] p-1.5">
+                  <p className="text-[10px] text-muted-foreground">{item.label}</p>
+                  <p className={`text-sm font-semibold ${item.color}`}>{item.count}</p>
                 </div>
               ))}
             </div>
             {healthDistributionData.length > 0 && (
-              <ResponsivePieChart title="Health Distribution" data={healthDistributionData} height={200} innerRadius={50} showPercentages />
+              <ResponsivePieChart title="Health Distribution" data={healthDistributionData} height={120} innerRadius={30} showPercentages compact />
             )}
           </div>
         </Section>
 
-        <Section title="HOS Compliance" description="Hours of Service status across drivers" icon={<Timer className="h-5 w-5" />}>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+        <Section title="HOS Compliance" description="Hours of Service status" icon={<Timer className="h-4 w-4" />}>
+          <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {[
-                { label: 'Driving', value: hosCompliance.statuses.driving, icon: Activity, border: 'border-emerald-200/60 dark:border-emerald-800/40', bg: 'bg-emerald-50/50 dark:bg-emerald-950/20', iconColor: 'text-emerald-600 dark:text-emerald-400', textColor: 'text-emerald-700 dark:text-emerald-300' },
-                { label: 'On Duty', value: hosCompliance.statuses.on_duty, icon: UserCheck, border: 'border-blue-200/60 dark:border-blue-800/40', bg: 'bg-blue-50/50 dark:bg-blue-950/20', iconColor: 'text-blue-600 dark:text-blue-400', textColor: 'text-blue-700 dark:text-blue-300' },
-                { label: 'Off Duty', value: hosCompliance.statuses.off_duty, icon: Clock, border: 'border-slate-200/60 dark:border-slate-700/40', bg: 'bg-slate-50/50 dark:bg-slate-900/20', iconColor: 'text-slate-500', textColor: 'text-slate-700 dark:text-slate-300' },
-                { label: 'Sleeper', value: hosCompliance.statuses.sleeper, icon: BedDouble, border: 'border-violet-200/60 dark:border-violet-800/40', bg: 'bg-violet-50/50 dark:bg-violet-950/20', iconColor: 'text-violet-600 dark:text-violet-400', textColor: 'text-violet-700 dark:text-violet-300' },
+                { label: 'Driving', value: hosCompliance.statuses.driving, icon: Activity },
+                { label: 'On Duty', value: hosCompliance.statuses.on_duty, icon: UserCheck },
+                { label: 'Off Duty', value: hosCompliance.statuses.off_duty, icon: Clock },
+                { label: 'Sleeper', value: hosCompliance.statuses.sleeper, icon: BedDouble },
               ].map(item => (
-                <div key={item.label} className={`rounded-xl border ${item.border} ${item.bg} p-3`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <item.icon className={`h-4 w-4 ${item.iconColor}`} />
-                    <span className="text-xs font-medium text-muted-foreground">{item.label}</span>
+                <div key={item.label} className="rounded border border-white/[0.08] bg-[#242424] p-1.5">
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <item.icon className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-[10px] text-muted-foreground">{item.label}</span>
                   </div>
-                  <p className={`text-2xl font-bold ${item.textColor}`}>{item.value}</p>
+                  <p className="text-sm font-bold text-foreground">{item.value}</p>
                 </div>
               ))}
             </div>
-            <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+            <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">Total Hours Available</p>
-                  <p className="text-xs text-muted-foreground">Across all active drivers</p>
+                  <p className="text-xs font-medium text-foreground">Total Hours Available</p>
+                  <p className="text-[10px] text-muted-foreground">Across all active drivers</p>
                 </div>
-                <p className="text-2xl font-bold text-foreground">{hosCompliance.totalHoursAvailable}h</p>
+                <p className="text-sm font-bold text-foreground">{formatNumber(hosCompliance.totalHoursAvailable)}h</p>
               </div>
             </div>
             {hosChartData.length > 0 && (
-              <ResponsivePieChart title="HOS Status Distribution" data={hosChartData} height={200} innerRadius={50} showPercentages />
+              <ResponsivePieChart title="HOS Status Distribution" data={hosChartData} height={120} innerRadius={30} showPercentages compact />
             )}
           </div>
         </Section>
-      </div>
 
-      {/* ROW 3: SAFETY METRICS + DEPARTMENT UTILIZATION */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Section title="Safety Metrics" description="Driver safety scoring and alerts" icon={<Shield className="h-5 w-5" />}>
-          <div className="space-y-4">
-            <div className="flex items-center gap-5">
-              <div className="relative flex items-center justify-center w-24 h-24">
-                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="6" className="text-border/30" />
-                  <circle cx="50" cy="50" r="42" fill="none"
-                    stroke={safetyMetrics.avgSafety >= 90 ? '#10B981' : safetyMetrics.avgSafety >= 70 ? '#3B82F6' : safetyMetrics.avgSafety >= 50 ? '#F59E0B' : '#EF4444'}
-                    strokeWidth="6" strokeLinecap="round"
-                    strokeDasharray={`${(safetyMetrics.avgSafety / 100) * 263.9} 263.9`}
-                    style={{ transition: 'stroke-dasharray 1s ease-out', filter: `drop-shadow(0 0 6px ${safetyMetrics.avgSafety >= 90 ? 'rgba(16,185,129,0.4)' : safetyMetrics.avgSafety >= 70 ? 'rgba(59,130,246,0.4)' : safetyMetrics.avgSafety >= 50 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'})` }}
-                  />
-                </svg>
-                <span className={`absolute text-2xl font-bold ${getHealthColor(safetyMetrics.avgSafety)}`}>
-                  {safetyMetrics.avgSafety > 0 ? <AnimatedCounter value={safetyMetrics.avgSafety} /> : '--'}
-                </span>
-              </div>
+        {/* ROW 3: SAFETY METRICS + DEPARTMENT UTILIZATION */}
+        <Section title="Safety Metrics" description="Driver safety scoring" icon={<Shield className="h-4 w-4" />}>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-4">
               <div>
-                <p className="text-sm font-semibold text-foreground">Average Driver Safety Score</p>
-                <p className="text-xs text-muted-foreground">Across {safetyMetrics.totalDrivers} drivers</p>
+                <span className={`text-xl font-bold ${getScoreColor(safetyMetrics.avgSafety)}`}>
+                  {safetyMetrics.avgSafety > 0 ? safetyMetrics.avgSafety : '--'}
+                </span>
+                <span className="text-xs text-muted-foreground ml-1">/ 100</span>
+              </div>
+              <div className="flex-1">
+                <ProgressBar value={safetyMetrics.avgSafety} color={getBarColor(safetyMetrics.avgSafety)} />
               </div>
             </div>
+            <p className="text-xs text-muted-foreground">Across {safetyMetrics.totalDrivers} drivers</p>
             {safetyMetrics.needsAttention > 0 && (
-              <Alert variant="destructive" className="border-red-200 dark:border-red-800">
+              <Alert variant="destructive" className="border-rose-800/40">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
+                <AlertDescription className="text-red-300">
                   <span className="font-semibold">{safetyMetrics.needsAttention} driver{safetyMetrics.needsAttention !== 1 ? 's' : ''}</span> with safety score below 70 -- requires review
                 </AlertDescription>
               </Alert>
             )}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-4 gap-2">
               {[
-                { label: 'Excellent (90+)', color: 'text-emerald-600 dark:text-emerald-400', count: drivers.filter((d: any) => (d.safetyScore ?? d.safety_score ?? 0) >= 90).length },
-                { label: 'Good (70-89)', color: 'text-blue-600 dark:text-blue-400', count: drivers.filter((d: any) => { const s = d.safetyScore ?? d.safety_score ?? 0; return s >= 70 && s < 90 }).length },
-                { label: 'Fair (50-69)', color: 'text-amber-600 dark:text-amber-400', count: drivers.filter((d: any) => { const s = d.safetyScore ?? d.safety_score ?? 0; return s >= 50 && s < 70 }).length },
-                { label: 'Poor (<50)', color: 'text-red-600 dark:text-red-400', count: drivers.filter((d: any) => (d.safetyScore ?? d.safety_score ?? 0) < 50).length },
+                { label: 'Excellent', color: 'text-emerald-400', count: drivers.filter((d: any) => (d.safetyScore ?? d.safety_score ?? 0) >= 90).length },
+                { label: 'Good', color: 'text-foreground', count: drivers.filter((d: any) => { const s = d.safetyScore ?? d.safety_score ?? 0; return s >= 70 && s < 90 }).length },
+                { label: 'Fair', color: 'text-amber-400', count: drivers.filter((d: any) => { const s = d.safetyScore ?? d.safety_score ?? 0; return s >= 50 && s < 70 }).length },
+                { label: 'Poor', color: 'text-rose-400', count: drivers.filter((d: any) => (d.safetyScore ?? d.safety_score ?? 0) < 50).length },
               ].map(item => (
-                <div key={item.label} className="rounded-xl border border-border/60 bg-background/60 p-3 text-center">
-                  <p className="text-xs text-muted-foreground mb-1">{item.label}</p>
-                  <p className={`text-xl font-bold ${item.color}`}>{item.count}</p>
+                <div key={item.label} className="text-center rounded border border-white/[0.08] bg-[#242424] p-1.5">
+                  <p className="text-[10px] text-muted-foreground">{item.label}</p>
+                  <p className={`text-sm font-semibold ${item.color}`}>{item.count}</p>
                 </div>
               ))}
             </div>
           </div>
         </Section>
 
-        <Section title="Department Utilization" description="Vehicle count and uptime by department" icon={<Building2 className="h-5 w-5" />}>
-          <div className="space-y-4">
-            {departmentUtil.length > 0 ? (
-              <>
-                <div className="space-y-2">
-                  {departmentUtil.slice(0, 6).map((dept) => (
-                    <div key={dept.name} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">{dept.name}</span>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="text-sm font-semibold">{dept.count}</p>
-                          <p className="text-[10px] text-muted-foreground">vehicles</p>
-                        </div>
-                        {dept.avgUptime !== null && (
-                          <div className="text-right">
-                            <p className="text-sm font-semibold">{dept.avgUptime}%</p>
-                            <p className="text-[10px] text-muted-foreground">uptime</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {departmentChartData.length > 0 && (
-                  <ResponsiveBarChart title="Vehicles by Department" data={departmentChartData} dataKey="count" height={200} showValues />
-                )}
-              </>
+        <Section title="Department Utilization" description="Vehicle count and uptime by department" icon={<Building2 className="h-4 w-4" />}>
+          <div className="flex flex-col gap-2">
+            {departmentChartData.length > 0 ? (
+              <ResponsiveBarChart title="Vehicles by Department" data={departmentChartData} dataKey="count" height={150} showValues compact />
             ) : (
-              <div className="text-center py-8 text-muted-foreground">No department data available</div>
+              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No department data available</div>
             )}
           </div>
         </Section>
-      </div>
 
-      {/* ROW 4: MAINTENANCE OVERVIEW + COMPLIANCE ALERTS */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Section title="Maintenance Overview" description="Work orders, downtime, and categories" icon={<Wrench className="h-5 w-5" />}>
-          <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-xl border border-border/60 bg-background/60 p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Total WOs</p>
-                <p className="text-xl font-bold text-foreground">{maintenanceMetrics?.totalWorkOrders ?? 0}</p>
+        {/* ROW 4: MAINTENANCE OVERVIEW + COMPLIANCE ALERTS */}
+        <Section title="Maintenance Overview" description="Work orders, downtime, and categories" icon={<Wrench className="h-4 w-4" />}>
+          <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-3 gap-1.5">
+              <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
+                <p className="text-[10px] text-muted-foreground">Open WOs</p>
+                <p className="text-sm font-bold text-foreground">{maintenanceOverview.openWorkOrders}</p>
               </div>
-              <div className="rounded-xl border border-border/60 bg-background/60 p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Downtime</p>
-                <p className="text-xl font-bold text-foreground">{maintenanceOverview.totalDowntimeHours}h</p>
+              <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
+                <p className="text-[10px] text-muted-foreground">Downtime</p>
+                <p className="text-sm font-bold text-foreground">{maintenanceOverview.totalDowntimeHours}h</p>
               </div>
-              <div className="rounded-xl border border-red-200/60 dark:border-red-800/40 bg-red-50/50 dark:bg-red-950/20 p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Emergency</p>
-                <p className="text-xl font-bold text-red-600 dark:text-red-400">{maintenanceOverview.emergencyCount}</p>
+              <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
+                <p className="text-[10px] text-muted-foreground">Emergency</p>
+                <p className="text-sm font-bold text-rose-400">{maintenanceOverview.emergencyCount}</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-4 gap-1.5">
               {[
                 { label: 'In Progress', value: maintenanceMetrics?.inProgress ?? 0 },
                 { label: 'Pending', value: maintenanceMetrics?.pendingOrders ?? 0 },
-                { label: 'Parts Waiting', value: maintenanceMetrics?.partsWaiting ?? 0 },
-                { label: 'Completed Today', value: maintenanceMetrics?.completedToday ?? 0 },
+                { label: 'Parts Wait', value: maintenanceMetrics?.partsWaiting ?? 0 },
+                { label: 'Done Today', value: maintenanceMetrics?.completedToday ?? 0 },
               ].map(item => (
-                <div key={item.label} className="rounded-xl border border-border/60 bg-background/60 p-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">{item.label}</span>
-                    <span className="text-sm font-semibold">{item.value}</span>
-                  </div>
+                <div key={item.label} className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
+                  <span className="text-[10px] text-muted-foreground block">{item.label}</span>
+                  <span className="text-xs font-semibold text-foreground">{item.value}</span>
                 </div>
               ))}
             </div>
             {woTypeChartData.length > 0 && (
-              <ResponsivePieChart title="Work Orders by Category" data={woTypeChartData} height={200} innerRadius={50} showPercentages />
+              <ResponsivePieChart title="Work Orders by Category" data={woTypeChartData} height={120} innerRadius={35} showPercentages compact />
             )}
           </div>
         </Section>
 
-        <Section title="Compliance Alerts" description="Expiring certifications and overdue items" icon={<Siren className="h-5 w-5" />}>
-          <div className="space-y-4">
+        <Section title="Compliance Alerts" description="Expiring certifications and overdue items" icon={<Siren className="h-4 w-4" />}>
+          <div className="flex flex-col gap-2">
             {complianceAlerts.totalAlerts === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <CheckCircle className="h-12 w-12 text-emerald-500 mb-3" />
-                <p className="text-sm font-semibold text-foreground">All Clear</p>
+              <div className="flex flex-col items-center justify-center h-20 text-center">
+                <CheckCircle className="h-6 w-6 text-emerald-500 mb-1" />
+                <p className="text-sm font-medium text-foreground">All Clear</p>
                 <p className="text-xs text-muted-foreground">No compliance alerts at this time</p>
               </div>
             ) : (
               <>
                 {[
-                  { icon: Car, title: 'Registration Expiry', desc: 'Vehicles expiring within 30 days', count: complianceAlerts.expiringRegistrations, severity: 'amber' as const },
-                  { icon: UserIcon, title: 'Medical Card Expiry', desc: 'Drivers expiring within 30 days', count: complianceAlerts.expiringMedicalCards, severity: 'amber' as const },
-                  { icon: ShieldAlert, title: 'Drug Test Overdue', desc: 'Last test over 12 months ago', count: complianceAlerts.overdueDrugTests, severity: 'red' as const },
+                  { icon: Car, title: 'Registration Expiry', desc: 'Vehicles expiring within 30 days', count: complianceAlerts.expiringRegistrations, severity: 'amber' as const, category: 'registration' },
+                  { icon: UserIcon, title: 'Medical Card Expiry', desc: 'Drivers expiring within 30 days', count: complianceAlerts.expiringMedicalCards, severity: 'amber' as const, category: 'medical-card' },
+                  { icon: ShieldAlert, title: 'Drug Test Overdue', desc: 'Last test over 12 months ago', count: complianceAlerts.overdueDrugTests, severity: 'red' as const, category: 'drug-test' },
                 ].map(alert => (
-                  <div key={alert.title} className={`rounded-xl border p-4 ${
-                    alert.count > 0
-                      ? alert.severity === 'red'
-                        ? 'border-red-200/60 dark:border-red-800/40 bg-red-50/50 dark:bg-red-950/20'
-                        : 'border-amber-200/60 dark:border-amber-800/40 bg-amber-50/50 dark:bg-amber-950/20'
-                      : 'border-border/60 bg-background/60'
-                  }`}>
+                  <div
+                    key={alert.title}
+                    className={`rounded border p-2 cursor-pointer transition-colors hover:bg-white/[0.04] ${
+                      alert.count > 0
+                        ? alert.severity === 'red'
+                          ? 'border-rose-800/40 bg-rose-950/20'
+                          : 'border-amber-800/40 bg-amber-950/20'
+                        : 'border-white/[0.08] bg-[#242424]'
+                    }`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => push({ type: 'compliance-item', label: alert.title, data: { category: alert.category, alertType: alert.title } })}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ type: 'compliance-item', label: alert.title, data: { category: alert.category, alertType: alert.title } }); } }}
+                  >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <alert.icon className={`h-5 w-5 ${
+                      <div className="flex items-center gap-2">
+                        <alert.icon className={`h-4 w-4 ${
                           alert.count > 0
-                            ? alert.severity === 'red' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'
+                            ? alert.severity === 'red' ? 'text-rose-400' : 'text-amber-400'
                             : 'text-muted-foreground'
                         }`} />
                         <div>
-                          <p className="text-sm font-semibold text-foreground">{alert.title}</p>
-                          <p className="text-xs text-muted-foreground">{alert.desc}</p>
+                          <p className="text-xs font-medium text-foreground">{alert.title}</p>
+                          <p className="text-[10px] text-muted-foreground">{alert.desc}</p>
                         </div>
                       </div>
                       <Badge variant={alert.count > 0 ? 'destructive' : 'secondary'}>{alert.count}</Badge>
                     </div>
                   </div>
                 ))}
-                <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+                <div className="rounded border border-white/[0.08] bg-[#242424] p-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-foreground">Total Compliance Issues</p>
-                    <Badge variant={complianceAlerts.totalAlerts > 5 ? 'destructive' : 'secondary'} className="text-base px-3 py-1">
+                    <p className="text-xs font-medium text-foreground">Total Compliance Issues</p>
+                    <Badge variant={complianceAlerts.totalAlerts > 5 ? 'destructive' : 'secondary'}>
                       {complianceAlerts.totalAlerts}
                     </Badge>
                   </div>
@@ -537,10 +564,10 @@ const OverviewTabContent = memo(function OverviewTabContent() {
  * Fleet Tab - Vehicle tracking and telemetry
  */
 const FleetTabContent = memo(function FleetTabContent() {
-  const { vehicles, metrics: stats, statusDistribution, isLoading: loading, error, refetch } = useReactiveFleetData()
+  const { vehicles, metrics: stats, statusDistribution, lowFuelVehicles, highMileageVehicles, makeDistribution, isLoading: loading, error } = useReactiveFleetData()
   const { user } = useAuth()
+  const { push } = useDrilldown()
 
-  // Default stats if undefined - use metrics structure from hook
   const safeStats = stats || {
     totalVehicles: 0,
     activeVehicles: 0,
@@ -550,15 +577,32 @@ const FleetTabContent = memo(function FleetTabContent() {
     totalMileage: 0
   }
 
-  // Enhancement 1: Calculate average health score from vehicles
   const avgHealthScore = useMemo(() => {
-    const vehiclesWithHealth = vehicles.filter((v: any) => v.health_score != null)
-    if (vehiclesWithHealth.length === 0) return null
-    const total = vehiclesWithHealth.reduce((sum: number, v: any) => sum + Number(v.health_score), 0)
-    return Math.round(total / vehiclesWithHealth.length)
+    if (vehicles.length === 0) return null
+    // Use DB health_score when available, otherwise synthesize
+    const scores = vehicles.map((v: any) => {
+      const dbScore = v.health_score ?? v.healthScore
+      if (dbScore != null && !Number.isNaN(Number(dbScore))) return Number(dbScore)
+      // Synthesize from available data
+      let score = 80
+      const fuel = v.fuel_level ?? v.fuelLevel
+      if (typeof fuel === 'number') {
+        if (fuel < 15) score -= 15
+        else if (fuel < 30) score -= 8
+      }
+      const st = (v.status || '').toLowerCase()
+      if (st === 'maintenance') score -= 20
+      else if (st === 'inactive' || st === 'retired' || st === 'offline') score -= 25
+      const miles = v.mileage ?? v.odometer ?? 0
+      if (miles > 200000) score -= 15
+      else if (miles > 150000) score -= 8
+      else if (miles > 100000) score -= 3
+      return Math.max(10, Math.min(100, score))
+    })
+    const total = scores.reduce((sum: number, s: number) => sum + s, 0)
+    return Math.round(total / scores.length)
   }, [vehicles])
 
-  // Enhancement 2: Build operational_status breakdown for subtitle
   const statusBreakdownText = useMemo(() => {
     if (statusDistribution.length === 0) return ''
     return statusDistribution.map(s => `${s.name}: ${s.value}`).join(' | ')
@@ -566,124 +610,206 @@ const FleetTabContent = memo(function FleetTabContent() {
 
   if (loading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-32" />
-        ))}
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          {error.message || 'Failed to load data. Please try again.'}
-        </AlertDescription>
-      </Alert>
+      <div className="p-1.5">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            {error.message || 'Failed to load data. Please try again.'}
+          </AlertDescription>
+        </Alert>
+      </div>
     )
   }
 
+  const handleAddVehicle = async () => {
+    // Refresh fleet data after adding a vehicle
+    window.location.reload()
+  }
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-foreground">Fleet Management</h2>
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+      {/* Header with Add Vehicle */}
+      <div className="flex items-center justify-end">
+        <AddVehicleDialog onAdd={handleAddVehicle} />
+      </div>
+
       {/* Fleet Statistics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Total Vehicles"
           value={safeStats.totalVehicles}
           icon={Car}
           description={statusBreakdownText || 'Active fleet count'}
+          loading={loading}
+          sparklineData={statusDistribution.map(s => ({ value: s.value }))}
         />
         <StatCard
           title="Active Vehicles"
           value={safeStats.activeVehicles}
           icon={Gauge}
           description="Currently in use"
+          loading={loading}
         />
         <StatCard
           title="Fleet Health"
-          value={avgHealthScore != null ? `${avgHealthScore}%` : 'N/A'}
+          value={avgHealthScore != null ? `${avgHealthScore}%` : '—'}
           icon={HeartPulse}
           trend={avgHealthScore != null ? (avgHealthScore >= 80 ? 'up' : avgHealthScore >= 60 ? 'neutral' : 'down') : 'neutral'}
           description="Avg health score"
-        />
-        <StatCard
-          title="Maintenance Due"
-          value={safeStats.maintenanceVehicles}
-          icon={Wrench}
-          description="Needs attention"
+          loading={loading}
         />
         <StatCard
           title="Avg Fuel Level"
-          value={`${(safeStats.averageFuelLevel || 0).toFixed(1)}%`}
+          value={`${formatNumber(safeStats.averageFuelLevel || 0, 1)}%`}
           icon={Fuel}
           description="Fleet average"
+          loading={loading}
         />
       </div>
 
-      {/* Live Fleet Dashboard */}
-      <div>
+      {/* Fleet Alerts */}
+      {(lowFuelVehicles.length > 0 || highMileageVehicles.length > 0) && (
         <Section
-          title="Live Fleet Tracking"
-          description="Real-time vehicle locations and status"
-          icon={<MapPin className="h-5 w-5" />}
+          title="Fleet Alerts"
+          description={`${lowFuelVehicles.length + highMileageVehicles.length} vehicles need attention`}
+          icon={<AlertTriangle className="h-4 w-4" />}
         >
-          <ErrorBoundary>
-            <Suspense fallback={<Skeleton className="h-96" />}>
-              <LiveFleetDashboard />
-            </Suspense>
-          </ErrorBoundary>
+          <div className="flex flex-col gap-1">
+            {lowFuelVehicles.slice(0, 5).map((v: any) => (
+              <div
+                key={`fuel-${v.id}`}
+                className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                onClick={() => push({
+                  type: 'vehicle-details',
+                  label: formatVehicleName(v),
+                  data: { vehicleId: String(v.id), vehicle: v },
+                })}
+              >
+                <div className="flex items-center gap-2">
+                  <Fuel className="h-3.5 w-3.5 text-amber-400" />
+                  <div>
+                    <p className="text-xs font-medium text-foreground">
+                      {formatVehicleName(v)}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">Fuel: {v.fuel_level != null ? `${v.fuel_level}%` : 'N/A'}</p>
+                  </div>
+                </div>
+                <Badge variant={v.severity === 'high' ? 'destructive' : 'secondary'} className="text-[10px] px-1 py-0">
+                  {v.severity === 'high' ? 'Critical' : 'Warning'}
+                </Badge>
+              </div>
+            ))}
+            {highMileageVehicles.slice(0, 5).map((v: any) => (
+              <div
+                key={`mile-${v.id}`}
+                className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                onClick={() => push({
+                  type: 'vehicle-details',
+                  label: formatVehicleName(v),
+                  data: { vehicleId: String(v.id), vehicle: v },
+                })}
+              >
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-3.5 w-3.5 text-amber-400" />
+                  <div>
+                    <p className="text-xs font-medium text-foreground">
+                      {formatVehicleName(v)}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">Mileage: {formatNumber(v.mileage)} mi</p>
+                  </div>
+                </div>
+                <Badge variant={v.severity === 'high' ? 'destructive' : 'secondary'} className="text-[10px] px-1 py-0">
+                  {v.severity === 'high' ? 'Critical' : 'Warning'}
+                </Badge>
+              </div>
+            ))}
+          </div>
         </Section>
-      </div>
+      )}
 
-      {/* Vehicle Telemetry */}
-      <div>
-        <Section
-          title="Vehicle Telemetry"
-          description="Performance metrics and diagnostics"
-          icon={<Gauge className="h-5 w-5" />}
-        >
-          <ErrorBoundary>
-            <Suspense fallback={<Skeleton className="h-64" />}>
-              <VehicleTelemetry />
-            </Suspense>
-          </ErrorBoundary>
-        </Section>
-      </div>
-
-      {/* Virtual Garage */}
-      <div>
-        <Section
-          title="Virtual Garage"
-          description="3D vehicle models and inventory"
-          icon={<Car className="h-5 w-5" />}
-        >
-          <ErrorBoundary>
-            <Suspense fallback={<Skeleton className="h-96" />}>
-              <VirtualGarage />
-            </Suspense>
-          </ErrorBoundary>
-        </Section>
-      </div>
-
-      {/* EV Charging Management */}
-      {(user?.role === 'Admin' || user?.role === 'Manager' || user?.role === 'SuperAdmin') && (
-        <div>
+      {/* Main content area - scrollable with auto-height children */}
+      <div className="flex flex-col gap-1.5">
+        {/* Live Fleet Tracking - give map a proper height */}
+        <div className="shrink-0" style={{ minHeight: '400px' }}>
           <Section
-            title="EV Charging Management"
-            description="Electric vehicle charging stations and schedules"
-            icon={<Plug className="h-5 w-5" />}
+            title="Live Fleet Tracking"
+            description="Real-time vehicle locations and status"
+            icon={<MapPin className="h-4 w-4" />}
+            className="h-full"
+            contentClassName="!overflow-hidden"
           >
             <ErrorBoundary>
-              <Suspense fallback={<Skeleton className="h-64" />}>
-                <EVChargingManagement />
+              <Suspense fallback={<Skeleton className="h-[350px]" />}>
+                <div className="h-[380px]">
+                  <LiveFleetDashboard />
+                </div>
               </Suspense>
             </ErrorBoundary>
           </Section>
         </div>
-      )}
+
+        {/* Vehicle Telemetry - allow content to flow naturally */}
+        <div className="shrink-0">
+          <Section
+            title="Vehicle Telemetry"
+            description="Performance metrics and diagnostics"
+            icon={<Gauge className="h-4 w-4" />}
+            className="overflow-visible"
+            contentClassName="!overflow-visible"
+          >
+            <ErrorBoundary>
+              <Suspense fallback={<Skeleton className="h-48" />}>
+                <VehicleTelemetry />
+              </Suspense>
+            </ErrorBoundary>
+          </Section>
+        </div>
+
+        {/* Virtual Garage - allow content to flow naturally */}
+        <div className="shrink-0">
+          <Section
+            title="Virtual Garage"
+            description="3D vehicle models and inventory"
+            icon={<Car className="h-4 w-4" />}
+            className="overflow-visible"
+            contentClassName="!overflow-visible"
+          >
+            <ErrorBoundary>
+              <Suspense fallback={<Skeleton className="h-64" />}>
+                <VirtualGarage />
+              </Suspense>
+            </ErrorBoundary>
+          </Section>
+        </div>
+
+        {(user?.role === 'Admin' || user?.role === 'Manager' || user?.role === 'SuperAdmin') && (
+          <div className="shrink-0">
+            <Section
+              title="EV Charging Management"
+              description="Electric vehicle charging stations and schedules"
+              icon={<Plug className="h-4 w-4" />}
+              className="overflow-visible"
+              contentClassName="!overflow-visible"
+            >
+              <ErrorBoundary>
+                <Suspense fallback={<Skeleton className="h-48" />}>
+                  <EVChargingManagement />
+                </Suspense>
+              </ErrorBoundary>
+            </Section>
+          </div>
+        )}
+      </div>
     </div>
   )
 })
@@ -692,9 +818,9 @@ const FleetTabContent = memo(function FleetTabContent() {
  * Drivers Tab - Driver management and performance
  */
 const DriversTabContent = memo(function DriversTabContent() {
-  const { drivers, performanceTrend, metrics: stats, isLoading: loading, error, refresh: refetch } = useReactiveDriversData()
+  const { drivers, topPerformers, performanceTrend, metrics: stats, lowSafetyDrivers, driversWithViolations, expiringLicenses, isLoading: loading, error } = useReactiveDriversData()
+  const { push } = useDrilldown()
 
-  // Default stats if undefined - use metrics structure from hook
   const safeStats = stats || {
     totalDrivers: 0,
     activeDrivers: 0,
@@ -706,7 +832,6 @@ const DriversTabContent = memo(function DriversTabContent() {
     totalViolations: 0
   }
 
-  // Enhancement 3: Compute actual average from driver.safetyScore (driver.safety_score from API)
   const computedAvgSafetyScore = useMemo(() => {
     const driversWithScore = drivers.filter(d => d.safetyScore > 0)
     if (driversWithScore.length === 0) return safeStats.avgSafetyScore
@@ -714,7 +839,6 @@ const DriversTabContent = memo(function DriversTabContent() {
     return Math.round(total / driversWithScore.length)
   }, [drivers, safeStats.avgSafetyScore])
 
-  // Enhancement 4: Count drivers currently "driving" (HOS status)
   const driversDrivingCount = useMemo(() => {
     return drivers.filter((d: any) =>
       d.hos_status === 'driving' || d.hosStatus === 'driving' ||
@@ -724,69 +848,69 @@ const DriversTabContent = memo(function DriversTabContent() {
 
   if (loading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-32" />
-        ))}
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          {error.message || 'Failed to load data. Please try again.'}
-        </AlertDescription>
-      </Alert>
+      <div className="p-1.5">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            {error.message || 'Failed to load data. Please try again.'}
+          </AlertDescription>
+        </Alert>
+      </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-foreground">Drivers Management</h2>
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* Driver Statistics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Total Drivers"
           value={safeStats.totalDrivers}
           icon={Users}
           description="Active driver pool"
+          loading={loading}
         />
         <StatCard
           title="On Duty"
           value={safeStats.activeDrivers}
           icon={UserIcon}
           description="Currently working"
+          loading={loading}
         />
         <StatCard
           title="Avg Safety Score"
           value={computedAvgSafetyScore}
-          icon={Trophy}
+          icon={Shield}
           trend={computedAvgSafetyScore >= 80 ? 'up' : computedAvgSafetyScore >= 60 ? 'neutral' : 'down'}
-          description="From driver safety_score"
+          description="From driver safety scores"
+          loading={loading}
+          sparklineData={performanceTrend.map(p => ({ value: p.avgScore }))}
         />
         <StatCard
           title="HOS Driving"
           value={driversDrivingCount}
           icon={Activity}
           description="Currently driving"
-        />
-        <StatCard
-          title="Avg Performance"
-          value={`${safeStats.avgPerformance}%`}
-          icon={Shield}
-          description="Performance rating"
+          loading={loading}
         />
       </div>
 
-      {/* Driver Performance Chart */}
-      <div>
+      {/* Main content */}
+      <div className="grid grid-cols-2 gap-1.5">
         <Section
           title="Driver Performance Trends"
           description="Safety scores and compliance over time"
-          icon={<LineChart className="h-5 w-5" />}
+          icon={<LineChart className="h-4 w-4" />}
         >
           {performanceTrend.length > 0 ? (
             <ResponsiveLineChart
@@ -795,73 +919,152 @@ const DriversTabContent = memo(function DriversTabContent() {
                 name: point.date,
                 date: point.date,
                 safety_score: point.avgScore,
-                performance_rating: point.avgScore
+                violations: point.violations
               }))}
-              dataKeys={['safety_score', 'performance_rating']}
-              colors={['hsl(var(--success))', 'hsl(var(--primary))']}
-              height={300}
+              dataKeys={['safety_score', 'violations']}
+              colors={['hsl(var(--success))', 'hsl(var(--destructive))']}
+              height={120}
+              compact
             />
           ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              No performance trend data available yet
+            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No performance trend data available</div>
+          )}
+        </Section>
+
+        <Section
+          title="Top Performers"
+          description="Drivers with highest safety scores"
+          icon={<Award className="h-4 w-4" />}
+        >
+          {topPerformers.length > 0 ? (
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
+              {topPerformers.slice(0, 5).map((driver: any, index) => (
+                <div
+                  key={driver.id}
+                  className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View details for ${driver.name}`}
+                  onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/[0.06] text-foreground text-xs font-bold">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-semibold text-foreground">{driver.name}</p>
+                        {(driver.employment_type || driver.employmentType) && (
+                          <Badge variant="outline" className="text-[10px] px-1 py-0">
+                            {formatEnum(driver.employment_type || driver.employmentType)}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">{driver.licenseNumber}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {(driver.hos_status || driver.hosStatus) && (
+                      <Badge variant={
+                        (driver.hos_status || driver.hosStatus) === 'driving' ? 'default' :
+                        (driver.hos_status || driver.hosStatus) === 'on_duty' ? 'secondary' : 'outline'
+                      } className="text-[10px] px-1 py-0">
+                        {formatEnum(driver.hos_status || driver.hosStatus)}
+                      </Badge>
+                    )}
+                    <Badge variant={driver.status === 'active' ? 'default' : 'secondary'} className="text-[10px] px-1 py-0">
+                      {formatEnum(driver.status)}
+                    </Badge>
+                    <div className="text-right">
+                      <p className="text-xs font-semibold text-foreground">{driver.safetyScore || 0}/100</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {topPerformers.length > 5 && (
+                <Button variant="outline" size="sm" className="w-full mt-1 text-xs" onClick={() => push({ type: 'drivers-list', label: 'All Top Performers', data: { filter: 'top-performers' } })}>
+                  View All ({topPerformers.length})
+                </Button>
+              )}
             </div>
+          ) : (
+            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No records found</div>
           )}
         </Section>
       </div>
 
-      {/* Top Performers */}
-      <div>
+      {/* Drivers Needing Attention */}
+      {(lowSafetyDrivers.length > 0 || driversWithViolations.length > 0 || expiringLicenses.length > 0) && (
         <Section
-          title="Top Performers"
-          description="Drivers with highest safety scores"
-          icon={<Award className="h-5 w-5" />}
+          title="Drivers Needing Attention"
+          description={`${lowSafetyDrivers.length + driversWithViolations.length + expiringLicenses.length} items requiring review`}
+          icon={<AlertTriangle className="h-4 w-4" />}
         >
-          <div className="space-y-4">
-            {drivers.slice(0, 5).map((driver: any, index) => (
-              <div key={driver.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
-                    {index + 1}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold">{driver.name}</p>
-                      {(driver.employment_type || driver.employmentType) && (
-                        <Badge variant="outline" className="text-xs">
-                          {driver.employment_type || driver.employmentType}
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground">{driver.licenseNumber}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  {(driver.department || driver.dept) && (
-                    <span className="text-xs text-muted-foreground hidden md:inline">
-                      {driver.department || driver.dept}
-                    </span>
-                  )}
-                  {(driver.hos_status || driver.hosStatus) && (
-                    <Badge variant={
-                      (driver.hos_status || driver.hosStatus) === 'driving' ? 'default' :
-                      (driver.hos_status || driver.hosStatus) === 'on_duty' ? 'secondary' : 'outline'
-                    } className="text-xs">
-                      {driver.hos_status || driver.hosStatus}
-                    </Badge>
-                  )}
-                  <Badge variant={driver.status === 'active' ? 'default' : 'secondary'}>
-                    {driver.status}
-                  </Badge>
-                  <div className="text-right">
-                    <p className="font-semibold">{driver.safetyScore || 0}/100</p>
-                    <p className="text-sm text-muted-foreground">Safety Score</p>
+          <div className="grid grid-cols-3 gap-1.5">
+            {/* Low Safety Scores */}
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] text-muted-foreground font-medium mb-0.5">Low Safety Scores ({lowSafetyDrivers.length})</p>
+              {lowSafetyDrivers.slice(0, 3).map((driver: any) => (
+                <div
+                  key={`safety-${driver.id}`}
+                  className="rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
+                >
+                  <p className="text-xs font-medium text-foreground truncate">{driver.name}</p>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <p className="text-[10px] text-muted-foreground">Score: {driver.safetyScore}</p>
+                    <Badge variant="destructive" className="text-[10px] px-1 py-0">Low</Badge>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            {/* Violations */}
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] text-muted-foreground font-medium mb-0.5">With Violations ({driversWithViolations.length})</p>
+              {driversWithViolations.slice(0, 3).map((driver: any) => (
+                <div
+                  key={`viol-${driver.id}`}
+                  className="rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
+                >
+                  <p className="text-xs font-medium text-foreground truncate">{driver.name}</p>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <p className="text-[10px] text-muted-foreground">{driver.violationCount} violations</p>
+                    <Badge variant="secondary" className="text-[10px] px-1 py-0">Review</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Expiring Licenses */}
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] text-muted-foreground font-medium mb-0.5">Expiring Licenses ({expiringLicenses.length})</p>
+              {expiringLicenses.slice(0, 3).map((driver: any) => (
+                <div
+                  key={`lic-${driver.id}`}
+                  className="rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
+                >
+                  <p className="text-xs font-medium text-foreground truncate">{driver.name}</p>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <p className="text-[10px] text-muted-foreground">Exp: {formatDate(driver.licenseExpiry)}</p>
+                    <Badge variant="secondary" className="text-[10px] px-1 py-0">Expiring</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </Section>
-      </div>
+      )}
     </div>
   )
 })
@@ -870,9 +1073,20 @@ const DriversTabContent = memo(function DriversTabContent() {
  * Operations Tab - Dispatch, routing, fuel management
  */
 const OperationsTabContent = memo(function OperationsTabContent() {
-  const { routes, tasks, fuelTransactions, metrics: stats, isLoading: loading, error, refresh: refetch } = useReactiveOperationsData()
+  const { routes, fuelTransactions, metrics: stats, completionTrendData, fuelConsumptionData, delayedRoutes, avgFuelCostPerMile, isLoading: loading, error } = useReactiveOperationsData()
+  const { vehicles: fleetVehicles } = useReactiveFleetData()
+  const { push } = useDrilldown()
 
-  // Default stats if undefined - use metrics structure from hook
+  const vehicleNameMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    fleetVehicles.forEach((v: any) => {
+      const id = String(v.id)
+      const name = v.unit_number || v.unitNumber || formatVehicleName({ year: v.year, make: v.make, model: v.model })
+      if (name) map[id] = name
+    })
+    return map
+  }, [fleetVehicles])
+
   const safeStats = stats || {
     activeJobs: 0,
     scheduled: 0,
@@ -893,7 +1107,6 @@ const OperationsTabContent = memo(function OperationsTabContent() {
     totalTasks: 0
   }
 
-  // Enhancement 8: Calculate average mpg from fuel transactions with mpg_calculated
   const avgMpg = useMemo(() => {
     const txWithMpg = fuelTransactions.filter((tx: any) =>
       tx.mpg_calculated != null || tx.mpgCalculated != null
@@ -902,144 +1115,200 @@ const OperationsTabContent = memo(function OperationsTabContent() {
     const total = txWithMpg.reduce((sum: number, tx: any) =>
       sum + Number(tx.mpg_calculated || tx.mpgCalculated || 0), 0
     )
-    return (total / txWithMpg.length).toFixed(1)
+    return formatNumber(total / txWithMpg.length, 1)
   }, [fuelTransactions])
 
   if (loading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-32" />
-        ))}
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          {error.message || 'Failed to load data. Please try again.'}
-        </AlertDescription>
-      </Alert>
+      <div className="p-1.5">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            {error.message || 'Failed to load data. Please try again.'}
+          </AlertDescription>
+        </Alert>
+      </div>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* Operations Statistics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-5 gap-1.5">
         <StatCard
           title="Active Routes"
           value={safeStats.activeJobs}
           icon={RouteIcon}
           description="In progress"
+          loading={loading}
         />
         <StatCard
           title="Pending Tasks"
           value={safeStats.openTasks}
           icon={CheckSquare}
           description="Need assignment"
+          loading={loading}
         />
         <StatCard
           title="Total Fuel Cost"
-          value={`$${(safeStats.totalFuelCost || 0).toFixed(2)}`}
+          value={formatCurrency(safeStats.totalFuelCost || 0)}
           icon={Fuel}
           description="Total fuel spend"
-        />
-        <StatCard
-          title="Avg Fuel Efficiency"
-          value={avgMpg ? `${avgMpg} MPG` : 'N/A'}
-          icon={Gauge}
-          trend={avgMpg && Number(avgMpg) >= 20 ? 'up' : avgMpg ? 'neutral' : 'neutral'}
-          description="Avg mpg_calculated"
+          loading={loading}
+          sparklineData={fuelConsumptionData.map(d => ({ value: Number(d.cost) || 0 }))}
         />
         <StatCard
           title="Completion Rate"
-          value={`${safeStats.completionRate.toFixed(1)}%`}
+          value={`${formatNumber(safeStats.completionRate, 1)}%`}
           icon={TrendingUp}
           description="Route completion"
+          loading={loading}
+          sparklineData={completionTrendData.map(d => ({ value: Number(d.completed) || 0 }))}
+        />
+        <StatCard
+          title="Avg MPG"
+          value={avgMpg ?? '—'}
+          icon={Gauge}
+          loading={loading}
+          description="Fleet fuel efficiency"
         />
       </div>
 
-      {/* Active Routes Map */}
-      <div>
+      {/* Trend Charts */}
+      <div className="grid grid-cols-2 gap-1.5">
         <Section
-          title="Active Routes"
-          description="Real-time route tracking and optimization"
-          icon={<Map className="h-5 w-5" />}
+          title="Route Completion Trend"
+          description="Completed routes over the past 7 days"
+          icon={<LineChart className="h-4 w-4" />}
         >
-          <div className="space-y-3">
-            {routes.length > 0 ? (
-              routes.slice(0, 5).map(route => (
-                <div key={route.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <RouteIcon className="h-5 w-5 text-green-500" />
-                    <div>
-                      <p className="font-semibold">Route #{route.id}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {route.origin || 'Origin'} → {route.destination || 'Destination'}
-                      </p>
-                    </div>
-                  </div>
-                  <Badge variant={route.status === 'in_transit' ? 'default' : 'secondary'}>
-                    {route.status}
-                  </Badge>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No active routes
-              </div>
-            )}
-          </div>
+          {completionTrendData.length > 0 ? (
+            <ResponsiveLineChart
+              title="Route Completion"
+              data={completionTrendData}
+              dataKeys={['completed', 'target']}
+              colors={['hsl(var(--success))', 'hsl(var(--muted-foreground))']}
+              height={120}
+              compact
+            />
+          ) : (
+            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No trend data available</div>
+          )}
+        </Section>
+        <Section
+          title="Fuel Consumption"
+          description="Daily fuel usage over the past 7 days"
+          icon={<Fuel className="h-4 w-4" />}
+        >
+          {fuelConsumptionData.length > 0 ? (
+            <ResponsiveBarChart
+              title="Fuel Consumption"
+              data={fuelConsumptionData}
+              dataKey="gallons"
+              height={120}
+              showValues
+              compact
+            />
+          ) : (
+            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No fuel data available</div>
+          )}
         </Section>
       </div>
 
-      {/* Fuel Transactions */}
-      <div>
+      {/* Main content */}
+      <div className="grid grid-cols-2 gap-1.5">
+        <Section
+          title={`Active Routes (${routes.length})`}
+          description="Real-time route tracking"
+          icon={<Map className="h-4 w-4" />}
+        >
+          {routes.length > 0 ? (
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
+              {routes.slice(0, 5).map(route => (
+                <div
+                  key={route.id}
+                  className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View details for ${route.name || 'Route'}`}
+                  onClick={() => push({ id: route.id, type: 'route', label: route.name || 'Route', data: { routeId: route.id } })}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: route.id, type: 'route', label: route.name || 'Route', data: { routeId: route.id } }); } }}
+                >
+                  <div className="flex items-center gap-2">
+                    <RouteIcon className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">{route.name || `${formatEnum(route.routeType || 'route')} Route`}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {route.originName || 'Origin'} to {route.destinationName || 'Destination'}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant={route.status === 'in_transit' ? 'default' : 'secondary'} className="text-[10px] px-1 py-0">
+                    {formatEnum(route.status)}
+                  </Badge>
+                </div>
+              ))}
+              {routes.length > 5 && (
+                <Button variant="outline" size="sm" className="w-full mt-1 text-xs" onClick={() => push({ type: 'routes-list', label: 'All Routes', data: {} })}>
+                  View All ({routes.length})
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No active routes</div>
+          )}
+        </Section>
+
         <Section
           title="Recent Fuel Transactions"
           description="Latest fuel purchases and costs"
-          icon={<Fuel className="h-5 w-5" />}
+          icon={<Fuel className="h-4 w-4" />}
         >
-          <div className="space-y-3">
-            {fuelTransactions.length > 0 ? (
-              fuelTransactions.slice(0, 5).map((transaction: any) => (
-                <div key={transaction.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
+          {fuelTransactions.length > 0 ? (
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
+              {fuelTransactions.slice(0, 5).map((transaction: any) => (
+                <div key={transaction.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold">Vehicle #{transaction.vehicleId}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-xs font-semibold text-foreground">
+                        {vehicleNameMap[transaction.vehicleId] || 'Unknown Vehicle'}
+                      </p>
                       {(transaction.station_brand || transaction.stationBrand) && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-[10px] px-1 py-0">
                           {transaction.station_brand || transaction.stationBrand}
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {transaction.amount} gal @ ${(transaction.pricePerUnit || 0).toFixed(2)}/gal
+                    <p className="text-[10px] text-muted-foreground">
+                      {transaction.amount} gal @ {formatCurrency(transaction.pricePerUnit || 0)}/gal
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">${transaction.cost.toFixed(2)}</p>
-                    <div className="flex items-center gap-2 justify-end">
-                      <p className="text-sm text-muted-foreground">{transaction.location || 'N/A'}</p>
+                    <p className="text-xs font-semibold text-foreground">{formatCurrency(transaction.cost)}</p>
+                    <div className="flex items-center gap-1 justify-end">
+                      <p className="text-[10px] text-muted-foreground">{transaction.location || '—'}</p>
                       {(transaction.mpg_calculated || transaction.mpgCalculated) && (
-                        <Badge variant="secondary" className="text-xs">
-                          {Number(transaction.mpg_calculated || transaction.mpgCalculated).toFixed(1)} MPG
+                        <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                          {formatNumber(Number(transaction.mpg_calculated || transaction.mpgCalculated), 1)} MPG
                         </Badge>
                       )}
                     </div>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No fuel transactions
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No fuel transactions</div>
+          )}
         </Section>
       </div>
     </div>
@@ -1050,15 +1319,16 @@ const OperationsTabContent = memo(function OperationsTabContent() {
  * Maintenance Tab - Work orders and schedules
  */
 const MaintenanceTabContent = memo(function MaintenanceTabContent() {
-  const { workOrders, metrics, isLoading, errors } = useReactiveMaintenanceData()
+  const { workOrders, metrics, predictions, highConfidencePredictions, predictiveMetrics, requests, requestMetrics, isLoading, errors } = useReactiveMaintenanceData()
   const { inventoryMetrics } = useReactiveAssetsData()
+  const { push } = useDrilldown()
   const { data: partsResponse } = useSWR<any>(
     '/api/parts?limit=6',
-    swrFetcher,
+    apiFetcher,
     { shouldRetryOnError: false }
   )
 
-  const parts = Array.isArray(partsResponse) ? partsResponse : (partsResponse?.data || [])
+  const parts = Array.isArray(partsResponse) ? partsResponse : []
 
   const safeMetrics = metrics || {
     totalWorkOrders: 0,
@@ -1071,7 +1341,6 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
     totalCost: 0
   }
 
-  // Enhancement 11: Calculate total downtime_hours from work orders
   const totalDowntimeHours = useMemo(() => {
     return workOrders.reduce((sum: number, order: any) => {
       const downtime = Number(order.downtime_hours || order.downtimeHours || 0)
@@ -1079,7 +1348,6 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
     }, 0)
   }, [workOrders])
 
-  // Enhancement 12: Aggregate parts_cost and labor_cost
   const costBreakdown = useMemo(() => {
     const partsCost = workOrders.reduce((sum: number, order: any) =>
       sum + Number(order.parts_cost || order.partsCost || 0), 0
@@ -1090,9 +1358,20 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
     return { partsCost, laborCost }
   }, [workOrders])
 
+  const [woStatusFilter, setWoStatusFilter] = useState<string | null>(null)
+
   const openOrders = workOrders.filter(order =>
     order.status !== 'completed' && order.status !== 'cancelled'
   )
+
+  const woStatusCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    openOrders.forEach((o: any) => { counts[o.status || 'pending'] = (counts[o.status || 'pending'] || 0) + 1 })
+    return counts
+  }, [openOrders])
+
+  const filteredOrders = woStatusFilter
+    ? openOrders.filter((o: any) => o.status === woStatusFilter) : openOrders
 
   const upcomingOrders = workOrders.filter(order =>
     order.status === 'pending' || order.status === 'in_progress'
@@ -1112,21 +1391,16 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
       })
       .filter(Boolean)
       .sort((a: any, b: any) => b.daysOverdue - a.daysOverdue)
-      .slice(0, 3)
+      .slice(0, 5)
   }, [workOrders])
 
-  const formatDate = (value?: string) => {
-    if (!value) return '—'
-    const date = new Date(value)
-    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString()
-  }
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-32" />
-        ))}
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
       </div>
     )
   }
@@ -1134,253 +1408,295 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
   const maintenanceError = errors.workOrders || errors.requests || errors.predictions
   if (maintenanceError) {
     return (
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          {maintenanceError.message || 'Failed to load maintenance data. Please try again.'}
-        </AlertDescription>
-      </Alert>
+      <div className="p-1.5">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            {maintenanceError.message || 'Failed to load maintenance data. Please try again.'}
+          </AlertDescription>
+        </Alert>
+      </div>
     )
   }
 
-  // Handler for creating new work order
   const handleCreateWorkOrder = () => {
-    toast.success('Opening work order creation form')
-    logger.info('Create work order clicked')
+    push({ type: 'work-order-create', label: 'New Work Order', data: {} })
   }
 
-  // Handler for viewing work order details
   const handleViewWorkOrder = (workOrderId: string) => {
-    toast.success(`Opening work order: ${workOrderId}`)
-    logger.info('View work order clicked:', workOrderId)
+    push({ id: workOrderId, type: 'workOrder', label: 'Work Order', data: { workOrderId } })
   }
 
-  // Handler for scheduling maintenance
   const handleScheduleMaintenance = (vehicleId: string) => {
-    toast.success(`Scheduling maintenance for vehicle: ${vehicleId}`)
-    logger.info('Schedule maintenance clicked:', vehicleId)
+    push({ type: 'work-order-create', label: 'Schedule Maintenance', data: { vehicleId, createType: 'preventive' } })
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-foreground">Maintenance Management</h2>
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* Maintenance Statistics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Open Work Orders"
           value={openOrders.length}
           icon={ClipboardList}
-          description="Active maintenance tasks"
-        />
-        <StatCard
-          title="Scheduled"
-          value={safeMetrics.pendingOrders}
-          icon={Calendar}
-          description="Upcoming maintenance"
+          description={`${safeMetrics.inProgress} in progress · ${safeMetrics.pendingOrders} pending`}
+          loading={isLoading}
         />
         <StatCard
           title="Urgent Orders"
           value={safeMetrics.urgentOrders}
           icon={AlertTriangle}
           description="Needs immediate attention"
+          trend={safeMetrics.urgentOrders > 3 ? 'down' : safeMetrics.urgentOrders > 0 ? 'neutral' : 'up'}
+          loading={isLoading}
         />
         <StatCard
           title="Total Downtime"
-          value={`${totalDowntimeHours.toFixed(1)} hrs`}
+          value={`${formatNumber(totalDowntimeHours, 1)} hrs`}
           icon={Timer}
           trend={totalDowntimeHours > 100 ? 'down' : 'neutral'}
-          description="Sum of downtime_hours"
+          description="Sum of downtime hours"
+          loading={isLoading}
         />
         <StatCard
           title="Parts Inventory"
-          value={`$${(inventoryMetrics?.totalValue || 0).toFixed(0)}`}
+          value={formatCurrency(inventoryMetrics?.totalValue || 0)}
           icon={Package}
           description="Current stock value"
+          loading={isLoading}
         />
       </div>
 
-      {/* Cost Breakdown */}
+      {/* Cost Breakdown Row */}
       {(costBreakdown.partsCost > 0 || costBreakdown.laborCost > 0) && (
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl border border-border/60 bg-background/60 p-4">
-            <p className="text-sm text-muted-foreground">Total Cost</p>
-            <p className="text-2xl font-bold">${safeMetrics.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+        <div className="grid grid-cols-3 gap-1.5">
+          <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
+            <p className="text-[10px] text-muted-foreground">Total Cost</p>
+            <p className="text-sm font-bold text-foreground">{formatCurrency(safeMetrics.totalCost)}</p>
           </div>
-          <div className="rounded-xl border border-border/60 bg-background/60 p-4">
-            <p className="text-sm text-muted-foreground">Parts Cost</p>
-            <p className="text-2xl font-bold">${costBreakdown.partsCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+          <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
+            <p className="text-[10px] text-muted-foreground">Parts Cost</p>
+            <p className="text-sm font-bold text-foreground">{formatCurrency(costBreakdown.partsCost)}</p>
           </div>
-          <div className="rounded-xl border border-border/60 bg-background/60 p-4">
-            <p className="text-sm text-muted-foreground">Labor Cost</p>
-            <p className="text-2xl font-bold">${costBreakdown.laborCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+          <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
+            <p className="text-[10px] text-muted-foreground">Labor Cost</p>
+            <p className="text-sm font-bold text-foreground">{formatCurrency(costBreakdown.laborCost)}</p>
           </div>
         </div>
       )}
 
-      {/* Work Orders List */}
-      <div>
+      {/* Main content */}
+      <div className="flex flex-col gap-1.5">
+        {/* Active Work Orders */}
         <Section
           title="Active Work Orders"
           description="Current maintenance tasks and their status"
-          icon={<ClipboardList className="h-5 w-5" />}
+          icon={<ClipboardList className="h-4 w-4" />}
           actions={
-            <Button onClick={handleCreateWorkOrder}>
-              <Plus className="h-4 w-4 mr-2" />
+            <Button size="sm" onClick={handleCreateWorkOrder}>
+              <Plus className="h-3.5 w-3.5 mr-1" />
               New Work Order
             </Button>
           }
         >
-          <div className="space-y-3">
-            {openOrders.length > 0 ? openOrders.slice(0, 5).map((order: any) => (
-              <div key={order.id} className={`flex items-center justify-between rounded-xl border bg-background/60 p-4 ${
-                order.is_emergency || order.isEmergency ? 'border-red-400 bg-red-50/30 dark:bg-red-950/20' : 'border-border/60'
-              }`}>
-                <div className="flex items-center gap-3">
-                  <Tool className={`h-5 w-5 ${
-                    order.priority === 'high' || order.priority === 'urgent' ? 'text-red-500' :
-                    order.priority === 'medium' ? 'text-blue-500' : 'text-muted-foreground'
-                  }`} />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold">{order.id} - {order.type}</p>
-                      {(order.is_emergency || order.isEmergency) && (
-                        <Badge variant="destructive" className="text-xs">
-                          <Siren className="h-3 w-3 mr-1" />
-                          EMERGENCY
-                        </Badge>
-                      )}
-                      {(order.category || order.work_category) && (
-                        <Badge variant="outline" className="text-xs">
-                          {order.category || order.work_category}
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {(order.vehicleName || order.vehicleId)} · Created: {formatDate(order.createdAt)}
-                      {(order.parts_cost || order.partsCost || order.labor_cost || order.laborCost) && (
-                        <span className="ml-2">
-                          Parts: ${Number(order.parts_cost || order.partsCost || 0).toFixed(0)} | Labor: ${Number(order.labor_cost || order.laborCost || 0).toFixed(0)}
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={
-                    order.status === 'in_progress' ? 'default' :
-                    order.status === 'pending' ? 'secondary' : 'outline'
-                  }>
-                    {order.status}
-                  </Badge>
-                  <Button size="sm" variant="outline" onClick={() => handleViewWorkOrder(order.id)}>
-                    View
-                  </Button>
-                </div>
-              </div>
-            )) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No active work orders
-              </div>
-            )}
+          {/* Status filter pills */}
+          <div className="flex gap-1 mb-2 flex-wrap">
+            <Badge variant={!woStatusFilter ? 'default' : 'outline'} className="cursor-pointer text-[10px]"
+              onClick={() => setWoStatusFilter(null)}>All ({openOrders.length})</Badge>
+            {Object.entries(woStatusCounts).map(([status, count]) => (
+              <Badge key={status} variant={woStatusFilter === status ? 'default' : 'outline'}
+                className="cursor-pointer text-[10px]" onClick={() => setWoStatusFilter(status)}>
+                {formatEnum(status)} ({count})
+              </Badge>
+            ))}
           </div>
-        </Section>
-      </div>
-
-      {/* Maintenance Schedule */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Section
-          title="Upcoming Maintenance Schedule"
-          description="Scheduled preventive maintenance for the next 30 days"
-          icon={<Calendar className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {upcomingOrders.length > 0 ? upcomingOrders.slice(0, 4).map((maintenance) => (
-              <div key={maintenance.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
-                <div>
-                  <p className="font-semibold">{maintenance.vehicleName || maintenance.vehicleId}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {maintenance.type} · {formatDate(maintenance.createdAt)}
-                  </p>
-                  {maintenance.description && (
-                    <p className="text-xs text-muted-foreground">{maintenance.description}</p>
-                  )}
-                </div>
-                <Button size="sm" variant="outline">
-                  Edit
-                </Button>
-              </div>
-            )) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No scheduled maintenance
-              </div>
-            )}
-          </div>
-        </Section>
-
-        <Section
-          title="Overdue Maintenance"
-          description="Vehicles requiring immediate attention"
-          icon={<AlertTriangle className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {overdueOrders.length > 0 ? overdueOrders.map((overdue: any) => (
-              <Alert key={overdue.id} variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="flex items-center justify-between">
+          {filteredOrders.length > 0 ? (
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 max-h-96">
+              {filteredOrders.slice(0, 10).map((order: any) => (
+                <div key={order.id} className={`flex items-center justify-between rounded border p-2 ${
+                  order.is_emergency || order.isEmergency ? 'border-rose-800/40 bg-rose-950/20' : 'border-white/[0.08] bg-[#242424]'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <Tool className={`h-4 w-4 ${
+                      order.priority === 'high' || order.priority === 'urgent' ? 'text-rose-400' :
+                      order.priority === 'medium' ? 'text-foreground' : 'text-muted-foreground'
+                    }`} />
                     <div>
-                      <p className="font-semibold">{overdue.vehicleName || overdue.vehicleId}</p>
-                      <p className="text-sm">
-                        {overdue.type || 'Maintenance'} · Overdue by {overdue.daysOverdue} days
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-semibold text-foreground">{order.title || `${formatEnum(order.type || 'maintenance')} Maintenance`}</p>
+                        {(order.is_emergency || order.isEmergency) && (
+                          <Badge variant="destructive" className="text-[10px] px-1 py-0">
+                            <Siren className="h-3 w-3 mr-0.5" />
+                            EMERGENCY
+                          </Badge>
+                        )}
+                        {order.type && (
+                          <Badge variant="outline" className="text-[10px] px-1 py-0">
+                            {formatEnum(order.type)}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        {order.vehicleName || 'Unknown Vehicle'} · Created: {formatDate(order.createdAt)}
+                        {(order.parts_cost || order.partsCost || order.labor_cost || order.laborCost) && (
+                          <span className="ml-1">
+                            Parts: {formatCurrency(Number(order.parts_cost || order.partsCost || 0))} | Labor: {formatCurrency(Number(order.labor_cost || order.laborCost || 0))}
+                          </span>
+                        )}
                       </p>
                     </div>
-                    <Button size="sm" onClick={() => handleScheduleMaintenance(overdue.vehicleId || overdue.vehicleName)}>
-                      Schedule Now
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Badge variant={
+                      order.status === 'in_progress' ? 'default' :
+                      order.status === 'pending' ? 'secondary' : 'outline'
+                    } className="text-[10px] px-1 py-0">
+                      {formatEnum(order.status)}
+                    </Badge>
+                    <Button size="sm" variant="outline" className="h-6 text-[10px] px-2" onClick={() => handleViewWorkOrder(order.id)}>
+                      View
                     </Button>
                   </div>
-                </AlertDescription>
-              </Alert>
-            )) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No overdue maintenance
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No active work orders</div>
+          )}
         </Section>
-      </div>
 
-      {/* Parts Inventory */}
-      <div>
+        {/* Schedule + Overdue */}
+        <div className="grid grid-cols-2 gap-1.5">
+          <Section
+            title="Upcoming Maintenance"
+            description="Scheduled preventive maintenance"
+            icon={<Calendar className="h-4 w-4" />}
+          >
+            {upcomingOrders.length > 0 ? (
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
+                {upcomingOrders.slice(0, 4).map((maintenance) => (
+                  <div key={maintenance.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">{maintenance.title || `${formatEnum(maintenance.type || 'maintenance')} Maintenance`}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {maintenance.vehicleName || 'Unknown Vehicle'} · {formatDate(maintenance.createdAt)}
+                      </p>
+                    </div>
+                    <Button size="sm" variant="outline" className="h-6 text-[10px] px-2" onClick={() => push({ id: maintenance.id, type: 'workOrder', label: maintenance.title || 'Work Order', data: { workOrderId: maintenance.id, editMode: true } })}>
+                      Edit
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No scheduled maintenance</div>
+            )}
+          </Section>
+
+          <Section
+            title="Overdue Maintenance"
+            description="Requires immediate attention"
+            icon={<AlertTriangle className="h-4 w-4" />}
+          >
+            {overdueOrders.length > 0 ? (
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
+                {overdueOrders.map((overdue: any) => (
+                  <Alert key={overdue.id} variant="destructive" className="border-rose-800/40 bg-rose-950/30">
+                    <AlertTriangle className="h-4 w-4 text-rose-400" />
+                    <AlertDescription>
+                      <div className="flex items-center gap-3 justify-between">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-rose-200 truncate">{overdue.title || `${formatEnum(overdue.type || 'Maintenance')} Maintenance`}</p>
+                          <p className="text-[10px] text-rose-300/70">
+                            {overdue.vehicleName || 'Unknown Vehicle'} · Overdue by {overdue.daysOverdue} days
+                          </p>
+                        </div>
+                        <Button size="sm" className="h-6 text-[10px] px-2 shrink-0" onClick={() => handleScheduleMaintenance(overdue.vehicleId || overdue.vehicleName)}>
+                          Schedule
+                        </Button>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No overdue maintenance</div>
+            )}
+          </Section>
+        </div>
+
+        {/* Parts Inventory */}
         <Section
           title="Parts Inventory"
           description="Common maintenance parts and supplies"
-          icon={<Package className="h-5 w-5" />}
+          icon={<Package className="h-4 w-4" />}
         >
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {parts.length > 0 ? parts.map((item: any) => {
-              const quantity = Number(item.quantityOnHand ?? item.quantity_on_hand ?? 0)
-              const reorderPoint = Number(item.reorderPoint ?? item.reorder_point ?? 0)
-              const status = quantity <= reorderPoint ? 'low-stock' : 'in-stock'
-              return (
-                <div key={item.id || item.partNumber || item.name} className="rounded-xl border border-border/60 bg-background/60 p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-semibold text-sm">{item.name || item.partNumber || 'Part'}</p>
-                    <Badge variant={status === 'in-stock' ? 'default' : 'destructive'}>
-                      {status === 'in-stock' ? 'In Stock' : 'Low Stock'}
-                    </Badge>
+          {parts.length > 0 ? (
+            <div className="grid gap-1.5 grid-cols-3">
+              {parts.map((item: any) => {
+                const quantity = Number(item.quantityOnHand ?? item.quantity_on_hand ?? 0)
+                const reorderPoint = Number(item.reorderPoint ?? item.reorder_point ?? 0)
+                const status = quantity <= reorderPoint ? 'low-stock' : 'in-stock'
+                return (
+                  <div key={item.id || item.partNumber || item.name} className="rounded border border-white/[0.08] bg-[#242424] p-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-xs font-semibold text-foreground">{item.name || item.partNumber || 'Part'}</p>
+                      <Badge variant={status === 'in-stock' ? 'default' : 'destructive'} className="text-[10px] px-1 py-0">
+                        {status === 'in-stock' ? 'In Stock' : 'Low Stock'}
+                      </Badge>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Qty: {quantity} {item.unitOfMeasure || item.unit_of_measure || ''} · Reorder: {reorderPoint}
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Qty: {quantity} {item.unitOfMeasure || item.unit_of_measure || ''} · Reorder: {reorderPoint}
-                  </p>
-                </div>
-              )
-            }) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No parts inventory available
-              </div>
-            )}
-          </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No parts inventory available</div>
+          )}
         </Section>
+
+        {/* Predictive Alerts */}
+        {highConfidencePredictions.length > 0 && (
+          <Section
+            title="Predictive Alerts"
+            description={`${highConfidencePredictions.length} high-confidence predictions`}
+            icon={<Activity className="h-4 w-4" />}
+          >
+            <div className="flex flex-col gap-1">
+              {highConfidencePredictions.slice(0, 6).map((prediction: any) => (
+                <div key={prediction.id} className={`flex items-center justify-between rounded border p-2 ${
+                  prediction.severity === 'critical' ? 'border-rose-800/40 bg-rose-950/20' :
+                  prediction.severity === 'high' ? 'border-amber-800/40 bg-amber-950/20' :
+                  'border-white/[0.08] bg-[#242424]'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className={`h-3.5 w-3.5 ${
+                      prediction.severity === 'critical' ? 'text-rose-400' :
+                      prediction.severity === 'high' ? 'text-amber-400' : 'text-muted-foreground'
+                    }`} />
+                    <div>
+                      <p className="text-xs font-medium text-foreground">
+                        {prediction.vehicleName || 'Unknown Vehicle'} - {prediction.issue || 'Predicted Issue'}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {prediction.daysUntilFailure} days until failure · Confidence: {prediction.confidence}%
+                        {prediction.estimatedCost ? ` · Est. ${formatCurrency(prediction.estimatedCost)}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant={
+                    prediction.severity === 'critical' ? 'destructive' :
+                    prediction.severity === 'high' ? 'default' : 'secondary'
+                  } className="text-[10px] px-1 py-0">
+                    {formatEnum(prediction.severity)}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
       </div>
     </div>
   )
@@ -1390,7 +1706,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
  * Assets Tab - Asset tracking and lifecycle management
  */
 const AssetsTabContent = memo(function AssetsTabContent() {
-  const navigate = useNavigate()
+  const { push } = useDrilldown()
   const {
     assets,
     metrics,
@@ -1398,225 +1714,298 @@ const AssetsTabContent = memo(function AssetsTabContent() {
     typeDistribution,
     maintenanceRequired,
     inventoryByCategory,
+    lifecycleData,
+    highValueAssets,
+    lowStockItems,
+    outOfStockItems,
+    conditionDistribution,
+    depreciationByTypeData,
     isLoading,
   } = useReactiveAssetsData()
 
-  // Handler for viewing asset details
   const handleViewAsset = (assetId: string) => {
-    toast.success(`Opening asset details: ${assetId}`)
-    logger.info('View asset clicked:', assetId)
-    navigate(`/assets/${assetId}`)
+    push({ id: assetId, type: 'asset', label: 'Asset Details', data: { assetId } })
   }
 
-  // Handler for adding new asset
   const handleAddAsset = () => {
-    toast.success('Opening add asset form')
-    logger.info('Add asset clicked')
-    navigate('/assets/new')
+    push({ type: 'asset-create', label: 'Add New Asset', data: {} })
   }
 
-  // Handler for scheduling asset maintenance
   const handleScheduleAssetMaintenance = (assetId: string) => {
-    toast.success(`Scheduling maintenance for asset: ${assetId}`)
-    logger.info('Schedule asset maintenance clicked:', assetId)
-    navigate(`/maintenance/schedule?assetId=${assetId}`)
+    push({ type: 'work-order-create', label: 'Schedule Asset Maintenance', data: { assetId, createType: 'preventive' } })
   }
 
-  const formatCurrency = (value: number) =>
-    `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
 
   const utilizationData = [
-    { name: 'In Use', value: statusDistribution.active || 0, fill: 'hsl(var(--success))' },
-    { name: 'Available', value: statusDistribution.available || 0, fill: 'hsl(var(--primary))' },
-    { name: 'Maintenance', value: statusDistribution.maintenance || 0, fill: 'hsl(var(--warning))' },
-    { name: 'Retired', value: statusDistribution.retired || 0, fill: 'hsl(var(--muted-foreground))' },
+    { name: 'In Use', value: statusDistribution.active || 0, fill: '#10B981' },
+    { name: 'Available', value: statusDistribution.available || 0, fill: '#06b6d4' },
+    { name: 'Maintenance', value: statusDistribution.maintenance || 0, fill: '#F59E0B' },
+    { name: 'Retired', value: statusDistribution.retired || 0, fill: '#6b7280' },
   ].filter((entry) => entry.value > 0)
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-32" />
-        ))}
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* Asset Statistics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Total Assets"
           value={metrics.totalAssets}
           icon={Box}
-          description="Equipment & tools"
+          description="Equipment and tools"
+          loading={isLoading}
         />
         <StatCard
           title="Assets in Use"
           value={metrics.activeAssets}
           icon={Truck}
           description="Currently deployed"
+          loading={isLoading}
         />
         <StatCard
           title="Maintenance Due"
           value={metrics.inMaintenance}
           icon={Wrench}
           description="Needs servicing"
+          loading={isLoading}
         />
         <StatCard
           title="Asset Value"
           value={formatCurrency(metrics.totalValue)}
           icon={DollarSign}
           description="Total fleet value"
+          loading={isLoading}
         />
       </div>
 
-      {/* Asset Categories */}
-      <div>
+      {/* Main content */}
+      <div className="flex flex-col gap-1.5">
+        {/* Asset Inventory */}
         <Section
           title="Asset Inventory"
           description="Heavy machinery, equipment, and tools"
-          icon={<Box className="h-5 w-5" />}
+          icon={<Box className="h-4 w-4" />}
           actions={
-            <Button onClick={handleAddAsset}>
-              <Plus className="h-4 w-4 mr-2" />
+            <Button size="sm" onClick={handleAddAsset}>
+              <Plus className="h-3.5 w-3.5 mr-1" />
               Add Asset
             </Button>
           }
         >
-          <div className="space-y-3">
-            {assets.length > 0 ? assets.slice(0, 6).map((asset: any) => {
-              const healthScore = asset.health_score != null ? Number(asset.health_score) : null
-              const healthColor = healthScore != null
-                ? healthScore >= 80 ? 'text-green-600 bg-green-100 dark:bg-green-900/30'
-                : healthScore >= 60 ? 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30'
-                : 'text-red-600 bg-red-100 dark:bg-red-900/30'
-                : ''
-              return (
-                <div key={asset.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <Box className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{asset.assetTag || asset.id} - {asset.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {asset.type} · {asset.location}
-                        {(asset.department || asset.dept) && (
-                          <span className="ml-2">· {asset.department || asset.dept}</span>
-                        )}
-                      </p>
+          {assets.length > 0 ? (
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
+              {assets.slice(0, 6).map((asset: any) => {
+                const healthScore = asset.health_score != null ? Number(asset.health_score) : null
+                return (
+                  <div key={asset.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
+                    <div className="flex items-center gap-2">
+                      <Box className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">{asset.assetTag || asset.name} - {asset.name}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {formatEnum(asset.type)} · {asset.location}
+                          {(asset.department || asset.dept) && (
+                            <span className="ml-1">· {asset.department || asset.dept}</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {healthScore != null && (
+                        <span className={`inline-flex items-center px-1.5 py-0 rounded text-[10px] font-medium ${
+                          healthScore >= 80 ? 'text-emerald-400 bg-emerald-900/30' :
+                          healthScore >= 60 ? 'text-amber-400 bg-amber-900/30' :
+                          'text-rose-400 bg-rose-900/30'
+                        }`}>
+                          {healthScore}%
+                        </span>
+                      )}
+                      <Badge variant={asset.status === 'active' ? 'default' : 'secondary'} className="text-[10px] px-1 py-0">
+                        {formatEnum(asset.status)}
+                      </Badge>
+                      {asset.condition && (
+                        <Badge variant="outline" className="text-[10px] px-1 py-0">
+                          {formatEnum(asset.condition)}
+                        </Badge>
+                      )}
+                      <Button size="sm" variant="outline" className="h-6 text-[10px] px-2" onClick={() => handleViewAsset(asset.id)}>
+                        View
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {healthScore != null && (
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${healthColor}`}>
-                        {healthScore}%
-                      </span>
-                    )}
-                    <Badge variant={asset.status === 'active' ? 'default' : 'secondary'}>
-                      {asset.status}
-                    </Badge>
-                    {asset.condition && (
-                      <Badge variant={
-                        asset.condition === 'excellent' ? 'default' :
-                        asset.condition === 'good' ? 'secondary' : 'outline'
-                      }>
-                        {asset.condition}
-                      </Badge>
-                    )}
-                    <Button size="sm" variant="outline" onClick={() => handleViewAsset(asset.id)}>
-                      View
-                    </Button>
-                  </div>
-                </div>
-              )
-            }) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No assets available
-              </div>
-            )}
-          </div>
-        </Section>
-      </div>
-
-      {/* Asset Lifecycle & Utilization */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Section
-          title="Asset Utilization"
-          description="Usage metrics for key assets"
-          icon={<BarChart className="h-5 w-5" />}
-        >
-          {utilizationData.length > 0 ? (
-            <ResponsivePieChart
-              title="Asset Utilization"
-              data={utilizationData}
-              height={250}
-            />
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              No utilization data available
+                )
+              })}
             </div>
+          ) : (
+            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No assets available</div>
           )}
         </Section>
 
-        <Section
-          title="Asset Maintenance Schedule"
-          description="Upcoming asset servicing"
-          icon={<Calendar className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {maintenanceRequired.length > 0 ? maintenanceRequired.slice(0, 4).map((maintenance) => (
-              <div key={maintenance.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
-                <div>
-                  <p className="font-semibold">{maintenance.assetTag || maintenance.id} - {maintenance.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {maintenance.type} · Due: {maintenance.nextServiceDate || maintenance.lastServiceDate || '—'}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {maintenance.status && (
-                    <Badge variant={maintenance.status === 'maintenance' ? 'destructive' : 'secondary'}>
-                      {maintenance.status}
-                    </Badge>
-                  )}
-                  <Button size="sm" onClick={() => handleScheduleAssetMaintenance(maintenance.id)}>
-                    Schedule
-                  </Button>
-                </div>
-              </div>
-            )) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No asset maintenance due
-              </div>
+        {/* Utilization + Maintenance Schedule */}
+        <div className="grid grid-cols-2 gap-1.5">
+          <Section
+            title="Asset Utilization"
+            description="Usage metrics for key assets"
+            icon={<BarChart className="h-4 w-4" />}
+          >
+            {utilizationData.length > 0 ? (
+              <ResponsivePieChart
+                title="Asset Utilization"
+                data={utilizationData}
+                height={120}
+                compact
+              />
+            ) : (
+              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No utilization data available</div>
             )}
-          </div>
-        </Section>
-      </div>
+          </Section>
 
-      {/* Asset Categories Breakdown */}
-      <div>
+          <Section
+            title="Asset Maintenance Schedule"
+            description="Upcoming asset servicing"
+            icon={<Calendar className="h-4 w-4" />}
+          >
+            {maintenanceRequired.length > 0 ? (
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
+                {maintenanceRequired.slice(0, 4).map((maintenance) => (
+                  <div key={maintenance.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">{maintenance.assetTag || maintenance.name} - {maintenance.name}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {formatEnum(maintenance.type)} · Due: {formatDate(maintenance.nextServiceDate || maintenance.lastServiceDate)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {maintenance.status && (
+                        <Badge variant={maintenance.status === 'maintenance' ? 'destructive' : 'secondary'} className="text-[10px] px-1 py-0">
+                          {formatEnum(maintenance.status)}
+                        </Badge>
+                      )}
+                      <Button size="sm" className="h-6 text-[10px] px-2" onClick={() => handleScheduleAssetMaintenance(maintenance.id)}>
+                        Schedule
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No asset maintenance due</div>
+            )}
+          </Section>
+        </div>
+
+        {/* Asset Categories Breakdown */}
         <Section
           title="Asset Categories"
           description="Breakdown by equipment type"
-          icon={<Package className="h-5 w-5" />}
+          icon={<Package className="h-4 w-4" />}
         >
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-1.5 grid-cols-3">
             {(inventoryByCategory.length > 0 ? inventoryByCategory : Object.entries(typeDistribution).map(([key, value]) => ({
               name: key,
               count: value,
               value: 0,
               items: value
             }))).map((cat) => (
-              <div key={cat.name} className="rounded-xl border border-border/60 bg-background/60 p-4">
-                <p className="font-semibold">{cat.name}</p>
-                <div className="flex items-center justify-between mt-2">
-                  <p className="text-sm text-muted-foreground">{cat.count} assets</p>
-                  <p className="text-sm font-semibold">{cat.value ? formatCurrency(cat.value) : '—'}</p>
+              <div key={cat.name} className="rounded border border-white/[0.08] bg-[#242424] p-2">
+                <p className="text-xs font-semibold text-foreground">{formatEnum(cat.name)}</p>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-[10px] text-muted-foreground">{cat.count} assets</p>
+                  <p className="text-[10px] font-semibold text-foreground">{cat.value ? formatCurrency(cat.value) : '—'}</p>
                 </div>
               </div>
             ))}
           </div>
         </Section>
+
+        {/* Asset Lifecycle + High-Value Assets + Low Stock */}
+        <div className="grid grid-cols-3 gap-1.5">
+          <Section
+            title="Asset Lifecycle"
+            description="Age distribution of assets"
+            icon={<Clock className="h-4 w-4" />}
+          >
+            {(() => {
+              const lcData = [
+                { name: 'New (<1yr)', value: lifecycleData.new, fill: '#10B981' },
+                { name: 'Operational (1-5yr)', value: lifecycleData.operational, fill: '#06b6d4' },
+                { name: 'Aging (5-10yr)', value: lifecycleData.aging, fill: '#F59E0B' },
+                { name: 'End of Life (10yr+)', value: lifecycleData.endOfLife, fill: '#EF4444' },
+              ].filter(d => d.value > 0)
+              return lcData.length > 0 ? (
+                <ResponsivePieChart title="Lifecycle" data={lcData} height={120} innerRadius={30} showPercentages compact />
+              ) : (
+                <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No lifecycle data</div>
+              )
+            })()}
+          </Section>
+
+          <Section
+            title="High-Value Assets"
+            description="Top assets by current value"
+            icon={<DollarSign className="h-4 w-4" />}
+          >
+            {highValueAssets.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {highValueAssets.slice(0, 5).map((asset: any) => (
+                  <div key={asset.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                    role="button" tabIndex={0}
+                    onClick={() => handleViewAsset(asset.id)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleViewAsset(asset.id); } }}
+                  >
+                    <div>
+                      <p className="text-xs font-medium text-foreground truncate">{asset.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{formatEnum(asset.type)} · {formatEnum(asset.condition)}</p>
+                    </div>
+                    <p className="text-xs font-semibold text-foreground">{formatCurrency(asset.currentValue)}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No assets</div>
+            )}
+          </Section>
+
+          <Section
+            title="Low Stock Alert"
+            description="Inventory items at or below reorder point"
+            icon={<AlertTriangle className="h-4 w-4" />}
+          >
+            {lowStockItems.length > 0 || outOfStockItems.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {outOfStockItems.slice(0, 3).map((item: any) => (
+                  <div key={`oos-${item.id}`} className="flex items-center justify-between rounded border border-rose-800/40 bg-rose-950/20 p-1.5">
+                    <div>
+                      <p className="text-xs font-medium text-foreground truncate">{item.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{item.category}</p>
+                    </div>
+                    <Badge variant="destructive" className="text-[10px] px-1 py-0">Out of Stock</Badge>
+                  </div>
+                ))}
+                {lowStockItems.slice(0, 3).map((item: any) => (
+                  <div key={`low-${item.id}`} className="flex items-center justify-between rounded border border-amber-800/40 bg-amber-950/20 p-1.5">
+                    <div>
+                      <p className="text-xs font-medium text-foreground truncate">{item.name}</p>
+                      <p className="text-[10px] text-muted-foreground">Qty: {item.quantity} / Reorder: {item.reorderPoint}</p>
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] px-1 py-0">Low Stock</Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">All stock levels OK</div>
+            )}
+          </Section>
+        </div>
       </div>
     </div>
   )
@@ -1633,6 +2022,8 @@ export default function FleetOperationsHub() {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard, testId: 'hub-tab-overview' },
     { id: 'fleet', label: 'Fleet', icon: Car, testId: 'hub-tab-fleet' },
+    { id: 'assignments', label: 'Assignments', icon: UserCheck, testId: 'hub-tab-assignments' },
+    { id: 'reservations', label: 'Reservations', icon: CalendarCheck, testId: 'hub-tab-reservations' },
     { id: 'drivers', label: 'Drivers', icon: Users, testId: 'hub-tab-drivers' },
     { id: 'operations', label: 'Operations', icon: OperationsIcon, testId: 'hub-tab-operations' },
     { id: 'maintenance', label: 'Maintenance', icon: Wrench, testId: 'hub-tab-maintenance' },
@@ -1646,9 +2037,9 @@ export default function FleetOperationsHub() {
       icon={<Car className="h-5 w-5" />}
       className="cta-hub"
     >
-      <div className="space-y-4">
+      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
         {/* Tab Navigation */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-border/40 cta-tabs">
+        <div className="flex items-center gap-0.5 overflow-x-auto pb-0.5 border-b border-white/[0.08] cta-tabs">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
             const Icon = tab.icon
@@ -1658,10 +2049,10 @@ export default function FleetOperationsHub() {
                 onClick={() => setActiveTab(tab.id)}
                 data-testid={tab.testId}
                 className={`
-                  relative flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg cta-tab
-                  transition-all duration-200 whitespace-nowrap shrink-0
+                  relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg cta-tab
+                  transition-colors whitespace-nowrap shrink-0
                   ${isActive
-                    ? 'cta-pill text-primary-foreground shadow-md cta-tab--active'
+                    ? 'cta-pill text-white shadow-md cta-tab--active'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
                   }
                 `}
@@ -1674,15 +2065,51 @@ export default function FleetOperationsHub() {
         </div>
 
         {/* Tab Content */}
-        <div>
-          <ErrorBoundary>
-            {activeTab === 'overview' && <OverviewTabContent />}
-            {activeTab === 'fleet' && <FleetTabContent />}
-            {activeTab === 'drivers' && <DriversTabContent />}
-            {activeTab === 'operations' && <OperationsTabContent />}
-            {activeTab === 'maintenance' && <MaintenanceTabContent />}
-            {activeTab === 'assets' && <AssetsTabContent />}
-          </ErrorBoundary>
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          {activeTab === 'overview' && (
+            <QueryErrorBoundary>
+              <OverviewTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'fleet' && (
+            <QueryErrorBoundary>
+              <FleetTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'drivers' && (
+            <QueryErrorBoundary>
+              <DriversTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'operations' && (
+            <QueryErrorBoundary>
+              <OperationsTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'maintenance' && (
+            <QueryErrorBoundary>
+              <MaintenanceTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'assets' && (
+            <QueryErrorBoundary>
+              <AssetsTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'assignments' && (
+            <QueryErrorBoundary>
+              <Suspense fallback={<div className="flex items-center justify-center py-20"><Skeleton className="h-8 w-40" /></div>}>
+                <VehicleAssignmentManagement />
+              </Suspense>
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'reservations' && (
+            <QueryErrorBoundary>
+              <Suspense fallback={<div className="flex items-center justify-center py-20"><Skeleton className="h-8 w-40" /></div>}>
+                <ReservationCalendarView />
+              </Suspense>
+            </QueryErrorBoundary>
+          )}
         </div>
       </div>
     </HubPage>

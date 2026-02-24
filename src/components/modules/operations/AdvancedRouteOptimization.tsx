@@ -156,8 +156,8 @@ export function AdvancedRouteOptimization() {
     try {
       const routes = dbRoutes.map((route: any) => ({
         id: route.id,
-        vehicleId: route.vehicle_id || "Unknown",
-        driverId: route.driver_id || "Unknown",
+        vehicleId: route.vehicle_id || "—",
+        driverId: route.driver_id || "—",
         stops: route.waypoints || [],
         totalDistance: route.total_distance || 0,
         totalDuration: route.estimated_duration || 0,
@@ -281,7 +281,7 @@ export function AdvancedRouteOptimization() {
         return waypoints
           .map((waypoint: any) => ({
             name: waypoint.name || waypoint.address || 'Stop',
-            address: waypoint.address || waypoint.location || 'Unknown',
+            address: waypoint.address || waypoint.location || '—',
             latitude: Number(waypoint.latitude || waypoint.lat),
             longitude: Number(waypoint.longitude || waypoint.lng),
             serviceMinutes: Number(waypoint.serviceMinutes || waypoint.service_minutes || 15),
@@ -375,7 +375,7 @@ export function AdvancedRouteOptimization() {
       const stops = waypoints
         .map((waypoint: any) => ({
           name: waypoint.name || waypoint.address || 'Stop',
-          address: waypoint.address || waypoint.location || 'Unknown',
+          address: waypoint.address || waypoint.location || '—',
           latitude: Number(waypoint.latitude || waypoint.lat),
           longitude: Number(waypoint.longitude || waypoint.lng),
           serviceMinutes: Number(waypoint.serviceMinutes || waypoint.service_minutes || 15),

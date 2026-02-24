@@ -12,6 +12,7 @@
 import { CheckCircle2, Loader2, AlertCircle, Info } from 'lucide-react';
 import React, { useState } from 'react';
 
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { QueryErrorBoundary, QueryErrorDisplay } from '@/components/errors/QueryErrorBoundary';
 import {
   SkeletonTable,
@@ -73,7 +74,7 @@ const BasicQueryExample: React.FC = () => {
           {data?.map((vehicle: any) => (
             <div key={vehicle.id} className="flex items-center justify-between p-3 border rounded">
               <div>
-                <div className="font-medium">{vehicle.make} {vehicle.model}</div>
+                <div className="font-medium">{formatVehicleShortName(vehicle)}</div>
                 <div className="text-sm text-muted-foreground">{vehicle.vin}</div>
               </div>
               <Badge>{vehicle.status}</Badge>

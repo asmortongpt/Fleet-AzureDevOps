@@ -36,14 +36,18 @@ import {
   Clock,
   Building,
   Receipt,
-  Tag
+  Tag,
+  Activity,
+  Wrench,
+  Gauge,
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
@@ -55,19 +59,35 @@ import {
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
-  AnimatedCurrency,
 } from '@/components/visualizations'
 import { useAuth } from '@/contexts'
 import { getCsrfToken } from '@/hooks/use-api'
 import { useFleetData } from '@/hooks/use-fleet-data'
-import { useReactiveAnalyticsData } from '@/hooks/use-reactive-analytics-data'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime, formatCurrency, formatNumber } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((res) => res.json())
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
+
+// ============================================================================
+// LOADING SKELETON COMPONENT
+// ============================================================================
+
+function TabLoadingSkeleton() {
+  return (
+    <div className="space-y-1.5 p-2">
+      <div className="grid grid-cols-4 gap-1.5">
+        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+      </div>
+      <div className="grid grid-cols-2 gap-1.5">
+        <Skeleton className="h-40 rounded-md" />
+        <Skeleton className="h-40 rounded-md" />
+      </div>
+    </div>
+  )
+}
 
 // ============================================================================
 // TAB CONTENT COMPONENTS
@@ -77,7 +97,7 @@ const fetcher = (url: string) =>
  * Financial Tab - Budget tracking and cost analysis
  */
 const FinancialTabContent = memo(function FinancialTabContent() {
-  const { workOrders: fleetWorkOrders, vehicles } = useFleetData()
+  const { workOrders: fleetWorkOrders, vehicles, error: fleetDataError } = useFleetData()
 
   // Work order cost aggregation
   const workOrderCosts = useMemo(() => {
@@ -91,7 +111,6 @@ const FinancialTabContent = memo(function FinancialTabContent() {
   const departmentCosts = useMemo(() => {
     const deptMap = new Map<string, number>()
     fleetWorkOrders.forEach((wo: any) => {
-      // Match work order to vehicle to get department
       const vehicle = vehicles.find((v: any) => v.id === (wo.vehicleId || wo.vehicle_id))
       const dept = vehicle?.department || wo.department || 'Unassigned'
       const cost = Number(wo.total_cost || wo.cost || 0)
@@ -101,6 +120,10 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       .map(([department, cost]) => ({ department, cost }))
       .sort((a, b) => b.cost - a.cost)
   }, [fleetWorkOrders, vehicles])
+
+  const totalDeptCost = useMemo(() => {
+    return departmentCosts.reduce((sum, d) => sum + d.cost, 0)
+  }, [departmentCosts])
 
   const dateRange = useMemo(() => {
     const end = new Date()
@@ -114,86 +137,98 @@ const FinancialTabContent = memo(function FinancialTabContent() {
     return `startDate=${encodeURIComponent(dateRange.start.toISOString())}&endDate=${encodeURIComponent(dateRange.end.toISOString())}`
   }, [dateRange])
 
-  const { data: summary } = useSWR<any>(
+  const { data: summary, error: summaryError } = useSWR<any>(
     `/api/cost-analysis/summary?${dateParams}`,
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: costSummary } = useSWR<any>(
+  const { data: costSummary, error: costSummaryError } = useSWR<any>(
     '/api/dashboard/costs/summary?period=monthly',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: fleetMetrics } = useSWR<any>(
+  const { data: fleetMetrics, error: fleetMetricsError } = useSWR<any>(
     '/api/fleet/metrics',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: trends } = useSWR<any[]>(
+  const { data: trends, error: trendsError } = useSWR<any[]>(
     "/api/cost-analysis/trends?months=6",
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: budgets } = useSWR<any[]>(
+  const { data: budgets, error: budgetsError } = useSWR<any[]>(
     "/api/cost-analysis/budget-status",
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: invoices } = useSWR<any>(
+  const { data: invoices, error: invoicesError } = useSWR<any>(
     "/api/invoices?limit=5",
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const budgetTotal = useMemo(() => {
-    if (!Array.isArray(budgets)) return 0
-    return budgets.reduce((sum, b) => sum + Number(b.allocated || b.allocated_amount || 0), 0)
+  // All hooks must be called unconditionally before any early returns (React Rules of Hooks)
+  const budgetByMonth = useMemo(() => {
+    if (!Array.isArray(budgets)) return new Map<string, number>()
+    const map = new Map<string, number>()
+    budgets.forEach((b: any) => {
+      const period = b.month || b.period || b.fiscal_quarter
+      if (period) {
+        map.set(period, Number(b.allocated || b.allocated_amount || 0))
+      }
+    })
+    return map
   }, [budgets])
 
-  const spentTotal = Number(summary?.totalCost || summary?.total_cost || 0)
-  const totalMileage = Number(fleetMetrics?.totalMileage || fleetMetrics?.total_mileage || 0)
-
-  const costPerMile = useMemo(() => {
-    const reported = Number(costSummary?.cost_per_mile ?? costSummary?.costPerMile)
-    if (Number.isFinite(reported) && reported > 0) return reported
-    if (totalMileage > 0) return spentTotal / totalMileage
-    return 0
-  }, [costSummary, totalMileage, spentTotal])
-
-  const savingsYtd = useMemo(() => {
-    if (budgetTotal <= 0) return 0
-    const delta = budgetTotal - spentTotal
-    return delta > 0 ? delta : 0
-  }, [budgetTotal, spentTotal])
+  const budgetTotal = useMemo(() => {
+    if (!Array.isArray(budgets)) return 0
+    return budgets.reduce((sum: number, b: any) => sum + Number(b.allocated || b.allocated_amount || 0), 0)
+  }, [budgets])
 
   const costTrendData = useMemo(() => {
     if (!Array.isArray(trends)) return []
-    return trends.map((row: any) => ({
-      name: row.month,
-      month: row.month,
-      actual: Number(row.amount || 0)
-    }))
-  }, [trends])
+    const avgBudgetPerMonth = budgetTotal > 0 && trends.length > 0 ? budgetTotal / trends.length : 0
+    return trends.map((row: any) => {
+      const monthKey = row.month || row.period
+      const matchedBudget = budgetByMonth.get(monthKey)
+      return {
+        name: monthKey,
+        month: monthKey,
+        actual: Number(row.amount || 0),
+        budget: matchedBudget != null ? matchedBudget : (avgBudgetPerMonth > 0 ? Math.round(avgBudgetPerMonth) : undefined)
+      }
+    })
+  }, [trends, budgetByMonth, budgetTotal])
 
   const breakdownData = useMemo(() => {
-    const breakdown = summary?.categoryBreakdown || summary?.category_breakdown
-    if (!Array.isArray(breakdown)) return []
-    return breakdown.map((row: any) => ({
-      name: row.category || row.name || "Uncategorized",
-      value: Number(row.amount || row.value || 0)
-    }))
-  }, [summary])
+    const s = summary?.data || summary
+    const breakdown = s?.categoryBreakdown || s?.category_breakdown
+    if (Array.isArray(breakdown) && breakdown.length > 0) {
+      return breakdown.map((row: any) => ({
+        name: row.category || row.name || "Uncategorized",
+        value: Number(row.amount || row.value || 0)
+      })).filter((d: any) => d.value > 0)
+    }
+    // Fallback: derive from work orders by type
+    const cats = new Map<string, number>()
+    fleetWorkOrders.forEach((wo: any) => {
+      const cat = formatEnum(wo.type || 'maintenance')
+      cats.set(cat, (cats.get(cat) || 0) + Number(wo.total_cost || wo.cost || 0))
+    })
+    return Array.from(cats.entries()).map(([name, value]) => ({ name, value })).filter(d => d.value > 0)
+  }, [summary, fleetWorkOrders])
 
   const recentTransactions = useMemo((): { description: string; amount: number; category: string; date: string }[] => {
     const expenses = summary?.topExpenses || summary?.top_expenses
     if (Array.isArray(expenses) && expenses.length > 0) {
       return expenses.map((row: any) => ({
-        description: row.description || "Expense",
+        description: row.description || row.name || row.title || formatEnum(row.category || 'Expense'),
         amount: Number(row.amount || 0),
         category: row.category || "General",
         date: row.date || row.transactionDate || row.transaction_date
@@ -208,146 +243,214 @@ const FinancialTabContent = memo(function FinancialTabContent() {
     }))
   }, [summary, invoices])
 
+  const financialError = summaryError || costSummaryError || fleetMetricsError || trendsError || budgetsError || invoicesError
+
+  // Loading state for Financial tab (after all hooks)
+  const isLoading = !summary && !summaryError && !costSummary && !costSummaryError
+  if (isLoading) {
+    return <TabLoadingSkeleton />
+  }
+
+  const spentTotal = Number(summary?.totalCost || summary?.total_cost || 0)
+  const totalMileage = Number(fleetMetrics?.totalMileage || fleetMetrics?.total_mileage || 0)
+
+  const costPerMile = (() => {
+    const reported = Number(costSummary?.cost_per_mile ?? costSummary?.costPerMile)
+    if (Number.isFinite(reported) && reported > 0) return reported
+    if (totalMileage > 0) return spentTotal / totalMileage
+    return 0
+  })()
+
+  // P0-4: Fix savings calculation — show negative (overrun) values
+  const budgetDelta = budgetTotal > 0 ? budgetTotal - spentTotal : 0
+  const isOverBudget = budgetDelta < 0
+
+  if (financialError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load financial data</p>
+        <p className="text-sm text-muted-foreground">{financialError instanceof Error ? financialError.message : 'Unable to load financial data. Please try again.'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
+
+  // Determine if we have budget data for a trend line
+  const hasBudgetTrendData = costTrendData.some(d => d.budget != null && d.budget > 0)
+  const trendDataKeys = hasBudgetTrendData ? ['actual', 'budget'] : ['actual']
+  const trendColors = hasBudgetTrendData
+    ? ['hsl(var(--chart-2))', '#10B981']
+    : ['hsl(var(--chart-2))']
+
   return (
-    <div className="space-y-6">
-      {/* Financial Statistics */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-1.5 p-1.5">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-1.5">
+        {/* P0-2 & P0-3: Fix budget label and add period description */}
         <StatCard
-          title="Monthly Budget"
-          value={budgetTotal > 0 ? <AnimatedCurrency value={budgetTotal} /> : "—"}
+          title="Total Budget"
+          value={budgetTotal > 0 ? formatCurrency(budgetTotal) : '--'}
           icon={Wallet}
-          description="Current fiscal quarter"
+          description="Total allocated"
         />
         <StatCard
           title="Actual Spend"
-          value={spentTotal > 0 ? <AnimatedCurrency value={spentTotal} /> : "—"}
+          value={spentTotal > 0 ? formatCurrency(spentTotal) : '--'}
           icon={DollarSign}
           description="Last 6 months"
         />
+        {/* P1-7: Fix Cost Per Mile icon to DollarSign */}
         <StatCard
           title="Cost Per Mile"
-          value={costPerMile > 0 ? `$${costPerMile.toFixed(2)}` : "$0.00"}
-          icon={TrendingDown}
+          value={costPerMile > 0 ? formatCurrency(costPerMile) : 'No data'}
+          icon={DollarSign}
           description={costSummary?.target_cost_per_mile
-            ? `Target $${Number(costSummary.target_cost_per_mile).toFixed(2)}`
+            ? `Target ${formatCurrency(Number(costSummary.target_cost_per_mile))}`
             : "Computed from fleet totals"
           }
         />
+        {/* P0-4: Show budget overruns with negative styling */}
         <StatCard
-          title="Savings YTD"
-          value={savingsYtd > 0 ? <AnimatedCurrency value={savingsYtd} /> : "$0"}
-          icon={Target}
-          description={budgetTotal > 0 ? "Budget vs spend" : "No budget allocations"}
+          title={isOverBudget ? "Budget Overrun" : "Savings YTD"}
+          value={budgetTotal > 0 ? formatCurrency(Math.abs(budgetDelta)) : '$0'}
+          icon={isOverBudget ? TrendingDown : Target}
+          trend={isOverBudget ? 'down' : (budgetDelta > 0 ? 'up' : 'neutral')}
+          description={isOverBudget ? "Over budget" : (budgetTotal > 0 ? "Under budget" : "No budget allocations")}
+          className={isOverBudget ? "border-rose-500/20" : ""}
         />
       </div>
 
-      {/* Cost Trend */}
-      <div>
-        <Section
-          title="Cost Trend"
-          description="Monthly actual costs"
-          icon={<BarChart className="h-5 w-5" />}
-        >
-          <ResponsiveBarChart
-            title="Actual Costs"
-            data={costTrendData}
-            dataKeys={['actual']}
-            colors={['hsl(var(--chart-2))']}
-            height={300}
-          />
-        </Section>
-      </div>
-
-      {/* Cost Breakdown */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Section
-          title="Cost Breakdown by Category"
-          description="Distribution of fleet expenses"
-          icon={<PieChart className="h-5 w-5" />}
-        >
-          <ResponsivePieChart
-            title="Cost Breakdown by Category"
-            data={breakdownData}
-            height={300}
-          />
-        </Section>
-
-        <Section
-          title="Recent Transactions"
-          description="Latest fleet expenses"
-          icon={<Receipt className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {recentTransactions.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No recent transactions available.</div>
+      {/* Main Content: Charts + Transactions */}
+      <div className="grid grid-cols-2 gap-1.5">
+        {/* Left Column: Cost Trend + Cost Breakdown */}
+        <div className="flex flex-col gap-1.5 min-h-0">
+          <Section
+            title="Cost Trend"
+            description={hasBudgetTrendData ? "Actual vs budget" : "Monthly actual costs"}
+            icon={<BarChart className="h-4 w-4" />}
+            className="flex-1 min-h-0"
+          >
+            {/* P0-5: Add budget comparison line to chart */}
+            {costTrendData.length > 0 ? (
+              <ResponsiveBarChart
+                title="Actual Costs"
+                data={costTrendData}
+                dataKeys={trendDataKeys}
+                colors={trendColors}
+                height={140}
+                compact
+              />
             ) : (
-              recentTransactions.map((transaction, index) => (
-                <div key={index} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
-                  <div>
-                    <p className="font-medium">{transaction.description}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {transaction.category} · {transaction.date ? new Date(transaction.date).toLocaleDateString() : "—"}
-                    </p>
-                  </div>
-                  <p className="font-semibold">${transaction.amount.toFixed(2)}</p>
-                </div>
-              ))
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             )}
-          </div>
-        </Section>
-      </div>
-
-      {/* Work Order Cost Breakdown */}
-      <div>
-        <Section
-          title="Work Order Cost Breakdown"
-          description="Parts and labor costs from maintenance work orders"
-          icon={<Tag className="h-5 w-5" />}
-        >
-          <div className="grid gap-4 md:grid-cols-3 mb-4">
-            <div className="rounded-xl border border-border/60 bg-background/60 p-4 text-center">
-              <p className="text-sm text-muted-foreground">Total Parts Cost</p>
-              <p className="text-xl font-bold text-blue-500">
-                {workOrderCosts.totalPartsCost > 0 ? `$${workOrderCosts.totalPartsCost.toLocaleString()}` : '$0'}
-              </p>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-background/60 p-4 text-center">
-              <p className="text-sm text-muted-foreground">Total Labor Cost</p>
-              <p className="text-xl font-bold text-orange-500">
-                {workOrderCosts.totalLaborCost > 0 ? `$${workOrderCosts.totalLaborCost.toLocaleString()}` : '$0'}
-              </p>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-background/60 p-4 text-center">
-              <p className="text-sm text-muted-foreground">Total Work Order Cost</p>
-              <p className="text-xl font-bold">
-                {workOrderCosts.totalWoCost > 0 ? `$${workOrderCosts.totalWoCost.toLocaleString()}` : '$0'}
-              </p>
-            </div>
-          </div>
-        </Section>
-      </div>
-
-      {/* Department-Level Cost Breakdown */}
-      <div>
-        <Section
-          title="Cost by Department"
-          description="Work order costs grouped by vehicle department"
-          icon={<Building className="h-5 w-5" />}
-        >
-          <div className="space-y-2">
-            {departmentCosts.length > 0 ? departmentCosts.map((dept) => (
-              <div key={dept.department} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
-                <div className="flex items-center gap-2">
-                  <Building className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{dept.department}</span>
-                </div>
-                <span className="font-semibold">${dept.cost.toLocaleString()}</span>
+          </Section>
+          <Section
+            title="Cost Breakdown"
+            description="Distribution of fleet expenses"
+            icon={<PieChart className="h-4 w-4" />}
+            className="flex-1 min-h-0"
+          >
+            {breakdownData.length > 0 ? (
+              <div style={{ minHeight: 160 }}>
+                <ResponsivePieChart
+                  title="Cost Breakdown by Category"
+                  data={breakdownData}
+                  height={160}
+                />
               </div>
-            )) : (
-              <div className="text-sm text-muted-foreground">No department cost data available.</div>
+            ) : (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             )}
-          </div>
-        </Section>
+          </Section>
+        </div>
+
+        {/* Right Column: Recent Transactions + WO Costs + Dept Costs */}
+        <div className="flex flex-col gap-1.5 min-h-0">
+          <Section
+            title="Recent Transactions"
+            description="Latest fleet expenses"
+            icon={<Receipt className="h-4 w-4" />}
+            className="flex-1 min-h-0"
+          >
+            {/* P1-11: Removed inner overflow-y-auto */}
+            <div className="flex-1 min-h-0">
+              {recentTransactions.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  {recentTransactions.map((transaction, index) => (
+                    <div key={index} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{transaction.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatEnum(transaction.category)} · {formatDate(transaction.date)}
+                        </p>
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">{formatCurrency(transaction.amount)}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Section>
+
+          <Section
+            title="Work Order Costs"
+            description="Parts and labor costs"
+            icon={<Tag className="h-4 w-4" />}
+            className="flex-none"
+          >
+            <div className="grid grid-cols-3 gap-1.5">
+              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
+                <p className="text-xs text-white/60">Parts</p>
+                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalPartsCost)}</p>
+              </div>
+              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
+                <p className="text-xs text-white/60">Labor</p>
+                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalLaborCost)}</p>
+              </div>
+              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
+                <p className="text-xs text-white/60">Total</p>
+                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalWoCost)}</p>
+              </div>
+            </div>
+          </Section>
+
+          {/* P1-8: Department cost bars with percentage */}
+          <Section
+            title="Cost by Department"
+            description="Work order costs by department"
+            icon={<Building className="h-4 w-4" />}
+            className="flex-1 min-h-0"
+          >
+            {/* P1-11: Removed inner overflow-y-auto */}
+            <div className="flex-1 min-h-0">
+              {departmentCosts.length > 0 ? (
+                <div className="flex flex-col gap-1.5">
+                  {departmentCosts.map((dept) => (
+                    <div key={dept.department} className="flex items-center gap-2">
+                      <span className="text-xs text-white/80 w-24 truncate" title={dept.department}>{dept.department}</span>
+                      <div className="flex-1 h-1.5 rounded-full bg-white/[0.06]">
+                        <div
+                          className="h-full rounded-full bg-emerald-500/60"
+                          style={{ width: `${totalDeptCost > 0 ? (dept.cost / totalDeptCost * 100) : 0}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-white/60 w-16 text-right">{formatCurrency(dept.cost)}</span>
+                      <span className="text-[10px] text-white/40 w-8 text-right">
+                        {totalDeptCost > 0 ? `${Math.round(dept.cost / totalDeptCost * 100)}%` : '0%'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              )}
+            </div>
+          </Section>
+        </div>
       </div>
     </div>
   )
@@ -357,18 +460,28 @@ const FinancialTabContent = memo(function FinancialTabContent() {
  * Procurement Tab - Vendor management and purchasing
  */
 const ProcurementTabContent = memo(function ProcurementTabContent() {
-  const { workOrders: fleetWorkOrders } = useFleetData()
+  const { push } = useDrilldown()
+  const { workOrders: fleetWorkOrders, error: fleetDataError } = useFleetData()
+  const [showAllVendors, setShowAllVendors] = useState(false)
 
-  const { data: vendorsResponse } = useSWR<any>(
+  const { data: vendorsResponse, error: vendorsError } = useSWR<any>(
     '/api/vendors',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: purchaseOrdersResponse } = useSWR<any>(
+  const { data: purchaseOrdersResponse, error: purchaseOrdersError } = useSWR<any>(
     '/api/purchase-orders?limit=50',
     fetcher,
     { shouldRetryOnError: false }
   )
+
+  const procurementError = vendorsError || purchaseOrdersError
+
+  // Loading state (after all hooks)
+  const isLoading = !vendorsResponse && !vendorsError && !purchaseOrdersResponse && !purchaseOrdersError
+  if (isLoading) {
+    return <TabLoadingSkeleton />
+  }
 
   const vendors = Array.isArray(vendorsResponse) ? vendorsResponse : (vendorsResponse?.data || [])
   const purchaseOrders = Array.isArray(purchaseOrdersResponse)
@@ -376,20 +489,20 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
     : (purchaseOrdersResponse?.data || [])
 
   // Vendor costs from work orders
-  const vendorWoCosts = useMemo(() => {
+  const vendorWoCosts = (() => {
     const map = new Map<string, { totalCost: number; partsCost: number; laborCost: number; count: number }>()
     fleetWorkOrders.forEach((wo: any) => {
       const vendorId = wo.vendor_id || wo.vendorId
       if (!vendorId) return
       const existing = map.get(vendorId) || { totalCost: 0, partsCost: 0, laborCost: 0, count: 0 }
-      existing.totalCost += Number(wo.total_cost || wo.cost || 0)
+      existing.totalCost += Number(wo.total_cost || wo.actual_cost || wo.cost || 0)
       existing.partsCost += Number(wo.parts_cost || 0)
       existing.laborCost += Number(wo.labor_cost || 0)
       existing.count += 1
       map.set(vendorId, existing)
     })
     return map
-  }, [fleetWorkOrders])
+  })()
 
   const activeVendors = vendors.filter((v: any) => v.isActive !== false)
   const openOrders = purchaseOrders.filter((po: any) => {
@@ -397,11 +510,16 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
     return status && !['delivered', 'closed', 'cancelled', 'complete'].includes(status)
   })
 
+  // P1-9: Open PO Value KPI
+  const openPoValue = openOrders.reduce((sum: number, po: any) =>
+    sum + Number(po.totalAmount || po.total_amount || 0), 0
+  )
+
   const avgVendorRating = vendors.length > 0
     ? (vendors.reduce((sum: number, v: any) => sum + Number(v.rating || 0), 0) / vendors.length).toFixed(1)
     : null
 
-  const ordersByVendor = useMemo(() => {
+  const ordersByVendor = (() => {
     const map = new Map<string, number>()
     purchaseOrders.forEach((po: any) => {
       const id = po.vendorId || po.vendor_id
@@ -409,9 +527,10 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
       map.set(id, (map.get(id) || 0) + 1)
     })
     return map
-  }, [purchaseOrders])
+  })()
 
-  const topVendors = useMemo((): { id: string; name: string; category: string; orders: number; rating: number; woCost: number }[] => {
+  // P1-9: Increase vendor list from 4 to 8
+  const topVendors: { id: string; name: string; category: string; orders: number; rating: number; woCost: number }[] = (() => {
     return vendors
       .map((vendor: any) => {
         const woCostData = vendorWoCosts.get(vendor.id)
@@ -425,23 +544,49 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
         }
       })
       .sort((a: { orders: number }, b: { orders: number }) => b.orders - a.orders)
-      .slice(0, 4)
-  }, [vendors, ordersByVendor, vendorWoCosts])
+      .slice(0, 8)
+  })()
 
-  const recentPurchaseOrders = useMemo((): { id: string; number: string; vendor: string; status: string; amount: number }[] => {
-    return purchaseOrders.slice(0, 5).map((po: any) => ({
+  const displayedVendors = showAllVendors ? topVendors : topVendors.slice(0, 4)
+
+  const recentPurchaseOrders: { id: string; number: string; vendor: string; status: string; amount: number }[] = (() => {
+    return purchaseOrders.slice(0, 10).map((po: any) => ({
       id: po.id,
       number: po.number,
       vendor: po.vendorName || po.vendor_name || 'Vendor',
       status: po.status,
       amount: Number(po.totalAmount || po.total_amount || 0)
     }))
-  }, [purchaseOrders])
+  })()
+
+  // P1-9: Comprehensive PO status badge color mapping
+  const statusVariant = (status: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
+    switch (status?.toLowerCase()) {
+      case 'delivered': return 'default'
+      case 'in_transit': return 'secondary'
+      case 'pending': return 'outline'
+      case 'cancelled': return 'destructive'
+      case 'approved': case 'ordered': return 'secondary'
+      default: return 'outline'
+    }
+  }
+
+  if (procurementError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load procurement data</p>
+        <p className="text-sm text-muted-foreground">{procurementError instanceof Error ? procurementError.message : 'Unable to load procurement data. Please try again.'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Procurement Statistics */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-1.5 p-1.5">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Active Vendors"
           value={activeVendors.length}
@@ -454,90 +599,165 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
           icon={ShoppingCart}
           description="Pending delivery"
         />
+        {/* P1-9: Add Open PO Value KPI */}
         <StatCard
-          title="Avg Vendor Rating"
-          value={avgVendorRating ? `${avgVendorRating}/5` : '—'}
-          icon={Award}
-          description="Supplier quality"
+          title="Open PO Value"
+          value={formatCurrency(openPoValue)}
+          icon={CreditCard}
+          description="Non-delivered PO total"
         />
+        {/* P1-9: Rename "WO Vendor Spend" to "Vendor Maintenance Spend" */}
         <StatCard
-          title="WO Vendor Spend"
+          title="Vendor Maintenance Spend"
           value={(() => {
             let total = 0
             vendorWoCosts.forEach((v) => { total += v.totalCost })
-            return total > 0 ? `$${total.toLocaleString()}` : '$0'
+            return formatCurrency(total)
           })()}
-          icon={CreditCard}
+          icon={Wrench}
           description="Work order vendor costs"
         />
       </div>
 
-      {/* Active Vendors */}
-      <div>
+      {/* Main Content: Vendors + Purchase Orders */}
+      <div className="grid grid-cols-2 gap-1.5">
+        {/* Left: Top Vendors */}
         <Section
           title="Top Vendors"
           description="Most frequently used suppliers"
-          icon={<Building className="h-5 w-5" />}
+          icon={<Building className="h-4 w-4" />}
+          className="min-h-0"
         >
-          <div className="space-y-3">
-            {topVendors.length > 0 ? topVendors.map((vendor) => (
-              <div key={vendor.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                <div className="flex items-center gap-3">
-                  <Building className="h-5 w-5 text-blue-400" />
-                  <div>
-                    <p className="font-semibold">{vendor.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {vendor.category} · {vendor.orders} orders
-                      {vendor.woCost > 0 && (
-                        <span className="ml-2 text-orange-500">· WO spend: ${vendor.woCost.toLocaleString()}</span>
-                      )}
-                    </p>
+          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex-1 min-h-0">
+            {displayedVendors.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {displayedVendors.map((vendor) => (
+                  <div
+                    key={vendor.id}
+                    className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2 cursor-pointer"
+                    onClick={() => push({
+                      id: vendor.id,
+                      type: 'vendor',
+                      label: vendor.name,
+                      data: { vendorId: vendor.id, category: vendor.category, orders: vendor.orders, rating: vendor.rating, woCost: vendor.woCost },
+                    })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        push({
+                          id: vendor.id,
+                          type: 'vendor',
+                          label: vendor.name,
+                          data: { vendorId: vendor.id, category: vendor.category, orders: vendor.orders, rating: vendor.rating, woCost: vendor.woCost },
+                        })
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for vendor ${vendor.name}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Building className="h-4 w-4 text-white/40" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{vendor.name}</p>
+                        <p className="text-xs text-white/60">
+                          {formatEnum(vendor.category)} · {vendor.orders} {vendor.orders === 1 ? 'order' : 'orders'}
+                          {vendor.woCost > 0 && (
+                            <span className="ml-1">· WO: {formatCurrency(vendor.woCost)}</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div
+                      className="flex items-center gap-1"
+                      title="Based on delivery performance"
+                    >
+                      <Award className="h-4 w-4 text-white/40" />
+                      <span className="text-sm font-medium text-foreground">{vendor.rating ? `${vendor.rating}/5` : '--'}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Award className="h-4 w-4 text-amber-500" />
-                  <span className="font-medium">{vendor.rating ? `${vendor.rating}/5` : '—'}</span>
-                </div>
+                ))}
+                {/* P1-9: View All Vendors button */}
+                {topVendors.length > 4 && !showAllVendors && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-1"
+                    onClick={() => setShowAllVendors(true)}
+                  >
+                    View All Vendors ({topVendors.length})
+                  </Button>
+                )}
+                {showAllVendors && topVendors.length > 4 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-1"
+                    onClick={() => setShowAllVendors(false)}
+                  >
+                    Show Less
+                  </Button>
+                )}
               </div>
-            )) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No vendor activity available
-              </div>
+            ) : (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             )}
           </div>
         </Section>
-      </div>
 
-      {/* Purchase Orders */}
-      <div>
+        {/* Right: Purchase Orders */}
         <Section
           title="Recent Purchase Orders"
           description="Latest procurement requests"
-          icon={<ShoppingCart className="h-5 w-5" />}
+          icon={<ShoppingCart className="h-4 w-4" />}
+          className="min-h-0"
         >
-          <div className="space-y-3">
-            {recentPurchaseOrders.length > 0 ? recentPurchaseOrders.map((order) => (
-              <div key={order.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                <div>
-                  <p className="font-semibold">{order.number || order.id}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {order.vendor}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant={
-                    order.status === 'delivered' ? 'default' :
-                    order.status === 'in_transit' ? 'secondary' : 'outline'
-                  }>
-                    {order.status || 'unknown'}
-                  </Badge>
-                  <p className="font-semibold">${order.amount.toFixed(2)}</p>
-                </div>
+          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex-1 min-h-0">
+            {recentPurchaseOrders.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {recentPurchaseOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2 cursor-pointer"
+                    onClick={() => push({
+                      id: order.id,
+                      type: 'purchase-order',
+                      label: order.number || `PO ${String(order.id).slice(0, 8)}`,
+                      data: { purchaseOrderId: order.id, vendor: order.vendor, status: order.status, amount: order.amount },
+                    })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        push({
+                          id: order.id,
+                          type: 'purchase-order',
+                          label: order.number || `PO ${String(order.id).slice(0, 8)}`,
+                          data: { purchaseOrderId: order.id, vendor: order.vendor, status: order.status, amount: order.amount },
+                        })
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for purchase order ${order.number || order.id}`}
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{order.number || String(order.id).slice(0, 8)}</p>
+                      <p className="text-xs text-white/60">{order.vendor}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {/* P1-9: Use comprehensive status badge mapping */}
+                      <Badge variant={statusVariant(order.status)}>
+                        {formatEnum(order.status) || '--'}
+                      </Badge>
+                      <p className="text-sm font-semibold text-foreground">{formatCurrency(order.amount)}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            )) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No purchase orders available
-              </div>
+            ) : (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             )}
           </div>
         </Section>
@@ -547,134 +767,327 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
 })
 
 /**
- * Analytics Tab - Business intelligence and metrics
+ * Analytics Tab - Real business analytics (P0-6: Complete replacement)
+ * Shows fleet utilization, cost metrics, performance trends, and action items
  */
 const AnalyticsTabContent = memo(function AnalyticsTabContent() {
   const {
-    metrics,
-    reportGenerationTrend,
-    recentReports,
-    upcomingReports,
-    isLoading,
-    error,
-  } = useReactiveAnalyticsData()
+    vehicles,
+    workOrders: fleetWorkOrders,
+    fuelTransactions,
+    maintenanceRequests,
+    isLoading: fleetLoading,
+    error: fleetError,
+  } = useFleetData()
 
+  // Fetch cost trend data for the analytics charts
+  const { data: costTrends, error: costTrendsError } = useSWR<any[]>(
+    '/api/cost-analysis/trends?months=6',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const { data: costSummary, error: costSummaryError } = useSWR<any>(
+    '/api/dashboard/costs/summary?period=monthly',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  // P0-1: Loading state for Analytics tab
+  const isLoading = fleetLoading && vehicles.length === 0
   if (isLoading) {
+    return <TabLoadingSkeleton />
+  }
+
+  if (fleetError) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-32" />
-        ))}
+      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+        {fleetError instanceof Error ? fleetError.message : 'Failed to load analytics data.'}
       </div>
     )
   }
 
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          {error instanceof Error ? error.message : 'Failed to load analytics data.'}
-        </AlertDescription>
-      </Alert>
+  // KPI computations
+  const totalVehicles = vehicles.length
+  const activeVehicles = vehicles.filter((v: any) => {
+    const status = (v.status || '').toLowerCase()
+    return status === 'active' || status === 'in_service' || status === 'available'
+  }).length
+  const fleetUtilization = totalVehicles > 0 ? Math.round((activeVehicles / totalVehicles) * 100) : 0
+
+  // Total spend from work orders
+  const totalSpend = fleetWorkOrders.reduce((sum: number, wo: any) =>
+    sum + Number(wo.total_cost || wo.cost || 0), 0
+  )
+  const avgCostPerVehicle = totalVehicles > 0 ? totalSpend / totalVehicles : 0
+
+  // Fuel efficiency: average MPG from fuel transactions
+  const fuelEfficiency = (() => {
+    const withMpg = fuelTransactions.filter((ft: any) => {
+      const mpg = Number(ft.mpg || ft.fuel_efficiency || ft.miles_per_gallon || 0)
+      return mpg > 0
+    })
+    if (withMpg.length === 0) {
+      // Fallback: calculate from gallons and odometer
+      const totalGallons = fuelTransactions.reduce((sum: number, ft: any) =>
+        sum + Number(ft.gallons || ft.quantity || 0), 0
+      )
+      const totalMiles = fuelTransactions.reduce((sum: number, ft: any) =>
+        sum + Number(ft.odometer || ft.mileage || 0), 0
+      )
+      if (totalGallons > 0 && totalMiles > 0) return totalMiles / totalGallons
+      return 0
+    }
+    const totalMpg = withMpg.reduce((sum: number, ft: any) =>
+      sum + Number(ft.mpg || ft.fuel_efficiency || ft.miles_per_gallon || 0), 0
     )
-  }
+    return totalMpg / withMpg.length
+  })()
+
+  // Maintenance ratio: maintenance cost / total cost
+  const maintenanceCost = fleetWorkOrders
+    .filter((wo: any) => {
+      const type = (wo.type || '').toLowerCase()
+      return type.includes('maintenance') || type.includes('preventive') || type.includes('repair')
+    })
+    .reduce((sum: number, wo: any) => sum + Number(wo.total_cost || wo.cost || 0), 0)
+  const maintenanceRatio = totalSpend > 0 ? Math.round((maintenanceCost / totalSpend) * 100) : 0
+
+  // Cost trend chart data
+  const costTrendData = (() => {
+    if (!Array.isArray(costTrends)) return []
+    return costTrends.map((row: any) => ({
+      name: row.month || row.period,
+      actual: Number(row.amount || 0)
+    }))
+  })()
+
+  // Top cost drivers: top 5 vehicles by maintenance cost
+  const topCostDrivers = (() => {
+    const vehicleCostMap = new Map<string, { name: string; cost: number; woCount: number }>()
+    fleetWorkOrders.forEach((wo: any) => {
+      const vehicleId = wo.vehicle_id || wo.vehicleId
+      if (!vehicleId) return
+      const vehicle = vehicles.find((v: any) => v.id === vehicleId)
+      const rawName = vehicle ? formatVehicleName(vehicle as any) : null
+      const vehicleName = rawName && rawName !== 'Unknown Vehicle'
+        ? rawName
+        : `Vehicle ${String(vehicleId).slice(0, 8)}`
+      const existing = vehicleCostMap.get(vehicleId) || { name: vehicleName, cost: 0, woCount: 0 }
+      existing.cost += Number(wo.total_cost || wo.cost || 0)
+      existing.woCount += 1
+      vehicleCostMap.set(vehicleId, existing)
+    })
+    return Array.from(vehicleCostMap.values())
+      .sort((a, b) => b.cost - a.cost)
+      .slice(0, 5)
+  })()
+
+  // Action items: items needing attention
+  const actionItems = (() => {
+    const items: { label: string; detail: string; severity: 'high' | 'medium' | 'low' }[] = []
+
+    // Overdue work orders
+    const overdueWOs = fleetWorkOrders.filter((wo: any) => {
+      const dueDate = wo.due_date || wo.dueDate
+      if (!dueDate) return false
+      const status = (wo.status || '').toLowerCase()
+      return new Date(dueDate) < new Date() && !['completed', 'cancelled', 'closed'].includes(status)
+    })
+    if (overdueWOs.length > 0) {
+      items.push({
+        label: `${overdueWOs.length} overdue work order${overdueWOs.length > 1 ? 's' : ''}`,
+        detail: 'Past due date and not completed',
+        severity: 'high'
+      })
+    }
+
+    // Out-of-service vehicles
+    const outOfService = vehicles.filter((v: any) => {
+      const status = (v.status || '').toLowerCase()
+      return status === 'out_of_service' || status === 'down' || status === 'inactive'
+    })
+    if (outOfService.length > 0) {
+      items.push({
+        label: `${outOfService.length} vehicle${outOfService.length > 1 ? 's' : ''} out of service`,
+        detail: 'Requiring attention or repair',
+        severity: outOfService.length > 3 ? 'high' : 'medium'
+      })
+    }
+
+    // High-cost vehicles
+    const highCostThreshold = avgCostPerVehicle * 2
+    const highCostVehicles = topCostDrivers.filter(v => v.cost > highCostThreshold)
+    if (highCostVehicles.length > 0) {
+      items.push({
+        label: `${highCostVehicles.length} vehicle${highCostVehicles.length > 1 ? 's' : ''} above 2x avg cost`,
+        detail: `Avg: ${formatCurrency(avgCostPerVehicle)}, threshold: ${formatCurrency(highCostThreshold)}`,
+        severity: 'medium'
+      })
+    }
+
+    // Low fleet utilization
+    if (fleetUtilization < 70 && totalVehicles > 0) {
+      items.push({
+        label: `Fleet utilization at ${fleetUtilization}%`,
+        detail: 'Below 70% target',
+        severity: 'low'
+      })
+    }
+
+    return items
+  })()
+
+  // Fleet performance over time (vehicles active per month from cost trends)
+  const fleetPerformanceData = (() => {
+    if (!Array.isArray(costTrends)) return []
+    return costTrends.map((row: any) => ({
+      name: row.month || row.period,
+      cost: Number(row.amount || 0),
+      costPerVehicle: totalVehicles > 0 ? Math.round(Number(row.amount || 0) / totalVehicles) : 0,
+    }))
+  })()
 
   return (
-    <div className="space-y-6">
-      {/* Analytics Statistics */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-1.5 p-1.5">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
-          title="Active Reports"
-          value={metrics.activeReports}
-          icon={BarChart}
-          description="Currently running"
+          title="Fleet Utilization"
+          value={`${fleetUtilization}%`}
+          icon={Activity}
+          description={`${activeVehicles} of ${totalVehicles} vehicles active`}
+          trend={fleetUtilization >= 80 ? 'up' : fleetUtilization >= 60 ? 'neutral' : 'down'}
         />
         <StatCard
-          title="Scheduled Reports"
-          value={metrics.scheduledReports}
-          icon={TrendingUp}
-          description="Automated cadence"
+          title="Avg Cost Per Vehicle"
+          value={avgCostPerVehicle > 0 ? formatCurrency(avgCostPerVehicle) : '--'}
+          icon={DollarSign}
+          description={`${totalVehicles} vehicles, ${fleetWorkOrders.length} work orders`}
         />
         <StatCard
-          title="Custom Reports"
-          value={metrics.customReports}
-          icon={Target}
-          description="User-defined"
+          title="Fuel Efficiency"
+          value={fuelEfficiency > 0 ? `${formatNumber(fuelEfficiency, 1)} MPG` : 'No data'}
+          icon={Gauge}
+          description={fuelTransactions.length > 0 ? `From ${fuelTransactions.length} transactions` : 'No fuel data available'}
         />
         <StatCard
-          title="Active Dashboards"
-          value={metrics.activeDashboards}
-          icon={LineChart}
-          description="Live dashboards"
+          title="Maintenance Ratio"
+          value={`${maintenanceRatio}%`}
+          icon={Wrench}
+          description="Maintenance as % of total spend"
+          trend={maintenanceRatio > 60 ? 'down' : 'neutral'}
         />
       </div>
 
-      {/* Performance Trends */}
-      <div>
+      {/* Chart Row */}
+      <div className="grid grid-cols-2 gap-1.5">
         <Section
-          title="Report Generation Trend"
-          description="Reports executed over time"
-          icon={<LineChart className="h-5 w-5" />}
+          title="Cost Trend"
+          description="Monthly fleet costs over 6 months"
+          icon={<BarChart className="h-4 w-4" />}
+          className="min-h-0"
         >
-          {reportGenerationTrend.length > 0 ? (
-            <ResponsiveLineChart
-              title="Report Generation"
-              data={reportGenerationTrend}
-              dataKeys={['value']}
-              colors={['hsl(var(--chart-1))']}
-              height={300}
+          {costTrendData.length > 0 ? (
+            <ResponsiveBarChart
+              title="Fleet Costs"
+              data={costTrendData}
+              dataKeys={['actual']}
+              colors={['hsl(var(--chart-2))']}
+              height={140}
+              compact
             />
           ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              No report activity available
-            </div>
+            <div className="flex items-center justify-center h-32 text-white/40 text-sm">No cost trend data available</div>
+          )}
+        </Section>
+
+        <Section
+          title="Cost Per Vehicle"
+          description="Monthly cost per vehicle trend"
+          icon={<LineChart className="h-4 w-4" />}
+          className="min-h-0"
+        >
+          {fleetPerformanceData.length > 0 ? (
+            <ResponsiveLineChart
+              title="Cost Per Vehicle"
+              data={fleetPerformanceData}
+              dataKeys={['costPerVehicle']}
+              colors={['#10B981']}
+              height={140}
+              compact
+            />
+          ) : (
+            <div className="flex items-center justify-center h-32 text-white/40 text-sm">No performance data available</div>
           )}
         </Section>
       </div>
 
-      {/* Analytics Insights */}
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Bottom Row: Action Items + Top Cost Drivers */}
+      <div className="grid grid-cols-2 gap-1.5">
         <Section
-          title="Upcoming Reports"
-          description="Scheduled report executions"
-          icon={<Target className="h-5 w-5" />}
+          title="Action Items"
+          description="Items requiring attention"
+          icon={<AlertCircle className="h-4 w-4" />}
+          className="min-h-0"
         >
-          <div className="space-y-4">
-            {upcomingReports.length > 0 ? upcomingReports.map((report) => (
-              <div key={report.id} className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <p className="font-medium">{report.name}</p>
-                  <Badge variant="outline">{report.frequency.replace('_', ' ')}</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Next run: {report.nextRun ? new Date(report.nextRun).toLocaleString() : '—'}
-                </p>
+          <div className="flex-1 min-h-0">
+            {actionItems.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {actionItems.map((item, index) => (
+                  <div key={index} className="flex items-start gap-2 rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                    <div className={`mt-0.5 h-2 w-2 rounded-full shrink-0 ${
+                      item.severity === 'high' ? 'bg-rose-500' :
+                      item.severity === 'medium' ? 'bg-amber-500' :
+                      'bg-emerald-500'
+                    }`} />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{item.label}</p>
+                      <p className="text-xs text-white/40">{item.detail}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            )) : (
-              <div className="text-sm text-muted-foreground">No upcoming reports.</div>
+            ) : (
+              <div className="flex items-center justify-center h-32 text-white/40 text-sm">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-500" />
+                  <span>No action items -- fleet is in good shape</span>
+                </div>
+              </div>
             )}
           </div>
         </Section>
 
         <Section
-          title="Recent Reports"
-          description="Most recent analytics runs"
-          icon={<AlertCircle className="h-5 w-5" />}
+          title="Top Cost Drivers"
+          description="Vehicles with highest maintenance costs"
+          icon={<TrendingUp className="h-4 w-4" />}
+          className="min-h-0"
         >
-          <div className="space-y-3">
-            {recentReports.length > 0 ? recentReports.map((report) => (
-              <div key={report.id} className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/60 p-3">
-                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">{report.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {report.category} · Last run {report.lastRun ? new Date(report.lastRun).toLocaleString() : '—'}
-                  </p>
-                </div>
+          <div className="flex-1 min-h-0">
+            {topCostDrivers.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {topCostDrivers.map((vehicle, index) => {
+                  const maxCost = topCostDrivers[0]?.cost || 1
+                  return (
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="text-xs text-white/60 w-6 text-right">{index + 1}.</span>
+                      <span className="text-xs text-white/80 w-32 truncate" title={vehicle.name}>{vehicle.name}</span>
+                      <div className="flex-1 h-1.5 rounded-full bg-white/[0.06]">
+                        <div
+                          className="h-full rounded-full bg-emerald-500/60"
+                          style={{ width: `${(vehicle.cost / maxCost * 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-white/60 w-16 text-right">{formatCurrency(vehicle.cost)}</span>
+                      <span className="text-[10px] text-white/40 w-12 text-right">{vehicle.woCount} WOs</span>
+                    </div>
+                  )
+                })}
               </div>
-            )) : (
-              <div className="text-sm text-muted-foreground">No recent reports.</div>
+            ) : (
+              <div className="flex items-center justify-center h-32 text-white/40 text-sm">No cost data available</div>
             )}
           </div>
         </Section>
@@ -687,36 +1100,44 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
  * Reports Tab - Report generation and dashboards
  */
 const ReportsTabContent = memo(function ReportsTabContent() {
-  const { data: reportTemplates } = useSWR<any[]>(
+  const { data: reportTemplates, error: reportTemplatesError } = useSWR<any[]>(
     '/api/reports/templates',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: scheduledReports } = useSWR<any[]>(
+  const { data: scheduledReports, error: scheduledReportsError } = useSWR<any[]>(
     '/api/reports/scheduled',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: reportHistory } = useSWR<any[]>(
+  const { data: reportHistory, error: reportHistoryError } = useSWR<any[]>(
     '/api/reports/history',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: customReports } = useSWR<any[]>(
+  const { data: customReports, error: customReportsError } = useSWR<any[]>(
     '/api/custom-reports',
     fetcher,
     { shouldRetryOnError: false }
   )
+
+  const reportsError = reportTemplatesError || scheduledReportsError || reportHistoryError || customReportsError
+
+  // P0-1: Loading state for Reports tab
+  const isLoading = !reportTemplates && !reportTemplatesError && !reportHistory && !reportHistoryError
+  if (isLoading) {
+    return <TabLoadingSkeleton />
+  }
 
   const templates = Array.isArray(reportTemplates) ? reportTemplates : []
   const history = Array.isArray(reportHistory) ? reportHistory : []
   const schedules = Array.isArray(scheduledReports) ? scheduledReports : []
   const custom = Array.isArray(customReports) ? customReports : []
 
-  const generatedThisMonth = useMemo(() => {
+  const generatedThisMonth = (() => {
     const now = new Date()
     const month = now.getMonth()
     const year = now.getFullYear()
@@ -725,7 +1146,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
       if (!date || Number.isNaN(date.getTime())) return false
       return date.getMonth() === month && date.getFullYear() === year
     }).length
-  }, [history])
+  })()
 
   // Handler for generating reports
   const handleGenerateReport = async (reportId: string, reportName: string) => {
@@ -768,10 +1189,18 @@ const ReportsTabContent = memo(function ReportsTabContent() {
     logger.info('Download report:', reportName)
   }
 
+  if (reportsError) {
+    return (
+      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+        Unable to load reports data. Please try again.
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Report Categories */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-1.5 p-1.5">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Available Reports"
           value={templates.length}
@@ -798,76 +1227,81 @@ const ReportsTabContent = memo(function ReportsTabContent() {
         />
       </div>
 
-      {/* Report Library */}
-      <div>
+      {/* Main Content: Report Library + Recent Reports */}
+      <div className="grid grid-cols-2 gap-1.5">
+        {/* Left: Report Library */}
         <Section
           title="Report Library"
           description="Available reports and templates"
-          icon={<FileText className="h-5 w-5" />}
+          icon={<FileText className="h-4 w-4" />}
+          className="min-h-0"
         >
-          {templates.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No report templates available.</div>
-          ) : (
-            <div className="space-y-3">
-              {templates.map((report: any) => (
-                <div key={report.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-blue-400" />
-                    <div>
-                      <p className="font-semibold">{report.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {report.category || report.domain || 'General'} · {report.isCore ? 'Core' : 'Custom'}
-                      </p>
+          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex-1 min-h-0">
+            {templates.length === 0 ? (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+            ) : (
+              <div className="flex flex-col gap-1">
+                {templates.map((report: any) => (
+                  <div key={report.id} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-white/40" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{report.title}</p>
+                        <p className="text-xs text-white/60">
+                          {formatEnum(report.category || report.domain) || 'General'} · {report.isCore ? 'Core' : 'Custom'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleGenerateReport(report.id, report.title)}
                     >
-                      <Download className="h-4 w-4 mr-1" />
+                      <Download className="h-3 w-3 mr-1" />
                       Generate
                     </Button>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </Section>
-      </div>
 
-      {/* Recent Reports */}
-      <div>
+        {/* Right: Recently Generated */}
         <Section
           title="Recently Generated"
           description="Latest report outputs"
-          icon={<Clock className="h-5 w-5" />}
+          icon={<Clock className="h-4 w-4" />}
+          className="min-h-0"
         >
-          {history.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No report history yet.</div>
-          ) : (
-            <div className="space-y-3">
-              {history.map((item: any) => (
-                <div key={item.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div>
-                    <p className="font-semibold">{item.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Generated by {item.generatedBy || 'System'} · {item.generatedAt ? new Date(item.generatedAt).toLocaleDateString() : '—'}
-                    </p>
+          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex-1 min-h-0">
+            {history.length === 0 ? (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+            ) : (
+              <div className="flex flex-col gap-1">
+                {history.map((item: any) => (
+                  <div key={item.id} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{item.title}</p>
+                      <p className="text-xs text-white/60">
+                        Generated by {item.generatedBy || 'System'} · {formatDate(item.generatedAt)}
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownloadReport(item.title, item.downloadUrl)}
+                      disabled={!item.downloadUrl}
+                    >
+                      <Download className="h-3 w-3" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDownloadReport(item.title, item.downloadUrl)}
-                    disabled={!item.downloadUrl}
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </Section>
       </div>
     </div>
@@ -889,49 +1323,49 @@ export default function BusinessManagementHub() {
       description="Financial oversight, procurement, analytics, and comprehensive reporting"
       icon={<BarChart className="h-5 w-5" />}
     >
-      <div className="space-y-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="cta-tabs grid w-full grid-cols-4 rounded-xl p-1">
-            <TabsTrigger value="financial" className="flex items-center gap-2 cta-tab data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="hub-tab-financial" aria-label="Financial">
+      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="financial" className="flex items-center gap-2" data-testid="hub-tab-financial" aria-label="Financial">
               <DollarSign className="h-4 w-4" />
               <span className="hidden sm:inline">Financial</span>
             </TabsTrigger>
-            <TabsTrigger value="procurement" className="flex items-center gap-2 cta-tab data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="hub-tab-procurement" aria-label="Procurement">
+            <TabsTrigger value="procurement" className="flex items-center gap-2" data-testid="hub-tab-procurement" aria-label="Procurement">
               <ShoppingCart className="h-4 w-4" />
               <span className="hidden sm:inline">Procurement</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2 cta-tab data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="hub-tab-analytics" aria-label="Analytics">
+            <TabsTrigger value="analytics" className="flex items-center gap-2" data-testid="hub-tab-analytics" aria-label="Analytics">
               <BarChart className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2 cta-tab data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="hub-tab-reports" aria-label="Reports">
+            <TabsTrigger value="reports" className="flex items-center gap-2" data-testid="hub-tab-reports" aria-label="Reports">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Reports</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="financial" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="financial" className="flex-1 min-h-0 overflow-y-auto">
+            <QueryErrorBoundary>
               <FinancialTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="procurement" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="procurement" className="flex-1 min-h-0 overflow-y-auto">
+            <QueryErrorBoundary>
               <ProcurementTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="analytics" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="analytics" className="flex-1 min-h-0 overflow-y-auto">
+            <QueryErrorBoundary>
               <AnalyticsTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="reports" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="reports" className="flex-1 min-h-0 overflow-y-auto">
+            <QueryErrorBoundary>
               <ReportsTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
         </Tabs>
       </div>

@@ -45,6 +45,8 @@ import {
 } from '@/components/ui/table'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatDate } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -494,10 +496,10 @@ export function DrilldownVehicleTable({
     {
       key: 'make',
       header: 'Make/Model',
-      render: (row) =>
-        row.make && row.model
-          ? `${row.year || ''} ${row.make} ${row.model}`.trim()
-          : '-',
+      render: (row) => {
+        const name = formatVehicleName(row)
+        return name !== 'Unknown Vehicle' ? name : '-'
+      },
     },
     {
       key: 'status',
@@ -513,7 +515,7 @@ export function DrilldownVehicleTable({
             row.status === 'offline' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
           )}
         >
-          {row.status || 'Unknown'}
+          {row.status || '—'}
         </span>
       ),
     },
@@ -607,12 +609,12 @@ export function DrilldownWorkOrderTable({
         <span
           className={cn(
             'px-2 py-1 text-xs rounded-full',
-            row.status === 'open' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700',
+            row.status === 'pending' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700',
             row.status === 'in-progress' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
             row.status === 'completed' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
           )}
         >
-          {row.status || 'Unknown'}
+          {row.status || '—'}
         </span>
       ),
     },
@@ -653,7 +655,7 @@ export function DrilldownWorkOrderTable({
     header: 'Due Date',
     sortable: true,
     render: (row) =>
-      row.dueDate ? new Date(row.dueDate).toLocaleDateString() : '-',
+      row.dueDate ? formatDate(row.dueDate) : '-',
   })
 
   return (
@@ -728,7 +730,7 @@ export function DrilldownDriverTable({
             row.status === 'off-duty' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
           )}
         >
-          {row.status || 'Unknown'}
+          {row.status || '—'}
         </span>
       ),
     },

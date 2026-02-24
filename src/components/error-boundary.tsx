@@ -167,7 +167,7 @@ class ErrorBoundary extends Component<Props, State> {
               </div>
 
               <p className="text-sm text-muted-foreground">
-                Error ID: {Sentry.lastEventId() || 'N/A'}
+                Error ID: {Sentry.lastEventId() || '—'}
               </p>
             </CardContent>
           </Card>

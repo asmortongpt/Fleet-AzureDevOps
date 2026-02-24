@@ -24,8 +24,10 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { formatCurrency, formatCurrencyCompact, formatNumber } from '@/utils/format-helpers'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
 import { Progress } from '@/components/ui/progress'
 import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
@@ -172,7 +174,7 @@ export default function FleetHub() {
           }
           const opStatusConfig: Record<string, { bg: string; text: string; label: string }> = {
             AVAILABLE: { bg: 'bg-emerald-500/15', text: 'text-emerald-500', label: 'Available' },
-            IN_USE: { bg: 'bg-blue-500/15', text: 'text-blue-500', label: 'In Use' },
+            IN_USE: { bg: 'bg-emerald-500/15', text: 'text-emerald-500', label: 'In Use' },
             MAINTENANCE: { bg: 'bg-amber-500/15', text: 'text-amber-500', label: 'Maintenance' },
             RESERVED: { bg: 'bg-yellow-400/15', text: 'text-yellow-400', label: 'Reserved' },
           }
@@ -194,7 +196,7 @@ export default function FleetHub() {
         cell: ({ row }) => (
           <div className="flex items-center gap-1.5">
             <User className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-foreground">{row.getValue('driver') || 'Unassigned'}</span>
+            <span className="text-foreground">{row.getValue('driver') || '—'}</span>
           </div>
         ),
       },
@@ -208,7 +210,7 @@ export default function FleetHub() {
             <div className="flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               <div className="flex flex-col">
-                <span className="text-muted-foreground">{location || 'Unknown'}</span>
+                <span className="text-muted-foreground">{location || '—'}</span>
                 {region && (
                   <span className="text-[10px] text-muted-foreground/60 leading-tight">{region}</span>
                 )}
@@ -245,7 +247,7 @@ export default function FleetHub() {
           return (
             <div className="flex items-center gap-1.5">
               <Gauge className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-foreground">{mileage.toLocaleString()}</span>
+              <span className="text-foreground">{formatNumber(mileage)}</span>
             </div>
           )
         },
@@ -274,7 +276,7 @@ export default function FleetHub() {
           return (
             <div className="flex items-center gap-1.5">
               <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-foreground font-medium">{cost != null ? `$${cost.toLocaleString()}` : '—'}</span>
+              <span className="text-foreground font-medium">{formatCurrency(cost)}</span>
             </div>
           )
         },
@@ -336,6 +338,7 @@ export default function FleetHub() {
   }, [vehicles])
 
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-background p-4 space-y-4">
       {/* Minimal Header */}
       <div className="border-b border-border pb-2">
@@ -382,7 +385,7 @@ export default function FleetHub() {
         />
         <StatCard
           label="Cost"
-          value={`$${(fleetStats.totalCost / 1000).toFixed(0)}K`}
+          value={formatCurrencyCompact(fleetStats.totalCost)}
           icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard
@@ -447,7 +450,7 @@ export default function FleetHub() {
 
         {vehicles.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center text-xs text-muted-foreground">
-            No vehicles available. Connect to backend to load fleet data.
+            No vehicles available.
           </div>
         ) : (
           <DataTable
@@ -463,6 +466,7 @@ export default function FleetHub() {
         )}
       </div>
     </div>
+    </ErrorBoundary>
   )
 }
 

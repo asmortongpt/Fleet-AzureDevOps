@@ -6,6 +6,7 @@
 
 import type { BrandingConfig } from './branding-config'
 import { loadBrandingConfig } from './branding-config'
+import { formatDate } from '@/utils/format-helpers'
 
 export interface DocumentMetadata {
   documentNumber: string
@@ -424,7 +425,7 @@ export function generateDocumentHTML(
   <!-- Footer -->
   <div class="document-footer">
     <div class="footer-left">
-      ${footer.showDate ? `Generated: ${new Date().toLocaleDateString()}` : ''}
+      ${footer.showDate ? `Generated: ${formatDate(new Date())}` : ''}
       ${footer.customText ? `<br>${footer.customText}` : ''}
     </div>
     <div class="footer-center">
@@ -492,13 +493,13 @@ function generateTitlePage(document: PolicyDocument | SOPDocument, organization:
     ${metadata.effectiveDate ? `
     <tr>
       <td>Effective Date:</td>
-      <td>${new Date(metadata.effectiveDate).toLocaleDateString()}</td>
+      <td>${formatDate(metadata.effectiveDate)}</td>
     </tr>
     ` : ''}
     ${metadata.expiryDate ? `
     <tr>
       <td>Review Date:</td>
-      <td>${new Date(metadata.expiryDate).toLocaleDateString()}</td>
+      <td>${formatDate(metadata.expiryDate)}</td>
     </tr>
     ` : ''}
   </table>
@@ -670,7 +671,7 @@ function generateRevisionHistory(history: RevisionHistoryEntry[], colors: any): 
       ${history.map(entry => `
         <tr>
           <td>${entry.version}</td>
-          <td>${new Date(entry.date).toLocaleDateString()}</td>
+          <td>${formatDate(entry.date)}</td>
           <td>${entry.author}</td>
           <td>${entry.description}</td>
         </tr>
@@ -695,7 +696,7 @@ function generateApprovalSignatures(approvals: ApprovalSignature[], colors: any)
       <div class="signature-line">
         <div>${approval.name || '_'.repeat(40)}</div>
         <div style="font-size: 9pt; color: hsl(var(--muted-foreground));">
-          ${approval.date ? new Date(approval.date).toLocaleDateString() : 'Date: _________________'}
+          ${approval.date ? formatDate(approval.date) : 'Date: _________________'}
         </div>
       </div>
     </div>

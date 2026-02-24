@@ -3,9 +3,12 @@ import { Battery, Leaf, TrendingUp, Zap, Car, Plug2, BarChart3, AlertCircle } fr
 import { useState, useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Progress } from '@/components/ui/progress';
 import { Section } from '@/components/ui/section';
+import { formatCurrency, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface EVVehicle {
   id: number;
@@ -32,11 +35,9 @@ interface SustainabilityMetrics {
   costSavings: number;
 }
 
-// Helper function to get auth headers
+// Helper function to get headers
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
   return {
-    'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
   };
 };
@@ -44,7 +45,8 @@ const getAuthHeaders = () => {
 // Query function for EV vehicles
 const fetchEVVehicles = async (): Promise<EVVehicle[]> => {
   try {
-    const response = await fetch('/api/ev/vehicles', { headers: getAuthHeaders() });
+    const response = await fetch('/api/ev-management/vehicles', { headers: getAuthHeaders(), credentials: 'include' });
+    if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
     if (data.success) return data.data;
     return [];
@@ -125,6 +127,7 @@ const EVHub = () => {
     : 0;
 
   return (
+    <ErrorBoundary>
     <div className="h-screen overflow-hidden cta-hub">
       {/* Header */}
       <div className="px-4 py-3 bg-card/90 border-b border-border/50 shadow-sm">
@@ -240,7 +243,7 @@ const EVHub = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h3 className="font-medium text-sm text-foreground">
-                            {vehicle.year} {vehicle.make} {vehicle.model}
+                            {formatVehicleName(vehicle)}
                           </h3>
                           <p className="text-xs text-muted-foreground mt-0.5">{vehicle.location}</p>
                           <div className="mt-2 space-y-1">
@@ -332,8 +335,8 @@ const EVHub = () => {
 
             {/* Cost Savings */}
             <Section title="Cost Savings">
-              <div className="text-2xl font-bold text-green-600" aria-label={`${sustainabilityMetrics.costSavings.toFixed(2)} dollars saved`}>
-                ${sustainabilityMetrics.costSavings.toFixed(2)}
+              <div className="text-2xl font-bold text-green-600" aria-label={`${formatCurrency(sustainabilityMetrics.costSavings)} saved`}>
+                {formatCurrency(sustainabilityMetrics.costSavings)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">Fuel cost savings (fleet lifetime)</p>
             </Section>
@@ -363,7 +366,7 @@ const EVHub = () => {
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-muted-foreground">Total Miles Driven</span>
                     <span className="text-sm font-bold text-foreground">
-                      {evVehicles.reduce((sum, v) => sum + v.total_miles_driven, 0).toLocaleString()}
+                      {formatNumber(evVehicles.reduce((sum, v) => sum + v.total_miles_driven, 0))}
                     </span>
                   </div>
                 </div>
@@ -445,6 +448,7 @@ const EVHub = () => {
         </div>
       </div>
     </div>
+    </ErrorBoundary>
   );
 };
 

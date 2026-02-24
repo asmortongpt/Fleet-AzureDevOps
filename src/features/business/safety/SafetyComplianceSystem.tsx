@@ -59,6 +59,7 @@ import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 
 import { useAuth } from '@/contexts';
+import logger from '@/utils/logger';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -124,13 +125,13 @@ const SafetyComplianceSystem: React.FC = () => {
         policiesPayload,
         violationsPayload
       ] = await Promise.all([
-        fetchApi('/drivers?limit=200'),
-        fetchApi('/incidents?limit=200'),
-        fetchApi('/training/courses?limit=200'),
-        fetchApi('/training/progress'),
-        fetchApi('/osha-compliance/safety-inspections?limit=200'),
-        fetchApi('/policies?limit=200'),
-        tenantId ? fetchApi('/hos/violations?tenant_id=' + tenantId) : Promise.resolve([])
+        fetchApi('/drivers?limit=200').catch(() => []),
+        fetchApi('/incidents?limit=200').catch(() => []),
+        fetchApi('/training/courses?limit=200').catch(() => []),
+        fetchApi('/training/progress').catch(() => []),
+        fetchApi('/osha-compliance/safety-inspections?limit=200').catch(() => []),
+        fetchApi('/policies?limit=200').catch(() => []),
+        tenantId ? fetchApi('/hos/violations?tenant_id=' + tenantId).catch(() => []) : Promise.resolve([])
       ]);
 
       const driversData = Array.isArray(driversPayload) ? driversPayload : [];
@@ -149,7 +150,7 @@ const SafetyComplianceSystem: React.FC = () => {
           date: dateObj ? dateObj.toISOString().split('T')[0] : '',
           time: dateObj ? dateObj.toTimeString().slice(0, 5) : '',
           type: incident.type || incident.incident_type || 'Incident',
-          severity: incident.severity || 'Unknown',
+          severity: incident.severity || '—',
           vehicleId: incident.vehicle_id,
           driverId: incident.driver_id,
           location: incident.location || incident.address || '',
@@ -231,7 +232,7 @@ const SafetyComplianceSystem: React.FC = () => {
         totalRequired: driversData.length
       })));
     } catch (error) {
-      console.error('Error loading safety data:', error);
+      logger.error('Error loading safety data:', error);
     } finally {
       setLoading(false);
     }
@@ -898,7 +899,7 @@ const SafetyComplianceSystem: React.FC = () => {
                             />
                           </TableCell>
                           <TableCell>{inspection.violations.length || 'None'}</TableCell>
-                          <TableCell>{inspection.nextDue || 'N/A'}</TableCell>
+                          <TableCell>{inspection.nextDue || '—'}</TableCell>
                           <TableCell>
                             <Chip
                               size="small"

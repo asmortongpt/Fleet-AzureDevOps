@@ -49,20 +49,24 @@ const FuelTypeEnum = z.enum(['diesel', 'gasoline', 'electric', 'hybrid', 'cng', 
 
 const RouteSchema = z.object({
   id: z.string().min(1),
+  name: z.string().nullish(),
+  routeType: z.string().nullish(),
   driverId: z.string().min(1),
   vehicleId: z.string().min(1),
   status: RouteStatusEnum,
   startTime: z.string().datetime(),
-  endTime: z.string().datetime().optional(),
+  endTime: z.string().datetime().nullish(),
   distance: z.number().min(0).finite(),
   estimatedDuration: z.number().min(0).optional(),
   actualDuration: z.number().min(0).optional(),
   origin: z.string().optional(),
   destination: z.string().optional(),
+  originName: z.string().nullish(),
+  destinationName: z.string().nullish(),
   stops: z.number().min(0).optional(),
   priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-  createdAt: z.string().datetime().optional(),
-  updatedAt: z.string().datetime().optional(),
+  createdAt: z.string().datetime().nullish(),
+  updatedAt: z.string().datetime().nullish(),
 })
 
 const FuelTransactionSchema = z.object({
@@ -84,7 +88,7 @@ const TaskSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1).max(255),
   description: z.string().max(1000).optional(),
-  status: z.enum(['open', 'in_progress', 'completed', 'cancelled', 'overdue']),
+  status: z.enum(['pending', 'in_progress', 'completed', 'cancelled', 'overdue']),
   priority: z.enum(['low', 'medium', 'high', 'critical']),
   assignedTo: z.string().optional(),
   dueDate: z.string().datetime().optional(),
@@ -294,7 +298,7 @@ function generateFuelConsumptionData(transactions: FuelTransaction[]): TrendData
 /**
  * Safe date parsing with fallback
  */
-function safeParseDate(dateString: string | undefined): Date | null {
+function safeParseDate(dateString: string | null | undefined): Date | null {
   if (!dateString) return null
   try {
     const date = new Date(dateString)
@@ -413,6 +417,8 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
 
             return {
               id: String(row.routeId ?? row.id ?? ''),
+              name: row.name || null,
+              routeType: row.type ?? row.route_type ?? null,
               driverId: String(row.driverId ?? row.driver_id ?? row.assigned_driver_id ?? ''),
               vehicleId: String(row.vehicleId ?? row.vehicle_id ?? row.assigned_vehicle_id ?? ''),
               status: normalizeRouteStatus(row.status),
@@ -423,6 +429,8 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
               actualDuration: Number(row.actualDuration ?? row.actual_duration ?? 0) || undefined,
               origin: row.startLocation ?? row.start_location,
               destination: row.endLocation ?? row.end_location,
+              originName: row.startLocationName ?? null,
+              destinationName: row.endLocationName ?? null,
               stops: Array.isArray(row.stops)
                 ? row.stops.length
                 : Array.isArray(row.waypoints)
@@ -513,7 +521,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
             !completedAt &&
             new Date(dueDate).getTime() < Date.now()
 
-          let status: Task['status'] = 'open'
+          let status: Task['status'] = 'pending'
           if (statusRaw === 'completed') status = 'completed'
           else if (statusRaw === 'cancelled') status = 'cancelled'
           else if (statusRaw === 'in_progress' || statusRaw === 'in-progress') status = 'in_progress'
@@ -574,7 +582,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
     const avgFuelCostPerMile = totalDistance > 0 ? totalFuelCost / totalDistance : 0
     const avgFuelCostPerRoute = totalRoutes > 0 ? totalFuelCost / totalRoutes : 0
 
-    const openTasks = tasks.filter((t) => t.status === 'open').length
+    const openTasks = tasks.filter((t) => t.status === 'pending').length
     const inProgressTasks = tasks.filter((t) => t.status === 'in_progress').length
     const completedTasks = tasks.filter((t) => t.status === 'completed').length
     const overdueTasks = tasks.filter((t) => t.status === 'overdue').length

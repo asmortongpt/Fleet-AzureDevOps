@@ -16,6 +16,8 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { Spinner } from '@/components/ui/spinner'
 import { Vehicle } from '@/types/Vehicle'
+import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 
 // ============================================================================
@@ -198,10 +200,10 @@ const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) 
             ${vehicle.name || `Vehicle ${vehicle.number}`}
           </h3>
           <div style="font-size: 14px; color: hsl(var(--muted-foreground)); line-height: 1.6;">
-            <div><strong>Status:</strong> <span style="color: ${getMarkerColor(vehicle.status)}; text-transform: capitalize;">${vehicle.status}</span></div>
+            <div><strong>Status:</strong> <span style="color: ${getMarkerColor(vehicle.status)};">${formatEnum(vehicle.status)}</span></div>
             <div><strong>Type:</strong> ${vehicle.type}</div>
-            <div><strong>Make:</strong> ${vehicle.make} ${vehicle.model}</div>
-            <div><strong>Driver:</strong> ${vehicle.assignedDriver || vehicle.driver || 'Unassigned'}</div>
+            <div><strong>Make:</strong> ${formatVehicleName(vehicle)}</div>
+            <div><strong>Driver:</strong> ${vehicle.assignedDriver || vehicle.driver || '—'}</div>
             <div><strong>Fuel:</strong> ${vehicle.fuelLevel}%</div>
             <div><strong>Location:</strong> ${vehicle.location?.address || (vehicle as any).location_address || '—'}</div>
           </div>
@@ -367,7 +369,7 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
   routes = [],
   className = ''
 }) => {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
 
   // Calculate center from vehicles if not provided
   const mapCenter = center || (vehicles.length > 0 ? {
@@ -404,7 +406,7 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
           )}
           {showRoutes && routes.map((route, index) => (
             <RoutePolyline
-              key={index}
+              key={`route-${route[0]?.lat}-${route[0]?.lng}-${route.length}`}
               path={route}
               color={index % 2 === 0 ? 'hsl(var(--chart-1))' : 'hsl(var(--chart-4))'}
             />
@@ -415,18 +417,18 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
       {/* Map Controls Overlay */}
       <div className="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-lg shadow-sm p-3 space-y-2">
         <div className="flex items-center gap-2">
-          <Navigation className="w-4 h-4 text-blue-800" />
+          <Navigation className="w-4 h-4 text-emerald-400" />
           <span className="text-sm font-medium text-gray-900">
             {vehicles.length} Vehicle{vehicles.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <div className="space-y-1 text-xs text-slate-700">
+        <div className="space-y-1 text-xs text-white/40">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500" />
             <span>Active ({vehicles.filter(v => v.status === 'active').length})</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-500" />
+            <div className="w-3 h-3 rounded-full bg-emerald-500" />
             <span>Idle ({vehicles.filter(v => v.status === 'idle').length})</span>
           </div>
           <div className="flex items-center gap-2">

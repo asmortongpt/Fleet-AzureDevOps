@@ -116,9 +116,9 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
       icon: <Zap className="w-4 h-4" />,
       label: 'Charging',
       count: statusMetrics.charging,
-      color: 'bg-blue-500',
-      textColor: 'text-blue-700',
-      bgColor: 'bg-blue-50'
+      color: 'bg-emerald-500',
+      textColor: 'text-emerald-400',
+      bgColor: 'bg-emerald-500/10'
     },
     {
       icon: <Wrench className="w-4 h-4" />,
@@ -141,7 +141,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
       label: 'Offline',
       count: statusMetrics.offline,
       color: 'bg-gray-300',
-      textColor: 'text-slate-700',
+      textColor: 'text-white/40',
       bgColor: 'bg-gray-50'
     }
   ]
@@ -175,23 +175,23 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {/* Map Legend (Styled for Dark Mode/Immersive) */}
         {showLegend && activeLegendItems.length > 0 && (
           <div className="absolute bottom-4 left-4 z-10">
-            <div className="shadow-sm bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-lg p-3">
-              <div className="text-[10px] font-semibold text-slate-700 uppercase tracking-wide mb-2">
+            <div className="shadow-sm bg-[#111]/90 backdrop-blur-md border border-white/10 rounded-lg p-3">
+              <div className="text-[10px] font-semibold text-white/40 uppercase tracking-wide mb-2">
                 Vehicle Status
               </div>
               <div className="space-y-1.5">
-                {activeLegendItems.map((item, index) => (
+                {activeLegendItems.map((item) => (
                   <div
-                    key={index}
+                    key={item.label}
                     className={`flex items-center justify-between gap-3 px-2 py-1.5 rounded-md hover:bg-white/5 transition-colors cursor-default`}
                   >
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${item.color.replace('bg-', 'bg-')}`} />
-                      <span className={`text-xs font-medium text-slate-300`}>
+                      <span className={`text-xs font-medium text-white/80`}>
                         {item.label}
                       </span>
                     </div>
-                    <Badge variant="outline" className="h-4 px-1.5 text-[10px] bg-slate-800 border-slate-700 text-slate-700">
+                    <Badge variant="outline" className="h-4 px-1.5 text-[10px] bg-[#1a1a1a] border-white/[0.08] text-white/40">
                       {item.count}
                     </Badge>
                   </div>
@@ -204,9 +204,9 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {/* Facilities Legend (Immersive) */}
         {showLegend && facilities.length > 0 && (
           <div className="absolute bottom-4 right-4 z-10">
-            <div className="shadow-sm bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-lg p-3 flex items-center gap-2">
+            <div className="shadow-sm bg-[#111]/90 backdrop-blur-md border border-white/10 rounded-lg p-3 flex items-center gap-2">
               <MapPin className="w-3 h-3 text-emerald-600" />
-              <span className="text-xs font-medium text-slate-300">
+              <span className="text-xs font-medium text-white/80">
                 {facilities.length} Locations
               </span>
             </div>
@@ -262,9 +262,9 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
                 Vehicle Status
               </div>
               <div className="space-y-1.5">
-                {activeLegendItems.map((item, index) => (
+                {activeLegendItems.map((item) => (
                   <div
-                    key={index}
+                    key={item.label}
                     className={`flex items-center justify-between gap-3 px-2 py-1.5 rounded-md ${item.bgColor} transition-colors hover:opacity-80`}
                   >
                     <div className="flex items-center gap-2">

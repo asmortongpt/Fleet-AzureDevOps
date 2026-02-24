@@ -34,6 +34,8 @@ import { applyFieldMasking } from '../utils/fieldMasking'
 import { preventTenantIdOverride, validateTenantReferences, injectTenantId } from '../utils/tenant-validator'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 
 // CRITICAL: Apply middleware in this exact order
@@ -42,18 +44,39 @@ router.use(setTenantContext)         // 2. Set PostgreSQL tenant context
 
 // Validation schema for work order creation
 const createWorkOrderSchema = z.object({
-  work_order_number: z.string(),
-  vehicle_id: z.string().uuid(),
-  facility_id: z.string().uuid().optional(),
-  assigned_technician_id: z.string().uuid().optional(),
-  type: z.enum(['preventive', 'corrective', 'inspection']),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
-  status: z.enum(['open', 'in_progress', 'on_hold', 'completed', 'cancelled']).default('open'),
+  work_order_number: z.string().optional(),
+  title: z.string().min(1).max(200).optional(),
+  vehicle_id: flexUuid,
+  facility_id: flexUuid.optional(),
+  assigned_technician_id: flexUuid.optional(),
+  type: z.enum(['preventive', 'corrective', 'inspection', 'recall', 'upgrade']),
+  priority: z.enum(['low', 'medium', 'high', 'critical', 'emergency']).default('medium'),
+  status: z.enum(['pending', 'in_progress', 'on_hold', 'completed', 'cancelled', 'failed']).default('pending'),
   description: z.string().min(1),
   odometer_reading: z.number().optional(),
   engine_hours_reading: z.number().optional(),
   scheduled_start: z.string().optional(),
   scheduled_end: z.string().optional(),
+  notes: z.string().optional()
+})
+
+// Validation schema for work order updates (all fields optional for partial update)
+const updateWorkOrderSchema = z.object({
+  status: z.enum(['pending', 'in_progress', 'on_hold', 'completed', 'cancelled', 'failed']).optional(),
+  priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+  description: z.string().min(1).optional(),
+  vehicle_id: flexUuid.optional(),
+  facility_id: flexUuid.optional(),
+  assigned_technician_id: flexUuid.optional(),
+  scheduled_start: z.string().optional(),
+  scheduled_end: z.string().optional(),
+  actual_start: z.string().optional(),
+  actual_end: z.string().optional(),
+  labor_hours: z.number().min(0).optional(),
+  labor_cost: z.number().min(0).optional(),
+  parts_cost: z.number().min(0).optional(),
+  odometer_reading: z.number().optional(),
+  engine_hours_reading: z.number().optional(),
   notes: z.string().optional()
 })
 
@@ -92,42 +115,46 @@ router.get(
       const queryParams: unknown[] = []
 
       if (isDevelopment && req.user?.tenant_id) {
-        whereClause = 'WHERE tenant_id = $1'
+        whereClause = 'WHERE wo.tenant_id = $1'
         queryParams.push(req.user.tenant_id)
       }
 
       if (status) {
         queryParams.push(status)
-        whereClause += (whereClause ? ' AND' : 'WHERE') + ` status = $${queryParams.length}`
+        whereClause += (whereClause ? ' AND' : 'WHERE') + ` wo.status = $${queryParams.length}`
       }
       if (priority) {
         queryParams.push(priority)
-        whereClause += (whereClause ? ' AND' : 'WHERE') + ` priority = $${queryParams.length}`
+        whereClause += (whereClause ? ' AND' : 'WHERE') + ` wo.priority = $${queryParams.length}`
       }
       // Note: facility_id filter removed - column doesn't exist in work_orders table
 
       const result = await client.query(
-        `SELECT id, tenant_id, number as work_order_number, vehicle_id, title,
-                description, type, priority, status,
-                assigned_to_id as assigned_technician_id,
-                requested_by_id, approved_by_id,
-                scheduled_start_date as scheduled_start,
-                scheduled_end_date as scheduled_end,
-                actual_start_date as actual_start,
-                actual_end_date as actual_end,
-                labor_hours, estimated_cost, actual_cost,
-                odometer_at_start as odometer_reading,
-                notes, metadata, created_at, updated_at,
-                category, facility_id, total_cost, parts_cost, labor_cost,
-                downtime_hours, root_cause, resolution_notes, vendor_id,
-                driver_id, bay_number, is_emergency, quality_check_passed,
-                completed_at, subcategory, external_reference
-         FROM work_orders ${whereClause} ORDER BY created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
+        `SELECT wo.id, wo.tenant_id, wo.number as work_order_number, wo.vehicle_id, wo.title,
+                wo.description, wo.type, wo.priority, wo.status,
+                wo.assigned_to_id as assigned_technician_id,
+                wo.requested_by_id, wo.approved_by_id,
+                wo.scheduled_start_date as scheduled_start,
+                wo.scheduled_end_date as scheduled_end,
+                wo.actual_start_date as actual_start,
+                wo.actual_end_date as actual_end,
+                wo.labor_hours, wo.estimated_cost, wo.actual_cost,
+                wo.odometer_at_start as odometer_reading,
+                wo.notes, wo.metadata, wo.created_at, wo.updated_at,
+                wo.category, wo.facility_id, wo.total_cost, wo.parts_cost, wo.labor_cost,
+                wo.downtime_hours, wo.root_cause, wo.resolution_notes, wo.vendor_id,
+                wo.driver_id, wo.bay_number, wo.is_emergency, wo.quality_check_passed,
+                wo.completed_at, wo.subcategory, wo.external_reference,
+                v.name as vehicle_name, v.make as vehicle_make,
+                v.model as vehicle_model, v.year as vehicle_year
+         FROM work_orders wo
+         LEFT JOIN vehicles v ON v.id = wo.vehicle_id AND v.tenant_id = wo.tenant_id
+         ${whereClause} ORDER BY wo.created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
         [...queryParams, limit, offset]
       )
 
       const countResult = await client.query(
-        `SELECT COUNT(*) FROM work_orders ${whereClause}`,
+        `SELECT COUNT(*) FROM work_orders wo ${whereClause}`,
         queryParams
       )
 
@@ -142,7 +169,7 @@ router.get(
       })
     } catch (error) {
       logger.error('Failed to fetch work orders', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: 'An internal error occurred',
         userId: req.user?.id,
         tenantId: req.user?.tenant_id
       })
@@ -171,18 +198,26 @@ router.get(
 
       // RLS automatically filters - if work order doesn't exist OR is in different tenant, returns nothing
       const result = await client.query(
-        `SELECT id, tenant_id, number as work_order_number, vehicle_id, title,
-                description, type, priority, status,
-                assigned_to_id as assigned_technician_id,
-                requested_by_id, approved_by_id,
-                scheduled_start_date as scheduled_start,
-                scheduled_end_date as scheduled_end,
-                actual_start_date as actual_start,
-                actual_end_date as actual_end,
-                labor_hours, estimated_cost, actual_cost,
-                odometer_at_start as odometer_reading,
-                odometer_at_end, notes, metadata, created_at, updated_at
-         FROM work_orders WHERE id = $1`,
+        `SELECT wo.id, wo.tenant_id, wo.number as work_order_number, wo.vehicle_id, wo.title,
+                wo.description, wo.type, wo.priority, wo.status,
+                wo.assigned_to_id as assigned_technician_id,
+                wo.requested_by_id, wo.approved_by_id,
+                wo.scheduled_start_date as scheduled_start,
+                wo.scheduled_end_date as scheduled_end,
+                wo.actual_start_date as actual_start,
+                wo.actual_end_date as actual_end,
+                wo.labor_hours, wo.estimated_cost, wo.actual_cost,
+                wo.parts_cost, wo.labor_cost, wo.total_cost,
+                wo.odometer_at_start as odometer_reading,
+                wo.odometer_at_end, wo.notes, wo.metadata, wo.created_at, wo.updated_at,
+                v.name as vehicle_name,
+                COALESCE(assigned_user.first_name || ' ' || assigned_user.last_name, assigned_user.email) as assigned_to_name,
+                COALESCE(requested_user.first_name || ' ' || requested_user.last_name, requested_user.email) as requested_by_name
+         FROM work_orders wo
+         LEFT JOIN vehicles v ON v.id = wo.vehicle_id
+         LEFT JOIN users assigned_user ON assigned_user.id = wo.assigned_to_id
+         LEFT JOIN users requested_user ON requested_user.id = wo.requested_by_id
+         WHERE wo.id = $1`,
         [req.params.id]
       )
 
@@ -193,7 +228,7 @@ router.get(
         })
       }
 
-      res.json({ data: result.rows[0] })
+      res.json(result.rows[0])
     } catch (error) {
       logger.error('Failed to fetch work order', {
         error,
@@ -232,23 +267,32 @@ router.post(
       // Validate request body
       const validated = createWorkOrderSchema.parse(req.body)
 
+      // Auto-generate work order number if not provided
+      if (!validated.work_order_number) {
+        validated.work_order_number = `WO-${Date.now().toString(36).toUpperCase()}`
+      }
+
       const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
 
       // Insert work order - tenant_id comes from req.body (injected by injectTenantId middleware)
+      // Auto-generate title from type and description if not provided
+      const title = validated.title || `${validated.type.charAt(0).toUpperCase() + validated.type.slice(1)} - ${validated.description.substring(0, 100)}`
+
       const result = await client.query(
         `INSERT INTO work_orders (
-          tenant_id, work_order_number, vehicle_id, facility_id,
-          assigned_technician_id, type, priority, status, description,
-          odometer_reading, engine_hours_reading, scheduled_start,
-          scheduled_end, notes, created_by
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+          tenant_id, number, title, vehicle_id, facility_id,
+          assigned_to_id, type, priority, status, description,
+          odometer_at_start, engine_hours_in, scheduled_start_date,
+          scheduled_end_date, notes, created_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
         RETURNING *`,
         [
           req.body.tenant_id,  // From injectTenantId middleware
           validated.work_order_number,
+          title,
           validated.vehicle_id,
           validated.facility_id || null,
           validated.assigned_technician_id || null,
@@ -302,27 +346,38 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Validate request body against schema
+      const parsed = updateWorkOrderSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.issues
+        })
+      }
+
       const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
 
-      // Build dynamic UPDATE clause
-      const fields = []
-      const values = []
+      // Build dynamic UPDATE clause from validated data
+      const fields: string[] = []
+      const values: unknown[] = []
       let paramCount = 1
+
+      const validatedData = parsed.data as Record<string, unknown>
 
       const allowedFields = [
         'status', 'priority', 'description', 'vehicle_id', 'facility_id',
         'assigned_technician_id', 'scheduled_start', 'scheduled_end',
         'actual_start', 'actual_end', 'labor_hours', 'labor_cost',
         'parts_cost', 'odometer_reading', 'engine_hours_reading', 'notes'
-      ]
+      ] as const
 
       for (const field of allowedFields) {
-        if (req.body[field] !== undefined) {
+        if (validatedData[field] !== undefined) {
           fields.push(`${field} = $${paramCount++}`)
-          values.push(req.body[field])
+          values.push(validatedData[field])
         }
       }
 
@@ -346,6 +401,9 @@ router.put(
 
       res.json({ data: result.rows[0] })
     } catch (error) {
+      if (error instanceof ValidationError || error instanceof NotFoundError) {
+        throw error
+      }
       logger.error('Failed to update work order', {
         error,
         workOrderId: req.params.id,
@@ -374,10 +432,11 @@ router.delete(
       }
 
       // RLS ensures DELETE only affects rows in current tenant
+      // Soft delete by setting status to 'cancelled'
       const result = await client.query(
         `UPDATE work_orders
-         SET deleted_at = CURRENT_TIMESTAMP
-         WHERE id = $1 AND deleted_at IS NULL
+         SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1 AND status != 'cancelled'
          RETURNING id`,
         [req.params.id]
       )
@@ -386,7 +445,7 @@ router.delete(
         throw new NotFoundError("Work order not found")
       }
 
-      res.json({ message: 'Work order deleted successfully' })
+      res.json({ success: true, message: 'Work order deleted successfully' })
     } catch (error) {
       logger.error('Failed to delete work order', {
         error,

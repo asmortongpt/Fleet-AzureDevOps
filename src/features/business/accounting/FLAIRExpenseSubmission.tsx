@@ -5,9 +5,11 @@
  */
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { useAuth } from '@/contexts';
 import { secureFetch } from '@/hooks/use-api';
+import { formatDateTime } from '@/utils/format-helpers';
 
 // FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
 export interface FLAIRExpenseEntry {
@@ -1090,7 +1092,7 @@ const DocumentUpload: React.FC<{
     for (const file of Array.from(files)) {
       if (file.size > 10 * 1024 * 1024) {
         // 10MB limit
-        alert(`File ${file.name} is too large. Maximum size is 10MB.`);
+        toast.error(`File ${file.name} is too large. Maximum size is 10MB.`);
         continue;
       }
 
@@ -1182,7 +1184,7 @@ const DocumentUpload: React.FC<{
                   <div className="font-medium text-sm">{doc.fileName}</div>
                   <div className="text-xs text-gray-700">
                     {(doc.fileSize / 1024).toFixed(1)} KB • Uploaded{' '}
-                    {new Date(doc.uploadedAt).toLocaleString()}
+                    {formatDateTime(doc.uploadedAt)}
                   </div>
                 </div>
               </div>

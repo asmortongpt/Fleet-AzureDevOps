@@ -203,6 +203,7 @@ router.get(
  */
 router.post(
   '/click',
+  csrfProtection,
   authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -270,6 +271,7 @@ router.get(
  */
 router.post(
   '/saved',
+  csrfProtection,
   authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -318,6 +320,7 @@ router.post(
  */
 router.delete(
   '/saved/:id',
+  csrfProtection,
   authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -418,6 +421,7 @@ router.get(
  */
 router.post(
   '/index/document/:id',
+  csrfProtection,
   authorize('admin', 'fleet_manager'),
   auditLog({ action: 'CREATE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
@@ -450,6 +454,7 @@ router.post(
  */
 router.post(
   '/index/reindex',
+  csrfProtection,
   authorize('admin'),
   auditLog({ action: 'UPDATE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
@@ -528,6 +533,7 @@ router.get(
  */
 router.post(
   '/index/optimize',
+  csrfProtection,
   authorize('admin'),
   auditLog({ action: 'UPDATE', resourceType: 'search_index' }),
   async (req: AuthRequest, res: Response) => {
@@ -579,6 +585,7 @@ router.get(
  */
 router.post(
   '/cache/clear',
+  csrfProtection,
   authorize('admin'),
   auditLog({ action: 'DELETE', resourceType: 'search_cache' }),
   async (req: AuthRequest, res: Response) => {
@@ -605,6 +612,7 @@ router.post(
  */
 router.post(
   '/cache/warm',
+  csrfProtection,
   authorize('admin'),
   async (req: AuthRequest, res: Response) => {
     try {

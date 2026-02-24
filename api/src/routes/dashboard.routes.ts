@@ -103,14 +103,14 @@ router.get('/fleet-metrics',
     };
 
     try {
-      // Get vehicle stats
+      // Get vehicle stats (exclude retired vehicles)
       const vehicleStats = await pool.query(`
-        SELECT 
+        SELECT
           COUNT(*) as total,
           COUNT(*) FILTER (WHERE status = 'active') as active,
           COUNT(*) FILTER (WHERE status = 'maintenance') as maintenance
-        FROM vehicles 
-        WHERE tenant_id = $1
+        FROM vehicles
+        WHERE tenant_id = $1 AND status != 'retired'
       `, [tenantId]);
 
       const vStats = vehicleStats.rows[0];
@@ -225,7 +225,7 @@ router.get('/stats',
       await pool.query('SET statement_timeout = 5000');
 
       const [vehicleStats, driverStats, staffStats, workOrderStats] = await Promise.all([
-        // Vehicle stats - using index idx_vehicles_tenant_status
+        // Vehicle stats - using index idx_vehicles_tenant_status (exclude retired)
         pool.query(`
           SELECT
             COUNT(*)::integer as total,
@@ -233,7 +233,7 @@ router.get('/stats',
             COUNT(*) FILTER (WHERE status = 'maintenance')::integer as maintenance,
             COUNT(*) FILTER (WHERE status = 'idle')::integer as idle
           FROM vehicles
-          WHERE tenant_id = $1::uuid
+          WHERE tenant_id = $1::uuid AND status != 'retired'
         `, [tenantId]),
 
         // Driver stats - using index idx_drivers_tenant_status
@@ -444,7 +444,7 @@ router.get('/fleet/stats',
           COUNT(*) FILTER (WHERE status = 'idle')::integer as idle_vehicles,
           COUNT(*) FILTER (WHERE status = 'out_of_service')::integer as out_of_service
         FROM vehicles
-        WHERE tenant_id = $1::uuid
+        WHERE tenant_id = $1::uuid AND status != 'retired'
       `, [tenantId]);
 
       await pool.query('RESET statement_timeout');
@@ -573,11 +573,13 @@ router.get('/costs/summary',
             AND COALESCE(actual_end_date, actual_start_date, updated_at) < ${previousPeriodEnd}
         `, [tenantId]),
 
-        // Total miles driven (for cost per mile)
+        // Total miles driven (for cost per mile) — use actual trip distances, not odometer readings
         pool.query(`
-          SELECT COALESCE(SUM(v.odometer), 0)::integer as total_miles
-          FROM vehicles v
-          WHERE v.tenant_id = $1::uuid
+          SELECT COALESCE(SUM(t.distance_miles), 0)::numeric as total_miles
+          FROM trips t
+          WHERE t.tenant_id = $1::uuid
+            AND t.status = 'completed'
+            AND t.start_time >= (NOW() - INTERVAL '6 months')
         `, [tenantId])
         ,
         // Active budget total for target cost-per-mile benchmark
@@ -668,10 +670,11 @@ router.get('/drivers/me/vehicle',
 
     logger.info(`Fetching assigned vehicle for driver ${userId}`);
 
-    // Find driver by user email
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
+    // Find driver by user email (tenant-scoped)
     const driverResult = await pool.query(
-      `SELECT id, assigned_vehicle_id FROM drivers WHERE email = $1`,
-      [email]
+      `SELECT id, assigned_vehicle_id FROM drivers WHERE email = $1 AND tenant_id = $2::uuid`,
+      [email, tenantId]
     );
 
     if (driverResult.rows.length === 0 || !driverResult.rows[0].assigned_vehicle_id) {
@@ -693,8 +696,8 @@ router.get('/drivers/me/vehicle',
         v.status,
         v.last_service_date as last_inspection
       FROM vehicles v
-      WHERE v.id = $1
-    `, [vehicleId]);
+      WHERE v.id = $1 AND v.tenant_id = $2::uuid
+    `, [vehicleId, tenantId]);
 
     if (vehicleResult.rows.length === 0) {
       return res.status(404).json({ error: 'Vehicle not found' });
@@ -731,12 +734,13 @@ router.get('/drivers/me/trips/today',
     const userId = req.user?.id;
     const email = req.user?.email;
 
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
     logger.info(`Fetching today's trips for driver ${userId}`);
 
-    // Find driver by user email
+    // Find driver by user email (tenant-scoped)
     const driverResult = await pool.query(
-      `SELECT id FROM drivers WHERE email = $1`,
-      [email]
+      `SELECT id FROM drivers WHERE email = $1 AND tenant_id = $2::uuid`,
+      [email, tenantId]
     );
 
     if (driverResult.rows.length === 0) {
@@ -801,6 +805,7 @@ router.post('/inspections',
   asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const email = req.user?.email;
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
     const { vehicle_id, inspection_items, timestamp } = req.body;
 
     // Validate request body
@@ -814,10 +819,10 @@ router.post('/inspections',
 
     logger.info(`Submitting inspection for vehicle ${vehicle_id} by user ${userId}`);
 
-    // Find driver
+    // Find driver (tenant-scoped)
     const driverResult = await pool.query(
-      `SELECT id FROM drivers WHERE email = $1`,
-      [email]
+      `SELECT id FROM drivers WHERE email = $1 AND tenant_id = $2::uuid`,
+      [email, tenantId]
     );
 
     if (driverResult.rows.length === 0) {
@@ -913,7 +918,7 @@ router.post('/reports/daily',
     const doc = new PDFDocument({ margin: 50 });
 
     const [vehicleResult, driverResult, workOrderResult] = await Promise.all([
-      pool.query('SELECT COUNT(*)::integer as count FROM vehicles WHERE tenant_id = $1', [userTenantId]),
+      pool.query("SELECT COUNT(*)::integer as count FROM vehicles WHERE tenant_id = $1 AND status != 'retired'", [userTenantId]),
       pool.query('SELECT COUNT(*)::integer as count FROM drivers WHERE tenant_id = $1', [userTenantId]),
       pool.query('SELECT COUNT(*)::integer as count FROM work_orders WHERE tenant_id = $1', [userTenantId]),
     ]);

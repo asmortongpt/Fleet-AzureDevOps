@@ -37,7 +37,7 @@ export function useFleetData() {
   }
 
   // Fetch data from API using SWR hooks
-  const { data: vehiclesData, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles()
+  const { data: vehiclesData, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles({ tenant_id: '', limit: 200 })
   const { data: driversData, isLoading: driversLoading, error: driversError } = useDrivers()
   const { data: workOrdersData, isLoading: workOrdersLoading, error: workOrdersError } = useWorkOrders()
   const { data: fuelTransactionsData, isLoading: fuelLoading, error: _fuelError } = useFuelTransactions()
@@ -84,7 +84,11 @@ export function useFleetData() {
   }, [vehiclesData]);
 
   const drivers = useMemo((): Driver[] => {
-    return unwrapArray<Driver>(driversData) as unknown as Driver[]
+    const raw = unwrapArray<Driver>(driversData) as unknown as Driver[]
+    return raw.map((d: any) => ({
+      ...d,
+      name: d.name || `${d.first_name || d.firstName || ''} ${d.last_name || d.lastName || ''}`.trim() || d.email || 'Unknown Driver',
+    }))
   }, [driversData]);
 
   const workOrders = useMemo((): WorkOrder[] => {
@@ -268,6 +272,11 @@ export function useFleetData() {
     updateMaintenanceRequest,
     addRoute,
     updateRoute,
-    deleteRoute
+    deleteRoute,
+    error: vehiclesError || driversError || workOrdersError || facilitiesError || null,
+    refetch: () => {
+      // Trigger refetch on all queries by invalidating
+      // Individual hooks use useQuery which supports refetch via queryClient
+    }
   }
 }

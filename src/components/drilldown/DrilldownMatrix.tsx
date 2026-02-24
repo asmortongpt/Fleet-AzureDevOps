@@ -32,6 +32,8 @@ import React, { useState, useRef, useCallback, KeyboardEvent, MouseEvent } from 
 
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatDate, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -543,7 +545,7 @@ export function VehicleMatrix({ vehicles, loading, className }: VehicleMatrixPro
       key: 'makeModel',
       header: 'Make/Model',
       width: '150px',
-      render: (row) => (row.make && row.model ? `${row.make} ${row.model}` : '-'),
+      render: (row) => (row.make && row.model ? formatVehicleShortName(row) : '-'),
     },
     {
       key: 'year',
@@ -605,7 +607,7 @@ export function VehicleMatrix({ vehicles, loading, className }: VehicleMatrixPro
       header: 'Mileage',
       width: '100px',
       align: 'right',
-      render: (row) => (row.mileage ? row.mileage.toLocaleString() : '-'),
+      render: (row) => (row.mileage ? formatNumber(row.mileage) : '-'),
     },
     {
       key: 'location',
@@ -672,7 +674,7 @@ export function WorkOrderMatrix({ workOrders, loading, className }: WorkOrderMat
         <span
           className={cn(
             'px-2 py-0.5 text-xs rounded',
-            row.status === 'open' && 'bg-blue-100 text-blue-700',
+            row.status === 'pending' && 'bg-blue-100 text-blue-700',
             row.status === 'in-progress' && 'bg-yellow-100 text-yellow-700',
             row.status === 'completed' && 'bg-green-100 text-green-700'
           )}
@@ -721,7 +723,7 @@ export function WorkOrderMatrix({ workOrders, loading, className }: WorkOrderMat
       width: '100px',
       align: 'center',
       render: (row) =>
-        row.dueDate ? new Date(row.dueDate).toLocaleDateString() : '-',
+        row.dueDate ? formatDate(row.dueDate) : '-',
     },
   ]
 
@@ -826,14 +828,14 @@ export function DriverMatrix({ drivers, loading, className }: DriverMatrixProps)
       header: 'Trips',
       width: '80px',
       align: 'right',
-      render: (row) => row.trips?.toLocaleString() || '-',
+      render: (row) => (row.trips != null ? formatNumber(row.trips) : '-'),
     },
     {
       key: 'miles',
       header: 'Miles',
       width: '100px',
       align: 'right',
-      render: (row) => row.miles?.toLocaleString() || '-',
+      render: (row) => (row.miles != null ? formatNumber(row.miles) : '-'),
     },
   ]
 

@@ -23,6 +23,7 @@ import {
 } from 'recharts'
 
 import { cn } from '@/lib/utils'
+import { formatCurrencyCompact } from '@/utils/format-helpers'
 
 // Sample 3-layer data structure
 const COST_DATA = {
@@ -154,7 +155,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 shadow-sm">
           <p className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2">{data.name}</p>
           <p className="text-sm font-bold text-blue-800 mb-1">
-            ${(data.value / 1000).toFixed(1)}K
+            {formatCurrencyCompact(data.value)}
           </p>
           {data.percentage && (
             <p className="text-sm text-slate-600 dark:text-slate-700">
@@ -197,7 +198,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2 mb-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
         {breadcrumbs.map((crumb, index) => (
-          <div key={index} className="flex items-center gap-2">
+          <div key={crumb.label} className="flex items-center gap-2">
             <button
               onClick={() => handleBreadcrumbClick(index)}
               className={cn(
@@ -248,7 +249,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
                 fontSize: 14,
                 fontWeight: 600
               }}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+              tickFormatter={(value) => formatCurrencyCompact(value)}
             />
             <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }} />
             <Bar

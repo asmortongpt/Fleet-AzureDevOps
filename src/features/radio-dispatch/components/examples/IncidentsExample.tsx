@@ -19,20 +19,22 @@ import { ErrorPanel } from '../ErrorPanel';
 import { LoadingSpinner } from '../LoadingSpinner';
 
 import { api } from "@/lib/api";
+import { formatDate } from "@/utils/format-helpers";
+import logger from '@/utils/logger';
 
 // Local Incident type definition for this example
 interface Incident {
   id: string;
   title: string;
   description: string;
-  status: 'open' | 'in_progress' | 'closed';
+  status: 'pending' | 'in_progress' | 'closed';
   priority: 'critical' | 'high' | 'medium' | 'low';
   created_at: string;
 }
 
 
 export function IncidentsExample() {
-  const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'closed'>('all');
 
   // Use the custom hook to fetch data with loading/error/data states
   const { data, loading, error, refetch } = useApiData<Incident[]>(
@@ -48,7 +50,7 @@ export function IncidentsExample() {
       // Optional: callbacks for success/error
       onSuccess: () => {},
       onError: (error: Error) => {
-        console.error('Failed to load incidents:', error);
+        logger.error('Failed to load incidents:', error);
       },
     }
   );
@@ -115,10 +117,10 @@ export function IncidentsExample() {
               All
             </FilterButton>
             <FilterButton
-              active={filter === 'open'}
-              onClick={() => setFilter('open')}
+              active={filter === 'pending'}
+              onClick={() => setFilter('pending')}
             >
-              Open
+              Pending
             </FilterButton>
             <FilterButton
               active={filter === 'closed'}
@@ -182,7 +184,7 @@ function IncidentCard({ incident }: { incident: Incident }) {
         </h3>
         <span
           className={`rounded px-2 py-1 text-xs font-medium ${
-            incident.status === 'open'
+            incident.status === 'pending'
               ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-700'
               : incident.status === 'in_progress'
               ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
@@ -211,7 +213,7 @@ function IncidentCard({ incident }: { incident: Incident }) {
         >
           {incident.priority}
         </span>
-        <span>{new Date(incident.created_at).toLocaleDateString()}</span>
+        <span>{formatDate(incident.created_at)}</span>
       </div>
     </div>
   );
@@ -273,7 +275,7 @@ export function IncidentsInlineExample() {
                 </p>
               </div>
               <span className="text-xs text-muted-foreground">
-                {new Date(incident.created_at).toLocaleDateString()}
+                {formatDate(incident.created_at)}
               </span>
             </div>
           ))}

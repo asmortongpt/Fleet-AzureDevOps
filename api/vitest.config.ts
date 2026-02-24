@@ -13,6 +13,8 @@ export default defineConfig({
       'src/tests/paginationRoute.test.ts',
       'src/routes/__tests__/vendor-management.test.ts',
       'src/routes/__tests__/insurance.test.ts',
+      'src/routes/__tests__/drivers.test.ts',
+      'src/routes/__tests__/vehicles.test.ts',
       'src/__tests__/security/sql-injection.test.ts',
       // Tests that import singletons requiring API keys/credentials at import time
       'src/__tests__/services/ai-task-prioritization.test.ts',

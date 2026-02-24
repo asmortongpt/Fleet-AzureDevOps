@@ -10,6 +10,7 @@ import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
+import logger from "@/utils/logger"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -32,6 +33,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import apiClient from "@/lib/api-client"
 import { brandColors } from '@/theme/designSystem'
+import { formatCurrency } from "@/utils/format-helpers"
 
 interface FuelStation {
   id: string
@@ -139,7 +141,8 @@ export function FuelPurchasing() {
       )
       setForecasts(data as PriceForecast[])
     } catch (error) {
-      // Silent failure - forecast data is optional
+      // Forecast data is optional - log and continue
+      logger.warn('Failed to load fuel price forecasts', { error: String(error) })
     }
   }
 
@@ -150,7 +153,8 @@ export function FuelPurchasing() {
       )
       setPurchaseRecommendation(data as PurchaseRecommendation)
     } catch (error) {
-      // Silent failure - recommendation data is optional
+      // Recommendation data is optional - log and continue
+      logger.warn('Failed to load purchase recommendation', { error: String(error) })
     }
   }
 
@@ -159,7 +163,8 @@ export function FuelPurchasing() {
       const data = await apiClient.get("/fuel-purchasing/contracts?status=active")
       setContracts(data as FuelContract[])
     } catch (error) {
-      // Silent failure - contracts data is optional
+      // Contracts data is optional - log and continue
+      logger.warn('Failed to load fuel contracts', { error: String(error) })
     }
   }
 
@@ -172,7 +177,8 @@ export function FuelPurchasing() {
       )
       setSavings(data as SavingsData)
     } catch (error) {
-      // Silent failure - savings data is optional
+      // Savings data is optional - log and continue
+      logger.warn('Failed to load fuel savings data', { error: String(error) })
     }
   }
 
@@ -183,7 +189,7 @@ export function FuelPurchasing() {
       case 'wait':
         return 'text-yellow-600'
       default:
-        return 'text-blue-800'
+        return 'text-emerald-400'
     }
   }
 
@@ -199,17 +205,17 @@ export function FuelPurchasing() {
   }
 
   const formatPrice = (price: number) => {
-    return `$${price.toFixed(3)}`
+    return formatCurrency(price)
   }
 
   return (
     <div className="space-y-2">
       <div>
         <h1 className="text-base font-bold flex items-center gap-2">
-          <Fuel className="h-8 w-8 text-blue-800" />
+          <Fuel className="h-8 w-8 text-emerald-400" />
           Fuel Purchasing Intelligence
         </h1>
-        <p className="text-slate-700 mt-2" style={{ color: brandColors.archon.mediumGray }}>
+        <p className="text-white/40 mt-2" style={{ color: brandColors.archon.mediumGray }}>
           Real-time pricing, predictive analytics, and optimization for smart fuel purchasing
         </p>
       </div>
@@ -222,7 +228,7 @@ export function FuelPurchasing() {
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold text-green-600">
-              ${savings?.totalSavings.toFixed(0) || '0'}
+              {formatCurrency(savings?.totalSavings ?? 0)}
             </div>
             <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>
               {savings?.totalGallons.toFixed(0) || '0'} gallons purchased
@@ -259,7 +265,7 @@ export function FuelPurchasing() {
             <CardTitle className="text-sm font-medium">Active Contracts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">
+            <div className="text-sm font-bold text-emerald-400">
               {contracts.length}
             </div>
             <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>supplier agreements</div>
@@ -269,7 +275,7 @@ export function FuelPurchasing() {
 
       {/* Purchase Timing Recommendation */}
       {purchaseRecommendation && (
-        <Card className="border-l-4 border-l-blue-600">
+        <Card className="border-l-4 border-l-emerald-600">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Lightbulb className="h-5 w-5 text-yellow-600" />
@@ -286,7 +292,7 @@ export function FuelPurchasing() {
                   <Badge variant="secondary" className="uppercase">
                     {purchaseRecommendation.recommendation.replace('_', ' ')}
                   </Badge>
-                  <span className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+                  <span className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
                     {purchaseRecommendation.confidence}% confidence
                   </span>
                 </div>
@@ -303,7 +309,7 @@ export function FuelPurchasing() {
                   <div>
                     <div className="text-xs text-gray-700">Expected Savings</div>
                     <div className="font-semibold text-green-600">
-                      ${purchaseRecommendation.expectedSavings.toFixed(2)}
+                      {formatCurrency(purchaseRecommendation.expectedSavings)}
                     </div>
                   </div>
                   <div>
@@ -391,7 +397,7 @@ export function FuelPurchasing() {
             <CardContent>
               {loading ? (
                 <div className="text-center py-3">
-                  <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                  <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600 mx-auto mb-2"></div>
                   <p className="" style={{ color: brandColors.archon.mediumGray }}>Loading stations...</p>
                 </div>
               ) : nearbyStations.length > 0 ? (
@@ -411,7 +417,7 @@ export function FuelPurchasing() {
                       <TableRow key={station.id}>
                         <TableCell>
                           <div className="font-medium">{station.stationName}</div>
-                          <div className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{station.brand}</div>
+                          <div className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{station.brand}</div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
@@ -445,7 +451,7 @@ export function FuelPurchasing() {
                   </TableBody>
                 </Table>
               ) : (
-                <div className="text-center py-3 text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+                <div className="text-center py-3 text-white/40" style={{ color: brandColors.archon.mediumGray }}>
                   No stations found. Try adjusting your search criteria.
                 </div>
               )}

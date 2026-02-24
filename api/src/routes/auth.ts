@@ -152,8 +152,8 @@ const changePasswordSchema = z.object({
 // CRIT-F-004: Apply auth rate limiter and brute force protection
 // FedRAMP SC-5 (DoS Protection), AC-7 (Unsuccessful Login Attempts), SI-10 (Input Validation)
 // SECURITY: Rate limiting MUST be enabled in production - 5 login attempts per 15 minutes
-// For E2E testing, use environment variable RATE_LIMIT_DISABLED=true to bypass
-const applyRateLimiting = process.env.RATE_LIMIT_DISABLED !== 'true'
+// For E2E testing, use environment variable RATE_LIMIT_DISABLED=true to bypass (non-production only)
+const applyRateLimiting = process.env.NODE_ENV === 'production' || process.env.RATE_LIMIT_DISABLED !== 'true'
 
 const loginMiddleware = applyRateLimiting
   ? [authLimiter, checkBruteForce('email')]
@@ -587,7 +587,7 @@ router.post('/register', csrfProtection, registrationLimiter, async (req: Reques
  *         description: Invalid or expired refresh token
  */
 // POST /api/auth/refresh - Refresh token rotation
-router.post('/refresh', csrfProtection, async (req: Request, res: Response) => {
+router.post('/refresh', ...(applyRateLimiting ? [authLimiter] : []), csrfProtection, async (req: Request, res: Response) => {
   try {
     const { refreshToken } = req.body
 
@@ -685,7 +685,7 @@ router.post('/refresh', csrfProtection, async (req: Request, res: Response) => {
  * POST /api/auth/change-password
  * Change password for authenticated user
  */
-router.post('/change-password', authenticateJWT, csrfProtection, async (req: AuthRequest, res: Response) => {
+router.post('/change-password', authenticateJWT, ...(applyRateLimiting ? [authLimiter] : []), csrfProtection, async (req: AuthRequest, res: Response) => {
   try {
     const { currentPassword, newPassword } = changePasswordSchema.parse(req.body)
 
@@ -801,7 +801,7 @@ router.post('/logout', csrfProtection, async (req: Request, res: Response) => {
     }
   }
 
-  res.json({ message: 'Logged out successfully' })
+  res.json({ success: true, message: 'Logged out successfully' })
 })
 
 /**
@@ -1080,7 +1080,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     logger.error('Microsoft SSO callback error:', error instanceof Error ? error.message : 'An unexpected error occurred') // Wave 16: Winston logger
     const acceptsJson = req.headers.accept?.includes('application/json')
     if (acceptsJson) {
-      return res.status(500).json({ error: 'Microsoft SSO authentication failed', details: error instanceof Error ? error.message : 'An unexpected error occurred' })
+      return res.status(500).json({ error: 'Microsoft SSO authentication failed' })
     } else {
       res.redirect(302, '/login?error=sso_failed')
     }
@@ -1316,7 +1316,7 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
       stack: error instanceof Error ? error.stack : undefined,
       error: error
     })
-    return res.status(500).json({ error: 'Microsoft SSO exchange failed', details: error instanceof Error ? error.message : 'An unexpected error occurred' })
+    return res.status(500).json({ error: 'Microsoft SSO exchange failed' })
   }
 })
 
@@ -1464,7 +1464,7 @@ router.get('/verify', async (req: Request, res: Response) => {
 
     res.status(401).json({
       authenticated: false,
-      error: errorMessage,
+      error: 'Token verification failed',
       errorCode
     })
   }
@@ -1641,7 +1641,7 @@ router.get('/userinfo', async (req: Request, res: Response) => {
     }
 
     res.status(401).json({
-      error: errorMessage,
+      error: 'Failed to extract user information',
       errorCode
     })
   }

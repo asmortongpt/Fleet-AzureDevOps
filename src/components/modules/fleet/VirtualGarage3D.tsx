@@ -31,6 +31,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 import { brandColors } from '@/theme/designSystem'
+import { formatVehicleName } from '@/utils/vehicle-display'
 import {
   AssetCategory,
   AssetType,
@@ -91,13 +92,13 @@ interface OBD2Telemetry {
 async function fetchVehicles(): Promise<GarageVehicle[]> {
   try {
     // Try emulator API first
-    const res = await fetch('/api/emulator/vehicles')
+    const res = await fetch('/api/emulator/vehicles', { credentials: 'include' })
     if (res.ok) {
       const data = await res.json()
       if (data.success && Array.isArray(data.data) && data.data.length > 0) {
         return data.data.map((v: any) => ({
           id: v.id,
-          name: v.name || `${v.year} ${v.make} ${v.model}`,
+          name: v.name || formatVehicleName(v),
           make: v.make,
           model: v.model,
           year: v.year,
@@ -127,7 +128,7 @@ async function fetchVehicles(): Promise<GarageVehicle[]> {
 async function fetchTelemetry(vehicleId: string): Promise<OBD2Telemetry | null> {
   if (!vehicleId) return null
   try {
-    const res = await fetch(`/api/emulator/vehicles/${vehicleId}/telemetry`)
+    const res = await fetch(`/api/emulator/vehicles/${vehicleId}/telemetry`, { credentials: 'include' })
     if (res.ok) {
       const data = await res.json()
       if (data.success && data.data) {

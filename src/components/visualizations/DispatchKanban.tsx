@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
+import { formatTime } from '@/utils/format-helpers';
 
 /**
  * Dispatch Queue Kanban Board
@@ -185,11 +186,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
                     {task.dueTime && (
                       <div className="flex items-center gap-1 text-xs text-slate-600">
                         <AlertTriangle className="h-3 w-3" />
-                        <span>Due: {new Date(task.dueTime).toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true
-                        })}</span>
+                        <span>Due: {formatTime(task.dueTime)}</span>
                       </div>
                     )}
                   </div>
@@ -199,7 +196,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
                     <div className="mt-2 pt-2 border-t border-slate-200">
                       <div className="flex items-center gap-1 text-xs text-green-600">
                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                        <span>Updated {new Date(getTaskUpdate(task.id)!.timestamp).toLocaleTimeString()}</span>
+                        <span>Updated {formatTime(getTaskUpdate(task.id)!.timestamp)}</span>
                       </div>
                     </div>
                   )}

@@ -379,6 +379,12 @@ export function applyVehicleMaterials(
         child.castShadow = true;
         child.receiveShadow = true;
       }
+      else {
+        // Fallback: apply paint to any unmatched mesh (common with generic GLB models)
+        child.material = paintMaterial;
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
     }
   });
 }

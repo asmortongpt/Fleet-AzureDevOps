@@ -16,6 +16,10 @@ import {
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
+
 import { DataGrid } from '@/components/common/DataGrid'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -29,11 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => r.json())
-    .then((data) => data?.data ?? data)
 
 // ============ TYPE DEFINITIONS ============
 
@@ -53,7 +52,7 @@ interface ComplianceViolation {
   fine_amount?: number
   paid: boolean
   due_date?: string
-  status: 'open' | 'under-review' | 'remediation-in-progress' | 'resolved' | 'appealed'
+  status: 'pending' | 'under_investigation' | 'action_taken' | 'closed' | 'appealed'
   responsible_person?: string
   regulation_reference: string
 }
@@ -72,7 +71,7 @@ interface SafetyIncident {
   driver_id?: string
   driver_name?: string
   description: string
-  status: 'open' | 'investigating' | 'resolved' | 'closed'
+  status: 'pending' | 'in_progress' | 'completed' | 'closed' | 'cancelled'
   cost: number
   root_cause?: string
 }
@@ -84,17 +83,19 @@ export function ViolationsMatrixView() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const { data: violations } = useSWR<ComplianceViolation[]>(
-    '/api/compliance/violations',
-    fetcher,
+    '/api/policy-violations',
+    apiFetcher,
     {
       shouldRetryOnError: false,
     }
   )
 
-  const filteredData = useMemo(() => {
-    if (!violations) return []
+  const safeViolations = Array.isArray(violations) ? violations : []
 
-    return violations.filter((violation) => {
+  const filteredData = useMemo(() => {
+    if (!safeViolations.length) return []
+
+    return safeViolations.filter((violation) => {
       const matchesStatus = statusFilter === 'all' || violation.status === statusFilter
       const matchesSeverity = severityFilter === 'all' || violation.severity === severityFilter
       const matchesPaid =
@@ -109,7 +110,7 @@ export function ViolationsMatrixView() {
 
       return matchesStatus && matchesSeverity && matchesPaid && matchesSearch
     })
-  }, [violations, statusFilter, severityFilter, paidFilter, searchQuery])
+  }, [safeViolations, statusFilter, severityFilter, paidFilter, searchQuery])
 
   const columns: ColumnDef<ComplianceViolation>[] = [
     {
@@ -120,7 +121,7 @@ export function ViolationsMatrixView() {
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+      cell: ({ row }) => formatDate(row.original.date),
     },
     {
       accessorKey: 'type',
@@ -139,8 +140,8 @@ export function ViolationsMatrixView() {
         const variant =
           severity === 'critical' ? 'destructive' : severity === 'major' ? 'default' : 'secondary'
         return (
-          <Badge variant={variant} className="capitalize">
-            {severity}
+          <Badge variant={variant}>
+            {formatEnum(severity)}
           </Badge>
         )
       },
@@ -172,7 +173,7 @@ export function ViolationsMatrixView() {
       header: 'Fine Amount',
       cell: ({ row }) =>
         row.original.fine_amount ? (
-          <div className="text-right font-medium">${row.original.fine_amount.toFixed(2)}</div>
+          <div className="text-right font-medium">{formatCurrency(row.original.fine_amount)}</div>
         ) : (
           '-'
         ),
@@ -206,7 +207,7 @@ export function ViolationsMatrixView() {
 
         return (
           <div>
-            <div>{dueDate.toLocaleDateString()}</div>
+            <div>{formatDate(dueDate)}</div>
             {isOverdue && (
               <div className="text-xs text-red-500 flex items-center gap-1">
                 <XCircle className="w-3 h-3" />
@@ -223,14 +224,14 @@ export function ViolationsMatrixView() {
       cell: ({ row }) => {
         const status = row.original.status
         const variant =
-          status === 'resolved'
+          status === 'closed'
             ? 'default'
-            : status === 'open'
+            : status === 'pending'
             ? 'destructive'
             : 'secondary'
         return (
-          <Badge variant={variant} className="capitalize">
-            {status.replace('-', ' ')}
+          <Badge variant={variant}>
+            {formatEnum(status)}
           </Badge>
         )
       },
@@ -261,16 +262,16 @@ export function ViolationsMatrixView() {
 
     const csvData = filteredData.map((violation) => [
       violation.violation_number,
-      new Date(violation.date).toLocaleDateString(),
+      formatDate(violation.date),
       violation.type,
       violation.severity,
       violation.category,
       violation.vehicle_name || '',
       violation.driver_name || '',
       violation.citation_number || '',
-      violation.fine_amount ? `$${violation.fine_amount.toFixed(2)}` : '',
+      violation.fine_amount ? formatCurrency(violation.fine_amount) : '',
       violation.paid ? 'Yes' : 'No',
-      violation.due_date ? new Date(violation.due_date).toLocaleDateString() : '',
+      violation.due_date ? formatDate(violation.due_date) : '',
       violation.status,
       violation.responsible_person || '',
     ])
@@ -288,7 +289,7 @@ export function ViolationsMatrixView() {
   // Calculate summary stats
   const totalViolations = filteredData.length
   const openCount = filteredData.filter(
-    (v) => v.status === 'open' || v.status === 'under-review' || v.status === 'remediation-in-progress'
+    (v) => v.status === 'under_investigation' || v.status === 'action_taken' || v.status === 'pending'
   ).length
   const criticalCount = filteredData.filter((v) => v.severity === 'critical').length
   const totalFines = filteredData.reduce((sum, v) => sum + (v.fine_amount || 0), 0)
@@ -300,10 +301,10 @@ export function ViolationsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-[#242424] border-white/[0.08]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalViolations}</div>
-            <div className="text-xs text-slate-700">Total Violations</div>
+            <div className="text-xs text-white/40">Total Violations</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -312,7 +313,7 @@ export function ViolationsMatrixView() {
               <AlertOctagon className="w-3 h-3 text-red-400" />
               <div className="text-sm font-bold text-red-400">{openCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Open/In Progress</div>
+            <div className="text-xs text-white/40">Open/In Progress</div>
           </CardContent>
         </Card>
         <Card className="bg-orange-900/30 border-orange-700/50">
@@ -321,36 +322,36 @@ export function ViolationsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-orange-400" />
               <div className="text-sm font-bold text-orange-400">{criticalCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Critical Severity</div>
+            <div className="text-xs text-white/40">Critical Severity</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-amber-400">${unpaidFines.toFixed(0)}</div>
-            <div className="text-xs text-slate-700">Unpaid Fines</div>
+            <div className="text-sm font-bold text-amber-400">{formatCurrency(unpaidFines)}</div>
+            <div className="text-xs text-white/40">Unpaid Fines</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Total Fines */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <span>Total Fines Assessment</span>
-            <span className="text-sm font-bold text-red-400">${totalFines.toFixed(2)}</span>
+            <span className="text-sm font-bold text-red-400">{formatCurrency(totalFines)}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex justify-between text-xs text-slate-700 mb-2">
-            <span>Paid: ${(totalFines - unpaidFines).toFixed(2)}</span>
-            <span>Unpaid: ${unpaidFines.toFixed(2)}</span>
+          <div className="flex justify-between text-xs text-white/40 mb-2">
+            <span>Paid: {formatCurrency(totalFines - unpaidFines)}</span>
+            <span>Unpaid: {formatCurrency(unpaidFines)}</span>
           </div>
           <Progress value={((totalFines - unpaidFines) / totalFines) * 100} className="h-3" />
         </CardContent>
       </Card>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex-1 min-w-[200px]">
@@ -367,10 +368,11 @@ export function ViolationsMatrixView() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="under-review">Under Review</SelectItem>
-                <SelectItem value="remediation-in-progress">In Progress</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="under_investigation">Under Investigation</SelectItem>
+                <SelectItem value="action_taken">Action Taken</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+                <SelectItem value="appealed">Appealed</SelectItem>
               </SelectContent>
             </Select>
             <Select value={severityFilter} onValueChange={setSeverityFilter}>
@@ -403,7 +405,7 @@ export function ViolationsMatrixView() {
       </Card>
 
       {/* Excel-Style Violations Matrix */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Scale className="w-3 h-3 text-amber-400" />
@@ -435,17 +437,19 @@ export function IncidentsMatrixView() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const { data: incidents } = useSWR<SafetyIncident[]>(
-    '/api/safety/incidents',
-    fetcher,
+    '/api/safety-incidents',
+    apiFetcher,
     {
       shouldRetryOnError: false,
     }
   )
 
-  const filteredData = useMemo(() => {
-    if (!incidents) return []
+  const safeIncidents = Array.isArray(incidents) ? incidents : []
 
-    return incidents.filter((incident) => {
+  const filteredData = useMemo(() => {
+    if (!safeIncidents.length) return []
+
+    return safeIncidents.filter((incident) => {
       const matchesStatus = statusFilter === 'all' || incident.status === statusFilter
       const matchesType = typeFilter === 'all' || incident.type === typeFilter
       const matchesSeverity = severityFilter === 'all' || incident.severity === severityFilter
@@ -457,7 +461,7 @@ export function IncidentsMatrixView() {
 
       return matchesStatus && matchesType && matchesSeverity && matchesSearch
     })
-  }, [incidents, statusFilter, typeFilter, severityFilter, searchQuery])
+  }, [safeIncidents, statusFilter, typeFilter, severityFilter, searchQuery])
 
   const columns: ColumnDef<SafetyIncident>[] = [
     {
@@ -470,7 +474,7 @@ export function IncidentsMatrixView() {
       header: 'Date',
       cell: ({ row }) => (
         <div>
-          <div>{new Date(row.original.date).toLocaleDateString()}</div>
+          <div>{formatDate(row.original.date)}</div>
           <div className="text-xs text-muted-foreground">{row.original.time}</div>
         </div>
       ),
@@ -484,8 +488,8 @@ export function IncidentsMatrixView() {
       accessorKey: 'type',
       header: 'Type',
       cell: ({ row }) => (
-        <Badge variant="outline" className="capitalize">
-          {row.original.type.replace('-', ' ')}
+        <Badge variant="outline">
+          {formatEnum(row.original.type)}
         </Badge>
       ),
     },
@@ -497,8 +501,8 @@ export function IncidentsMatrixView() {
         const variant =
           severity === 'critical' ? 'destructive' : severity === 'major' ? 'default' : 'secondary'
         return (
-          <Badge variant={variant} className="capitalize">
-            {severity}
+          <Badge variant={variant}>
+            {formatEnum(severity)}
           </Badge>
         )
       },
@@ -539,12 +543,12 @@ export function IncidentsMatrixView() {
         const variant =
           status === 'closed'
             ? 'default'
-            : status === 'open'
+            : status === 'pending'
             ? 'destructive'
             : 'secondary'
         return (
-          <Badge variant={variant} className="capitalize">
-            {status}
+          <Badge variant={variant}>
+            {formatEnum(status)}
           </Badge>
         )
       },
@@ -554,7 +558,7 @@ export function IncidentsMatrixView() {
       header: 'Cost',
       cell: ({ row }) => (
         <div className="text-right font-medium">
-          ${row.original.cost.toFixed(2)}
+          {formatCurrency(row.original.cost)}
         </div>
       ),
     },
@@ -588,7 +592,7 @@ export function IncidentsMatrixView() {
 
     const csvData = filteredData.map((incident) => [
       incident.incident_number,
-      new Date(incident.date).toLocaleDateString(),
+      formatDate(incident.date),
       incident.time,
       incident.location,
       incident.type,
@@ -598,7 +602,7 @@ export function IncidentsMatrixView() {
       incident.driver_name || '',
       incident.description.replace(/,/g, ';'),
       incident.status,
-      `$${incident.cost.toFixed(2)}`,
+      formatCurrency(incident.cost),
       incident.root_cause?.replace(/,/g, ';') || '',
     ])
 
@@ -614,7 +618,7 @@ export function IncidentsMatrixView() {
 
   // Calculate summary stats
   const totalIncidents = filteredData.length
-  const openCount = filteredData.filter((i) => i.status === 'open' || i.status === 'investigating').length
+  const openCount = filteredData.filter((i) => i.status === 'pending' || i.status === 'in_progress').length
   const criticalCount = filteredData.filter((i) => i.severity === 'critical').length
   const totalInjured = filteredData.reduce((sum, i) => sum + i.injured, 0)
   const totalCost = filteredData.reduce((sum, i) => sum + i.cost, 0)
@@ -623,10 +627,10 @@ export function IncidentsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-[#242424] border-white/[0.08]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalIncidents}</div>
-            <div className="text-xs text-slate-700">Total Incidents</div>
+            <div className="text-xs text-white/40">Total Incidents</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -635,7 +639,7 @@ export function IncidentsMatrixView() {
               <AlertOctagon className="w-3 h-3 text-red-400" />
               <div className="text-sm font-bold text-red-400">{openCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Open/Investigating</div>
+            <div className="text-xs text-white/40">Open/Investigating</div>
           </CardContent>
         </Card>
         <Card className="bg-orange-900/30 border-orange-700/50">
@@ -644,19 +648,19 @@ export function IncidentsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-orange-400" />
               <div className="text-sm font-bold text-orange-400">{totalInjured}</div>
             </div>
-            <div className="text-xs text-slate-700">Total Injuries</div>
+            <div className="text-xs text-white/40">Total Injuries</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-amber-400">${totalCost.toFixed(0)}</div>
-            <div className="text-xs text-slate-700">Total Cost</div>
+            <div className="text-sm font-bold text-amber-400">{formatCurrency(totalCost)}</div>
+            <div className="text-xs text-white/40">Total Cost</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex-1 min-w-[200px]">
@@ -697,9 +701,9 @@ export function IncidentsMatrixView() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="investigating">Investigating</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="closed">Closed</SelectItem>
               </SelectContent>
             </Select>
@@ -712,10 +716,10 @@ export function IncidentsMatrixView() {
       </Card>
 
       {/* Excel-Style Incidents Matrix */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Shield className="w-3 h-3 text-blue-700" />
+            <Shield className="w-3 h-3 text-emerald-400" />
             All Safety Incidents - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>

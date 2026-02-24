@@ -151,7 +151,7 @@ router.post(
         new Date(periodEnd)
       )
 
-      res.json({ message: 'Calculation started for all drivers' })
+      res.json({ success: true, message: 'Calculation started for all drivers' })
     } catch (error) {
       logger.error('Calculate all scores error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Internal server error' })

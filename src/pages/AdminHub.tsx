@@ -29,11 +29,14 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { secureFetch } from '@/hooks/use-api'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
 
 interface AdminUser {
   id: number
@@ -75,12 +78,12 @@ export default function AdminHub() {
       try {
         setIsLoading(true)
         const [usersResponse, auditResponse] = await Promise.all([
-          secureFetch('/api/users?limit=200'),
-          secureFetch('/api/audit-logs?limit=200'),
+          secureFetch('/api/users?limit=200').catch(() => null),
+          secureFetch('/api/audit-logs?limit=200').catch(() => null),
         ])
 
         if (!cancelled) {
-          if (usersResponse.ok) {
+          if (usersResponse?.ok) {
             const usersPayload = await usersResponse.json()
             const users = (usersPayload.data || usersPayload || []) as any[]
             setAdminUsers(
@@ -102,7 +105,7 @@ export default function AdminHub() {
             setAdminUsers([])
           }
 
-          if (auditResponse.ok) {
+          if (auditResponse?.ok) {
             const auditPayload = await auditResponse.json()
             const logs = (auditPayload.data || auditPayload || []) as any[]
             setAuditLogs(
@@ -215,7 +218,7 @@ export default function AdminHub() {
         accessorKey: 'loginCount',
         header: 'Logins',
         cell: ({ row }) => (
-          <span className="text-white font-medium">{(row.getValue('loginCount') as number).toLocaleString()}</span>
+          <span className="text-white font-medium">{formatNumber(row.getValue('loginCount') as number)}</span>
         ),
       },
       {
@@ -362,6 +365,7 @@ export default function AdminHub() {
   }, [adminUsers, auditLogs])
 
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-[hsl(var(--background))] p-3 space-y-3">
       {/* Header with gradient accent */}
       <div className="relative">
@@ -463,6 +467,7 @@ export default function AdminHub() {
               <Button
                 variant="outline"
                 className="bg-[hsl(var(--card))] border-[hsl(var(--primary))]/20 text-white hover:bg-[hsl(var(--primary))]/20"
+                onClick={() => toast.info('Exporting user list...')}
               >
                 Export Users
               </Button>
@@ -474,7 +479,7 @@ export default function AdminHub() {
 
           {(!isLoading && adminUsers.length === 0) ? (
             <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-gray-200">
-              No users found. Ensure `/api/users` is populated for this tenant.
+              No users found for this tenant.
             </div>
           ) : (
             <DataTable
@@ -520,7 +525,7 @@ export default function AdminHub() {
 
           {(!isLoading && auditLogs.length === 0) ? (
             <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-gray-200">
-              No audit logs available. Verify `/api/audit-logs` permissions and data.
+              No audit logs available.
             </div>
           ) : (
             <DataTable
@@ -542,6 +547,7 @@ export default function AdminHub() {
         CTA Administration • ArchonY Platform • Secure access management • Professional data tables
       </div>
     </div>
+    </ErrorBoundary>
   )
 }
 

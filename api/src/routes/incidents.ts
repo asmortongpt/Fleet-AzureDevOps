@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection'
@@ -7,6 +8,52 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const createIncidentSchema = z.object({
+  number: z.string().max(50).optional(),
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  type: z.string().max(100).optional(),
+  severity: z.string().max(50).optional(),
+  status: z.string().max(50).optional(),
+  description: z.string().max(5000).optional(),
+  location: z.string().max(500).optional(),
+  incident_date: z.string().optional(),
+  resolution: z.string().max(5000).optional(),
+  resolution_date: z.string().optional(),
+  notes: z.string().max(5000).optional(),
+  cost: z.union([z.string(), z.number()]).optional(),
+  insurance_claim_number: z.string().max(100).optional(),
+  police_report_number: z.string().max(100).optional(),
+  weather_conditions: z.string().max(200).optional(),
+  road_conditions: z.string().max(200).optional(),
+  injuries: z.union([z.boolean(), z.number()]).optional(),
+  fatalities: z.union([z.boolean(), z.number()]).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
+
+const incidentUpdateSchema = z.object({
+  number: z.string().optional(),
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  type: z.string().optional(),
+  severity: z.string().optional(),
+  status: z.string().optional(),
+  description: z.string().optional(),
+  location: z.string().optional(),
+  incident_date: z.string().optional(),
+  resolution: z.string().optional(),
+  resolution_date: z.string().optional(),
+  notes: z.string().optional(),
+  cost: z.union([z.string(), z.number()]).optional(),
+  insurance_claim_number: z.string().optional(),
+  police_report_number: z.string().optional(),
+  weather_conditions: z.string().optional(),
+  road_conditions: z.string().optional(),
+  injuries: z.union([z.boolean(), z.number()]).optional(),
+  fatalities: z.union([z.boolean(), z.number()]).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -106,10 +153,32 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT i.*,
-                v.number as vehicle_unit,
+        `SELECT i.id,
+                i.number as incident_number,
+                COALESCE(i.type || ' Incident - ' || i.number, i.description) as title,
+                i.description,
+                i.type,
+                i.severity,
+                i.status,
+                i.incident_date as date,
+                i.location,
+                i.latitude,
+                i.longitude,
+                i.vehicle_id,
+                v.number as vehicle_name,
+                i.driver_id,
                 d.first_name || ' ' || d.last_name as driver_name,
-                u.first_name || ' ' || u.last_name as reported_by_name
+                u.first_name || ' ' || u.last_name as reported_by,
+                i.reported_at as reported_date,
+                i.estimated_cost,
+                i.actual_cost,
+                i.injuries_reported as injuries,
+                i.fatalities_reported as fatalities,
+                i.police_report_number,
+                i.insurance_claim_number,
+                i.metadata,
+                i.created_at,
+                i.updated_at
          FROM incidents i
          LEFT JOIN vehicles v ON i.vehicle_id = v.id
          LEFT JOIN drivers d ON i.driver_id = d.id
@@ -130,6 +199,107 @@ router.get(
   }
 )
 
+// GET /incidents/:id/evidence — evidence records
+router.get(
+  '/:id/evidence',
+  requirePermission('incident:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT id, 'document' as type, description as filename,
+                description, reported_at as uploaded_date
+         FROM incidents
+         WHERE id = $1 AND tenant_id = $2 AND attachments IS NOT NULL`,
+        [req.params.id, req.user!.tenant_id]
+      )
+      res.json(result.rows)
+    } catch (error) {
+      logger.error('Get incident evidence error:', error)
+      res.json([])
+    }
+  }
+)
+
+// GET /incidents/:id/involved-parties — witnesses and involved parties
+router.get(
+  '/:id/involved-parties',
+  requirePermission('incident:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      // Return driver as involved party plus any witness data from JSONB
+      const result = await pool.query(
+        `SELECT
+           d.id,
+           'driver' as type,
+           d.first_name || ' ' || d.last_name as name,
+           d.phone as contact_phone,
+           d.email as contact_email,
+           'Driver of vehicle' as role
+         FROM incidents i
+         JOIN drivers d ON i.driver_id = d.id
+         WHERE i.id = $1 AND i.tenant_id = $2`,
+        [req.params.id, req.user!.tenant_id]
+      )
+      res.json(result.rows)
+    } catch (error) {
+      logger.error('Get incident parties error:', error)
+      res.json([])
+    }
+  }
+)
+
+// GET /incidents/:id/timeline — timeline events
+router.get(
+  '/:id/timeline',
+  requirePermission('incident:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT
+           i.id,
+           'incident_reported' as event_type,
+           'Incident reported: ' || COALESCE(i.type, '') || ' at ' || COALESCE(i.location, 'unknown location') as description,
+           i.reported_at as timestamp,
+           u.first_name || ' ' || u.last_name as user_name
+         FROM incidents i
+         LEFT JOIN users u ON i.reported_by_id = u.id
+         WHERE i.id = $1 AND i.tenant_id = $2`,
+        [req.params.id, req.user!.tenant_id]
+      )
+      res.json(result.rows)
+    } catch (error) {
+      logger.error('Get incident timeline error:', error)
+      res.json([])
+    }
+  }
+)
+
+// GET /incidents/:id/related — related records
+router.get(
+  '/:id/related',
+  requirePermission('incident:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      // Find work orders and inspections related to the same vehicle around the incident date
+      const result = await pool.query(
+        `SELECT wo.id, 'work_order' as type, wo.title, wo.created_at as date, wo.status
+         FROM work_orders wo
+         JOIN incidents i ON i.id = $1
+         WHERE wo.vehicle_id = i.vehicle_id
+           AND wo.created_at BETWEEN i.incident_date - INTERVAL '30 days' AND i.incident_date + INTERVAL '30 days'
+           AND wo.tenant_id = $2
+         ORDER BY wo.created_at DESC
+         LIMIT 10`,
+        [req.params.id, req.user!.tenant_id]
+      )
+      res.json(result.rows)
+    } catch (error) {
+      logger.error('Get incident related error:', error)
+      res.json([])
+    }
+  }
+)
+
 // POST /incidents
 router.post(
   '/',
@@ -138,7 +308,11 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createIncidentSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
 
       let number = data.number
       if (!number) {
@@ -177,7 +351,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { fields, values } = buildUpdateClause(req.body, 3)
+      const parsed = incidentUpdateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
+      const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
         `UPDATE incidents SET ${fields}, updated_at = NOW()
@@ -214,7 +393,7 @@ router.delete(
         return res.status(404).json({ error: 'Incident not found' })
       }
 
-      res.json({ message: 'Incident deleted successfully' })
+      res.json({ success: true, message: 'Incident deleted successfully' })
     } catch (error) {
       logger.error('Delete incident error:', error)
       res.status(500).json({ error: 'Internal server error' })

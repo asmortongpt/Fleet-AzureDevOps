@@ -6,6 +6,7 @@ import { useMutation } from '../../lib/hooks/useMutation';
 import { CSRFInput, useCSRFToken } from '../CSRFInput';
 
 import { api } from "@/lib/api";
+import logger from '@/utils/logger';
 
 /**
  * CSRF Protection Examples
@@ -50,7 +51,7 @@ export function CreateIncidentExample() {
         setPriority('medium');
       },
       onError: (error: Error) => {
-        console.error('Failed to create incident:', error.message);
+        logger.error('Failed to create incident:', error.message);
       },
     }
   );
@@ -67,6 +68,7 @@ export function CreateIncidentExample() {
       });
     } catch (error) {
       // Error already handled by onError callback
+      logger.warn('Create incident mutation threw unexpectedly', { error: String(error) })
     }
   };
 
@@ -210,7 +212,7 @@ export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
     {
       onSuccess: () => {},
       onError: (error: Error) => {
-        console.error('Failed to delete incident:', error.message);
+        logger.error('Failed to delete incident:', error.message);
       },
     }
   );
@@ -222,6 +224,7 @@ export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
         await deleteIncident.mutate(incidentId);
       } catch (error) {
         // Error already handled by onError callback
+        logger.warn('Delete incident mutation threw unexpectedly', { error: String(error) })
       }
     }
   };

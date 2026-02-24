@@ -39,7 +39,6 @@ import {
   Columns3
 } from 'lucide-react'
 import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react'
-import * as XLSX from 'xlsx'
 
 import { Badge } from './badge'
 import { Button } from './button'
@@ -230,7 +229,7 @@ export function VirtualizedTable<TData>({
   }, [rowSelection, table, onRowsSelected])
 
   // Handlers
-  const handleExportExcel = useCallback(() => {
+  const handleExportExcel = useCallback(async () => {
     const exportData = table
       .getFilteredRowModel()
       .rows.map((row) => row.original)
@@ -238,11 +237,12 @@ export function VirtualizedTable<TData>({
     if (onExport) {
       onExport(exportData)
     } else {
-      // Default Excel export
+      // Dynamic import — xlsx (~900KB) is only loaded when user clicks "Export"
+      const XLSX = await import('xlsx') as any
       const ws = XLSX.utils.json_to_sheet(exportData as any[])
       const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, 'Data');
-      (XLSX as any).writeFile(wb, `export_${Date.now()}.xlsx`)
+      XLSX.utils.book_append_sheet(wb, ws, 'Data')
+      XLSX.writeFile(wb, `export_${Date.now()}.xlsx`)
     }
   }, [table, onExport])
 
@@ -298,7 +298,7 @@ export function VirtualizedTable<TData>({
         {/* Search */}
         {enableSearch && (
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-700" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
             <Input
               placeholder="Search all columns..."
               value={globalFilter ?? ''}
@@ -312,7 +312,7 @@ export function VirtualizedTable<TData>({
                 className="absolute right-3 top-1/2 transform -translate-y-1/2"
                 aria-label="Clear search"
               >
-                <X className="w-4 h-4 text-slate-700 hover:text-slate-600" />
+                <X className="w-4 h-4 text-white/40 hover:text-white/40" />
               </button>
             )}
           </div>
@@ -383,7 +383,7 @@ export function VirtualizedTable<TData>({
       <div
         ref={tableContainerRef}
         className={cn(
-          'relative overflow-auto rounded-lg border border-slate-200 dark:border-slate-800',
+          'relative overflow-auto rounded-lg border border-white/[0.08] dark:border-white/[0.08]',
           className
         )}
         style={{ maxHeight }}
@@ -394,17 +394,17 @@ export function VirtualizedTable<TData>({
           {/* Header */}
           <thead
             className={cn(
-              'bg-slate-50 dark:bg-slate-900',
+              'bg-white/[0.03] dark:bg-[#111]',
               stickyHeader && 'sticky top-0 z-10'
             )}
           >
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-slate-200 dark:border-slate-800">
+              <tr key={headerGroup.id} className="border-b border-white/[0.08] dark:border-white/[0.08]">
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
                     style={{ width: header.getSize() }}
-                    className="relative px-2 py-3 text-left text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider"
+                    className="relative px-2 py-3 text-left text-xs font-medium text-white/40 dark:text-white/80 uppercase tracking-wider"
                   >
                     {header.isPlaceholder ? null : (
                       <div className="flex items-center gap-2">
@@ -412,7 +412,7 @@ export function VirtualizedTable<TData>({
                           className={cn(
                             'flex items-center gap-1',
                             header.column.getCanSort() &&
-                              'cursor-pointer select-none hover:text-slate-900 dark:hover:text-slate-100'
+                              'cursor-pointer select-none hover:text-white/95 dark:hover:text-white/90'
                           )}
                           onClick={header.column.getToggleSortingHandler()}
                           role={header.column.getCanSort() ? 'button' : undefined}
@@ -478,8 +478,8 @@ export function VirtualizedTable<TData>({
                     data-index={virtualRow.index}
                     ref={virtualizer.measureElement}
                     className={cn(
-                      'border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors',
-                      row.getIsSelected() && 'bg-blue-50 dark:bg-blue-900/20',
+                      'border-b border-white/[0.08] dark:border-white/[0.08] hover:bg-white/[0.03] dark:hover:bg-white/[0.06] transition-colors',
+                      row.getIsSelected() && 'bg-emerald-50 dark:bg-white/[0.04]',
                       onRowClick && 'cursor-pointer'
                     )}
                     style={{
@@ -496,7 +496,7 @@ export function VirtualizedTable<TData>({
                       <td
                         key={cell.id}
                         style={{ width: cell.column.getSize() }}
-                        className="px-2 py-3 text-sm text-slate-700 dark:text-slate-300"
+                        className="px-2 py-3 text-sm text-white/40 dark:text-white/80"
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
@@ -509,8 +509,8 @@ export function VirtualizedTable<TData>({
                 <tr
                   key={row.id}
                   className={cn(
-                    'border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors',
-                    row.getIsSelected() && 'bg-blue-50 dark:bg-blue-900/20',
+                    'border-b border-white/[0.08] dark:border-white/[0.08] hover:bg-white/[0.03] dark:hover:bg-white/[0.06] transition-colors',
+                    row.getIsSelected() && 'bg-emerald-50 dark:bg-white/[0.04]',
                     onRowClick && 'cursor-pointer'
                   )}
                   onClick={() => onRowClick?.(row.original)}
@@ -519,7 +519,7 @@ export function VirtualizedTable<TData>({
                     <td
                       key={cell.id}
                       style={{ width: cell.column.getSize() }}
-                      className="px-2 py-3 text-sm text-slate-700 dark:text-slate-300"
+                      className="px-2 py-3 text-sm text-white/40 dark:text-white/80"
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
@@ -534,7 +534,7 @@ export function VirtualizedTable<TData>({
       {/* Pagination */}
       {enablePagination && (
         <div className="flex items-center justify-between">
-          <div className="text-sm text-slate-700 dark:text-slate-300">
+          <div className="text-sm text-white/40 dark:text-white/80">
             Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
             {Math.min(
               (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
@@ -579,7 +579,7 @@ function ColumnFilter({ column }: { column: any }) {
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            'p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800',
+            'p-1 rounded hover:bg-white/[0.06] dark:hover:bg-white/[0.06]',
             columnFilterValue && 'text-primary'
           )}
           aria-label={`Filter ${column.id}`}
@@ -623,7 +623,7 @@ const DefaultLoadingState = () => (
   <div className="flex items-center justify-center h-64">
     <div className="text-center space-y-2">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-      <p className="text-sm text-slate-500">Loading data...</p>
+      <p className="text-sm text-white/40">Loading data...</p>
     </div>
   </div>
 )
@@ -633,7 +633,7 @@ const DefaultErrorState = ({ error }: { error: Error }) => (
     <div className="text-center space-y-2">
       <X className="w-4 h-4 text-red-500 mx-auto" />
       <p className="text-sm font-medium">Failed to load data</p>
-      <p className="text-xs text-slate-500">{error.message}</p>
+      <p className="text-xs text-white/40">{error.message}</p>
     </div>
   </div>
 )
@@ -641,11 +641,11 @@ const DefaultErrorState = ({ error }: { error: Error }) => (
 const DefaultEmptyState = ({ message }: { message: string }) => (
   <div className="flex items-center justify-center h-64">
     <div className="text-center space-y-2">
-      <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full inline-flex">
-        <Search className="w-4 h-4 text-slate-700" />
+      <div className="p-3 bg-neutral-100 dark:bg-[#1a1a1a] rounded-full inline-flex">
+        <Search className="w-4 h-4 text-white/40" />
       </div>
       <p className="text-sm font-medium">{message}</p>
-      <p className="text-xs text-slate-500">Try adjusting your filters or search</p>
+      <p className="text-xs text-white/40">Try adjusting your filters or search</p>
     </div>
   </div>
 )

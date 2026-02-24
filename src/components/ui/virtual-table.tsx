@@ -84,9 +84,9 @@ function VirtualTable<T>({ data, columns }: VirtualTableProps<T>): React.ReactEl
             zIndex: 1,
           }}
         >
-          {columns.map((column, index) => (
+          {columns.map((column) => (
             <div
-              key={index}
+              key={column.key}
               style={{
                 width: `${column.width}px`,
                 overflow: 'hidden',

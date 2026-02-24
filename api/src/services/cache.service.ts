@@ -1,5 +1,7 @@
 import { injectable } from 'inversify';
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
+
+import redisClient from '../config/redis';
 
 export const CacheKeys = {
   vehicle: (id: string | number) => `vehicle:${id}`,
@@ -13,7 +15,7 @@ export class CacheService {
   private misses = 0;
 
   constructor() {
-    this.redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+    this.redis = redisClient;
   }
 
   async get(key: string) {

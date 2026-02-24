@@ -16,6 +16,7 @@
 import { EventEmitter } from 'events'
 
 import { Vehicle, OBD2Data, EmulatorConfig } from '../types'
+import logger from '../../config/logger'
 
 // Realistic gear ratios for common transmissions
 const GEAR_RATIOS = {
@@ -325,7 +326,7 @@ return
       }
     }, updateFrequency)
 
-    console.log(`RealisticOBD2Emulator started for vehicle ${this.vehicle.id}`)
+    logger.info(`RealisticOBD2Emulator started for vehicle ${this.vehicle.id}`)
   }
 
   /**
@@ -346,7 +347,7 @@ return
     this.isRunning = false
     this.isPaused = false
 
-    console.log(`RealisticOBD2Emulator stopped for vehicle ${this.vehicle.id}`)
+    logger.info(`RealisticOBD2Emulator stopped for vehicle ${this.vehicle.id}`)
   }
 
   public async pause(): Promise<void> {

@@ -14,7 +14,12 @@ const VehicleDetailPanel: React.FC = () => {
   return (
     <div>
       {/* Example usage of the drilldown service */}
-      <div onClick={() => handleRowClick('vehicleId', 'vehicleName')}>
+      <div
+        onClick={() => handleRowClick('vehicleId', 'vehicleName')}
+        onKeyDown={(e) => e.key === 'Enter' && handleRowClick('vehicleId', 'vehicleName')}
+        role="button"
+        tabIndex={0}
+      >
         Click to view vehicle details
       </div>
     </div>

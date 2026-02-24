@@ -1,12 +1,12 @@
 /**
  * DriversHub - Professional Driver Management Dashboard
  *
- * Enterprise-grade driver management with:
- * - Professional table-based layout (NO cards)
- * - CTA branded styling
- * - Real-time driver data
- * - Advanced sorting, filtering, pagination
- * - All data visible upfront
+ * Government-professional quality:
+ * - Charcoal/white theme only
+ * - Semantic safety score colors
+ * - Overtime flagging
+ * - Proper date/enum/number formatting
+ * - No emoji, no animations, no gold/orange/cyan
  */
 
 import { type ColumnDef } from '@tanstack/react-table'
@@ -18,20 +18,21 @@ import {
   Car,
   Calendar,
   AlertTriangle,
-  TrendingUp,
-  TrendingDown,
   Clock,
   Activity,
-  Star,
   Shield,
   BadgeCheck,
+  Users,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
 import { cn } from '@/lib/utils'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatNumber } from '@/utils/format-helpers'
 
 interface Driver {
   id: number
@@ -39,7 +40,7 @@ interface Driver {
   email: string
   phone: string
   licenseNumber: string
-  status: 'Active' | 'Inactive' | 'On Leave' | 'Training'
+  status: string
   currentVehicle?: string
   location?: string
   hoursToday: number
@@ -70,7 +71,7 @@ export default function DriversHub() {
       email: d.email ?? '',
       phone: d.phone ?? d.phone_number ?? '',
       licenseNumber: d.license_number ?? d.licenseNumber ?? '',
-      status: d.status ?? 'Active',
+      status: d.status ?? 'active',
       currentVehicle: d.current_vehicle ?? d.currentVehicle,
       location: d.location ?? d.current_location ?? '',
       hoursToday: d.hours_today ?? d.hoursToday ?? 0,
@@ -86,7 +87,7 @@ export default function DriversHub() {
     }))
   }, [liveDrivers])
 
-  // Define table columns with CTA styling
+  // Define table columns
   const columns = useMemo<ColumnDef<Driver>[]>(
     () => [
       {
@@ -94,10 +95,10 @@ export default function DriversHub() {
         header: 'Driver Name',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center">
-              <User className="h-4 w-4 text-[hsl(var(--primary))]" />
+            <div className="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center">
+              <User className="h-3.5 w-3.5 text-muted-foreground" />
             </div>
-            <span className="font-semibold text-white">{row.getValue('name')}</span>
+            <span className="font-medium text-foreground">{row.getValue('name')}</span>
           </div>
         ),
       },
@@ -106,8 +107,8 @@ export default function DriversHub() {
         header: 'Email',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-[hsl(var(--primary))]" />
-            <span className="text-gray-200 text-sm">{row.getValue('email')}</span>
+            <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground text-sm">{row.getValue('email')}</span>
           </div>
         ),
       },
@@ -116,13 +117,42 @@ export default function DriversHub() {
         header: 'Phone',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Phone className="h-4 w-4 text-[hsl(var(--primary))]" />
-            <span className="text-gray-200 font-mono text-sm">{row.getValue('phone')}</span>
+            <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground font-mono text-sm">{row.getValue('phone')}</span>
           </div>
         ),
       },
-      createMonospaceColumn<Driver>('licenseNumber', 'License #'),
-      createStatusColumn<Driver>('status', 'Status'),
+      {
+        accessorKey: 'licenseNumber',
+        header: 'License #',
+        cell: ({ row }) => (
+          <span className="font-mono text-sm text-foreground">{row.getValue('licenseNumber') || '\u2014'}</span>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: ({ row }) => {
+          const status = row.getValue('status') as string
+          const normalized = status?.toLowerCase().replace(/[\s_-]+/g, '')
+          const isActive = normalized === 'active'
+          const isOnLeave = normalized === 'onleave'
+          return (
+            <span
+              className={cn(
+                'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
+                isActive
+                  ? 'bg-emerald-500/10 text-emerald-400'
+                  : isOnLeave
+                    ? 'bg-amber-500/10 text-amber-400'
+                    : 'bg-white/[0.06] text-muted-foreground'
+              )}
+            >
+              {formatEnum(status)}
+            </span>
+          )
+        },
+      },
       {
         accessorKey: 'currentVehicle',
         header: 'Current Vehicle',
@@ -130,8 +160,8 @@ export default function DriversHub() {
           const vehicle = row.getValue('currentVehicle') as string | undefined
           return vehicle ? (
             <div className="flex items-center gap-2">
-              <Car className="h-4 w-4 text-[hsl(var(--warning))]" />
-              <span className="text-white text-sm">{vehicle}</span>
+              <Car className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-foreground text-sm">{vehicle}</span>
             </div>
           ) : (
             <span className="text-muted-foreground text-sm">Not assigned</span>
@@ -143,8 +173,8 @@ export default function DriversHub() {
         header: 'Location',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-[hsl(var(--primary))]" />
-            <span className="text-gray-200 text-sm">{row.getValue('location') || 'Unknown'}</span>
+            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground text-sm">{row.getValue('location') || '\u2014'}</span>
           </div>
         ),
       },
@@ -156,8 +186,8 @@ export default function DriversHub() {
           const isOvertime = hours > 8
           return (
             <div className="flex items-center gap-2">
-              <Clock className={cn('h-4 w-4', isOvertime ? 'text-[hsl(var(--destructive))]' : 'text-[hsl(var(--primary))]')} />
-              <span className={cn('font-medium', isOvertime ? 'text-[hsl(var(--destructive))]' : 'text-white')}>
+              <Clock className={cn('h-3.5 w-3.5', isOvertime ? 'text-rose-400' : 'text-muted-foreground')} />
+              <span className={cn('font-medium text-sm', isOvertime ? 'text-rose-400' : 'text-foreground')}>
                 {hours.toFixed(1)}h
               </span>
             </div>
@@ -171,7 +201,7 @@ export default function DriversHub() {
           const hours = row.getValue('hoursWeek') as number
           const isOvertime = hours > 40
           return (
-            <span className={cn('font-medium', isOvertime ? 'text-[hsl(var(--warning))]' : 'text-white')}>
+            <span className={cn('font-medium text-sm', isOvertime ? 'text-rose-400' : 'text-foreground')}>
               {hours.toFixed(1)}h
             </span>
           )
@@ -182,11 +212,16 @@ export default function DriversHub() {
         header: 'Safety Score',
         cell: ({ row }) => {
           const score = row.getValue('safetyScore') as number
-          const color = score >= 95 ? 'text-emerald-400' : score >= 85 ? 'text-[hsl(var(--warning))]' : 'text-[hsl(var(--destructive))]'
+          const color =
+            score >= 95
+              ? 'text-emerald-400'
+              : score >= 85
+                ? 'text-amber-400'
+                : 'text-rose-400'
           return (
             <div className="flex items-center gap-2">
-              <Shield className={cn('h-4 w-4', color)} />
-              <span className={cn('font-bold', color)}>{score}</span>
+              <Shield className={cn('h-3.5 w-3.5', color)} />
+              <span className={cn('font-semibold text-sm', color)}>{score}</span>
             </div>
           )
         },
@@ -197,10 +232,7 @@ export default function DriversHub() {
         cell: ({ row }) => {
           const rating = row.getValue('rating') as number
           return (
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 text-[hsl(var(--warning))] fill-[hsl(var(--warning))]" />
-              <span className="text-white font-medium">{rating.toFixed(1)}</span>
-            </div>
+            <span className="text-foreground font-medium text-sm">{rating.toFixed(1)}</span>
           )
         },
       },
@@ -208,14 +240,14 @@ export default function DriversHub() {
         accessorKey: 'totalTrips',
         header: 'Total Trips',
         cell: ({ row }) => (
-          <span className="text-white">{(row.getValue('totalTrips') as number).toLocaleString()}</span>
+          <span className="text-foreground text-sm">{formatNumber(row.getValue('totalTrips') as number)}</span>
         ),
       },
       {
         accessorKey: 'totalMiles',
         header: 'Total Miles',
         cell: ({ row }) => (
-          <span className="text-gray-200">{(row.getValue('totalMiles') as number).toLocaleString()}</span>
+          <span className="text-muted-foreground text-sm">{formatNumber(row.getValue('totalMiles') as number)}</span>
         ),
       },
       {
@@ -227,13 +259,13 @@ export default function DriversHub() {
             <div className="flex items-center gap-2">
               {violations > 0 ? (
                 <>
-                  <AlertTriangle className="h-4 w-4 text-[hsl(var(--destructive))]" />
-                  <span className="text-[hsl(var(--destructive))] font-semibold">{violations}</span>
+                  <AlertTriangle className="h-3.5 w-3.5 text-rose-400" />
+                  <span className="text-rose-400 font-semibold text-sm">{violations}</span>
                 </>
               ) : (
                 <>
-                  <BadgeCheck className="h-4 w-4 text-emerald-400" />
-                  <span className="text-emerald-400 font-semibold">0</span>
+                  <BadgeCheck className="h-3.5 w-3.5 text-emerald-400" />
+                  <span className="text-emerald-400 font-semibold text-sm">0</span>
                 </>
               )}
             </div>
@@ -243,12 +275,22 @@ export default function DriversHub() {
       {
         accessorKey: 'lastTrip',
         header: 'Last Trip',
-        cell: ({ row }) => (
-          <div className="flex items-center gap-2">
-            <Activity className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-400 text-xs">{row.getValue('lastTrip') || 'N/A'}</span>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const val = row.getValue('lastTrip') as string | undefined
+          return (
+            <span className="text-muted-foreground text-xs">{formatDate(val)}</span>
+          )
+        },
+      },
+      {
+        accessorKey: 'hireDate',
+        header: 'Hire Date',
+        cell: ({ row }) => {
+          const val = row.original.hireDate
+          return (
+            <span className="text-muted-foreground text-xs">{formatDate(val)}</span>
+          )
+        },
       },
     ],
     []
@@ -257,111 +299,104 @@ export default function DriversHub() {
   // Calculate driver statistics
   const driverStats = useMemo(() => {
     const total = drivers.length
-    const active = drivers.filter((d) => d.status === 'Active').length
-    const onLeave = drivers.filter((d) => d.status === 'On Leave').length
+    if (total === 0) {
+      return { total: 0, active: 0, onLeave: 0, avgSafetyScore: 0 }
+    }
+    const active = drivers.filter(
+      (d) => d.status?.toLowerCase().replace(/[\s_-]+/g, '') === 'active'
+    ).length
+    const onLeave = drivers.filter(
+      (d) => d.status?.toLowerCase().replace(/[\s_-]+/g, '') === 'onleave'
+    ).length
     const avgSafetyScore = Math.round(
       drivers.reduce((sum, d) => sum + d.safetyScore, 0) / total
     )
-    const avgRating = (drivers.reduce((sum, d) => sum + d.rating, 0) / total).toFixed(1)
-    const totalViolations = drivers.reduce((sum, d) => sum + d.violations, 0)
-    const totalHoursToday = drivers.reduce((sum, d) => sum + d.hoursToday, 0)
 
-    return {
-      total,
-      active,
-      onLeave,
-      avgSafetyScore,
-      avgRating,
-      totalViolations,
-      totalHoursToday: totalHoursToday.toFixed(1),
-    }
+    return { total, active, onLeave, avgSafetyScore }
   }, [drivers])
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">Driver Management</h1>
+          <p className="text-xs text-muted-foreground">Loading driver data...</p>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-16 bg-[#242424] border border-white/[0.08] animate-pulse rounded" />
+          ))}
+        </div>
+        <div className="flex-1 min-h-0 bg-[#242424] border border-white/[0.08] animate-pulse rounded" />
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))] p-3 space-y-3">
-      {/* Header with gradient accent */}
-      <div className="relative">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[hsl(var(--warning))] to-[hsl(var(--destructive))]" />
-        <div className="pt-3">
-          <h1 className="text-2xl font-bold text-white mb-1">Driver Management</h1>
-          <p className="text-sm text-gray-300">
-            Intelligent Technology. Integrated Partnership. - ArchonY: Intelligent Performance
+    <ErrorBoundary>
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">Driver Management</h1>
+          <p className="text-xs text-muted-foreground">
+            {drivers.length} drivers
+            {selectedDrivers.length > 0 && ` / ${selectedDrivers.length} selected`}
           </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-white/[0.08] text-foreground"
+          >
+            Export Data
+          </Button>
+          <Button
+            size="sm"
+            className="bg-white/[0.08] text-foreground hover:bg-white/[0.12]"
+          >
+            Add Driver
+          </Button>
         </div>
       </div>
 
-      {/* Stats Bar - Compact and Professional */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
-        <StatCard
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-2">
+        <KPICard
           label="Total Drivers"
-          value={driverStats.total}
-          icon={<User className="h-5 w-5 text-[hsl(var(--primary))]" />}
-          trend="neutral"
+          value={formatNumber(driverStats.total)}
+          icon={<Users className="h-4 w-4 text-muted-foreground" />}
         />
-        <StatCard
+        <KPICard
           label="Active"
-          value={driverStats.active}
-          icon={<Activity className="h-5 w-5 text-emerald-400" />}
-          trend="up"
+          value={formatNumber(driverStats.active)}
+          icon={<Activity className="h-4 w-4 text-emerald-400" />}
         />
-        <StatCard
+        <KPICard
           label="On Leave"
-          value={driverStats.onLeave}
-          icon={<Calendar className="h-5 w-5 text-[hsl(var(--warning))]" />}
-          trend="neutral"
+          value={formatNumber(driverStats.onLeave)}
+          icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
         />
-        <StatCard
-          label="Avg Safety"
-          value={driverStats.avgSafetyScore}
-          icon={<Shield className="h-5 w-5 text-emerald-400" />}
-          trend="up"
-        />
-        <StatCard
-          label="Avg Rating"
-          value={driverStats.avgRating}
-          icon={<Star className="h-5 w-5 text-[hsl(var(--warning))]" />}
-          trend="neutral"
-        />
-        <StatCard
-          label="Violations"
-          value={driverStats.totalViolations}
-          icon={<AlertTriangle className="h-5 w-5 text-[hsl(var(--destructive))]" />}
-          trend="down"
-        />
-        <StatCard
-          label="Hours Today"
-          value={driverStats.totalHoursToday}
-          icon={<Clock className="h-5 w-5 text-[hsl(var(--primary))]" />}
-          trend="neutral"
+        <KPICard
+          label="Avg Safety Score"
+          value={String(driverStats.avgSafetyScore)}
+          icon={<Shield className={cn(
+            'h-4 w-4',
+            driverStats.avgSafetyScore >= 95
+              ? 'text-emerald-400'
+              : driverStats.avgSafetyScore >= 85
+                ? 'text-amber-400'
+                : 'text-rose-400'
+          )} />}
         />
       </div>
 
       {/* Main Data Table */}
-      <div>
-        <div className="mb-3 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-white">Driver Fleet</h2>
-            <p className="text-xs text-gray-300 mt-0.5">
-              {selectedDrivers.length > 0 && `${selectedDrivers.length} selected • `}
-              All data visible • Professional table layout
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="bg-[hsl(var(--card))] border-[hsl(var(--primary))]/20 text-white hover:bg-[hsl(var(--primary))]/20"
-            >
-              Export Data
-            </Button>
-            <Button className="bg-[hsl(var(--destructive))] hover:bg-[hsl(var(--destructive))]/90 text-white">
-              Add Driver
-            </Button>
-          </div>
-        </div>
-
-        {(!isLoading && drivers.length === 0) ? (
-          <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-gray-200">
-            No driver records found. Connect the drivers service or seed the CTA dataset to populate this table.
+      <div className="flex-1 min-h-0 overflow-auto">
+        {drivers.length === 0 ? (
+          <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+            No records found
           </div>
         ) : (
           <DataTable
@@ -376,47 +411,28 @@ export default function DriversHub() {
           />
         )}
       </div>
-
-      {/* Footer */}
-      <div className="text-center text-xs text-gray-400 pt-3 border-t border-[hsl(var(--primary))]/10">
-        CTA Driver Management • ArchonY Platform • Real-time updates • Professional data tables
-      </div>
     </div>
+    </ErrorBoundary>
   )
 }
 
-// Professional Stat Card Component
-interface StatCardProps {
+// KPI Card - charcoal/white only
+interface KPICardProps {
   label: string
-  value: string | number
+  value: string
   icon: React.ReactNode
-  trend?: 'up' | 'down' | 'neutral'
 }
 
-function StatCard({ label, value, icon, trend = 'neutral' }: StatCardProps) {
+function KPICard({ label, value, icon }: KPICardProps) {
   return (
-    <div className="bg-[hsl(var(--muted))] border border-[hsl(var(--primary))]/20 rounded-lg p-3 hover:border-[hsl(var(--primary))]/40 transition-all">
-      <div className="flex items-center justify-between mb-1.5">
-        <div className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">
+    <div className="bg-[#242424] border border-white/[0.08] rounded px-3 py-2">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
           {label}
-        </div>
+        </span>
         {icon}
       </div>
-      <div className="flex items-end gap-2">
-        <div className="text-xl font-bold text-white">{value}</div>
-        {trend !== 'neutral' && (
-          <div className={cn(
-            'flex items-center text-xs mb-1',
-            trend === 'up' ? 'text-emerald-400' : 'text-[hsl(var(--destructive))]'
-          )}>
-            {trend === 'up' ? (
-              <TrendingUp className="h-3 w-3" />
-            ) : (
-              <TrendingDown className="h-3 w-3" />
-            )}
-          </div>
-        )}
-      </div>
+      <div className="text-lg font-semibold text-foreground">{value}</div>
     </div>
   )
 }

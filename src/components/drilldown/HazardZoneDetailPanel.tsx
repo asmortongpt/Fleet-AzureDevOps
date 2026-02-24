@@ -22,6 +22,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
 
 interface HazardZoneDetailPanelProps {
   hazardZoneId: string
@@ -68,11 +71,6 @@ interface ZoneEvent {
   metadata?: Record<string, any>
 }
 
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => r.json())
-    .then((data) => data?.data ?? data)
-
 export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('overview')
@@ -80,7 +78,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
   // Main hazard zone data
   const { data: zone, error, isLoading, mutate } = useSWR<HazardZoneData>(
     `/api/hazard-zones/${hazardZoneId}`,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -89,7 +87,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
   // Affected vehicles
   const { data: affectedVehicles } = useSWR<AffectedVehicle[]>(
     hazardZoneId ? `/api/hazard-zones/${hazardZoneId}/affected-vehicles` : null,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -98,7 +96,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
   // Zone events/timeline
   const { data: zoneEvents } = useSWR<ZoneEvent[]>(
     hazardZoneId ? `/api/hazard-zones/${hazardZoneId}/events` : null,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -140,7 +138,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
       case 'chemical':
         return <AlertTriangle className="h-5 w-5 text-orange-500" />
       case 'physical':
-        return <Shield className="h-5 w-5 text-blue-800" />
+        return <Shield className="h-5 w-5 text-emerald-400" />
       case 'environmental':
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />
       default:
@@ -151,7 +149,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
   const getEventIcon = (eventType: string) => {
     switch (eventType) {
       case 'entry':
-        return <Navigation className="h-4 w-4 text-blue-800" />
+        return <Navigation className="h-4 w-4 text-emerald-400" />
       case 'exit':
         return <Navigation className="h-4 w-4 text-green-500 rotate-180" />
       case 'violation':
@@ -171,16 +169,16 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{zone.name}</h3>
-              <p className="text-sm text-muted-foreground capitalize">
-                {zone.type} Hazard Zone
+              <p className="text-sm text-muted-foreground">
+                {formatEnum(zone.type)} Hazard Zone
               </p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant={getSeverityColor(zone.severity)}>
-                  {zone.severity} Severity
+                  {formatEnum(zone.severity)} Severity
                 </Badge>
                 {zone.activeTo ? (
                   <Badge variant="outline">
-                    Active until {new Date(zone.activeTo).toLocaleDateString()}
+                    Active until {formatDate(zone.activeTo)}
                   </Badge>
                 ) : (
                   <Badge variant="outline">Permanent</Badge>
@@ -227,7 +225,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  {new Date(zone.activeFrom).toLocaleDateString()}
+                  {formatDate(zone.activeFrom)}
                 </div>
               </CardContent>
             </Card>
@@ -306,27 +304,27 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
-                      <p className="font-medium capitalize">{zone.type}</p>
+                      <p className="font-medium">{formatEnum(zone.type)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Severity</p>
                       <Badge variant={getSeverityColor(zone.severity)}>
-                        {zone.severity}
+                        {formatEnum(zone.severity)}
                       </Badge>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Created By</p>
-                      <p className="font-medium">{zone.createdBy || 'N/A'}</p>
+                      <p className="font-medium">{zone.createdBy || '—'}</p>
                       {zone.createdDate && (
                         <p className="text-xs text-muted-foreground">
-                          {new Date(zone.createdDate).toLocaleDateString()}
+                          {formatDate(zone.createdDate)}
                         </p>
                       )}
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Last Updated</p>
                       <p className="font-medium">
-                        {zone.lastUpdated ? new Date(zone.lastUpdated).toLocaleDateString() : 'N/A'}
+                        {formatDate(zone.lastUpdated)}
                       </p>
                     </div>
                   </div>
@@ -383,7 +381,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                               <div>
                                 <p className="text-muted-foreground">Last Entry</p>
                                 <p className="font-medium">
-                                  {new Date(vehicle.last_entry).toLocaleDateString()}
+                                  {formatDate(vehicle.last_entry)}
                                 </p>
                               </div>
                               <div>
@@ -437,8 +435,8 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                           <div className="flex-1 pb-2">
                             <div className="flex items-start justify-between">
                               <div>
-                                <p className="font-medium capitalize">
-                                  {event.event_type.replace('_', ' ')}
+                                <p className="font-medium">
+                                  {formatEnum(event.event_type)}
                                 </p>
                                 <p className="text-sm text-muted-foreground mt-1">
                                   {event.description}
@@ -450,7 +448,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                                 )}
                               </div>
                               <span className="text-xs text-muted-foreground">
-                                {new Date(event.timestamp).toLocaleString()}
+                                {formatDateTime(event.timestamp)}
                               </span>
                             </div>
                             {event.metadata && Object.keys(event.metadata).length > 0 && (

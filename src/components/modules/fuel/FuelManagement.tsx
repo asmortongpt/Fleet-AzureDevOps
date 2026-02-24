@@ -18,6 +18,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { brandColors } from "@/theme/designSystem"
+import { formatCurrency, formatDate, formatNumber } from "@/utils/format-helpers"
 
 /** Normalized fuel transaction shape used by this component */
 interface NormalizedFuelTransaction {
@@ -47,7 +48,7 @@ function normalizeFuelTransaction(raw: Record<string, unknown>): NormalizedFuelT
   return {
     id: String(raw.id ?? ''),
     vehicleId: String(raw.vehicle_id ?? raw.vehicleId ?? ''),
-    vehicleNumber: String(raw.receipt_number ?? raw.vehicleNumber ?? raw.vehicle_id ?? '').slice(0, 12) || 'N/A',
+    vehicleNumber: String(raw.receipt_number ?? raw.vehicleNumber ?? raw.vehicle_id ?? '').slice(0, 12) || '—',
     driverId: String(raw.driver_id ?? raw.driverId ?? ''),
     date: String(raw.transaction_date ?? raw.date ?? raw.created_at ?? ''),
     fuelType: String(raw.fuel_type ?? raw.fuelType ?? 'unknown'),
@@ -55,11 +56,11 @@ function normalizeFuelTransaction(raw: Record<string, unknown>): NormalizedFuelT
     costPerGallon: Number(raw.cost_per_gallon ?? raw.price_per_gallon ?? raw.pricePerGallon ?? raw.pricePerUnit ?? 0),
     totalCost: Number(raw.total_cost ?? raw.totalCost ?? raw.cost ?? 0),
     odometer: Number(raw.odometer ?? 0),
-    stationName: String(raw.station_name ?? raw.stationName ?? raw.station ?? raw.location ?? 'N/A'),
+    stationName: String(raw.station_name ?? raw.stationName ?? raw.station ?? raw.location ?? '—'),
     stationBrand: raw.station_brand ?? raw.stationBrand ? String(raw.station_brand ?? raw.stationBrand) : null,
     vendorName: String(raw.vendor_name ?? raw.vendorName ?? ''),
     receiptNumber: String(raw.receipt_number ?? raw.receiptNumber ?? ''),
-    paymentMethod: String(raw.payment_method ?? raw.paymentMethod ?? 'N/A'),
+    paymentMethod: String(raw.payment_method ?? raw.paymentMethod ?? '—'),
     isFullFill: raw.is_full_fill != null ? Boolean(raw.is_full_fill) : raw.isFullFill != null ? Boolean(raw.isFullFill) : null,
     mpg: Number(raw.mpg ?? 0),
     mpgCalculated: raw.mpg_calculated != null ? Number(raw.mpg_calculated) : raw.mpgCalculated != null ? Number(raw.mpgCalculated) : null,
@@ -81,7 +82,7 @@ export function FuelManagement() {
   const handleTransactionClick = (tx: NormalizedFuelTransaction) => {
     push({
       type: 'fuel-transaction',
-      label: `${tx.vehicleNumber} - ${tx.date ? new Date(tx.date).toLocaleDateString() : 'N/A'}`,
+      label: `${tx.vehicleNumber} - ${formatDate(tx.date)}`,
       data: { transactionId: tx.id, vehicleNumber: tx.vehicleNumber, totalCost: tx.totalCost }
     })
   }
@@ -153,7 +154,7 @@ export function FuelManagement() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <MetricCard
           title="Total Fuel Cost"
-          value={`$${Number(metrics.totalCost || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+          value={formatCurrency(Number(metrics.totalCost || 0))}
           change={8.3}
           trend="up"
           subtitle="last 90 days"
@@ -162,7 +163,7 @@ export function FuelManagement() {
         />
         <MetricCard
           title="Total Gallons"
-          value={`${Math.round(Number(metrics.totalGallons || 0)).toLocaleString()}`}
+          value={formatNumber(Math.round(Number(metrics.totalGallons || 0)))}
           change={5.1}
           trend="up"
           subtitle="consumed"
@@ -171,7 +172,7 @@ export function FuelManagement() {
         />
         <MetricCard
           title="Avg Price/Gallon"
-          value={`$${Number(metrics?.avgPrice || 0).toFixed(2)}`}
+          value={formatCurrency(Number(metrics?.avgPrice || 0))}
           change={2.4}
           trend="down"
           subtitle="trending down"
@@ -249,7 +250,7 @@ export function FuelManagement() {
                       onKeyDown={(e) => e.key === 'Enter' && handleTransactionClick(tx)}
                     >
                       <td className="px-2 py-3 text-sm text-muted-foreground">
-                        {tx.date ? new Date(tx.date).toLocaleDateString() : 'N/A'}
+                        {formatDate(tx.date)}
                       </td>
                       <td
                         className="px-2 py-3 text-sm font-medium text-primary hover:underline"
@@ -288,10 +289,10 @@ export function FuelManagement() {
                         )}
                       </td>
                       <td className="px-2 py-3 text-sm text-right">
-                        ${tx.costPerGallon.toFixed(2)}
+                        {formatCurrency(tx.costPerGallon)}
                       </td>
                       <td className="px-2 py-3 text-sm text-right font-semibold">
-                        ${tx.totalCost.toFixed(2)}
+                        {formatCurrency(tx.totalCost)}
                       </td>
                       <td className="px-2 py-3 text-sm text-right font-medium">
                         {(tx.mpgCalculated ?? tx.mpg).toFixed(1)}

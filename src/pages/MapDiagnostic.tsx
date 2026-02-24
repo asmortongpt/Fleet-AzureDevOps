@@ -2,8 +2,11 @@ import { MapPin, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 
+import { apiFetcher } from '@/lib/api-fetcher';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { FleetMap } from '@/components/FleetMap';
 import { Badge } from '@/components/ui/badge';
+import { formatEnum } from '@/utils/format-enum';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,10 +25,7 @@ interface GpsRecord {
   location?: string;
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((res) => res.json())
-    .then((data) => data?.data ?? data);
+const fetcher = apiFetcher;
 
 export default function MapDiagnostic() {
   const { data, error, isLoading, mutate } = useSWR<GpsRecord[]>(
@@ -70,6 +70,7 @@ export default function MapDiagnostic() {
   const stopped = statusCounts.stopped || 0;
 
   return (
+    <ErrorBoundary>
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -188,8 +189,8 @@ export default function MapDiagnostic() {
                     <div className="text-xs text-muted-foreground">
                       {vehicle.latitude?.toFixed(4)}, {vehicle.longitude?.toFixed(4)}
                     </div>
-                    <Badge variant="outline" className="mt-1 capitalize">
-                      {vehicle.status}
+                    <Badge variant="outline" className="mt-1">
+                      {formatEnum(vehicle.status)}
                     </Badge>
                   </div>
                 </div>
@@ -199,5 +200,6 @@ export default function MapDiagnostic() {
         </CardContent>
       </Card>
     </div>
+    </ErrorBoundary>
   );
 }

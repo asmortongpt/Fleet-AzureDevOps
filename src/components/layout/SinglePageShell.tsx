@@ -64,7 +64,7 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
       )}
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+      <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Top: Compact Header with CTA Fleet branding */}
         <CompactHeader />
 
@@ -72,7 +72,7 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
         <div className={cn("flex-1 relative overflow-hidden", !isDesktop && "pb-14")}>
           {moduleContent ? (
             // Show module content if provided
-            <div className="w-full h-full overflow-auto">
+            <div className="w-full h-full overflow-hidden">
               {moduleContent}
             </div>
           ) : (
@@ -92,7 +92,7 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
             </>
           )}
         </div>
-      </div>
+      </main>
 
       {/* Mobile/Tablet: Bottom tab bar */}
       {!isDesktop && <MobileTabBar />}

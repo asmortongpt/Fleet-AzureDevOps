@@ -13,12 +13,14 @@ import { Shield, Users, LineChart, FileText, AlertTriangle, CheckCircle, Lock, D
 import React, { useMemo } from 'react';
 // motion removed - React 19 incompatible
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+
+import { useNavigation } from '@/contexts/NavigationContext';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data';
 import { cn } from '@/lib/utils';
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface UserStats {
   total_users: number;
@@ -88,49 +90,49 @@ export function AdminDashboard() {
   const recentActivity = useMemo<RecentActivity[]>(() => {
     return (adminData.recentAuditLogs || []).slice(0, 5).map((log) => ({
       id: Number(log.id ?? 0),
-      timestamp: log.timestamp ? new Date(log.timestamp).toLocaleString() : '',
+      timestamp: log.timestamp ? formatDateTime(log.timestamp) : '',
       user: log.userName || log.userId || 'System',
       action: log.action || log.resource || 'Activity',
       severity: log.status === 'failure' ? 'critical' : 'info'
     }));
   }, [adminData.recentAuditLogs]);
 
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
 
-  // Quick actions
+  // Quick actions - Navigate to specific pages
   const handleAddUser = () => {
     toast.success('Opening new user creation form...');
-    navigate('/admin?tab=users');
+    navigateTo('admin-hub-consolidated');
   };
 
   const handleViewAuditLogs = () => {
     toast('Loading audit logs...');
-    navigate('/admin?tab=audit');
+    navigateTo('admin-hub-consolidated');
   };
 
   const handleGenerateReport = () => {
-    toast.success('Generating executive report...');
-    navigate('/reports');
+    toast.success('Opening reports...');
+    navigateTo('analytics');
   };
 
   const handleConfigureSettings = () => {
     toast('Opening system configuration...');
-    navigate('/settings');
+    navigateTo('settings');
   };
 
   const handleExportData = () => {
     toast.success('Preparing data export...');
-    navigate('/admin?tab=data');
+    navigateTo('admin-hub-consolidated');
   };
 
   const handleViewUsers = () => {
     toast('Loading user management interface...');
-    navigate('/admin?tab=users');
+    navigateTo('admin-hub-consolidated');
   };
 
   const handleViewSecurityAlerts = () => {
     toast('Loading security alerts...');
-    navigate('/admin?tab=security');
+    navigateTo('safety-compliance-hub');
   };
 
   const getHealthStatusColor = (status: string) => {
@@ -142,29 +144,29 @@ export function AdminDashboard() {
       case 'critical':
         return 'text-red-400 bg-red-950/30 border-red-500/30';
       default:
-        return 'text-slate-700 bg-slate-800 border-slate-700';
+        return 'text-white/40 bg-[#242424] border-white/[0.08]';
     }
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'info':
-        return 'text-blue-700';
+        return 'text-emerald-400';
       case 'warning':
         return 'text-amber-400';
       case 'critical':
         return 'text-red-400';
       default:
-        return 'text-slate-700';
+        return 'text-white/40';
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 p-2">
+    <div className="min-h-screen bg-[#111] p-2">
       {/* Header */}
       <div className="mb-2">
         <h1 className="text-sm font-bold text-white mb-1">Admin Dashboard</h1>
-        <p className="text-sm text-slate-700">System Management & Compliance Oversight</p>
+        <p className="text-sm text-white/40">System Management & Compliance Oversight</p>
       </div>
 
       {/* System Health Summary */}
@@ -192,37 +194,37 @@ export function AdminDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* API Uptime */}
-          <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+          <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.08]">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle className="w-4 h-4 text-green-400" />
-              <span className="text-sm text-slate-300 text-sm">API Uptime</span>
+              <span className="text-sm text-white/60 text-sm">API Uptime</span>
             </div>
             <p className="text-sm font-bold text-white">{systemHealth.api_uptime}%</p>
           </div>
 
           {/* Error Rate */}
-          <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+          <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.08]">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="w-4 h-4 text-amber-400" />
-              <span className="text-sm text-slate-300 text-sm">Error Rate</span>
+              <span className="text-sm text-white/60 text-sm">Error Rate</span>
             </div>
             <p className="text-sm font-bold text-white">{systemHealth.api_error_rate}%</p>
           </div>
 
           {/* DB Connections */}
-          <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+          <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.08]">
             <div className="flex items-center gap-2 mb-2">
               <Database className="w-4 h-4 text-cyan-400" />
-              <span className="text-sm text-slate-300 text-sm">DB Connections</span>
+              <span className="text-sm text-white/60 text-sm">DB Connections</span>
             </div>
             <p className="text-sm font-bold text-white">{systemHealth.database_connections}</p>
           </div>
 
           {/* Response Time */}
-          <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+          <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.08]">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="w-4 h-4 text-violet-400" />
-              <span className="text-sm text-slate-300 text-sm">Avg Response</span>
+              <span className="text-sm text-white/60 text-sm">Avg Response</span>
             </div>
             <p className="text-sm font-bold text-white">{systemHealth.avg_response_time_ms}ms</p>
           </div>
@@ -247,7 +249,7 @@ export function AdminDashboard() {
         </Button>
         <Button size="sm"
           onClick={handleGenerateReport}
-          className="bg-slate-600 hover:bg-slate-700 text-white"
+          className="bg-white/[0.15] hover:bg-white/[0.06] text-white"
         >
           <FileText className="w-4 h-4 mr-2" />
           Generate Report
@@ -256,7 +258,7 @@ export function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* User Management */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+        <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-cyan-400" />
@@ -273,9 +275,9 @@ export function AdminDashboard() {
 
           <div className="space-y-3">
             {/* Total Users */}
-            <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+            <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.08]">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-slate-300">Total Users</span>
+                <span className="text-sm text-white/60">Total Users</span>
                 <span className="text-sm font-bold text-white">{userStats.total_users}</span>
               </div>
               <div className="flex items-center gap-1 text-sm text-green-400">
@@ -285,12 +287,12 @@ export function AdminDashboard() {
             </div>
 
             {/* By Role */}
-            <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
-              <p className="text-slate-700 text-sm mb-3 font-semibold">By Role</p>
+            <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.08]">
+              <p className="text-white/40 text-sm mb-3 font-semibold">By Role</p>
               <div className="space-y-2">
                 {Object.entries(userStats.by_role).map(([role, count]) => (
                   <div key={role} className="flex items-center justify-between">
-                    <span className="text-sm text-slate-300 text-sm capitalize">
+                    <span className="text-sm text-white/60 text-sm capitalize">
                       {role.replace('_', ' ')}
                     </span>
                     <span className="text-white font-bold">{count}</span>
@@ -310,7 +312,7 @@ export function AdminDashboard() {
         </Card>
 
         {/* Security & Compliance */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+        <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-violet-400" />
@@ -325,13 +327,13 @@ export function AdminDashboard() {
                 "rounded-lg p-2 border transition-all",
                 securityMetrics.failed_logins_24h > 5
                   ? "bg-red-950/30 border-red-500/30"
-                  : "bg-slate-900/50 border-slate-700"
+                  : "bg-white/[0.03] border-white/[0.08]"
               )}
             >
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   <Lock className="w-4 h-4 text-amber-400" />
-                  <span className="text-sm text-slate-300 text-sm">Failed Logins (24h)</span>
+                  <span className="text-sm text-white/60 text-sm">Failed Logins (24h)</span>
                 </div>
                 <span className="text-sm font-bold text-white">
                   {securityMetrics.failed_logins_24h}
@@ -343,11 +345,11 @@ export function AdminDashboard() {
             </div>
 
             {/* Active Sessions */}
-            <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+            <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.08]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-green-400" />
-                  <span className="text-sm text-slate-300 text-sm">Active Sessions</span>
+                  <span className="text-sm text-white/60 text-sm">Active Sessions</span>
                 </div>
                 <span className="text-sm font-bold text-white">
                   {securityMetrics.active_sessions}
@@ -371,7 +373,7 @@ export function AdminDashboard() {
                   ) : (
                     <CheckCircle className="w-4 h-4 text-green-400" />
                   )}
-                  <span className="text-sm text-slate-300 text-sm">Compliance Violations</span>
+                  <span className="text-sm text-white/60 text-sm">Compliance Violations</span>
                 </div>
                 <span className="text-sm font-bold text-white">
                   {securityMetrics.compliance_violations}
@@ -380,11 +382,11 @@ export function AdminDashboard() {
             </div>
 
             {/* Pending Audits */}
-            <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+            <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.08]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-violet-400" />
-                  <span className="text-sm text-slate-300 text-sm">Pending Audits</span>
+                  <span className="text-sm text-white/60 text-sm">Pending Audits</span>
                 </div>
                 <span className="text-sm font-bold text-white">
                   {securityMetrics.pending_audits}
@@ -404,7 +406,7 @@ export function AdminDashboard() {
         </Card>
 
         {/* Recent Activity */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+        <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <LineChart className="w-4 h-4 text-amber-400" />
@@ -416,13 +418,13 @@ export function AdminDashboard() {
             {recentActivity.map((activity) => (
               <div
                 key={activity.id}
-                className="bg-slate-900/50 rounded-lg p-3 border border-slate-700"
+                className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.08]"
               >
                 <div className="flex items-start gap-2 mb-1">
                   <div className={cn(
                     "w-2 h-2 rounded-full mt-2",
                     activity.severity === 'critical' ? "bg-red-500" :
-                    activity.severity === 'warning' ? "bg-amber-500" : "bg-blue-500"
+                    activity.severity === 'warning' ? "bg-amber-500" : "bg-emerald-500"
                   )} />
                   <div className="flex-1">
                     <p className={cn(
@@ -431,8 +433,8 @@ export function AdminDashboard() {
                     )}>
                       {activity.action}
                     </p>
-                    <p className="text-xs text-slate-700">{activity.user}</p>
-                    <p className="text-xs text-slate-500">{activity.timestamp}</p>
+                    <p className="text-xs text-white/40">{activity.user}</p>
+                    <p className="text-xs text-white/40">{activity.timestamp}</p>
                   </div>
                 </div>
               </div>
@@ -451,7 +453,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Export & Reporting */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mt-3">
+      <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2 mt-3">
         <div className="flex items-center gap-2 mb-3">
           <FileText className="w-4 h-4 text-green-400" />
           <h2 className="text-sm font-bold text-white">Reports & Data Export</h2>
@@ -467,7 +469,7 @@ export function AdminDashboard() {
           </Button>
           <Button size="sm"
             onClick={handleExportData}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             <Download className="w-4 h-4 mr-2" />
             Export All Data
@@ -475,7 +477,7 @@ export function AdminDashboard() {
           <Button size="sm"
             onClick={handleConfigureSettings}
             variant="outline"
-            className="border-slate-600 text-sm text-slate-300 hover:bg-slate-700"
+            className="border-white/[0.12] text-sm text-white/60 hover:bg-white/[0.06]"
           >
             <Cpu className="w-4 h-4 mr-2" />
             System Settings

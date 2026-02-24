@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { EmulatorStatus, AIServiceStatus, SystemHealthMetrics } from '@/hooks/useSystemStatus'
+import { formatTime } from '@/utils/format-helpers'
 
 interface SystemStatusPanelProps {
   emulators: EmulatorStatus[]
@@ -51,7 +52,7 @@ export function SystemStatusPanel({
       case 'error':
         return 'text-red-600 dark:text-red-400'
       default:
-        return 'text-slate-700 dark:text-gray-700'
+        return 'text-white/40 dark:text-gray-700'
     }
   }
 
@@ -164,7 +165,7 @@ export function SystemStatusPanel({
                         <div className="text-[9px] text-muted-foreground">
                           {emulator.eventsPerSecond
                             ? `${emulator.eventsPerSecond.toFixed(1)} eps`
-                            : `Updated ${emulator.lastUpdate.toLocaleTimeString()}`}
+                            : `Updated ${formatTime(emulator.lastUpdate)}`}
                         </div>
                       )}
                     </div>

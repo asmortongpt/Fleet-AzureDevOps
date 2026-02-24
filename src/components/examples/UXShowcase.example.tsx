@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { useToast } from '../../hooks/useToast';
 import { Breadcrumb } from '../Breadcrumb';
@@ -131,7 +132,7 @@ export const UXShowcase: React.FC = () => {
             <ErrorMessage
               title="Failed to Load Data"
               message="An unexpected error occurred while fetching vehicles."
-              onRetry={() => alert('Retry clicked!')}
+              onRetry={() => toast.info('Retry clicked!')}
             />
           </div>
 

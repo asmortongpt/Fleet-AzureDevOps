@@ -267,4 +267,19 @@ router.get(
   }
 )
 
+// Alias: frontend may call /costs instead of /cost-analysis
+router.get(
+  '/costs',
+  requirePermission('report:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const costs = await executiveDashboardService.getCostAnalysis(req.user!.tenant_id ?? '')
+      res.json(costs)
+    } catch (error) {
+      logger.error('Get cost analysis error:', error)
+      res.status(500).json({ error: 'Failed to fetch cost analysis' })
+    }
+  }
+)
+
 export default router

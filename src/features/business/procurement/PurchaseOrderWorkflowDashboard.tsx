@@ -56,6 +56,8 @@ import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/contexts';
 import purchaseOrderWorkflowService from '@/features/services/procurement/PurchaseOrderWorkflowService';
+import { formatCurrency } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 
 // Types for Purchase Order Workflow
 type POStatus = 'DRAFT' | 'SUBMITTED' | 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'ON_HOLD' | 'CANCELLED' | 'ISSUED' | 'RECEIVED' | 'CLOSED';
@@ -217,7 +219,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setPendingApprovals(pendingPOs);
       setAnalytics(analyticsData);
     } catch (error) {
-      console.error('Error initializing purchase order data:', error);
+      logger.error('Error initializing purchase order data:', error);
     } finally {
       setLoading(false);
     }
@@ -277,7 +279,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setActionComments('');
       await initializeData();
     } catch (error) {
-      console.error('Error approving purchase order:', error);
+      logger.error('Error approving purchase order:', error);
     }
   };
 
@@ -294,7 +296,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setRejectionReason('');
       await initializeData();
     } catch (error) {
-      console.error('Error rejecting purchase order:', error);
+      logger.error('Error rejecting purchase order:', error);
     }
   };
 
@@ -312,7 +314,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setDelegateToUser('');
       await initializeData();
     } catch (error) {
-      console.error('Error delegating approval:', error);
+      logger.error('Error delegating approval:', error);
     }
   };
 
@@ -332,7 +334,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       const updatedPO = await purchaseOrderWorkflowService.getPurchaseOrder(selectedPO.id);
       if (updatedPO) setSelectedPO(updatedPO);
     } catch (error) {
-      console.error('Error adding comment:', error);
+      logger.error('Error adding comment:', error);
     }
   };
 
@@ -506,7 +508,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                                 color={getPriorityColor(po.priority)}
                               />
                               <Chip
-                                label={`$${po.totalAmount.toLocaleString()}`}
+                                label={formatCurrency(po.totalAmount)}
                                 size="small"
                                 variant="outlined"
                               />
@@ -519,7 +521,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                           </Box>
                           <Box sx={{ textAlign: 'right' }}>
                             <Typography variant="h6" color="primary">
-                              ${po.totalAmount.toLocaleString()}
+                              {formatCurrency(po.totalAmount)}
                             </Typography>
                             <Typography variant="caption" color="text.secondary">
                               Due: {format(parseISO(po.requestedDeliveryDate), 'MMM dd, yyyy')}
@@ -633,7 +635,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" fontWeight="medium">
-                        ${po.totalAmount.toLocaleString()}
+                        {formatCurrency(po.totalAmount)}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -697,8 +699,8 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Approval Rate by Step</Typography>
-                    {analytics.approvalRateByStep.map((step: ApprovalRateStep, index: number) => (
-                      <Box key={index} sx={{ mb: 2 }}>
+                    {analytics.approvalRateByStep.map((step: ApprovalRateStep) => (
+                      <Box key={step.step} sx={{ mb: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                           <Typography variant="body2">{step.step}</Typography>
                           <Typography variant="body2">{step.rate.toFixed(1)}%</Typography>
@@ -722,8 +724,8 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Workflow Bottlenecks</Typography>
-                    {analytics.bottlenecks.map((bottleneck: Bottleneck, index: number) => (
-                      <Box key={index} sx={{ mb: 2 }}>
+                    {analytics.bottlenecks.map((bottleneck: Bottleneck) => (
+                      <Box key={bottleneck.step} sx={{ mb: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Typography variant="body2">{bottleneck.step}</Typography>
                           <Chip
@@ -757,11 +759,11 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {analytics.budgetUtilization.map((dept: BudgetUtilization, index: number) => (
-                            <TableRow key={index}>
+                          {analytics.budgetUtilization.map((dept: BudgetUtilization) => (
+                            <TableRow key={dept.department}>
                               <TableCell>{dept.department}</TableCell>
-                              <TableCell>${dept.budgetAllocated.toLocaleString()}</TableCell>
-                              <TableCell>${dept.budgetUsed.toLocaleString()}</TableCell>
+                              <TableCell>{formatCurrency(dept.budgetAllocated)}</TableCell>
+                              <TableCell>{formatCurrency(dept.budgetUsed)}</TableCell>
                               <TableCell>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                   <LinearProgress
@@ -776,7 +778,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                                 </Box>
                               </TableCell>
                               <TableCell>
-                                ${(dept.budgetAllocated - dept.budgetUsed).toLocaleString()}
+                                {formatCurrency(dept.budgetAllocated - dept.budgetUsed)}
                               </TableCell>
                             </TableRow>
                           ))}
@@ -867,7 +869,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                     <Grid size={{ xs: 6 }}>
                       <Typography variant="body2" color="text.secondary">Total Amount</Typography>
                       <Typography variant="h6" color="primary">
-                        ${selectedPO.totalAmount.toLocaleString()}
+                        {formatCurrency(selectedPO.totalAmount)}
                       </Typography>
                     </Grid>
                     <Grid size={{ xs: 6 }}>
@@ -902,8 +904,8 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                             <TableCell>{item.partNumber}</TableCell>
                             <TableCell>{item.description}</TableCell>
                             <TableCell>{item.quantity} {item.unitOfMeasure}</TableCell>
-                            <TableCell>${item.unitPrice.toLocaleString()}</TableCell>
-                            <TableCell>${item.totalPrice.toLocaleString()}</TableCell>
+                            <TableCell>{formatCurrency(item.unitPrice)}</TableCell>
+                            <TableCell>{formatCurrency(item.totalPrice)}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>

@@ -49,20 +49,29 @@ export const CTA_SHADOWS = {
 } as const
 
 export const CTA_TYPOGRAPHY = {
+  // Headings - Cinzel (brand primary serif)
+  HEADING_FAMILY: '"Cinzel", Georgia, serif',
+  HEADING_WEIGHT: 700,
+
+  // Body - Montserrat (brand secondary sans-serif)
+  BODY_FAMILY: '"Montserrat", -apple-system, sans-serif',
+  BODY_WEIGHT: 400,
+
   // ArchonY Logo
-  LOGO_FAMILY: '"Inter", -apple-system, sans-serif',
+  LOGO_FAMILY: '"Cinzel", Georgia, serif',
   LOGO_WEIGHT: 700,
   LOGO_LETTER_SPACING: '0.15em',
 
   // Tagline
-  TAGLINE_FAMILY: '"Inter", -apple-system, sans-serif',
+  TAGLINE_FAMILY: '"Montserrat", -apple-system, sans-serif',
   TAGLINE_WEIGHT: 600,
   TAGLINE_LETTER_SPACING: '0.2em',
   TAGLINE_TEXT: 'INTELLIGENT PERFORMANCE',
 } as const
 
 export const CTA_BRANDING = {
-  PRODUCT_NAME: 'ArchonY',
+  PRODUCT_NAME: 'ArchonY Fleet Command',
+  PRODUCT_SHORT: 'ArchonY',
   COMPANY_NAME: 'Capital Technology Alliance',
   COMPANY_SHORT: 'CTA',
   TAGLINE: 'INTELLIGENT PERFORMANCE',

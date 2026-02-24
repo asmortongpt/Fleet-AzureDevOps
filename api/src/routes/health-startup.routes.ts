@@ -6,9 +6,10 @@
 
 import express, { Request, Response } from 'express'
 import { pool } from '../config/database'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import { runStartupHealthCheck } from '../services/health/startup-health-check.service'
 import logger from '../utils/logger'
-import { authenticateJWT } from '../middleware/auth'
 
 const router = express.Router()
 
@@ -127,7 +128,7 @@ router.get('/startup/errors', async (req: Request, res: Response) => {
  * POST /api/health/startup/refresh
  * Force a fresh health check (no cache)
  */
-router.post('/startup/refresh', async (req: Request, res: Response) => {
+router.post('/startup/refresh', csrfProtection, async (req: AuthRequest, res: Response) => {
   try {
     logger.info('Forcing fresh startup health check...')
     const report = await runStartupHealthCheck(pool)

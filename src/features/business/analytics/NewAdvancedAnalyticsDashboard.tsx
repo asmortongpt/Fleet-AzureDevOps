@@ -29,6 +29,7 @@ import FleetMetricsCards from './FleetMetricsCards';
 import VehicleUtilizationChart from './VehicleUtilizationChart';
 
 import { secureFetch } from '@/hooks/use-api';
+import { formatCurrency, formatNumber, formatTime } from '@/utils/format-helpers';
 
 interface DashboardData {
   fleet: {
@@ -91,11 +92,11 @@ const NewAdvancedAnalyticsDashboard: React.FC = () => {
       setError(null);
 
       const [dashboardResponse, vehiclesResponse] = await Promise.all([
-        secureFetch(`/api/analytics/dashboard?days=${encodeURIComponent(dateRange)}`, { method: 'GET' }),
-        secureFetch('/api/vehicles?limit=1000', { method: 'GET' })
+        secureFetch(`/api/analytics/dashboard?days=${encodeURIComponent(dateRange)}`, { method: 'GET' }).catch(() => null),
+        secureFetch('/api/vehicles?limit=1000', { method: 'GET' }).catch(() => null)
       ]);
 
-      if (!dashboardResponse.ok || !vehiclesResponse.ok) {
+      if (!dashboardResponse?.ok || !vehiclesResponse?.ok) {
         throw new Error('Failed to fetch data');
       }
 
@@ -141,10 +142,10 @@ const NewAdvancedAnalyticsDashboard: React.FC = () => {
       ['In Maintenance', dashboardData.fleet.inMaintenance],
       ['Utilization Rate', `${dashboardData.fleet.utilizationRate}%`],
       ['Total Miles', dashboardData.trips.totalMiles],
-      ['Fuel Cost', `$${dashboardData.fuel.totalCost}`],
-      ['Maintenance Cost', `$${dashboardData.maintenance.totalCost}`],
-      ['Cost Per Mile', `$${dashboardData.financials.costPerMile}`],
-      ['Total Operating Cost', `$${dashboardData.financials.totalOperatingCost}`]
+      ['Fuel Cost', formatCurrency(dashboardData.fuel.totalCost)],
+      ['Maintenance Cost', formatCurrency(dashboardData.maintenance.totalCost)],
+      ['Cost Per Mile', formatCurrency(dashboardData.financials.costPerMile)],
+      ['Total Operating Cost', formatCurrency(dashboardData.financials.totalOperatingCost)]
     ];
 
     const csvContent = csvData.map(row => row.join(',')).join('\n');
@@ -207,7 +208,7 @@ const NewAdvancedAnalyticsDashboard: React.FC = () => {
                 Advanced Analytics Dashboard
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Last updated: {lastRefresh.toLocaleTimeString()}
+                Last updated: {formatTime(lastRefresh)}
               </Typography>
             </Box>
 
@@ -309,7 +310,7 @@ const NewAdvancedAnalyticsDashboard: React.FC = () => {
             </Box>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="h4" fontWeight={700}>
-                {dashboardData.trips.totalMiles.toLocaleString()}
+                {formatNumber(dashboardData.trips.totalMiles)}
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.9 }}>
                 Miles Traveled
@@ -317,7 +318,7 @@ const NewAdvancedAnalyticsDashboard: React.FC = () => {
             </Box>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="h4" fontWeight={700}>
-                ${dashboardData.financials.totalOperatingCost.toLocaleString()}
+                {formatCurrency(dashboardData.financials.totalOperatingCost)}
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.9 }}>
                 Total Operating Cost

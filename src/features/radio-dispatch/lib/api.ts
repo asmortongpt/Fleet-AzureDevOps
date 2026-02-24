@@ -2,6 +2,8 @@
  
 const getSession = async (): Promise<{ accessToken?: string } | null> => null;
 
+import logger from '@/utils/logger';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 const MAX_RETRIES = 3;
@@ -81,7 +83,7 @@ class ApiClient {
         }
       }
     } catch (error) {
-      console.error('[API] Error initializing CSRF token:', error);
+      logger.error('[API] Error initializing CSRF token:', error);
     }
   }
 

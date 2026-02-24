@@ -62,7 +62,9 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
+import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
+import { toast } from 'sonner';
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -207,7 +209,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
         {/* Connection Details */}
         {provider.lastSyncTime && (
           <div className="text-sm text-muted-foreground">
-            Last sync: {new Date(provider.lastSyncTime).toLocaleString()}
+            Last sync: {formatDateTime(provider.lastSyncTime)}
           </div>
         )}
 
@@ -560,7 +562,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config`)
+      const response = await fetch(`/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config`, { credentials: 'include' })
       if (!response.ok) {
         throw new Error(`Failed to fetch providers: ${response.statusText}`)
       }
@@ -577,9 +579,10 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   const handleAddProvider = async (type: ProviderType, config: ProviderConfig) => {
     setIsAdding(true)
     try {
-      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config/providers`, {
+      const response = await fetch(`/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ type, configuration: config })
       })
 
@@ -593,7 +596,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       onProviderAdded?.(type)
     } catch (err) {
       logger.error('Error adding provider:', err)
-      alert(err instanceof Error ? err.message : 'Failed to add provider')
+      toast.error(err instanceof Error ? err.message : 'Failed to add provider')
     } finally {
       setIsAdding(false)
     }
@@ -602,7 +605,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   const handleRemoveProvider = async (providerId: string) => {
     try {
       const response = await fetch(
-        `/api/vehicles/${vehicleId}/hardware-config/providers/${providerId}`,
+        `/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers/${providerId}`,
         { method: 'DELETE' }
       )
 
@@ -616,7 +619,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       onProviderRemoved?.(removedProvider?.type || '')
     } catch (err) {
       logger.error('Error removing provider:', err)
-      alert(err instanceof Error ? err.message : 'Failed to remove provider')
+      toast.error(err instanceof Error ? err.message : 'Failed to remove provider')
     }
   }
 
@@ -624,27 +627,27 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     setTestingConnectionId(providerId)
     try {
       const response = await fetch(
-        `/api/vehicles/${vehicleId}/hardware-config/providers/${providerId}/test`,
+        `/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers/${providerId}/test`,
         { method: 'POST' }
       )
 
       const data = await response.json()
 
       if (data.success) {
-        alert('Connection test successful!')
+        toast.success('Connection test successful!')
         // Update provider status
         setProviders(providers.map(p =>
           p.id === providerId ? { ...p, status: 'online' } : p
         ))
       } else {
-        alert(`Connection test failed: ${data.message}`)
+        toast.error(`Connection test failed: ${data.message}`)
         setProviders(providers.map(p =>
           p.id === providerId ? { ...p, status: 'error' } : p
         ))
       }
     } catch (err) {
       logger.error('Error testing connection:', err)
-      alert('Connection test failed')
+      toast.error('Connection test failed')
     } finally {
       setTestingConnectionId(null)
     }
@@ -660,7 +663,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     setIsSavingConfig(true)
     try {
       const response = await fetch(
-        `/api/vehicles/${vehicleId}/hardware-config/providers/${configuringProvider.id}`,
+        `/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers/${configuringProvider.id}`,
         {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },

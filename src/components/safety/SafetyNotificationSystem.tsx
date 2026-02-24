@@ -4,10 +4,13 @@
  */
 
 import { Bell, AlertTriangle, Info, CheckCircle, X, Eye, Clock, Siren } from 'lucide-react'
-import { useMemo, useRef, useState, useEffect } from 'react'
+import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
+import { apiFetcher } from '@/lib/api-fetcher'
+import logger from '@/utils/logger'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -18,6 +21,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
+import { formatDate } from '@/utils/format-helpers'
 
 interface SafetyNotification {
     id: string
@@ -32,12 +36,10 @@ interface SafetyNotification {
     priority: 'high' | 'medium' | 'low'
 }
 
-const fetcher = (url: string) =>
-    fetch(url)
-        .then((r) => r.json())
-        .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 export function SafetyNotificationSystem() {
+    const navigate = useNavigate()
     const [filter, setFilter] = useState<'all' | 'unread'>('all')
     const [categoryFilter, setCategoryFilter] = useState<string>('all')
     const [soundEnabled, setSoundEnabled] = useState(true)
@@ -87,7 +89,8 @@ export function SafetyNotificationSystem() {
         if (soundEnabled && unreadCount > lastUnreadCount.current) {
             const audio = new Audio('/notification-sound.mp3')
             audio.play().catch(() => {
-                // Autoplay restrictions
+                // Browser autoplay restrictions may block notification sounds
+                logger.warn('Safety notification sound blocked by autoplay restrictions')
             })
         }
         lastUnreadCount.current = unreadCount
@@ -102,28 +105,31 @@ export function SafetyNotificationSystem() {
     const unreadCount = notifications.filter(n => !n.read).length
 
     const markAsRead = async (id: string) => {
-        await fetch(`/api/notifications/${id}/read`, {
+        const response = await fetch(`/api/notifications/${id}/read`, {
             method: 'PATCH',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
         })
+        if (!response.ok) throw new Error('Request failed: ' + response.status)
         mutate()
     }
 
     const markAllAsRead = async () => {
-        await fetch('/api/notifications/mark-all-read', {
+        const markAllResponse = await fetch('/api/notifications/mark-all-read', {
             method: 'PATCH',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
         })
+        if (!markAllResponse.ok) throw new Error('Request failed: ' + markAllResponse.status)
         mutate()
     }
 
     const dismissNotification = async (id: string) => {
-        await fetch(`/api/notifications/${id}`, {
+        const dismissResponse = await fetch(`/api/notifications/${id}`, {
             method: 'DELETE',
             credentials: 'include'
         })
+        if (!dismissResponse.ok) throw new Error('Request failed: ' + dismissResponse.status)
         mutate()
     }
 
@@ -134,7 +140,7 @@ export function SafetyNotificationSystem() {
             case 'warning':
                 return <AlertTriangle className="w-3 h-3 text-yellow-400" />
             case 'info':
-                return <Info className="w-3 h-3 text-blue-700" />
+                return <Info className="w-3 h-3 text-emerald-400" />
             case 'success':
                 return <CheckCircle className="w-3 h-3 text-green-400" />
         }
@@ -147,7 +153,7 @@ export function SafetyNotificationSystem() {
             case 'warning':
                 return 'border-yellow-500/50 bg-yellow-500/10'
             case 'info':
-                return 'border-blue-500/50 bg-blue-500/10'
+                return 'border-emerald-500/50 bg-emerald-500/10'
             case 'success':
                 return 'border-green-500/50 bg-green-500/10'
         }
@@ -165,7 +171,7 @@ export function SafetyNotificationSystem() {
         if (diffMins < 60) return `${diffMins}m ago`
         if (diffHours < 24) return `${diffHours}h ago`
         if (diffDays < 7) return `${diffDays}d ago`
-        return date.toLocaleDateString()
+        return formatDate(date)
     }
 
     return (
@@ -182,7 +188,7 @@ export function SafetyNotificationSystem() {
                             </Badge>
                         )}
                     </h2>
-                    <p className="text-slate-700 mt-1">Real-time safety alerts and compliance notifications</p>
+                    <p className="text-white/40 mt-1">Real-time safety alerts and compliance notifications</p>
                 </div>
                 <div className="flex gap-2">
                     <Button
@@ -212,13 +218,13 @@ export function SafetyNotificationSystem() {
             </div>
 
             {/* Filters */}
-            <Card className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border-slate-700/50">
+            <Card className="bg-gradient-to-br from-[#1a1a1a]/60 to-[#111]/60 backdrop-blur-xl border-white/[0.06]">
                 <CardContent className="p-2">
                     <div className="flex gap-2 items-center">
                         <div className="flex gap-2 items-center">
-                            <label className="text-sm text-slate-300">Filter:</label>
+                            <label className="text-sm text-white/80">Filter:</label>
                             <Select value={filter} onValueChange={(value: any) => setFilter(value)}>
-                                <SelectTrigger className="w-[140px] bg-slate-800/50 border-slate-600 text-white">
+                                <SelectTrigger className="w-[140px] bg-[#242424] border-white/[0.12] text-white">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -228,9 +234,9 @@ export function SafetyNotificationSystem() {
                             </Select>
                         </div>
                         <div className="flex gap-2 items-center">
-                            <label className="text-sm text-slate-300">Category:</label>
+                            <label className="text-sm text-white/80">Category:</label>
                             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                                <SelectTrigger className="w-[140px] bg-slate-800/50 border-slate-600 text-white">
+                                <SelectTrigger className="w-[140px] bg-[#242424] border-white/[0.12] text-white">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -243,7 +249,7 @@ export function SafetyNotificationSystem() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="ml-auto text-sm text-slate-700">
+                        <div className="ml-auto text-sm text-white/40">
                             Showing {filteredNotifications.length} of {notifications.length} notifications
                         </div>
                     </div>
@@ -251,7 +257,7 @@ export function SafetyNotificationSystem() {
             </Card>
 
             {/* Notifications List */}
-            <Card className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border-slate-700/50">
+            <Card className="bg-gradient-to-br from-[#1a1a1a]/60 to-[#111]/60 backdrop-blur-xl border-white/[0.06]">
                 <CardHeader>
                     <CardTitle className="text-white">Recent Notifications</CardTitle>
                 </CardHeader>
@@ -259,7 +265,7 @@ export function SafetyNotificationSystem() {
                     <ScrollArea className="h-[600px]">
                         <div className="space-y-2 p-2">
                             {filteredNotifications.length === 0 ? (
-                                <div className="text-center py-12 text-slate-700">
+                                <div className="text-center py-12 text-white/40">
                                     <Bell className="w-12 h-9 mx-auto mb-2 opacity-50" />
                                     <p>No notifications to display</p>
                                 </div>
@@ -282,7 +288,7 @@ export function SafetyNotificationSystem() {
                                                     <h4 className="font-medium text-white flex items-center gap-2">
                                                         {notification.title}
                                                         {!notification.read && (
-                                                            <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+                                                            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
                                                         )}
                                                     </h4>
                                                     <div className="flex items-center gap-2 flex-shrink-0">
@@ -291,17 +297,17 @@ export function SafetyNotificationSystem() {
                                                         </Badge>
                                                         <button
                                                             onClick={() => dismissNotification(notification.id)}
-                                                            className="text-slate-700 hover:text-slate-300"
+                                                            className="text-white/40 hover:text-white/80"
                                                         >
                                                             <X className="w-4 h-4" />
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <p className="text-sm text-slate-300 mb-2">
+                                                <p className="text-sm text-white/80 mb-2">
                                                     {notification.message}
                                                 </p>
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <div className="flex items-center gap-2 text-xs text-slate-700">
+                                                    <div className="flex items-center gap-2 text-xs text-white/40">
                                                         <Clock className="w-3 h-3" />
                                                         {formatTimestamp(notification.timestamp)}
                                                     </div>
@@ -322,6 +328,15 @@ export function SafetyNotificationSystem() {
                                                                 size="sm"
                                                                 variant="outline"
                                                                 className="h-7 text-xs"
+                                                                onClick={() => {
+                                                                    if (notification.action_url) {
+                                                                        if (notification.action_url.startsWith('/')) {
+                                                                            navigate(notification.action_url)
+                                                                        } else {
+                                                                            window.open(notification.action_url, '_blank', 'noopener,noreferrer')
+                                                                        }
+                                                                    }
+                                                                }}
                                                             >
                                                                 View Details
                                                             </Button>
@@ -339,29 +354,29 @@ export function SafetyNotificationSystem() {
             </Card>
 
             {/* Notification Settings */}
-            <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-blue-500/30">
+            <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 border-emerald-500/30">
                 <CardHeader>
                     <CardTitle className="text-white text-sm">Notification Preferences</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                     <div className="flex items-center justify-between">
                         <div>
-                            <div className="text-sm text-slate-300 font-medium">Critical Incident Alerts</div>
-                            <div className="text-xs text-slate-700">Immediate notification for safety incidents</div>
+                            <div className="text-sm text-white/80 font-medium">Critical Incident Alerts</div>
+                            <div className="text-xs text-white/40">Immediate notification for safety incidents</div>
                         </div>
                         <Badge variant="default">Enabled</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                         <div>
-                            <div className="text-sm text-slate-300 font-medium">Compliance Reminders</div>
-                            <div className="text-xs text-slate-700">Training and certification expirations</div>
+                            <div className="text-sm text-white/80 font-medium">Compliance Reminders</div>
+                            <div className="text-xs text-white/40">Training and certification expirations</div>
                         </div>
                         <Badge variant="default">Enabled</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                         <div>
-                            <div className="text-sm text-slate-300 font-medium">Daily Safety Summary</div>
-                            <div className="text-xs text-slate-700">Email digest of safety activities</div>
+                            <div className="text-sm text-white/80 font-medium">Daily Safety Summary</div>
+                            <div className="text-xs text-white/40">Email digest of safety activities</div>
                         </div>
                         <Badge variant="secondary">Disabled</Badge>
                     </div>

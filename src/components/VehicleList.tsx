@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Vehicle } from '../types/Vehicle';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface VehicleListProps {
   vehicles: Vehicle[];
@@ -13,8 +14,8 @@ const VehicleList: React.FC<VehicleListProps> = ({ vehicles }) => {
 
   return (
     <ul>
-      {vehicles.map((vehicle, index) => (
-        <li key={index}>{vehicle.name}</li>
+      {vehicles.map((vehicle) => (
+        <li key={vehicle.id}>{vehicle.name || formatVehicleName(vehicle)}</li>
       ))}
     </ul>
   );

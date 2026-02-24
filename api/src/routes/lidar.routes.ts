@@ -26,6 +26,8 @@ import {
 } from '../types/lidar.types';
 import { getErrorMessage } from '../utils/error-handler';
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 
 /**
@@ -88,7 +90,7 @@ router.post(
             maxY: z.number(),
             maxZ: z.number(),
           }),
-          damageReportId: z.string().uuid().optional(),
+          damageReportId: flexUuid.optional(),
         }),
         processingOptions: PointCloudProcessingOptionsSchema.optional(),
         meshOptions: MeshGenerationOptionsSchema.optional(),
@@ -216,9 +218,9 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
-        scanId: z.string().uuid(),
+        scanId: flexUuid,
         method: z.enum(['convex_hull', 'delaunay', 'marching_cubes', 'voxel']).optional(),
-        damageAnnotations: z.array(z.string().uuid()).optional(),
+        damageAnnotations: z.array(flexUuid).optional(),
       });
 
       const request: CalculateVolumeRequest = schema.parse(req.body);
@@ -260,8 +262,8 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
-        baseScanId: z.string().uuid(),
-        compareScanId: z.string().uuid(),
+        baseScanId: flexUuid,
+        compareScanId: flexUuid,
         tolerance: z.number().positive().optional(),
         generateVisualization: z.boolean().default(false),
       });

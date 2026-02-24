@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { z } from 'zod';
 
 import { sanitizeInput } from '../lib/security/sanitize';
+import logger from '@/utils/logger';
 
 // ============================================================================
 // Validation Schemas
@@ -317,7 +318,7 @@ export function useReactiveComplianceReportingData(filters: ComplianceFilters) {
       await queryClient.invalidateQueries({ queryKey: ['compliance-data'] });
       return { success: true };
     } catch (error) {
-      console.error('Failed to resolve violation:', error);
+      logger.error('Failed to resolve violation:', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }, [queryClient]);
@@ -333,7 +334,7 @@ export function useReactiveComplianceReportingData(filters: ComplianceFilters) {
       await queryClient.invalidateQueries({ queryKey: ['compliance-data'] });
       return { success: true };
     } catch (error) {
-      console.error('Failed to schedule audit:', error);
+      logger.error('Failed to schedule audit:', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }, [queryClient]);
@@ -348,7 +349,7 @@ export function useReactiveComplianceReportingData(filters: ComplianceFilters) {
       await queryClient.invalidateQueries({ queryKey: ['compliance-data'] });
       return { success: true, ...result };
     } catch (error) {
-      console.error('Failed to generate report:', error);
+      logger.error('Failed to generate report:', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }, [queryClient]);

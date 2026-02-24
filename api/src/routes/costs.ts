@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 /**
@@ -11,6 +12,48 @@ import { pool } from '../db/connection'
 import { csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
 import { authenticateJWT } from '../middleware/auth'
+
+import { flexUuid } from '../middleware/validation'
+
+const validCostCategories = [
+  'fuel', 'maintenance', 'insurance', 'depreciation',
+  'labor', 'tolls', 'parking', 'violations', 'parts',
+  'equipment', 'administrative', 'other'
+] as const
+
+const createCostSchema = z.object({
+  vehicleId: flexUuid.optional(),
+  driverId: flexUuid.optional(),
+  category: z.enum(validCostCategories),
+  amount: z.number().positive(),
+  date: z.string().min(1),
+  description: z.string().min(1),
+  invoiceNumber: z.string().optional(),
+  vendorId: flexUuid.optional(),
+  department: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  paymentMethod: z.string().optional(),
+  notes: z.string().optional(),
+  mileageAtTime: z.number().optional(),
+})
+
+const bulkCostItemSchema = z.object({
+  category: z.enum(validCostCategories),
+  amount: z.number().positive(),
+  date: z.string().min(1),
+  description: z.string().min(1),
+  vehicleId: flexUuid.optional(),
+  driverId: flexUuid.optional(),
+  vendorId: flexUuid.optional(),
+  department: z.string().optional(),
+  invoiceNumber: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  paymentMethod: z.string().optional(),
+})
+
+const bulkImportSchema = z.object({
+  costs: z.array(bulkCostItemSchema).min(1),
+})
 
 
 const router = Router()
@@ -57,7 +100,7 @@ router.get('/', asyncHandler(async (req, res) => {
       params.push(vehicleId)
     }
     if (department && typeof department === 'string') {
-      conditions.push(`cost_subcategory = $${paramIndex++}`)
+      conditions.push(`subcategory = $${paramIndex++}`)
       params.push(department)
     }
     if (startDate && typeof startDate === 'string') {
@@ -86,7 +129,7 @@ router.get('/', asyncHandler(async (req, res) => {
       date: 'transaction_date',
       amount: 'amount',
       category: 'cost_category',
-      vendor: 'vendor_id'
+      vendor: 'vendor_name'
     }
     const sortColumn = sortColumnMap[String(sortBy)] || 'transaction_date'
     const order = sortOrder === 'asc' ? 'ASC' : 'DESC'
@@ -114,19 +157,15 @@ router.get('/', asyncHandler(async (req, res) => {
       `SELECT
         source_id AS id,
         cost_category AS category,
-        cost_subcategory AS subcategory,
+        subcategory,
         vehicle_id,
         driver_id,
-        vendor_id,
+        vendor_name AS vendor_id,
         amount,
         description,
         transaction_date AS date,
-        invoice_number,
-        source_table,
-        cost_per_mile,
-        is_anomaly,
-        anomaly_score,
-        anomaly_reason
+        reference_number AS invoice_number,
+        source_table
       FROM unified_costs
       ${whereClause}
       ORDER BY ${sortColumn} ${order}
@@ -501,7 +540,7 @@ router.get('/analysis', asyncHandler(async (req, res) => {
         amount,
         description,
         vehicle_id,
-        vendor_id
+        vendor_name
       FROM unified_costs ${whereClause}
       ORDER BY amount DESC
       LIMIT 10`,
@@ -979,6 +1018,12 @@ return ''
 // POST create new cost entry
 router.post('/', csrfProtection, asyncHandler(async (req, res): Promise<void> => {
   try {
+    const parsed = createCostSchema.safeParse(req.body)
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      return
+    }
+
     const {
       vehicleId,
       driverId,
@@ -993,33 +1038,9 @@ router.post('/', csrfProtection, asyncHandler(async (req, res): Promise<void> =>
       paymentMethod,
       notes,
       mileageAtTime
-    } = req.body
+    } = parsed.data
 
     const tenantId = req.tenantId || req.user?.tenantId
-
-    // Validate required fields
-    if (!category || !amount || !date || !description) {
-      res.status(400).json({
-        error: 'Missing required fields: category, amount, date, description'
-      })
-      return
-    }
-
-    // Validate category
-    const validCategories = ['fuel', 'maintenance', 'insurance', 'depreciation',
-      'labor', 'tolls', 'parking', 'violations', 'parts', 'equipment', 'administrative', 'other']
-    if (!validCategories.includes(category)) {
-      res.status(400).json({
-        error: `Invalid category. Must be one of: ${validCategories.join(', ')}`
-      })
-      return
-    }
-
-    // Validate amount
-    if (typeof amount !== 'number' || amount <= 0) {
-      res.status(400).json({ error: 'Amount must be a positive number' })
-      return
-    }
 
     // Calculate cost per mile if mileage provided
     let costPerMile: number | null = null
@@ -1064,16 +1085,14 @@ router.post('/', csrfProtection, asyncHandler(async (req, res): Promise<void> =>
 // POST bulk import costs
 router.post('/bulk-import', csrfProtection, asyncHandler(async (req, res): Promise<void> => {
   try {
-    const { costs } = req.body
-    const tenantId = req.tenantId || req.user?.tenantId
-
-    if (!Array.isArray(costs) || costs.length === 0) {
-      res.status(400).json({ error: 'Costs must be a non-empty array' })
+    const parsed = bulkImportSchema.safeParse(req.body)
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
       return
     }
 
-    const validCategories = ['fuel', 'maintenance', 'insurance', 'depreciation',
-      'labor', 'tolls', 'parking', 'violations', 'parts', 'equipment', 'administrative', 'other']
+    const { costs } = parsed.data
+    const tenantId = req.tenantId || req.user?.tenantId
 
     const results = {
       success: 0,
@@ -1089,17 +1108,6 @@ router.post('/bulk-import', csrfProtection, asyncHandler(async (req, res): Promi
       for (let i = 0; i < costs.length; i++) {
         const cost = costs[i]
         try {
-          if (!cost.category || !cost.amount || !cost.date || !cost.description) {
-            results.failed++
-            results.errors.push(`Row ${i + 1}: Missing required fields`)
-            continue
-          }
-          if (!validCategories.includes(cost.category)) {
-            results.failed++
-            results.errors.push(`Row ${i + 1}: Invalid category ${cost.category}`)
-            continue
-          }
-
           await client.query(
             `INSERT INTO cost_manual_entries (
               tenant_id, cost_category, cost_subcategory,

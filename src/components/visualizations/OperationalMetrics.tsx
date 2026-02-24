@@ -2,6 +2,7 @@ import { TrendingUp, TrendingDown, Minus, Clock, Fuel, Zap, Navigation } from 'l
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { formatNumber } from '@/utils/format-helpers';
 
 /**
  * Operational Metrics Gauges
@@ -158,7 +159,7 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
               <div className="mb-3">
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-bold text-slate-900">
-                    {metric.value.toLocaleString()}
+                    {formatNumber(metric.value)}
                   </span>
                   <span className="text-sm text-slate-600">{metric.unit}</span>
                 </div>
@@ -257,7 +258,7 @@ export function CircularGauge({
             cy="50"
             r="45"
             fill="none"
-            stroke="hsl(var(--border))"
+            stroke="var(--border)"
             strokeWidth="8"
           />
           {/* Progress circle */}

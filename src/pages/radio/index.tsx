@@ -3,6 +3,7 @@
  * Live radio feed with real-time transcription and automated dispatch
  */
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Radio, Activity, FileText, Settings } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
@@ -32,6 +33,7 @@ export default function RadioDispatchPage() {
   }, [transmissions]);
 
   return (
+    <ErrorBoundary>
     <div className="flex flex-col gap-2 p-3">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -123,5 +125,6 @@ export default function RadioDispatchPage() {
         </TabsContent>
       </Tabs>
     </div>
+    </ErrorBoundary>
   );
 }

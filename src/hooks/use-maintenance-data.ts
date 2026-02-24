@@ -2,6 +2,7 @@ import { useMemo } from "react"
 
 import { useMaintenanceSchedules, useWorkOrders } from "@/hooks/use-api"
 import { Vehicle } from "@/lib/types"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 export interface MaintenanceRecord {
   id: string
@@ -70,7 +71,7 @@ export function useMaintenanceData(vehicles: Vehicle[]) {
         vehicleName:
           order.vehicleName ||
           order.vehicle_name ||
-          (vehicle ? `${vehicle.year ?? ""} ${vehicle.make ?? ""} ${vehicle.model ?? ""}`.trim() : ""),
+          (vehicle ? formatVehicleName(vehicle) : ""),
         serviceType: order.serviceType || order.service_type || order.title || "Service",
         date,
         cost: Number(order.cost ?? order.estimatedCost ?? order.estimated_cost ?? 0),
@@ -103,7 +104,7 @@ export function useMaintenanceData(vehicles: Vehicle[]) {
         vehicleName:
           schedule.vehicleName ||
           schedule.vehicle_name ||
-          (vehicle ? `${vehicle.year ?? ""} ${vehicle.make ?? ""} ${vehicle.model ?? ""}`.trim() : ""),
+          (vehicle ? formatVehicleName(vehicle) : ""),
         serviceType: schedule.serviceType || schedule.service_type || "Scheduled Service",
         date: nextDue || lastPerformed || "",
         cost: Number(schedule.estimatedCost ?? schedule.estimated_cost ?? 0),

@@ -28,11 +28,20 @@ interface CategoryDef {
 const categories: CategoryDef[] = [
   { id: 'fleet', label: 'Fleet', icon: <Truck className="w-5 h-5" /> },
   { id: 'operations', label: 'Ops', icon: <Route className="w-5 h-5" /> },
-  { id: 'maintenance', label: 'Maint', icon: <Wrench className="w-5 h-5" /> },
+  { id: 'maintenance', label: 'Maint.', icon: <Wrench className="w-5 h-5" /> },
   { id: 'safety', label: 'Safety', icon: <ShieldCheck className="w-5 h-5" /> },
-  { id: 'analytics', label: 'Stats', icon: <BarChart3 className="w-5 h-5" /> },
+  { id: 'analytics', label: 'Reports', icon: <BarChart3 className="w-5 h-5" /> },
   { id: 'admin', label: 'Admin', icon: <Settings className="w-5 h-5" /> },
 ]
+
+const hubDescriptions: Record<string, string> = {
+  fleet: 'Fleet Dashboard',
+  operations: 'Fleet Operations',
+  maintenance: 'Maintenance & Work Orders',
+  safety: 'Compliance & Safety',
+  analytics: 'Business & Reports',
+  admin: 'Admin & Configuration',
+}
 
 export function IconRail() {
   const { state, setFlyout } = usePanel()
@@ -54,7 +63,7 @@ export function IconRail() {
 
   return (
     <nav
-      className="relative flex flex-col items-center w-12 lg:w-14 h-full shrink-0 bg-[#1A1847] border-r border-[#2F3359]/50 z-30"
+      className="relative flex flex-col items-center w-12 lg:w-14 h-full shrink-0 bg-[#1a1a1a] border-r border-white/10 z-30"
       role="navigation"
       aria-label="Main Navigation"
     >
@@ -66,20 +75,20 @@ export function IconRail() {
 
           return (
             <div key={cat.id} className="relative">
-              {/* Active indicator - Gold left bar */}
+              {/* Active indicator - White left bar */}
               {isActive && (
-                <div className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#F0A000] shadow-[0_0_6px_rgba(240,160,0,0.4)]" />
+                <div className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.3)]" />
               )}
 
               <button
                 onMouseEnter={() => handleMouseEnter(cat.id)}
                 onClick={() => handleClick(cat.id)}
                 aria-label={cat.label}
-                title={cat.label}
+                title={hubDescriptions[cat.id] || cat.label}
                 className={cn(
                   'flex flex-col items-center justify-center w-10 h-11 lg:w-11 lg:h-12 rounded-lg transition-all duration-200',
                   isActive
-                    ? 'text-[#F0A000] bg-[#F0A000]/10'
+                    ? 'text-white bg-white/15'
                     : isHovered
                       ? 'text-white bg-white/10'
                       : 'text-white/40 hover:text-white/70'
@@ -88,7 +97,7 @@ export function IconRail() {
                 {cat.icon}
                 <span className={cn(
                   'text-[7px] lg:text-[8px] mt-0.5 font-medium tracking-wide',
-                  isActive ? 'text-[#F0A000]/80' : 'text-inherit'
+                  isActive ? 'text-white/80' : 'text-inherit'
                 )}>
                   {cat.label}
                 </span>
@@ -100,9 +109,9 @@ export function IconRail() {
 
       {/* Bottom: CTA logo mark */}
       <div className="pb-3 flex flex-col items-center">
-        <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-lg bg-[#2F3359] flex flex-col items-center justify-center border border-white/5">
+        <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-lg bg-[#242424] flex flex-col items-center justify-center border border-white/10">
           <span className="text-[9px] font-extrabold text-white/80 tracking-wide leading-none">CTA</span>
-          <div className="w-5 h-[2px] mt-1 rounded-full bg-gradient-to-r from-[#F0A000] to-[#DD3903]" />
+          <div className="w-5 h-[2px] mt-1 rounded-full bg-gradient-to-r from-white/40 to-white/15" />
         </div>
       </div>
     </nav>

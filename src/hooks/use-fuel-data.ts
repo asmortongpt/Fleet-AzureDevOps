@@ -2,6 +2,7 @@ import { useMemo } from "react"
 
 import { useFuelTransactions } from "@/hooks/use-api"
 import { Vehicle } from "@/lib/types"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 export interface FuelRecord {
   id: string
@@ -62,7 +63,7 @@ export function useFuelData(vehicles: Vehicle[]) {
           vehicleName:
             transaction.vehicleName ||
             transaction.vehicle_name ||
-            (vehicle ? `${vehicle.year ?? ""} ${vehicle.make ?? ""} ${vehicle.model ?? ""}`.trim() : ""),
+            (vehicle ? formatVehicleName(vehicle) : ""),
           date: date || "",
           gallons,
           cost,

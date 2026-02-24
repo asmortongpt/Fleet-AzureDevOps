@@ -12,21 +12,36 @@
  * Updated: 2025-01-03 - Resolved merge conflicts and unified implementations
  */
 
-import { OrbitControls, PerspectiveCamera, Environment, useGLTF, Html } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, useGLTF, Html } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import React, { Component, useEffect, useRef, useState, Suspense, useMemo, useCallback } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import * as THREE from 'three';
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
+
+// Initialize RectAreaLight uniforms (required for rectAreaLight to render correctly)
+RectAreaLightUniformsLib.init();
 
 import { PhotorealisticMaterials } from '../../materials/PhotorealisticMaterials';
 import { detectWebGLCapabilities } from '../../utils/WebGLCompatibilityManager';
 
 import type { DamagePoint } from '@/components/garage/DamageOverlay';
 import type { AssetCategory, AssetType } from '@/types/asset.types';
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPES
 // ============================================================================
+
+export interface VehicleHotspot {
+  id: string;
+  label: string;
+  position: [number, number, number];
+  value: string;
+  unit?: string;
+  status: 'good' | 'warning' | 'critical';
+  detail?: string;
+}
 
 export interface Asset3DViewerProps {
   // Vehicle identification - used for model resolution
@@ -57,6 +72,19 @@ export interface Asset3DViewerProps {
   onLoad?: () => void;
   onError?: (error: Error) => void;
   onCameraChange?: (preset: string) => void;
+
+  // Vehicle hotspots (EZ360-style interactive annotations)
+  hotspots?: VehicleHotspot[];
+  showHotspots?: boolean;
+
+  // Photo/video texture wrapping
+  wrapTextureUrl?: string;
+
+  // Auto-rotate speed (0.1 – 3.0, default 0.8)
+  autoRotateSpeed?: number;
+
+  // Opacity for crossfade transitions (0–1)
+  opacity?: number;
 }
 
 // Camera preset positions
@@ -104,66 +132,112 @@ function resolveModelUrl(
     const normalizedMake = make.toLowerCase().replace(/[-\s]/g, '_');
     const normalizedModel = model.toLowerCase().replace(/[-\s]/g, '_');
 
-    // Check known model mappings
+    // Check known model mappings (exact make_model → closest available GLB)
     const modelMappings: Record<string, string> = {
-      // Trucks
+      // ── Trucks (exact + closest-match fallbacks) ──
       'ford_f_150': '/models/vehicles/trucks/ford_f_150.glb',
       'ford_f_250': '/models/vehicles/trucks/ford_f_250.glb',
+      'ford_f_350': '/models/vehicles/trucks/ford_f_250.glb',
       'ford_f150': '/models/vehicles/trucks/ford_f_150.glb',
+      'ford_f_150_lightning': '/models/vehicles/trucks/ford_f_150.glb',
+      'ford_ranger': '/models/vehicles/trucks/ford_f_150.glb',
       'chevrolet_silverado': '/models/vehicles/trucks/chevrolet_silverado.glb',
       'chevrolet_silverado_1500': '/models/vehicles/trucks/chevrolet_silverado.glb',
+      'chevrolet_silverado_2500': '/models/vehicles/trucks/chevrolet_silverado.glb',
       'chevrolet_colorado': '/models/vehicles/trucks/chevrolet_colorado.glb',
       'ram_1500': '/models/vehicles/trucks/ram_1500.glb',
       'ram_1500_big_horn': '/models/vehicles/trucks/ram_1500.glb',
+      'ram_2500': '/models/vehicles/trucks/ram_1500.glb',
+      'ram_3500': '/models/vehicles/trucks/ram_1500.glb',
+      'ram_pickup_1500': '/models/vehicles/trucks/ram_1500.glb',
+      'ram_pickup_2500': '/models/vehicles/trucks/ram_1500.glb',
       'toyota_tacoma': '/models/vehicles/trucks/toyota_tacoma.glb',
       'toyota_tacoma_trd': '/models/vehicles/trucks/toyota_tacoma.glb',
+      'toyota_tundra': '/models/vehicles/trucks/toyota_tacoma.glb',
+      'nissan_titan': '/models/vehicles/trucks/toyota_tacoma.glb',
       'gmc_sierra': '/models/vehicles/trucks/gmc_sierra.glb',
+      'gmc_sierra_1500': '/models/vehicles/trucks/gmc_sierra.glb',
+      'gmc_sierra_2500': '/models/vehicles/trucks/gmc_sierra.glb',
+      'gmc_sierra_2500hd': '/models/vehicles/trucks/gmc_sierra.glb',
       'freightliner_cascadia': '/models/vehicles/trucks/freightliner_cascadia.glb',
       'kenworth_t680': '/models/vehicles/trucks/kenworth_t680.glb',
+      'kenworth_w990': '/models/vehicles/trucks/kenworth_t680.glb',
       'mack_anthem': '/models/vehicles/trucks/mack_anthem.glb',
+      'peterbilt_579': '/models/vehicles/construction/peterbilt_567.glb',
 
-      // Vans
+      // ── Vans ──
       'ford_transit': '/models/vehicles/vans/ford_transit.glb',
+      'ford_transit_250': '/models/vehicles/vans/ford_transit.glb',
       'ford_transit_350': '/models/vehicles/vans/ford_transit.glb',
+      'ford_transit_connect': '/models/vehicles/vans/ford_transit.glb',
+      'ford_e_transit': '/models/vehicles/vans/ford_transit.glb',
       'mercedes_benz_sprinter': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
       'mercedes_sprinter': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
+      'mercedes_sprinter_2500': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
+      'mercedes_sprinter_3500': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
       'sprinter_2500': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
       'ram_promaster': '/models/vehicles/vans/ram_promaster.glb',
+      'ram_promaster_1500': '/models/vehicles/vans/ram_promaster.glb',
+      'ram_promaster_2500': '/models/vehicles/vans/ram_promaster.glb',
       'nissan_nv3500': '/models/vehicles/vans/nissan_nv3500.glb',
+      'chevrolet_express': '/models/vehicles/vans/nissan_nv3500.glb',
+      'chevrolet_express_2500': '/models/vehicles/vans/nissan_nv3500.glb',
+      'chevrolet_express_3500': '/models/vehicles/vans/nissan_nv3500.glb',
 
-      // Sedans
+      // ── Sedans ──
       'toyota_camry': '/models/vehicles/sedans/toyota_camry.glb',
       'toyota_corolla': '/models/vehicles/sedans/toyota_corolla.glb',
+      'toyota_prius': '/models/vehicles/sedans/toyota_corolla.glb',
       'honda_accord': '/models/vehicles/sedans/honda_accord.glb',
+      'honda_civic': '/models/vehicles/sedans/honda_accord.glb',
       'nissan_altima': '/models/vehicles/sedans/nissan_altima.glb',
-      'tesla_model_3': '/models/vehicles/sedans/tesla_model_3.glb',
+      'hyundai_elantra': '/models/vehicles/sedans/toyota_corolla.glb',
+      'kia_forte': '/models/vehicles/sedans/toyota_corolla.glb',
+      'chevrolet_malibu': '/models/vehicles/sedans/toyota_camry.glb',
+      'ford_fusion': '/models/vehicles/sedans/toyota_camry.glb',
+      'tesla_model_3': '/models/vehicles/electric_sedans/tesla_model_3.glb',
       'tesla_model_s': '/models/vehicles/sedans/tesla_model_s.glb',
+      'chevrolet_bolt_euv': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb',
+      'chevrolet_bolt_ev': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb',
+      'nissan_leaf': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb',
 
-      // SUVs
-      'tesla_model_y': '/models/vehicles/electric_suvs/tesla_model_y.glb',
-      'tesla_model_x': '/models/vehicles/suvs/tesla_model_x.glb',
+      // ── SUVs ──
       'chevrolet_tahoe': '/models/vehicles/suvs/chevrolet_tahoe.glb',
+      'chevrolet_suburban': '/models/vehicles/suvs/chevrolet_tahoe.glb',
       'ford_explorer': '/models/vehicles/suvs/ford_explorer.glb',
+      'ford_expedition': '/models/vehicles/suvs/ford_explorer.glb',
       'honda_cr_v': '/models/vehicles/suvs/honda_cr_v.glb',
       'jeep_wrangler': '/models/vehicles/suvs/jeep_wrangler.glb',
+      'tesla_model_y': '/models/vehicles/electric_suvs/tesla_model_y.glb',
+      'tesla_model_x': '/models/vehicles/suvs/tesla_model_x.glb',
+      'gmc_yukon': '/models/vehicles/suvs/chevrolet_tahoe.glb',
+      'toyota_4runner': '/models/vehicles/suvs/jeep_wrangler.glb',
+      'toyota_sequoia': '/models/vehicles/suvs/chevrolet_tahoe.glb',
+      'nissan_armada': '/models/vehicles/suvs/chevrolet_tahoe.glb',
+      'dodge_durango': '/models/vehicles/suvs/ford_explorer.glb',
 
-      // Construction/Heavy Equipment
+      // ── Construction & Heavy Equipment ──
       'caterpillar_320': '/models/vehicles/construction/caterpillar_320.glb',
       'john_deere_200g': '/models/vehicles/construction/john_deere_200g.glb',
       'komatsu_pc210': '/models/vehicles/construction/komatsu_pc210.glb',
       'volvo_ec220': '/models/vehicles/construction/volvo_ec220.glb',
+      'volvo_a40f': '/models/vehicles/construction/volvo_ec220.glb',
       'hitachi_zx210': '/models/vehicles/construction/hitachi_zx210.glb',
       'kenworth_t880': '/models/vehicles/construction/kenworth_t880.glb',
       'peterbilt_567': '/models/vehicles/construction/peterbilt_567.glb',
       'mack_granite': '/models/vehicles/construction/mack_granite.glb',
+      'jcb_3cx': '/models/vehicles/construction/john_deere_200g.glb',
+      'bobcat_s570': '/models/vehicles/construction/caterpillar_320.glb',
 
-      // Altech fleet vehicles
+      // ── Altech fleet ──
       'altech_st_200_service': '/models/vehicles/trucks/altech_st_200_service.glb',
       'altech_fh_250_flatbed': '/models/vehicles/trucks/altech_fh_250_flatbed.glb',
       'altech_fh_300_flatbed': '/models/vehicles/trucks/altech_fh_300_flatbed.glb',
       'altech_hd_40_dump': '/models/vehicles/construction/altech_hd_40_dump_truck.glb',
       'altech_wt_2000_water': '/models/vehicles/trucks/altech_wt_2000_water.glb',
       'altech_fl_1500_fuel_lube': '/models/vehicles/trucks/altech_fl_1500_fuel_lube.glb',
+      'altech_cm_3000_mixer': '/models/vehicles/construction/altech_cm_3000_mixer.glb',
+      'altech_ah_350_hauler': '/models/vehicles/construction/altech_ah_350_hauler.glb',
     };
 
     // Try exact match first
@@ -264,15 +338,66 @@ function DamageMarker({ point, isSelected, onClick }: DamageMarkerProps) {
       {/* Tooltip on hover/select */}
       {isSelected && (
         <Html center distanceFactor={10}>
-          <div className="bg-slate-900/95 text-white text-xs px-3 py-2 rounded-lg shadow-sm whitespace-nowrap">
+          <div className="bg-[#111]/95 text-white text-xs px-3 py-2 rounded-lg shadow-sm whitespace-nowrap border border-white/[0.08]">
             <div className="font-semibold">{point.zone}</div>
-            <div className="text-slate-300 capitalize">{point.severity} damage</div>
+            <div className="text-white/60 capitalize">{point.severity} damage</div>
             {point.description && (
-              <div className="text-slate-700 mt-1">{point.description}</div>
+              <div className="text-white/40 mt-1">{point.description}</div>
             )}
           </div>
         </Html>
       )}
+    </group>
+  );
+}
+
+// ============================================================================
+// VEHICLE HOTSPOT COMPONENT (EZ360-style interactive annotations)
+// ============================================================================
+
+function HotspotMarker({ hotspot }: { hotspot: VehicleHotspot }) {
+  const [hovered, setHovered] = useState(false);
+
+  const dotColor = hotspot.status === 'good' ? '#34d399'
+    : hotspot.status === 'warning' ? '#fbbf24' : '#f87171';
+  const statusClass = hotspot.status === 'good' ? 'text-emerald-400'
+    : hotspot.status === 'warning' ? 'text-amber-400' : 'text-rose-400';
+  const dotClass = hotspot.status === 'good' ? 'bg-emerald-400'
+    : hotspot.status === 'warning' ? 'bg-amber-400' : 'bg-rose-400';
+
+  return (
+    <group position={hotspot.position}>
+      {/* 3D indicator sphere */}
+      <mesh>
+        <sphereGeometry args={[0.04, 8, 8]} />
+        <meshBasicMaterial color={dotColor} transparent opacity={0.9} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[0.08, 8, 8]} />
+        <meshBasicMaterial color={dotColor} transparent opacity={0.15} />
+      </mesh>
+
+      {/* Floating HTML annotation */}
+      <Html center distanceFactor={8} position={[0, 0.2, 0]} style={{ pointerEvents: 'auto' }}>
+        <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          className="select-none"
+        >
+          <div className="bg-[#111]/85 backdrop-blur-sm rounded-full px-2 py-0.5 border border-white/[0.12] flex items-center gap-1.5 whitespace-nowrap cursor-default transition-transform hover:scale-105">
+            <div className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
+            <span className="text-[10px] text-white/70 font-medium">{hotspot.label}</span>
+            <span className={`text-[10px] font-bold ${statusClass}`}>
+              {hotspot.value}{hotspot.unit || ''}
+            </span>
+          </div>
+          {hovered && hotspot.detail && (
+            <div className="mt-1 bg-[#111]/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 border border-white/[0.12] whitespace-nowrap">
+              <p className="text-[10px] text-white/50">{hotspot.detail}</p>
+            </div>
+          )}
+        </div>
+      </Html>
     </group>
   );
 }
@@ -290,6 +415,7 @@ interface VehicleModelProps {
   showDamage?: boolean;
   onLoad?: () => void;
   onError?: (error: Error) => void;
+  wrapTextureUrl?: string;
 }
 
 function VehicleModel({
@@ -300,32 +426,43 @@ function VehicleModel({
   onSelectDamage,
   showDamage = true,
   onLoad,
-  onError
+  onError,
+  wrapTextureUrl
 }: VehicleModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [modelLoaded, setModelLoaded] = useState(false);
 
-  // Load the GLTF model with error handling
-  let scene: THREE.Group;
+  // Load the GLTF model — useGLTF uses Suspense (throws promises)
+  // and may throw a CSP error for MeshoptDecoder. We catch non-promise
+  // errors and render gracefully, but MUST keep hook order consistent.
+  let scene: THREE.Group | null = null;
+  let loadCatchError: Error | null = null;
   try {
     const gltf = useGLTF(url);
     scene = gltf.scene;
-  } catch (error) {
-    useEffect(() => {
-      if (onError) {
-        onError(error instanceof Error ? error : new Error('Failed to load 3D model'));
-      }
-    }, [error, onError]);
-
-    return (
-      <Html center>
-        <div className="bg-red-900/90 text-white px-2 py-2 rounded-lg text-sm">
-          Failed to load model
-        </div>
-      </Html>
-    );
+  } catch (error: any) {
+    // Re-throw Suspense promises so React Suspense can handle them
+    if (error instanceof Promise || (error && typeof error.then === 'function')) {
+      throw error;
+    }
+    // Non-fatal errors (e.g. MeshoptDecoder CSP) — log but don't block
+    loadCatchError = error instanceof Error ? error : new Error('Failed to load 3D model');
+    logger.warn('[Asset3DViewer] Model load warning:', loadCatchError.message);
   }
 
+  // Load uploaded wrap texture if provided
+  const wrapTexture = useMemo(() => {
+    if (!wrapTextureUrl) return null;
+    const loader = new THREE.TextureLoader();
+    const tex = loader.load(wrapTextureUrl);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  }, [wrapTextureUrl]);
+
+  // IMPORTANT: useEffect MUST always run (no early returns before hooks)
+  // to keep hook call order consistent across renders.
   useEffect(() => {
     if (!scene) return;
 
@@ -336,7 +473,17 @@ function VehicleModel({
         const meshName = mesh.name.toLowerCase();
 
         if (meshName.includes('body') || meshName.includes('paint') || meshName.includes('exterior')) {
-          mesh.material = PhotorealisticMaterials.createCarPaintMaterial(color, 'gloss');
+          if (wrapTexture) {
+            // Apply uploaded photo/video as wrap texture to body panels
+            mesh.material = new THREE.MeshStandardMaterial({
+              map: wrapTexture,
+              metalness: 0.4,
+              roughness: 0.3,
+              envMapIntensity: 0.8,
+            });
+          } else {
+            mesh.material = PhotorealisticMaterials.createCarPaintMaterial(color, 'gloss');
+          }
         } else if (meshName.includes('glass') || meshName.includes('window') || meshName.includes('windshield')) {
           mesh.material = PhotorealisticMaterials.createAutomotiveGlass(0.3);
         } else if (meshName.includes('chrome') || meshName.includes('trim') || meshName.includes('grill')) {
@@ -375,7 +522,21 @@ function VehicleModel({
 
     setModelLoaded(true);
     if (onLoad) onLoad();
-  }, [scene, color, onLoad]);
+  }, [scene, color, onLoad, wrapTexture]);
+
+  // Fatal error: scene is null and we have a real error (not a Suspense throw)
+  if (!scene && loadCatchError) {
+    return (
+      <Html center>
+        <div className="bg-red-900/90 text-white px-2 py-2 rounded-lg text-sm">
+          Failed to load model
+        </div>
+      </Html>
+    );
+  }
+
+  // Scene not ready yet (shouldn't reach here if Suspense is working, but guard anyway)
+  if (!scene) return null;
 
   return (
     <group ref={groupRef}>
@@ -402,9 +563,10 @@ interface CameraControllerProps {
   preset: CameraPreset;
   autoRotate: boolean;
   enableControls: boolean;
+  autoRotateSpeed?: number;
 }
 
-function CameraController({ preset, autoRotate, enableControls }: CameraControllerProps) {
+function CameraController({ preset, autoRotate, enableControls, autoRotateSpeed = 0.8 }: CameraControllerProps) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -417,13 +579,16 @@ function CameraController({ preset, autoRotate, enableControls }: CameraControll
     setIsAnimating(true);
   }, [preset]);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (isAnimating) {
-      // Smooth camera transition
-      camera.position.lerp(targetPosition.current, 0.05);
+      // Smooth cinematic camera transition — frame-rate independent
+      // Uses exponential easing for EZ360-quality smooth movement
+      const lerpFactor = 1 - Math.pow(0.001, delta);
+      camera.position.lerp(targetPosition.current, lerpFactor);
 
       if (controlsRef.current) {
-        controlsRef.current.target.lerp(targetLookAt.current, 0.05);
+        controlsRef.current.target.lerp(targetLookAt.current, lerpFactor);
+        controlsRef.current.update();
       }
 
       // Check if animation is complete
@@ -447,12 +612,14 @@ function CameraController({ preset, autoRotate, enableControls }: CameraControll
         enableZoom={enableControls}
         enableRotate={enableControls}
         autoRotate={autoRotate && !isAnimating}
-        autoRotateSpeed={1}
+        autoRotateSpeed={autoRotateSpeed}
         maxPolarAngle={Math.PI / 2}
-        minDistance={2}
-        maxDistance={20}
+        minDistance={1}
+        maxDistance={25}
         enableDamping
-        dampingFactor={0.05}
+        dampingFactor={0.08}
+        zoomSpeed={0.8}
+        rotateSpeed={0.6}
       />
     </>
   );
@@ -489,35 +656,35 @@ class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundary
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
      
-    console.error('[R3F ErrorBoundary] 3D renderer crashed:', error.message);
+    logger.error('[R3F ErrorBoundary] 3D renderer crashed:', error.message);
     if (import.meta.env.DEV && errorInfo.componentStack) {
        
-      console.error('[R3F ErrorBoundary] Component stack:', errorInfo.componentStack);
+      logger.error('[R3F ErrorBoundary] Component stack:', errorInfo.componentStack);
     }
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg">
+        <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-[#111] rounded-lg">
           <div className="text-center p-6 max-w-md">
             <div className="w-12 h-12 text-amber-400 mx-auto mb-4 flex items-center justify-center text-3xl">
               &#9888;
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">3D View Unavailable</h3>
-            <p className="text-sm text-slate-300 mb-4">
+            <p className="text-sm text-white/60 mb-4">
               The 3D asset viewer could not be loaded. This may be due to browser compatibility
               or graphics driver limitations.
             </p>
             {this.props.vehicleLabel && (
-              <p className="text-xs text-slate-400 mb-4">Asset: {this.props.vehicleLabel}</p>
+              <p className="text-xs text-white/40 mb-4">Asset: {this.props.vehicleLabel}</p>
             )}
             {import.meta.env.DEV && this.state.error && (
               <details className="text-left mt-4">
-                <summary className="text-xs text-slate-500 cursor-pointer hover:text-slate-300">
+                <summary className="text-xs text-white/40 cursor-pointer hover:text-white/60">
                   Error details (dev only)
                 </summary>
-                <pre className="text-xs text-red-400 mt-2 p-3 bg-slate-950 rounded overflow-auto max-h-40">
+                <pre className="text-xs text-red-400 mt-2 p-3 bg-black/50 rounded overflow-auto max-h-40">
                   {this.state.error.message}
                   {'\n\n'}
                   {this.state.error.stack}
@@ -526,7 +693,7 @@ class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundary
             )}
             <button
               onClick={() => this.setState({ hasError: false, error: null })}
-              className="mt-4 px-4 py-2 text-sm bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors"
+              className="mt-4 px-4 py-2 text-sm bg-white/[0.08] text-white rounded-lg hover:bg-white/[0.12] transition-colors"
             >
               Try Again
             </button>
@@ -563,6 +730,11 @@ export function Asset3DViewer({
   onLoad,
   onError,
   onCameraChange,
+  hotspots = [],
+  showHotspots = true,
+  wrapTextureUrl,
+  autoRotateSpeed = 0.8,
+  opacity = 1,
 }: Asset3DViewerProps) {
   const [deviceCapabilities, setDeviceCapabilities] = useState<any>(null);
   const [internalCamera, setInternalCamera] = useState(currentCamera);
@@ -601,6 +773,7 @@ export function Asset3DViewer({
   // Handle model load
   const handleModelLoad = useCallback(() => {
     setIsLoading(false);
+    setLoadError(null); // Clear any transient errors (e.g. MeshoptDecoder CSP)
     onLoad?.();
   }, [onLoad]);
 
@@ -632,7 +805,7 @@ export function Asset3DViewer({
   const vehicleLabel = [year, make, model].filter(Boolean).join(' ') || undefined;
 
   return (
-    <div className="relative w-full h-full bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className="relative w-full h-full bg-[#111]" style={{ opacity, transition: 'opacity 0.4s ease-in-out' }}>
       {/* 3D Canvas wrapped in error boundary for React 19 / R3F v8 compatibility */}
       <R3FErrorBoundary vehicleLabel={vehicleLabel}>
         <Canvas
@@ -656,6 +829,7 @@ export function Asset3DViewer({
               preset={cameraPreset}
               autoRotate={autoRotate}
               enableControls={true}
+              autoRotateSpeed={autoRotateSpeed}
             />
 
             {/* Lighting System */}
@@ -679,22 +853,35 @@ export function Asset3DViewer({
             <pointLight position={[5, 2, 0]} intensity={0.3} color="hsl(var(--warning))" />
             <pointLight position={[-5, 2, 0]} intensity={0.3} color="hsl(var(--primary))" />
 
-            {/* Environment */}
-            <Environment
-              preset="sunset"
-              background={false}
+            {/* Scene background — neutral dark, no blue tint */}
+            <color attach="background" args={['#111111']} />
+
+            {/* Studio rim lights for automotive showroom look */}
+            <directionalLight position={[5, 8, 5]} intensity={0.6} color="#f0f0ff" />
+            <directionalLight position={[-5, 3, -5]} intensity={0.3} color="#fff0e8" />
+            {/* Overhead softbox light */}
+            <rectAreaLight
+              position={[0, 6, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              width={8}
+              height={8}
+              intensity={0.8}
+              color="#ffffff"
             />
 
-            {/* Ground plane with reflection */}
+            {/* Studio floor — dark reflective surface */}
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-              <planeGeometry args={[50, 50]} />
+              <planeGeometry args={[60, 60]} />
               <meshStandardMaterial
-                color="hsl(var(--background))"
-                metalness={0.8}
-                roughness={0.2}
-                envMapIntensity={0.5}
+                color="#0a0a0a"
+                metalness={0.9}
+                roughness={0.15}
+                envMapIntensity={0.3}
               />
             </mesh>
+
+            {/* Subtle grid lines on floor for scale reference */}
+            <gridHelper args={[40, 40, '#222222', '#181818']} position={[0, 0.001, 0]} />
 
             {/* Vehicle Model */}
             <VehicleModel
@@ -706,35 +893,41 @@ export function Asset3DViewer({
               showDamage={showDamage}
               onLoad={handleModelLoad}
               onError={handleModelError}
+              wrapTextureUrl={wrapTextureUrl}
             />
+
+            {/* EZ360-style interactive hotspots */}
+            {showHotspots && hotspots.map((hotspot) => (
+              <HotspotMarker key={hotspot.id} hotspot={hotspot} />
+            ))}
           </Suspense>
         </Canvas>
       </R3FErrorBoundary>
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+        <div className="absolute inset-0 flex items-center justify-center bg-[#111]/80 backdrop-blur-sm">
           <div className="text-center text-white">
-            <div className="w-12 h-9 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-sm">Loading 3D model...</p>
+            <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-sm text-white/60">Loading 3D model...</p>
           </div>
         </div>
       )}
 
       {/* Error Display */}
       {loadError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80">
+        <div className="absolute inset-0 flex items-center justify-center bg-[#111]/90">
           <div className="text-center text-white p-3">
-            <div className="text-red-400 text-sm mb-3">⚠️</div>
+            <div className="text-red-400 text-sm mb-3">&#9888;</div>
             <p className="text-sm font-semibold mb-2">Failed to load 3D model</p>
-            <p className="text-sm text-slate-700">{loadError.message}</p>
+            <p className="text-sm text-white/40">{loadError.message}</p>
           </div>
         </div>
       )}
 
       {/* Camera Preset Controls */}
       {showControls && !loadError && (
-        <div className="absolute top-4 right-4 bg-slate-900/90 backdrop-blur-sm rounded-lg shadow-sm p-2 space-y-2">
+        <div className="absolute top-4 right-4 bg-[#111]/90 backdrop-blur-sm rounded-lg border border-white/[0.08] p-2 space-y-2">
           <h3 className="font-semibold text-sm text-white mb-2">Camera Views</h3>
           <div className="grid grid-cols-2 gap-2">
             {cameraPresetList.map(preset => (
@@ -743,8 +936,8 @@ export function Asset3DViewer({
                 onClick={() => handleCameraChange(preset)}
                 className={`px-3 py-1.5 text-xs rounded transition-colors ${
                   internalCamera === preset
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                    ? 'bg-emerald-500/20 text-emerald-400'
+                    : 'bg-white/[0.06] text-white/60 hover:bg-white/[0.1]'
                 }`}
               >
                 {preset.replace(/([A-Z])/g, ' $1').trim()}
@@ -754,20 +947,20 @@ export function Asset3DViewer({
         </div>
       )}
 
-      {/* Device Info Badge */}
-      {deviceCapabilities && (
-        <div className="absolute bottom-4 left-4 bg-slate-900/80 text-white text-xs px-3 py-2 rounded-lg flex items-center gap-2">
-          <span className={deviceCapabilities.webgl2 ? 'text-green-400' : 'text-yellow-400'}>●</span>
-          <span>WebGL {deviceCapabilities.webgl2 ? '2.0' : '1.0'}</span>
+      {/* Device Info Badge — hidden in immersive mode (showControls=false) */}
+      {showControls && deviceCapabilities && (
+        <div className="absolute bottom-4 left-4 bg-[#111]/80 text-white text-xs px-3 py-2 rounded-lg border border-white/[0.08] flex items-center gap-2">
+          <span className={deviceCapabilities.webgl2 ? 'text-emerald-400' : 'text-amber-400'}>&#9679;</span>
+          <span className="text-white/60">WebGL {deviceCapabilities.webgl2 ? '2.0' : '1.0'}</span>
           {deviceCapabilities.maxTextureSize && (
-            <span className="text-slate-700">| {deviceCapabilities.maxTextureSize}px max</span>
+            <span className="text-white/30">| {deviceCapabilities.maxTextureSize}px max</span>
           )}
         </div>
       )}
 
-      {/* Vehicle Info Badge */}
-      {(make || model) && (
-        <div className="absolute bottom-4 right-4 bg-slate-900/80 text-white text-xs px-3 py-2 rounded-lg">
+      {/* Vehicle Info Badge — hidden in immersive mode */}
+      {showControls && (make || model) && (
+        <div className="absolute bottom-4 right-4 bg-[#111]/80 text-white/60 text-xs px-3 py-2 rounded-lg border border-white/[0.08]">
           {year && <span>{year} </span>}
           {make && <span>{make} </span>}
           {model && <span>{model}</span>}

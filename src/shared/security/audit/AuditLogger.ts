@@ -115,7 +115,7 @@ class AuditLoggerService {
   private encryptionService: EncryptionService
   private previousHash: string = ''
   private logs: AuditLogEntry[] = [] // In-memory buffer (would be database in production)
-  private siemEndpoint: string = process.env.SIEM_ENDPOINT || ''
+  private siemEndpoint: string = import.meta.env.VITE_SIEM_ENDPOINT || ''
 
   constructor() {
     this.encryptionService = new EncryptionService()
@@ -279,7 +279,7 @@ class AuditLoggerService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.SIEM_API_KEY}`,
+          Authorization: `Bearer ${import.meta.env.VITE_SIEM_API_KEY}`,
         },
         body: JSON.stringify(entry),
       })

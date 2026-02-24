@@ -5,6 +5,7 @@
 import { EventEmitter } from 'events'
 
 import { Vehicle, FuelTransaction, EmulatorConfig, Location } from '../types'
+import logger from '../../config/logger'
 
 export class FuelEmulator extends EventEmitter {
   private vehicle: Vehicle
@@ -36,7 +37,7 @@ export class FuelEmulator extends EventEmitter {
       }
     }, 60000) // Check every minute
 
-    console.log(`Fuel Emulator started for vehicle ${this.vehicle.id}`)
+    logger.info(`Fuel Emulator started for vehicle ${this.vehicle.id}`)
   }
 
   public async stop(): Promise<void> {
@@ -45,7 +46,7 @@ export class FuelEmulator extends EventEmitter {
       this.updateInterval = null
     }
     this.isRunning = false
-    console.log(`Fuel Emulator stopped for vehicle ${this.vehicle.id}`)
+    logger.info(`Fuel Emulator stopped for vehicle ${this.vehicle.id}`)
   }
 
   public async pause(): Promise<void> {

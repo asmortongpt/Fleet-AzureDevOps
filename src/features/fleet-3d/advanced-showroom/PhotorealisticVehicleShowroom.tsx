@@ -3,6 +3,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { RealDataService } from '../../services/RealDataService';
 
 import { secureFetch } from '@/hooks/use-api';
+import { formatEnum } from '@/utils/format-enum';
+import { formatNumber } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface PhotorealisticVehicleShowroomProps {
   currentTheme: any;
@@ -87,7 +91,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
 
           const vehicleWithImages: VehicleWithImages = {
             id: String(vehicle.id),
-            make: vehicle.make || 'Unknown',
+            make: vehicle.make || '—',
             model: vehicle.model || 'Vehicle',
             year: vehicle.year || 2023,
             vin: vehicle.vin || '',
@@ -109,7 +113,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
 
       setVehicles(enhancedVehicles);
     } catch (error) {
-      console.error('Error loading vehicles:', error);
+      logger.error('Error loading vehicles:', error);
     } finally {
       setLoading(false);
     }
@@ -141,7 +145,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
         return v;
       }));
     } catch (error) {
-      console.error('VIN refresh failed:', error);
+      logger.error('VIN refresh failed:', error);
     } finally {
       setScanningVIN(null);
     }
@@ -404,7 +408,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                     vehicle.imageUrl ? (
                       <img
                         src={vehicle.imageUrl}
-                        alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+                        alt={formatVehicleName(vehicle)}
                         style={{
                           width: '100%',
                           height: '100%',
@@ -441,9 +445,8 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                     borderRadius: '6px',
                     fontSize: '12px',
                     fontWeight: '600',
-                    textTransform: 'capitalize'
                   }}>
-                    {vehicle.status}
+                    {formatEnum(vehicle.status)}
                   </div>
 
                   {/* VALIDATION & HONESTY LOOP BADGE */}
@@ -538,7 +541,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                     fontWeight: '600',
                     color: currentTheme.text
                   }}>
-                    {vehicle.year} {vehicle.make} {vehicle.model}
+                    {formatVehicleName(vehicle)}
                   </h3>
 
                   <div style={{
@@ -550,7 +553,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                   }}>
                     <div>VIN: {vehicle.vin ? vehicle.vin.slice(-6) : '—'}</div>
                     <div>Color: {vehicle.color}</div>
-                    <div>Mileage: {vehicle.mileage.toLocaleString()}</div>
+                    <div>Mileage: {formatNumber(vehicle.mileage)}</div>
                     <div>ID: {vehicle.id.substr(0, 8)}</div>
                   </div>
                 </div>
@@ -581,7 +584,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                   fontWeight: '700',
                   color: currentTheme.text
                 }}>
-                  {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
+                  {formatVehicleName(selectedVehicle)}
                 </h2>
                 <p style={{
                   margin: 0,
@@ -615,7 +618,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
             }}>
               <img
                 src={selectedVehicle.imageSet[selectedAngle] || selectedVehicle.imageUrl}
-                alt={`${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model}`}
+                alt={formatVehicleName(selectedVehicle)}
                 style={{
                   width: '100%',
                   height: '250px',
@@ -743,13 +746,13 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                 { label: 'Model', value: selectedVehicle.model },
                 { label: 'Year', value: selectedVehicle.year.toString() },
                 { label: 'Color', value: selectedVehicle.color },
-                { label: 'Mileage', value: selectedVehicle.mileage.toLocaleString() + ' miles' },
+                { label: 'Mileage', value: formatNumber(selectedVehicle.mileage) + ' miles' },
                 { label: 'Status', value: selectedVehicle.status },
                 { label: 'VIN', value: selectedVehicle.vin },
                 { label: 'Vehicle ID', value: selectedVehicle.id }
-              ].map((item, index) => (
+              ].map((item) => (
                 <div
-                  key={index}
+                  key={item.label}
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',

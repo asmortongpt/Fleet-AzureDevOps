@@ -187,14 +187,14 @@ const productionConfig: TelemetryConfig = {
 
   custom: {
     endpoint: import.meta.env.VITE_ANALYTICS_ENDPOINT || '/api/analytics',
-    apiKey: import.meta.env.VITE_ANALYTICS_API_KEY,
+    apiKey: import.meta.env.VITE_ANALYTICS_API_KEY || '',
     batchSize: 50,
     flushInterval: 30000, // 30 seconds
   },
 
   errorReporting: {
     enabled: true,
-    dsn: import.meta.env.VITE_SENTRY_DSN,
+    dsn: import.meta.env.VITE_SENTRY_DSN || '',
     environment: 'production',
     sampleRate: 0.1,
     tracesSampleRate: 0.1,

@@ -41,6 +41,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useViolationMutations, type HOSViolation } from '@/hooks/use-hos-data'
 import logger from '@/utils/logger'
+import { formatDateTime } from '@/utils/format-helpers'
 
 // ============================================================================
 // TYPES
@@ -212,7 +213,7 @@ export function ViolationResolutionDialog({
               <p className="text-xs text-muted-foreground">
                 <strong>Occurred:</strong>{' '}
                 <time dateTime={violation.violation_datetime}>
-                  {new Date(violation.violation_datetime).toLocaleString()}
+                  {formatDateTime(violation.violation_datetime)}
                 </time>
               </p>
             </div>

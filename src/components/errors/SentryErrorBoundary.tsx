@@ -268,7 +268,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
                 Go Home
               </Button>
               {this.state.eventId && (
-                <Button onClick={this.handleReportFeedback} variant="outline" size="icon">
+                <Button onClick={this.handleReportFeedback} variant="outline" size="icon" aria-label="Report bug">
                   <Bug className="h-4 w-4" />
                 </Button>
               )}

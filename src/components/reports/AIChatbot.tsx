@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts';
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface Message {
@@ -195,7 +196,7 @@ export function AIChatbot() {
                 </div>
               )}
               <p className="text-xs opacity-70 mt-1">
-                {message.timestamp.toLocaleTimeString()}
+                {formatTime(message.timestamp)}
               </p>
             </div>
           </div>
@@ -219,9 +220,9 @@ export function AIChatbot() {
         <div className="px-2 py-2 bg-card/90 border-t border-border/50">
           <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
           <div className="space-y-1">
-            {exampleQueries.slice(0, 3).map((query, index) => (
+            {exampleQueries.slice(0, 3).map((query) => (
               <button
-                key={index}
+                key={query}
                 onClick={() => handleExampleClick(query)}
                 className="w-full text-left text-xs px-2 py-1 bg-muted/40 hover:bg-muted/60 rounded transition-colors text-muted-foreground"
               >

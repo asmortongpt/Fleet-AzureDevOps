@@ -448,9 +448,9 @@ export function PerformanceMonitor({
                   Performance Warnings
                 </div>
                 <div className="space-y-1">
-                  {metrics.warnings.map((warning, index) => (
+                  {metrics.warnings.map((warning) => (
                     <div
-                      key={index}
+                      key={warning.message}
                       className={`text-xs px-2 py-1 rounded ${
                         warning.severity === "high"
                           ? "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"

@@ -4,49 +4,44 @@
  */
 
 import { AlertCircle, Route, MapPin } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 
 import { GoogleMapView } from './GoogleMapView'
 
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useVehicles } from '@/hooks/use-api'
+import { useFleetData } from '@/hooks/use-fleet-data'
 import { Vehicle } from '@/types/Vehicle'
 
 export interface RouteMapProps {
   className?: string
 }
 
-// Sample route data - in production, this would come from an API
-const SAMPLE_ROUTES = [
-  // Route 1: North route
-  [
-    { lat: 30.4383, lng: -84.2807 }, // Tallahassee
-    { lat: 30.5383, lng: -84.3807 },
-    { lat: 30.6383, lng: -84.4807 },
-    { lat: 30.7383, lng: -84.5807 }
-  ],
-  // Route 2: South route
-  [
-    { lat: 30.4383, lng: -84.2807 }, // Tallahassee
-    { lat: 30.3383, lng: -84.1807 },
-    { lat: 30.2383, lng: -84.0807 },
-    { lat: 30.1383, lng: -83.9807 }
-  ],
-  // Route 3: East route
-  [
-    { lat: 30.4383, lng: -84.2807 }, // Tallahassee
-    { lat: 30.4383, lng: -84.1807 },
-    { lat: 30.4383, lng: -84.0807 },
-    { lat: 30.4383, lng: -83.9807 }
-  ]
-]
-
 export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
   const [showRoutes, setShowRoutes] = useState(true)
 
   // Fetch vehicles - filter only those with active routes
   const { data: vehicles, isLoading, error } = useVehicles()
+  const { routes: routeData } = useFleetData()
+
+  // Convert route data to coordinate arrays for the map
+  const routeCoordinates = useMemo(() => {
+    if (!routeData || routeData.length === 0) return []
+    return routeData
+      .map((route: any) => {
+        // Extract coordinate arrays from route waypoints/geometry
+        const waypoints = route.waypoints || route.coordinates || route.geometry?.coordinates || []
+        if (Array.isArray(waypoints) && waypoints.length >= 2) {
+          return waypoints.map((wp: any) => {
+            if (Array.isArray(wp)) return { lat: wp[1], lng: wp[0] } // GeoJSON [lng, lat]
+            return { lat: wp.lat ?? wp.latitude, lng: wp.lng ?? wp.longitude }
+          }).filter((c: any) => c.lat != null && c.lng != null)
+        }
+        return null
+      })
+      .filter((r): r is { lat: number; lng: number }[] => r !== null && r.length >= 2)
+  }, [routeData])
 
   // Filter to only active vehicles (those in transit)
   // Cast to full Vehicle type since the API returns complete vehicle data
@@ -102,7 +97,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
         </div>
         <div className="space-y-1 text-sm text-slate-700">
           <div>Active Vehicles: {activeVehicles.length}</div>
-          <div>Total Routes: {showRoutes ? SAMPLE_ROUTES.length : 0}</div>
+          <div>Total Routes: {showRoutes ? routeCoordinates.length : 0}</div>
           <div className="mt-2 pt-2 border-t border-gray-200">
             <p className="text-xs text-gray-700">
               Routes shown are optimized paths calculated by the dispatch system.
@@ -115,7 +110,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
       <GoogleMapView
         vehicles={activeVehicles}
         showRoutes={showRoutes}
-        routes={showRoutes ? SAMPLE_ROUTES : []}
+        routes={showRoutes ? routeCoordinates : []}
         className="w-full h-full"
         zoom={11}
       />

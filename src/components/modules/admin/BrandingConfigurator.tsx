@@ -51,7 +51,10 @@ export function BrandingConfigurator() {
     '/api/policies?limit=1',
     (url: string) =>
       fetch(url, { credentials: 'include' })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+          return res.json()
+        })
         .then(data => data?.data ?? data),
     { shouldRetryOnError: false }
   )

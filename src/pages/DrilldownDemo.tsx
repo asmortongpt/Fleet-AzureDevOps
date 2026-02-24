@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
+import { toast } from 'sonner';
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { DataDrilldown, DrilldownRecord, DrilldownPermissions } from '@/components/common/DataDrilldown';
 
 const DEMO_VEHICLES: DrilldownRecord[] = [
@@ -158,18 +160,19 @@ export default function DrilldownDemo() {
   };
 
   const handleEdit = (record: DrilldownRecord) => {
-    alert(`Saved changes to ${record.title}`);
+    toast.success(`Saved changes to ${record.title}`);
   };
 
   const handleDelete = (record: DrilldownRecord) => {
-    alert(`Deleted ${record.title}`);
+    toast.info(`Deleted ${record.title}`);
   };
 
   const handleNavigate = (type: string, id: string) => {
-    alert(`Navigating to ${type} ${id}`);
+    toast.info(`Navigating to ${type} ${id}`);
   };
 
   return (
+    <ErrorBoundary>
     <div className="container mx-auto p-3">
       <div className="mb-3">
         <h1 className="text-base font-bold">Universal Drilldown Demo</h1>
@@ -189,5 +192,6 @@ export default function DrilldownDemo() {
         onNavigate={handleNavigate}
       />
     </div>
+    </ErrorBoundary>
   );
 }

@@ -17,7 +17,9 @@ import {
   getDamageDetectionService,
   type DamageReport,
 } from '@/services/AIDamageDetectionService';
+import { formatCurrency } from '@/utils/format-helpers';
 import { photoUploadService } from '@/services/PhotoUploadService';
+import logger from '@/utils/logger';
 
 // Phase 2: Condition Monitoring
 import type { VehicleCondition, ServiceRecord } from '@/types/vehicle-condition.types';
@@ -42,8 +44,8 @@ export function CompleteGarageSystem() {
   // Initialize AI service
   useEffect(() => {
     initializeDamageDetection({
-      endpoint: import.meta.env.VITE_AI_API_ENDPOINT,
-      apiKey: import.meta.env.VITE_AI_API_KEY,
+      endpoint: import.meta.env.VITE_AI_API_ENDPOINT || '',
+      apiKey: import.meta.env.VITE_AI_API_KEY || '',
       modelVersion: 'v1.0',
       confidenceThreshold: 0.7,
     });
@@ -76,7 +78,7 @@ export function CompleteGarageSystem() {
       setShowCamera(false);
       setActiveView('photos');
     } catch (error) {
-      console.error('Photo capture failed:', error);
+      logger.error('Photo capture failed:', error);
     }
   };
 
@@ -224,8 +226,8 @@ export function CompleteGarageSystem() {
                 <div className="border-t border-slate-700 pt-2">
                   <p className="text-slate-300 mb-2">Estimated Cost:</p>
                   <p className="text-sm font-bold text-green-400">
-                    ${damageReport.summary.estimatedCost.min.toLocaleString()} - 
-                    ${damageReport.summary.estimatedCost.max.toLocaleString()}
+                    {formatCurrency(damageReport.summary.estimatedCost.min)} -
+                    {formatCurrency(damageReport.summary.estimatedCost.max)}
                   </p>
                 </div>
               </div>

@@ -53,6 +53,7 @@ import {
   type IncidentType
 } from '@/hooks/use-reactive-incident-data'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -424,7 +425,7 @@ export function IncidentReportDialog({
                     <SelectItem value="">None</SelectItem>
                     {vehicles.map(v => (
                       <SelectItem key={v.id} value={v.id.toString()}>
-                        {v.number} - {v.year} {v.make} {v.model}
+                        {formatVehicleName(v)}
                       </SelectItem>
                     ))}
                   </SelectContent>

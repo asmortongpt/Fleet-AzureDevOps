@@ -72,11 +72,19 @@ import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 // AI & Automation Routes
 import aiChatRouter from './routes/ai-chat'
 import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
+import aiInsightsRouter from './routes/ai-insights.routes'
 import aiDispatchRouter from './routes/ai-dispatch.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
-import langchainRouter from './routes/langchain.routes'
+import vehicleScannerAIRouter from './routes/vehicle-scanner-ai.routes'
+// Lazy-loaded: @langchain/core may not be installed in all environments
+let langchainRouter: import('express').Router | null = null
+try {
+  langchainRouter = require('./routes/langchain.routes').default
+} catch {
+  // langchain dependencies not available - route will be skipped
+}
 import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
 import analyticsRouter from './routes/analytics'
 import arcgisLayersRouter from './routes/arcgis-layers'
@@ -139,7 +147,6 @@ import healthSystemRouter from './routes/health-system.routes' // Comprehensive 
 import healthRouter from './routes/health.routes' // Microsoft integration health
 import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 import incidentsRouter from './routes/incidents'
-import incidentManagementRouter from './routes/incident-management'
 import inspectionsRouter from './routes/inspections-simple'
 import internalTeamsRouter from './routes/internal-teams'
 import hazardZonesRouter from './routes/hazard-zones'
@@ -173,6 +180,7 @@ import outlookRouter from './routes/outlook.routes'
 import partsRouter from './routes/parts'
 import flairExpensesRouter from './routes/flair-expenses'
 import warrantyRecallsRouter from './routes/warranty-recalls'
+import trackingDevicesRouter from './routes/tracking-devices'
 import trainingRouter from './routes/training.routes'
 import securityEventsRouter from './routes/security-events'
 import certificationsRouter from './routes/certifications'
@@ -180,10 +188,15 @@ import permissionsRouter from './routes/permissions'
 import chargesRouter from './routes/personal-use-charges'
 import personalUsePoliciesRouter from './routes/personal-use-policies'
 import policiesRouter from './routes/policies'
+import policyAcknowledgmentsRouter from './routes/policy-acknowledgments'
+import policyComplianceAuditsRouter from './routes/policy-compliance-audits'
+import policyExecutionsRouter from './routes/policy-executions'
 
 // Missing importers
 import alertsRouter from './routes/alerts.routes'
 import complianceRouter from './routes/compliance'
+import complianceRequirementsRouter from './routes/compliance-requirements'
+import complianceRecordsRouter from './routes/compliance-records'
 import inventoryRouter from './routes/inventory.routes'
 
 // PHASE 3: Priority A Routes (High-Value Unregistered Features)
@@ -192,11 +205,15 @@ import communicationsRouter from './routes/communications'
 import reimbursementRouter from './routes/reimbursement-requests'
 import adminRouter from './routes/admin.routes'
 import adminUsersRouter from './routes/admin/users.routes'
+import adminConfigRouter from './routes/admin/configuration'
 // monitoringRouter imported in separate block
 import { initializeBudgetRoutes } from './routes/budgets'
 import reportsRouter from './routes/reports.routes'
 import reservationsRouter from './routes/reservations.routes'
 import policyTemplatesRouter from './routes/policy-templates'
+import policyViolationsRouter from './routes/policy-violations'
+import licensesRouter from './routes/licenses'
+import attachmentsRouter from './routes/attachments.routes'
 import presenceRouter from './routes/presence.routes'
 import purchaseOrdersRouter from './routes/purchase-orders'
 import pushNotificationsRouter from './routes/push-notifications.routes'
@@ -205,7 +222,9 @@ import qualityGatesRouter from './routes/quality-gates'
 import routeOptimizationRouter from './routes/route-optimization.routes'
 // import routeEmulatorRouter from './routes/route-emulator.routes'
 import routesRouter from './routes/routes'
+import proceduresRouter from './routes/procedures'
 import safetyIncidentsRouter from './routes/safety-incidents'
+import safetyPoliciesRouter from './routes/safety-policies'
 import tripsRouter from './routes/trips'
 import safetyAlertsRouter from './routes/safety-alerts'
 import scanSessionsRouter from './routes/scan-sessions.routes'
@@ -215,6 +234,7 @@ import sessionRevocationRouter from './routes/session-revocation'
 import sessionsRouter from './routes/sessions'
 import smartcarRouter from './routes/smartcar.routes'
 import storageAdminRouter from './routes/storage-admin'
+import databaseHealthRouter from './routes/database.routes'
 import syncRouter from './routes/sync.routes'
 import tasksRouter from './routes/tasks'
 import taskManagementRouter from './routes/task-management.routes'
@@ -228,6 +248,7 @@ import tripUsageRouter from './routes/trip-usage'
 import predictiveMaintenanceRouter from './routes/predictive-maintenance'
 import usersRouter from './routes/users'
 import vehicle3dRouter from './routes/vehicle-3d.routes'
+import vehicleScannerRouter from './routes/vehicle-scanner.routes'
 import vehicleAssignmentsRouter from './routes/vehicle-assignments.routes'
 import vehicleHistoryRouter from './routes/vehicle-history.routes'
 import vehicleIdlingRouter from './routes/vehicle-idling.routes'
@@ -254,8 +275,13 @@ import schedulingNotificationsRouter from './routes/scheduling-notifications.rou
 import systemHealthRouter from './routes/system-health.routes'
 import tripMarkingRouter from './routes/trip-marking'
 import vehicleSafetyRouter from './routes/vehicle-safety'
+import violationsRouter from './routes/violations.routes'
 import warrantiesRouter from './routes/warranties'
 import weatherRouter from './routes/weather'
+
+// Drilldown stub routes (empty-array fallbacks for frontend drilldown panels)
+import equipmentRouter from './routes/equipment.routes'
+import jobsRouter from './routes/jobs.routes'
 
 // E2E Testing Routes (DEVELOPMENT ONLY - NO AUTH)
 
@@ -272,8 +298,7 @@ logger.info('Datadog APM disabled')
 // ARCHITECTURE FIX: Import new error handling infrastructure
 
 // Initialize Sentry
-// TEMP: Disabled to resolve initialization loop
-// sentryService.init()
+sentryService.init()
 
 logger.info('--- IMPORTS COMPLETED, CREATING APP ---');
 const app = express()
@@ -329,6 +354,13 @@ app.options('/{*splat}', cors(getCorsConfig()))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
+// 3.3 Express 5 compatibility: make req.query writable for validation/sanitization middleware
+app.use((req, _res, next) => {
+  const parsed = { ...req.query }
+  Object.defineProperty(req, 'query', { value: parsed, writable: true, configurable: true, enumerable: true })
+  next()
+})
+
 // 3.5. Cookie Parser - Required for CSRF protection
 app.use(cookieParser())
 
@@ -350,7 +382,7 @@ app.use(telemetryMiddleware)
 if (process.env.NODE_ENV !== 'production' && process.env.SKIP_AUTH === 'true') {
   logger.info('[DEV] Auth bypass middleware enabled - all API requests will use Morton-tech tenant')
   app.use((req: any, _res: any, next: any) => {
-    if (req.path.startsWith('/api/') && !req.path.startsWith('/api/auth/') && !req.path.startsWith('/api/csrf')) {
+    if (req.path.startsWith('/api/') && !req.path.startsWith('/api/auth/')) {
       req.user = {
         id: '00000000-0000-0000-0000-000000000001',
         email: 'dev@morton-tech.local',
@@ -427,8 +459,8 @@ app.use('/api/vehicle-contracts', vehicleContractsRouter)
 app.use('/api/vendor-management', vendorManagementRouter)
 app.use('/api/maintenance', maintenanceRouter)
 app.use('/api/incidents', incidentsRouter)
-app.use('/api/incident-management', incidentManagementRouter)
 app.use('/api/parts', partsRouter)
+app.use('/api/parts-inventory', partsRouter)  // Alias: frontend uses /api/parts-inventory
 app.use('/api/inventory', inventoryRouter) // Registered here as core
 app.use('/api/vendors', vendorsRouter)
 app.use('/api/invoices', invoicesRouter)
@@ -462,6 +494,7 @@ app.use('/api/geofences', geofencesRouter)
 app.use('/api/geospatial', geospatialRouter)
 app.use('/api/telematics', telematicsRouter)
 app.use('/api/traffic-cameras', trafficCamerasRouter)
+app.use('/api/traffic/cameras', trafficCamerasRouter) // Alias: frontend also uses /api/traffic/cameras
 app.use('/api/vehicle-idling', vehicleIdlingRouter)
 
 // Maintenance & Inspection Routes
@@ -478,6 +511,8 @@ app.use('/api/charging-stations', chargingStationsRouter)
 app.use('/api/predictive-maintenance', predictiveMaintenanceRouter)
 
 // Document Management Routes
+app.use('/api/attachments', attachmentsRouter)
+app.use('/api/documents/geo', documentGeoRouter) // Alias: frontend calls /api/documents/geo/geocode (must be before /api/documents)
 app.use('/api/documents', documentsRouter)
 app.use('/api/fleet-documents', fleetDocumentsRouter)
 app.use('/api/fleet', fleetRouter)
@@ -509,7 +544,7 @@ app.use('/api/ai-dispatch', aiDispatchRouter)
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
 app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
-app.use('/api/langchain', langchainRouter)
+if (langchainRouter) app.use('/api/langchain', langchainRouter)
 
 // Task & Schedule Management Routes
 app.use('/api/scheduling', schedulingRouter)
@@ -535,9 +570,12 @@ app.use('/api/vehicle-hardware-config', vehicleHardwareConfigRouter)
 app.use('/api/vehicle-history', vehicleHistoryRouter)
 app.use('/api/vehicle-identification', vehicleIdentificationRouter)
 app.use('/api/vehicle-3d', vehicle3dRouter)
+app.use('/api/vehicle-scanner-ai', vehicleScannerAIRouter)
+app.use('/api/vehicle-scanner', vehicleScannerRouter)
 app.use('/api/damage', damageRouter)
 app.use('/api/damage-reports', damageReportsRouter)
 app.use('/api/ai/damage-detection', aiDamageDetectionRouter)
+app.use('/api/ai-insights', aiInsightsRouter)
 app.use('/api/lidar', lidarRouter)
 
 // Trip & Route Management Routes
@@ -553,7 +591,11 @@ app.use('/api/hazard-zones', hazardZonesRouter)
 app.use('/api/safety-alerts', safetyAlertsRouter)
 app.use('/api/osha-compliance', oshaComplianceRouter)
 app.use('/api/compliance', complianceRouter)
+app.use('/api/compliance-requirements', complianceRequirementsRouter)
+app.use('/api/compliance-records', complianceRecordsRouter)
 app.use('/api/annual-reauthorization', annualReauthorizationRouter)
+app.use('/api/safety-policies', safetyPoliciesRouter)
+app.use('/api/procedures', proceduresRouter)
 app.use('/api/training', trainingRouter)
 app.use('/api/certifications', certificationsRouter)
 app.use('/api/hos', hosRouter) // PHASE 3: Hours of Service (DOT compliance) - Priority A
@@ -561,7 +603,12 @@ app.use('/api/hos', hosRouter) // PHASE 3: Hours of Service (DOT compliance) - P
 // Policy & Permission Routes
 app.use('/api/policies', policiesRouter)
 app.use('/api/policy-templates', policyTemplatesRouter)
+app.use('/api/policy-violations', policyViolationsRouter)
+app.use('/api/policy-acknowledgments', policyAcknowledgmentsRouter)
+app.use('/api/policy-compliance-audits', policyComplianceAuditsRouter)
+app.use('/api/policy-executions', policyExecutionsRouter)
 app.use('/api/permissions', permissionsRouter)
+app.use('/api/licenses', licensesRouter)
 
 // Reporting
 app.use('/api/reports', reportsRouter)
@@ -590,6 +637,7 @@ app.use('/api/dashboard', dashboardRouter)
 app.use('/api/emulator', emulatorRouter)
 app.use('/api/obd2-emulator', obd2EmulatorRouter)
 app.use('/api/dispatch', dispatchRouter)
+app.use('/api/dispatches', dispatchRouter)  // Alias: frontend uses /api/dispatches
 
 // System Management Routes
 app.use('/api/monitoring', monitoringRouter)
@@ -600,6 +648,8 @@ app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
 app.use('/api/health-detailed', healthDetailedRouter)
 app.use('/api/telemetry', telemetryRouter)
 app.use('/api/security', securityEventsRouter)
+app.use('/api/security-events', securityEventsRouter) // Alias: some frontend code uses /api/security-events
+app.use('/api/tracking-devices', trackingDevicesRouter)
 app.use('/api/queue', queueRouter)
 app.use('/api/deployments', deploymentsRouter)
 app.use('/api/facilities', facilitiesRouter)
@@ -607,12 +657,15 @@ app.use('/api/service-bays', serviceBaysRouter)
 app.use('/api/search', searchRouter)
 app.use('/api/presence', presenceRouter)
 app.use('/api/storage-admin', storageAdminRouter)
+app.use('/api/storage', storageAdminRouter)
+app.use('/api/database', databaseHealthRouter)
 app.use('/api/sync', syncRouter)
 app.use('/api/quality-gates', qualityGatesRouter)
 app.use('/api/system', systemConnectionsRouter)
 app.use('/api/admin/jobs', adminJobsRouter)
 app.use('/api/admin', adminRouter) // PHASE 3: Admin dashboard & config - Priority A
 app.use('/api/admin/users', adminUsersRouter) // PHASE 3: Admin user management - Priority A
+app.use('/api/admin/config', adminConfigRouter)
 
 // Medium-Priority Routes (Batch 2)
 app.use('/api/adaptive-cards', adaptiveCardsRouter)
@@ -648,6 +701,9 @@ if (process.env.ENABLE_E2E_ROUTES === 'true' && process.env.NODE_ENV !== 'produc
 
 // Route aliases for frontend compatibility
 app.use('/api/garage-bays', serviceBaysRouter)
+app.use('/api/violations', violationsRouter)       // Alias: ViolationDetailPanel calls /api/violations (proxies policy_violations)
+app.use('/api/jobs', jobsRouter)                   // Stub: OperationsHubDrilldowns calls /api/jobs
+app.use('/api/equipment', equipmentRouter)         // Stub: AssetHubDrilldowns calls /api/equipment
 app.use('/api', initializeBudgetRoutes(pool))
 
 // 404 handler - must come before error handlers

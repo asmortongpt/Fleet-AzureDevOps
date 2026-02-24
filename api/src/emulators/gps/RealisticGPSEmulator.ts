@@ -24,6 +24,7 @@ import {
   Geofence,
   Waypoint
 } from '../types'
+import logger from '../../config/logger'
 
 interface MovementState {
   // Position
@@ -207,7 +208,7 @@ return
       }
     }, updateFrequency)
 
-    console.log(`RealisticGPSEmulator started for vehicle ${this.vehicle.id}`)
+    logger.info(`RealisticGPSEmulator started for vehicle ${this.vehicle.id}`)
   }
 
   /**
@@ -226,7 +227,7 @@ return
     this.isRunning = false
     this.isPaused = false
 
-    console.log(`RealisticGPSEmulator stopped for vehicle ${this.vehicle.id}`)
+    logger.info(`RealisticGPSEmulator stopped for vehicle ${this.vehicle.id}`)
   }
 
   public async pause(): Promise<void> {
@@ -247,7 +248,7 @@ return
     this.currentWaypointIndex = 0
     this.targetWaypoint = route.waypoints[0] || null
     this.calculateDistanceToTarget()
-    console.log(`Route "${route.name}" assigned to vehicle ${this.vehicle.id}`)
+    logger.info(`Route "${route.name}" assigned to vehicle ${this.vehicle.id}`)
   }
 
   /**

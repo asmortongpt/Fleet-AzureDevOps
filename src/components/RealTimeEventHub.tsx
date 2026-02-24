@@ -120,6 +120,9 @@ function EventItem({ event, compact, onAcknowledge, onClick }: EventItemProps) {
   return (
     <div
       onClick={onClick}
+      onKeyDown={(e) => e.key === 'Enter' && onClick?.()}
+      role="button"
+      tabIndex={0}
       className={cn(
         "p-3 rounded-lg border cursor-pointer transition-all",
         "hover:shadow-md hover:border-primary/30",

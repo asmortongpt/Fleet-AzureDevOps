@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { pageTransitionVariants } from '@/lib/animations'
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
+import { SkipNavigation } from "@/components/common/SkipNavigation"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
@@ -159,6 +160,8 @@ const BusinessManagementHub = lazy(() => import("@/pages/BusinessManagementHub")
 const PeopleCommunicationHub = lazy(() => import("@/pages/PeopleCommunicationHub"))
 const AdminConfigurationHub = lazy(() => import("@/pages/AdminConfigurationHub"))
 const VehicleShowroom3D = lazy(() => import("@/pages/VehicleShowroom3D"))
+const MapDiagnostic = lazy(() => import("@/pages/MapDiagnostic"))
+const ReservationsHub = lazy(() => import("@/components/hubs/reservations/ReservationsHub").then(m => ({ default: m.ReservationsHub })))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -181,7 +184,7 @@ const LoadingSpinner = () => (
 function App() {
   const { canAccess } = useAuth()
   const { activeModule, setActiveModule } = useNavigation()
-  useState(() => telemetryService.initialize())
+  useEffect(() => { telemetryService.initialize() }, [])
 
   const fleetData = useFleetData()
 
@@ -491,9 +494,18 @@ function App() {
       case "cta-configuration-hub":
       case "data-governance-hub":
       case "configuration-hub":
+      case "configuration":
       case "admin":
       case "integrations":
         return <AdminConfigurationHub />
+
+      // RESERVATIONS - Vehicle Booking & Calendar Management
+      case "reservations":
+        return <ReservationsHub />
+
+      // MAP DIAGNOSTICS - Map & GPS diagnostic tools
+      case "map-diagnostics":
+        return <MapDiagnostic />
 
       // 3D GARAGE - Interactive Vehicle Showroom
       case "3d-garage":
@@ -520,7 +532,14 @@ function App() {
     const moduleContent = renderModule()
     return (
       <DrilldownManager>
-        <SinglePageShell moduleContent={moduleContent} />
+        <SkipNavigation />
+        <EnhancedErrorBoundary showDetails={import.meta.env.DEV}>
+          <QueryErrorBoundary>
+            <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
+              <SinglePageShell moduleContent={moduleContent} />
+            </Suspense>
+          </QueryErrorBoundary>
+        </EnhancedErrorBoundary>
 
         {/* Toast notifications */}
         <div role="status" aria-live="polite" aria-label="Toast notifications">
@@ -548,6 +567,7 @@ function App() {
   // Legacy layout (default)
   return (
     <DrilldownManager>
+      <SkipNavigation />
       <CommandCenterLayout>
         <EnhancedErrorBoundary
           showDetails={import.meta.env.DEV}

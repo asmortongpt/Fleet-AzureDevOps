@@ -142,6 +142,20 @@ class VehicleModelsService {
     );
 
     if (direct.rows.length > 0) {
+      // Enrich with color data from vehicle_3d_instances (if table exists)
+      try {
+        const instanceResult = await this.db.query(
+          `SELECT exterior_color_hex, exterior_color_name
+           FROM vehicle_3d_instances WHERE vehicle_id = $1 LIMIT 1`,
+          [vehicleId]
+        );
+        if (instanceResult.rows.length > 0) {
+          direct.rows[0].exterior_color_hex = instanceResult.rows[0].exterior_color_hex;
+          direct.rows[0].exterior_color_name = instanceResult.rows[0].exterior_color_name;
+        }
+      } catch {
+        // vehicle_3d_instances table may not exist — skip color enrichment
+      }
       return direct.rows[0];
     }
 

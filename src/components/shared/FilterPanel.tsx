@@ -24,7 +24,7 @@ export function FilterPanel({ filters }: FilterPanelProps) {
         const inputId = `filter-${filter.id}`;
 
         return (
-          <div key={filter.id} className="flex-1 min-w-[200px]">
+          <div key={filter.id} className="flex-1 min-w-0 sm:min-w-[200px]">
             <label htmlFor={inputId} className="text-sm font-medium mb-2 block">
               {filter.label}
             </label>

@@ -513,4 +513,101 @@ router.post(
   }
 )
 
+// ─── AI Model Generation Stubs ────────────────────────────────────
+
+/** In-memory job store for AI model generation simulation */
+const generationJobs = new Map<string, { vehicleId: string; startedAt: number; resolvedModelUrl: string }>();
+
+/**
+ * POST /api/vehicle-3d/generate-model
+ * Start AI 3D model generation (stub — simulates progress over 30s)
+ */
+router.post('/generate-model', csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const schema = z.object({
+      vehicleId: z.string(),
+      referenceImageUrl: z.string().optional(),
+    });
+    const { vehicleId } = schema.parse(req.body);
+
+    const jobId = `gen-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    // Look up vehicle's local GLB to use as the "generated" model
+    const vehicleResult = await pool.query(
+      `SELECT make, model, type FROM vehicles WHERE id = $1`,
+      [vehicleId]
+    );
+    const v = vehicleResult.rows[0];
+    const localUrl = v
+      ? `/models/vehicles/trucks/sample_truck.glb`
+      : `/models/vehicles/trucks/sample_truck.glb`;
+
+    generationJobs.set(jobId, {
+      vehicleId,
+      startedAt: Date.now(),
+      resolvedModelUrl: localUrl,
+    });
+
+    // Auto-cleanup after 10 minutes
+    setTimeout(() => generationJobs.delete(jobId), 600_000);
+
+    res.json({
+      jobId,
+      status: 'queued',
+      estimatedTimeSeconds: 30,
+    });
+  } catch (error: unknown) {
+    logger.error('Start model generation error:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid request', details: error.issues });
+    }
+    res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
+  }
+});
+
+/**
+ * GET /api/vehicle-3d/generate-model/:jobId/status
+ * Poll AI model generation progress (simulates over 30s)
+ */
+router.get('/generate-model/:jobId/status', authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { jobId } = req.params;
+    const job = generationJobs.get(jobId);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    const elapsed = (Date.now() - job.startedAt) / 1000; // seconds
+    const TOTAL_DURATION = 30;
+
+    const stages = [
+      'Analyzing reference images',
+      'Building geometry',
+      'Applying textures',
+      'Optimizing mesh',
+    ];
+
+    if (elapsed >= TOTAL_DURATION) {
+      res.json({
+        status: 'complete',
+        progress: 100,
+        stage: stages[3],
+        modelUrl: job.resolvedModelUrl,
+      });
+    } else {
+      const progress = Math.min(95, Math.round((elapsed / TOTAL_DURATION) * 100));
+      const stageIdx = Math.min(3, Math.floor((elapsed / TOTAL_DURATION) * 4));
+      res.json({
+        status: 'processing',
+        progress,
+        stage: stages[stageIdx],
+      });
+    }
+  } catch (error: unknown) {
+    logger.error('Poll model generation error:', error);
+    res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
+  }
+});
+
 export default router

@@ -6,6 +6,7 @@
 import { useCallback, useEffect } from 'react'
 
 import telemetryService from '@/lib/telemetry'
+import logger from '@/utils/logger'
 
 interface TelemetryHook {
   trackEvent: (name: string, properties?: Record<string, any>) => void
@@ -100,7 +101,8 @@ export function useTelemetry(): TelemetryHook {
           getTTFB?.((metric: WebVitalsMetric) => trackMetric('TTFB', metric.value, { id: metric.id }));
         })
         .catch(() => {
-          // web-vitals not available, use basic performance tracking
+          // web-vitals library not available, falling back to basic performance tracking
+          logger.warn('web-vitals library unavailable, using basic performance tracking')
           trackPerformance()
         })
     } else {

@@ -10,6 +10,8 @@ import { useState } from 'react'
 import { ExcelStyleTable, ColumnDef } from './ExcelStyleTable'
 
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatCurrency, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // EXAMPLE 1: Vehicle Fleet Table
@@ -88,7 +90,7 @@ export function VehicleFleetTableExample() {
     {
       id: 'vehicle',
       header: 'Make/Model',
-      accessor: (row) => `${row.year} ${row.make} ${row.model}`,
+      accessor: (row) => formatVehicleName(row),
       type: 'string',
       width: 200,
       sortable: true,
@@ -134,7 +136,7 @@ export function VehicleFleetTableExample() {
       width: 120,
       sortable: true,
       filterable: true,
-      format: (value) => `${value.toLocaleString()} mi`,
+      format: (value) => `${formatNumber(value)} mi`,
     },
     {
       id: 'fuelLevel',
@@ -209,7 +211,7 @@ export function VehicleFleetTableExample() {
     push({
       id: `vehicle-${vehicle.id}`,
       type: 'vehicle',
-      label: `${vehicle.number} - ${vehicle.make} ${vehicle.model}`,
+      label: formatVehicleName(vehicle),
       data: {
         vehicleId: vehicle.id,
         ...vehicle,
@@ -435,7 +437,7 @@ export function WorkOrderTableExample() {
       width: 120,
       sortable: true,
       filterable: true,
-      format: (value) => `$${value.toFixed(2)}`,
+      format: (value) => formatCurrency(value),
     },
     {
       id: 'category',
@@ -523,7 +525,7 @@ export function VirtualizedTableExample() {
       width: 150,
       sortable: true,
       filterable: true,
-      format: (value) => `$${value.toFixed(2)}`,
+      format: (value) => formatCurrency(value),
     },
     {
       id: 'date',

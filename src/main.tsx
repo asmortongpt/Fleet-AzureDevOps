@@ -11,6 +11,7 @@ import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route } 
 import { registerSW } from 'virtual:pwa-register'
 import { validateEnvironment } from './lib/config/validate-environment'
 
+import logger from './utils/logger'
 import App from "./App"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
@@ -75,8 +76,9 @@ import telemetryService from "./lib/telemetry"
 // PWA Service Worker registration
 
 const reactPlugin = telemetryService.initialize()
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClientProvider } from "@tanstack/react-query"
 
+import { queryClient } from "./config/query-client"
 import { InspectProvider } from "./services/inspect/InspectContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
 import { PanelProvider } from "./contexts/PanelContext"
@@ -85,18 +87,6 @@ import { BrandingProvider } from "./shared/branding/BrandingProvider"
 // Core Tailwind v4 + Enterprise Design System + Optimized CSS Bundle
 // All CSS consolidated in index.css (5 files: index.css + 4 imports)
 import "./index.css"
-
-// Create a client with reactive data configuration
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false, // Disable auto-refetch on focus for performance
-      refetchInterval: false, // Disable auto-refresh (was 10 seconds - too aggressive)
-      staleTime: 60000, // Data considered fresh for 60 seconds
-      retry: 1,
-    },
-  },
-})
 
 // Data router created with createBrowserRouter + createRoutesFromElements
 // This replaces the legacy BrowserRouter with the modern data router API,
@@ -148,14 +138,14 @@ async function validateStartupConfiguration(): Promise<void> {
   if (envErrors.length > 0) {
     const errorMessages = envErrors.map(e => `• ${e.variable}: ${e.message}`).join('\n');
     const fullMessage = `[CONFIGURATION ERROR] Missing or invalid environment variables:\n${errorMessages}\n\nPlease set these variables and restart the application.`;
-    console.error(fullMessage);
+    logger.error(fullMessage);
     throw new Error(fullMessage);
   }
 
   // Environment is valid, proceed with health check
   let apiUrl = '';
   try {
-    apiUrl = import.meta.env.VITE_API_URL!;
+    apiUrl = import.meta.env.VITE_API_URL || '';
   } catch (e) {
     // Should not happen due to validation above
     throw new Error('VITE_API_URL is not accessible');
@@ -177,13 +167,13 @@ async function validateStartupConfiguration(): Promise<void> {
     if (response.ok) {
       const data = await response.json();
     } else {
-      console.warn(`[Fleet] Backend health check returned status ${response.status} - app will continue but some features may be unavailable`);
+      logger.warn(`[Fleet] Backend health check returned status ${response.status} - app will continue but some features may be unavailable`);
     }
   } catch (error) {
     // Non-blocking: log warning but allow app to render
     // This handles cases where the backend is temporarily unavailable or network is slow
-    console.warn('[Fleet] Backend health check failed (non-blocking):', error instanceof Error ? error.message : 'Unknown error');
-    console.warn('[Fleet] The application will start, but API-dependent features may not work until the backend is reachable');
+    logger.warn('[Fleet] Backend health check failed (non-blocking):', error instanceof Error ? error.message : 'Unknown error');
+    logger.warn('[Fleet] The application will start, but API-dependent features may not work until the backend is reachable');
   }
 }
 
@@ -196,16 +186,7 @@ validateStartupConfiguration().then(async () => {
     // Handle any redirect promise from SSO callback
     await msalInstance.handleRedirectPromise();
   } catch (error) {
-    console.error('[Fleet] MSAL initialization failed:', error);
-  }
-
-  // Initialize MSAL before rendering - required for MSAL v2+
-  try {
-    await msalInstance.initialize();
-    // Handle any redirect promise from SSO callback
-    await msalInstance.handleRedirectPromise();
-  } catch (error) {
-    console.error('[Fleet] MSAL initialization failed:', error);
+    logger.error('[Fleet] MSAL initialization failed:', error);
   }
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -250,5 +231,5 @@ validateStartupConfiguration().then(async () => {
   })
 }).catch((error) => {
   // P0-3: Validation failed - app will not start
-  console.error('[Fleet] Application startup aborted due to validation failure:', error);
+  logger.error('[Fleet] Application startup aborted due to validation failure:', error);
 });

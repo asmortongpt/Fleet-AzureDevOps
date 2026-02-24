@@ -33,7 +33,7 @@ router.get(
         COALESCE(AVG(fuel_level), 0)::float AS average_fuel_level,
         COALESCE(SUM(odometer), 0)::bigint AS total_mileage
       FROM vehicles
-      WHERE tenant_id = $1
+      WHERE tenant_id = $1 AND status != 'retired'
       `,
       [tenantId]
     )

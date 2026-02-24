@@ -14,6 +14,8 @@ import { tenantSafeQuery } from '../utils/dbHelpers'
 import { logger } from '../utils/logger'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
@@ -54,8 +56,8 @@ const initializeBlobService = () => {
 }
 
 const damageReportSchema = z.object({
-  vehicle_id: z.string().uuid(),
-  reported_by: z.string().uuid().optional(),
+  vehicle_id: flexUuid,
+  reported_by: flexUuid.optional(),
   damage_description: z.string(),
   damage_severity: z.enum(['minor', 'moderate', 'severe']),
   damage_location: z.string().optional(),
@@ -65,8 +67,8 @@ const damageReportSchema = z.object({
   triposr_task_id: z.string().optional(),
   triposr_status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
   triposr_model_url: z.string().optional(),
-  linked_work_order_id: z.string().uuid().optional(),
-  inspection_id: z.string().uuid().optional(),
+  linked_work_order_id: flexUuid.optional(),
+  inspection_id: flexUuid.optional(),
 })
 
 // GET /damage-reports
@@ -259,6 +261,12 @@ router.put(
   }
 )
 
+// Validation schema for TripoSR status update
+const triposrStatusSchema = z.object({
+  triposr_status: z.enum(['pending', 'processing', 'completed', 'failed']),
+  triposr_model_url: z.string().url().max(2048).optional(),
+})
+
 // PATCH /damage-reports/:id/triposr-status
 // Update TripoSR processing status
 router.patch(
@@ -267,11 +275,15 @@ router.patch(
   auditLog({ action: 'UPDATE', resourceType: 'damage_reports' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { triposr_status, triposr_model_url } = req.body
-
-      if (!triposr_status) {
-        throw new ValidationError("triposr_status is required")
+      const parsed = triposrStatusSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
       }
+
+      const { triposr_status, triposr_model_url } = parsed.data
 
       const result = await pool.query(
         `UPDATE damage_reports
@@ -308,7 +320,7 @@ router.delete(
         return res.status(404).json({ error: `Damage report not found` })
       }
 
-      res.json({ message: 'Damage report deleted successfully' })
+      res.json({ success: true, message: 'Damage report deleted successfully' })
     } catch (error) {
       logger.error('Delete damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -422,7 +434,7 @@ router.post(
       logger.error('Upload media error:', error)
       res.status(500).json({
         error: 'Failed to upload media',
-        details: error instanceof Error ? error.message : 'An unexpected error occurred',
+        details: 'An internal error occurred',
       })
     }
   }

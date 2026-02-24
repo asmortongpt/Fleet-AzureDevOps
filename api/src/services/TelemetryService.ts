@@ -211,7 +211,7 @@ return
           v.longitude,
           v.metadata
         FROM vehicles v
-        WHERE v.is_active = true AND v.status = 'active'
+        WHERE v.is_active = true AND v.status != 'retired'
         ORDER BY v.created_at, v.id
       `)
 
@@ -740,7 +740,7 @@ return
             item.rpm ?? null,
             item.coolantTemp ?? null,
             item.batteryVoltage ?? null,
-            diagnosticCodes.length > 0 ? diagnosticCodes : null,
+            diagnosticCodes.length > 0 ? JSON.stringify(diagnosticCodes) : null,
             {
               vehicleNumber: item.vehicleNumber,
               speed: item.speed ?? null,

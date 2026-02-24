@@ -19,11 +19,14 @@ import {
   MicOff,
   AlertTriangle,
   Volume2,
+  VolumeX,
   ExternalLink,
-  Circle
+  Circle,
+  Settings
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+
+import { useNavigation } from '@/contexts/NavigationContext'
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -40,8 +43,9 @@ interface RadioPopoverProps {
 }
 
 export function RadioPopover({ className }: RadioPopoverProps) {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const [isTransmitting, setIsTransmitting] = useState<boolean>(false)
+  const [isMuted, setIsMuted] = useState<boolean>(false)
   const dispatch = useDispatchSocket()
 
   const recentTransmissions = useMemo(() => {
@@ -61,7 +65,7 @@ export function RadioPopover({ className }: RadioPopoverProps) {
   }
 
   const openFullConsole = (): void => {
-    navigate('/hubs/operations?module=dispatch')
+    navigateTo('dispatch-console')
   }
 
   return (
@@ -177,12 +181,20 @@ export function RadioPopover({ className }: RadioPopoverProps) {
 
           {/* Quick Actions */}
           <div className="flex gap-2 pt-2 border-t">
-            <Button variant="outline" size="sm" className="flex-1">
-              <Volume2 className="w-3 h-3 mr-1" />
-              Audio
+            <Button
+              variant={isMuted ? "destructive" : "outline"}
+              size="sm"
+              className="flex-1"
+              onClick={() => setIsMuted(m => !m)}
+            >
+              {isMuted ? (
+                <><VolumeX className="w-3 h-3 mr-1" />Muted</>
+              ) : (
+                <><Volume2 className="w-3 h-3 mr-1" />Audio</>
+              )}
             </Button>
-            <Button variant="outline" size="sm" className="flex-1">
-              <AlertTriangle className="w-3 h-3 mr-1" />
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => navigateTo('settings')}>
+              <Settings className="w-3 h-3 mr-1" />
               Alerts
             </Button>
           </div>

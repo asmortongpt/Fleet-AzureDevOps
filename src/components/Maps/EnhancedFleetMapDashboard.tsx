@@ -10,10 +10,10 @@ import { ArchonYLogo } from '@/components/branding/ArchonYLogo'
 
 export function EnhancedFleetMapDashboard() {
   const colors = {
-    orange: '#FF6B35',
-    blue: '#41B2E3',
+    orange: '#f5f5f5',
+    blue: '#3B82F6',
     green: '#10B981',
-    gold: '#F0A000',
+    gold: '#a0a0a0',
   }
 
   const stats = [
@@ -53,11 +53,11 @@ export function EnhancedFleetMapDashboard() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
-        {stats.map((stat, i) => {
+        {stats.map((stat) => {
           const Icon = stat.icon
           return (
             <motion.div
-              key={i}
+              key={stat.label}
               className="rounded-xl p-4 border border-border/50 bg-gradient-to-br from-card to-card/50 hover:border-border/80 transition-colors"
               whileHover={{ y: -4 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}

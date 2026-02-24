@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { NotFoundError } from '../errors/app-error'
@@ -9,27 +10,47 @@ import { requirePermission } from '../middleware/permissions'
 import { setTenantContext } from '../middleware/tenant-context'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 router.use(setTenantContext)
 
 // Response transformer to convert DB fields to API contract
-const transformRouteResponse = (dbRow: any) => ({
-  routeId: dbRow.id,
-  vehicleId: dbRow.vehicle_id,
-  driverId: dbRow.driver_id,
-  status: dbRow.status,
-  stops: parseStops(dbRow.waypoints || dbRow.optimized_waypoints),
-  optimizationScore: calculateOptimizationScore(dbRow),
-  estimatedDuration: dbRow.estimated_duration || 0,
-  type: dbRow.route_type || 'delivery',
-  date: dbRow.planned_start_time || new Date().toISOString(),
-  startLocation: dbRow.start_location,
-  endLocation: dbRow.end_location,
-  notes: dbRow.notes,
-  createdAt: dbRow.created_at,
-  updatedAt: dbRow.updated_at
-})
+const transformRouteResponse = (dbRow: any) => {
+  const stops = parseStops(dbRow.waypoints || dbRow.optimized_waypoints)
+  const completedStops = stops.filter((s: any) => s.status === 'completed' || s.status === 'delivered').length
+  return {
+    id: dbRow.id,
+    routeId: dbRow.id,
+    number: dbRow.name || `RT-${String(dbRow.id).slice(0, 8).toUpperCase()}`,
+    name: dbRow.name || null,
+    vehicleId: dbRow.vehicle_id,
+    vehicleName: dbRow.vehicle_name || null,
+    driverId: dbRow.driver_id,
+    driverName: dbRow.driver_name || null,
+    status: dbRow.status,
+    stops,
+    totalStops: stops.length,
+    completedStops,
+    remainingStops: stops.length - completedStops,
+    distance: Number(dbRow.total_distance) || 0,
+    startTime: dbRow.planned_start_time || dbRow.actual_start_time || '',
+    endTime: dbRow.planned_end_time || dbRow.actual_end_time || '',
+    eta: dbRow.planned_end_time || '',
+    optimizationScore: calculateOptimizationScore(dbRow),
+    estimatedDuration: dbRow.estimated_duration || 0,
+    type: dbRow.route_type || 'delivery',
+    date: dbRow.planned_start_time || new Date().toISOString(),
+    startLocation: dbRow.start_location,
+    endLocation: dbRow.end_location,
+    startLocationName: dbRow.start_facility_name || null,
+    endLocationName: dbRow.end_facility_name || null,
+    notes: dbRow.notes,
+    createdAt: dbRow.created_at,
+    updatedAt: dbRow.updated_at
+  }
+}
 
 // Parse waypoints JSON to stops array
 const parseStops = (waypoints: any): any[] => {
@@ -97,64 +118,74 @@ router.get(
       )
 
       let query = `SELECT
-      id,
-      tenant_id,
-      name,
-      assigned_vehicle_id as vehicle_id,
-      assigned_driver_id as driver_id,
-      status,
-      type as route_type,
-      start_facility_id as start_location,
-      end_facility_id as end_location,
-      scheduled_start_time as planned_start_time,
-      scheduled_end_time as planned_end_time,
-      actual_start_time,
-      actual_end_time,
-      actual_distance as total_distance,
-      estimated_duration,
-      actual_duration,
-      waypoints,
-      optimized_route as optimized_waypoints,
-      metadata as route_geometry,
-      description as notes,
-      created_at,
-      updated_at FROM routes WHERE tenant_id = $1`
-      let countQuery = `SELECT COUNT(*) FROM routes WHERE tenant_id = $1`
+      r.id,
+      r.tenant_id,
+      r.name,
+      r.assigned_vehicle_id as vehicle_id,
+      r.assigned_driver_id as driver_id,
+      r.status,
+      r.type as route_type,
+      r.start_facility_id as start_location,
+      r.end_facility_id as end_location,
+      sf.name as start_facility_name,
+      ef.name as end_facility_name,
+      r.scheduled_start_time as planned_start_time,
+      r.scheduled_end_time as planned_end_time,
+      r.actual_start_time,
+      r.actual_end_time,
+      r.actual_distance as total_distance,
+      r.estimated_duration,
+      r.actual_duration,
+      r.waypoints,
+      r.optimized_route as optimized_waypoints,
+      r.metadata as route_geometry,
+      r.description as notes,
+      r.created_at,
+      r.updated_at,
+      v.name as vehicle_name,
+      CONCAT(d.first_name, ' ', d.last_name) as driver_name
+      FROM routes r
+      LEFT JOIN facilities sf ON sf.id = r.start_facility_id AND sf.tenant_id = r.tenant_id
+      LEFT JOIN facilities ef ON ef.id = r.end_facility_id AND ef.tenant_id = r.tenant_id
+      LEFT JOIN vehicles v ON r.assigned_vehicle_id = v.id
+      LEFT JOIN drivers d ON r.assigned_driver_id = d.id
+      WHERE r.tenant_id = $1`
+      let countQuery = `SELECT COUNT(*) FROM routes r WHERE r.tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       // Apply filters
       if (type) {
-        query += ` AND type = $${paramIndex}`
-        countQuery += ` AND type = $${paramIndex}`
+        query += ` AND r.type = $${paramIndex}`
+        countQuery += ` AND r.type = $${paramIndex}`
         params.push(type)
         paramIndex++
       }
 
       if (status) {
-        query += ` AND status = $${paramIndex}`
-        countQuery += ` AND status = $${paramIndex}`
+        query += ` AND r.status = $${paramIndex}`
+        countQuery += ` AND r.status = $${paramIndex}`
         params.push(status)
         paramIndex++
       }
 
       if (driverId) {
-        query += ` AND assigned_driver_id = $${paramIndex}`
-        countQuery += ` AND assigned_driver_id = $${paramIndex}`
+        query += ` AND r.assigned_driver_id = $${paramIndex}`
+        countQuery += ` AND r.assigned_driver_id = $${paramIndex}`
         params.push(driverId)
         paramIndex++
       }
 
       if (vehicleId) {
-        query += ` AND assigned_vehicle_id = $${paramIndex}`
-        countQuery += ` AND assigned_vehicle_id = $${paramIndex}`
+        query += ` AND r.assigned_vehicle_id = $${paramIndex}`
+        countQuery += ` AND r.assigned_vehicle_id = $${paramIndex}`
         params.push(vehicleId)
         paramIndex++
       }
 
       if (date) {
-        query += ` AND DATE(scheduled_start_time) = DATE($${paramIndex})`
-        countQuery += ` AND DATE(scheduled_start_time) = DATE($${paramIndex})`
+        query += ` AND DATE(r.scheduled_start_time) = DATE($${paramIndex})`
+        countQuery += ` AND DATE(r.scheduled_start_time) = DATE($${paramIndex})`
         params.push(date)
         paramIndex++
       }
@@ -162,13 +193,13 @@ router.get(
       // If user is a driver, filter to only their routes
       if (userResult.rows.length > 0) {
         const driverId = userResult.rows[0].id
-        query += ` AND assigned_driver_id = $${paramIndex}`
-        countQuery += ` AND assigned_driver_id = $${paramIndex}`
+        query += ` AND r.assigned_driver_id = $${paramIndex}`
+        countQuery += ` AND r.assigned_driver_id = $${paramIndex}`
         params.push(driverId)
         paramIndex++
       }
 
-      query += ` ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      query += ` ORDER BY r.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(pageSize, offset)
 
       const result = await req.dbClient!.query(query, params)
@@ -622,14 +653,16 @@ router.post(
 )
 
 // PUT /routes/:id
-const ALLOWED_UPDATE_FIELDS = [
-  "notes",
-  "status",
-  "start_location",
-  "end_location",
-  "waypoints",
-  "distance"
-]
+const updateRouteSchema = z.object({
+  notes: z.string().max(2000).optional(),
+  status: z.enum(['draft', 'planned', 'active', 'in_progress', 'completed', 'cancelled']).optional(),
+  start_location: z.string().max(500).optional(),
+  end_location: z.string().max(500).optional(),
+  waypoints: z.unknown().optional(),
+  distance: z.number().min(0).optional(),
+  assigned_vehicle_id: flexUuid.optional(),
+  assigned_driver_id: flexUuid.optional(),
+}).passthrough()
 
 router.put(
   '/:id',
@@ -659,7 +692,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = updateRouteSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+      const data = parsed.data
 
       // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
       const { assigned_vehicle_id, assigned_driver_id } = data
@@ -881,7 +918,7 @@ router.delete(
         throw new NotFoundError("Route not found")
       }
 
-      res.json({ message: 'Route deleted successfully' })
+      res.json({ success: true, message: 'Route deleted successfully' })
     } catch (error) {
       logger.error('Delete route error:', error)
       res.status(500).json({ error: 'Internal server error' })

@@ -8,6 +8,7 @@ import {
 } from '@phosphor-icons/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -63,37 +64,41 @@ interface StationUtilization {
   utilization_percent: number;
 }
 
-// Helper function to get auth headers
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Authorization': `Bearer ${token}`,
+// Helper function to get fetch options for authenticated requests
+const getAuthFetchOptions = (method?: string, body?: unknown): RequestInit => ({
+  method,
+  credentials: 'include',
+  headers: {
     'Content-Type': 'application/json'
-  };
-};
+  },
+  body: body ? JSON.stringify(body) : undefined
+});
 
 // Query function for charging stations
 const fetchChargingStations = async (): Promise<ChargingStation[]> => {
-  const response = await fetch('/api/ev/chargers', { headers: getAuthHeaders() });
+  const response = await fetch('/api/ev-management/chargers', { credentials: 'include' });
+  if (!response.ok) throw new Error('Request failed: ' + response.status);
   const data = await response.json();
-  if (data.success) return data.data;
-  throw new Error('Failed to fetch charging stations');
+  if (data.success) return data.data ?? data;
+  throw new Error(data.error || 'Failed to fetch charging stations');
 };
 
 // Query function for active sessions
 const fetchActiveSessions = async (): Promise<ChargingSession[]> => {
-  const response = await fetch('/api/ev/sessions/active', { headers: getAuthHeaders() });
+  const response = await fetch('/api/ev-management/sessions/active', { credentials: 'include' });
+  if (!response.ok) throw new Error('Request failed: ' + response.status);
   const data = await response.json();
-  if (data.success) return data.data;
-  throw new Error('Failed to fetch active sessions');
+  if (data.success) return data.data ?? data;
+  throw new Error(data.error || 'Failed to fetch active sessions');
 };
 
 // Query function for station utilization
 const fetchStationUtilization = async (): Promise<StationUtilization[]> => {
-  const response = await fetch('/api/ev/station-utilization', { headers: getAuthHeaders() });
+  const response = await fetch('/api/ev-management/station-utilization', { credentials: 'include' });
+  if (!response.ok) throw new Error('Request failed: ' + response.status);
   const data = await response.json();
-  if (data.success) return data.data;
-  throw new Error('Failed to fetch station utilization');
+  if (data.success) return data.data ?? data;
+  throw new Error(data.error || 'Failed to fetch station utilization');
 };
 
 const EVChargingDashboard: React.FC = () => {
@@ -151,21 +156,18 @@ const EVChargingDashboard: React.FC = () => {
         throw new Error('Please select a vehicle before starting charging');
       }
 
-      const response = await fetch(`/api/ev/chargers/${stationId}/remote-start`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
+      const response = await fetch(`/api/ev-management/chargers/${stationId}/remote-start`, getAuthFetchOptions('POST', {
           connectorId,
           vehicleId: _selectedVehicleId,
           idTag: `VEHICLE_${_selectedVehicleId}`
-        })
-      });
+        }));
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       if (!data.success) throw new Error('Failed to start charging');
       return data;
     },
     onSuccess: () => {
-      alert('Charging started successfully');
+      toast.success('Charging started successfully');
       queryClient.invalidateQueries({ queryKey: ['evActiveSessions'] });
       queryClient.invalidateQueries({ queryKey: ['evChargingStations'] });
     },
@@ -177,16 +179,14 @@ const EVChargingDashboard: React.FC = () => {
   // Mutation for remote stop
   const remoteStopMutation = useMutation({
     mutationFn: async (transactionId: string) => {
-      const response = await fetch(`/api/ev/sessions/${transactionId}/stop`, {
-        method: 'POST',
-        headers: getAuthHeaders()
-      });
+      const response = await fetch(`/api/ev-management/sessions/${transactionId}/stop`, getAuthFetchOptions('POST'));
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       if (!data.success) throw new Error('Failed to stop charging');
       return data;
     },
     onSuccess: () => {
-      alert('Charging stopped successfully');
+      toast.success('Charging stopped successfully');
       queryClient.invalidateQueries({ queryKey: ['evActiveSessions'] });
       queryClient.invalidateQueries({ queryKey: ['evChargingStations'] });
     },
@@ -200,7 +200,7 @@ const EVChargingDashboard: React.FC = () => {
       case 'Available':
         return 'bg-green-500';
       case 'Charging':
-        return 'bg-blue-500 animate-pulse';
+        return 'bg-emerald-500 animate-pulse';
       case 'Reserved':
         return 'bg-yellow-500';
       case 'Faulted':
@@ -217,7 +217,7 @@ const EVChargingDashboard: React.FC = () => {
       case 'Available':
         return <CheckCircle className="w-3 h-3 text-green-500" />;
       case 'Charging':
-        return <Lightning className="w-3 h-3 text-blue-800 animate-pulse" />;
+        return <Lightning className="w-3 h-3 text-emerald-400 animate-pulse" />;
       case 'Faulted':
         return <XCircle className="w-3 h-3 text-red-500" />;
       default:
@@ -251,19 +251,16 @@ const EVChargingDashboard: React.FC = () => {
     endTime: string;
   }): Promise<void> => {
     try {
-      const response = await fetch('/api/ev/reservations', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
+      const response = await fetch('/api/ev-management/reservations', getAuthFetchOptions('POST', {
           stationId: reservationStationId,
           ...reservationData
-        })
-      });
+        }));
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       const data = await response.json();
 
       if (data.success) {
-        alert('Reservation created successfully');
+        toast.success('Reservation created successfully');
         setShowReservationDialog(false);
         setReservationStationId(null);
         refetchStations();
@@ -272,7 +269,7 @@ const EVChargingDashboard: React.FC = () => {
       }
     } catch (error: unknown) {
       logger.error('Error creating reservation:', error);
-      alert(`Failed to create reservation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Failed to create reservation: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -296,8 +293,8 @@ const EVChargingDashboard: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <Lightning className="w-16 h-16 mx-auto text-blue-800 animate-spin" />
-          <p className="mt-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Loading charging dashboard...</p>
+          <Lightning className="w-16 h-16 mx-auto text-emerald-400 animate-spin" />
+          <p className="mt-2 text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>Loading charging dashboard...</p>
         </div>
       </div>
     );
@@ -313,7 +310,7 @@ const EVChargingDashboard: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-base font-bold text-gray-900">EV Charging Dashboard</h1>
-          <p className="text-slate-700 mt-1" style={{ color: brandColors.archon.mediumGray }}>Manage charging stations and monitor active sessions</p>
+          <p className="text-white/40 mt-1" style={{ color: brandColors.archon.mediumGray }}>Manage charging stations and monitor active sessions</p>
         </div>
         <Button onClick={handleRefresh} variant="outline" disabled={isLoading}>
           <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -326,7 +323,7 @@ const EVChargingDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Online Stations</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/40" style={{ color: brandColors.archon.mediumGray }}>Online Stations</CardTitle>
             <CheckCircle className="w-3 h-3 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -339,8 +336,8 @@ const EVChargingDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Active Sessions</CardTitle>
-            <Lightning className="w-3 h-3 text-blue-800" />
+            <CardTitle className="text-sm font-medium text-white/40" style={{ color: brandColors.archon.mediumGray }}>Active Sessions</CardTitle>
+            <Lightning className="w-3 h-3 text-emerald-400" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">{totalSessions}</div>
@@ -352,7 +349,7 @@ const EVChargingDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Energy Delivered</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/40" style={{ color: brandColors.archon.mediumGray }}>Energy Delivered</CardTitle>
             <BatteryEmpty className="w-3 h-3 text-yellow-500" />
           </CardHeader>
           <CardContent>
@@ -365,7 +362,7 @@ const EVChargingDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Avg Utilization</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/40" style={{ color: brandColors.archon.mediumGray }}>Avg Utilization</CardTitle>
             <ChartBar className="w-3 h-3 text-purple-500" />
           </CardHeader>
           <CardContent>

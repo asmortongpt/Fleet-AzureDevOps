@@ -82,8 +82,8 @@ export function MetricsBar({
 
   return (
     <div className={`grid ${gridCols} gap-${gap}`}>
-      {metrics.map((metric, index) => (
-        <MetricCard key={index} {...metric} />
+      {metrics.map((metric) => (
+        <MetricCard key={metric.label} {...metric} />
       ))}
     </div>
   )

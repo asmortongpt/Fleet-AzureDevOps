@@ -19,7 +19,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface Facility {
   id: string
@@ -49,20 +51,20 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
 
   const { data: facilityResponse } = useSWR<any>(
     facilityId ? `/api/facilities/${facilityId}` : null,
-    swrFetcher
+    apiFetcher
   )
   const { data: vehiclesResponse } = useSWR<any[]>(
     facilityId ? `/api/facilities/${facilityId}/vehicles` : null,
-    swrFetcher
+    apiFetcher
   )
-  const { data: usersResponse } = useSWR<{ data: any[] }>(
+  const { data: usersResponse } = useSWR<any[]>(
     facilityId ? `/api/users?limit=500&facility_id=${facilityId}` : null,
-    swrFetcher
+    apiFetcher
   )
 
-  const facilityDetails = (facilityResponse?.data || facilityResponse || facility) as Facility
-  const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : (vehiclesResponse as any)?.data || []
-  const users = usersResponse?.data || []
+  const facilityDetails = (facilityResponse || facility) as Facility
+  const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : []
+  const users = Array.isArray(usersResponse) ? usersResponse : []
 
   const capacityMetrics = useMemo(() => {
     const vehicleCapacity = Number(facilityDetails.capacity ?? 0)
@@ -155,11 +157,11 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
             <div className="flex flex-wrap gap-2 mt-2">
               <div>
                 <p className="text-xs text-purple-200">Location</p>
-                <p className="text-sm font-semibold">{facilityDetails.city ?? 'N/A'}, {facilityDetails.state ?? 'N/A'}</p>
+                <p className="text-sm font-semibold">{facilityDetails.city ?? '—'}, {facilityDetails.state ?? '—'}</p>
               </div>
               <div>
                 <p className="text-xs text-purple-200">Manager</p>
-                <p className="text-sm font-semibold">{facilityDetails.manager || 'N/A'}</p>
+                <p className="text-sm font-semibold">{facilityDetails.manager || '—'}</p>
               </div>
               <div>
                 <p className="text-xs text-purple-200">Status</p>
@@ -211,16 +213,16 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   </div>
                   <div className="flex flex-col gap-1 pt-2 border-t">
                     <p className="text-xs text-muted-foreground">Address:</p>
-                    <p className="font-medium">{facilityDetails.address ?? 'N/A'}</p>
-                    <p className="font-medium">{facilityDetails.city ?? 'N/A'}, {facilityDetails.state ?? 'N/A'} {facilityDetails.zip ?? 'N/A'}</p>
+                    <p className="font-medium">{facilityDetails.address ?? '—'}</p>
+                    <p className="font-medium">{facilityDetails.city ?? '—'}, {facilityDetails.state ?? '—'} {facilityDetails.zip ?? '—'}</p>
                   </div>
                   <div className="flex items-center gap-2 pt-2">
                     <Phone className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-xs">{facilityDetails.phone ?? 'N/A'}</span>
+                    <span className="text-xs">{facilityDetails.phone ?? '—'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Mail className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-xs">{facilityDetails.email ?? 'N/A'}</span>
+                    <span className="text-xs">{facilityDetails.email ?? '—'}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -295,7 +297,7 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   {utilizationHistory.map((entry: any) => (
                     <div key={entry.id || entry.month} className="flex justify-between">
                       <span className="text-muted-foreground">{entry.label || entry.month || 'Period'}</span>
-                      <span className="font-medium">{entry.utilization ?? entry.rate ?? 'N/A'}</span>
+                      <span className="font-medium">{entry.utilization ?? entry.rate ?? '—'}</span>
                     </div>
                   ))}
                 </CardContent>
@@ -316,11 +318,11 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   assignedVehicles.map((vehicle: { id: string; make: string; model: string; year: number; status: string; assignedDate: string; driver: string }) => (
                     <div key={vehicle.id} className="flex items-center justify-between p-2 bg-muted rounded-md">
                       <div>
-                        <p className="font-medium">{vehicle.year} {vehicle.make} {vehicle.model}</p>
+                        <p className="font-medium">{formatVehicleName(vehicle)}</p>
                         <p className="text-xs text-muted-foreground">{vehicle.id}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline">{vehicle.status}</Badge>
+                        <Badge variant="outline">{formatEnum(vehicle.status)}</Badge>
                         <Button size="sm" variant="outline" onClick={() => handleViewVehicle(vehicle.id)}>
                           View
                         </Button>
@@ -377,7 +379,7 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                         <p className="font-medium">{asset.name || 'Asset'}</p>
                         <p className="text-xs text-muted-foreground">{asset.type || asset.category || 'Equipment'}</p>
                       </div>
-                      <Badge variant="outline">{asset.status || 'Unknown'}</Badge>
+                      <Badge variant="outline">{asset.status || '—'}</Badge>
                     </div>
                   ))
                 )}

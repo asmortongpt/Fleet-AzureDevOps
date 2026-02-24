@@ -64,6 +64,9 @@ export const KPIStrip: React.FC<KPIStripProps> = ({
               compact ? "py-1" : "py-2"
             )}
             onClick={metric.onClick}
+            onKeyDown={metric.onClick ? (e) => e.key === 'Enter' && metric.onClick!() : undefined}
+            role={metric.onClick ? "button" : undefined}
+            tabIndex={metric.onClick ? 0 : undefined}
           >
             {/* Icon */}
             <div className={cn("flex-shrink-0", metric.color)}>

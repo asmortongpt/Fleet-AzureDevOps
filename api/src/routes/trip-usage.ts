@@ -17,13 +17,15 @@ import {
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
 // Validation schemas
 const createTripUsageSchema = z.object({
-  vehicle_id: z.string().uuid(),
-  driver_id: z.string().uuid(),
+  vehicle_id: flexUuid,
+  driver_id: flexUuid,
   usage_type: z.enum([UsageType.BUSINESS, UsageType.PERSONAL, UsageType.MIXED]),
   business_purpose: z.string().optional(),
   business_percentage: z.number().min(0).max(100).optional(),
@@ -34,7 +36,7 @@ const createTripUsageSchema = z.object({
   end_location: z.string().optional(),
   start_odometer: z.number().optional(),
   end_odometer: z.number().optional(),
-  trip_id: z.string().uuid().optional()
+  trip_id: flexUuid.optional()
 })
 
 const updateTripUsageSchema = z.object({
@@ -47,13 +49,21 @@ const updateTripUsageSchema = z.object({
   end_location: z.string().optional()
 })
 
+const approveTripSchema = z.object({
+  approver_notes: z.string().max(2000).optional(),
+})
+
+const rejectTripSchema = z.object({
+  rejection_reason: z.string().min(1).max(2000),
+})
+
 /**
  * POST /api/trip-usage
  * Create a new trip usage classification
  */
 router.post(
   '/',
-  csrfProtection, csrfProtection, requirePermission('route:create:own'),
+  csrfProtection, requirePermission('route:create:own'),
   auditLog({ action: 'CREATE', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -441,7 +451,7 @@ router.get(
  */
 router.patch(
   '/:id',
-  csrfProtection, csrfProtection, requirePermission('route:update:own'),
+  csrfProtection, requirePermission('route:update:own'),
   auditLog({ action: 'UPDATE', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -537,11 +547,19 @@ router.patch(
  */
 router.post(
   '/:id/approve',
-  csrfProtection, csrfProtection, requirePermission('route:approve:fleet'),
+  csrfProtection, requirePermission('route:approve:fleet'),
   auditLog({ action: 'APPROVE', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { approver_notes } = req.body
+      const parsed = approveTripSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
+      }
+
+      const { approver_notes } = parsed.data
 
       const result = await pool.query(
         `UPDATE trip_usage_classification
@@ -606,15 +624,19 @@ router.post(
  */
 router.post(
   '/:id/reject',
-  csrfProtection, csrfProtection, requirePermission('route:approve:fleet'),
+  csrfProtection, requirePermission('route:approve:fleet'),
   auditLog({ action: 'REJECT', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { rejection_reason } = req.body
-
-      if (!rejection_reason || rejection_reason.trim().length === 0) {
-        throw new ValidationError("Rejection reason is required")
+      const parsed = rejectTripSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
       }
+
+      const { rejection_reason } = parsed.data
 
       const result = await pool.query(
         `UPDATE trip_usage_classification

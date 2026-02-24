@@ -40,7 +40,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useDrilldown } from "@/contexts/DrilldownContext"
+import { useNavigation } from "@/contexts/NavigationContext"
+import { apiFetcher } from "@/lib/api-fetcher"
 import type { AssetType, OperationalStatus } from "@/types/asset.types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatCurrency, formatCurrencyCompact } from "@/utils/format-helpers"
 
 interface AssetMetrics {
   totalAssets: number
@@ -89,10 +94,7 @@ interface AssetLocation {
   utilizationRate: number
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((res) => res.json())
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 const mapContainerStyle = {
   width: "100%",
@@ -127,7 +129,7 @@ const getStatusColor = (status: OperationalStatus | string): string => {
 
 const getUtilizationColor = (rate: number): string => {
   if (rate >= 80) return "text-green-500"
-  if (rate >= 60) return "text-blue-800"
+  if (rate >= 60) return "text-emerald-800"
   if (rate >= 40) return "text-yellow-500"
   return "text-red-500"
 }
@@ -155,7 +157,7 @@ const formatStatusLabel = (status: string) =>
 const getConditionBadge = (condition: string) => {
   switch (condition) {
     case "excellent": return <Badge className="bg-green-500">Excellent</Badge>
-    case "good": return <Badge className="bg-blue-500">Good</Badge>
+    case "good": return <Badge className="bg-emerald-500">Good</Badge>
     case "fair": return <Badge className="bg-yellow-500">Fair</Badge>
     case "poor": return <Badge variant="destructive">Poor</Badge>
     default: return <Badge variant="outline">{condition}</Badge>
@@ -173,11 +175,12 @@ const getPriorityBadge = (priority: string) => {
 
 export function AssetsHub() {
   const [activeTab, setActiveTab] = useState("location")
-  const [_categoryFilter, _setCategoryFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [mapLoaded, setMapLoaded] = useState(false)
+  const { push } = useDrilldown()
+  const { navigateTo } = useNavigation()
 
-  const { data: assetAnalytics = [], error: assetError } = useSWR<any[]>(
+  const { data: assetAnalytics = [], error: assetError, isLoading: assetLoading } = useSWR<any[]>(
     "/api/assets/analytics",
     fetcher,
     { shouldRetryOnError: false }
@@ -360,6 +363,20 @@ export function AssetsHub() {
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ""
 
+  if (assetError && !assetLoading && assets.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load asset data</p>
+        <p className="text-sm text-muted-foreground">
+          {assetError instanceof Error ? assetError.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="h-screen overflow-hidden bg-background flex flex-col">
       {/* Header */}
@@ -367,7 +384,7 @@ export function AssetsHub() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-sm font-bold flex items-center gap-2">
-              <Barcode className="w-4 h-4 text-blue-800" />
+              <Barcode className="w-4 h-4 text-emerald-800" />
               Assets Hub
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -375,11 +392,11 @@ export function AssetsHub() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => navigateTo('cost-analysis')}>
               <LineChart className="w-4 h-4 mr-2" />
               Analytics Report
             </Button>
-            <Button>
+            <Button onClick={() => push({ type: 'asset-create', label: 'Add New Asset', data: {} })}>
               <Barcode className="w-4 h-4 mr-2" />
               Add Asset
             </Button>
@@ -404,7 +421,7 @@ export function AssetsHub() {
             <CardContent>
               <div className="flex items-center gap-2">
                 <div className="text-base font-bold">
-                  {metrics.totalValue > 0 ? `$${(metrics.totalValue / 1000000).toFixed(2)}M` : "—"}
+                  {metrics.totalValue > 0 ? formatCurrencyCompact(metrics.totalValue) : "—"}
                 </div>
                 {metrics.totalValue > 0 && <TrendingUp className="w-3 h-3 text-green-500" />}
               </div>
@@ -421,7 +438,7 @@ export function AssetsHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-base font-bold text-blue-800">
+              <div className="text-base font-bold text-emerald-800">
                 {metrics.utilizationRate > 0 ? `${metrics.utilizationRate.toFixed(1)}%` : "—"}
               </div>
               <Progress value={metrics.utilizationRate} className="mt-2" />
@@ -458,7 +475,7 @@ export function AssetsHub() {
             </CardHeader>
             <CardContent>
               <div className="text-base font-bold text-orange-500">
-                {metrics.maintenanceCost > 0 ? `$${(metrics.maintenanceCost / 1000).toFixed(0)}K` : "—"}
+                {metrics.maintenanceCost > 0 ? formatCurrencyCompact(metrics.maintenanceCost) : "—"}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Latest period maintenance spend
@@ -507,7 +524,7 @@ export function AssetsHub() {
                           strokeColor: "#fff",
                           strokeWeight: 2
                         }}
-                        title={`${asset.name} - ${asset.status}`}
+                        title={`${asset.name} - ${formatEnum(asset.status)}`}
                       />
                     ))}
                   </GoogleMap>
@@ -569,7 +586,7 @@ export function AssetsHub() {
                           strokeColor: "#fff",
                           strokeWeight: 1
                         }}
-                        title={`${asset.name} - $${asset.value.toLocaleString()}`}
+                        title={`${asset.name} - ${formatCurrency(asset.value)}`}
                       />
                     ))}
                   </GoogleMap>
@@ -630,7 +647,7 @@ export function AssetsHub() {
                             return (
                             <TableRow key={asset.id}>
                               <TableCell className="font-medium">{asset.asset_name || asset.name}</TableCell>
-                              <TableCell>{asset.asset_type || asset.type || "—"}</TableCell>
+                              <TableCell>{formatEnum(asset.asset_type || asset.type) || "—"}</TableCell>
                               <TableCell className="text-sm">{department}</TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
@@ -655,7 +672,7 @@ export function AssetsHub() {
                               </TableCell>
                               <TableCell>
                                 {asset.current_value || asset.purchase_price
-                                  ? `$${Number(asset.current_value || asset.purchase_price).toLocaleString()}`
+                                  ? formatCurrency(Number(asset.current_value || asset.purchase_price))
                                   : "—"}
                               </TableCell>
                               <TableCell>
@@ -692,16 +709,16 @@ export function AssetsHub() {
                           {utilizationRows.map(asset => (
                             <TableRow key={asset.assetId}>
                               <TableCell className="font-medium">{asset.assetName}</TableCell>
-                              <TableCell>{asset.type}</TableCell>
+                              <TableCell>{formatEnum(asset.type)}</TableCell>
                               <TableCell>
                                 <span className={getUtilizationColor(asset.utilizationRate)}>
                                   {asset.utilizationRate > 0 ? `${asset.utilizationRate.toFixed(1)}%` : "—"}
                                 </span>
                               </TableCell>
                               <TableCell>
-                                {asset.maintenanceCost > 0 ? `$${asset.maintenanceCost.toLocaleString()}` : "—"}
+                                {asset.maintenanceCost > 0 ? formatCurrency(asset.maintenanceCost) : "—"}
                               </TableCell>
-                              <TableCell>{asset.totalCost > 0 ? `$${asset.totalCost.toLocaleString()}` : "—"}</TableCell>
+                              <TableCell>{asset.totalCost > 0 ? formatCurrency(asset.totalCost) : "—"}</TableCell>
                               <TableCell className={asset.roi > 0 ? "text-green-500" : "text-muted-foreground"}>
                                 {asset.roi > 0 ? `${asset.roi}%` : "—"}
                               </TableCell>
@@ -734,7 +751,7 @@ export function AssetsHub() {
                           {replacementRows.map(asset => (
                             <TableRow key={asset.assetId}>
                               <TableCell className="font-medium">{asset.assetName}</TableCell>
-                              <TableCell>{asset.type}</TableCell>
+                              <TableCell>{formatEnum(asset.type)}</TableCell>
                               <TableCell>{asset.age} yrs</TableCell>
                               <TableCell>{getConditionBadge(asset.condition)}</TableCell>
                               <TableCell>{asset.replacementYear}</TableCell>

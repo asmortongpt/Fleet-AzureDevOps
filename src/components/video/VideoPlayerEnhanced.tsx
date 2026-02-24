@@ -245,9 +245,9 @@ export default function VideoPlayerEnhanced({
           <div className="absolute bottom-24 left-4 right-4 space-y-2">
             {annotations
               .filter(a => Math.abs(a.timestamp - currentTime) < 2)
-              .map((annotation, idx) => (
+              .map((annotation) => (
                 <div
-                  key={idx}
+                  key={`${annotation.timestamp}-${annotation.text}`}
                   className={cn(
                     'px-2 py-2 rounded-lg text-white text-sm font-medium shadow-sm',
                     annotation.color
@@ -305,6 +305,7 @@ export default function VideoPlayerEnhanced({
                 size="icon"
                 className="text-white hover:bg-white/20"
                 onClick={togglePlay}
+                aria-label={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? (
                   <Pause className="h-5 w-5" />
@@ -320,6 +321,7 @@ export default function VideoPlayerEnhanced({
                   size="icon"
                   className="text-white hover:bg-white/20"
                   onClick={toggleMute}
+                  aria-label={isMuted ? 'Unmute' : 'Mute'}
                 >
                   {isMuted ? (
                     <VolumeX className="h-5 w-5" />
@@ -374,6 +376,7 @@ export default function VideoPlayerEnhanced({
                 size="icon"
                 className="text-white hover:bg-white/20"
                 onClick={downloadVideo}
+                aria-label="Download video"
               >
                 <Download className="h-5 w-5" />
               </Button>
@@ -384,6 +387,7 @@ export default function VideoPlayerEnhanced({
                 size="icon"
                 className="text-white hover:bg-white/20"
                 onClick={toggleFullscreen}
+                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
               >
                 {isFullscreen ? (
                   <Minimize className="h-5 w-5" />

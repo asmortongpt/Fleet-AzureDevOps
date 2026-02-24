@@ -9,6 +9,7 @@ import 'leaflet/dist/leaflet.css';
 import { Asset, Geofence } from '@/types';
 import { getAuthHeaders } from '@/utils/auth';
 import { logger } from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 import { validateCategory, validateStatus } from '@/utils/validators';
 
 const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
@@ -50,7 +51,7 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
     fetchAssets();
     fetchGeofences();
 
-    const newSocket = io(process.env.REACT_APP_WS_URL || '', {
+    const newSocket = io(import.meta.env.VITE_WS_URL || '', {
       query: { tenant_id: tenantId },
       transports: ['websocket'],
       secure: true,
@@ -84,7 +85,7 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
           <Popup>
             <div>
               <strong>{asset.name}</strong><br />
-              Last seen: {new Date(asset.lastSeen ?? Date.now()).toLocaleString()}
+              Last seen: {formatDateTime(new Date(asset.lastSeen ?? Date.now()))}
             </div>
           </Popup>
         </Marker>

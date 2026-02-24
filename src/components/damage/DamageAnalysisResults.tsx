@@ -141,15 +141,15 @@ export function DamageAnalysisResults({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
             <div>
               <p className="text-gray-700">Make</p>
-              <p className="font-medium">{analysis.vehicleInfo.make || 'Unknown'}</p>
+              <p className="font-medium">{analysis.vehicleInfo.make || '—'}</p>
             </div>
             <div>
               <p className="text-gray-700">Model</p>
-              <p className="font-medium">{analysis.vehicleInfo.model || 'Unknown'}</p>
+              <p className="font-medium">{analysis.vehicleInfo.model || '—'}</p>
             </div>
             <div>
               <p className="text-gray-700">Year</p>
-              <p className="font-medium">{analysis.vehicleInfo.year || 'Unknown'}</p>
+              <p className="font-medium">{analysis.vehicleInfo.year || '—'}</p>
             </div>
             <div>
               <p className="text-gray-700">Color</p>
@@ -242,7 +242,7 @@ export function DamageAnalysisResults({
 
           return (
             <Card
-              key={index}
+              key={`${damage.type}-${damage.part}`}
               className={`cursor-pointer transition-all ${
                 isSelected
                   ? 'border-2 border-blue-500 shadow-md'
@@ -307,7 +307,7 @@ export function DamageAnalysisResults({
                   {depthData && !lidarDimensions && (
                     <div>
                       <p className="text-gray-700">Depth Measurement</p>
-                      <p className="font-medium">{depthData.depthMeasurement.toFixed(1)} mm</p>
+                      <p className="font-medium">{(depthData.depthMeasurement ?? 0).toFixed(1)} mm</p>
                     </div>
                   )}
                 </div>
@@ -320,7 +320,7 @@ export function DamageAnalysisResults({
                     <div>
                       <p className="text-gray-700">Labor</p>
                       <p className="font-medium">
-                        ${costBreakdown.laborCost.toFixed(2)}
+                        ${(costBreakdown.laborCost ?? 0).toFixed(2)}
                         <span className="text-xs text-gray-700 ml-1">
                           ({costBreakdown.estimatedHours}h)
                         </span>
@@ -328,7 +328,7 @@ export function DamageAnalysisResults({
                     </div>
                     <div>
                       <p className="text-gray-700">Parts</p>
-                      <p className="font-medium">${costBreakdown.partsCost.toFixed(2)}</p>
+                      <p className="font-medium">${(costBreakdown.partsCost ?? 0).toFixed(2)}</p>
                     </div>
                     <div>
                       <p className="text-gray-700">Total</p>

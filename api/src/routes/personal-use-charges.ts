@@ -13,13 +13,15 @@ import {
   ChargeBreakdownItem
 } from '../types/trip-usage';
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 router.use(authenticateJWT);
 
 // Validation schemas
 const createChargeSchema = z.object({
-  driver_id: z.string().uuid(),
-  trip_usage_id: z.string().uuid().optional(),
+  driver_id: flexUuid,
+  trip_usage_id: flexUuid.optional(),
   charge_period: z.string().regex(/^\d{4}-\d{2}$/), // YYYY-MM format
   charge_period_start: z.string(),
   charge_period_end: z.string(),
@@ -56,7 +58,7 @@ const updateChargeSchema = z.object({
 });
 
 const calculateChargesSchema = z.object({
-  driver_id: z.string().uuid(),
+  driver_id: flexUuid,
   charge_period: z.string().regex(/^\d{4}-\d{2}$/)
 });
 
@@ -514,6 +516,11 @@ router.post(
   }
 );
 
+// Validation schema for waiving a charge
+const waiveChargeSchema = z.object({
+  waived_reason: z.string().min(1).max(2000),
+});
+
 /**
  * POST /api/personal-use-charges/:id/waive
  * Waive a personal use charge
@@ -525,11 +532,15 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'personal_use_charges' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { waived_reason } = req.body;
-
-      if (!waived_reason || waived_reason.trim().length === 0) {
-        return res.status(400).json({ error: 'Waived reason is required' });
+      const parsed = waiveChargeSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        });
       }
+
+      const { waived_reason } = parsed.data;
 
       const result = await pool.query(
         `UPDATE personal_use_charges

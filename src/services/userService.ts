@@ -40,7 +40,9 @@ const isSkipAuth = (): boolean =>
  */
 export const fetchUserProfile = async (userId: string): Promise<User> => {
   try {
-    const response = await fetch(`/api/users/${encodeURIComponent(userId)}`);
+    const response = await fetch(`/api/users/${encodeURIComponent(userId)}`, {
+      credentials: 'include',
+    });
     if (!response.ok) {
       throw new AppError(`Failed to fetch user profile: ${response.statusText}`);
     }
@@ -66,19 +68,21 @@ export const fetchUserProfile = async (userId: string): Promise<User> => {
  * @throws {AppError} If the fetch operation fails (production only).
  */
 export const fetchCurrentUser = async (): Promise<User> => {
+  // In dev mode with auth bypass, skip the network request entirely
+  // to avoid a 401 console error on the Profile page.
+  if (isSkipAuth()) {
+    return { ...DEV_FALLBACK_USER };
+  }
+
   try {
-    const response = await fetch('/api/auth/me');
+    const response = await fetch('/api/auth/me', {
+      credentials: 'include',
+    });
     if (!response.ok) {
       throw new AppError(`Authentication failed: ${response.statusText}`);
     }
     return await response.json();
   } catch (error) {
-    // In SKIP_AUTH dev mode, gracefully return the fallback user
-    // instead of surfacing a console error on the Profile page.
-    if (isSkipAuth()) {
-      return { ...DEV_FALLBACK_USER };
-    }
-
     if (error instanceof AppError) {
       throw error;
     }

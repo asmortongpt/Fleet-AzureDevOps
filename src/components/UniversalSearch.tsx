@@ -33,6 +33,8 @@ import { useFleetData } from '@/hooks/use-fleet-data'
 import { useDebounce } from '@/hooks/useDebounce'
 import { Vehicle, Driver, WorkOrder } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -147,9 +149,9 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
           searchResults.push({
             type: 'vehicle',
             id: vehicle.id,
-            title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+            title: formatVehicleName(vehicle),
             subtitle: vehicle.number,
-            description: `${vehicle.status} | ${vehicle.region}`,
+            description: `${formatEnum(vehicle.status)} | ${vehicle.region}`,
             score,
             data: vehicle,
             matches
@@ -220,7 +222,7 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
             id: wo.id,
             title: `WO-${String(wo.id).slice(-6)} - ${wo.serviceType}`,
             subtitle: wo.vehicleNumber,
-            description: `${wo.status} | ${wo.priority} priority`,
+            description: `${formatEnum(wo.status)} | ${formatEnum(wo.priority)} priority`,
             score,
             data: wo,
             matches
@@ -306,6 +308,9 @@ function SearchResultItem({ result, isSelected, onClick }: SearchResultItemProps
   return (
     <div
       onClick={onClick}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
+      role="button"
+      tabIndex={0}
       className={cn(
         "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
         "border border-transparent hover:border-primary/20 hover:bg-muted/50",

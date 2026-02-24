@@ -9,6 +9,8 @@
  * - Notification customization
  */
 
+import logger from '@/utils/logger';
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -123,7 +125,7 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
     const permission = await Notification.requestPermission();
     return permission;
   } catch (error) {
-    console.error('[Push] Permission request failed:', error);
+    logger.error('[Push] Permission request failed:', error);
     return 'denied';
   }
 }
@@ -164,7 +166,7 @@ export async function showLocalNotification(
 
     return notification;
   } catch (error) {
-    console.error('[Push] Failed to show notification:', error);
+    logger.error('[Push] Failed to show notification:', error);
     return null;
   }
 }
@@ -200,7 +202,7 @@ export async function subscribeToPushNotifications(): Promise<PushSubscriptionDa
 
     // Create new subscription
     if (!VAPID_PUBLIC_KEY) {
-      console.error('[Push] VAPID public key not configured');
+      logger.error('[Push] VAPID public key not configured');
       return null;
     }
 
@@ -215,7 +217,7 @@ export async function subscribeToPushNotifications(): Promise<PushSubscriptionDa
 
     return subscriptionData;
   } catch (error) {
-    console.error('[Push] Subscription failed:', error);
+    logger.error('[Push] Subscription failed:', error);
     return null;
   }
 }
@@ -238,7 +240,7 @@ export async function getCurrentSubscription(): Promise<PushSubscriptionData | n
 
     return subscriptionToJSON(subscription);
   } catch (error) {
-    console.error('[Push] Failed to get subscription:', error);
+    logger.error('[Push] Failed to get subscription:', error);
     return null;
   }
 }
@@ -269,7 +271,7 @@ export async function unsubscribeFromPushNotifications(): Promise<boolean> {
 
     return success;
   } catch (error) {
-    console.error('[Push] Unsubscribe failed:', error);
+    logger.error('[Push] Unsubscribe failed:', error);
     return false;
   }
 }
@@ -293,12 +295,17 @@ async function sendSubscriptionToServer(
   subscription: PushSubscriptionData
 ): Promise<void> {
   try {
-    const response = await fetch('/api/v1/push/subscribe', {
+    const response = await fetch('/api/push-notifications/register-device', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(subscription),
+      body: JSON.stringify({
+        deviceToken: subscription.endpoint,
+        platform: 'web',
+        deviceName: navigator.userAgent.substring(0, 50),
+        keys: subscription.keys,
+      }),
     });
 
     if (!response.ok) {
@@ -306,7 +313,7 @@ async function sendSubscriptionToServer(
     }
 
   } catch (error) {
-    console.error('[Push] Failed to send subscription to server:', error);
+    logger.error('[Push] Failed to send subscription to server:', error);
     // Don't throw - subscription is still active locally
   }
 }
@@ -318,12 +325,13 @@ async function deleteSubscriptionFromServer(
   subscription: PushSubscriptionData
 ): Promise<void> {
   try {
-    const response = await fetch('/api/v1/push/unsubscribe', {
-      method: 'POST',
+    // Use the endpoint URL as a device identifier, URL-encoded for safety
+    const deviceId = encodeURIComponent(subscription.endpoint);
+    const response = await fetch(`/api/push-notifications/device/${deviceId}`, {
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(subscription),
     });
 
     if (!response.ok) {
@@ -331,7 +339,7 @@ async function deleteSubscriptionFromServer(
     }
 
   } catch (error) {
-    console.error('[Push] Failed to delete subscription from server:', error);
+    logger.error('[Push] Failed to delete subscription from server:', error);
   }
 }
 
@@ -340,7 +348,7 @@ async function deleteSubscriptionFromServer(
  */
 export async function sendTestNotification(): Promise<boolean> {
   try {
-    const response = await fetch('/api/v1/push/test', {
+    const response = await fetch('/api/push-notifications/test', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -353,7 +361,7 @@ export async function sendTestNotification(): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error('[Push] Failed to send test notification:', error);
+    logger.error('[Push] Failed to send test notification:', error);
     return false;
   }
 }
@@ -454,7 +462,7 @@ export async function initPushNotifications(): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error('[Push] Initialization failed:', error);
+    logger.error('[Push] Initialization failed:', error);
     return false;
   }
 }

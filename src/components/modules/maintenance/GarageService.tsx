@@ -16,6 +16,8 @@ import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useAuth } from "@/hooks/useAuth"
 import { WorkOrder, ServiceBay, Technician } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatCurrency, formatTime } from "@/utils/format-helpers"
 
 // Type guard to check if a facility is a ServiceBay
 function isServiceBay(item: unknown): item is ServiceBay {
@@ -236,7 +238,7 @@ export function GarageService() {
                           {order.priority}
                         </Badge>
                         <Badge variant="outline" className={getStatusColor(order.status)}>
-                          {order.status}
+                          {formatEnum(order.status)}
                         </Badge>
                       </div>
                     </div>
@@ -303,7 +305,7 @@ export function GarageService() {
                           {bay.estimatedCompletion && (
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">Est. Complete:</span>
-                              <span>{new Date(bay.estimatedCompletion).toLocaleTimeString()}</span>
+                              <span>{formatTime(bay.estimatedCompletion)}</span>
                             </div>
                           )}
                         </div>
@@ -356,7 +358,7 @@ export function GarageService() {
                       </td>
                       <td className="px-2 py-3 text-sm">
                         <Badge variant="outline" className={getStatusColor(order.status)}>
-                          {order.status}
+                          {formatEnum(order.status)}
                         </Badge>
                       </td>
                       <td className="px-2 py-3 text-sm text-muted-foreground">
@@ -364,7 +366,7 @@ export function GarageService() {
                       </td>
                       <td className="px-2 py-3 text-sm text-muted-foreground">{order.createdDate}</td>
                       <td className="px-2 py-3 text-sm text-right font-semibold">
-                        {order.cost ? `$${order.cost.toFixed(2)}` : '-'}
+                        {order.cost ? formatCurrency(order.cost) : '-'}
                       </td>
                       <td className="px-2 py-3 text-sm text-right">
                         <div className="flex justify-end gap-2">
@@ -373,7 +375,7 @@ export function GarageService() {
                           </Button>
 
                           {/* Workflow Transitions */}
-                          {order.status === 'open' && hasPermission('work_order:update') && (
+                          {order.status === 'pending' && hasPermission('work_order:update') && (
                             <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); /* handleTransition(order.id, 'in-progress') */ }}>
                               Start
                             </Button>

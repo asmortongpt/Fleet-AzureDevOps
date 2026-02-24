@@ -3,6 +3,8 @@ import { Box, Paper, Typography, LinearProgress, Chip, CircularProgress } from '
 import Grid from '@mui/material/Grid';
 import React, { useMemo } from 'react';
 
+import { formatTime } from '@/utils/format-helpers';
+
 interface SystemHealth {
   status: 'healthy' | 'degraded' | 'down';
   uptime: number;
@@ -187,7 +189,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
                       <Typography variant="body2">API Service</Typography>
                       <Chip
                         size="small"
-                        label={health.components?.api?.status || 'Unknown'}
+                        label={health.components?.api?.status || '—'}
                         color={
                           health.components?.api?.status === 'healthy' ? 'success' : 'error'
                         }
@@ -206,7 +208,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
                       <Typography variant="body2">Emulators</Typography>
                       <Chip
                         size="small"
-                        label={health.components?.emulators?.status || 'Unknown'}
+                        label={health.components?.emulators?.status || '—'}
                         color={
                           health.components?.emulators?.status === 'healthy'
                             ? 'success'
@@ -227,7 +229,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
                       <Typography variant="body2">Database</Typography>
                       <Chip
                         size="small"
-                        label={health.components?.database?.status || 'Unknown'}
+                        label={health.components?.database?.status || '—'}
                         color={
                           health.components?.database?.status === 'healthy'
                             ? 'success'
@@ -247,10 +249,10 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
             <Grid size={{ xs: 12 }}>
               <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 2 }}>
                 <Typography variant="caption" color="text.secondary">
-                  Version: {health.version || 'Unknown'}
+                  Version: {health.version || '—'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Last Check: {health.timestamp ? new Date(health.timestamp).toLocaleTimeString() : 'Never'}
+                  Last Check: {health.timestamp ? formatTime(health.timestamp) : 'Never'}
                 </Typography>
               </Box>
             </Grid>

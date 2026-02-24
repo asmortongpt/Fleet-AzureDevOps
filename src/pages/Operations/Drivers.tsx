@@ -10,11 +10,11 @@
  * - Real performance metrics shown inline (safety score, trips, miles)
  */
 
-import { User, Plus, MagnifyingGlass, CheckCircle, Trophy, Trash, Warning } from '@phosphor-icons/react';
-// motion removed - React 19 incompatible
+import { User, Plus, Search, CheckCircle, Trophy, Trash2, AlertTriangle } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { ActionButton, StatusBadge, InlineEditPanel, ConfirmDialog , SplitView } from "@/components/operations";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,9 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { useDrivers, useCreateDriver, useUpdateDriver, useDeleteDriver, Driver } from '@/hooks/useDrivers';
 import { cn } from '@/lib/utils';
+import { formatEnum } from '@/utils/format-enum';
+import { formatDate, formatNumber } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 
 export function DriversOperations() {
   // API queries
@@ -73,7 +76,7 @@ export function DriversOperations() {
       setFormData({});
     } catch (err) {
       toast.error('Failed to create driver');
-      console.error(err);
+      logger.error('Failed to create driver', err);
     }
   };
 
@@ -91,7 +94,7 @@ export function DriversOperations() {
       setFormData({});
     } catch (err) {
       toast.error('Failed to update driver');
-      console.error(err);
+      logger.error('Failed to update driver', err);
     }
   };
 
@@ -106,7 +109,7 @@ export function DriversOperations() {
       setSelectedDriverId(null);
     } catch (err) {
       toast.error('Failed to delete driver');
-      console.error(err);
+      logger.error('Failed to delete driver', err);
     }
   };
 
@@ -134,7 +137,7 @@ export function DriversOperations() {
           <div className="flex items-start gap-3 flex-1 min-w-0">
             {/* Avatar */}
             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-400/20 to-teal-500/20 flex items-center justify-center border border-emerald-400/30 flex-shrink-0">
-              <User className="w-6 h-6 text-emerald-700" weight="bold" />
+              <User className="w-6 h-6 text-emerald-700" />
             </div>
 
             {/* Driver Info */}
@@ -151,7 +154,7 @@ export function DriversOperations() {
                       driver.hosStatus === 'off_duty' && 'bg-slate-400',
                       driver.hosStatus === 'sleeper' && 'bg-purple-400 shadow-[0_0_6px_hsl(var(--accent) / 0.5)]'
                     )}
-                    title={`HOS: ${driver.hosStatus.replace('_', ' ')}`}
+                    title={`HOS: ${formatEnum(driver.hosStatus)}`}
                   />
                 )}
               </div>
@@ -174,7 +177,7 @@ export function DriversOperations() {
                     driver.employmentType === 'contract' && 'bg-cyan-500/15 text-cyan-400',
                     !['full-time', 'part-time', 'contract'].includes(driver.employmentType) && 'bg-slate-500/15 text-slate-400'
                   )}>
-                    {driver.employmentType}
+                    {formatEnum(driver.employmentType)}
                   </span>
                 )}
               </div>
@@ -337,7 +340,7 @@ export function DriversOperations() {
                 </div>
                 <div>
                   <span className="text-slate-700">Status:</span>
-                  <p className="text-white font-semibold capitalize">{selectedDriver.status}</p>
+                  <p className="text-white font-semibold">{formatEnum(selectedDriver.status)}</p>
                 </div>
               </div>
 
@@ -370,7 +373,7 @@ export function DriversOperations() {
                         selectedDriver.employmentType === 'contract' && 'border-cyan-500/40 text-cyan-400'
                       )}
                     >
-                      {selectedDriver.employmentType}
+                      {formatEnum(selectedDriver.employmentType)}
                     </Badge>
                   ) : (
                     <p className="text-white font-medium">-</p>
@@ -382,7 +385,7 @@ export function DriversOperations() {
                 <div>
                   <span className="text-slate-700">Hire Date:</span>
                   <p className="text-white font-medium">
-                    {new Date(selectedDriver.hireDate).toLocaleDateString()}
+                    {formatDate(selectedDriver.hireDate)}
                   </p>
                 </div>
               )}
@@ -404,7 +407,7 @@ export function DriversOperations() {
                         isWarning && 'text-amber-400',
                         !isExpired && !isWarning && 'text-white'
                       )}>
-                        {expiryDate.toLocaleDateString()}
+                        {formatDate(expiryDate)}
                       </p>
                       {isExpired && (
                         <Badge variant="destructive" size="sm">Expired</Badge>
@@ -424,7 +427,7 @@ export function DriversOperations() {
                     <span className="text-slate-700">Drug Test Date:</span>
                     <p className="text-white font-medium">
                       {selectedDriver.drugTestDate
-                        ? new Date(selectedDriver.drugTestDate).toLocaleDateString()
+                        ? formatDate(selectedDriver.drugTestDate)
                         : '-'}
                     </p>
                   </div>
@@ -461,7 +464,7 @@ export function DriversOperations() {
                               : 'outline'
                           }
                         >
-                          {selectedDriver.backgroundCheckStatus}
+                          {formatEnum(selectedDriver.backgroundCheckStatus)}
                         </Badge>
                       </div>
                     </div>
@@ -479,7 +482,7 @@ export function DriversOperations() {
                               : 'outline'
                           }
                         >
-                          {selectedDriver.mvrCheckStatus}
+                          {formatEnum(selectedDriver.mvrCheckStatus)}
                         </Badge>
                       </div>
                     </div>
@@ -512,7 +515,7 @@ export function DriversOperations() {
         {/* Performance Metrics */}
         <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-emerald-400/30 p-4">
           <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-emerald-700" weight="bold" />
+            <Trophy className="w-4 h-4 text-emerald-700" />
             Performance Metrics
           </h4>
 
@@ -536,7 +539,7 @@ export function DriversOperations() {
                   selectedDriver.hosStatus === 'off_duty' && 'bg-slate-400',
                   selectedDriver.hosStatus === 'sleeper' && 'bg-purple-400'
                 )} />
-                HOS: {selectedDriver.hosStatus.replace('_', ' ')}
+                HOS: {formatEnum(selectedDriver.hosStatus)}
               </Badge>
             </div>
           )}
@@ -616,7 +619,7 @@ export function DriversOperations() {
             <div>
               <p className="text-slate-700 text-xs mb-1">Total Miles</p>
               <p className="text-blue-700 font-bold text-lg">
-                {(selectedDriver.totalMiles || 0).toLocaleString()}
+                {formatNumber(selectedDriver.totalMiles || 0)}
               </p>
             </div>
           </div>
@@ -630,7 +633,7 @@ export function DriversOperations() {
           className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10"
           disabled={deleteMutation.isPending}
         >
-          <Trash className="w-4 h-4" weight="bold" />
+          <Trash2 className="w-4 h-4" />
           <span className="ml-2">Delete Driver</span>
         </Button>
       </div>
@@ -643,7 +646,7 @@ export function DriversOperations() {
       {/* Search bar */}
       <div className="p-4 border-b border-slate-700/50">
         <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" weight="bold" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -666,7 +669,7 @@ export function DriversOperations() {
         ) : error ? (
           <div className="flex items-center justify-center h-full p-4">
             <div className="text-center">
-              <Warning className="w-8 h-8 text-red-400 mx-auto mb-3" weight="bold" />
+              <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-3" />
               <p className="text-sm text-slate-700">Failed to load drivers</p>
               <p className="text-xs text-slate-500 mt-1">Please try refreshing the page</p>
             </div>
@@ -674,9 +677,9 @@ export function DriversOperations() {
         ) : filteredDrivers.length === 0 ? (
           <div className="flex items-center justify-center h-full p-4">
             <div className="text-center">
-              <User className="w-8 h-8 text-slate-500 mx-auto mb-3" weight="bold" />
+              <User className="w-8 h-8 text-slate-500 mx-auto mb-3" />
               <p className="text-sm text-slate-700">
-                {searchQuery ? 'No drivers found' : 'No drivers yet'}
+                {searchQuery ? 'No drivers match your search.' : 'No drivers found.'}
               </p>
             </div>
           </div>
@@ -688,6 +691,7 @@ export function DriversOperations() {
   );
 
   return (
+    <ErrorBoundary>
     <>
       <SplitView
         theme="operations"
@@ -714,7 +718,7 @@ export function DriversOperations() {
               className="bg-emerald-500 hover:bg-emerald-400 text-white"
               disabled={isLoading}
             >
-              <Plus className="w-4 h-4" weight="bold" />
+              <Plus className="w-4 h-4" />
               <span className="ml-2">Add Driver</span>
             </Button>
           )
@@ -761,6 +765,7 @@ export function DriversOperations() {
         isLoading={deleteMutation.isPending}
       />
     </>
+    </ErrorBoundary>
   );
 }
 

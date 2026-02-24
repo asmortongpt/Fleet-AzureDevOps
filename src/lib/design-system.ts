@@ -11,18 +11,18 @@
 
 /**
  * DARK MODE COLOR PALETTE
- * CTA Brand Colors: DAYTIME (#2F3359), BLUE SKIES (#41B2E3), MIDNIGHT (#1A0B2E),
- * NOON (#DD3903), GOLDEN HOUR (#F0A000)
+ * CTA Brand Colors: DAYTIME (#1F3076), neutral grays/whites for accents
+ * (Legacy: BLUE SKIES #00CCFE, MIDNIGHT #1A0648, NOON #FF4300, GOLDEN HOUR #FDC016)
  * Enhanced for WCAG AAA contrast (7:1 minimum)
  */
 export const darkColors = {
   // Backgrounds
-  background: '#0A0E27',      // MIDNIGHT darkened - main app background
-  card: '#131B45',            // Lighter cards for visibility
-  cardAlt: '#1A2554',         // Alternative card background
-  cardHover: '#212D5A',       // Card hover state
-  input: '#111638',           // Input field background
-  overlay: 'rgba(10, 14, 39, 0.7)',
+  background: '#09090b',      // Near-black neutral
+  card: '#111113',            // Neutral dark gray cards
+  cardAlt: '#18181b',         // Alternative card background
+  cardHover: '#27272a',       // Card hover state
+  input: '#18181b',           // Input field background
+  overlay: 'rgba(9, 9, 11, 0.7)',
 
   // Text & Foreground
   foreground: '#FFFFFF',      // Pure white for max contrast
@@ -30,22 +30,22 @@ export const darkColors = {
   foregroundSecondary: '#B4BCD4', // Secondary text
 
   // Brand Colors
-  primary: '#2F3359',         // DAYTIME Navy
-  secondary: '#F0A000',       // GOLDEN HOUR Gold
-  accent: '#DD3903',          // NOON Orange-Red
-  warning: '#F0A000',         // GOLDEN HOUR Golden
+  primary: '#1F3076',         // DAYTIME Navy
+  secondary: '#ffffff',       // Clean white
+  accent: '#e0e0e0',          // Light gray
+  warning: '#f59e0b',         // Amber (semantic warning)
   success: '#10B981',         // Emerald Green
   destructive: '#EF4444',     // Bright red for alerts
 
   // Borders
-  border: 'rgba(240, 160, 0, 0.12)', // GOLDEN HOUR transparent
-  borderHeavy: 'rgba(240, 160, 0, 0.25)',
+  border: 'rgba(255, 255, 255, 0.12)', // White transparent
+  borderHeavy: 'rgba(255, 255, 255, 0.25)',
 
   // Gradients
   gradients: {
-    primary: 'linear-gradient(135deg, #F0A000 0%, #DD3903 100%)',     // GOLDEN HOUR → NOON
-    accent: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',       // GOLDEN HOUR → NOON
-    skyline: 'linear-gradient(90deg, #0080F0 0%, #41B2E3 25%, #F0A000 75%, #DD3903 100%)',
+    primary: 'linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%)',     // White → Gray
+    accent: 'linear-gradient(90deg, #ffffff 0%, #a0a0a0 100%)',       // White → Gray
+    skyline: 'linear-gradient(90deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.15) 100%)',
   },
 };
 

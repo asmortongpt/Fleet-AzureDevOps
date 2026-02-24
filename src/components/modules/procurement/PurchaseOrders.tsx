@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/contexts"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { PurchaseOrder } from "@/lib/types"
+import { formatCurrency, formatDate } from "@/utils/format-helpers"
 import { brandColors } from "@/theme/designSystem"
 
 interface POItem {
@@ -258,7 +259,7 @@ export function PurchaseOrders() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Spend</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold">${totalSpend.toLocaleString()}</div>
+            <div className="text-sm font-bold">{formatCurrency(totalSpend)}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <TrendingUp className="w-3 h-3" />
               Cumulative
@@ -348,10 +349,10 @@ export function PurchaseOrders() {
                     >
                       {order.vendorName}
                     </TableCell>
-                    <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(order.expectedDelivery).toLocaleDateString()}</TableCell>
+                    <TableCell>{formatDate(order.date)}</TableCell>
+                    <TableCell>{formatDate(order.expectedDelivery)}</TableCell>
                     <TableCell>{order.items.length} items</TableCell>
-                    <TableCell className="font-semibold">${order.total.toLocaleString()}</TableCell>
+                    <TableCell className="font-semibold">{formatCurrency(order.total)}</TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(order.status)} variant="secondary">
                         {order.status.replace("-", " ")}
@@ -416,16 +417,16 @@ export function PurchaseOrders() {
                   <div className="space-y-2 text-sm">
                     <div>
                       <span className="text-muted-foreground">Order Date:</span>
-                      <p className="font-medium">{new Date(selectedOrder.date).toLocaleDateString()}</p>
+                      <p className="font-medium">{formatDate(selectedOrder.date)}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Expected Delivery:</span>
-                      <p className="font-medium">{new Date(selectedOrder.expectedDelivery).toLocaleDateString()}</p>
+                      <p className="font-medium">{formatDate(selectedOrder.expectedDelivery)}</p>
                     </div>
                     {selectedOrder.deliveryDate && (
                       <div>
                         <span className="text-muted-foreground">Actual Delivery:</span>
-                        <p className="font-medium">{new Date(selectedOrder.deliveryDate).toLocaleDateString()}</p>
+                        <p className="font-medium">{formatDate(selectedOrder.deliveryDate)}</p>
                       </div>
                     )}
                   </div>
@@ -446,18 +447,18 @@ export function PurchaseOrders() {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedOrder.items.map((item, index) => (
-                        <tr key={index} className="border-t">
+                      {selectedOrder.items.map((item) => (
+                        <tr key={`${item.description}-${item.partNumber}`} className="border-t">
                           <td className="p-2">{item.description}</td>
                           <td className="p-2 text-muted-foreground">{item.partNumber || '-'}</td>
                           <td className="p-2 text-right">{item.quantity}</td>
-                          <td className="p-2 text-right">${item.unitPrice.toFixed(2)}</td>
-                          <td className="p-2 text-right font-medium">${(item.quantity * item.unitPrice).toFixed(2)}</td>
+                          <td className="p-2 text-right">{formatCurrency(item.unitPrice)}</td>
+                          <td className="p-2 text-right font-medium">{formatCurrency(item.quantity * item.unitPrice)}</td>
                         </tr>
                       ))}
                       <tr className="border-t font-medium">
                         <td className="p-2" colSpan={4}>Total</td>
-                        <td className="p-2 text-right">${selectedOrder.total.toFixed(2)}</td>
+                        <td className="p-2 text-right">{formatCurrency(selectedOrder.total)}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -470,11 +471,11 @@ export function PurchaseOrders() {
                   <div className="space-y-2 text-sm">
                     <div>
                       <span className="text-muted-foreground">Requested By:</span>
-                      <p className="font-medium">{selectedOrder.requestedBy || 'N/A'}</p>
+                      <p className="font-medium">{selectedOrder.requestedBy || '—'}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Department:</span>
-                      <p className="font-medium">{selectedOrder.department || 'N/A'}</p>
+                      <p className="font-medium">{selectedOrder.department || '—'}</p>
                     </div>
                   </div>
                 </div>
@@ -484,7 +485,7 @@ export function PurchaseOrders() {
                   <div className="space-y-2 text-sm">
                     <div>
                       <span className="text-muted-foreground">Shipping Address:</span>
-                      <p className="font-medium">{selectedOrder.shippingAddress || 'N/A'}</p>
+                      <p className="font-medium">{selectedOrder.shippingAddress || '—'}</p>
                     </div>
                   </div>
                 </div>
@@ -640,6 +641,7 @@ export function PurchaseOrders() {
                         size="icon"
                         onClick={() => removeItem(index)}
                         disabled={newPO.items.length === 1}
+                        aria-label="Remove item"
                       >
                         <Trash2 className="w-4 h-4 text-destructive" />
                       </Button>

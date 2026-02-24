@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express'
 import { PoolClient } from 'pg'
+import { z } from 'zod'
 
 import pool from '../config/database'
 import logger from '../config/logger'
@@ -14,6 +15,8 @@ import {
   ManualWorkOrderGenerationRequest
 } from '../types/maintenance'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+import { flexUuid } from '../middleware/validation'
 
 const router = express.Router()
 
@@ -267,6 +270,25 @@ router.get(
 )
 
 // POST /maintenance-schedules
+const maintenanceScheduleSchema = z.object({
+  vehicle_id: flexUuid.optional(),
+  schedule_type: z.string().max(100).optional(),
+  service_type: z.string().max(200).optional(),
+  description: z.string().max(2000).optional(),
+  frequency_miles: z.number().min(0).optional(),
+  frequency_days: z.number().int().min(0).optional(),
+  last_service_date: z.string().optional(),
+  last_service_mileage: z.number().min(0).optional(),
+  next_service_date: z.string().optional(),
+  next_service_mileage: z.number().min(0).optional(),
+  estimated_cost: z.number().min(0).optional(),
+  priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+  status: z.enum(['active', 'inactive', 'completed', 'overdue']).optional(),
+  notes: z.string().max(2000).optional(),
+  recurrence_pattern: z.record(z.string(), z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
+
 router.post(
   '/',
   csrfProtection,
@@ -283,7 +305,11 @@ router.post(
         })
       }
 
-      const data = req.body
+      const parsed = maintenanceScheduleSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+      const data = parsed.data
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
@@ -321,7 +347,11 @@ router.put(
         })
       }
 
-      const data = req.body
+      const parsed = maintenanceScheduleSchema.partial().safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 2)
 
       // RLS handles tenant filtering
@@ -369,7 +399,7 @@ router.delete(
         return res.status(404).json({ error: 'Maintenance schedule not found' })
       }
 
-      res.json({ message: 'Maintenance schedule deleted successfully', id: result.rows[0].id })
+      res.json({ success: true, message: 'Maintenance schedule deleted successfully', id: result.rows[0].id })
     } catch (error) {
       logger.error('Delete maintenance-schedules error:', error)
       res.status(500).json({ error: 'Failed to delete maintenance schedule' })
@@ -613,7 +643,15 @@ router.post(
         })
       }
 
-      const { override_template, skip_due_check } = req.body as ManualWorkOrderGenerationRequest
+      const generateWOSchema = z.object({
+        override_template: z.record(z.string(), z.unknown()).optional(),
+        skip_due_check: z.boolean().optional(),
+      })
+      const parsed = generateWOSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+      const { override_template, skip_due_check } = parsed.data
 
       // Get schedule (RLS handles tenant filtering)
       const scheduleResult = await client.query(

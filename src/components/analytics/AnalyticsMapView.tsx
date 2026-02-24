@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
 import { ProfessionalFleetMap } from '@/components/map/ProfessionalFleetMap';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { useVehicles } from '@/hooks/use-api';
+import { formatCurrency } from '@/utils/format-helpers';
 
 interface AnalyticsMapViewProps {
   analyticsType: 'heatmap' | 'routes' | 'performance' | 'fuel';
@@ -135,7 +137,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <Gauge className="h-5 w-5 text-green-600" />
                 <div>
                   <div className="text-xs text-muted-foreground">Avg MPG</div>
-                  <div className="text-sm font-bold">{metrics.avgMPG > 0 ? metrics.avgMPG.toFixed(1) : 'N/A'}</div>
+                  <div className="text-sm font-bold">{metrics.avgMPG > 0 ? metrics.avgMPG.toFixed(1) : '—'}</div>
                 </div>
               </div>
             </CardContent>
@@ -163,7 +165,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <Fuel className="h-5 w-5 text-orange-600" />
                 <div>
                   <div className="text-xs text-muted-foreground">Avg Fuel Cost</div>
-                  <div className="text-sm font-bold">{metrics.fuelCost > 0 ? `$${metrics.fuelCost.toFixed(2)}/gal` : 'N/A'}</div>
+                  <div className="text-sm font-bold">{metrics.fuelCost > 0 ? `${formatCurrency(metrics.fuelCost)}/gal` : '—'}</div>
                 </div>
               </div>
             </CardContent>
@@ -243,7 +245,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <span className="text-sm">Fuel Cost</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="font-bold">{metrics.fuelCost > 0 ? `$${metrics.fuelCost.toFixed(2)}` : '—'}</span>
+                <span className="font-bold">{metrics.fuelCost > 0 ? formatCurrency(metrics.fuelCost) : '—'}</span>
               </div>
             </div>
           </CardContent>
@@ -291,7 +293,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="text-sm">
-                <span className="font-medium">{selectedVehicle.make} {selectedVehicle.model}</span>
+                <span className="font-medium">{formatVehicleShortName(selectedVehicle)}</span>
               </div>
               {selectedVehicle.latitude && selectedVehicle.longitude && (
                 <div className="flex items-center text-xs text-muted-foreground">

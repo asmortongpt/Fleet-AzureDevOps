@@ -26,6 +26,8 @@ import { AssignmentNotificationService } from '../services/assignment-notificati
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 
 let pool: Pool = dbPool;
@@ -41,7 +43,7 @@ export function setDatabasePool(newPool: Pool) {
 // =====================================================
 
 const callbackTripSchema = z.object({
-  on_call_period_id: z.string().uuid(),
+  on_call_period_id: flexUuid,
   trip_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   trip_start_time: z.string().optional(),
   trip_end_time: z.string().optional(),
@@ -59,7 +61,7 @@ const callbackTripSchema = z.object({
 });
 
 const reimbursementRequestSchema = z.object({
-  callback_trip_id: z.string().uuid(),
+  callback_trip_id: flexUuid,
   amount: z.number().positive(),
   mileage_rate: z.number().positive(),
   receipt_photo: z.string().optional(), // Base64 or URL

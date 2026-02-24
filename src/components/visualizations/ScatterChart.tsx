@@ -50,15 +50,15 @@ export function ScatterChart({
   height = 400,
   loading = false,
   showRegressionLine = true,
-  color = 'hsl(var(--chart-1))',
+  color = '#3B82F6',
 }: ScatterChartProps) {
   const chartColors = {
-    text: 'hsl(var(--foreground))',
-    grid: 'hsl(var(--border))',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: 'hsl(var(--card))',
-      border: 'hsl(var(--border))',
-      text: 'hsl(var(--foreground))',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -188,7 +188,7 @@ export function ScatterChart({
                     { x: Math.min(...data.map(d => d.x)), y: regression.slope * Math.min(...data.map(d => d.x)) + regression.intercept },
                     { x: Math.max(...data.map(d => d.x)), y: regression.slope * Math.max(...data.map(d => d.x)) + regression.intercept },
                   ]}
-                  stroke="hsl(var(--chart-2))"
+                  stroke="#10B981"
                   strokeWidth={2}
                   strokeDasharray="5 5"
                   label={{

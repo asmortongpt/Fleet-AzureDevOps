@@ -55,23 +55,23 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-[#FF6B35] to-[#FF8855] hover:from-[#E55A24] hover:to-[#FF6B35] text-white shadow-md shadow-[#FF6B35]/30 hover:shadow-lg hover:shadow-[#FF6B35]/40 hover:-translate-y-0.5 active:translate-y-0 rounded-lg font-semibold",
+          "bg-white text-[#1a1a1a] hover:bg-white/90 shadow-sm rounded-lg font-semibold",
         destructive:
-          "bg-gradient-to-r from-[#DD3903] to-[#FF3838] hover:from-[#B91C1C] hover:to-[#DD3903] text-white shadow-md shadow-[#DD3903]/30 hover:shadow-lg hover:shadow-[#DD3903]/40 hover:-translate-y-0.5 rounded-lg font-semibold",
+          "bg-rose-600 hover:bg-rose-700 text-white shadow-sm rounded-lg font-semibold",
         outline:
-          "border-2 border-[#F0A000] bg-transparent hover:bg-[#F0A000]/10 text-[#F0A000] rounded-lg transition-all duration-200 font-semibold hover:border-[#F0A000]/80",
+          "border-2 border-white/20 bg-transparent hover:bg-white/5 text-white/90 rounded-lg transition-colors duration-200 font-semibold hover:border-white/40",
         secondary:
-          "bg-gradient-to-r from-[#F0A000] to-[#FFB800] hover:from-[#D97706] hover:to-[#F0A000] text-white shadow-md shadow-[#F0A000]/30 hover:shadow-lg hover:shadow-[#F0A000]/40 hover:-translate-y-0.5 rounded-lg font-semibold",
+          "bg-white/10 hover:bg-white/15 text-white/90 shadow-sm rounded-lg font-semibold border border-white/[0.08]",
         ghost:
-          "hover:bg-gradient-to-r hover:from-primary/15 hover:to-transparent text-foreground rounded-lg transition-all duration-200",
+          "hover:bg-white/10 text-foreground rounded-lg transition-colors duration-200",
         link:
-          "text-[#F0A000] underline-offset-4 hover:underline hover:text-[#FFB800] font-semibold",
+          "text-white/80 underline-offset-4 hover:underline hover:text-white font-semibold",
         success:
-          "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-md shadow-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/40 hover:-translate-y-0.5 rounded-lg font-semibold",
+          "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm rounded-lg font-semibold",
         warning:
-          "bg-gradient-to-r from-[#F0A000] to-[#FFB800] hover:from-[#D97706] hover:to-[#F0A000] text-white shadow-md shadow-[#F0A000]/30 hover:shadow-lg hover:shadow-[#F0A000]/40 hover:-translate-y-0.5 rounded-lg font-semibold",
+          "bg-amber-500 hover:bg-amber-600 text-white shadow-sm rounded-lg font-semibold",
         professional:
-          "bg-gradient-to-r from-[#2F3359] to-[#3D4573] hover:from-[#1A1446] hover:to-[#2F3359] text-white shadow-md shadow-[#2F3359]/50 hover:shadow-lg hover:shadow-[#2F3359]/60 hover:-translate-y-0.5 rounded-lg font-semibold",
+          "bg-[#333] hover:bg-[#444] text-white shadow-sm rounded-lg font-semibold border border-white/[0.06]",
       },
       size: {
         default: "h-10 px-4 py-2 has-[>svg]:px-4 rounded-lg",

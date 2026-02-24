@@ -23,6 +23,8 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
+import { useNavigation } from '@/contexts/NavigationContext'
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -48,6 +50,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/contexts"
 import { secureFetch } from "@/hooks/use-api"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { formatEnum } from "@/utils/format-enum"
+import { formatDate, formatDateTime } from "@/utils/format-helpers"
 
 // Report types and status
 type ReportCategory = "fleet" | "maintenance" | "safety" | "compliance" | "financial" | "operations"
@@ -91,7 +95,7 @@ interface ScheduledReport {
 
 const getCategoryColor = (category: ReportCategory): string => {
   switch (category) {
-    case "fleet": return "bg-blue-500/10 text-blue-800"
+    case "fleet": return "bg-emerald-500/10 text-emerald-800"
     case "maintenance": return "bg-orange-500/10 text-orange-500"
     case "safety": return "bg-red-500/10 text-red-500"
     case "compliance": return "bg-purple-500/10 text-purple-500"
@@ -104,7 +108,7 @@ const getCategoryColor = (category: ReportCategory): string => {
 const getStatusColor = (status: ReportStatus): string => {
   switch (status) {
     case "ready": return "bg-green-500/10 text-green-500"
-    case "generating": return "bg-blue-500/10 text-blue-800"
+    case "generating": return "bg-emerald-500/10 text-emerald-800"
     case "scheduled": return "bg-yellow-500/10 text-yellow-500"
     case "failed": return "bg-red-500/10 text-red-500"
     default: return "bg-gray-500/10 text-gray-700"
@@ -112,8 +116,9 @@ const getStatusColor = (status: ReportStatus): string => {
 }
 
 export function ReportsHub() {
+  const { navigateTo } = useNavigation()
   const { user } = useAuth()
-  const { vehicles, drivers, workOrders } = useFleetData()
+  const { vehicles, drivers, workOrders, error: fleetDataError } = useFleetData()
   const [activeTab, setActiveTab] = useState("templates")
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
@@ -144,9 +149,9 @@ export function ReportsHub() {
     setError(null)
     try {
       const [templatesResponse, historyResponse, scheduledResponse] = await Promise.all([
-        fetchJson("/api/reports/templates"),
-        fetchJson("/api/reports/history"),
-        fetchJson("/api/reports/scheduled")
+        fetchJson("/api/reports/templates").catch(() => ({ data: [] })),
+        fetchJson("/api/reports/history").catch(() => ({ data: [] })),
+        fetchJson("/api/reports/scheduled").catch(() => ({ data: [] }))
       ])
 
       const mappedTemplates: ReportTemplate[] = (templatesResponse.data || []).map((template: any) => ({
@@ -266,13 +271,25 @@ export function ReportsHub() {
     const activeDrivers = drivers.filter((d: any) => d.status === 'active').length
     const openWorkOrders = workOrders.filter((wo: any) => {
       const status = (wo.status || '').toLowerCase()
-      return status === 'pending' || status === 'in-progress' || status === 'open' || status === 'waiting_parts'
+      return status === 'pending' || status === 'in_progress' || status === 'waiting_parts'
     }).length
     // Approximate fleet health from active vehicles ratio
     const activeVehicles = vehicles.filter((v: any) => v.status === 'active' || v.status === 'idle').length
     const avgFleetHealth = totalVehicles > 0 ? Math.round((activeVehicles / totalVehicles) * 100) : 0
     return { totalVehicles, activeDrivers, openWorkOrders, avgFleetHealth }
   }, [vehicles, drivers, workOrders])
+
+  if (fleetDataError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="h-screen overflow-hidden bg-background flex flex-col">
@@ -292,11 +309,11 @@ export function ReportsHub() {
             )}
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => setActiveTab('templates')}>
               <FolderOpen className="w-4 h-4 mr-2" />
               Report Library
             </Button>
-            <Button>
+            <Button onClick={() => navigateTo('business-hub')}>
               <Plus className="w-4 h-4 mr-2" />
               Custom Report
             </Button>
@@ -309,7 +326,7 @@ export function ReportsHub() {
         <div className="flex items-center gap-6">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Fleet Summary</span>
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
+            <div className="w-2 h-2 rounded-full bg-emerald-500" />
             <span className="text-sm font-medium">{fleetSummary.totalVehicles}</span>
             <span className="text-xs text-muted-foreground">Vehicles</span>
           </div>
@@ -365,7 +382,7 @@ export function ReportsHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-base font-bold text-blue-800">{stats.scheduledActive}</div>
+              <div className="text-base font-bold text-emerald-800">{stats.scheduledActive}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 of {stats.scheduledTotal} scheduled
               </p>
@@ -380,7 +397,7 @@ export function ReportsHub() {
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" onClick={() => navigateTo('fleet-hub-consolidated')}>
                   <Zap className="w-3 h-3 mr-1" />
                   Quick Report
                 </Button>
@@ -452,7 +469,7 @@ export function ReportsHub() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <Badge className={getCategoryColor(template.category)}>
-                          {template.category}
+                          {formatEnum(template.category)}
                         </Badge>
                         {template.frequency && (
                           <Badge variant="outline">
@@ -483,7 +500,7 @@ export function ReportsHub() {
 
                       {template.lastGenerated && (
                         <p className="text-xs text-muted-foreground">
-                          Last generated: {new Date(template.lastGenerated).toLocaleDateString()}
+                          Last generated: {formatDate(template.lastGenerated)}
                         </p>
                       )}
 
@@ -531,7 +548,7 @@ export function ReportsHub() {
                       <TableRow key={report.id}>
                         <TableCell className="font-medium">{report.name}</TableCell>
                         <TableCell>
-                          {new Date(report.generatedAt).toLocaleString()}
+                          {formatDateTime(report.generatedAt)}
                         </TableCell>
                         <TableCell>{report.generatedBy}</TableCell>
                         <TableCell>
@@ -540,7 +557,7 @@ export function ReportsHub() {
                         <TableCell>{report.size}</TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(report.status)}>
-                            {report.status}
+                            {formatEnum(report.status)}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
@@ -594,12 +611,10 @@ export function ReportsHub() {
                         <TableCell className="font-medium">{schedule.name}</TableCell>
                         <TableCell>{schedule.frequency}</TableCell>
                         <TableCell>
-                          {new Date(schedule.nextRun).toLocaleDateString()}
+                          {formatDate(schedule.nextRun)}
                         </TableCell>
                         <TableCell>
-                          {schedule.lastRun
-                            ? new Date(schedule.lastRun).toLocaleDateString()
-                            : "-"}
+                          {formatDate(schedule.lastRun)}
                         </TableCell>
                         <TableCell>
                           <span className="text-sm text-muted-foreground">

@@ -1,5 +1,8 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { formatNumber } from '@/utils/format-helpers'
 import { EntityAvatar } from '@/shared/design-system/EntityAvatar'
 import { RowExpandPanel } from '@/shared/design-system/RowExpandPanel'
 import { StatusChip } from '@/shared/design-system/StatusChip'
@@ -58,6 +61,7 @@ export default function FleetDesignDemo() {
     }
 
     return (
+        <ErrorBoundary>
         <div style={{
             padding: 24,
             background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
@@ -206,7 +210,7 @@ export default function FleetDesignDemo() {
                                         </div>
                                     </td>
                                     <td style={{ padding: 16, fontSize: 14 }}>{vehicle.kind}</td>
-                                    <td style={{ padding: 16, fontSize: 14 }}>{vehicle.odometer.toLocaleString()} mi</td>
+                                    <td style={{ padding: 16, fontSize: 14 }}>{formatNumber(vehicle.odometer)} mi</td>
                                     <td style={{ padding: 16 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                             <div style={{
@@ -267,7 +271,7 @@ export default function FleetDesignDemo() {
                                                         severity: 'warn'
                                                     },
                                                 ]}
-                                                onOpenRecord={(id) => alert(`Opening record: ${id}`)}
+                                                onOpenRecord={(id) => toast.info(`Opening record: ${id}`)}
                                             />
                                         </td>
                                     </tr>
@@ -303,5 +307,6 @@ export default function FleetDesignDemo() {
                 </div>
             </div>
         </div>
+        </ErrorBoundary>
     )
 }

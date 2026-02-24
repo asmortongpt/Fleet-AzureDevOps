@@ -121,6 +121,7 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
           <button
             onClick={onClose}
             className="p-2 hover:bg-muted rounded-lg transition-colors"
+            aria-label="Close"
           >
             <X className="w-3 h-3" />
           </button>

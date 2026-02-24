@@ -25,8 +25,11 @@ import {
 import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
-import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
+import { formatCurrency, formatDate } from '@/utils/format-helpers';
+import { formatVehicleName } from '@/utils/vehicle-display';
+import logger from '@/utils/logger';
+import { toast } from 'sonner';
 interface Assignment {
   id: string;
   vehicle_id: string;
@@ -96,21 +99,18 @@ const MobileEmployeeDashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/mobile/dashboard/employee', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+      const response = await fetch('/api/mobile-assignment/dashboard/employee', {
+        credentials: 'include',
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
-      if (response.ok) {
-        const data = await response.json();
-        setDashboardData(data);
-        // Cache for offline use
-        localStorage.setItem('mobile_dashboard_cache', JSON.stringify({
-          data,
-          cached_at: new Date().toISOString(),
-        }));
-      }
+      const data = await response.json();
+      setDashboardData(data);
+      // Cache for offline use
+      localStorage.setItem('mobile_dashboard_cache', JSON.stringify({
+        data,
+        cached_at: new Date().toISOString(),
+      }));
     } catch (error) {
       logger.error('Error fetching dashboard:', error);
       // Load from cache if offline
@@ -125,22 +125,23 @@ const MobileEmployeeDashboard: React.FC = () => {
 
   const acknowledgeOnCall = async (periodId: string) => {
     try {
-      const response = await fetch(`/api/mobile/on-call/${periodId}/acknowledge`, {
+      const response = await fetch(`/api/mobile-assignment/on-call/${periodId}/acknowledge`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        credentials: 'include',
         body: JSON.stringify({ acknowledged: true }),
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       if (response.ok) {
         fetchDashboardData(); // Refresh
-        alert('On-call period acknowledged successfully');
+        toast.success('On-call period acknowledged successfully');
       }
     } catch (error) {
       logger.error('Error acknowledging on-call:', error);
-      alert('Failed to acknowledge on-call period');
+      toast.error('Failed to acknowledge on-call period');
     }
   };
 
@@ -157,12 +158,12 @@ const MobileEmployeeDashboard: React.FC = () => {
         });
       }
 
-      const response = await fetch('/api/mobile/callback-trip', {
+      const response = await fetch('/api/mobile-assignment/callback-trip', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        credentials: 'include',
         body: JSON.stringify({
           ...callbackForm,
           miles_driven: parseFloat(callbackForm.miles_driven),
@@ -172,7 +173,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`Callback trip logged successfully! Estimated reimbursement: $${result.estimated_reimbursement.toFixed(2)}`);
+        toast.success(`Callback trip logged successfully! Estimated reimbursement: ${formatCurrency(result.estimated_reimbursement)}`);
         setShowCallbackForm(false);
         fetchDashboardData();
         // Reset form
@@ -187,7 +188,7 @@ const MobileEmployeeDashboard: React.FC = () => {
       }
     } catch (error) {
       logger.error('Error submitting callback trip:', error);
-      alert('Failed to log callback trip');
+      toast.error('Failed to log callback trip');
     }
   };
 
@@ -203,8 +204,8 @@ const MobileEmployeeDashboard: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Loading your dashboard...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-600 mx-auto"></div>
+          <p className="mt-2 text-white/40" style={{ color: brandColors.archon.mediumGray }}>Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -236,26 +237,26 @@ const MobileEmployeeDashboard: React.FC = () => {
                 <h3 className="font-semibold text-sm text-gray-900">
                   {assignment.unit_number}
                 </h3>
-                <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
-                  {assignment.make} {assignment.model} {assignment.year}
+                <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+                  {formatVehicleName({ year: assignment.year, make: assignment.make, model: assignment.model })}
                 </p>
               </div>
               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                 assignment.lifecycle_state === 'active'
                   ? 'bg-green-100 text-green-800'
-                  : 'bg-blue-100 text-blue-800'
+                  : 'bg-emerald-100 text-emerald-800'
               }`}>
                 {assignment.lifecycle_state}
               </span>
             </div>
 
             <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+              <div className="flex items-center gap-2 text-white/40" style={{ color: brandColors.archon.mediumGray }}>
                 <FileText className="w-4 h-4" />
                 <span>License: {assignment.license_plate}</span>
               </div>
 
-              <div className="flex items-center gap-2 text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+              <div className="flex items-center gap-2 text-white/40" style={{ color: brandColors.archon.mediumGray }}>
                 <Calendar className="w-4 h-4" />
                 <span>Type: {assignment.assignment_type.replace('_', ' ')}</span>
               </div>
@@ -279,7 +280,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                   {assignment.parking_latitude && (
                     <button
                       onClick={() => openNavigationToParking(assignment)}
-                      className="mt-2 w-full flex items-center justify-center gap-2 px-2 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+                      className="mt-2 w-full flex items-center justify-center gap-2 px-2 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium"
                     >
                       <Navigation className="w-4 h-4" />
                       Navigate to Parking
@@ -320,7 +321,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
           return (
             <div key={period.id} className={`bg-white rounded-lg shadow p-2 ${
-              isActive ? 'border-2 border-blue-500' : ''
+              isActive ? 'border-2 border-emerald-500' : ''
             }`}>
               <div className="flex items-start justify-between mb-3">
                 <div>
@@ -328,9 +329,9 @@ const MobileEmployeeDashboard: React.FC = () => {
                     {isActive ? '🔴 Active Now' : 'Upcoming'}
                   </h3>
                   <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>
-                    {startDate.toLocaleDateString()} {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {formatDate(startDate)} {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     <br />
-                    to {endDate.toLocaleDateString()} {endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    to {formatDate(endDate)} {endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
                 {!period.acknowledged_by_driver ? (
@@ -345,7 +346,7 @@ const MobileEmployeeDashboard: React.FC = () => {
               {period.unit_number && (
                 <div className="flex items-center gap-2 text-sm  mb-3" style={{ color: brandColors.archon.mediumGray }}>
                   <Car className="w-4 h-4" />
-                  <span>{period.unit_number} - {period.make} {period.model}</span>
+                  <span>{formatVehicleName({ make: period.make, model: period.model, number: period.unit_number })}</span>
                 </div>
               )}
 
@@ -357,7 +358,7 @@ const MobileEmployeeDashboard: React.FC = () => {
               {!period.acknowledged_by_driver && (
                 <button
                   onClick={() => acknowledgeOnCall(period.id)}
-                  className="w-full px-2 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+                  className="w-full px-2 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium"
                 >
                   Acknowledge On-Call Period
                 </button>
@@ -384,17 +385,17 @@ const MobileEmployeeDashboard: React.FC = () => {
   const renderTripsTab = () => (
     <div className="space-y-2">
       {dashboardData.notifications.pending_reimbursements > 0 && (
-        <div className="bg-blue-50 border-l-4 border-blue-400 p-2 rounded">
+        <div className="bg-emerald-50 border-l-4 border-emerald-400 p-2 rounded">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <DollarSign className="w-3 h-3 text-blue-800" />
+              <DollarSign className="w-3 h-3 text-emerald-400" />
               <div>
-                <p className="text-sm font-medium text-blue-800">
+                <p className="text-sm font-medium text-emerald-400">
                   Pending Reimbursements
                 </p>
-                <p className="text-xs text-blue-800">
+                <p className="text-xs text-emerald-400">
                   {dashboardData.notifications.pending_reimbursements} trip(s) -
-                  ${dashboardData.notifications.pending_reimbursement_amount.toFixed(2)}
+                  {formatCurrency(dashboardData.notifications.pending_reimbursement_amount)}
                 </p>
               </div>
             </div>
@@ -413,16 +414,16 @@ const MobileEmployeeDashboard: React.FC = () => {
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="font-semibold text-gray-900">
-                  {new Date(trip.trip_date).toLocaleDateString()}
+                  {formatDate(trip.trip_date)}
                 </h3>
-                <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{trip.purpose}</p>
+                <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{trip.purpose}</p>
               </div>
               <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                 trip.reimbursement_status === 'pending'
                   ? 'bg-yellow-100 text-yellow-800'
                   : trip.reimbursement_status === 'approved'
                   ? 'bg-green-100 text-green-800'
-                  : 'bg-blue-100 text-blue-800'
+                  : 'bg-emerald-100 text-emerald-800'
               }`}>
                 {trip.reimbursement_status}
               </span>
@@ -434,12 +435,12 @@ const MobileEmployeeDashboard: React.FC = () => {
                   {trip.miles_driven} miles
                 </span>
                 {trip.used_private_vehicle && (
-                  <span className="text-blue-800">Private Vehicle</span>
+                  <span className="text-emerald-400">Private Vehicle</span>
                 )}
               </div>
               {trip.reimbursement_amount > 0 && (
                 <span className="font-semibold text-green-600">
-                  ${trip.reimbursement_amount.toFixed(2)}
+                  {formatCurrency(trip.reimbursement_amount)}
                 </span>
               )}
             </div>
@@ -525,7 +526,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                   id="private-vehicle"
                   checked={callbackForm.used_private_vehicle}
                   onChange={(e) => setCallbackForm({ ...callbackForm, used_private_vehicle: e.target.checked })}
-                  className="w-4 h-4 text-blue-800"
+                  className="w-4 h-4 text-emerald-400"
                 />
                 <label htmlFor="private-vehicle" className="text-sm text-gray-700">
                   Used private vehicle (eligible for reimbursement)
@@ -535,7 +536,7 @@ const MobileEmployeeDashboard: React.FC = () => {
               <button
                 onClick={submitCallbackTrip}
                 disabled={!callbackForm.miles_driven || !callbackForm.purpose}
-                className="w-full px-2 py-3 bg-blue-600 text-white rounded-lg font-medium disabled:bg-gray-400"
+                className="w-full px-2 py-3 bg-emerald-600 text-white rounded-lg font-medium disabled:bg-gray-400"
               >
                 Submit Callback Trip
               </button>
@@ -549,13 +550,13 @@ const MobileEmployeeDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 pb-20">
       {/* Header */}
-      <div className="bg-blue-600 text-white p-3 pb-3">
+      <div className="bg-emerald-600 text-white p-3 pb-3">
         <h1 className="text-sm font-bold">My Fleet Dashboard</h1>
-        <p className="text-blue-100 mt-1">{user?.email}</p>
+        <p className="text-emerald-100 mt-1">{user?.email}</p>
 
         {/* Status badges */}
         <div className="mt-2 flex gap-2 flex-wrap">
-          <div className="bg-blue-700 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+          <div className="bg-emerald-700 px-3 py-1 rounded-full text-sm flex items-center gap-1">
             <Car className="w-4 h-4" />
             {dashboardData.assignments.length} Assignment(s)
           </div>
@@ -583,8 +584,8 @@ const MobileEmployeeDashboard: React.FC = () => {
           onClick={() => setActiveTab('assignments')}
           className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'assignments'
-              ? 'text-blue-800 border-b-2 border-blue-600'
-              : 'text-slate-700'
+              ? 'text-emerald-400 border-b-2 border-emerald-600'
+              : 'text-white/40'
           }`}
         >
           Assignments
@@ -593,8 +594,8 @@ const MobileEmployeeDashboard: React.FC = () => {
           onClick={() => setActiveTab('on-call')}
           className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'on-call'
-              ? 'text-blue-800 border-b-2 border-blue-600'
-              : 'text-slate-700'
+              ? 'text-emerald-400 border-b-2 border-emerald-600'
+              : 'text-white/40'
           }`}
         >
           On-Call
@@ -603,8 +604,8 @@ const MobileEmployeeDashboard: React.FC = () => {
           onClick={() => setActiveTab('trips')}
           className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'trips'
-              ? 'text-blue-800 border-b-2 border-blue-600'
-              : 'text-slate-700'
+              ? 'text-emerald-400 border-b-2 border-emerald-600'
+              : 'text-white/40'
           }`}
         >
           Trips

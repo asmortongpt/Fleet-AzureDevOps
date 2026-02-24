@@ -21,6 +21,7 @@ import {
 } from 'recharts'
 
 import { Button } from '@/components/ui/button'
+import { formatNumber } from '@/utils/format-helpers'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -53,7 +54,7 @@ export function InteractiveLineChart({
   height = 400,
   loading = false,
   showArea = false,
-  colors = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-4))'],
+  colors = ['#3B82F6', '#10B981', '#8B5CF6'],
   enableBrush = true,
   enableZoom = true,
 }: InteractiveLineChartProps) {
@@ -61,14 +62,14 @@ export function InteractiveLineChart({
   const [brushIndexes, setBrushIndexes] = useState<{ startIndex?: number; endIndex?: number }>({})
 
   const chartColors = {
-    text: 'hsl(var(--foreground))',
-    grid: 'hsl(var(--border))',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: 'hsl(var(--card))',
-      border: 'hsl(var(--border))',
-      text: 'hsl(var(--foreground))',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
-    brush: 'hsl(var(--border))',
+    brush: 'var(--border)',
   }
 
   const ChartComponent = showArea ? AreaChart : LineChart
@@ -99,11 +100,11 @@ export function InteractiveLineChart({
         }}
       >
         <p className="font-semibold mb-2">{label}</p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
+        {payload.map((entry: any) => (
+          <div key={entry.name} className="flex items-center gap-2 text-sm">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
             <span>{entry.name}: </span>
-            <span className="font-mono font-semibold">{entry.value.toLocaleString()}</span>
+            <span className="font-mono font-semibold">{formatNumber(entry.value)}</span>
           </div>
         ))}
       </div>
@@ -225,7 +226,7 @@ export function InteractiveLineChart({
                   dataKey={xAxisKey}
                   height={30}
                   stroke={chartColors.brush}
-                  fill="hsl(var(--card))"
+                  fill="var(--card)"
                   onChange={(indexes: any) => setBrushIndexes(indexes)}
                   travellerWidth={10}
                 />

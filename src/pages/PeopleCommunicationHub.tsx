@@ -32,35 +32,44 @@ import {
   TrendingUp,
   Hash,
   Megaphone,
-  Activity,
-  BookOpen
+  BookOpen,
+  Plus,
+  Video,
+  ExternalLink,
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 
-// motion removed - React 19 incompatible
-import toast from 'react-hot-toast'
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
+import { toast } from 'sonner'
 
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import HubPage from '@/components/ui/hub-page'
 import { Section } from '@/components/ui/section'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   StatCard,
 } from '@/components/visualizations'
-import logger from '@/utils/logger';
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
+import { formatNumber } from '@/utils/format-helpers'
 
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((res) => res.json())
-    .then((data) => data?.data ?? data)
+
+const fetcher = apiFetcher
 
 const rawFetcher = (url: string) =>
   fetch(url, { credentials: 'include' })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      return res.json()
+    })
 
 // ============================================================================
 // TAB CONTENT COMPONENTS
@@ -70,26 +79,29 @@ const rawFetcher = (url: string) =>
  * People Tab - HR and team management
  */
 const PeopleTabContent = memo(function PeopleTabContent() {
-  const { data: users } = useSWR<any[]>(
+  const { data: users, error: usersError, isLoading: usersLoading } = useSWR<any[]>(
     '/api/users?limit=200',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: teams } = useSWR<any[]>(
+  const { data: teams, error: teamsError, isLoading: teamsLoading } = useSWR<any[]>(
     '/api/internal-teams',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: trainingCourses } = useSWR<any[]>(
+  const { data: trainingCourses, error: trainingCoursesError, isLoading: trainingCoursesLoading } = useSWR<any[]>(
     '/api/training/courses?limit=200',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: trainingProgress } = useSWR<any[]>(
+  const { data: trainingProgress, error: trainingProgressError, isLoading: trainingProgressLoading } = useSWR<any[]>(
     '/api/training/progress',
     fetcher,
     { shouldRetryOnError: false }
   )
+
+  const peopleError = usersError || teamsError || trainingCoursesError || trainingProgressError
+  const peopleLoading = usersLoading || teamsLoading || trainingCoursesLoading || trainingProgressLoading
 
   const userRows = Array.isArray(users) ? users : []
   const teamRows = Array.isArray(teams) ? teams : []
@@ -111,17 +123,20 @@ const PeopleTabContent = memo(function PeopleTabContent() {
     return tenureYears.reduce((sum, years) => sum + years, 0) / tenureYears.length
   }, [userRows])
 
-  const recentActivity = useMemo(() => {
+  // P1-6: Renamed to "Recently Added Users" — sorted by created_at desc
+  const recentUsers = useMemo(() => {
     return userRows
       .slice()
       .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
       .slice(0, 4)
-      .map((user: any) => ({
-        type: 'New Hire',
-        name: user.name || `${user.first_name} ${user.last_name}`.trim(),
-        department: user.role || 'Team Member',
-        date: user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'
-      }))
+      .map((user: any) => {
+        return {
+          isActive: user.status === 'active',
+          name: user.name || `${user.first_name} ${user.last_name}`.trim(),
+          department: user.role ? formatEnum(user.role) : 'Team Member',
+          createdAt: user.created_at
+        }
+      })
   }, [userRows])
 
   const trainingProgressData = useMemo(() => {
@@ -132,7 +147,9 @@ const PeopleTabContent = memo(function PeopleTabContent() {
       if (!courseId) return acc
       if (!acc[courseId]) acc[courseId] = { completed: 0, total: 0 }
       acc[courseId].total += 1
-      if (Number(row.progress) >= 100 || row.completed_modules?.length === row.total_modules?.length) {
+      // P1-8: Fix training completion — completed_modules is a string (status column alias), not array
+      // Only check numeric progress >= 100 or status string === 'completed'
+      if (Number(row.progress) >= 100 || row.completed_modules === 'completed') {
         acc[courseId].completed += 1
       }
       return acc
@@ -148,125 +165,176 @@ const PeopleTabContent = memo(function PeopleTabContent() {
     }).filter((course: any) => course.enrolled > 0)
   }, [trainingCourses, trainingProgress])
 
+  if (peopleError) {
+    return (
+      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+        Unable to load people data. Please try again.
+      </div>
+    )
+  }
+
+  // P1-5: Loading state
+  if (peopleLoading) {
+    return (
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div
-      className="space-y-6"
-    >
-      {/* People Statistics */}
-      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Total Employees"
-          value={userRows.length}
+          value={formatNumber(userRows.length)}
           icon={Users}
           description="Active team members"
         />
         <StatCard
           title="On Duty"
-          value={activeUsers.length}
+          value={formatNumber(activeUsers.length)}
           icon={UserCheck}
           description="Currently working"
         />
+        {/* P0-2: Fix "On Leave" → "Inactive" — is_active===false means deactivated, not on leave */}
         <StatCard
-          title="On Leave"
-          value={inactiveUsers.length}
+          title="Inactive"
+          value={formatNumber(inactiveUsers.length)}
           icon={UserX}
-          description="PTO/vacation"
+          description="Deactivated accounts"
         />
         <StatCard
           title="Avg Tenure"
-          value={avgTenureYears > 0 ? `${avgTenureYears.toFixed(1)} yrs` : "—"}
+          value={avgTenureYears > 0 ? `${avgTenureYears.toFixed(1)} yrs` : '\u2014'}
           icon={Award}
           description="Employee retention"
         />
       </div>
 
-      {/* Team Overview */}
-      <div>
+      {/* Main Content: Two columns */}
+      <div className="grid grid-cols-2 gap-1.5">
+        {/* Left Column: Team Overview */}
+        {/* P1-11: Action button placeholder for team management */}
         <Section
           title="Team Overview"
           description="Department breakdown and headcount"
-          icon={<Users className="h-5 w-5" />}
+          icon={<Users className="h-4 w-4" />}
         >
-          <div className="space-y-3">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {teamRows.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No teams configured.</div>
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              teamRows.map((dept: any) => (
-                <div key={dept.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <Users className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{dept.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Lead: {dept.team_lead_name || 'Unassigned'} · {dept.member_count || 0} members
-                      </p>
+              <div className="space-y-1.5">
+                {teamRows.map((dept: any) => (
+                  <div
+                    key={dept.id}
+                    className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                    title="Team details coming soon"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{dept.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Lead: {dept.team_lead_name || '\u2014'} -- {formatNumber(dept.member_count || 0)} members
+                        </p>
+                      </div>
                     </div>
+                    <Badge variant={dept.is_active ? 'default' : 'secondary'}>
+                      {dept.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
                   </div>
-                  <Badge variant={dept.is_active ? 'default' : 'secondary'}>
-                    {dept.is_active ? 'Active' : 'Inactive'}
-                  </Badge>
-                </div>
-              ))
-            )}
-          </div>
-        </Section>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Section
-          title="Recent Activity"
-          description="Latest HR updates"
-          icon={<Activity className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {recentActivity.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No recent activity.</div>
-            ) : (
-              recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/60 p-3">
-                  <UserPlus className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-medium">{activity.type}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {activity.name} · {activity.department}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{activity.date}</p>
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         </Section>
 
-        <Section
-          title="Training & Development"
-          description="Ongoing training programs"
-          icon={<BookOpen className="h-5 w-5" />}
-        >
-          <div className="space-y-4">
-            {trainingProgressData.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No training data available.</div>
-            ) : (
-              trainingProgressData.map((training) => (
-                <div key={training.program} className="space-y-2 rounded-xl border border-border/60 bg-background/60 p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium">{training.program}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {training.completed}/{training.enrolled} ({Math.round((training.completed / training.enrolled) * 100)}%)
-                    </p>
-                  </div>
-                  <div className="w-full bg-secondary rounded-full h-2">
+        {/* Right Column: Recently Added Users + Training */}
+        <div className="flex flex-col gap-1.5 min-h-0">
+          {/* P1-6: Renamed from "Recent Activity" to "Recently Added Users" */}
+          <Section
+            title="Recently Added Users"
+            description="Newest team members"
+            icon={<UserPlus className="h-4 w-4" />}
+          >
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {recentUsers.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {recentUsers.map((user, index) => (
                     <div
-                      className="bg-primary rounded-full h-2 transition-all"
-                      style={{ width: `${training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0}%` }}
-                    />
-                  </div>
+                      key={index}
+                      className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                      title="User details coming soon"
+                    >
+                      {/* P1-6: UserPlus for active, UserX for inactive */}
+                      {user.isActive ? (
+                        <UserPlus className="h-4 w-4 text-emerald-400 mt-0.5" />
+                      ) : (
+                        <UserX className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      )}
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-foreground">{user.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {user.department}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Added on {formatDate(user.createdAt)}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))
-            )}
-          </div>
-        </Section>
+              )}
+            </div>
+          </Section>
+
+          <Section
+            title="Training & Development"
+            description="Ongoing training programs"
+            icon={<BookOpen className="h-4 w-4" />}
+          >
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {trainingProgressData.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {trainingProgressData.map((training) => {
+                    // P1-7: Conditional progress bar colors
+                    const completionPct = training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0
+                    return (
+                      <div key={training.program} className="rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium text-foreground">{training.program}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatNumber(training.completed)}/{formatNumber(training.enrolled)} ({Math.round(completionPct)}%)
+                          </p>
+                        </div>
+                        <div className="w-full bg-white/[0.06] rounded-full h-1.5 mt-1.5">
+                          <div
+                            className={`rounded-full h-1.5 ${
+                              completionPct > 75 ? 'bg-emerald-500' :
+                              completionPct > 50 ? 'bg-amber-500' : 'bg-rose-500'
+                            }`}
+                            style={{ width: `${completionPct}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </Section>
+        </div>
       </div>
     </div>
   )
@@ -276,144 +344,207 @@ const PeopleTabContent = memo(function PeopleTabContent() {
  * Communication Tab - Messaging and announcements
  */
 const CommunicationTabContent = memo(function CommunicationTabContent() {
-  const { data: communicationLogs } = useSWR<any[]>(
+  const { data: communicationLogs, error: communicationLogsError, isLoading: commLogsLoading } = useSWR<any[]>(
     '/api/communication-logs?limit=50',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: announcements } = useSWR<any[]>(
+  const { data: announcements, error: announcementsError, isLoading: announcementsLoading } = useSWR<any[]>(
     '/api/announcements?limit=20',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: notifications } = useSWR<any>(
+  const { data: notifications, error: notificationsError, isLoading: notificationsLoading } = useSWR<any>(
     '/api/notifications?limit=50',
     rawFetcher,
     { shouldRetryOnError: false }
   )
-  const { data: teams } = useSWR<any[]>(
+  const { data: teams, error: commTeamsError, isLoading: commTeamsLoading } = useSWR<any[]>(
     '/api/internal-teams',
     fetcher,
     { shouldRetryOnError: false }
   )
+
+  const communicationError = communicationLogsError || announcementsError || notificationsError || commTeamsError
+  const communicationLoading = commLogsLoading || announcementsLoading || notificationsLoading || commTeamsLoading
 
   const messages = Array.isArray(communicationLogs) ? communicationLogs : []
   const announcementRows = Array.isArray(announcements) ? announcements : []
   const channelRows = Array.isArray(teams) ? teams : []
   const unreadCount = typeof notifications?.unread_count === 'number' ? notifications.unread_count : 0
 
+  // Compute average response time from message timestamps (proxy: avg gap between consecutive messages)
+  const avgResponseTime = useMemo(() => {
+    if (messages.length < 2) return null
+    const timestamps = messages
+      .map((m: any) => new Date(m.created_at || m.createdAt || m.timestamp).getTime())
+      .filter((t: number) => !isNaN(t))
+      .sort((a: number, b: number) => a - b)
+    if (timestamps.length < 2) return null
+    let totalGap = 0
+    for (let i = 1; i < timestamps.length; i++) {
+      totalGap += timestamps[i] - timestamps[i - 1]
+    }
+    const avgMs = totalGap / (timestamps.length - 1)
+    const avgMin = Math.round(avgMs / 60000)
+    if (avgMin < 60) return `${avgMin}m`
+    const hours = Math.round(avgMin / 60)
+    return hours < 24 ? `${hours}h` : `${Math.round(hours / 24)}d`
+  }, [messages])
+
+  if (communicationError) {
+    return (
+      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+        Unable to load communication data. Please try again.
+      </div>
+    )
+  }
+
+  // P1-5: Loading state
+  if (communicationLoading) {
+    return (
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div
-      className="space-y-6"
-    >
-      {/* Communication Statistics */}
-      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Unread Messages"
-          value={unreadCount}
+          value={formatNumber(unreadCount)}
           icon={Inbox}
           description="Team inbox"
         />
         <StatCard
           title="Active Channels"
-          value={channelRows.length}
+          value={formatNumber(channelRows.length)}
           icon={Hash}
           description="Communication channels"
         />
+        {/* P1-9: Fix "Announcements" KPI description — no date filter exists */}
         <StatCard
           title="Announcements"
-          value={announcementRows.length}
+          value={formatNumber(announcementRows.length)}
           icon={Megaphone}
-          description="This week"
+          description="Total published"
         />
         <StatCard
           title="Response Time"
-          value="—"
+          value={avgResponseTime || '\u2014'}
           icon={Clock}
           description="Avg response"
         />
       </div>
 
-      {/* Recent Messages */}
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Main Content: Two columns */}
+      <div className="grid grid-cols-2 gap-1.5">
+        {/* Left Column: Communication Log */}
+        {/* P1-11: Add "Compose" button */}
         <Section
           title="Recent Messages"
           description="Latest team communications"
-          icon={<MessageSquare className="h-5 w-5" />}
+          icon={<MessageSquare className="h-4 w-4" />}
         >
-          <div className="space-y-3">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {messages.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No recent messages.</div>
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              messages.slice(0, 5).map((msg: any) => (
-                <div key={msg.id} className={`flex items-start gap-3 rounded-xl border border-border/60 bg-background/60 p-3 ${msg.is_read ? '' : 'bg-blue-50/60 dark:bg-blue-950/40'}`}>
-                  <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium">{msg.from_address || 'System'}</p>
-                      {!msg.is_read && <Badge variant="default">New</Badge>}
+              <div className="space-y-1.5">
+                {messages.slice(0, 8).map((msg: any) => (
+                  <div
+                    key={msg.id}
+                    className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                    title="Message details coming soon"
+                  >
+                    <User className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        {/* P0-3: Fix from_address → sender_name */}
+                        <p className="text-sm font-medium text-foreground truncate">{msg.sender_name || 'System'}</p>
+                        {/* P1-12: Fix is_read badge — use status field instead of non-existent is_read */}
+                        {msg.status === 'pending' && <Badge variant="default">New</Badge>}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{msg.subject || msg.message_body || 'Message'}</p>
+                      {/* P0-3: Fix sent_at → created_at */}
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {formatDateTime(msg.created_at)}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">{msg.subject || msg.message_body || 'Message'}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {msg.sent_at ? new Date(msg.sent_at).toLocaleString() : '—'}
-                    </p>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         </Section>
 
-        <Section
-          title="Announcements"
-          description="Company-wide notifications"
-          icon={<Megaphone className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {announcementRows.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No announcements available.</div>
-            ) : (
-              announcementRows.slice(0, 5).map((announcement: any) => (
-                <div key={announcement.id} className="rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <Badge variant="secondary">{announcement.type || 'Announcement'}</Badge>
-                    <p className="text-xs text-muted-foreground">
-                      {announcement.published_at ? new Date(announcement.published_at).toLocaleDateString() : '—'}
-                    </p>
-                  </div>
-                  <p className="font-medium">{announcement.title}</p>
-                </div>
-              ))
-            )}
-          </div>
-        </Section>
-      </div>
-
-      {/* Communication Channels */}
-      <div>
-        <Section
-          title="Communication Channels"
-          description="Team channels and groups"
-          icon={<Hash className="h-5 w-5" />}
-        >
-          <div className="grid gap-3 md:grid-cols-2">
-            {channelRows.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No communication channels available.</div>
-            ) : (
-              channelRows.map((channel: any) => (
-                <div key={channel.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
-                  <div className="flex items-center gap-2">
-                    <Hash className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">#{channel.name}</p>
-                      <p className="text-sm text-muted-foreground">{channel.member_count || 0} members</p>
+        {/* Right Column: Announcements + Channels */}
+        <div className="flex flex-col gap-1.5 min-h-0">
+          <Section
+            title="Announcements"
+            description="Company-wide notifications"
+            icon={<Megaphone className="h-4 w-4" />}
+          >
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {announcementRows.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {announcementRows.slice(0, 5).map((announcement: any) => (
+                    <div key={announcement.id} className="rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                      <div className="flex items-center justify-between mb-1">
+                        <Badge variant="secondary">{formatEnum(announcement.type) || 'Announcement'}</Badge>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(announcement.published_at)}
+                        </p>
+                      </div>
+                      <p className="text-sm font-medium text-foreground">{announcement.title}</p>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))
-            )}
-          </div>
-        </Section>
+              )}
+            </div>
+          </Section>
+
+          <Section
+            title="Communication Channels"
+            description="Team channels and groups"
+            icon={<Hash className="h-4 w-4" />}
+          >
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {channelRows.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {channelRows.map((channel: any) => (
+                    <div
+                      key={channel.id}
+                      className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                      title="Channel details coming soon"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Hash className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">#{channel.name}</p>
+                          <p className="text-xs text-muted-foreground">{formatNumber(channel.member_count || 0)} members</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Section>
+        </div>
       </div>
     </div>
   )
@@ -423,14 +554,51 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
  * Work Tab - Tasks, schedules, and collaboration
  */
 const WorkTabContent = memo(function WorkTabContent() {
-  const { data: tasks } = useSWR<any[]>(
+  const { push } = useDrilldown()
+  const { data: tasks, error: tasksError, isLoading: tasksLoading } = useSWR<any[]>(
     '/api/tasks?limit=200',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const taskRows = Array.isArray(tasks) ? tasks : []
+  // Calendar events for upcoming meetings
   const now = new Date()
+  const calendarKey = useMemo(() => {
+    const start = new Date()
+    start.setHours(0, 0, 0, 0)
+    const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000)
+    return `/api/calendar/events?startDate=${start.toISOString()}&endDate=${end.toISOString()}`
+  }, [])
+  const { data: calendarData } = useSWR<any>(
+    calendarKey,
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const meetings = useMemo(() => {
+    const events = Array.isArray(calendarData?.events) ? calendarData.events : (Array.isArray(calendarData) ? calendarData : [])
+    return events
+      .filter((e: any) => e.event_type === 'meeting' || e.event_type === 'conference' || e.subject || e.attendees)
+      .slice(0, 5)
+  }, [calendarData])
+
+  // Meeting detail dialog
+  const [selectedMeeting, setSelectedMeeting] = useState<any>(null)
+
+  const handleJoinMeeting = (meeting: any) => {
+    const meetingUrl = meeting.onlineMeetingUrl || meeting.online_meeting_url || meeting.location
+    if (meetingUrl && (meetingUrl.startsWith('http://') || meetingUrl.startsWith('https://'))) {
+      window.open(meetingUrl, '_blank', 'noopener,noreferrer')
+    } else {
+      // Show meeting details dialog if no URL available
+      setSelectedMeeting(meeting)
+    }
+  }
+
+  // P0-4: Add Task dialog state
+  const [showAddTask, setShowAddTask] = useState(false)
+  const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'medium', status: 'pending' })
+
+  const taskRows = Array.isArray(tasks) ? tasks : []
 
   const activeTasks = taskRows.filter((task: any) => (task.status || '').toLowerCase() !== 'completed')
   const completedThisWeek = taskRows.filter((task: any) => {
@@ -445,10 +613,17 @@ const WorkTabContent = memo(function WorkTabContent() {
     return due.getTime() >= now.getTime() && due.getTime() <= now.getTime() + 7 * 24 * 60 * 60 * 1000
   })
 
-  const productivity = taskRows.length > 0
-    ? Math.round((completedThisWeek.length / taskRows.length) * 100)
-    : 0
+  // P1-10: Fix productivity calculation — use tasks due this week as denominator
+  const dueThisWeek = taskRows.filter((task: any) => {
+    if (!task.dueDate) return false
+    const due = new Date(task.dueDate)
+    return due.getTime() >= now.getTime() - 7 * 24 * 60 * 60 * 1000 && due.getTime() <= now.getTime() + 7 * 24 * 60 * 60 * 1000
+  })
+  const productivity = dueThisWeek.length > 0
+    ? Math.round((completedThisWeek.length / dueThisWeek.length) * 100)
+    : (taskRows.length > 0 ? Math.round((completedThisWeek.length / taskRows.length) * 100) : 0)
 
+  // P1-13: Cap tasks at 5 per column
   const taskColumns = useMemo(() => {
     const columns = [
       { status: 'To Do', key: 'pending' },
@@ -461,119 +636,341 @@ const WorkTabContent = memo(function WorkTabContent() {
       return {
         ...column,
         count: tasksForColumn.length,
-        tasks: tasksForColumn.slice(0, 3)
+        tasks: tasksForColumn.slice(0, 5)
       }
     })
   }, [taskRows])
 
-  // Handler for joining meetings
-  const handleJoinMeeting = (eventName: string) => {
-    // NOTE: Real meeting join (Teams/Outlook integration) coming in next release
-    toast.error(`Meeting join functionality will be available in the next release`)
-    logger.info('Join meeting clicked:', eventName)
+  const handleViewTask = (task: any) => {
+    push({
+      id: task.id,
+      type: 'task',
+      label: task.title,
+      data: { taskId: task.id, status: task.status, priority: task.priority, dueDate: task.dueDate },
+    })
+  }
+
+  // P0-4: Create task handler
+  const handleCreateTask = async () => {
+    if (!newTask.title.trim()) {
+      toast.error('Task title is required')
+      return
+    }
+    try {
+      const res = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(newTask)
+      })
+      if (res.ok) {
+        toast.success('Task created')
+        setShowAddTask(false)
+        setNewTask({ title: '', description: '', priority: 'medium', status: 'pending' })
+        mutate('/api/tasks?limit=200')
+      } else {
+        toast.error('Failed to create task')
+      }
+    } catch {
+      toast.error('Failed to create task')
+    }
+  }
+
+  if (tasksError) {
+    return (
+      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+        Unable to load tasks data. Please try again.
+      </div>
+    )
+  }
+
+  // P1-5: Loading state
+  if (tasksLoading) {
+    return (
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div
-      className="space-y-6"
-    >
-      {/* Work Statistics */}
-      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Active Tasks"
-          value={activeTasks.length}
+          value={formatNumber(activeTasks.length)}
           icon={CheckSquare}
           description="Assigned to team"
         />
         <StatCard
           title="Completed This Week"
-          value={completedThisWeek.length}
+          value={formatNumber(completedThisWeek.length)}
           icon={Target}
           description="Task completion"
         />
         <StatCard
           title="Upcoming Deadlines"
-          value={upcomingDeadlines.length}
+          value={formatNumber(upcomingDeadlines.length)}
           icon={Calendar}
           description="Next 7 days"
         />
+        {/* P1-10: Renamed to "Weekly Completion Rate" */}
         <StatCard
-          title="Team Productivity"
-          value={productivity > 0 ? `${productivity}%` : "—"}
+          title="Weekly Completion Rate"
+          value={`${productivity}%`}
           icon={TrendingUp}
-          description="Task completion rate"
+          description="Of all tasks"
         />
       </div>
 
-      {/* Task Board */}
-      <div>
+      {/* Main Content: Two columns */}
+      <div className="grid grid-cols-2 gap-1.5">
+        {/* Left Column: Task Board */}
+        {/* P0-4: Add Task button in Section actions */}
         <Section
           title="Task Board"
           description="Team tasks organized by status"
-          icon={<CheckSquare className="h-5 w-5" />}
+          icon={<CheckSquare className="h-4 w-4" />}
+          actions={
+            <Button size="sm" variant="outline" onClick={() => setShowAddTask(true)}>
+              <Plus className="h-3 w-3 mr-1" /> Add Task
+            </Button>
+          }
         >
-          <div className="grid gap-2 md:grid-cols-3">
-            {taskColumns.map((column) => (
-              <div key={column.status} className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">{column.status}</h3>
-                  <Badge variant="outline">{column.count}</Badge>
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="grid grid-cols-3 gap-1.5">
+              {taskColumns.map((column) => (
+                <div key={column.status}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <h3 className="text-xs font-semibold text-foreground">{column.status}</h3>
+                    <Badge variant="outline" className="text-[10px]">{formatNumber(column.count)}</Badge>
+                  </div>
+                  <div className="space-y-1">
+                    {column.tasks.length === 0 ? (
+                      <div className="text-xs text-muted-foreground">No tasks</div>
+                    ) : (
+                      column.tasks.map((task: any) => {
+                        // P1-13: Show due date, color red if overdue
+                        const dueDate = task.dueDate ? new Date(task.dueDate) : null
+                        const isOverdue = dueDate ? dueDate.getTime() < now.getTime() : false
+                        return (
+                          <div
+                            key={task.id}
+                            className="rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04]"
+                            onClick={() => push({
+                              id: task.id,
+                              type: 'task',
+                              label: task.title,
+                              data: { taskId: task.id, status: task.status, priority: task.priority, assignedTo: task.assignedToId },
+                            })}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault()
+                                push({
+                                  id: task.id,
+                                  type: 'task',
+                                  label: task.title,
+                                  data: { taskId: task.id, status: task.status, priority: task.priority, assignedTo: task.assignedToId },
+                                })
+                              }
+                            }}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`View details for task: ${task.title}`}
+                          >
+                            <p className="text-xs font-medium text-foreground">{task.title}</p>
+                            <div className="flex items-center justify-between mt-1">
+                              <Badge variant={
+                                task.priority === 'high' || task.priority === 'urgent' ? 'destructive' :
+                                task.priority === 'medium' ? 'secondary' : 'outline'
+                              } className="text-[10px]">
+                                {formatEnum(task.priority || 'low')}
+                              </Badge>
+                            </div>
+                            {dueDate && (
+                              <p className={`text-[10px] mt-1 ${isOverdue ? 'text-rose-400' : 'text-muted-foreground'}`}>
+                                {isOverdue ? 'Overdue: ' : 'Due: '}{formatDate(task.dueDate)}
+                              </p>
+                            )}
+                          </div>
+                        )
+                      })
+                    )}
+                    {/* P1-13: "View All" link when more tasks exist */}
+                    {column.count > 5 && (
+                      <button
+                        className="text-xs text-emerald-400 hover:underline w-full text-center py-1"
+                        onClick={() => push({
+                          id: `tasks-${column.key}`,
+                          type: 'tasks',
+                          label: column.status,
+                          data: { filter: column.key },
+                        })}
+                      >
+                        View All ({formatNumber(column.count)})
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  {column.tasks.length === 0 ? (
-                    <div className="text-xs text-muted-foreground">No tasks</div>
-                  ) : (
-                    column.tasks.map((task: any) => (
-                      <div key={task.id} className="rounded-xl border border-border/60 bg-background/60 p-3">
-                        <p className="font-medium text-sm">{task.title}</p>
-                        <div className="flex items-center justify-between mt-2">
-                          <p className="text-xs text-muted-foreground">{task.assignedToId || 'Unassigned'}</p>
-                          <Badge variant={
-                            task.priority === 'high' ? 'destructive' :
-                            task.priority === 'medium' ? 'secondary' : 'outline'
-                          } className="text-xs">
-                            {task.priority || 'low'}
-                          </Badge>
+              ))}
+            </div>
+          </div>
+        </Section>
+
+        {/* Right Column: Upcoming Deadlines */}
+        <div className="flex flex-col gap-1.5 min-h-0">
+          {/* P1-13: Rename "This Week's Schedule" to "Upcoming Deadlines" */}
+          <Section
+            title="Upcoming Deadlines"
+            description="Tasks due in the next 7 days"
+            icon={<Calendar className="h-4 w-4" />}
+          >
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {upcomingDeadlines.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {upcomingDeadlines.slice(0, 5).map((item: any) => (
+                    <div key={item.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{item.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Due {formatDateTime(item.dueDate)}
+                          </p>
                         </div>
                       </div>
-                    ))
-                  )}
+                      <Button variant="outline" size="sm" onClick={() => handleViewTask(item)}>View</Button>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            ))}
-          </div>
-        </Section>
+              )}
+            </div>
+          </Section>
+
+          {/* Upcoming Meetings */}
+          <Section
+            title="Upcoming Meetings"
+            description="Scheduled meetings this week"
+            icon={<Video className="h-4 w-4" />}
+          >
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {meetings.length === 0 ? (
+                <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No upcoming meetings</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {meetings.map((meeting: any) => (
+                    <div key={meeting.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                      <div className="flex items-center gap-2">
+                        <Video className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{meeting.subject || meeting.title || 'Meeting'}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDateTime(meeting.start || meeting.start_time)}
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => handleJoinMeeting(meeting)}>
+                        {(meeting.onlineMeetingUrl || meeting.online_meeting_url || (meeting.location && meeting.location.startsWith('http'))) ? (
+                          <><ExternalLink className="h-3 w-3 mr-1" />Join</>
+                        ) : (
+                          'Details'
+                        )}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Section>
+        </div>
       </div>
 
-      {/* Schedule */}
-      <div>
-        <Section
-          title="This Week's Schedule"
-          description="Important meetings and deadlines"
-          icon={<Calendar className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {upcomingDeadlines.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No upcoming deadlines.</div>
-            ) : (
-              upcomingDeadlines.slice(0, 5).map((item: any) => (
-                <div key={item.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{item.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Due {item.dueDate ? new Date(item.dueDate).toLocaleString() : '—'}
-                      </p>
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => handleJoinMeeting(item.title)}>View</Button>
-                </div>
-              ))
+      {/* Meeting Details Dialog */}
+      <Dialog open={!!selectedMeeting} onOpenChange={(open) => { if (!open) setSelectedMeeting(null); }}>
+        <DialogContent className="bg-[#242424] border-white/[0.08]">
+          <DialogHeader>
+            <DialogTitle>{selectedMeeting?.subject || selectedMeeting?.title || 'Meeting Details'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div>
+              <p className="text-muted-foreground text-xs">Time</p>
+              <p className="text-foreground">{formatDateTime(selectedMeeting?.start || selectedMeeting?.start_time)} - {formatDateTime(selectedMeeting?.end || selectedMeeting?.end_time)}</p>
+            </div>
+            {selectedMeeting?.location && (
+              <div>
+                <p className="text-muted-foreground text-xs">Location</p>
+                <p className="text-foreground">{selectedMeeting.location}</p>
+              </div>
+            )}
+            {selectedMeeting?.description && (
+              <div>
+                <p className="text-muted-foreground text-xs">Description</p>
+                <p className="text-foreground text-xs">{selectedMeeting.description}</p>
+              </div>
+            )}
+            {selectedMeeting?.attendees && (
+              <div>
+                <p className="text-muted-foreground text-xs">Attendees</p>
+                <p className="text-foreground text-xs">
+                  {Array.isArray(selectedMeeting.attendees)
+                    ? selectedMeeting.attendees.map((a: any) => typeof a === 'string' ? a : (a.name || a.email || '')).join(', ')
+                    : String(selectedMeeting.attendees)
+                  }
+                </p>
+              </div>
             )}
           </div>
-        </Section>
-      </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedMeeting(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* P0-4: Add Task Dialog */}
+      <Dialog open={showAddTask} onOpenChange={setShowAddTask}>
+        <DialogContent className="bg-[#242424] border-white/[0.08]">
+          <DialogHeader>
+            <DialogTitle>Create Task</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              placeholder="Task title"
+              value={newTask.title}
+              onChange={e => setNewTask(p => ({...p, title: e.target.value}))}
+              className="bg-[#1a1a1a] border-white/[0.08]"
+            />
+            <Input
+              placeholder="Description"
+              value={newTask.description}
+              onChange={e => setNewTask(p => ({...p, description: e.target.value}))}
+              className="bg-[#1a1a1a] border-white/[0.08]"
+            />
+            <select
+              className="w-full rounded-md bg-[#1a1a1a] border border-white/[0.08] text-white/80 p-2 text-sm"
+              value={newTask.priority}
+              onChange={e => setNewTask(p => ({...p, priority: e.target.value}))}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddTask(false)}>Cancel</Button>
+            <Button onClick={handleCreateTask}>Create</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 })
@@ -590,9 +987,10 @@ export default function PeopleCommunicationHub() {
       title="People & Communication"
       description="Team management, internal communication, and work coordination"
       icon={Users}
+      className="cta-hub"
     >
-      <div className="space-y-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="people" className="flex items-center gap-2" data-testid="hub-tab-people">
               <Users className="h-4 w-4" />
@@ -604,26 +1002,26 @@ export default function PeopleCommunicationHub() {
             </TabsTrigger>
             <TabsTrigger value="work" className="flex items-center gap-2" data-testid="hub-tab-work">
               <Briefcase className="h-4 w-4" />
-              <span className="hidden sm:inline">Work</span>
+              <span className="hidden sm:inline">Tasks</span>
             </TabsTrigger>
           </TabsList>
 
-              <TabsContent value="people" className="mt-6">
-                <ErrorBoundary>
+              <TabsContent value="people" className="flex-1 min-h-0 overflow-y-auto">
+                <QueryErrorBoundary>
                   <PeopleTabContent />
-                </ErrorBoundary>
+                </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="communication" className="mt-6">
-                <ErrorBoundary>
+              <TabsContent value="communication" className="flex-1 min-h-0 overflow-y-auto">
+                <QueryErrorBoundary>
                   <CommunicationTabContent />
-                </ErrorBoundary>
+                </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="work" className="mt-6">
-                <ErrorBoundary>
+              <TabsContent value="work" className="flex-1 min-h-0 overflow-y-auto">
+                <QueryErrorBoundary>
                   <WorkTabContent />
-                </ErrorBoundary>
+                </QueryErrorBoundary>
               </TabsContent>
         </Tabs>
       </div>

@@ -158,7 +158,7 @@ export function ThemeSelector({ onThemeChange }: ThemeSelectorProps) {
               </div>
               <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <div className="text-sm font-semibold text-blue-900">
-                  Level: {currentTheme.wcagLevel || 'N/A'}
+                  Level: {currentTheme.wcagLevel || '—'}
                 </div>
               </div>
             </div>
@@ -167,8 +167,8 @@ export function ThemeSelector({ onThemeChange }: ThemeSelectorProps) {
               <div className="space-y-2">
                 <h4 className="font-semibold text-sm">Issues Found:</h4>
                 <ul className="space-y-1">
-                  {contrastValidation.issues.map((issue: string, idx: number) => (
-                    <li key={idx} className="text-xs text-destructive flex items-start gap-2">
+                  {contrastValidation.issues.map((issue: string) => (
+                    <li key={issue} className="text-xs text-destructive flex items-start gap-2">
                       <span className="mt-0.5">•</span>
                       <span>{issue}</span>
                     </li>

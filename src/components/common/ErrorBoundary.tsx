@@ -142,14 +142,19 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       componentName: this.props.componentName,
     };
 
-    fetch('/api/log-error', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(errorData),
-    }).catch((fetchError) => {
-      // Silently fail - error already captured by Sentry
-      logger.warn('[ErrorBoundary] Failed to send error to API:', fetchError);
-    });
+    // Error logging endpoint not registered — Sentry captures errors server-side.
+    // Fire-and-forget to /api/monitoring/errors; silently ignore if route doesn't exist.
+    try {
+      fetch('/api/monitoring/errors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(errorData),
+      }).catch(() => {
+        // Silently fail - error already captured by Sentry
+      });
+    } catch {
+      // Silently fail
+    }
 
     logger.error('[ErrorBoundary] Error reported to monitoring:', errorData);
   };

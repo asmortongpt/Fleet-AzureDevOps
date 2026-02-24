@@ -320,7 +320,7 @@ router.use((error: Error, req: Request, res: Response, next: NextFunction) => {
 
   res.status(500).json({
     error: 'Internal Server Error',
-    message: error.message || 'An error occurred during damage detection'
+    message: 'An error occurred during damage detection'
   });
 });
 

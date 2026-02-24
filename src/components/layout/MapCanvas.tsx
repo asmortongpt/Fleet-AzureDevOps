@@ -16,8 +16,8 @@ function MapLoadingFallback() {
     <div className="absolute inset-0 flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
         <div className="relative w-10 h-10">
-          <div className="absolute inset-0 border-2 border-[#F0A000]/20 rounded-full" />
-          <div className="absolute inset-0 border-2 border-[#F0A000] border-t-transparent rounded-full animate-spin" />
+          <div className="absolute inset-0 border-2 border-white/10 rounded-full" />
+          <div className="absolute inset-0 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
         </div>
         <span className="text-xs text-muted-foreground tracking-widest uppercase">Loading Map</span>
       </div>

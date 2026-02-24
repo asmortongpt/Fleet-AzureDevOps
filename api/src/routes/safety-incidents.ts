@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 17: Add Winston logger
 import { pool } from '../db/connection';
@@ -9,6 +10,43 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { applyFieldMasking } from '../utils/fieldMasking'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const createSafetyIncidentSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  incident_type: z.string().max(100).optional(),
+  type: z.string().max(100).optional(),
+  severity: z.string().max(50).optional(),
+  status: z.string().max(50).optional(),
+  description: z.string().max(5000).optional(),
+  location: z.string().max(500).optional(),
+  incident_date: z.string().optional(),
+  resolution: z.string().max(5000).optional(),
+  resolution_date: z.string().optional(),
+  notes: z.string().max(5000).optional(),
+  corrective_action: z.string().max(5000).optional(),
+  root_cause: z.string().max(5000).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
+
+const safetyIncidentUpdateSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  incident_type: z.string().optional(),
+  type: z.string().optional(),
+  severity: z.string().optional(),
+  status: z.string().optional(),
+  description: z.string().optional(),
+  location: z.string().optional(),
+  incident_date: z.string().optional(),
+  reported_by_id: z.union([z.string(), z.number()]).optional(),
+  resolution: z.string().optional(),
+  resolution_date: z.string().optional(),
+  notes: z.string().optional(),
+  corrective_action: z.string().optional(),
+  root_cause: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
 
 
 const router = express.Router()
@@ -111,7 +149,11 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'safety_incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createSafetyIncidentSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
 
       // Auto-generate incident number (shared with incidents table)
       const numberResult = await pool.query(
@@ -154,7 +196,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'safety_incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = safetyIncidentUpdateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
@@ -234,7 +280,7 @@ router.delete(
         throw new NotFoundError("SafetyIncidents not found")
       }
 
-      res.json({ message: 'SafetyIncidents deleted successfully' })
+      res.json({ success: true, message: 'SafetyIncidents deleted successfully' })
     } catch (error) {
       logger.error('Delete safety-incidents error:', error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Internal server error' })

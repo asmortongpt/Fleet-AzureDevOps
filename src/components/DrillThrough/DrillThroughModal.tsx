@@ -1,9 +1,11 @@
 import { X, Filter, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import { useDrillThrough } from '../../hooks/drill-through/useDrillThrough';
 import type { DrillThroughConfig, ExportFormat } from '../../types/drill-through';
 
+import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface DrillThroughModalProps {
@@ -75,7 +77,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
       await exportData(format);
     } catch (err) {
       logger.error('Export failed:', err);
-      alert('Export failed. Please try again.');
+      toast.error('Export failed. Please try again.');
     }
   };
 
@@ -99,6 +101,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
           <button
             onClick={onClose}
             className="text-gray-700 hover:text-slate-700 dark:hover:text-gray-300 transition-colors"
+            aria-label="Close"
           >
             <X className="w-4 h-4" />
           </button>
@@ -168,7 +171,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
                     {key.replace(/_/g, ' ')}
                   </p>
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {typeof value === 'number' ? value.toLocaleString() : value}
+                    {typeof value === 'number' ? formatNumber(value) : value}
                   </p>
                 </div>
               ))}
@@ -256,13 +259,14 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
             <p className="text-sm text-slate-700 dark:text-gray-700">
               Showing {((page - 1) * (data.pageSize ?? 0)) + 1} to{' '}
               {Math.min(page * (data.pageSize ?? 0), data.totalCount ?? 0)} of{' '}
-              {(data.totalCount ?? 0).toLocaleString()} records
+              {formatNumber(data.totalCount ?? 0)} records
             </p>
             <div className="flex items-center gap-2">
               <button
                 onClick={previousPage}
                 disabled={page === 1}
                 className="px-3 py-2 rounded bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Previous page"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -273,6 +277,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
                 onClick={nextPage}
                 disabled={page === data.totalPages}
                 className="px-3 py-2 rounded bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Next page"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -290,14 +295,11 @@ function formatValue(value: unknown, type?: string): string {
 
   switch (type) {
     case 'date':
-      return new Date(value as string | Date).toLocaleDateString();
+      return formatDate(value as string | Date);
     case 'currency':
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(value as number);
+      return formatCurrency(value as number);
     case 'number':
-      return typeof value === 'number' ? value.toLocaleString() : String(value);
+      return typeof value === 'number' ? formatNumber(value) : String(value);
     case 'boolean':
       return value ? 'Yes' : 'No';
     default:

@@ -63,7 +63,7 @@ export function SearchHistory({
         <div className="space-y-1">
           {displayedHistory.map((item, index) => (
             <div
-              key={index}
+              key={item.query}
               className="group flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
             >
               <button

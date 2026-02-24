@@ -9,6 +9,7 @@ import React, { useState } from "react";
 
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
+import { EmailButton } from "@/components/email/EmailButton";
 import { Input } from "../../ui/input";
 import {
     Sheet,
@@ -21,6 +22,7 @@ import {
 import { useDrilldown } from "@/contexts/DrilldownContext";
 import { useFleetData } from "@/hooks/use-fleet-data";
 import { brandColors } from "@/theme/designSystem"
+import { formatEnum } from "@/utils/format-enum"
 
 interface DriverRosterProps {
     open: boolean;
@@ -127,11 +129,11 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                             <h4 className="font-medium text-sm">{driver.name}</h4>
                                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                                 <Badge variant="outline" className="h-5 px-1.5">
-                                                    {driver.licenseType || 'N/A'}
+                                                    {driver.licenseType || '—'}
                                                 </Badge>
                                                 <span className={`flex items-center gap-1 ${driver.status === 'active' ? 'text-green-500' : 'text-gray-700'
                                                     }`}>
-                                                    • {driver.status}
+                                                    • {formatEnum(driver.status)}
                                                 </span>
                                             </div>
                                         </div>
@@ -144,18 +146,20 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                             className="h-8 w-8"
                                             onClick={() => window.location.href = `tel:${driver.phone}`}
                                             title="Call"
+                                            aria-label={`Call ${driver.name}`}
                                         >
                                             <Phone className="w-4 h-4" />
                                         </Button>
-                                        <Button
-                                            size="icon"
+                                        <EmailButton
+                                            to={driver.email}
+                                            context={{
+                                                type: 'driver_notice',
+                                                recipientName: driver.name,
+                                            }}
                                             variant="ghost"
                                             className="h-8 w-8"
-                                            onClick={() => window.location.href = `mailto:${driver.email}`}
-                                            title="Email"
-                                        >
-                                            <Mail className="w-4 h-4" />
-                                        </Button>
+                                            ariaLabel={`Email ${driver.name}`}
+                                        />
                                     </div>
                                 </div>
                             ))
@@ -184,18 +188,20 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                         className="h-8 w-8"
                                         onClick={() => window.location.href = `tel:${member.phone}`}
                                         title="Call"
+                                        aria-label={`Call ${member.name}`}
                                     >
                                         <Phone className="w-4 h-4" />
                                     </Button>
-                                    <Button
-                                        size="icon"
+                                    <EmailButton
+                                        to={member.email}
+                                        context={{
+                                            type: 'general',
+                                            recipientName: member.name,
+                                        }}
                                         variant="ghost"
                                         className="h-8 w-8"
-                                        onClick={() => window.location.href = `mailto:${member.email}`}
-                                        title="Email"
-                                    >
-                                        <Mail className="w-4 h-4" />
-                                    </Button>
+                                        ariaLabel={`Email ${member.name}`}
+                                    />
                                 </div>
                             </div>
                         ))

@@ -18,6 +18,7 @@ import { useCallback, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 import { DamagePoint, DamageSeverity } from './DamageOverlay'
+import { formatCurrency } from '@/utils/format-helpers'
 
 // =============================================================================
 // TYPES
@@ -138,19 +139,19 @@ export function DamageCreationPanel({
     const estimatedCost = calculateCost(config.damageType, config.severity)
 
     return (
-        <div className="absolute top-4 right-4 w-80 bg-slate-900/95 backdrop-blur-sm rounded-md border border-slate-700 shadow-sm z-50">
+        <div className="absolute top-4 right-4 w-80 bg-[#111]/95 backdrop-blur-sm rounded-md border border-white/[0.08] shadow-sm z-50">
             {/* Header */}
-            <div className="p-2 border-b border-slate-700">
+            <div className="p-2 border-b border-white/[0.08]">
                 <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-white">Add Damage Point</h3>
                     <button
                         onClick={onCancel}
-                        className="text-slate-700 hover:text-white transition-colors"
+                        className="text-white/40 hover:text-white transition-colors"
                     >
                         ✕
                     </button>
                 </div>
-                <p className="text-xs text-slate-700 mt-1">
+                <p className="text-xs text-white/40 mt-1">
                     {pendingPosition
                         ? 'Configure damage details below'
                         : 'Click on vehicle to place damage marker'}
@@ -160,7 +161,7 @@ export function DamageCreationPanel({
             {/* Damage Type Selector */}
             <div className="p-2 space-y-2">
                 <div>
-                    <label className="block text-xs text-slate-700 mb-2 uppercase tracking-wider">
+                    <label className="block text-xs text-white/40 mb-2 uppercase tracking-wider">
                         Damage Type
                     </label>
                     <div className="grid grid-cols-3 gap-2">
@@ -170,8 +171,8 @@ export function DamageCreationPanel({
                                     key={type}
                                     onClick={() => onChange({ ...config, damageType: type })}
                                     className={`p-2 rounded-lg border text-center transition-all ${config.damageType === type
-                                            ? 'bg-blue-600 border-blue-500 text-white'
-                                            : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                                            ? 'bg-emerald-600 border-emerald-500 text-white'
+                                            : 'bg-[#242424] border-white/[0.08] text-white/60 hover:bg-white/[0.06]'
                                         }`}
                                 >
                                     <span className="text-sm">{cfg.icon}</span>
@@ -185,7 +186,7 @@ export function DamageCreationPanel({
                 {/* Severity Slider */}
                 <div>
                     <div className="flex items-center justify-between mb-2">
-                        <label className="text-xs text-slate-700 uppercase tracking-wider">
+                        <label className="text-xs text-white/40 uppercase tracking-wider">
                             Severity
                         </label>
                         <span className={`text-sm font-bold ${config.severity <= 2 ? 'text-green-400' :
@@ -204,7 +205,7 @@ export function DamageCreationPanel({
                         onChange={(e) => onChange({ ...config, severity: Number(e.target.value) })}
                         className="w-full h-2 bg-gradient-to-r from-green-500 via-yellow-500 via-orange-500 to-red-500 rounded-lg appearance-none cursor-pointer"
                     />
-                    <div className="flex justify-between text-[10px] text-gray-800 mt-1">
+                    <div className="flex justify-between text-[10px] text-white/30 mt-1">
                         <span>Minor</span>
                         <span>Critical</span>
                     </div>
@@ -212,13 +213,13 @@ export function DamageCreationPanel({
 
                 {/* Zone Selector */}
                 <div>
-                    <label className="block text-xs text-slate-700 mb-2 uppercase tracking-wider">
+                    <label className="block text-xs text-white/40 mb-2 uppercase tracking-wider">
                         Vehicle Zone
                     </label>
                     <select
                         value={config.zone}
                         onChange={(e) => onChange({ ...config, zone: e.target.value })}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+                        className="w-full bg-[#242424] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500"
                     >
                         {VEHICLE_ZONES.map((zone) => (
                             <option key={zone} value={zone}>{zone}</option>
@@ -228,24 +229,24 @@ export function DamageCreationPanel({
 
                 {/* Description */}
                 <div>
-                    <label className="block text-xs text-slate-700 mb-2 uppercase tracking-wider">
+                    <label className="block text-xs text-white/40 mb-2 uppercase tracking-wider">
                         Description
                     </label>
                     <textarea
                         value={config.description}
                         onChange={(e) => onChange({ ...config, description: e.target.value })}
                         placeholder="Describe the damage..."
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
+                        className="w-full bg-[#242424] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500 resize-none"
                         rows={2}
                     />
                 </div>
 
                 {/* Cost Estimate */}
-                <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+                <div className="bg-[#242424]/50 rounded-lg p-3 border border-white/[0.08]">
                     <div className="flex items-center justify-between">
-                        <span className="text-slate-700 text-sm">Estimated Repair Cost</span>
+                        <span className="text-white/40 text-sm">Estimated Repair Cost</span>
                         <span className="text-sm font-bold text-green-400">
-                            ${estimatedCost.toLocaleString()}
+                            {formatCurrency(estimatedCost)}
                         </span>
                     </div>
                 </div>
@@ -254,7 +255,7 @@ export function DamageCreationPanel({
                 <div className="flex gap-2">
                     <button
                         onClick={onCancel}
-                        className="flex-1 px-2 py-2 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-800 transition-colors"
+                        className="flex-1 px-2 py-2 rounded-lg border border-white/[0.12] text-white/60 hover:bg-[#242424] transition-colors"
                     >
                         Cancel
                     </button>
@@ -262,8 +263,8 @@ export function DamageCreationPanel({
                         onClick={onConfirm}
                         disabled={!pendingPosition}
                         className={`flex-1 px-2 py-2 rounded-lg font-medium transition-colors ${pendingPosition
-                                ? 'bg-blue-600 text-white hover:bg-blue-500'
-                                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                                ? 'bg-emerald-600 text-white hover:bg-emerald-500'
+                                : 'bg-white/[0.06] text-white/30 cursor-not-allowed'
                             }`}
                     >
                         Add Damage
@@ -314,7 +315,7 @@ export function PendingDamageMarker({ position, severity }: PendingDamageMarkerP
 
             {/* Label */}
             <Html position={[0, 0.25, 0]} center>
-                <div className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap animate-pulse">
+                <div className="bg-emerald-600 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap animate-pulse">
                     Click to confirm
                 </div>
             </Html>

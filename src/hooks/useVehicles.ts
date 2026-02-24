@@ -16,6 +16,23 @@ export interface Vehicle {
   location: string
 }
 
+/** Unwrap API response that may be { data: T } or { success: true, data: T } */
+function unwrap<T>(payload: unknown): T {
+  if (payload && typeof payload === 'object' && 'data' in payload) {
+    return (payload as { data: T }).data
+  }
+  return payload as T
+}
+
+function unwrapArray<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) return payload as T[]
+  if (payload && typeof payload === 'object') {
+    const data = (payload as { data?: unknown }).data
+    if (Array.isArray(data)) return data as T[]
+  }
+  return []
+}
+
 export function useVehicles(params?: {
   page?: number
   pageSize?: number
@@ -25,8 +42,8 @@ export function useVehicles(params?: {
   return useQuery({
     queryKey: ['vehicles', params],
     queryFn: async () => {
-      const response = await api.get('/vehicles', params) as Vehicle[]
-      return response ?? []
+      const response = await api.get('/vehicles', params)
+      return unwrapArray<Vehicle>(response)
     },
   })
 }
@@ -35,8 +52,8 @@ export function useVehicle(id: number) {
   return useQuery({
     queryKey: ['vehicle', id],
     queryFn: async () => {
-      const response = await (api.get as <T>(endpoint: string) => Promise<T>)<Vehicle>(`/vehicles/${id}`)
-      return response
+      const response = await api.get(`/vehicles/${id}`)
+      return unwrap<Vehicle>(response)
     },
     enabled: !!id,
   })
@@ -47,8 +64,8 @@ export function useCreateVehicle() {
 
   return useMutation({
     mutationFn: async (data: Partial<Vehicle>) => {
-      const response = await (api.post as <T>(endpoint: string, data: unknown) => Promise<T>)<Vehicle>('/vehicles', data)
-      return response
+      const response = await api.post('/vehicles', data)
+      return unwrap<Vehicle>(response)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] })
@@ -61,8 +78,8 @@ export function useUpdateVehicle() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<Vehicle> }) => {
-      const response = await (api.put as <T>(endpoint: string, data: unknown) => Promise<T>)<Vehicle>(`/vehicles/${id}`, data)
-      return response
+      const response = await api.put(`/vehicles/${id}`, data)
+      return unwrap<Vehicle>(response)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] })

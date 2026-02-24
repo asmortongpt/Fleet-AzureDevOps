@@ -20,14 +20,32 @@ import { logger } from '../utils/logger';
  */
 export function handleUnhandledRejection(): void {
   process.on('unhandledRejection', (reason: unknown, promise: Promise<any>) => {
+    const error = reason instanceof Error ? reason : new Error(String(reason));
+    const errorMessage = error.message || '';
+    const errorStack = error.stack || '';
+
+    // Known non-fatal rejections from OpenTelemetry instrumentation when OpenAI
+    // returns errors (401, 429, etc.) — log and continue, don't crash the server
+    const isOpenTelemetryInstrumentationError =
+      errorStack.includes('instrumentation-openai') ||
+      errorStack.includes('instrumentation.ts') ||
+      (errorMessage.includes("Cannot read properties of undefined (reading 'record')") &&
+       errorStack.includes('opentelemetry'));
+
+    if (isOpenTelemetryInstrumentationError) {
+      logger.warn('Non-fatal OpenTelemetry instrumentation error (suppressed)', {
+        reason: errorMessage
+      });
+      return;
+    }
+
     logger.error('FATAL: Unhandled Promise Rejection', {
-      reason: reason instanceof Error ? reason.message : String(reason),
-      stack: reason instanceof Error ? reason.stack : undefined,
+      reason: errorMessage,
+      stack: errorStack,
       promise: promise.toString()
     });
 
     // Track in Application Insights
-    const error = reason instanceof Error ? reason : new Error(String(reason));
     telemetryService.trackError(error, {
       errorType: 'UnhandledRejection',
       isOperational: false,

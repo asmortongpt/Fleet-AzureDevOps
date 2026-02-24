@@ -1,0 +1,26 @@
+# Vehicle Scanner Pipeline — Python ML dependencies
+# Install: pip install -r requirements.txt
+
+# --- Core API ---
+fastapi>=0.115,<0.116
+uvicorn[standard]>=0.34,<0.35
+python-multipart>=0.0.18,<0.1
+aiofiles>=24.0,<25.0
+pydantic>=2.10,<3.0
+
+# --- ML / Vision ---
+ultralytics>=8.3,<9.0          # YOLOv8 object detection
+rembg>=2.0,<3.0                # Background removal (U2-Net)
+opencv-python-headless>=4.10,<5.0
+scikit-image>=0.24,<0.25       # SSIM structural similarity
+numpy>=2.0,<3.0
+Pillow>=11.0,<12.0
+
+# --- PyTorch (CPU by default; install CUDA variant separately for GPU) ---
+torch>=2.4
+torchvision>=0.19
+
+# --- Optional Phase 2 (uncomment when ready) ---
+# segment-anything-2>=0.1       # SAM2 segmentation
+# realesrgan>=0.3               # Real-ESRGAN super-resolution
+# basicsr>=1.4                  # Required by realesrgan

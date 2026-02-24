@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Invoice } from "@/lib/types"
+import { formatCurrency, formatDate } from "@/utils/format-helpers"
 
 export function Invoices() {
   const { push } = useDrilldown()
@@ -87,7 +88,7 @@ export function Invoices() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Invoiced</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold">${totalInvoiced.toLocaleString()}</div>
+            <div className="text-sm font-bold">{formatCurrency(totalInvoiced)}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <FileText className="w-3 h-3" />
               {(invoices || []).length} invoices
@@ -100,7 +101,7 @@ export function Invoices() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Paid</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-green-600">${totalPaid.toLocaleString()}</div>
+            <div className="text-sm font-bold text-green-600">{formatCurrency(totalPaid)}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <CheckCircle className="w-3 h-3" />
               Completed
@@ -113,7 +114,7 @@ export function Invoices() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Outstanding</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-yellow-600">${totalOutstanding.toLocaleString()}</div>
+            <div className="text-sm font-bold text-yellow-600">{formatCurrency(totalOutstanding)}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <DollarSign className="w-3 h-3" />
               Balance due
@@ -191,16 +192,16 @@ export function Invoices() {
                     >
                       {invoice?.vendorName}
                     </TableCell>
-                    <TableCell>{new Date(invoice?.date ?? "").toLocaleDateString()}</TableCell>
+                    <TableCell>{formatDate(invoice?.date ?? "")}</TableCell>
                     <TableCell>
                       <span className={new Date(invoice?.dueDate ?? "") < new Date() && invoice?.status !== "paid" ? "text-red-600 font-medium" : ""}>
-                        {new Date(invoice?.dueDate ?? "").toLocaleDateString()}
+                        {formatDate(invoice?.dueDate ?? "")}
                       </span>
                     </TableCell>
-                    <TableCell className="font-semibold">${(invoice?.total ?? 0).toLocaleString()}</TableCell>
-                    <TableCell className="text-green-600">${(invoice?.amountPaid ?? 0).toLocaleString()}</TableCell>
+                    <TableCell className="font-semibold">{formatCurrency(invoice?.total ?? 0)}</TableCell>
+                    <TableCell className="text-green-600">{formatCurrency(invoice?.amountPaid ?? 0)}</TableCell>
                     <TableCell className={(invoice?.balance ?? 0) > 0 ? "text-yellow-600 font-medium" : ""}>
-                      ${(invoice?.balance ?? 0).toLocaleString()}
+                      {formatCurrency(invoice?.balance ?? 0)}
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(invoice?.status ?? "draft")} variant="secondary">

@@ -8,6 +8,7 @@ import { createClient } from 'redis'
 
 import { db } from '../db'
 import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import { tenantSafeQuery } from '../utils/dbHelpers'
 import { logger } from '../utils/logger'
 
@@ -26,6 +27,7 @@ router.get('/fleet-summary', async (req: Request, res: Response) => {
                 COUNT(*) as total,
                 COUNT(*) FILTER (WHERE status = 'active') as active
             FROM vehicles
+            WHERE status != 'retired'
         `)
 
         const driverCountResult = await db.query(`
@@ -78,7 +80,7 @@ router.get('/fleet-summary', async (req: Request, res: Response) => {
         })
     } catch (error) {
         logger.error('Error generating fleet summary:', error)
-        res.status(500).json({ error: 'Internal server error', details: String(error) })
+        res.status(500).json({ error: 'An internal error occurred' })
     }
 })
 
@@ -166,7 +168,7 @@ return res.status(401).json({ error: 'Unauthorized' })
                     COUNT(*) FILTER (WHERE status = 'active')::int AS active_vehicles,
                     COUNT(*) FILTER (WHERE status IN ('maintenance', 'service'))::int AS in_maintenance
                 FROM vehicles
-                WHERE tenant_id = $1
+                WHERE tenant_id = $1 AND status != 'retired'
                 `,
                 [tenantId]
             ),
@@ -222,7 +224,7 @@ return res.status(401).json({ error: 'Unauthorized' })
                     fuel_type AS fuel_type,
                     COUNT(*)::int AS count
                 FROM vehicles
-                WHERE tenant_id = $1
+                WHERE tenant_id = $1 AND status != 'retired'
                 GROUP BY fuel_type
                 ORDER BY count DESC
                 `,
@@ -299,7 +301,7 @@ return res.status(401).json({ error: 'Unauthorized' })
         })
     } catch (error) {
         logger.error('Error generating analytics dashboard:', error)
-        res.status(500).json({ error: 'Internal server error', details: String(error) })
+        res.status(500).json({ error: 'An internal error occurred' })
     }
 })
 
@@ -518,7 +520,7 @@ router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res:
                     COUNT(*) as total_vehicles,
                     COUNT(*) FILTER (WHERE status = 'active') as active_vehicles
                 FROM vehicles
-                WHERE tenant_id = $1
+                WHERE tenant_id = $1 AND status != 'retired'
                 `,
                 [tenantId],
                 tenantId
@@ -653,7 +655,7 @@ router.get('/overview', cacheMiddleware('analytics:overview'), async (req: Reque
                     COUNT(*) FILTER (WHERE status = 'maintenance') as maintenance_vehicles,
                     COUNT(*) FILTER (WHERE status = 'idle') as idle_vehicles
                 FROM vehicles
-                WHERE tenant_id = $1
+                WHERE tenant_id = $1 AND status != 'retired'
                 `,
                 [tenantId],
                 tenantId
@@ -850,7 +852,7 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
                     COUNT(*) FILTER (WHERE status = 'active') as active_count,
                     COUNT(*) FILTER (WHERE status = 'maintenance') as maintenance_count
                 FROM vehicles
-                WHERE tenant_id = $1
+                WHERE tenant_id = $1 AND status != 'retired'
                 `,
                 [tenantId],
                 tenantId
@@ -995,7 +997,7 @@ router.get('/costs/trends', cacheMiddleware('analytics:costs:trends'), async (re
  * DELETE /analytics/cache
  * Clear analytics cache
  */
-router.delete('/cache', async (req: Request, res: Response) => {
+router.delete('/cache', csrfProtection, async (req: Request, res: Response) => {
     try {
         await initRedis()
         const keys = await redisClient.keys('analytics:*')

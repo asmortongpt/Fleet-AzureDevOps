@@ -15,6 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { apiClient } from "@/lib/api-client";
+import { formatEnum } from '@/utils/format-enum';
+import { formatDate, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 interface DriverInspectorProps {
   id: string;
@@ -69,8 +71,8 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
   if (loading) {
     return (
       <div className="flex items-center justify-center p-3">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
-        <span className="ml-2 text-slate-700">Loading driver data...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+        <span className="ml-2 text-white/40">Loading driver data...</span>
       </div>
     );
   }
@@ -107,7 +109,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                 className="w-16 h-16 rounded-full object-cover"
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold">
+              <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center text-white text-sm font-bold">
                 {driver.name.charAt(0)}
               </div>
             )}
@@ -115,13 +117,13 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                 {driver.name}
               </h2>
-              <p className="text-sm text-slate-700 dark:text-gray-700">
+              <p className="text-sm text-white/40 dark:text-gray-700">
                 {driver.email} • {driver.phone}
               </p>
             </div>
           </div>
           <Badge variant={driver.status === 'on-duty' ? 'default' : 'secondary'}>
-            {driver.status}
+            {formatEnum(driver.status)}
           </Badge>
         </div>
       </div>
@@ -142,19 +144,19 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <h3 className="text-sm font-semibold mb-2">Driver Information</h3>
               <dl className="space-y-2">
                 <div className="flex justify-between">
-                  <dt className="text-slate-700">License Number</dt>
+                  <dt className="text-white/40">License Number</dt>
                   <dd className="font-mono text-sm">{driver.licenseNumber}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-slate-700">License Expiry</dt>
-                  <dd className="font-medium">{new Date(driver.licenseExpiry).toLocaleDateString()}</dd>
+                  <dt className="text-white/40">License Expiry</dt>
+                  <dd className="font-medium">{formatDate(driver.licenseExpiry)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-slate-700">Email</dt>
+                  <dt className="text-white/40">Email</dt>
                   <dd className="text-sm">{driver.email}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-slate-700">Phone</dt>
+                  <dt className="text-white/40">Phone</dt>
                   <dd className="font-medium">{driver.phone}</dd>
                 </div>
               </dl>
@@ -164,22 +166,22 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <h3 className="text-sm font-semibold mb-2">Statistics</h3>
               <dl className="space-y-2">
                 <div className="flex justify-between">
-                  <dt className="text-slate-700">Total Trips</dt>
-                  <dd className="font-medium">{driver.totalTrips.toLocaleString()}</dd>
+                  <dt className="text-white/40">Total Trips</dt>
+                  <dd className="font-medium">{formatNumber(driver.totalTrips)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-slate-700">Total Miles</dt>
-                  <dd className="font-medium">{driver.totalMiles.toLocaleString()}</dd>
+                  <dt className="text-white/40">Total Miles</dt>
+                  <dd className="font-medium">{formatNumber(driver.totalMiles)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-slate-700">Rating</dt>
+                  <dt className="text-white/40">Rating</dt>
                   <dd className="font-medium flex items-center gap-1">
-                    {driver.rating.toFixed(1)} ⭐
+                    {(driver.rating ?? 0).toFixed(1)} ⭐
                   </dd>
                 </div>
                 {driver.currentVehicle && (
                   <div className="flex justify-between">
-                    <dt className="text-slate-700">Current Vehicle</dt>
+                    <dt className="text-white/40">Current Vehicle</dt>
                     <dd className="font-medium">{driver.currentVehicle.name}</dd>
                   </div>
                 )}
@@ -196,24 +198,24 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <p className="text-base font-bold text-green-600">{driver.safetyScore}</p>
-                  <p className="text-sm text-slate-700">Safety Score</p>
+                  <p className="text-sm text-white/40">Safety Score</p>
                   <div className="flex items-center justify-center mt-2 text-green-600">
                     <TrendingUp className="w-4 h-4 mr-1" />
                     <span className="text-xs">+5 this month</span>
                   </div>
                 </div>
-                <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <p className="text-base font-bold text-blue-800">98%</p>
-                  <p className="text-sm text-slate-700">On-Time Delivery</p>
-                  <div className="flex items-center justify-center mt-2 text-blue-800">
+                <div className="text-center p-2 bg-emerald-500/10 dark:bg-white/[0.04] rounded-lg">
+                  <p className="text-base font-bold text-emerald-400">98%</p>
+                  <p className="text-sm text-white/40">On-Time Delivery</p>
+                  <div className="flex items-center justify-center mt-2 text-emerald-400">
                     <TrendingUp className="w-4 h-4 mr-1" />
                     <span className="text-xs">+2% this month</span>
                   </div>
                 </div>
                 <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <p className="text-base font-bold text-yellow-600">24.5</p>
-                  <p className="text-sm text-slate-700">Avg MPG</p>
-                  <div className="flex items-center justify-center mt-2 text-slate-700">
+                  <p className="text-sm text-white/40">Avg MPG</p>
+                  <div className="flex items-center justify-center mt-2 text-white/40">
                     <TrendingDown className="w-4 h-4 mr-1" />
                     <span className="text-xs">-0.5 this month</span>
                   </div>
@@ -225,19 +227,19 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <h3 className="text-sm font-semibold mb-2">Recent Metrics</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-700">Hard Braking Events</span>
+                  <span className="text-white/40">Hard Braking Events</span>
                   <Badge variant="outline">2 this week</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-700">Speeding Incidents</span>
+                  <span className="text-white/40">Speeding Incidents</span>
                   <Badge variant="outline">0 this week</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-700">Idle Time</span>
+                  <span className="text-white/40">Idle Time</span>
                   <Badge variant="outline">3.2 hrs/week</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-700">Average Trip Distance</span>
+                  <span className="text-white/40">Average Trip Distance</span>
                   <Badge variant="outline">45.3 miles</Badge>
                 </div>
               </div>
@@ -253,16 +255,16 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-slate-700">Driving Hours Today</span>
+                    <span className="text-sm text-white/40">Driving Hours Today</span>
                     <span className="text-sm font-medium">6.5 / 11 hrs</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '59%' }}></div>
+                    <div className="bg-emerald-600 h-2 rounded-full" style={{ width: '59%' }}></div>
                   </div>
                 </div>
                 <div>
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-slate-700">On-Duty Hours</span>
+                    <span className="text-sm text-white/40">On-Duty Hours</span>
                     <span className="text-sm font-medium">8.2 / 14 hrs</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -271,7 +273,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                 </div>
                 <div>
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-slate-700">Cycle Hours</span>
+                    <span className="text-sm text-white/40">Cycle Hours</span>
                     <span className="text-sm font-medium">45 / 60 hrs</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -290,7 +292,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                 </div>
                 <div className="flex justify-between items-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
                   <span>Medical Certificate</span>
-                  <Badge variant="outline" className="text-green-600">Valid until {new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toLocaleDateString()}</Badge>
+                  <Badge variant="outline" className="text-green-600">Valid until {formatDate(new Date(Date.now() + 180 * 24 * 60 * 60 * 1000))}</Badge>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
                   <span>HAZMAT Endorsement</span>
@@ -314,9 +316,9 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
           <Card className="p-2">
             <h3 className="text-sm font-semibold mb-2">Current Schedule</h3>
             <div className="space-y-2">
-              <div className="border-l-4 border-blue-500 pl-2 py-2">
+              <div className="border-l-4 border-emerald-500 pl-2 py-2">
                 <p className="font-medium">Morning Route</p>
-                <p className="text-sm text-slate-700">7:00 AM - 11:30 AM</p>
+                <p className="text-sm text-white/40">7:00 AM - 11:30 AM</p>
                 <p className="text-sm text-gray-700">Route: Downtown Deliveries</p>
                 {driver.currentVehicle && (
                   <p className="text-sm text-gray-700">Vehicle: {driver.currentVehicle.name}</p>
@@ -324,16 +326,16 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               </div>
               <div className="border-l-4 border-green-500 pl-2 py-2">
                 <p className="font-medium">Lunch Break</p>
-                <p className="text-sm text-slate-700">11:30 AM - 12:30 PM</p>
+                <p className="text-sm text-white/40">11:30 AM - 12:30 PM</p>
               </div>
-              <div className="border-l-4 border-blue-500 pl-2 py-2">
+              <div className="border-l-4 border-emerald-500 pl-2 py-2">
                 <p className="font-medium">Afternoon Route</p>
-                <p className="text-sm text-slate-700">12:30 PM - 5:00 PM</p>
+                <p className="text-sm text-white/40">12:30 PM - 5:00 PM</p>
                 <p className="text-sm text-gray-700">Route: Suburban Deliveries</p>
               </div>
               <div className="border-l-4 border-gray-300 pl-2 py-2">
                 <p className="font-medium text-gray-700">Off-Duty</p>
-                <p className="text-sm text-slate-700">After 5:00 PM</p>
+                <p className="text-sm text-white/40">After 5:00 PM</p>
               </div>
             </div>
           </Card>

@@ -20,6 +20,9 @@ import { offlineSyncService } from '../../services/offline-sync.service';
 import { pushNotificationService } from '../../services/push-notifications.service';
 
 import logger from '@/utils/logger';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
+import { formatNumber, formatTime } from '@/utils/format-helpers';
+import { toast } from 'sonner';
 
 interface Vehicle {
   id: string;
@@ -83,13 +86,15 @@ export const DriverToolbox: React.FC = () => {
       // Fetch unread message count from API (falls back to 0 if offline or unavailable)
       let unreadCount = 0;
       try {
-        const msgResponse = await fetch('/api/communications/unread-count', {
+        const msgResponse = await fetch('/api/communications?status=unread&limit=1', {
           credentials: 'include',
           signal: AbortSignal.timeout(3000),
         });
         if (msgResponse.ok) {
           const msgData = await msgResponse.json();
-          unreadCount = Number(msgData.count ?? msgData.unread ?? 0);
+          // Extract count from response envelope or array length
+          const data = msgData?.data ?? msgData;
+          unreadCount = Number(msgData?.meta?.total ?? (Array.isArray(data) ? data.length : 0));
         }
       } catch {
         // Silently fall back to 0 when offline or API unavailable
@@ -137,7 +142,7 @@ export const DriverToolbox: React.FC = () => {
 
   const handleStartInspection = () => {
     if (!activeVehicle) {
-      alert('Please select a vehicle first');
+      toast.info('Please select a vehicle first');
       return;
     }
     window.location.href = `/mobile/inspection/${activeVehicle.id}`;
@@ -145,7 +150,7 @@ export const DriverToolbox: React.FC = () => {
 
   const handleReportDamage = () => {
     if (!activeVehicle) {
-      alert('Please select a vehicle first');
+      toast.info('Please select a vehicle first');
       return;
     }
     window.location.href = `/mobile/damage-report/${activeVehicle.id}`;
@@ -161,7 +166,7 @@ export const DriverToolbox: React.FC = () => {
       const { lat, lng } = activeVehicle.location;
       window.open(`https://maps.google.com?q=${lat},${lng}`, '_blank');
     } else {
-      alert('Vehicle location not available');
+      toast.info('Vehicle location not available');
     }
   };
 
@@ -171,7 +176,7 @@ export const DriverToolbox: React.FC = () => {
       setLastSyncTime(new Date());
     } catch (error) {
       logger.error('Manual sync failed:', error);
-      alert('Sync failed. Please check your connection.');
+      toast.error('Sync failed. Please check your connection.');
     }
   };
 
@@ -246,6 +251,7 @@ export const DriverToolbox: React.FC = () => {
             onClick={handleManualSync}
             className="bg-white/20 hover:bg-white/30 p-3 rounded-full transition-colors"
             disabled={isOffline}
+            aria-label="Sync now"
           >
             <CheckCircle className={isOffline ? 'text-gray-300' : 'text-white'} size={24} />
           </button>
@@ -258,13 +264,13 @@ export const DriverToolbox: React.FC = () => {
               <div>
                 <p className="text-sm text-blue-200">Active Vehicle</p>
                 <p className="text-sm font-semibold">
-                  {activeVehicle.vehicleNumber} - {activeVehicle.make} {activeVehicle.model}
+                  {activeVehicle.vehicleNumber} - {formatVehicleShortName(activeVehicle)}
                 </p>
                 <p className="text-sm text-blue-200">{activeVehicle.licensePlate}</p>
               </div>
               <div className="text-right">
                 {activeVehicle.mileage && (
-                  <p className="text-sm">{activeVehicle.mileage.toLocaleString()} mi</p>
+                  <p className="text-sm">{formatNumber(activeVehicle.mileage)} mi</p>
                 )}
                 {activeVehicle.fuelLevel && (
                   <p className="text-sm">{activeVehicle.fuelLevel}% Fuel</p>
@@ -337,7 +343,7 @@ export const DriverToolbox: React.FC = () => {
           <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center">
             <CheckCircle className="text-green-600 mr-2" size={20} />
             <p className="text-sm text-green-800">
-              Last synced: {lastSyncTime.toLocaleTimeString()}
+              Last synced: {formatTime(lastSyncTime)}
             </p>
           </div>
         </div>

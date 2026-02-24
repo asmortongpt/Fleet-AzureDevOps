@@ -10,39 +10,39 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-gradient-to-r from-[#FF6B35] to-[#FF8855] text-white shadow-md shadow-[#FF6B35]/40 font-bold",
+          "border-transparent bg-white/90 text-[#1a1a1a] shadow-sm font-bold",
         secondary:
-          "border-transparent bg-gradient-to-r from-[#F0A000] to-[#FFB800] text-white shadow-md shadow-[#F0A000]/40 font-bold",
+          "border-transparent bg-white/10 text-white/90 shadow-sm font-bold",
         destructive:
-          "border-transparent bg-gradient-to-r from-[#DD3903] to-[#FF3838] text-white shadow-md shadow-[#DD3903]/40 font-bold",
+          "border-transparent bg-rose-600 text-white shadow-sm font-bold",
         success:
-          "border-transparent bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-500/40 font-bold",
+          "border-transparent bg-emerald-600 text-white shadow-sm font-bold",
         warning:
-          "border-transparent bg-gradient-to-r from-[#F0A000] to-[#FFB800] text-white shadow-md shadow-[#F0A000]/40 font-bold",
+          "border-transparent bg-amber-500 text-white shadow-sm font-bold",
         info:
-          "border-transparent bg-gradient-to-r from-[#41B2E3] to-[#5BC0EB] text-white shadow-md shadow-[#41B2E3]/30",
+          "border-transparent bg-sky-600 text-white shadow-sm font-bold",
         outline:
-          "text-[#F0A000] border-[#F0A000]/30 bg-transparent hover:bg-[#F0A000]/10 backdrop-blur-sm ring-1 ring-[#F0A000]/20",
+          "text-white/80 border-white/20 bg-transparent hover:bg-white/5 backdrop-blur-sm",
         ghost:
           "border-transparent text-muted-foreground bg-muted/50 hover:bg-muted",
         // Subtle variants with lighter backgrounds
         "primary-subtle":
-          "border-transparent bg-[#FF6B35]/15 text-[#FF6B35] hover:bg-[#FF6B35]/25 font-bold ring-1 ring-[#FF6B35]/20",
+          "border-transparent bg-white/10 text-white/80 hover:bg-white/15 font-bold ring-1 ring-white/10",
         "destructive-subtle":
-          "border-transparent bg-[#DD3903]/15 text-[#DD3903] hover:bg-[#DD3903]/25 font-bold ring-1 ring-[#DD3903]/20",
+          "border-transparent bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 font-bold ring-1 ring-rose-500/20",
         "success-subtle":
-          "border-transparent bg-emerald-500/15 text-emerald-500 hover:bg-emerald-500/25 font-bold ring-1 ring-emerald-500/20",
+          "border-transparent bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 font-bold ring-1 ring-emerald-500/20",
         "warning-subtle":
-          "border-transparent bg-[#F0A000]/15 text-[#F0A000] hover:bg-[#F0A000]/25 font-bold ring-1 ring-[#F0A000]/20",
+          "border-transparent bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 font-bold ring-1 ring-amber-500/20",
         // Status variants for real-time indicators
         online:
-          "border-transparent bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-500/50 animate-pulse font-bold",
+          "border-transparent bg-emerald-600 text-white shadow-sm animate-pulse font-bold",
         offline:
           "border-transparent bg-muted text-muted-foreground font-bold",
         pending:
-          "border-transparent bg-gradient-to-r from-[#F0A000] to-[#FFB800] text-white shadow-md shadow-[#F0A000]/40 font-bold",
+          "border-transparent bg-amber-500 text-white shadow-sm font-bold",
         error:
-          "border-transparent bg-gradient-to-r from-[#DD3903] to-[#FF3838] text-white shadow-md shadow-[#DD3903]/40 font-bold",
+          "border-transparent bg-rose-600 text-white shadow-sm font-bold",
       },
       size: {
         default: "h-7 text-xs px-3",

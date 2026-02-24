@@ -46,16 +46,16 @@ export const oktaConfigs: Record<string, OktaEnvironmentConfig> = {
 // Get current environment configuration
 export const getCurrentOktaConfig = (): OktaEnvironmentConfig => {
   const env = import.meta.env.VITE_NODE_ENV || 'development'
-  const configKey = import.meta.env.VITE_REACT_APP_DEPLOYMENT_ENV || env
+  const configKey = import.meta.env.VITE_DEPLOYMENT_ENV || env
   const config = oktaConfigs[configKey] || oktaConfigs.development
 
   // Override with environment variables if provided
   return {
     ...config,
-    issuer: process.env.VITE_REACT_APP_OKTA_ISSUER || config.issuer,
-    clientId: process.env.VITE_REACT_APP_OKTA_CLIENT_ID || config.clientId,
-    redirectUri: process.env.VITE_REACT_APP_OKTA_REDIRECT_URI || config.redirectUri,
-    postLogoutRedirectUri: process.env.VITE_REACT_APP_OKTA_POST_LOGOUT_URI || config.postLogoutRedirectUri
+    issuer: import.meta.env.VITE_OKTA_ISSUER || config.issuer,
+    clientId: import.meta.env.VITE_OKTA_CLIENT_ID || config.clientId,
+    redirectUri: import.meta.env.VITE_OKTA_REDIRECT_URI || config.redirectUri,
+    postLogoutRedirectUri: import.meta.env.VITE_OKTA_POST_LOGOUT_URI || config.postLogoutRedirectUri
   }
 }
 

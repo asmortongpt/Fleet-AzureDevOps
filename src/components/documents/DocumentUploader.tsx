@@ -42,6 +42,7 @@ export function DocumentUploader({
 }: DocumentUploaderProps) {
   const [uploadQueue, setUploadQueue] = useState<Map<string, UploadProgress>>(new Map());
   const [rejectedFiles, setRejectedFiles] = useState<Array<{ file: File; error: string }>>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[]) => {
     // Handle rejected files
@@ -75,10 +76,10 @@ export function DocumentUploader({
 
     setUploadQueue(newQueue);
 
-    // Simulate upload (replace with actual upload logic)
+    // Upload each file to the real backend
     acceptedFiles.forEach((file, index) => {
       const fileId = Array.from(newQueue.keys())[uploadQueue.size + index];
-      simulateUpload(fileId, file);
+      uploadFile(fileId, file);
     });
   }, [uploadQueue, maxSize, allowedTypes]);
 
@@ -88,16 +89,35 @@ export function DocumentUploader({
     maxSize,
   });
 
-  const simulateUpload = (fileId: string, _file: File) => {
-    let progress = 0;
+  const uploadFile = (fileId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('document_type', 'general');
+    formData.append('category', 'uploaded');
 
-    const interval = setInterval(() => {
-      progress += Math.random() * 20;
+    const xhr = new XMLHttpRequest();
 
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable) {
+        const progress = Math.round((e.loaded / e.total) * 100);
+        setUploadQueue(prev => {
+          const newQueue = new Map(prev);
+          const item = newQueue.get(fileId);
+          if (item) {
+            newQueue.set(fileId, {
+              ...item,
+              progress,
+              status: 'uploading',
+              uploadedBytes: e.loaded
+            });
+          }
+          return newQueue;
+        });
+      }
+    });
 
+    xhr.addEventListener('load', () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
         setUploadQueue(prev => {
           const newQueue = new Map(prev);
           const item = newQueue.get(fileId);
@@ -111,6 +131,7 @@ export function DocumentUploader({
           }
           return newQueue;
         });
+        setUploadedFiles((prev) => [...prev, file]);
       } else {
         setUploadQueue(prev => {
           const newQueue = new Map(prev);
@@ -118,15 +139,33 @@ export function DocumentUploader({
           if (item) {
             newQueue.set(fileId, {
               ...item,
-              progress,
-              status: 'uploading',
-              uploadedBytes: Math.floor((progress / 100) * (item.totalBytes || 0))
+              status: 'error',
+              error: `Upload failed (${xhr.status})`
             });
           }
           return newQueue;
         });
       }
-    }, 300);
+    });
+
+    xhr.addEventListener('error', () => {
+      setUploadQueue(prev => {
+        const newQueue = new Map(prev);
+        const item = newQueue.get(fileId);
+        if (item) {
+          newQueue.set(fileId, {
+            ...item,
+            status: 'error',
+            error: 'Network error during upload'
+          });
+        }
+        return newQueue;
+      });
+    });
+
+    xhr.open('POST', '/api/documents/upload');
+    xhr.withCredentials = true;
+    xhr.send(formData);
   };
 
   const removeFile = (fileId: string) => {
@@ -139,8 +178,7 @@ export function DocumentUploader({
 
   const handleUpload = () => {
     if (onUpload) {
-      // In real implementation, pass the actual files
-      onUpload([]);
+      onUpload(uploadedFiles);
     }
     onClose();
   };
@@ -231,8 +269,8 @@ export function DocumentUploader({
                   Failed to upload {rejectedFiles.length} file(s)
                 </h4>
                 <div className="space-y-1">
-                  {rejectedFiles.map((item, index) => (
-                    <div key={index} className="text-xs text-muted-foreground flex items-center gap-2">
+                  {rejectedFiles.map((item) => (
+                    <div key={item.file.name} className="text-xs text-muted-foreground flex items-center gap-2">
                       <AlertCircle className="h-3 w-3 text-destructive" />
                       <span className="font-medium">{item.file.name}</span>
                       <span>-</span>
@@ -285,13 +323,13 @@ function UploadItem({ item, onRemove }: UploadItemProps) {
     const ext = fileName.split('.').pop()?.toLowerCase() || '';
 
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) {
-      return <ImageIcon className="h-5 w-5 text-blue-800" />;
+      return <ImageIcon className="h-5 w-5 text-emerald-400" />;
     }
     if (['mp4', 'webm', 'mov', 'avi'].includes(ext)) {
-      return <Video className="h-5 w-5 text-purple-500" />;
+      return <Video className="h-5 w-5 text-white/60" />;
     }
     if (['pdf'].includes(ext)) {
-      return <FileText className="h-5 w-5 text-red-500" />;
+      return <FileText className="h-5 w-5 text-rose-400" />;
     }
 
     return <File className="h-5 w-5 text-muted-foreground" />;
@@ -300,7 +338,7 @@ function UploadItem({ item, onRemove }: UploadItemProps) {
   const StatusIcon = () => {
     switch (item.status) {
       case 'complete':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-emerald-500" />;
       case 'error':
         return <AlertCircle className="h-5 w-5 text-destructive" />;
       case 'uploading':
@@ -336,7 +374,7 @@ function UploadItem({ item, onRemove }: UploadItemProps) {
         )}
 
         {item.status === 'complete' && (
-          <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-500">
+          <div className="flex items-center gap-1 text-xs text-emerald-500">
             <CheckCircle className="h-3 w-3" />
             <span>Upload complete</span>
           </div>

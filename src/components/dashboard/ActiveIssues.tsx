@@ -4,6 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 type IssueSeverity = 'critical' | 'warning' | 'info';
@@ -42,11 +43,11 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
         // Fetch dashboard stats to detect issues
         const [dashboardStats, maintenanceAlerts] = await Promise.all([
           fetch('/api/dashboard/stats', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null),
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch dashboard stats for active issues', { error: String(err) }); return null; }),
           fetch('/api/dashboard/maintenance/alerts', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null)
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch maintenance alerts for active issues', { error: String(err) }); return null; })
         ]);
 
         const detectedIssues: Issue[] = [];
@@ -243,7 +244,7 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
                             {config.label}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {new Date(issue.timestamp).toLocaleTimeString()}
+                            {formatTime(issue.timestamp)}
                           </span>
                         </div>
 

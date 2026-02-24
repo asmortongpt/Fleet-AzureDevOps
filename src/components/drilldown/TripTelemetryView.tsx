@@ -15,8 +15,10 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { formatCurrency, formatDateTime, formatTime } from '@/utils/format-helpers'
 
 interface TripTelemetryViewProps {
   tripId: string
@@ -41,14 +43,11 @@ interface TelemetryData {
   events?: Array<{ type?: string; timestamp?: string }>
 }
 
-const fetcher = (url: string): Promise<TelemetryData> =>
-  fetch(url).then((r) => r.json())
-
 export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
   const [activeTab, setActiveTab] = useState('overview')
-  const { data: telemetry, error, isLoading, mutate } = useSWR(
+  const { data: telemetry, error, isLoading, mutate } = useSWR<TelemetryData>(
     `/api/trips/${tripId}/telemetry`,
-    fetcher
+    apiFetcher
   )
 
   return (
@@ -100,7 +99,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm font-bold">
-                      {telemetry.duration || (trip as { duration?: string })?.duration || 'N/A'}
+                      {telemetry.duration || (trip as { duration?: string })?.duration || '—'}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       Total trip time
@@ -117,7 +116,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm font-bold">
-                      {telemetry.max_speed ? `${telemetry.max_speed.toFixed(0)} mph` : 'N/A'}
+                      {telemetry.max_speed ? `${telemetry.max_speed.toFixed(0)} mph` : '—'}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       Peak velocity
@@ -136,7 +135,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     <div className="text-sm font-bold">
                       {telemetry.fuel_economy
                         ? `${telemetry.fuel_economy.toFixed(1)} mpg`
-                        : 'N/A'}
+                        : '—'}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       Average MPG
@@ -197,8 +196,8 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {point.timestamp
-                              ? new Date(point.timestamp).toLocaleTimeString()
-                              : 'N/A'}
+                              ? formatTime(point.timestamp)
+                              : '—'}
                           </div>
                         </div>
                       ))}
@@ -225,7 +224,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                       <span className="font-medium">
                         {telemetry.avg_speed
                           ? `${telemetry.avg_speed.toFixed(0)} mph`
-                          : 'N/A'}
+                          : '—'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -233,7 +232,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                       <span className="font-medium flex items-center gap-1">
                         {telemetry.max_speed
                           ? `${telemetry.max_speed.toFixed(0)} mph`
-                          : 'N/A'}
+                          : '—'}
                         {telemetry.max_speed && telemetry.max_speed > 80 && (
                           <TrendingUp className="h-4 w-4 text-destructive" />
                         )}
@@ -242,7 +241,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Top Speed Location</span>
                       <span className="text-xs text-muted-foreground">
-                        {telemetry.max_speed_location || 'N/A'}
+                        {telemetry.max_speed_location || '—'}
                       </span>
                     </div>
                   </div>
@@ -262,11 +261,11 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                       >
                         <Activity className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-sm font-medium">{event.type || 'Unknown'}</p>
+                          <p className="text-sm font-medium">{event.type || '—'}</p>
                           <p className="text-xs text-muted-foreground">
                             {event.timestamp
-                              ? new Date(event.timestamp).toLocaleString()
-                              : 'N/A'}
+                              ? formatDateTime(event.timestamp)
+                              : '—'}
                           </p>
                         </div>
                       </div>
@@ -293,7 +292,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                       <p className="text-sm font-bold">
                         {telemetry.fuel_used
                           ? `${telemetry.fuel_used.toFixed(2)} gal`
-                          : 'N/A'}
+                          : '—'}
                       </p>
                     </div>
                     <div>
@@ -301,7 +300,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                       <p className="text-sm font-bold">
                         {telemetry.fuel_economy
                           ? `${telemetry.fuel_economy.toFixed(1)} mpg`
-                          : 'N/A'}
+                          : '—'}
                       </p>
                     </div>
                   </div>
@@ -310,21 +309,21 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Start Level</span>
                       <span className="font-medium">
-                        {telemetry.fuel_start ? `${telemetry.fuel_start}%` : 'N/A'}
+                        {telemetry.fuel_start ? `${telemetry.fuel_start}%` : '—'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">End Level</span>
                       <span className="font-medium">
-                        {telemetry.fuel_end ? `${telemetry.fuel_end}%` : 'N/A'}
+                        {telemetry.fuel_end ? `${telemetry.fuel_end}%` : '—'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Estimated Cost</span>
                       <span className="font-medium">
                         {telemetry.fuel_cost
-                          ? `$${telemetry.fuel_cost.toFixed(2)}`
-                          : 'N/A'}
+                          ? formatCurrency(telemetry.fuel_cost)
+                          : '—'}
                       </span>
                     </div>
                   </div>

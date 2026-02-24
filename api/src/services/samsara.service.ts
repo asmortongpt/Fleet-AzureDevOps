@@ -75,7 +75,7 @@ class SamsaraService {
 
   constructor(db: Pool) {
     if (!SAMSARA_API_TOKEN) {
-      console.warn('[SamsaraService] SAMSARA_API_TOKEN not set - Samsara integration disabled');
+      logger.warn('[SamsaraService] SAMSARA_API_TOKEN not set - Samsara integration disabled');
     }
 
     // SSRF Protection: Use safe axios instance with domain allowlist

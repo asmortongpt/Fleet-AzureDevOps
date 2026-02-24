@@ -1,7 +1,7 @@
 import { useEffect, useCallback, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { useNavigation } from '@/contexts/NavigationContext';
 import { useAppStore } from '@/stores/appStore';
 
 interface Shortcut {
@@ -20,7 +20,7 @@ interface KeyboardShortcutsProps {
 }
 
 export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   const {
     toggleSidebar,
     openCommandPalette,
@@ -36,7 +36,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
       altKey: true,
       description: 'Go to Dashboard',
       action: () => {
-        navigate('/');
+        navigateTo('live-fleet-dashboard');
         toast('Navigated to Dashboard');
       },
       preventDefault: true,
@@ -46,7 +46,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
       altKey: true,
       description: 'Go to GPS Tracking',
       action: () => {
-        navigate('/gps-tracking');
+        navigateTo('gps-tracking');
         toast('Navigated to GPS Tracking');
       },
       preventDefault: true,
@@ -56,7 +56,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
       altKey: true,
       description: 'Go to Vehicles',
       action: () => {
-        navigate('/vehicles');
+        navigateTo('fleet-hub-consolidated');
         toast('Navigated to Vehicles');
       },
       preventDefault: true,
@@ -66,7 +66,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
       altKey: true,
       description: 'Go to Maintenance',
       action: () => {
-        navigate('/maintenance');
+        navigateTo('fleet-hub-consolidated');
         toast('Navigated to Maintenance');
       },
       preventDefault: true,

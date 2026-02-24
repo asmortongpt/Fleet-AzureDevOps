@@ -81,10 +81,10 @@ export function ArchonYLogo({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <span className="text-2xl font-black tracking-tight text-[#1A1847]">
+      <span className="text-2xl font-black tracking-tight text-[#1F3076]">
         CTA FLEET
       </span>
-      <span className="text-xs font-light tracking-wider text-[#F0A000]">
+      <span className="text-xs font-light tracking-wider text-white/60">
         CAPITAL TECHNOLOGY ALLIANCE
       </span>
     </motion.div>

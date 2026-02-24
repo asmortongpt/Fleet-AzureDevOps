@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { formatTime } from '@/utils/format-helpers';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 // Local type definitions for safety dashboard
 interface Driver {
@@ -354,7 +356,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                     {driver.firstName} {driver.lastName}
                   </CardTitle>
                   <p className="text-sm text-slate-700">
-                    {driver.department} • {vehicle?.make} {vehicle?.model}
+                    {driver.department} • {vehicle ? formatVehicleShortName(vehicle) : ''}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <Badge variant={riskLevel === 'low' ? 'default' : 'destructive'}>
@@ -515,8 +517,8 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   AI Coaching Recommendations
                 </h4>
                 <div className="space-y-1">
-                  {analysis.coaching.improvements.slice(0, 2).map((improvement, index) => (
-                    <div key={index} className="text-xs text-gray-700 bg-green-50 p-2 rounded">
+                  {analysis.coaching.improvements.slice(0, 2).map((improvement) => (
+                    <div key={improvement} className="text-xs text-gray-700 bg-green-50 p-2 rounded">
                       • {improvement}
                     </div>
                   ))}
@@ -614,7 +616,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                           </div>
                           <div className="text-xs text-gray-700 flex items-center gap-1 mt-1">
                             <Clock className="w-3 h-3" />
-                            {alert.timestamp.toLocaleTimeString()}
+                            {formatTime(alert.timestamp)}
                           </div>
                         </div>
                       </div>
@@ -738,9 +740,9 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   <div className="pt-2 border-t">
                     <h4 className="font-medium text-sm mb-2">Recommended Training</h4>
                     <div className="space-y-1">
-                      {analysis.coaching.trainingRecommendations.map((training, index) => (
+                      {analysis.coaching.trainingRecommendations.map((training) => (
                         <div
-                          key={index}
+                          key={training}
                           className="flex items-center justify-between p-2 bg-white rounded"
                         >
                           <span className="text-sm">{training}</span>
@@ -772,7 +774,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
         <div className="flex items-center gap-3">
           <div className="text-sm text-gray-700 flex items-center gap-1">
             <Timer className="w-4 h-4" />
-            Last updated: {lastUpdate.toLocaleTimeString()}
+            Last updated: {formatTime(lastUpdate)}
           </div>
           <Button
             size="sm"

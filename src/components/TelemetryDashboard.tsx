@@ -13,6 +13,8 @@ import { getTelemetryConfig } from '../config/telemetry';
 import { analytics } from '../services/analytics';
 import analyticsService from '../utils/analytics';
 
+import { formatTime } from '@/utils/format-helpers';
+
 import logger from '@/utils/logger';
 interface TelemetryEvent {
   name: string;
@@ -198,7 +200,7 @@ export const TelemetryDashboard: React.FC = () => {
               <MetricCard label="Errors" value={metrics.errorCount} color="hsl(var(--chart-6))" />
               <MetricCard
                 label="Avg Response"
-                value={`${metrics.avgResponseTime.toFixed(0)}ms`}
+                value={`${(metrics.avgResponseTime ?? 0).toFixed(0)}ms`}
               />
             </div>
           </div>
@@ -221,11 +223,11 @@ export const TelemetryDashboard: React.FC = () => {
             <div style={styles.errorsSection}>
               <h3 style={styles.sectionTitle}>Recent Errors</h3>
               <div style={styles.errorsList}>
-                {metrics.recentErrors.map((error, idx) => (
-                  <div key={idx} style={styles.errorItem}>
+                {metrics.recentErrors.map((error) => (
+                  <div key={`${error.name}-${error.timestamp}`} style={styles.errorItem}>
                     <div style={styles.errorName}>{error.name}</div>
                     <div style={styles.errorTime}>
-                      {new Date(error.timestamp).toLocaleTimeString()}
+                      {formatTime(new Date(error.timestamp))}
                     </div>
                   </div>
                 ))}
@@ -264,8 +266,8 @@ export const TelemetryDashboard: React.FC = () => {
               Recent Events ({filteredEvents.length})
             </h3>
             <div style={styles.eventsList}>
-              {filteredEvents.slice(-50).reverse().map((event, idx) => (
-                <EventItem key={idx} event={event} />
+              {filteredEvents.slice(-50).reverse().map((event) => (
+                <EventItem key={`${event.name}-${event.timestamp}`} event={event} />
               ))}
             </div>
           </div>
@@ -300,9 +302,12 @@ const EventItem: React.FC<{ event: TelemetryEvent }> = ({ event }) => {
       <div
         style={styles.eventHeader}
         onClick={() => setIsExpanded(!isExpanded)}
+        onKeyDown={(e) => e.key === 'Enter' && setIsExpanded(!isExpanded)}
+        role="button"
+        tabIndex={0}
       >
         <span style={styles.eventTimestamp}>
-          {new Date(event.timestamp).toLocaleTimeString()}
+          {formatTime(new Date(event.timestamp))}
         </span>
         <span style={styles.eventNameBadge}>{event.name}</span>
         <span style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>

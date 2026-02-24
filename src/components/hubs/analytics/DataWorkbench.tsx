@@ -12,6 +12,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { secureFetch } from '@/hooks/use-api';
 import logger from '@/utils/logger';
+import { formatNumber } from '@/utils/format-helpers';
 
 interface RowData {
   id: string;
@@ -29,7 +30,10 @@ export const DataWorkbench: React.FC = () => {
     '/api/vehicles?limit=200',
     (url: string) =>
       fetch(url, { credentials: 'include' })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+          return res.json()
+        })
         .then((data) => data?.data?.data ?? data?.data ?? data),
     { shouldRetryOnError: false }
   );
@@ -85,7 +89,7 @@ export const DataWorkbench: React.FC = () => {
       editable: true,
       filter: 'agNumberColumnFilter',
       sortable: true,
-      valueFormatter: (params: ValueFormatterParams<RowData>) => (params.value ?? 0).toLocaleString()
+      valueFormatter: (params: ValueFormatterParams<RowData>) => formatNumber(params.value ?? 0)
     },
     {
       field: 'status',

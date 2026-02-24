@@ -17,7 +17,7 @@ precacheAndRoute((self as any).__WB_MANIFEST);
 
 // Cache API responses with Network First strategy
 registerRoute(
-  ({ url }: any) => url.pathname.startsWith('/api/v1/'),
+  ({ url }: any) => url.pathname.startsWith('/api/'),
   new NetworkFirst({
     cacheName: 'api-cache',
     plugins: [
@@ -61,7 +61,7 @@ const bgSyncPlugin = new BackgroundSyncPlugin('fleet-mutations', {
 
 registerRoute(
   ({ url, request }: any) =>
-    url.pathname.startsWith('/api/v1/') &&
+    url.pathname.startsWith('/api/') &&
     (request.method === 'POST' ||
       request.method === 'PATCH' ||
       request.method === 'DELETE'),
@@ -108,7 +108,7 @@ self.addEventListener('periodicsync', (event: any) => {
 
 async function syncVehicleLocations() {
   try {
-    const response = await fetch('/api/v1/vehicles/sync-locations', {
+    const response = await fetch('/api/gps/sync-locations', {
       method: 'POST',
     });
 

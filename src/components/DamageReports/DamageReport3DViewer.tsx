@@ -24,86 +24,82 @@ export function DamageReport3DViewer({ modelUrl }: DamageReport3DViewerProps) {
   useEffect(() => {
     if (!containerRef.current || !modelUrl) return
 
-    // Initialize Three.js scene
-    const initScene = () => {
-      const container = containerRef.current
-      if (!container) return
+    const container = containerRef.current
+    let animationFrameId: number
 
-      // Scene
-      const newScene = new THREE.Scene()
-      newScene.background = new THREE.Color(0xf0f0f0)
+    // Scene
+    const newScene = new THREE.Scene()
+    newScene.background = new THREE.Color(0xf0f0f0)
 
-      // Camera
-      const newCamera = new THREE.PerspectiveCamera(
-        75,
-        container.clientWidth / container.clientHeight,
-        0.1,
-        1000
-      )
-      newCamera.position.set(0, 0, 5)
+    // Camera
+    const newCamera = new THREE.PerspectiveCamera(
+      75,
+      container.clientWidth / container.clientHeight,
+      0.1,
+      1000
+    )
+    newCamera.position.set(0, 0, 5)
 
-      // Renderer
-      const newRenderer = new THREE.WebGLRenderer({ antialias: true })
-      newRenderer.setSize(container.clientWidth, container.clientHeight)
-      newRenderer.setPixelRatio(window.devicePixelRatio)
-      container.appendChild(newRenderer.domElement)
+    // Renderer
+    const newRenderer = new THREE.WebGLRenderer({ antialias: true })
+    newRenderer.setSize(container.clientWidth, container.clientHeight)
+    newRenderer.setPixelRatio(window.devicePixelRatio)
+    container.appendChild(newRenderer.domElement)
 
-      // Controls
-      const newControls = new OrbitControls(newCamera, newRenderer.domElement)
-      newControls.enableDamping = true
-      newControls.dampingFactor = 0.05
-      newControls.minDistance = 2
-      newControls.maxDistance = 10
+    // Controls
+    const newControls = new OrbitControls(newCamera, newRenderer.domElement)
+    newControls.enableDamping = true
+    newControls.dampingFactor = 0.05
+    newControls.minDistance = 2
+    newControls.maxDistance = 10
 
-      // Lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
-      newScene.add(ambientLight)
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
+    newScene.add(ambientLight)
 
-      const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8)
-      directionalLight1.position.set(5, 10, 7.5)
-      newScene.add(directionalLight1)
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8)
+    directionalLight1.position.set(5, 10, 7.5)
+    newScene.add(directionalLight1)
 
-      const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4)
-      directionalLight2.position.set(-5, -10, -7.5)
-      newScene.add(directionalLight2)
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4)
+    directionalLight2.position.set(-5, -10, -7.5)
+    newScene.add(directionalLight2)
 
-      // Grid helper
-      const gridHelper = new THREE.GridHelper(10, 10)
-      newScene.add(gridHelper)
+    // Grid helper
+    const gridHelper = new THREE.GridHelper(10, 10)
+    newScene.add(gridHelper)
 
-      setScene(newScene)
-      setCamera(newCamera)
-      setRenderer(newRenderer)
-      setControls(newControls)
+    setScene(newScene)
+    setCamera(newCamera)
+    setRenderer(newRenderer)
+    setControls(newControls)
 
-      // Load 3D model
-      loadModel(newScene, newCamera, newControls)
+    // Load 3D model
+    loadModel(newScene, newCamera, newControls)
 
-      // Animation loop
-      const animate = () => {
-        requestAnimationFrame(animate)
-        newControls.update()
-        newRenderer.render(newScene, newCamera)
-      }
-      animate()
-
-      // Handle resize
-      const handleResize = () => {
-        if (!container) return
-        newCamera.aspect = container.clientWidth / container.clientHeight
-        newCamera.updateProjectionMatrix()
-        newRenderer.setSize(container.clientWidth, container.clientHeight)
-      }
-      window.addEventListener('resize', handleResize)
-
-      return () => {
-        window.removeEventListener('resize', handleResize)
-        container.removeChild(newRenderer.domElement)
-        newRenderer.dispose()
-      }
+    // Animation loop
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate)
+      newControls.update()
+      newRenderer.render(newScene, newCamera)
     }
+    animate()
 
-    initScene()
+    // Handle resize
+    const handleResize = () => {
+      if (!container) return
+      newCamera.aspect = container.clientWidth / container.clientHeight
+      newCamera.updateProjectionMatrix()
+      newRenderer.setSize(container.clientWidth, container.clientHeight)
+    }
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      cancelAnimationFrame(animationFrameId)
+      window.removeEventListener('resize', handleResize)
+      container.removeChild(newRenderer.domElement)
+      newRenderer.dispose()
+    }
   }, [modelUrl])
 
   const loadModel = (

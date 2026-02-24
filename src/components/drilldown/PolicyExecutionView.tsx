@@ -25,6 +25,7 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -38,6 +39,8 @@ import {
 } from '@/components/ui/select'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDateTime } from '@/utils/format-helpers'
 
 interface PolicyExecutionViewProps {
   policyId?: string
@@ -82,8 +85,6 @@ interface ExecutionStatistics {
   avg_confidence: number
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
 export function PolicyExecutionView({
   policyId,
   entityType,
@@ -107,17 +108,19 @@ export function PolicyExecutionView({
   // Fetch executions
   const { data: executions, error, isLoading, mutate } = useSWR<PolicyExecution[]>(
     `/api/policy-executions?${queryParams.toString()}`,
-    fetcher
+    apiFetcher
   )
 
   // Fetch statistics
   const { data: stats } = useSWR<ExecutionStatistics>(
     `/api/policy-executions/statistics?${queryParams.toString()}`,
-    fetcher
+    apiFetcher
   )
 
+  const executionsArr = Array.isArray(executions) ? executions : []
+
   // Filter by search term
-  const filteredExecutions = executions?.filter((exec) => {
+  const filteredExecutions = executionsArr.filter((exec) => {
     if (!searchTerm) return true
     const searchLower = searchTerm.toLowerCase()
     return (
@@ -191,7 +194,7 @@ export function PolicyExecutionView({
         <div>
           <p className="font-mono text-sm">{exec.execution_number}</p>
           <p className="text-xs text-muted-foreground">
-            {new Date(exec.executed_at).toLocaleString()}
+            {formatDateTime(exec.executed_at)}
           </p>
         </div>
       ),
@@ -240,7 +243,7 @@ export function PolicyExecutionView({
       render: (exec) => (
         <div className="flex items-center gap-2">
           {getExecutionTypeIcon(exec.execution_type)}
-          <span className="text-sm capitalize">{exec.execution_type.replace('_', ' ')}</span>
+          <span className="text-sm">{formatEnum(exec.execution_type)}</span>
         </div>
       ),
     },
@@ -251,8 +254,8 @@ export function PolicyExecutionView({
       render: (exec) => (
         <div className="flex items-center gap-2">
           {getResultIcon(exec.result)}
-          <Badge variant={getResultColor(exec.result)} className="capitalize">
-            {exec.result}
+          <Badge variant={getResultColor(exec.result)}>
+            {formatEnum(exec.result)}
           </Badge>
         </div>
       ),
@@ -487,12 +490,12 @@ export function PolicyExecutionView({
         <Card>
           <CardHeader>
             <CardTitle>
-              Executions ({filteredExecutions?.length || 0})
+              Executions ({filteredExecutions.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             <DrilldownDataTable
-              data={filteredExecutions || []}
+              data={filteredExecutions}
               columns={columns}
               recordType="execution-detail"
               getRecordId={(exec) => exec.id}

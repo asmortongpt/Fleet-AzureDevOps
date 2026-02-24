@@ -10,6 +10,9 @@ import { memo, useState, useCallback } from 'react'
 import { CostAnalyticsChart } from './CostAnalyticsChart'
 import { EfficiencyMetricsChart } from './EfficiencyMetricsChart'
 
+import { formatCurrency, formatNumber as formatNum } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
+
 export type DrilldownLevel = 'overview' | 'category' | 'vehicle' | 'detail'
 
 export interface DrilldownData {
@@ -36,11 +39,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
     )
 
     const currentData = breadcrumbs[breadcrumbs.length - 1]
-    const formatCurrency = (value?: number | string) => {
-        if (value === null || value === undefined || value === '') return '—'
-        if (typeof value === 'string') return value
-        return `$${value.toLocaleString()}`
-    }
+    // formatCurrency imported from @/utils/format-helpers
     const formatPercent = (value?: number | string) => {
         if (value === null || value === undefined || value === '') return '—'
         if (typeof value === 'string') return value
@@ -49,7 +48,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
     const formatNumber = (value?: number | string) => {
         if (value === null || value === undefined || value === '') return '—'
         if (typeof value === 'string') return value
-        return value.toLocaleString()
+        return formatNum(value)
     }
 
     const handleDrillDown = useCallback((newData: DrilldownData) => {
@@ -250,6 +249,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                             <button
                                 onClick={onClose}
                                 className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+                                aria-label="Close drilldown panel"
                             >
                                 <X className="w-4 h-4 text-slate-700" />
                             </button>
@@ -259,7 +259,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                         {breadcrumbs.length > 0 && (
                             <div className="flex items-center gap-2 text-sm overflow-x-auto pb-2">
                                 {breadcrumbs.map((crumb, index) => (
-                                    <div key={index} className="flex items-center gap-2 flex-shrink-0">
+                                    <div key={crumb.title} className="flex items-center gap-2 flex-shrink-0">
                                         <button
                                             onClick={() => handleDrillUp(index)}
                                             className={`px-3 py-1 rounded-lg transition-colors ${
@@ -369,7 +369,7 @@ const VehicleList = memo<{ vehicles: any[]; onVehicleClick: (vehicle: any) => vo
 
 const VehicleDetailCard = memo<{ vehicle: any }>(({ vehicle }) => (
     <div className="bg-slate-800/40 rounded-lg p-3">
-        <h3 className="text-white font-semibold text-base mb-2">{vehicle.name}</h3>
+        <h3 className="text-white font-semibold text-base mb-2">{vehicle.name || formatVehicleName(vehicle)}</h3>
         <div className="grid grid-cols-2 gap-2">
             <div>
                 <p className="text-slate-700 text-sm">VIN</p>

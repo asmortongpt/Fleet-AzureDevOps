@@ -24,6 +24,7 @@ import {
   Flag
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import logger from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface EnvironmentVariable {
   key: string;
@@ -191,7 +193,7 @@ export function SystemConfiguration() {
     // In real app, this would call API to save configuration
     logger.info('Saving configuration...', { envVars, featureFlags });
     setHasChanges(false);
-    alert('Configuration saved successfully!');
+    toast.success('Configuration saved successfully!');
   };
 
   const handleRefreshHealth = () => {
@@ -395,8 +397,8 @@ export function SystemConfiguration() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {systemHealth.map((component, idx) => (
-                  <TableRow key={idx}>
+                {systemHealth.map((component) => (
+                  <TableRow key={component.component}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         {getStatusIcon(component.status)}
@@ -412,7 +414,7 @@ export function SystemConfiguration() {
                       {component.message}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {component.lastCheck.toLocaleString()}
+                      {formatDateTime(component.lastCheck)}
                     </TableCell>
                   </TableRow>
                 ))}

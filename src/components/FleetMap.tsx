@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import logger from '@/utils/logger';
 
 
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
 interface Vehicle {
   id: string;
@@ -68,7 +69,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
           setLoading(false);
         }
       } catch (err: unknown) {
-        console.error('Error loading Google Maps:', err);
+        logger.error('Error loading Google Maps:', err);
         setError('Failed to load Google Maps. Please check your API key configuration.');
         setLoading(false);
       }
@@ -114,7 +115,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
           <div style="padding: 8px; max-width: 200px;">
             <h3 style="margin: 0 0 8px 0; font-weight: bold;">${vehicle.name || vehicle.vehicleNumber}</h3>
             <p style="margin: 4px 0; font-size: 14px;">
-              <strong>Status:</strong> ${vehicle.status || 'Unknown'}
+              <strong>Status:</strong> ${vehicle.status || '—'}
             </p>
             ${vehicle.location ? `<p style="margin: 4px 0; font-size: 14px;"><strong>Location:</strong> ${vehicle.location}</p>` : ''}
             <p style="margin: 4px 0; font-size: 12px; color: #666;">

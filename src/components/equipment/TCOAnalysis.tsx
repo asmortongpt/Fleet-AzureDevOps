@@ -27,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { apiClient } from '@/lib/api-client'
 import { isSuccessResponse } from '@/lib/schemas/responses'
 import type { ApiResponse } from '@/lib/schemas/responses'
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 
@@ -136,10 +137,10 @@ export function TCOAnalysis({
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold text-red-600">
-              ${totalCost.toLocaleString()}
+              {formatCurrency(totalCost)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              ${costAnalysis.cost_per_hour.toFixed(2)}/hour
+              {formatCurrency(costAnalysis.cost_per_hour)}/hour
             </p>
           </CardContent>
         </Card>
@@ -153,11 +154,11 @@ export function TCOAnalysis({
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold text-green-600">
-              ${costAnalysis.revenue_generated.toLocaleString()}
+              {formatCurrency(costAnalysis.revenue_generated)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {costAnalysis.productive_hours > 0
-                ? `$${(costAnalysis.revenue_generated / costAnalysis.productive_hours).toFixed(2)}/hour`
+                ? `${formatCurrency(costAnalysis.revenue_generated / costAnalysis.productive_hours)}/hour`
                 : '$0.00/hour'
               }
             </p>
@@ -173,7 +174,7 @@ export function TCOAnalysis({
           </CardHeader>
           <CardContent>
             <div className={`text-sm font-bold ${costAnalysis.profit_loss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {costAnalysis.profit_loss >= 0 ? '+' : ''}${costAnalysis.profit_loss.toLocaleString()}
+              {costAnalysis.profit_loss >= 0 ? '+' : ''}{formatCurrency(Math.abs(costAnalysis.profit_loss))}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {profitMargin.toFixed(1)}% margin
@@ -221,7 +222,7 @@ export function TCOAnalysis({
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Maintenance</span>
-                  <span className="font-semibold">${costAnalysis.maintenance_cost.toLocaleString()}</span>
+                  <span className="font-semibold">{formatCurrency(costAnalysis.maintenance_cost)}</span>
                 </div>
                 <Progress
                   value={totalCost > 0 ? (costAnalysis.maintenance_cost / totalCost) * 100 : 0}
@@ -230,7 +231,7 @@ export function TCOAnalysis({
 
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Fuel</span>
-                  <span className="font-semibold">${costAnalysis.fuel_cost.toLocaleString()}</span>
+                  <span className="font-semibold">{formatCurrency(costAnalysis.fuel_cost)}</span>
                 </div>
                 <Progress
                   value={totalCost > 0 ? (costAnalysis.fuel_cost / totalCost) * 100 : 0}
@@ -239,7 +240,7 @@ export function TCOAnalysis({
 
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Labor</span>
-                  <span className="font-semibold">${costAnalysis.labor_cost.toLocaleString()}</span>
+                  <span className="font-semibold">{formatCurrency(costAnalysis.labor_cost)}</span>
                 </div>
                 <Progress
                   value={totalCost > 0 ? (costAnalysis.labor_cost / totalCost) * 100 : 0}
@@ -248,7 +249,7 @@ export function TCOAnalysis({
 
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Insurance</span>
-                  <span className="font-semibold">${costAnalysis.insurance_cost.toLocaleString()}</span>
+                  <span className="font-semibold">{formatCurrency(costAnalysis.insurance_cost)}</span>
                 </div>
                 <Progress
                   value={totalCost > 0 ? (costAnalysis.insurance_cost / totalCost) * 100 : 0}
@@ -257,7 +258,7 @@ export function TCOAnalysis({
 
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Storage</span>
-                  <span className="font-semibold">${costAnalysis.storage_cost.toLocaleString()}</span>
+                  <span className="font-semibold">{formatCurrency(costAnalysis.storage_cost)}</span>
                 </div>
                 <Progress
                   value={totalCost > 0 ? (costAnalysis.storage_cost / totalCost) * 100 : 0}
@@ -273,28 +274,28 @@ export function TCOAnalysis({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
-                  {costBreakdown.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between">
+                  {costBreakdown.map((item) => (
+                    <div key={item.label} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`w-3 h-3 rounded ${item.color}`}></div>
                         <span className="text-sm">{item.label}</span>
                       </div>
-                      <span className="font-semibold">${item.value.toLocaleString()}</span>
+                      <span className="font-semibold">{formatCurrency(item.value)}</span>
                     </div>
                   ))}
                 </div>
                 <div className="pt-3 border-t space-y-2">
                   <div className="flex justify-between font-semibold">
                     <span>Total Operating Cost</span>
-                    <span>${costAnalysis.total_operating_cost.toLocaleString()}</span>
+                    <span>{formatCurrency(costAnalysis.total_operating_cost)}</span>
                   </div>
                   <div className="flex justify-between font-semibold">
                     <span>Depreciation</span>
-                    <span>${costAnalysis.depreciation.toLocaleString()}</span>
+                    <span>{formatCurrency(costAnalysis.depreciation)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-sm">
                     <span>Total Cost</span>
-                    <span className="text-red-600">${totalCost.toLocaleString()}</span>
+                    <span className="text-red-600">{formatCurrency(totalCost)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -311,7 +312,7 @@ export function TCOAnalysis({
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  ${costAnalysis.acquisition_cost.toLocaleString()}
+                  {formatCurrency(costAnalysis.acquisition_cost)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">Original purchase price</p>
               </CardContent>
@@ -323,12 +324,12 @@ export function TCOAnalysis({
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  ${costAnalysis.current_value.toLocaleString()}
+                  {formatCurrency(costAnalysis.current_value)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   {costAnalysis.acquisition_cost > 0
                     ? `${((costAnalysis.current_value / costAnalysis.acquisition_cost) * 100).toFixed(1)}% of original`
-                    : 'N/A'
+                    : '—'
                   }
                 </p>
               </CardContent>
@@ -340,7 +341,7 @@ export function TCOAnalysis({
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold text-red-600">
-                  ${costAnalysis.depreciation.toLocaleString()}
+                  {formatCurrency(costAnalysis.depreciation)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   {costAnalysis.depreciation_rate.toFixed(2)}% rate
@@ -358,7 +359,7 @@ export function TCOAnalysis({
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Current Value</span>
-                  <Badge variant="default">${costAnalysis.current_value.toLocaleString()}</Badge>
+                  <Badge variant="default">{formatCurrency(costAnalysis.current_value)}</Badge>
                 </div>
                 <Progress
                   value={costAnalysis.acquisition_cost > 0
@@ -369,8 +370,8 @@ export function TCOAnalysis({
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>$0</span>
-                  <span>Residual: ${costAnalysis.residual_value.toLocaleString()}</span>
-                  <span>${costAnalysis.acquisition_cost.toLocaleString()}</span>
+                  <span>Residual: {formatCurrency(costAnalysis.residual_value)}</span>
+                  <span>{formatCurrency(costAnalysis.acquisition_cost)}</span>
                 </div>
               </div>
             </CardContent>
@@ -390,14 +391,14 @@ export function TCOAnalysis({
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm">Cost per Hour</span>
-                  <span className="font-semibold">${costAnalysis.cost_per_hour.toFixed(2)}</span>
+                  <span className="font-semibold">{formatCurrency(costAnalysis.cost_per_hour)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm">Revenue per Hour</span>
                   <span className="font-semibold">
-                    ${costAnalysis.productive_hours > 0
-                      ? (costAnalysis.revenue_generated / costAnalysis.productive_hours).toFixed(2)
-                      : '0.00'
+                    {costAnalysis.productive_hours > 0
+                      ? formatCurrency(costAnalysis.revenue_generated / costAnalysis.productive_hours)
+                      : '$0.00'
                     }
                   </span>
                 </div>
@@ -408,9 +409,9 @@ export function TCOAnalysis({
                       ? 'text-green-600'
                       : 'text-red-600'
                   }`}>
-                    ${costAnalysis.total_hours > 0
-                      ? (costAnalysis.profit_loss / costAnalysis.total_hours).toFixed(2)
-                      : '0.00'
+                    {costAnalysis.total_hours > 0
+                      ? formatCurrency(costAnalysis.profit_loss / costAnalysis.total_hours)
+                      : '$0.00'
                     }
                   </span>
                 </div>
@@ -454,7 +455,7 @@ export function TCOAnalysis({
                   <h4 className="font-semibold mb-2">Profitability</h4>
                   <div className="space-y-2 text-sm">
                     <p>Total Profit/Loss: <span className={`font-bold ${costAnalysis.profit_loss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      ${costAnalysis.profit_loss.toLocaleString()}
+                      {formatCurrency(costAnalysis.profit_loss)}
                     </span></p>
                     <p>Profit Margin: <span className="font-semibold">{profitMargin.toFixed(1)}%</span></p>
                     <p>ROI: <span className={`font-semibold ${costAnalysis.roi_percentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -466,7 +467,7 @@ export function TCOAnalysis({
                 <div className="p-2 bg-muted rounded-lg">
                   <h4 className="font-semibold mb-2">Cost Efficiency</h4>
                   <div className="space-y-2 text-sm">
-                    <p>Operating Cost/Hour: <span className="font-semibold">${costAnalysis.cost_per_hour.toFixed(2)}</span></p>
+                    <p>Operating Cost/Hour: <span className="font-semibold">{formatCurrency(costAnalysis.cost_per_hour)}</span></p>
                     <p>Utilization: <span className="font-semibold">{costAnalysis.utilization_rate.toFixed(1)}%</span></p>
                     <p>
                       Status: <Badge variant={costAnalysis.profit_loss >= 0 ? 'default' : 'destructive'}>

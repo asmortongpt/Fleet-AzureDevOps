@@ -23,6 +23,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 // ============================================================================
@@ -162,7 +163,8 @@ export interface FuelQueryParams {
 // API CLIENT (Simulated - replace with real API calls)
 // ============================================================================
 
-const API_BASE = '/api/fuel'
+const API_BASE = '/api/fuel-transactions'
+const FUEL_CARDS_API = '/api/fuel-cards'
 
 async function secureFetch(url: string, options?: RequestInit) {
   // In production, this would include CSRF token from cookies
@@ -199,7 +201,7 @@ export function useFuelTransactions(params: FuelQueryParams) {
         if (value !== undefined) queryParams.append(key, String(value))
       })
 
-      const response = await secureFetch(`${API_BASE}/transactions?${queryParams}`)
+      const response = await secureFetch(`${API_BASE}?${queryParams}`)
       return response.json()
     },
     staleTime: 30000, // 30 seconds
@@ -213,7 +215,7 @@ export function useFuelTransaction(transactionId: string) {
   return useQuery({
     queryKey: ['fuel', 'transactions', transactionId],
     queryFn: async (): Promise<FuelTransaction> => {
-      const response = await secureFetch(`${API_BASE}/transactions/${transactionId}`)
+      const response = await secureFetch(`${API_BASE}/${transactionId}`)
       return response.json()
     },
     enabled: !!transactionId,
@@ -231,7 +233,7 @@ export function useFuelCards(tenantId: string, params?: { status?: string; drive
       if (params?.status) queryParams.append('status', params.status)
       if (params?.driver_id) queryParams.append('driver_id', params.driver_id)
 
-      const response = await secureFetch(`${API_BASE}/cards?${queryParams}`)
+      const response = await secureFetch(`${FUEL_CARDS_API}?${queryParams}`)
       return response.json()
     },
   })
@@ -239,6 +241,8 @@ export function useFuelCards(tenantId: string, params?: { status?: string; drive
 
 /**
  * Fetch fuel analytics for a date range
+ * NOTE: Backend endpoint not yet implemented. This hook is a placeholder
+ * for when GET /api/fuel-transactions/analytics is added to fuel-transactions.ts.
  */
 export function useFuelAnalytics(tenantId: string, params?: { start_date?: string; end_date?: string }) {
   return useQuery({
@@ -251,11 +255,14 @@ export function useFuelAnalytics(tenantId: string, params?: { start_date?: strin
       const response = await secureFetch(`${API_BASE}/analytics?${queryParams}`)
       return response.json()
     },
+    enabled: false, // Disabled until backend endpoint is implemented
   })
 }
 
 /**
  * Fetch fuel metrics summary
+ * NOTE: Backend endpoint not yet implemented. This hook is a placeholder
+ * for when GET /api/fuel-transactions/metrics is added to fuel-transactions.ts.
  */
 export function useFuelMetrics(tenantId: string) {
   return useQuery({
@@ -264,6 +271,7 @@ export function useFuelMetrics(tenantId: string) {
       const response = await secureFetch(`${API_BASE}/metrics?tenant_id=${tenantId}`)
       return response.json()
     },
+    enabled: false, // Disabled until backend endpoint is implemented
     staleTime: 60000, // 1 minute
   })
 }
@@ -278,7 +286,7 @@ export function useFuelMutations() {
   const createTransaction = useMutation({
     mutationFn: async (data: CreateFuelTransactionInput): Promise<FuelTransaction> => {
       logger.info('[Fuel] Creating transaction', { vehicle_id: data.vehicle_id })
-      const response = await secureFetch(`${API_BASE}/transactions`, {
+      const response = await secureFetch(`${API_BASE}`, {
         method: 'POST',
         body: JSON.stringify(data),
       })
@@ -300,8 +308,8 @@ export function useFuelMutations() {
       data: UpdateFuelTransactionInput
     }): Promise<FuelTransaction> => {
       logger.info('[Fuel] Updating transaction', { transactionId })
-      const response = await secureFetch(`${API_BASE}/transactions/${transactionId}`, {
-        method: 'PATCH',
+      const response = await secureFetch(`${API_BASE}/${transactionId}`, {
+        method: 'PUT',
         body: JSON.stringify(data),
       })
       return response.json()
@@ -315,7 +323,7 @@ export function useFuelMutations() {
   const deleteTransaction = useMutation({
     mutationFn: async (transactionId: string): Promise<void> => {
       logger.info('[Fuel] Deleting transaction', { transactionId })
-      await secureFetch(`${API_BASE}/transactions/${transactionId}`, {
+      await secureFetch(`${API_BASE}/${transactionId}`, {
         method: 'DELETE',
       })
     },
@@ -329,7 +337,7 @@ export function useFuelMutations() {
   const createCard = useMutation({
     mutationFn: async (data: CreateFuelCardInput): Promise<FuelCard> => {
       logger.info('[Fuel] Creating fuel card', { card_holder: data.card_holder })
-      const response = await secureFetch(`${API_BASE}/cards`, {
+      const response = await secureFetch(`${FUEL_CARDS_API}`, {
         method: 'POST',
         body: JSON.stringify(data),
       })
@@ -349,8 +357,8 @@ export function useFuelMutations() {
       data: Partial<CreateFuelCardInput & { status: string }>
     }): Promise<FuelCard> => {
       logger.info('[Fuel] Updating fuel card', { cardId })
-      const response = await secureFetch(`${API_BASE}/cards/${cardId}`, {
-        method: 'PATCH',
+      const response = await secureFetch(`${FUEL_CARDS_API}/${cardId}`, {
+        method: 'PUT',
         body: JSON.stringify(data),
       })
       return response.json()
@@ -403,13 +411,13 @@ export function detectFuelExceptions(transaction: FuelTransaction, params: {
   if (params.average_cost_per_gallon) {
     const priceVariance = ((transaction.cost_per_gallon - params.average_cost_per_gallon) / params.average_cost_per_gallon) * 100
     if (priceVariance > 15) {
-      reasons.push(`High price: $${transaction.cost_per_gallon} vs avg $${params.average_cost_per_gallon}`)
+      reasons.push(`High price: ${formatCurrency(transaction.cost_per_gallon)} vs avg ${formatCurrency(params.average_cost_per_gallon)}`)
     }
   }
 
   // Daily spend limit check
   if (params.max_daily_spend && transaction.total_cost > params.max_daily_spend) {
-    reasons.push(`Exceeds daily limit: $${transaction.total_cost} > $${params.max_daily_spend}`)
+    reasons.push(`Exceeds daily limit: ${formatCurrency(transaction.total_cost)} > ${formatCurrency(params.max_daily_spend)}`)
   }
 
   // Weekend fueling (potential unauthorized use)

@@ -11,8 +11,10 @@ import {
 } from 'lucide-react';
 import { useMemo } from 'react';
 
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { formatTime } from '@/utils/format-helpers';
 import { Progress } from '@/components/ui/progress';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
 import type { Vehicle } from '@/types/Vehicle';
@@ -143,7 +145,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
                   <div>
                     <h3 className="font-semibold text-sm">{vehicle.number || vehicle.vehicleNumber}</h3>
                     <p className="text-xs text-slate-600">
-                      {vehicle.make} {vehicle.model}
+                      {formatVehicleShortName(vehicle)}
                     </p>
                   </div>
                 </div>
@@ -220,8 +222,8 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
               {/* Health issues */}
               {health.issues.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-slate-200">
-                  {health.issues.map((issue, i) => (
-                    <div key={i} className="flex items-center gap-1 text-xs text-amber-700">
+                  {health.issues.map((issue) => (
+                    <div key={issue} className="flex items-center gap-1 text-xs text-amber-700">
                       <AlertTriangle className="h-3 w-3" />
                       <span>{issue}</span>
                     </div>
@@ -236,11 +238,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
                   <div className="flex items-center gap-1">
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                     <span>
-                      {new Date(vehicle.position.timestamp).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}
+                      {formatTime(vehicle.position.timestamp)}
                     </span>
                   </div>
                 </div>

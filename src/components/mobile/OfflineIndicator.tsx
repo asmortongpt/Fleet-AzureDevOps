@@ -18,7 +18,9 @@ import React, { useState, useEffect } from 'react';
 
 import { offlineSyncService, type SyncStatus } from '../../services/offline-sync.service';
 
+import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { toast } from 'sonner';
 
 interface OfflineIndicatorProps {
   showDetails?: boolean;
@@ -83,7 +85,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 
   const handleManualSync = async () => {
     if (!isOnline) {
-      alert('Cannot sync while offline');
+      toast.info('Cannot sync while offline');
       return;
     }
 
@@ -91,7 +93,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
       await offlineSyncService.syncWhenOnline();
     } catch (error) {
       logger.error('Manual sync failed:', error);
-      alert('Sync failed. Please try again.');
+      toast.error('Sync failed. Please try again.');
     }
   };
 
@@ -210,6 +212,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
                 onClick={handleManualSync}
                 className="bg-white hover:bg-gray-50 p-2 rounded-full transition-colors"
                 title="Sync now"
+                aria-label="Sync now"
               >
                 <RefreshCw size={16} className="text-slate-700" />
               </button>
@@ -244,7 +247,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
                 <div className="col-span-2">
                   <p className="text-gray-700">Last Sync</p>
                   <p className="font-medium text-gray-800">
-                    {lastSyncTime.toLocaleString()}
+                    {formatDateTime(lastSyncTime)}
                   </p>
                 </div>
               )}

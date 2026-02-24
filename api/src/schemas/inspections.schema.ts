@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { commonSchemas } from '../middleware/validation';
+import { commonSchemas, flexUuid } from '../middleware/validation';
 
 /**
  * Comprehensive Zod validation schemas for Inspections
@@ -47,7 +47,7 @@ const defectSeverityEnum = z.enum([
  * Inspection form field schema
  */
 export const inspectionFormFieldSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: flexUuid.optional(),
   field_name: z.string().max(200),
   field_label: z.string().max(200),
   field_type: z.enum([
@@ -108,7 +108,7 @@ export const inspectionFormCreateSchema = z.object({
  * Inspection defect schema
  */
 export const inspectionDefectSchema = z.object({
-  defect_id: z.string().uuid().optional(),
+  defect_id: flexUuid.optional(),
   component: z.string()
     .max(200, 'Component name must be 200 characters or less'),
   description: z.string()
@@ -126,13 +126,13 @@ export const inspectionDefectSchema = z.object({
  */
 export const inspectionCreateSchema = z.object({
   // Vehicle and driver (REQUIRED)
-  vehicle_id: z.string().uuid('Invalid vehicle ID format'),
-  driver_id: z.string().uuid('Invalid driver ID format').optional(),
+  vehicle_id: flexUuid,
+  driver_id: flexUuid.optional(),
 
   // Inspection metadata (REQUIRED)
   inspection_type: inspectionTypeEnum,
 
-  inspection_form_id: z.string().uuid('Invalid inspection form ID').optional(),
+  inspection_form_id: flexUuid.optional(),
 
   inspection_date: z.coerce.date(),
 
@@ -205,7 +205,7 @@ export const inspectionCreateSchema = z.object({
     .optional(),
 
   // Linked work orders (if defects require repair)
-  created_work_order_ids: z.array(z.string().uuid())
+  created_work_order_ids: z.array(flexUuid)
     .max(20, 'Too many linked work orders')
     .optional(),
 
@@ -259,7 +259,7 @@ export const inspectionUpdateSchema = z.object({
     .nullable()
     .optional(),
 
-  created_work_order_ids: z.array(z.string().uuid())
+  created_work_order_ids: z.array(flexUuid)
     .max(20)
     .nullable()
     .optional(),
@@ -280,9 +280,9 @@ export const inspectionQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(500).default(50),
 
   // Filtering
-  vehicle_id: z.string().uuid().optional(),
-  driver_id: z.string().uuid().optional(),
-  inspection_form_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
+  driver_id: flexUuid.optional(),
+  inspection_form_id: flexUuid.optional(),
 
   inspection_type: inspectionTypeEnum.optional(),
   status: inspectionStatusEnum.optional(),
@@ -336,7 +336,7 @@ export const inspectionQuerySchema = z.object({
  * Inspection ID parameter schema
  */
 export const inspectionIdSchema = z.object({
-  id: z.string().uuid('Invalid inspection ID format')
+  id: flexUuid
 });
 
 // Type exports

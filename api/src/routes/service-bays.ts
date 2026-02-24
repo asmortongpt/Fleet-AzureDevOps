@@ -7,13 +7,15 @@ import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac'
 import { validateQuery } from '../middleware/validate'
 import { tenantSafeQuery } from '../utils/dbHelpers'
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router()
 
 // All routes require authentication
 router.use(authenticateJWT)
 
 const querySchema = z.object({
-  facility_id: z.string().uuid().optional(),
+  facility_id: flexUuid.optional(),
   active: z.string().optional(),
 })
 

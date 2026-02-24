@@ -10,6 +10,8 @@
 
 import { useState } from 'react'
 
+import { formatTime } from '@/utils/format-helpers'
+
 import { EnhancedUniversalMap } from '../EnhancedUniversalMap'
 import { MapHealthDashboard } from '../MapHealthDashboard'
 import type { MapProvider } from '../UniversalMap'
@@ -122,7 +124,7 @@ export function MapErrorRecoveryExample() {
   // --------------------------------------------------------------------------
 
   const addLog = (message: string, type: 'info' | 'error' | 'success' = 'info') => {
-    const time = new Date().toLocaleTimeString()
+    const time = formatTime(new Date())
     setEventLog(prev => [{ time, message, type }, ...prev].slice(0, 20))
   }
 

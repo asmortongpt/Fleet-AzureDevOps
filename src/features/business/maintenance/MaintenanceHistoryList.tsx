@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { maintenanceService, MaintenanceRecord } from '../../services/maintenanceService';
 import { vehicleService, Vehicle } from '../../services/vehicleService';
 
+import { formatDate, formatNumber } from '@/utils/format-helpers';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 import logger from '@/utils/logger';
 
 interface MaintenanceHistoryListProps {
@@ -53,7 +56,7 @@ const MaintenanceHistoryList: React.FC<MaintenanceHistoryListProps> = ({
       await fetchData();
     } catch (err: any) {
       logger.error('Failed to complete maintenance:', err);
-      alert('Failed to mark as completed: ' + (err.message || 'Unknown error'))
+      toast.error('Failed to mark as completed: ' + (err.message || 'Unknown error'))
     }
   };
 
@@ -105,13 +108,7 @@ const MaintenanceHistoryList: React.FC<MaintenanceHistoryListProps> = ({
     }
   };
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  };
+  // Using formatDate from @/utils/format-helpers
 
   const formatCurrency = (amount?: number) => {
     if (!amount) return '-';
@@ -229,7 +226,7 @@ const MaintenanceHistoryList: React.FC<MaintenanceHistoryListProps> = ({
               <option value="">All Vehicles</option>
               {vehicles.map(vehicle => (
                 <option key={vehicle.id} value={vehicle.id}>
-                  {vehicle.licensePlate || vehicle.vin} - {vehicle.make} {vehicle.model}
+                  {vehicle.licensePlate || vehicle.vin} - {formatVehicleShortName(vehicle)}
                 </option>
               ))}
             </select>
@@ -379,10 +376,10 @@ const MaintenanceHistoryList: React.FC<MaintenanceHistoryListProps> = ({
                     {record.vehicle ? (
                       <div>
                         <div style={{ fontWeight: '500' }}>
-                          {record.vehicle.licensePlate || 'N/A'}
+                          {record.vehicle.licensePlate || '—'}
                         </div>
                         <div style={{ fontSize: '12px', color: currentTheme.textMuted }}>
-                          {record.vehicle.make} {record.vehicle.model}
+                          {formatVehicleShortName(record.vehicle)}
                         </div>
                       </div>
                     ) : (
@@ -392,7 +389,7 @@ const MaintenanceHistoryList: React.FC<MaintenanceHistoryListProps> = ({
                   <td style={tableCellStyle}>{record.serviceType}</td>
                   <td style={tableCellStyle}>{record.vendor || '-'}</td>
                   <td style={tableCellStyle}>
-                    {record.mileageAtService ? record.mileageAtService.toLocaleString() : '-'}
+                    {record.mileageAtService ? formatNumber(record.mileageAtService) : '-'}
                   </td>
                   <td style={tableCellStyle}>
                     <strong>{formatCurrency(record.cost)}</strong>

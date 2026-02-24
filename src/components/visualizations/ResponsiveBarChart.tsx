@@ -30,15 +30,16 @@ export interface ResponsiveBarChartProps {
   showValues?: boolean
   stacked?: boolean
   horizontal?: boolean
+  compact?: boolean
 }
 
 const GRADIENT_COLORS = [
-  { id: 'bar-gradient-1', start: 'hsl(var(--chart-1))', end: 'hsl(var(--chart-1))' },
-  { id: 'bar-gradient-2', start: 'hsl(var(--chart-2))', end: 'hsl(var(--chart-2))' },
-  { id: 'bar-gradient-3', start: 'hsl(var(--chart-3))', end: 'hsl(var(--chart-3))' },
-  { id: 'bar-gradient-4', start: 'hsl(var(--chart-6))', end: 'hsl(var(--chart-6))' },
-  { id: 'bar-gradient-5', start: 'hsl(var(--chart-4))', end: 'hsl(var(--chart-4))' },
-  { id: 'bar-gradient-6', start: 'hsl(var(--chart-5))', end: 'hsl(var(--chart-5))' },
+  { id: 'bar-gradient-1', start: '#10B981', end: '#10B981' },
+  { id: 'bar-gradient-2', start: '#10B981', end: '#10B981' },
+  { id: 'bar-gradient-3', start: '#F59E0B', end: '#F59E0B' },
+  { id: 'bar-gradient-4', start: '#EF4444', end: '#EF4444' },
+  { id: 'bar-gradient-5', start: '#8B5CF6', end: '#8B5CF6' },
+  { id: 'bar-gradient-6', start: '#F97316', end: '#F97316' },
 ]
 
 export function ResponsiveBarChart({
@@ -54,14 +55,15 @@ export function ResponsiveBarChart({
   showValues = false,
   stacked = false,
   horizontal = false,
+  compact = false,
 }: ResponsiveBarChartProps) {
   const chartColors = {
-    text: 'hsl(var(--foreground))',
-    grid: 'hsl(var(--border))',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: 'hsl(var(--card))',
-      border: 'hsl(var(--border))',
-      text: 'hsl(var(--foreground))',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -74,8 +76,8 @@ export function ResponsiveBarChart({
           className="bg-background border-2 border-border rounded-xl shadow-xl p-4"
         >
           <p className="font-semibold text-sm mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center justify-between gap-4 mb-1">
+          {payload.map((entry: any) => (
+            <div key={entry.name} className="flex items-center justify-between gap-4 mb-1">
               <div className="flex items-center gap-2">
                 <div
                   className="w-3 h-3 rounded-full"
@@ -108,6 +110,90 @@ export function ResponsiveBarChart({
     )
   }
 
+  const barChartContent = loading ? (
+    <div
+      className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
+      style={{ height: compact ? '100%' : height }}
+    />
+  ) : (
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart
+        data={data}
+        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        layout={horizontal ? 'vertical' : 'horizontal'}
+      >
+        <defs>
+          {GRADIENT_COLORS.map((gradient) => (
+            <linearGradient key={gradient.id} id={gradient.id} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={gradient.start} stopOpacity={1} />
+              <stop offset="100%" stopColor={gradient.end} stopOpacity={0.85} />
+            </linearGradient>
+          ))}
+        </defs>
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke={chartColors.grid}
+          strokeOpacity={0.3}
+          vertical={!horizontal}
+          horizontal={horizontal}
+        />
+        {horizontal ? (
+          <>
+            <XAxis type="number" stroke={chartColors.text} tick={{ fill: chartColors.text }} />
+            <YAxis
+              type="category"
+              dataKey={xAxisKey}
+              stroke={chartColors.text}
+              tick={{ fill: chartColors.text }}
+              width={100}
+            />
+          </>
+        ) : (
+          <>
+            <XAxis
+              dataKey={xAxisKey}
+              stroke={chartColors.text}
+              tick={{ fill: chartColors.text }}
+              angle={-45}
+              textAnchor="end"
+              height={80}
+            />
+            <YAxis stroke={chartColors.text} tick={{ fill: chartColors.text }} />
+          </>
+        )}
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+        <Legend
+          wrapperStyle={{ color: chartColors.text }}
+          iconType="square"
+          formatter={(value) => <span className="text-sm font-medium">{value}</span>}
+        />
+        {keysToRender.map((key, index) => (
+          <Bar
+            key={key}
+            dataKey={key}
+            fill={colors[index % colors.length]}
+            radius={[8, 8, 0, 0]}
+            animationDuration={1200}
+            animationBegin={index * 100}
+            stackId={stacked ? 'stack' : undefined}
+          >
+            {showValues && <LabelList content={<CustomLabel />} position="top" />}
+            {!stacked && data.map((entry, idx) => (
+              <Cell
+                key={`cell-${idx}`}
+                className="transition-opacity duration-300 hover:opacity-80"
+              />
+            ))}
+          </Bar>
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  )
+
+  if (compact) {
+    return <div className="w-full" style={{ minHeight: height || 140 }}>{barChartContent}</div>
+  }
+
   return (
     <div>
       <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -116,85 +202,7 @@ export function ResponsiveBarChart({
           {description && <CardDescription className="text-sm">{description}</CardDescription>}
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div
-              className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
-              style={{ height }}
-            />
-          ) : (
-            <ResponsiveContainer width="100%" height={height}>
-              <BarChart
-                data={data}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                layout={horizontal ? 'vertical' : 'horizontal'}
-              >
-                <defs>
-                  {GRADIENT_COLORS.map((gradient) => (
-                    <linearGradient key={gradient.id} id={gradient.id} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={gradient.start} stopOpacity={1} />
-                      <stop offset="100%" stopColor={gradient.end} stopOpacity={0.85} />
-                    </linearGradient>
-                  ))}
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={chartColors.grid}
-                  strokeOpacity={0.3}
-                  vertical={!horizontal}
-                  horizontal={horizontal}
-                />
-                {horizontal ? (
-                  <>
-                    <XAxis type="number" stroke={chartColors.text} tick={{ fill: chartColors.text }} />
-                    <YAxis
-                      type="category"
-                      dataKey={xAxisKey}
-                      stroke={chartColors.text}
-                      tick={{ fill: chartColors.text }}
-                      width={100}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <XAxis
-                      dataKey={xAxisKey}
-                      stroke={chartColors.text}
-                      tick={{ fill: chartColors.text }}
-                      angle={-45}
-                      textAnchor="end"
-                      height={80}
-                    />
-                    <YAxis stroke={chartColors.text} tick={{ fill: chartColors.text }} />
-                  </>
-                )}
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--foreground) / 0.05)' }} />
-                <Legend
-                  wrapperStyle={{ color: chartColors.text }}
-                  iconType="square"
-                  formatter={(value) => <span className="text-sm font-medium">{value}</span>}
-                />
-                {keysToRender.map((key, index) => (
-                  <Bar
-                    key={key}
-                    dataKey={key}
-                    fill={colors[index % colors.length]}
-                    radius={[8, 8, 0, 0]}
-                    animationDuration={1200}
-                    animationBegin={index * 100}
-                    stackId={stacked ? 'stack' : undefined}
-                  >
-                    {showValues && <LabelList content={<CustomLabel />} position="top" />}
-                    {!stacked && data.map((entry, idx) => (
-                      <Cell
-                        key={`cell-${idx}`}
-                        className="transition-opacity duration-300 hover:opacity-80"
-                      />
-                    ))}
-                  </Bar>
-                ))}
-              </BarChart>
-            </ResponsiveContainer>
-          )}
+          {barChartContent}
         </CardContent>
       </Card>
     </div>

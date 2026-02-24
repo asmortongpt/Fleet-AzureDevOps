@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
-
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface MaintenanceRequestProps {
   currentTheme: any;
@@ -24,7 +25,7 @@ const MaintenanceRequestForm: React.FC<MaintenanceRequestProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // logger.info('Maintenance Request:', request);
-    alert('Maintenance request submitted successfully!');
+    toast.success('Maintenance request submitted successfully!');
     setActiveView('dashboard');
   };
 
@@ -71,7 +72,7 @@ const MaintenanceRequestForm: React.FC<MaintenanceRequestProps> = ({
             <option value="">Select Vehicle</option>
             {vehicles.slice(0, 10).map(vehicle => (
               <option key={vehicle.id} value={vehicle.id}>
-                {vehicle.id} - {vehicle.make} {vehicle.model}
+                {formatVehicleName(vehicle)}
               </option>
             ))}
           </select>
