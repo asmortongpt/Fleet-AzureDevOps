@@ -22,6 +22,7 @@ import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { currentUserAtom } from '@/lib/reactive-state'
 import { fetchCurrentUser } from '@/services/userService'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 // Form validation schema
 const profileSchema = z.object({
@@ -473,11 +474,7 @@ export default function ProfilePage() {
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Member Since</span>
               <span className="text-sm text-muted-foreground">
-                {new Date(currentUser.createdAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
+                {formatDate(currentUser.createdAt)}
               </span>
             </div>
             {currentUser.lastActive && (
@@ -486,13 +483,7 @@ export default function ProfilePage() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Last Active</span>
                   <span className="text-sm text-muted-foreground">
-                    {new Date(currentUser.lastActive).toLocaleString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
+                    {formatDateTime(currentUser.lastActive)}
                   </span>
                 </div>
               </>

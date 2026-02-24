@@ -4,7 +4,6 @@
  */
 
 import { Link2, Loader2 } from 'lucide-react'
-import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
@@ -177,7 +176,6 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
             label: 'Manage Attachments',
             data: { vehicleId, tab: 'attachments' }
           })
-          toast.success('Opening attachment management')
         }}
       >
         <Link2 className="h-4 w-4 mr-2" />

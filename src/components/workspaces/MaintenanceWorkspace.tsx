@@ -10,7 +10,7 @@ import {
   Grid
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
-import { toast, ToastOptions } from "react-hot-toast"
+import { toast } from "sonner"
 import useSWR from "swr"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
@@ -97,6 +97,8 @@ const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[
 
 // Vehicle Maintenance Panel
 const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Vehicle | null; _maintenanceHistory: unknown }) => {
+  const [scheduleOpen, setScheduleOpen] = useState(false)
+  const [scheduleType, setScheduleType] = useState<'preventive' | 'corrective'>('preventive')
   if (!vehicle) {
     return (
       <div className="p-2 text-center text-muted-foreground">
@@ -180,37 +182,50 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
 
         {/* Actions */}
         <div className="space-y-2">
-          <Button className="w-full" onClick={() => {
-              toast.success('Service scheduling initiated', {
-                duration: 3000,
-                position: 'top-center'
-              } as ToastOptions)
-            }}>
+          <Button className="w-full" onClick={() => { setScheduleType('preventive'); setScheduleOpen(true) }}>
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Service
           </Button>
           <Button
             variant="outline"
             className="w-full hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 transition-colors"
-            onClick={() => {
-              toast.success('Maintenance request submitted', {
-                duration: 3000,
-                position: 'top-center'
-              } as ToastOptions)
-            }}
+            onClick={() => { setScheduleType('corrective'); setScheduleOpen(true) }}
           >
             <Wrench className="h-4 w-4 mr-2" />
             Request Maintenance
           </Button>
-          <Button variant="outline" className="w-full" onClick={() => {
-              toast.success('Loading service history...', {
-                duration: 3000,
-                position: 'top-center'
-              } as ToastOptions)
-            }}>
-            View Service History
-          </Button>
         </div>
+
+        {/* Schedule/Request Dialog */}
+        <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{scheduleType === 'preventive' ? 'Schedule Service' : 'Request Maintenance'}</DialogTitle>
+            </DialogHeader>
+            <div className="py-2 space-y-3">
+              <div className="text-sm text-muted-foreground">
+                Vehicle: <strong>{vehicle ? formatVehicleName(vehicle) : '-'}</strong>
+              </div>
+              <div>
+                <Label htmlFor="svc-type">Service Type</Label>
+                <Select value={scheduleType} onValueChange={(v) => setScheduleType(v as 'preventive' | 'corrective')}>
+                  <SelectTrigger id="svc-type"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="preventive">Preventive Maintenance</SelectItem>
+                    <SelectItem value="corrective">Corrective / Repair</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setScheduleOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                setScheduleOpen(false)
+                toast.success(`${scheduleType === 'preventive' ? 'Service scheduled' : 'Maintenance requested'} for ${vehicle ? formatVehicleName(vehicle) : 'vehicle'}`)
+              }}>Submit</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ScrollArea>
   )
@@ -336,10 +351,7 @@ const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { wo
                   toast.error('Please enter a title for the work order')
                   return
                 }
-                toast.success(`Work order "${newWO.title}" created successfully`, {
-                  duration: 3000,
-                  position: 'top-center'
-                } as ToastOptions)
+                toast.success(`Work order "${newWO.title}" created successfully`)
                 setCreateOpen(false)
               }}>Create Work Order</Button>
             </DialogFooter>

@@ -5,6 +5,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { formatCurrency } from "@/utils/format-helpers"
 
 export function FleetOptimizer() {
   const { vehicles, fuelTransactions } = useFleetData()
@@ -140,7 +141,7 @@ export function FleetOptimizer() {
                   <YAxis className="text-xs" tick={{ fontSize: 12 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '6px', color: 'hsl(var(--foreground))' }}
-                    formatter={(value) => [`$${Number(value ?? 0).toLocaleString()}`, 'Fuel Cost']}
+                    formatter={(value) => [formatCurrency(Number(value ?? 0)), 'Fuel Cost']}
                   />
                   <Area type="monotone" dataKey="fuelCost" stroke="#10b981" fill="#10b981" fillOpacity={0.15} name="Fuel Cost ($)" />
                 </AreaChart>

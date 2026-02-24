@@ -4,6 +4,8 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
+
+import { formatNumber } from '@/utils/format-helpers'
 // motion removed - React 19 incompatible
 
 interface AnimatedCounterProps {
@@ -59,7 +61,7 @@ export function AnimatedCounter({
   }, [value, duration])
 
   const formatted = useLocale
-    ? displayValue.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    ? formatNumber(displayValue, decimals)
     : displayValue.toFixed(decimals)
 
   return (

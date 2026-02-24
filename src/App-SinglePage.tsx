@@ -10,7 +10,7 @@ import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatTime } from "@/utils/format-helpers"
+import { formatCurrency, formatTime } from "@/utils/format-helpers"
 
 /**
  * SINGLE-PAGE FLEET MANAGEMENT DASHBOARD
@@ -141,10 +141,7 @@ export default function App() {
             </CardHeader>
             <CardContent>
               <div className="text-base font-bold text-slate-900 dark:text-white">
-                ${stats.avgFuelCost.toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })}
+                {formatCurrency(stats.avgFuelCost)}
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 Per gallon

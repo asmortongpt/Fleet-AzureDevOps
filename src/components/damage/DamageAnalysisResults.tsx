@@ -1,6 +1,7 @@
 import { AlertCircle, CheckCircle, DollarSign, MapPin, Camera } from 'lucide-react';
 import { useState } from 'react';
 
+import { formatCurrency } from '@/utils/format-helpers';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -213,10 +214,10 @@ export function DamageAnalysisResults({
         </CardHeader>
         <CardContent>
           <div className="text-base font-bold text-gray-900">
-            ${selectedCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {formatCurrency(selectedCost)}
           </div>
           <p className="text-sm text-gray-700 mt-1">
-            Total: ${costEstimate.totalEstimate.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            Total: {formatCurrency(costEstimate.totalEstimate)}
           </p>
         </CardContent>
       </Card>

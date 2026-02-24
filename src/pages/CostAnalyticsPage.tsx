@@ -100,6 +100,7 @@ export default function CostAnalyticsPage() {
   const [timeframe, setTimeframe] = useState('month')
   const [department, setDepartment] = useState('all')
   const [sortBy, setSortBy] = useState<'cost' | 'variance' | 'costPerMile'>('cost')
+  const [showAllVehicles, setShowAllVehicles] = useState(false)
 
   // Calculate cost metrics from real fleet data
   const costMetrics = useMemo<CostMetric[]>(() => {
@@ -841,7 +842,7 @@ export default function CostAnalyticsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {vehicleCostData.slice(0, 10).map((vehicle) => (
+                  {(showAllVehicles ? vehicleCostData : vehicleCostData.slice(0, 10)).map((vehicle) => (
                     <tr
                       key={vehicle.vehicleId}
                       className="border-b border-border/50 hover:bg-muted/50 transition-colors"
@@ -928,8 +929,8 @@ export default function CostAnalyticsPage() {
             </div>
             {vehicleCostData.length > 10 && (
               <div className="mt-4 text-center">
-                <Button variant="outline" size="sm" onClick={() => toast.info('Navigating to full vehicle cost breakdown...')}>
-                  View All {vehicleCostData.length} Vehicles
+                <Button variant="outline" size="sm" onClick={() => setShowAllVehicles(prev => !prev)}>
+                  {showAllVehicles ? 'Show Top 10' : `View All ${vehicleCostData.length} Vehicles`}
                 </Button>
               </div>
             )}

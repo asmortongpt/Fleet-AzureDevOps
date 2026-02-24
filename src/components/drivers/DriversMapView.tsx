@@ -241,7 +241,13 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
             )}
 
             <div className="pt-3 space-y-2">
-              <Button className="w-full" size="sm" onClick={() => toast.info('Opening messaging for ' + selectedDriver?.name)}>
+              <Button className="w-full" size="sm" onClick={() => {
+                if (selectedDriver?.email) {
+                  window.open(`mailto:${selectedDriver.email}?subject=Fleet Communication - ${selectedDriver.name}`, '_blank')
+                } else {
+                  toast.info('No email address on file for ' + selectedDriver?.name)
+                }
+              }}>
                 <Mail className="h-4 w-4 mr-2" />
                 Message Driver
               </Button>

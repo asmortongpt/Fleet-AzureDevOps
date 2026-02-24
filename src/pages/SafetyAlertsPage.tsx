@@ -61,7 +61,7 @@ import { useDrilldown } from "@/contexts/DrilldownContext"
 import { getCsrfToken } from "@/hooks/use-api"
 import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from "@/utils/format-enum"
-import { formatDateTime, formatNumber } from '@/utils/format-helpers'
+import { formatDate, formatDateTime, formatNumber, formatTime } from '@/utils/format-helpers'
 
 interface SafetyAlert {
   id: string
@@ -484,7 +484,7 @@ export default function SafetyAlertsPage() {
         i + 1,
         `"${(a.reportedBy || 'Unknown').replace(/"/g, '""')}"`,
         '""',
-        a.reportedAt ? new Date(a.reportedAt).toLocaleDateString() : '',
+        a.reportedAt ? formatDate(a.reportedAt) : '',
         `"${(a.location || '').replace(/"/g, '""')}"`,
         `"${(a.description || '').replace(/"/g, '""')}"`,
         a.type === 'environmental' ? 'Illness' : 'Injury',
@@ -534,14 +534,14 @@ export default function SafetyAlertsPage() {
       'OSHA Form 301 - Injury and Illness Incident Report',
       '',
       `Case Number: ${target.alertNumber}`,
-      `Date of Report: ${new Date().toLocaleDateString()}`,
+      `Date of Report: ${formatDate(new Date())}`,
       '',
       'ABOUT THE EMPLOYEE',
       `Name: ${target.reportedBy || 'Unknown'}`,
       '',
       'ABOUT THE CASE',
-      `Date of Injury/Illness: ${target.reportedAt ? new Date(target.reportedAt).toLocaleDateString() : ''}`,
-      `Time of Event: ${target.reportedAt ? new Date(target.reportedAt).toLocaleTimeString() : ''}`,
+      `Date of Injury/Illness: ${target.reportedAt ? formatDate(target.reportedAt) : ''}`,
+      `Time of Event: ${target.reportedAt ? formatTime(target.reportedAt) : ''}`,
       `Location: ${target.location}`,
       '',
       'DESCRIPTION',

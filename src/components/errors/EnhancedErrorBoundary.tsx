@@ -11,10 +11,11 @@
  * Meets FAANG-level quality standards
  */
 
-import { AlertTriangle, RotateCw, Home, Mail } from 'lucide-react'
+import { AlertTriangle, RotateCw, Home } from 'lucide-react'
 // motion removed - React 19 incompatible
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 
+import { EmailButton } from '@/components/email/EmailButton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -387,14 +388,14 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
             </Button>
 
             {level === 'page' && (
-              <Button
-                onClick={() => window.location.href = 'mailto:support@fleet.gov'}
-                className="gap-2"
+              <EmailButton
+                to="support@fleet.gov"
+                context={{ type: 'general', recipientName: 'Support Team', details: `Application error report${errorId ? ` (Reference: ${errorId})` : ''}` }}
+                label="Contact Support"
                 variant="outline"
-              >
-                <Mail className="w-4 h-4" />
-                Contact Support
-              </Button>
+                size="default"
+                className="gap-2"
+              />
             )}
           </CardFooter>
 

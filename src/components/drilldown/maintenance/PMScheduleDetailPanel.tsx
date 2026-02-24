@@ -9,7 +9,6 @@ import {
   Clock,
   User,
   Phone,
-  Mail,
   Car,
   DollarSign,
   History,
@@ -22,6 +21,7 @@ import type { PreventiveMaintenanceSchedule, ServiceHistoryRecord } from './type
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { DrilldownCard, DrilldownCardGrid } from '@/components/drilldown/DrilldownCard'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -311,16 +311,22 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                       </div>
                     </a>
 
-                    <a
-                      href={`mailto:${schedule.serviceProviderContact.email}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
-                    >
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{schedule.serviceProviderContact.email}</p>
-                        <p className="text-xs text-muted-foreground">Click to email</p>
-                      </div>
-                    </a>
+                    <div className="flex items-center gap-3 p-2 rounded-lg">
+                      <EmailButton
+                        to={schedule.serviceProviderContact.email}
+                        context={{
+                          type: 'vendor_contact',
+                          entityName: schedule.serviceProvider,
+                          recipientName: schedule.serviceProviderContact.name,
+                          details: `PM schedule: ${schedule.serviceType}`,
+                        }}
+                        label={schedule.serviceProviderContact.email}
+                        variant="ghost"
+                        size="sm"
+                        className="h-auto p-0 text-sm font-medium text-foreground hover:text-foreground"
+                        ariaLabel={`Email ${schedule.serviceProviderContact.name}`}
+                      />
+                    </div>
                   </div>
 
                   <Button

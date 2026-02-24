@@ -2,6 +2,7 @@ import { Shield } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import { EmailButton } from '@/components/email/EmailButton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -291,14 +292,16 @@ export function PasswordReset() {
             )}
 
             {/* Support Link */}
-            <p className="text-center text-[10px] text-muted-foreground">
+            <p className="text-center text-[10px] text-muted-foreground inline-flex items-center justify-center gap-1 w-full">
               Need assistance?{' '}
-              <a
-                href="mailto:support@capitaltechalliance.com"
-                className="font-semibold transition-colors hover:underline text-primary"
-              >
-                Contact Support
-              </a>
+              <EmailButton
+                to="support@capitaltechalliance.com"
+                context={{ type: 'general', recipientName: 'Support Team', details: 'Password reset assistance request' }}
+                label="Contact Support"
+                variant="link"
+                size="sm"
+                className="h-auto p-0 text-[10px] font-semibold text-primary"
+              />
             </p>
           </div>
         </Card>

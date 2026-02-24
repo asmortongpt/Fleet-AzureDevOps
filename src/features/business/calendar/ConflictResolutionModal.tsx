@@ -192,10 +192,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Clock size={14} />
-              {originalEvent.start.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+              {formatTime(originalEvent.start)}
             </span>
           </div>
         </div>
@@ -236,10 +233,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
                       color: currentTheme.textMuted,
                       marginTop: '4px'
                     }}>
-                      {formatTime(conflict.start)} - {conflict.end.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      {formatTime(conflict.start)} - {formatTime(conflict.end)}
                     </div>
                   </div>
                   <span style={{

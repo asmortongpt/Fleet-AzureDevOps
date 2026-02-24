@@ -22,7 +22,7 @@ import { toast } from 'sonner';
 
 import { useAuth } from '@/hooks/useAuth';
 import { brandColors } from '@/theme/designSystem'
-import { formatDate } from '@/utils/format-helpers';
+import { formatDate, formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 import { formatVehicleName } from '@/utils/vehicle-display';
 interface PendingAssignment {
@@ -224,7 +224,7 @@ const MobileManagerView: React.FC = () => {
             </div>
 
             <p className="text-xs text-gray-700 mt-2">
-              Until: {formatDate(period.end_datetime)} {new Date(period.end_datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              Until: {formatDate(period.end_datetime)} {formatTime(period.end_datetime)}
             </p>
           </div>
         ))

@@ -187,11 +187,7 @@ export function ExecutiveDashboard() {
   }
 
   const handleExportPDF = () => {
-    toast.info('PDF export is generating...')
-    // Simulate generation time then confirm
-    setTimeout(() => {
-      toast.success('PDF report generated successfully')
-    }, 1500)
+    window.print()
   }
 
   const getHealthColor = (score: number) => {

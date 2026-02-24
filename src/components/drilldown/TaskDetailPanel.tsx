@@ -27,6 +27,7 @@ import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
+import { formatDateTime } from '@/utils/format-helpers'
 
 interface TaskDetailPanelProps {
   taskId: string
@@ -176,18 +177,6 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
       case 'low': return 'secondary'
       default: return 'secondary'
     }
-  }
-
-  const formatDateTime = (dateString?: string) => {
-    if (!dateString) return '—'
-    return new Date(dateString).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    })
   }
 
   const getAssigneeIcon = (type?: string) => {

@@ -3,6 +3,7 @@
  * Production-ready CSV, Excel, and PDF export functions
  */
 
+import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 /**
@@ -77,7 +78,7 @@ export function formatDataForExport(data: any[]): any[] {
         continue;
       }
       if (value instanceof Date) {
-        formatted[key] = value.toLocaleDateString();
+        formatted[key] = formatDate(value);
         continue;
       }
       if (typeof value === 'number' || typeof value === 'boolean') {
