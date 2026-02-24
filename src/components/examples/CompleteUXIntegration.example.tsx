@@ -154,14 +154,14 @@ export const CompleteUXIntegrationExample: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-base font-bold text-gray-900">Vehicle Management</h1>
-          <p className="mt-2 text-slate-700">
+          <p className="mt-2 text-white/70">
             Manage your fleet vehicles and view detailed information
           </p>
         </div>
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-emerald-600 text-white px-3 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
           >
             Add Vehicle
           </button>
@@ -185,7 +185,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                   value={values.vin}
                   onChange={(e) => handleChange('vin', e.target.value.toUpperCase())}
                   onBlur={() => handleBlur('vin')}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-emerald-500 ${
                     touched.vin && errors.vin ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="1HGCM82633A123456"
@@ -204,7 +204,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                   value={values.make}
                   onChange={(e) => handleChange('make', e.target.value)}
                   onBlur={() => handleBlur('make')}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-emerald-500 ${
                     touched.make && errors.make ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Honda"
@@ -222,7 +222,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                   value={values.model}
                   onChange={(e) => handleChange('model', e.target.value)}
                   onBlur={() => handleBlur('model')}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-emerald-500 ${
                     touched.model && errors.model ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Accord"
@@ -240,7 +240,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                   value={values.year}
                   onChange={(e) => handleChange('year', e.target.value)}
                   onBlur={() => handleBlur('year')}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-emerald-500 ${
                     touched.year && errors.year ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="2023"
@@ -258,7 +258,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                   value={values.license_plate}
                   onChange={(e) => handleChange('license_plate', e.target.value.toUpperCase())}
                   onBlur={() => handleBlur('license_plate')}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-emerald-500 ${
                     touched.license_plate && errors.license_plate
                       ? 'border-red-500'
                       : 'border-gray-300'
@@ -279,7 +279,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                   type="text"
                   value={values.color}
                   onChange={(e) => handleChange('color', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500"
                   placeholder="Black"
                 />
               </div>
@@ -298,7 +298,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+                className="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
               >
                 {isSubmitting ? (
                   <>

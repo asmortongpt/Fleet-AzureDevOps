@@ -30,8 +30,8 @@ export function OfficeViewer({ document }: OfficeViewerProps) {
       case 'document':
         return {
           icon: 'Word',
-          color: 'text-blue-800',
-          bgColor: 'bg-blue-100',
+          color: 'text-emerald-800',
+          bgColor: 'bg-emerald-500/10',
           description: 'Word Document'
         };
       case 'spreadsheet':
@@ -51,7 +51,7 @@ export function OfficeViewer({ document }: OfficeViewerProps) {
       default:
         return {
           icon: 'Document',
-          color: 'text-slate-700',
+          color: 'text-white/70',
           bgColor: 'bg-gray-100',
           description: 'Office Document'
         };

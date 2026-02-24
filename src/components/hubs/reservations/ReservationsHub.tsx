@@ -119,7 +119,7 @@ export const ReservationsHub: React.FC = () => {
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin inline" /> : availableVehicles}
               </p>
             </div>
-            <Calendar className="w-4 h-4 text-blue-800" />
+            <Calendar className="w-4 h-4 text-emerald-800" />
           </div>
         </div>
 

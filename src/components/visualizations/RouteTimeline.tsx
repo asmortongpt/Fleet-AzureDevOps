@@ -76,7 +76,7 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
 
     if (route.status === 'completed') return 'bg-green-500';
     if (route.status === 'delayed' || (progress && progress.delayMinutes > 5)) return 'bg-red-500';
-    if (route.status === 'active') return 'bg-blue-500';
+    if (route.status === 'active') return 'bg-emerald-500/50';
     return 'bg-gray-400';
   };
 
@@ -119,14 +119,14 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
       </CardHeader>
       <CardContent>
         {/* Time axis */}
-        <div className="relative mb-4 h-8 border-b border-slate-200">
+        <div className="relative mb-4 h-8 border-b border-white/[0.08]">
           {hourMarkers.map((marker) => (
             <div
               key={marker.time}
-              className="absolute top-0 h-full border-l border-slate-200"
+              className="absolute top-0 h-full border-l border-white/[0.08]"
               style={{ left: `${marker.position}%` }}
             >
-              <span className="absolute -left-4 top-0 text-xs text-slate-500">
+              <span className="absolute -left-4 top-0 text-xs text-white/40">
                 {marker.time}
               </span>
             </div>
@@ -157,7 +157,7 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
                   <span className="text-sm font-medium min-w-[100px]">
                     {route.routeNumber}
                   </span>
-                  <span className="text-xs text-slate-600 truncate flex-1">
+                  <span className="text-xs text-white/50 truncate flex-1">
                     {route.name}
                   </span>
                   {progress && (
@@ -171,7 +171,7 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
                 </div>
 
                 {/* Timeline bar */}
-                <div className="relative h-8 bg-slate-100 rounded overflow-hidden">
+                <div className="relative h-8 bg-white/[0.05] rounded overflow-hidden">
                   {/* Scheduled bar */}
                   <div
                     className={`absolute top-0 h-full ${statusColor} opacity-30 transition-all`}
@@ -204,7 +204,7 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
                       <AlertCircle className="h-4 w-4 text-white animate-pulse" />
                     )}
                     {route.status === 'pending' && (
-                      <Clock className="h-4 w-4 text-slate-500" />
+                      <Clock className="h-4 w-4 text-white/40" />
                     )}
 
                     {progress && (
@@ -230,7 +230,7 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
 
                 {/* Progress details */}
                 {progress && (
-                  <div className="flex items-center gap-4 mt-1 text-xs text-slate-600">
+                  <div className="flex items-center gap-4 mt-1 text-xs text-white/50">
                     <span>
                       Stops: {progress.completedStops}/{progress.totalStops}
                     </span>
@@ -245,7 +245,7 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
         </div>
 
         {routes.length === 0 && (
-          <div className="text-center py-8 text-slate-500">
+          <div className="text-center py-8 text-white/40">
             <Calendar className="h-12 w-12 mx-auto mb-2 opacity-20" />
             <p>No routes scheduled</p>
           </div>

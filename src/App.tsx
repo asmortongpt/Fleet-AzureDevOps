@@ -233,7 +233,7 @@ function App() {
         <div className="flex flex-col items-center justify-center h-full p-3 text-center bg-gray-50 rounded-lg">
           <Shield className="w-16 h-16 text-red-500 mb-2" />
           <h2 className="text-sm font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-slate-700 mb-3">
+          <p className="text-white/70 mb-3">
             You do not have permission to view this module.
           </p>
           <Button onClick={() => setActiveModule('fleet-hub-consolidated')}>

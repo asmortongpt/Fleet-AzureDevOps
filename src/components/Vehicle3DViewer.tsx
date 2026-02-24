@@ -466,7 +466,7 @@ function Scene({
 function LoadingPlaceholder() {
   return (
     <Html center>
-      <div className="rounded-md bg-slate-900/80 px-3 py-2 text-xs text-slate-200">
+      <div className="rounded-md bg-[#111]/80 px-3 py-2 text-xs text-white/70">
         Loading 3D model...
       </div>
     </Html>
@@ -532,17 +532,17 @@ export default function Vehicle3DViewer({
   return (
     <div className={`relative w-full h-[500px] ${className || ''}`}>
       {loadError && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-slate-950/80 text-sm text-slate-200">
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[#0a0a0a]/80 text-sm text-white/70">
           {loadError}
         </div>
       )}
       {isLoading && !loadError && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-slate-950/50 text-sm text-slate-200">
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[#0a0a0a]/50 text-sm text-white/70">
           Loading 3D model...
         </div>
       )}
       {!canRender3d && !isLoading && !loadError && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-slate-950/50 text-sm text-slate-200">
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[#0a0a0a]/50 text-sm text-white/70">
           No 3D model available.
         </div>
       )}

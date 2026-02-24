@@ -108,7 +108,7 @@ export function OperationsHubMap({
       {showDispatchOverlay && (
         <div className="absolute top-20 left-4 z-10 bg-card/90 backdrop-blur-sm rounded-lg shadow-sm p-3 max-w-xs border border-border/50">
           <h4 className="font-semibold text-xs text-muted-foreground mb-2 flex items-center gap-2">
-            <Truck className="h-4 w-4 text-blue-200" />
+            <Truck className="h-4 w-4 text-emerald-200" />
             Active Dispatches
           </h4>
           <div className="space-y-1.5">

@@ -48,7 +48,7 @@ export function TrafficCameraLayer({
     className: 'custom-camera-marker',
     html: `
       <div class="relative">
-        <div class="bg-blue-600 text-white rounded-full p-2 shadow-sm border-2 border-white">
+        <div class="bg-emerald-600 text-white rounded-full p-2 shadow-sm border-2 border-white">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
           </svg>
@@ -107,11 +107,11 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
           <h3 className="font-semibold text-gray-900 dark:text-white">
             {camera.name}
           </h3>
-          <p className="text-sm text-slate-700 dark:text-gray-600">
+          <p className="text-sm text-white/70 dark:text-gray-600">
             {camera.road} {camera.direction}
           </p>
         </div>
-        <Camera className="w-3 h-3 text-blue-800" />
+        <Camera className="w-3 h-3 text-emerald-800" />
       </div>
 
       {camera.description && (
@@ -135,7 +135,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2 text-xs text-slate-700 dark:text-gray-600 mb-2">
+      <div className="grid grid-cols-2 gap-2 text-xs text-white/70 dark:text-gray-600 mb-2">
         <div>
           <span className="font-medium">County:</span> {camera.county}
         </div>
@@ -193,13 +193,13 @@ function CameraFeedModal({
             <h2 className="text-base font-bold text-gray-900 dark:text-white">
               {camera.name}
             </h2>
-            <p className="text-sm text-slate-700 dark:text-gray-600">
+            <p className="text-sm text-white/70 dark:text-gray-600">
               {camera.road} {camera.direction} - {camera.county} County
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-600 hover:text-slate-700 dark:hover:text-gray-300 transition-colors"
+            className="text-gray-600 hover:text-white/70 dark:hover:text-gray-300 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -236,7 +236,7 @@ function CameraFeedModal({
         {/* Footer */}
         <div className="p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-slate-700 dark:text-gray-600">
+            <div className="text-sm text-white/70 dark:text-gray-600">
               <p>{camera.description}</p>
               {camera.metadata?.mileMarker && (
                 <p className="mt-1">Mile Marker: {camera.metadata.mileMarker}</p>
@@ -247,7 +247,7 @@ function CameraFeedModal({
                 href={camera.feedUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-2 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
+                className="px-2 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors flex items-center gap-2"
               >
                 Open in New Tab
                 <ExternalLink className="w-4 h-4" />

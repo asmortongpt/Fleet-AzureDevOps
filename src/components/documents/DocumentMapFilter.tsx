@@ -73,7 +73,7 @@ export function DocumentMapFilter({
         >
           <div className="flex items-center gap-2">
             <svg
-              className="w-3 h-3 text-slate-700 dark:text-gray-700"
+              className="w-3 h-3 text-white/70 dark:text-gray-700"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -89,7 +89,7 @@ export function DocumentMapFilter({
               Filters
             </h3>
             {hasActiveFilters && (
-              <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full">
+              <span className="px-2 py-0.5 bg-emerald-500/10 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs font-medium rounded-full">
                 Active
               </span>
             )}
@@ -97,7 +97,7 @@ export function DocumentMapFilter({
 
           <div className="flex items-center gap-2">
             {/* Document count */}
-            <span className="text-sm text-slate-700 dark:text-gray-700">
+            <span className="text-sm text-white/70 dark:text-gray-700">
               {filteredDocuments} / {totalDocuments}
             </span>
 
@@ -134,7 +134,7 @@ export function DocumentMapFilter({
                   value={searchQuery}
                   onChange={e => startTransition(() => onSearchChange(e.target.value))}
                   placeholder="Search by filename or address..."
-                  className="w-full px-3 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
                 <svg
                   className="absolute left-3 top-2.5 w-3 h-3 text-gray-700"
@@ -168,7 +168,7 @@ export function DocumentMapFilter({
                         type="checkbox"
                         checked={selectedCategories.includes(category.categoryName)}
                         onChange={() => toggleCategory(category.categoryName)}
-                        className="w-4 h-4 text-blue-800 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-emerald-800 border-gray-300 rounded focus:ring-emerald-500"
                       />
                       <span
                         className="w-3 h-3 rounded-full flex-shrink-0"
@@ -198,7 +198,7 @@ export function DocumentMapFilter({
                   onClick={() => onMapStyleChange('osm')}
                   className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
                     mapStyle === 'osm'
-                      ? 'bg-blue-500 text-white'
+                      ? 'bg-emerald-500/50 text-white'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
@@ -208,7 +208,7 @@ export function DocumentMapFilter({
                   onClick={() => onMapStyleChange('dark')}
                   className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
                     mapStyle === 'dark'
-                      ? 'bg-blue-500 text-white'
+                      ? 'bg-emerald-500/50 text-white'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
@@ -218,7 +218,7 @@ export function DocumentMapFilter({
                   onClick={() => onMapStyleChange('satellite')}
                   className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
                     mapStyle === 'satellite'
-                      ? 'bg-blue-500 text-white'
+                      ? 'bg-emerald-500/50 text-white'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >

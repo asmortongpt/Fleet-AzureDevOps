@@ -226,18 +226,18 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
       {!captureMode && !isAnalyzing && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <Card
-            className="cursor-pointer hover:border-blue-500 transition-colors"
+            className="cursor-pointer hover:border-emerald-500 transition-colors"
             onClick={() => setCaptureMode('photo')}
           >
             <CardHeader>
-              <Camera className="h-8 w-8 mb-2 text-blue-800" />
+              <Camera className="h-8 w-8 mb-2 text-emerald-800" />
               <CardTitle>Photo Analysis</CardTitle>
               <CardDescription>
                 Capture multiple photos from different angles. Best for detailed damage assessment.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="text-sm space-y-1 text-slate-700">
+              <ul className="text-sm space-y-1 text-white/70">
                 <li>• 5-10 photos recommended</li>
                 <li>• Front, rear, sides, and closeups</li>
                 {deviceCapabilities.hasDepth && <li>• Includes depth data</li>}
@@ -257,7 +257,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="text-sm space-y-1 text-slate-700">
+              <ul className="text-sm space-y-1 text-white/70">
                 <li>• 30-60 seconds recommended</li>
                 <li>• Walk around entire vehicle</li>
                 <li>• Hold steady for best results</li>
@@ -282,7 +282,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
             </CardHeader>
             <CardContent>
               {deviceCapabilities.hasLiDAR ? (
-                <ul className="text-sm space-y-1 text-slate-700">
+                <ul className="text-sm space-y-1 text-white/70">
                   <li>• Millimeter-level accuracy</li>
                   <li>• 3D depth map included</li>
                   <li>• Best for insurance claims</li>
@@ -466,7 +466,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
           <CardContent className="space-y-2">
             <Progress value={analysisProgress} className="w-full" />
             <div className="flex justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
+              <Loader2 className="h-8 w-8 animate-spin text-emerald-800" />
             </div>
             <Alert>
               <AlertCircle className="h-4 w-4" />

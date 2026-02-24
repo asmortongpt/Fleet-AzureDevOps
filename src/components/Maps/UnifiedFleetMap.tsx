@@ -98,7 +98,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
       name: 'Live Vehicles',
       icon: <Car className="w-4 h-4" />,
       enabled: true,
-      color: 'text-blue-800',
+      color: 'text-emerald-800',
       count: vehicles.length
     },
     {

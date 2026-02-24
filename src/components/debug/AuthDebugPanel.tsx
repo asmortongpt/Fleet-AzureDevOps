@@ -150,7 +150,7 @@ export function AuthDebugPanel() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 max-w-md">
-      <Card className="border-2 border-yellow-500 bg-slate-900 text-white shadow-xl">
+      <Card className="border-2 border-yellow-500 bg-[#111] text-white shadow-xl">
         {/* Header */}
         <div
           className="flex items-center justify-between border-b border-yellow-500/30 bg-yellow-500/10 p-3 cursor-pointer"
@@ -189,13 +189,13 @@ export function AuthDebugPanel() {
             {user && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-2">
-                  <User className="h-4 w-4 text-blue-400" />
+                  <User className="h-4 w-4 text-emerald-400" />
                   <h3 className="font-semibold text-sm">User Information</h3>
                 </div>
 
-                <div className="bg-slate-800 rounded p-3 space-y-1 text-xs font-mono">
+                <div className="bg-[#1a1a1a] rounded p-3 space-y-1 text-xs font-mono">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">ID:</span>
+                    <span className="text-white/50">ID:</span>
                     <div className="flex items-center gap-2">
                       <span className="text-green-400">{user.id}</span>
                       <Button
@@ -214,31 +214,31 @@ export function AuthDebugPanel() {
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Email:</span>
+                    <span className="text-white/50">Email:</span>
                     <span className="text-green-400">{user.email}</span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Name:</span>
+                    <span className="text-white/50">Name:</span>
                     <span className="text-green-400">
                       {user.firstName} {user.lastName}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Role:</span>
+                    <span className="text-white/50">Role:</span>
                     <Badge className="text-xs">{user.role}</Badge>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Tenant:</span>
+                    <span className="text-white/50">Tenant:</span>
                     <span className="text-green-400">
                       {user.tenantName || user.tenantId}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Permissions:</span>
+                    <span className="text-white/50">Permissions:</span>
                     <span className="text-green-400">
                       {user.permissions.join(', ')}
                     </span>
@@ -256,7 +256,7 @@ export function AuthDebugPanel() {
                 </div>
 
                 {/* Token Expiry */}
-                <div className="bg-slate-800 rounded p-3 space-y-2">
+                <div className="bg-[#1a1a1a] rounded p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-yellow-400" />
@@ -274,7 +274,7 @@ export function AuthDebugPanel() {
                   </div>
 
                   {tokenInfo.payload.exp && (
-                    <div className="text-xs text-slate-400">
+                    <div className="text-xs text-white/50">
                       Expires:{' '}
                       {formatDateTime(new Date(tokenInfo.payload.exp * 1000))}
                     </div>
@@ -282,31 +282,31 @@ export function AuthDebugPanel() {
                 </div>
 
                 {/* Token Header */}
-                <details className="bg-slate-800 rounded p-3">
-                  <summary className="cursor-pointer text-xs font-semibold text-blue-400">
+                <details className="bg-[#1a1a1a] rounded p-3">
+                  <summary className="cursor-pointer text-xs font-semibold text-emerald-400">
                     Token Header
                   </summary>
-                  <pre className="mt-2 text-xs text-slate-300 overflow-x-auto">
+                  <pre className="mt-2 text-xs text-white/60 overflow-x-auto">
                     {JSON.stringify(tokenInfo.header, null, 2)}
                   </pre>
                 </details>
 
                 {/* Token Payload */}
-                <details className="bg-slate-800 rounded p-3">
+                <details className="bg-[#1a1a1a] rounded p-3">
                   <summary className="cursor-pointer text-xs font-semibold text-purple-400">
                     Token Payload
                   </summary>
-                  <pre className="mt-2 text-xs text-slate-300 overflow-x-auto">
+                  <pre className="mt-2 text-xs text-white/60 overflow-x-auto">
                     {JSON.stringify(tokenInfo.payload, null, 2)}
                   </pre>
                 </details>
 
                 {/* Signature */}
-                <div className="bg-slate-800 rounded p-3">
+                <div className="bg-[#1a1a1a] rounded p-3">
                   <div className="text-xs font-semibold text-orange-400 mb-2">
                     Signature (truncated)
                   </div>
-                  <div className="text-xs font-mono text-slate-400 break-all">
+                  <div className="text-xs font-mono text-white/50 break-all">
                     {tokenInfo.signature.substring(0, 50)}...
                   </div>
                 </div>
@@ -318,26 +318,26 @@ export function AuthDebugPanel() {
               <div className="space-y-2">
                 <h3 className="font-semibold text-sm">MSAL Account</h3>
 
-                <div className="bg-slate-800 rounded p-3 space-y-1 text-xs font-mono">
+                <div className="bg-[#1a1a1a] rounded p-3 space-y-1 text-xs font-mono">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Username:</span>
+                    <span className="text-white/50">Username:</span>
                     <span className="text-green-400">{accounts[0].username}</span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Name:</span>
+                    <span className="text-white/50">Name:</span>
                     <span className="text-green-400">{accounts[0].name}</span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Environment:</span>
+                    <span className="text-white/50">Environment:</span>
                     <span className="text-green-400">
                       {accounts[0].environment}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Tenant ID:</span>
+                    <span className="text-white/50">Tenant ID:</span>
                     <span className="text-green-400">{accounts[0].tenantId}</span>
                   </div>
                 </div>
@@ -345,11 +345,11 @@ export function AuthDebugPanel() {
             )}
 
             {/* Session Storage Info */}
-            <details className="bg-slate-800 rounded p-3">
+            <details className="bg-[#1a1a1a] rounded p-3">
               <summary className="cursor-pointer text-xs font-semibold text-cyan-400">
                 Session Storage Keys
               </summary>
-              <div className="mt-2 space-y-1 text-xs text-slate-300">
+              <div className="mt-2 space-y-1 text-xs text-white/60">
                 {Object.keys(sessionStorage)
                   .filter(k => k.includes('msal'))
                   .map(key => (
@@ -361,12 +361,12 @@ export function AuthDebugPanel() {
             </details>
 
             {/* Actions */}
-            <div className="flex gap-2 pt-2 border-t border-slate-700">
+            <div className="flex gap-2 pt-2 border-t border-white/[0.15]">
               <Button
                 onClick={handleRefresh}
                 size="sm"
                 variant="outline"
-                className="flex-1 bg-blue-500/10 border-blue-500 text-blue-400 hover:bg-blue-500/20"
+                className="flex-1 bg-emerald-500/10 border-emerald-500 text-emerald-400 hover:bg-emerald-500/20"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh Token
@@ -384,7 +384,7 @@ export function AuthDebugPanel() {
             </div>
 
             {/* Environment Info */}
-            <div className="pt-2 border-t border-slate-700 text-xs text-slate-400">
+            <div className="pt-2 border-t border-white/[0.15] text-xs text-white/50">
               <div className="flex justify-between">
                 <span>Environment:</span>
                 <span className="font-mono">{import.meta.env.MODE}</span>

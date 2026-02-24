@@ -132,7 +132,7 @@ export function PartsInventory() {
   const getStockStatus = (part: Part) => {
     if (part.quantityOnHand === 0) return { label: "Out of Stock", color: "bg-red-100 text-red-700" }
     if (part.quantityOnHand <= part.reorderPoint) return { label: "Low Stock", color: "bg-yellow-100 text-yellow-700" }
-    if (part.quantityOnHand >= part.maxStockLevel) return { label: "Overstocked", color: "bg-blue-100 text-blue-700" }
+    if (part.quantityOnHand >= part.maxStockLevel) return { label: "Overstocked", color: "bg-emerald-500/10 text-emerald-700" }
     return { label: "In Stock", color: "bg-green-100 text-green-700" }
   }
 

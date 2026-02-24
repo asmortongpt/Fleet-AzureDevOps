@@ -120,7 +120,7 @@ export function DrilldownCard({
     success: 'border-green-500/30 bg-green-500/5',
     warning: 'border-yellow-500/30 bg-yellow-500/5',
     danger: 'border-red-500/30 bg-red-500/5',
-    info: 'border-blue-500/30 bg-blue-500/5',
+    info: 'border-emerald-500/30 bg-emerald-500/5',
   }
 
   const iconColorClasses = {
@@ -129,7 +129,7 @@ export function DrilldownCard({
     success: 'text-green-500',
     warning: 'text-yellow-500',
     danger: 'text-red-500',
-    info: 'text-blue-800',
+    info: 'text-emerald-800',
   }
 
   const variantClasses = {

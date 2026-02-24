@@ -141,7 +141,7 @@ export function EquipmentDashboard() {
   const getStatusColor = (status: string) => {
     const colors = {
       available: "bg-green-100 text-green-700",
-      in_use: "bg-blue-100 text-blue-700",
+      in_use: "bg-emerald-500/10 text-emerald-700",
       maintenance: "bg-yellow-100 text-yellow-700",
       down: "bg-red-100 text-red-700",
       rental: "bg-purple-100 text-purple-700"
@@ -154,7 +154,7 @@ export function EquipmentDashboard() {
       critical: "bg-red-100 text-red-700",
       high: "bg-orange-100 text-orange-700",
       medium: "bg-yellow-100 text-yellow-700",
-      low: "bg-blue-100 text-blue-700"
+      low: "bg-emerald-500/10 text-emerald-700"
     }
     return colors[priority as keyof typeof colors] || "bg-gray-100 text-gray-700"
   }
@@ -188,7 +188,7 @@ export function EquipmentDashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">In Use</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">{inUseEquipment}</div>
+            <div className="text-sm font-bold text-emerald-800">{inUseEquipment}</div>
             <div className="text-xs text-muted-foreground mt-1">
               {totalEquipment > 0 ? Math.round((inUseEquipment / totalEquipment) * 100) : 0}% utilization
             </div>
@@ -252,7 +252,7 @@ export function EquipmentDashboard() {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-emerald-500/50"></div>
                     <span className="text-sm">In Use</span>
                   </div>
                   <span className="font-semibold">{inUseEquipment}</span>

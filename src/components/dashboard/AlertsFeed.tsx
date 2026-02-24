@@ -51,7 +51,7 @@ export function AlertsFeed({
     const styles = {
       critical: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
       warning: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
-      maintenance: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-700 dark:border-blue-900",
+      maintenance: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:bg-emerald-950 dark:text-emerald-700 dark:border-emerald-900",
       info: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700"
     }
     return styles[type]
@@ -92,7 +92,7 @@ export function AlertsFeed({
             </span>
           )}
           {stats.unread > 0 && (
-            <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold text-blue-700 bg-blue-100 dark:bg-blue-950 dark:text-blue-700 rounded-full border border-blue-200 dark:border-blue-900">
+            <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-500/10 dark:bg-emerald-950 dark:text-emerald-700 rounded-full border border-emerald-500/20 dark:border-emerald-900">
               {stats.unread} New
             </span>
           )}
@@ -112,7 +112,7 @@ export function AlertsFeed({
                 key={alert.id}
                 className={cn(
                   "p-2 rounded-md border cursor-pointer transition-all duration-200 hover:shadow-sm",
-                  !alert.isRead && "bg-blue-50/50 dark:bg-blue-950/10",
+                  !alert.isRead && "bg-emerald-500/5 dark:bg-emerald-950/10",
                   alert.isRead && "opacity-80 hover:opacity-100"
                 )}
                 onClick={() => onAlertClick?.(alert)}
@@ -131,7 +131,7 @@ export function AlertsFeed({
                       </div>
                       {!alert.isRead && (
                         <Circle
-                          className="w-2 h-2 fill-blue-500 text-blue-800 flex-shrink-0 mt-1"
+                          className="w-2 h-2 fill-emerald-500 text-emerald-800 flex-shrink-0 mt-1"
                          
                         />
                       )}
@@ -218,7 +218,7 @@ export function ActivityFeed({ activities, maxHeight = "100%", maxItems }: Activ
                 className="flex items-start gap-2 p-1.5 rounded hover:bg-muted/30 transition-colors"
               >
                 <Circle
-                  className="w-1.5 h-1.5 mt-1.5 fill-blue-500 text-blue-800 flex-shrink-0"
+                  className="w-1.5 h-1.5 mt-1.5 fill-emerald-500 text-emerald-800 flex-shrink-0"
                  
                 />
                 <div className="flex-1 min-w-0">

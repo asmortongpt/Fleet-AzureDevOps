@@ -37,7 +37,7 @@ export const UXShowcase: React.FC = () => {
     <div className="max-w-6xl mx-auto p-3 space-y-12">
       <div>
         <h1 className="text-sm font-bold mb-2">UX Components Showcase</h1>
-        <p className="text-slate-700">
+        <p className="text-white/70">
           Visual demonstration of all UX improvement components
         </p>
       </div>
@@ -77,7 +77,7 @@ export const UXShowcase: React.FC = () => {
 
           <div>
             <p className="text-sm font-medium mb-2">In Button</p>
-            <button className="bg-blue-600 text-white px-2 py-2 rounded flex items-center">
+            <button className="bg-emerald-600 text-white px-2 py-2 rounded flex items-center">
               <LoadingSpinner size="sm" className="mr-2" />
               Loading...
             </button>
@@ -91,7 +91,7 @@ export const UXShowcase: React.FC = () => {
         <div className="bg-white p-3 rounded-lg shadow">
           <button
             onClick={handleShowOverlay}
-            className="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700"
+            className="bg-emerald-600 text-white px-3 py-2 rounded hover:bg-emerald-700"
           >
             Show Loading Overlay (2 seconds)
           </button>
@@ -169,7 +169,7 @@ export const UXShowcase: React.FC = () => {
             </button>
             <button
               onClick={() => handleShowToast('info')}
-              className="bg-blue-600 text-white px-2 py-2 rounded hover:bg-blue-700"
+              className="bg-emerald-600 text-white px-2 py-2 rounded hover:bg-emerald-700"
             >
               Info Toast
             </button>
@@ -204,7 +204,7 @@ export const UXShowcase: React.FC = () => {
           <p className="text-gray-500 mb-2">
             Get started by adding your first vehicle to the fleet.
           </p>
-          <button className="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700">
+          <button className="bg-emerald-600 text-white px-3 py-2 rounded hover:bg-emerald-700">
             Add Vehicle
           </button>
         </div>
@@ -222,7 +222,7 @@ export const UXShowcase: React.FC = () => {
               <input
                 type="text"
                 placeholder="Enter value"
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-emerald-500"
               />
             </div>
 
@@ -251,7 +251,7 @@ export const UXShowcase: React.FC = () => {
             </div>
 
             <div className="flex gap-2">
-              <button className="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700">
+              <button className="bg-emerald-600 text-white px-3 py-2 rounded hover:bg-emerald-700">
                 Normal Button
               </button>
               <button
@@ -270,7 +270,7 @@ export const UXShowcase: React.FC = () => {
         <h2 className="text-sm font-semibold border-b pb-2">Color Palette</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           <div className="bg-white rounded-lg shadow p-2">
-            <div className="h-20 bg-blue-600 rounded mb-2"></div>
+            <div className="h-20 bg-emerald-600 rounded mb-2"></div>
             <p className="text-sm font-medium">Primary (Blue)</p>
             <p className="text-xs text-gray-500">Actions, Links</p>
           </div>

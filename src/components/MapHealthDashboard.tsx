@@ -185,7 +185,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
               <Card
                 key={provider}
                 className={`cursor-pointer transition-all ${
-                  isSelected ? 'ring-2 ring-blue-500' : 'hover:shadow-md'
+                  isSelected ? 'ring-2 ring-emerald-500' : 'hover:shadow-md'
                 }`}
                 onClick={() => handleProviderClick(provider)}
               >

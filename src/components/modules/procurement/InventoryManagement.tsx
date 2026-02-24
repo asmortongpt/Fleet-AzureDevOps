@@ -234,7 +234,7 @@ export function InventoryManagement() {
       return {
         type: "overstocked" as const,
         label: "Overstocked",
-        color: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100"
+        color: "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-100"
       }
     }
     return {
@@ -648,7 +648,7 @@ export function InventoryManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Overstocked</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800 dark:text-blue-700">{metrics.overstocked}</div>
+            <div className="text-sm font-bold text-emerald-800 dark:text-emerald-700">{metrics.overstocked}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <TrendingUp className="w-3 h-3" />
               Over max
@@ -820,7 +820,7 @@ export function InventoryManagement() {
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" aria-label="Item actions">
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>

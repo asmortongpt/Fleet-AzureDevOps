@@ -244,7 +244,7 @@ flowchart LR
 
   const metrics: DataFlowMetric[] = [
     { label: "Avg Latency", value: "245ms", trend: "down", color: "text-green-600" },
-    { label: "Throughput", value: "1,234/min", trend: "up", color: "text-blue-800" },
+    { label: "Throughput", value: "1,234/min", trend: "up", color: "text-emerald-800" },
     { label: "Success Rate", value: "99.7%", trend: "stable", color: "text-emerald-600" },
     { label: "Policy Checks", value: "45,678", trend: "up", color: "text-purple-600" }
   ]
@@ -285,7 +285,7 @@ flowchart LR
   const getStepIcon = (status: FlowStep["status"]) => {
     switch (status) {
       case "processing":
-        return <Zap className="w-4 h-4 text-blue-800 animate-pulse" />
+        return <Zap className="w-4 h-4 text-emerald-800 animate-pulse" />
       case "complete":
         return <CheckCircle className="w-4 h-4 text-green-500" />
       case "error":
@@ -397,9 +397,9 @@ flowchart LR
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <span className={`text-sm font-medium ${
-                      step.status === "processing" ? "text-blue-800" :
+                      step.status === "processing" ? "text-emerald-800" :
                       step.status === "complete" ? "text-green-600" :
-                      "text-slate-700"
+                      "text-white/70"
                     }`}>
                       {step.label}
                     </span>
@@ -464,7 +464,7 @@ flowchart LR
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-blue-500" />
+              <div className="w-4 h-4 rounded bg-emerald-500/50" />
               <span className="text-sm">Frontend Layer</span>
             </div>
             <div className="flex items-center gap-2">

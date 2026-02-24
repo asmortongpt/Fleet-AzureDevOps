@@ -130,7 +130,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-56 bg-slate-900 border-white/20 shadow-lg rounded-lg p-1"
+                            className="w-56 bg-[#111] border-white/20 shadow-lg rounded-lg p-1"
                             sideOffset={8}
                         >
                             <DropdownMenuLabel className="px-3 py-2">

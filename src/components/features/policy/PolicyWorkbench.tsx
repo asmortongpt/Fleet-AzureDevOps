@@ -368,25 +368,25 @@ export function PolicyWorkbench() {
   const currentStep = workbenchSteps[currentStepIndex]
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-[#888] to-emerald-500/5">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-3 py-3 shadow-sm">
+      <div className="bg-white border-b border-white/[0.08] px-3 py-3 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-base font-bold text-slate-900 flex items-center gap-3">
-              <Brain className="w-4 h-4 text-blue-800" />
+            <h1 className="text-base font-bold text-white/90 flex items-center gap-3">
+              <Brain className="w-4 h-4 text-emerald-800" />
               Policy Implementation Workbench
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-white/50 mt-1">
               AI-guided comprehensive policy system implementation
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-2 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+            <button className="flex items-center gap-2 px-2 py-2 text-white/70 hover:bg-white/[0.05] rounded-lg transition-colors">
               <Download className="w-4 h-4" />
               Export Progress
             </button>
-            <button className="flex items-center gap-2 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button className="flex items-center gap-2 px-2 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
               <Play className="w-4 h-4" />
               Resume
             </button>
@@ -396,14 +396,14 @@ export function PolicyWorkbench() {
         {/* Progress Bar */}
         <div className="mt-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-slate-700">Overall Progress</span>
-            <span className="text-sm font-medium text-slate-700">
+            <span className="text-sm font-medium text-white/70">Overall Progress</span>
+            <span className="text-sm font-medium text-white/70">
               {Math.round((workbenchSteps.filter((s) => s.status === 'completed').length / workbenchSteps.length) * 100)}%
             </span>
           </div>
-          <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+          <div className="w-full h-3 bg-white/[0.08] rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-500"
+              className="h-full bg-gradient-to-r from-emerald-500/50 to-green-500 transition-all duration-500"
               style={{
                 width: `${(workbenchSteps.filter((s) => s.status === 'completed').length / workbenchSteps.length) * 100}%`,
               }}
@@ -414,9 +414,9 @@ export function PolicyWorkbench() {
 
       <div className="flex-1 flex overflow-hidden">
         {/* Step Navigation Sidebar */}
-        <div className="w-80 bg-white border-r border-slate-200 overflow-y-auto">
+        <div className="w-80 bg-white border-r border-white/[0.08] overflow-y-auto">
           <div className="p-3">
-            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">
+            <h2 className="text-sm font-semibold text-white/40 uppercase tracking-wide mb-2">
               Implementation Steps
             </h2>
             <div className="space-y-2">
@@ -426,8 +426,8 @@ export function PolicyWorkbench() {
                   onClick={() => setCurrentStepIndex(index)}
                   className={`w-full text-left p-2 rounded-lg transition-all ${
                     currentStepIndex === index
-                      ? 'bg-blue-50 border-2 border-blue-300 shadow-sm'
-                      : 'bg-white border border-slate-200 hover:border-blue-200'
+                      ? 'bg-emerald-500/5 border-2 border-emerald-500/30 shadow-sm'
+                      : 'bg-white border border-white/[0.08] hover:border-emerald-500/20'
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -435,27 +435,27 @@ export function PolicyWorkbench() {
                       {step.status === 'completed' ? (
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
                       ) : step.status === 'in-progress' ? (
-                        <Circle className="w-4 h-4 text-blue-800 animate-pulse" />
+                        <Circle className="w-4 h-4 text-emerald-800 animate-pulse" />
                       ) : (
-                        <Circle className="w-4 h-4 text-slate-300" />
+                        <Circle className="w-4 h-4 text-white/60" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <step.icon className="w-4 h-4 text-slate-600" />
+                        <step.icon className="w-4 h-4 text-white/50" />
                         <h3
                           className={`text-sm font-semibold ${
-                            currentStepIndex === index ? 'text-blue-900' : 'text-slate-700'
+                            currentStepIndex === index ? 'text-emerald-900' : 'text-white/70'
                           }`}
                         >
                           {step.title}
                         </h3>
                       </div>
-                      <p className="text-xs text-slate-600 mt-1">{step.description}</p>
+                      <p className="text-xs text-white/50 mt-1">{step.description}</p>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs text-slate-500">{step.estimatedTime}</span>
+                        <span className="text-xs text-white/40">{step.estimatedTime}</span>
                         {step.substeps && (
-                          <span className="text-xs text-slate-500">
+                          <span className="text-xs text-white/40">
                             • {step.substeps.filter((s) => s.status === 'completed').length}/
                             {step.substeps.length} completed
                           </span>
@@ -476,25 +476,25 @@ export function PolicyWorkbench() {
             {currentStep && (
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="p-3 bg-blue-100 rounded-md">
-                    <currentStep.icon className="w-4 h-4 text-blue-800" />
+                  <div className="p-3 bg-emerald-500/10 rounded-md">
+                    <currentStep.icon className="w-4 h-4 text-emerald-800" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-slate-900">{currentStep.title}</h2>
-                    <p className="text-slate-600">{currentStep.description}</p>
+                    <h2 className="text-sm font-bold text-white/90">{currentStep.title}</h2>
+                    <p className="text-white/50">{currentStep.description}</p>
                   </div>
                 </div>
 
                 {/* Substeps */}
                 {currentStep.substeps && (
-                  <div className="bg-white rounded-md border border-slate-200 p-3 space-y-2">
+                  <div className="bg-white rounded-md border border-white/[0.08] p-3 space-y-2">
                     {currentStep.substeps.map((substep) => (
                       <div
                         key={substep.id}
                         className={`p-2 rounded-lg border-2 transition-all ${
                           substep.status === 'completed'
                             ? 'bg-green-50 border-green-200'
-                            : 'bg-slate-50 border-slate-200 hover:border-blue-200'
+                            : 'bg-white/[0.03] border-white/[0.08] hover:border-emerald-500/20'
                         }`}
                       >
                         <div className="flex items-start justify-between">
@@ -502,11 +502,11 @@ export function PolicyWorkbench() {
                             {substep.status === 'completed' ? (
                               <CheckCircle2 className="w-3 h-3 text-green-600 flex-shrink-0 mt-0.5" />
                             ) : (
-                              <Circle className="w-3 h-3 text-slate-700 flex-shrink-0 mt-0.5" />
+                              <Circle className="w-3 h-3 text-white/70 flex-shrink-0 mt-0.5" />
                             )}
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-slate-900">{substep.title}</h3>
+                                <h3 className="font-semibold text-white/90">{substep.title}</h3>
                                 {substep.aiAssisted && (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
                                     <Sparkles className="w-3 h-3" />
@@ -514,11 +514,11 @@ export function PolicyWorkbench() {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-sm text-slate-600 mt-1">{substep.description}</p>
+                              <p className="text-sm text-white/50 mt-1">{substep.description}</p>
                             </div>
                           </div>
                           {substep.status !== 'completed' && (
-                            <button className="ml-2 px-2 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                            <button className="ml-2 px-2 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2">
                               {substep.aiAssisted && <Sparkles className="w-4 h-4" />}
                               Start
                             </button>
@@ -541,16 +541,16 @@ export function PolicyWorkbench() {
 
         {/* AI Insights Sidebar */}
         {showInsights && (
-          <div className="w-96 bg-gradient-to-br from-purple-50 to-blue-50 border-l border-purple-200 overflow-y-auto">
+          <div className="w-96 bg-gradient-to-br from-purple-50 to-emerald-500/5 border-l border-purple-200 overflow-y-auto">
             <div className="p-3">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <h3 className="text-sm font-bold text-white/90 flex items-center gap-2">
                   <Lightbulb className="w-3 h-3 text-yellow-500" />
                   AI Insights
                 </h3>
                 <button
                   onClick={() => setShowInsights(false)}
-                  className="text-slate-500 hover:text-slate-700"
+                  className="text-white/40 hover:text-white/70"
                 >
                   ×
                 </button>
@@ -587,18 +587,18 @@ export function PolicyWorkbench() {
       </div>
 
       {/* Footer Navigation */}
-      <div className="bg-white border-t border-slate-200 px-3 py-2">
+      <div className="bg-white border-t border-white/[0.08] px-3 py-2">
         <div className="flex items-center justify-between">
           <button
             onClick={() => setCurrentStepIndex(Math.max(0, currentStepIndex - 1))}
             disabled={currentStepIndex === 0}
-            className="px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-white/70 hover:bg-white/[0.05] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
 
           <div className="flex items-center gap-2">
-            <button className="px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+            <button className="px-3 py-2 text-white/70 hover:bg-white/[0.05] rounded-lg transition-colors">
               Save Progress
             </button>
             <button
@@ -606,7 +606,7 @@ export function PolicyWorkbench() {
                 setCurrentStepIndex(Math.min(workbenchSteps.length - 1, currentStepIndex + 1))
               }
               disabled={currentStepIndex === workbenchSteps.length - 1}
-              className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               Next
               <ArrowRight className="w-4 h-4" />
@@ -633,10 +633,10 @@ function AIInsightCard({
 }) {
   const config = {
     recommendation: {
-      bg: 'bg-blue-100',
-      border: 'border-blue-300',
+      bg: 'bg-emerald-500/10',
+      border: 'border-emerald-500/30',
       icon: Info,
-      iconColor: 'text-blue-800',
+      iconColor: 'text-emerald-800',
     },
     tip: {
       bg: 'bg-purple-100',
@@ -665,8 +665,8 @@ function AIInsightCard({
       <div className="flex items-start gap-3">
         <Icon className={`w-3 h-3 ${iconColor} flex-shrink-0 mt-0.5`} />
         <div>
-          <h4 className="font-semibold text-slate-900 text-sm mb-1">{title}</h4>
-          <p className="text-xs text-slate-700">{description}</p>
+          <h4 className="font-semibold text-white/90 text-sm mb-1">{title}</h4>
+          <p className="text-xs text-white/70">{description}</p>
         </div>
       </div>
     </div>
@@ -701,33 +701,33 @@ function renderStepContent(stepId: string | undefined) {
 
 // Placeholder components for each step (to be fully implemented)
 function OrganizationProfileForm() {
-  return <div className="bg-white rounded-md border border-slate-200 p-3">Organization Profile Form</div>
+  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Organization Profile Form</div>
 }
 
 function CurrentStateAssessment() {
-  return <div className="bg-white rounded-md border border-slate-200 p-3">Current State Assessment</div>
+  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Current State Assessment</div>
 }
 
 function PolicyFrameworkDesigner() {
-  return <div className="bg-white rounded-md border border-slate-200 p-3">Policy Framework Designer</div>
+  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Policy Framework Designer</div>
 }
 
 function AIPolicyGenerator() {
-  return <div className="bg-white rounded-md border border-slate-200 p-3">AI Policy Generator</div>
+  return <div className="bg-white rounded-md border border-white/[0.08] p-3">AI Policy Generator</div>
 }
 
 function PolicyReviewInterface() {
-  return <div className="bg-white rounded-md border border-slate-200 p-3">Policy Review Interface</div>
+  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Policy Review Interface</div>
 }
 
 function ImplementationPlanner() {
-  return <div className="bg-white rounded-md border border-slate-200 p-3">Implementation Planner</div>
+  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Implementation Planner</div>
 }
 
 function PolicyActivation() {
-  return <div className="bg-white rounded-md border border-slate-200 p-3">Policy Activation</div>
+  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Policy Activation</div>
 }
 
 function ContinuousMonitoring() {
-  return <div className="bg-white rounded-md border border-slate-200 p-3">Continuous Monitoring</div>
+  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Continuous Monitoring</div>
 }

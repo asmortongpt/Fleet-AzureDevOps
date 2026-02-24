@@ -17,7 +17,7 @@ interface EntityBadgeProps {
 
 const ENTITY_CONFIG = {
   UNIT: {
-    color: 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300',
+    color: 'bg-emerald-500/10 text-emerald-800 hover:bg-emerald-500/20 dark:bg-emerald-900 dark:text-emerald-300',
     icon: Hash,
     label: 'Unit'
   },

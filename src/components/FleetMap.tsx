@@ -198,8 +198,8 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
         {loading && (
           <div className="flex items-center justify-center" style={{ height }}>
             <div className="text-center">
-              <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
-              <p className="text-sm text-slate-700">Loading Google Maps...</p>
+              <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600 mx-auto mb-2"></div>
+              <p className="text-sm text-white/70">Loading Google Maps...</p>
             </div>
           </div>
         )}
@@ -226,7 +226,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
                 <span>Active</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                <div className="w-3 h-3 rounded-full bg-emerald-500/50"></div>
                 <span>In Use</span>
               </div>
               <div className="flex items-center gap-2">

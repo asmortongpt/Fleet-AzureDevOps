@@ -153,16 +153,16 @@ export function SmartForm({
 
   const getSeverityColor = (severity: string) => {
     const colors = {
-      info: 'text-blue-800',
+      info: 'text-emerald-800',
       warning: 'text-yellow-600',
       error: 'text-red-600'
     }
-    return colors[severity as keyof typeof colors] || 'text-slate-700'
+    return colors[severity as keyof typeof colors] || 'text-white/70'
   }
 
   const getSeverityBgColor = (severity: string) => {
     const colors = {
-      info: 'bg-blue-50 border-blue-200',
+      info: 'bg-emerald-500/5 border-emerald-500/20',
       warning: 'bg-yellow-50 border-yellow-200',
       error: 'bg-red-50 border-red-200'
     }
@@ -275,18 +275,18 @@ export function SmartForm({
 
                 {/* Smart Suggestion */}
                 {suggestion && !warning && (
-                  <div className="flex items-start gap-2 p-2 rounded border bg-blue-50 border-blue-200">
-                    <Lightbulb className="w-4 h-4 mt-0.5 text-blue-800" />
+                  <div className="flex items-start gap-2 p-2 rounded border bg-emerald-500/5 border-emerald-500/20">
+                    <Lightbulb className="w-4 h-4 mt-0.5 text-emerald-800" />
                     <div className="flex-1 text-sm">
-                      <p className="text-blue-900">
+                      <p className="text-emerald-900">
                         Suggestion: <strong>{String(suggestion.value)}</strong>
                       </p>
-                      <p className="text-blue-700 text-xs">{suggestion.reason}</p>
+                      <p className="text-emerald-700 text-xs">{suggestion.reason}</p>
                       <Button
                         type="button"
                         variant="link"
                         size="sm"
-                        className="p-0 h-auto text-xs text-blue-800"
+                        className="p-0 h-auto text-xs text-emerald-800"
                         onClick={() => handleSuggestionApply(field.name, suggestion.value)}
                       >
                         Apply suggestion ({Math.round(suggestion.confidence * 100)}% confidence)

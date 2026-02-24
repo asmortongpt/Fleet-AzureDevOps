@@ -59,7 +59,7 @@ export const MonitoringDashboard: React.FC = () => {
               <p className="text-sm font-bold">{metrics.lcp}ms</p>
               <p className="text-xs text-green-500">Good</p>
             </div>
-            <Zap className="w-4 h-4 text-blue-800" />
+            <Zap className="w-4 h-4 text-emerald-800" />
           </div>
         </div>
 

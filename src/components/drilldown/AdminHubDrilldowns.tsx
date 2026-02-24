@@ -281,7 +281,7 @@ export function FilesDrilldown() {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 4)
 
-    const colors = ['bg-emerald-500', 'bg-purple-500', 'bg-sky-500', 'bg-slate-500']
+    const colors = ['bg-emerald-500', 'bg-purple-500', 'bg-sky-500', 'bg-white/[0.1]']
 
     return (
         <div className="space-y-2">
@@ -323,7 +323,7 @@ export function FilesDrilldown() {
                                     <span className="text-white font-medium">{formatFileSize(bytes)}</span>
                                 </div>
                                 <div className="h-2 bg-white/[0.1] rounded-full overflow-hidden">
-                                    <div className={`h-full ${colors[idx] || 'bg-slate-500'}`} style={{ width: `${percent}%` }} />
+                                    <div className={`h-full ${colors[idx] || 'bg-white/[0.1]'}`} style={{ width: `${percent}%` }} />
                                 </div>
                             </div>
                         )

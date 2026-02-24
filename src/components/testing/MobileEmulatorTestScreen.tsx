@@ -120,7 +120,7 @@ export function MobileEmulatorTestScreen() {
         {/* Header */}
         <div className="mb-3">
           <h1 className="text-base font-bold text-gray-900 mb-2">Mobile Emulator Test Screen</h1>
-          <p className="text-slate-700">Test the Fleet Management app with various mobile devices and emulators</p>
+          <p className="text-white/70">Test the Fleet Management app with various mobile devices and emulators</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
@@ -139,7 +139,7 @@ export function MobileEmulatorTestScreen() {
                     onClick={() => setSelectedDevice(device)}
                     className={`w-full text-left p-3 rounded-lg border transition-colors ${
                       selectedDevice.id === device.id
-                        ? 'border-blue-500 bg-blue-50'
+                        ? 'border-emerald-500 bg-emerald-500/5'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
@@ -160,7 +160,7 @@ export function MobileEmulatorTestScreen() {
                   onClick={() => setOrientation('portrait')}
                   className={`flex-1 py-2 px-2 rounded-lg border transition-colors ${
                     orientation === 'portrait'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-emerald-500 bg-emerald-500/5 text-emerald-700'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
@@ -170,7 +170,7 @@ export function MobileEmulatorTestScreen() {
                   onClick={() => setOrientation('landscape')}
                   className={`flex-1 py-2 px-2 rounded-lg border transition-colors ${
                     orientation === 'landscape'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-emerald-500 bg-emerald-500/5 text-emerald-700'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
@@ -188,7 +188,7 @@ export function MobileEmulatorTestScreen() {
               <button
                 onClick={testAllAPIs}
                 disabled={isTestingAPI}
-                className="w-full mb-2 py-2 px-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
+                className="w-full mb-2 py-2 px-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
               >
                 <Play size={16} />
                 {isTestingAPI ? 'Testing...' : 'Test All APIs'}
@@ -210,7 +210,7 @@ export function MobileEmulatorTestScreen() {
                       <XCircle size={20} className="text-red-600" />
                     )}
                     {endpoint.status === 'pending' && (
-                      <div className="w-3 h-3 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+                      <div className="w-3 h-3 border-2 border-gray-300 border-t-emerald-600 rounded-full animate-spin" />
                     )}
                   </div>
                 ))}
@@ -227,7 +227,7 @@ export function MobileEmulatorTestScreen() {
                 type="text"
                 value={iframeUrl}
                 onChange={(e) => setIframeUrl(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="http://localhost:5000"
               />
               <button
@@ -252,7 +252,7 @@ export function MobileEmulatorTestScreen() {
                     {dimensions.width} × {dimensions.height} • {orientation}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-700">
+                <div className="flex items-center gap-2 text-sm text-white/70">
                   <Bug size={16} />
                   <span>DEV Mode</span>
                 </div>
@@ -290,15 +290,15 @@ export function MobileEmulatorTestScreen() {
                 <h3 className="font-semibold mb-2 text-sm">Device Information</h3>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <span className="text-slate-700">Platform:</span>
+                    <span className="text-white/70">Platform:</span>
                     <span className="ml-2 font-medium">{selectedDevice.platform.toUpperCase()}</span>
                   </div>
                   <div>
-                    <span className="text-slate-700">Viewport:</span>
+                    <span className="text-white/70">Viewport:</span>
                     <span className="ml-2 font-medium">{dimensions.width}×{dimensions.height}</span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-slate-700">User Agent:</span>
+                    <span className="text-white/70">User Agent:</span>
                     <div className="mt-1 text-xs text-gray-500 break-all">
                       {selectedDevice.userAgent}
                     </div>

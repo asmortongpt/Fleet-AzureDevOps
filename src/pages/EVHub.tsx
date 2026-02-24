@@ -348,7 +348,7 @@ const EVHub = () => {
             <Section
               title="Total Energy Consumed"
               icon={<Zap className="w-4 h-4" />}
-              className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-none"
+              className="bg-gradient-to-br from-emerald-500/50 to-emerald-600 text-white border-none"
               contentClassName="text-white"
             >
               <div className="text-3xl font-bold" aria-label={`${sustainabilityMetrics.totalEnergyConsumed.toFixed(0)} kilowatt hours consumed`}>

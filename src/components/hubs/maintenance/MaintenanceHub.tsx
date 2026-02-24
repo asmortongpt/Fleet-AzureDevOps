@@ -240,13 +240,13 @@ export function MaintenanceHub() {
 
   const getCategoryBadgeColor = (category?: string): string => {
     switch (category?.toLowerCase()) {
-      case 'preventive': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'preventive': return 'bg-emerald-500/10 text-emerald-800 border-emerald-500/20';
       case 'corrective': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'inspection': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'body_work': return 'bg-gray-100 text-gray-800 border-gray-200';
       case 'electrical': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'tire_service': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-slate-100 text-slate-700 border-slate-200';
+      default: return 'bg-white/[0.05] text-white/70 border-white/[0.08]';
     }
   };
 
@@ -309,7 +309,7 @@ export function MaintenanceHub() {
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'active')}>
           <CardContent className="p-2">
             <div className="flex items-center gap-2">
-              <Wrench className="w-3 h-3 text-blue-800" />
+              <Wrench className="w-3 h-3 text-emerald-800" />
               <div>
                 <p className="text-xs text-muted-foreground">Active</p>
                 <p className="text-sm font-bold">{metrics.activeCount}</p>
@@ -471,7 +471,7 @@ export function MaintenanceHub() {
         <TabsContent value="queue" className="space-y-3 mt-2">
           <div className="space-y-3">
             {workOrders.map((wo) => (
-              <Card key={wo.id} className={`${selectedWorkOrder?.id === wo.id ? 'border-blue-500' : ''} ${wo.is_emergency ? 'border-red-400 shadow-red-100 dark:shadow-red-950/30' : ''}`}>
+              <Card key={wo.id} className={`${selectedWorkOrder?.id === wo.id ? 'border-emerald-500' : ''} ${wo.is_emergency ? 'border-red-400 shadow-red-100 dark:shadow-red-950/30' : ''}`}>
                 <CardContent className="p-2">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">
@@ -550,7 +550,7 @@ export function MaintenanceHub() {
                             </div>
                             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                               <div
-                                className="h-full bg-blue-500 rounded-full"
+                                className="h-full bg-emerald-500/50 rounded-full"
                                 style={{ width: `${wo.total_cost ? ((wo.parts_cost || 0) / wo.total_cost * 100) : 50}%` }}
                               />
                             </div>
@@ -656,7 +656,7 @@ export function MaintenanceHub() {
                         <div className="flex items-center gap-1 mt-1">
                           <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden flex">
                             <div
-                              className="h-full bg-blue-500"
+                              className="h-full bg-emerald-500/50"
                               style={{ width: `${wo.total_cost ? ((wo.parts_cost || 0) / wo.total_cost * 100) : 50}%` }}
                               title={`Parts: ${formatCurrency(wo.parts_cost || 0)}`}
                             />
@@ -667,7 +667,7 @@ export function MaintenanceHub() {
                             />
                           </div>
                           <div className="flex items-center gap-2 text-[10px] text-muted-foreground ml-2 whitespace-nowrap">
-                            <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />P: {formatCurrency(wo.parts_cost || 0)}</span>
+                            <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-emerald-500/50 inline-block" />P: {formatCurrency(wo.parts_cost || 0)}</span>
                             <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />L: {formatCurrency(wo.labor_cost || 0)}</span>
                           </div>
                         </div>

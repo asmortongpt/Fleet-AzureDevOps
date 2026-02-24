@@ -96,7 +96,7 @@ export function MaintenanceHubMap({
   const getWorkOrderIcon = (type: WorkOrder['type']) => {
     switch (type) {
       case 'urgent': return <AlertTriangle className="w-4 h-4 text-red-500" />;
-      case 'active': return <Wrench className="w-4 h-4 text-blue-800" />;
+      case 'active': return <Wrench className="w-4 h-4 text-emerald-800" />;
       case 'scheduled': return <Clock className="w-4 h-4 text-amber-500" />;
       case 'completed': return <CheckCircle className="w-4 h-4 text-green-500" />;
       default: return <Wrench className="w-4 h-4" />;
@@ -188,7 +188,7 @@ export function MaintenanceHubMap({
 
                 <div>
                   <p className="text-sm font-medium">{selectedWorkOrder.vehicleUnit}</p>
-                  <p className="text-xs text-slate-700 mt-1">{selectedWorkOrder.description}</p>
+                  <p className="text-xs text-white/70 mt-1">{selectedWorkOrder.description}</p>
                 </div>
 
                 <div className="flex items-center gap-1 text-xs text-gray-700">
@@ -206,7 +206,7 @@ export function MaintenanceHubMap({
                 {onWorkOrderClick && (
                   <button
                     onClick={() => onWorkOrderClick(selectedWorkOrder)}
-                    className="w-full mt-2 px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                    className="w-full mt-2 px-3 py-1.5 text-xs bg-emerald-500/50 text-white rounded hover:bg-emerald-600"
                   >
                     View Details
                   </button>
@@ -237,7 +237,7 @@ export function MaintenanceHubMap({
                 </div>
 
                 {selectedLocation.phone && (
-                  <p className="text-xs text-slate-700">📞 {selectedLocation.phone}</p>
+                  <p className="text-xs text-white/70">📞 {selectedLocation.phone}</p>
                 )}
 
                 <div className="mt-2">
@@ -254,7 +254,7 @@ export function MaintenanceHubMap({
                 {onServiceLocationClick && (
                   <button
                     onClick={() => onServiceLocationClick(selectedLocation)}
-                    className="w-full mt-2 px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                    className="w-full mt-2 px-3 py-1.5 text-xs bg-emerald-500/50 text-white rounded hover:bg-emerald-600"
                   >
                     View Details
                   </button>

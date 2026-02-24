@@ -155,7 +155,7 @@ export function UtilizationAnalytics({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">
+            <div className="text-sm font-bold text-emerald-800">
               {formatCurrency(utilization.total_revenue)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -318,7 +318,7 @@ export function UtilizationAnalytics({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm">Total Revenue</span>
-                  <span className="font-semibold text-blue-800">
+                  <span className="font-semibold text-emerald-800">
                     {formatCurrency(utilization.total_revenue)}
                   </span>
                 </div>
@@ -374,7 +374,7 @@ export function UtilizationAnalytics({
                         <TableCell className="font-medium">
                           {parseFloat(record.billable_hours.toString()).toFixed(1)}h
                         </TableCell>
-                        <TableCell className="text-blue-800 font-semibold">
+                        <TableCell className="text-emerald-800 font-semibold">
                           {formatCurrency(parseFloat(record.total_revenue.toString()))}
                         </TableCell>
                       </TableRow>

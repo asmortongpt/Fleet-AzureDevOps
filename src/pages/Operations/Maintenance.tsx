@@ -325,7 +325,7 @@ export function MaintenanceOperations() {
     const daysUntilDue = getDaysUntilDue(task);
 
     const statusColors: Record<string, { bg: string; text: string; icon: string }> = {
-      pending: { bg: 'bg-blue-500/10', text: 'text-muted-foreground', icon: 'pending' },
+      pending: { bg: 'bg-emerald-500/10', text: 'text-muted-foreground', icon: 'pending' },
       active: { bg: 'bg-amber-500/10', text: 'text-amber-400', icon: 'active' },
       error: { bg: 'bg-red-500/10', text: 'text-red-400', icon: 'error' },
       completed: { bg: 'bg-green-500/10', text: 'text-green-400', icon: 'completed' }

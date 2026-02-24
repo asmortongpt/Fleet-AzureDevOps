@@ -83,12 +83,14 @@ export function ReferencePhotoCard({
           <button
             onClick={() => setCollapsed(true)}
             className="p-1 rounded hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            aria-label="Minimize"
           >
             <Minimize2 className="w-3 h-3" />
           </button>
           <button
             onClick={onDismiss}
             className="p-1 rounded hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            aria-label="Dismiss"
           >
             <X className="w-3 h-3" />
           </button>

@@ -63,7 +63,7 @@ function ComparisonBar({
 
     return (
         <div className="space-y-2">
-            <div className="flex justify-between text-xs text-slate-700">
+            <div className="flex justify-between text-xs text-white/70">
                 <span>{label}</span>
             </div>
             <div className="flex items-center gap-3">
@@ -72,7 +72,7 @@ function ComparisonBar({
                     <div className="flex items-center justify-between mb-1">
                         <span className={cn(
                             "text-sm font-semibold",
-                            winner === 1 ? "text-emerald-700" : "text-slate-300"
+                            winner === 1 ? "text-emerald-700" : "text-white/60"
                         )}>
                             {v1}{unit}
                         </span>
@@ -82,7 +82,7 @@ function ComparisonBar({
                 </div>
 
                 {/* Divider */}
-                <div className="w-px h-8 bg-slate-700" />
+                <div className="w-px h-8 bg-white/[0.15]" />
 
                 {/* Vehicle 2 */}
                 <div className="flex-1">
@@ -90,7 +90,7 @@ function ComparisonBar({
                         {winner === 2 && <Check className="w-4 h-4 text-emerald-700" />}
                         <span className={cn(
                             "text-sm font-semibold ml-auto",
-                            winner === 2 ? "text-emerald-700" : "text-slate-300"
+                            winner === 2 ? "text-emerald-700" : "text-white/60"
                         )}>
                             {v2}{unit}
                         </span>
@@ -110,11 +110,11 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
     const vehicle2 = useMemo(() => vehicles.find(v => v.id === vehicle2Id), [vehicles, vehicle2Id])
 
     return (
-        <Card className="bg-slate-900/95 border-slate-700 backdrop-blur-xl">
+        <Card className="bg-[#111]/95 border-white/[0.15] backdrop-blur-xl">
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <ArrowLeftRight className="w-3 h-3 text-blue-700" />
+                        <ArrowLeftRight className="w-3 h-3 text-emerald-700" />
                         <CardTitle className="text-sm">Vehicle Comparison</CardTitle>
                     </div>
                     {onClose && (
@@ -128,7 +128,7 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
                 {/* Vehicle Selectors */}
                 <div className="grid grid-cols-2 gap-2">
                     <Select value={vehicle1Id} onValueChange={setVehicle1Id}>
-                        <SelectTrigger className="bg-slate-800 border-slate-700">
+                        <SelectTrigger className="bg-[#1a1a1a] border-white/[0.15]">
                             <SelectValue placeholder="Select vehicle 1" />
                         </SelectTrigger>
                         <SelectContent>
@@ -141,7 +141,7 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
                     </Select>
 
                     <Select value={vehicle2Id} onValueChange={setVehicle2Id}>
-                        <SelectTrigger className="bg-slate-800 border-slate-700">
+                        <SelectTrigger className="bg-[#1a1a1a] border-white/[0.15]">
                             <SelectValue placeholder="Select vehicle 2" />
                         </SelectTrigger>
                         <SelectContent>
@@ -158,12 +158,12 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
                 {vehicle1 && vehicle2 && (
                     <>
                         <div className="grid grid-cols-2 gap-2">
-                            <div className="text-center p-2 bg-slate-800/50 rounded-md border border-slate-700">
-                                <Car className="w-4 h-4 mx-auto mb-2 text-blue-700" />
+                            <div className="text-center p-2 bg-[#1a1a1a]/50 rounded-md border border-white/[0.15]">
+                                <Car className="w-4 h-4 mx-auto mb-2 text-emerald-700" />
                                 <h3 className="font-bold text-white">{formatVehicleName(vehicle1)}</h3>
                                 <Badge variant="outline" className="mt-2">{vehicle1.licensePlate}</Badge>
                             </div>
-                            <div className="text-center p-2 bg-slate-800/50 rounded-md border border-slate-700">
+                            <div className="text-center p-2 bg-[#1a1a1a]/50 rounded-md border border-white/[0.15]">
                                 <Car className="w-4 h-4 mx-auto mb-2 text-purple-400" />
                                 <h3 className="font-bold text-white">{formatVehicleName(vehicle2)}</h3>
                                 <Badge variant="outline" className="mt-2">{vehicle2.licensePlate}</Badge>
@@ -209,10 +209,10 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
                         </ScrollArea>
 
                         {/* Summary */}
-                        <div className="p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                        <div className="p-3 bg-[#1a1a1a]/50 rounded-lg border border-white/[0.15]">
                             <div className="flex items-center gap-2 text-sm">
-                                <Gauge className="w-4 h-4 text-blue-700" />
-                                <span className="text-slate-700">
+                                <Gauge className="w-4 h-4 text-emerald-700" />
+                                <span className="text-white/70">
                                     Overall: <span className="text-white font-medium">
                                         {vehicle1.name} vs {vehicle2.name}
                                     </span>

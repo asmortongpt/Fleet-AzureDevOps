@@ -784,7 +784,7 @@ export function ArcGISIntegration() {
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" disabled={isLoading}>
+              <Button variant="ghost" size="sm" disabled={isLoading} aria-label="More options">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -827,7 +827,7 @@ export function ArcGISIntegration() {
         <AlertTitle>{connectionResult.success ? 'Success' : 'Error'}</AlertTitle>
         <AlertDescription>{connectionResult.message}</AlertDescription>
         {connectionResult.details && (
-          <div className="mt-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+          <div className="mt-2 text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>
             <div>Type: {connectionResult.details.layerType ?? '—'}</div>
             <div>Capabilities: {connectionResult.details.capabilities?.join(', ') ?? '—'}</div>
           </div>

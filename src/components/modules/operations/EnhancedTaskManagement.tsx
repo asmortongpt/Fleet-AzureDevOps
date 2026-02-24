@@ -336,7 +336,7 @@ export function EnhancedTaskManagement() {
   const getPriorityColor = (priority: Task['priority']) => {
     const colors = {
       low: "bg-gray-100 text-gray-700",
-      medium: "bg-blue-100 text-blue-700",
+      medium: "bg-emerald-500/10 text-emerald-700",
       high: "bg-orange-100 text-orange-700",
       critical: "bg-red-100 text-red-700"
     }
@@ -346,7 +346,7 @@ export function EnhancedTaskManagement() {
   const getStatusColor = (status: Task['status']) => {
     const colors = {
       pending: "bg-gray-100 text-gray-700",
-      in_progress: "bg-blue-100 text-blue-700",
+      in_progress: "bg-emerald-500/10 text-emerald-700",
       completed: "bg-green-100 text-green-700",
       cancelled: "bg-red-100 text-red-700"
     }
@@ -433,7 +433,7 @@ export function EnhancedTaskManagement() {
                 </div>
 
                 {showAISuggestions && aiSuggestions && (
-                  <Card className="bg-blue-50 border-blue-200">
+                  <Card className="bg-emerald-500/5 border-emerald-500/20">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm flex items-center gap-2">
                         <Zap className="w-4 h-4" />
@@ -443,7 +443,7 @@ export function EnhancedTaskManagement() {
                     <CardContent className="text-sm space-y-2">
                       {aiSuggestions.recommendations?.map((rec: string) => (
                         <div key={rec} className="flex items-start gap-2">
-                          <CheckCircle className="w-4 h-4 mt-0.5 text-blue-800" />
+                          <CheckCircle className="w-4 h-4 mt-0.5 text-emerald-800" />
                           <span>{rec}</span>
                         </div>
                       ))}

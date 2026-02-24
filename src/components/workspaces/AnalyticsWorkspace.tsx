@@ -55,9 +55,9 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
       value: `${avgUtilization}%`,
       trend: "+5.2%",
       isPositive: true,
-      icon: <Gauge className="h-5 w-5 text-blue-700" />,
-      bg: "from-blue-500/10 to-blue-500/5",
-      border: "border-blue-500/20"
+      icon: <Gauge className="h-5 w-5 text-emerald-700" />,
+      bg: "from-emerald-500/10 to-emerald-500/5",
+      border: "border-emerald-500/20"
     },
     {
       title: "Active Vehicles",
@@ -111,9 +111,9 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
         <div className="flex items-end justify-between">
           <div>
             <h2 className="text-sm font-bold text-white tracking-tight">Executive Overview</h2>
-            <p className="text-sm text-slate-700 mt-1">Real-time fleet performance metrics</p>
+            <p className="text-sm text-white/70 mt-1">Real-time fleet performance metrics</p>
           </div>
-          <Button variant="outline" className="border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white">
+          <Button variant="outline" className="border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white">
             <Download className="h-4 w-4 mr-2" />
             Export Report
           </Button>
@@ -135,11 +135,11 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
                   )}
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-slate-700 block mb-1">{kpi.title}</span>
+                  <span className="text-sm font-medium text-white/70 block mb-1">{kpi.title}</span>
                   <div className="flex items-baseline gap-2">
                     <span className="text-base font-bold text-white tracking-tight">{kpi.value}</span>
                     {kpi.subtitle && (
-                      <span className="text-xs text-slate-500">{kpi.subtitle}</span>
+                      <span className="text-xs text-white/40">{kpi.subtitle}</span>
                     )}
                   </div>
                 </div>
@@ -152,10 +152,10 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           <Card className="bg-[#0f1526]/50 border-white/5 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-sm font-semibold text-slate-200">Fleet Utilization Trend</CardTitle>
+              <CardTitle className="text-sm font-semibold text-white/70">Fleet Utilization Trend</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[250px] w-full bg-gradient-to-t from-blue-500/10 to-transparent rounded-lg border border-white/5 flex items-center justify-center text-slate-500">
+              <div className="h-[250px] w-full bg-gradient-to-t from-emerald-500/10 to-transparent rounded-lg border border-white/5 flex items-center justify-center text-white/40">
                 <div className="flex flex-col items-center gap-2">
                   <LineChart className="h-8 w-8 opacity-50" />
                   <span className="text-sm">Utilization Data Visualization</span>
@@ -166,10 +166,10 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
 
           <Card className="bg-[#0f1526]/50 border-white/5 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-sm font-semibold text-slate-200">Cost Distribution</CardTitle>
+              <CardTitle className="text-sm font-semibold text-white/70">Cost Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[250px] w-full bg-gradient-to-t from-purple-500/10 to-transparent rounded-lg border border-white/5 flex items-center justify-center text-slate-500">
+              <div className="h-[250px] w-full bg-gradient-to-t from-purple-500/10 to-transparent rounded-lg border border-white/5 flex items-center justify-center text-white/40">
                 <div className="flex flex-col items-center gap-2">
                   <PieChart className="h-8 w-8 opacity-50" />
                   <span className="text-sm">Cost Breakdown Visualization</span>

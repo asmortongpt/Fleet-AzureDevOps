@@ -85,13 +85,13 @@ export function DriverActivityFeed({
       case 'driving':
         return 'bg-green-500';
       case 'available':
-        return 'bg-blue-500';
+        return 'bg-emerald-500/50';
       case 'on-break':
         return 'bg-amber-500';
       case 'offline':
         return 'bg-gray-400';
       default:
-        return 'bg-slate-400';
+        return 'bg-white/[0.15]';
     }
   };
 
@@ -149,13 +149,13 @@ export function DriverActivityFeed({
               <div
                 key={driver.id}
                 onClick={() => onDriverClick?.(driver.id)}
-                className="p-3 rounded-lg border border-slate-200 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
+                className="p-3 rounded-lg border border-white/[0.08] hover:border-emerald-500/30 hover:shadow-sm transition-all cursor-pointer"
               >
                 <div className="flex items-start gap-3">
                   {/* Avatar with status indicator */}
                   <div className="relative">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-slate-100 text-slate-700 font-semibold">
+                      <AvatarFallback className="bg-white/[0.05] text-white/70 font-semibold">
                         {getInitials(driver.name)}
                       </AvatarFallback>
                     </Avatar>
@@ -170,8 +170,8 @@ export function DriverActivityFeed({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <div>
-                        <h4 className="font-semibold text-sm text-slate-900">{driver.name}</h4>
-                        <p className="text-xs text-slate-500">#{driver.employeeNumber}</p>
+                        <h4 className="font-semibold text-sm text-white/90">{driver.name}</h4>
+                        <p className="text-xs text-white/40">#{driver.employeeNumber}</p>
                       </div>
                       <Badge
                         variant={driver.status === 'driving' ? 'default' : 'secondary'}
@@ -184,21 +184,21 @@ export function DriverActivityFeed({
 
                     {/* Current assignment */}
                     {driver.currentVehicleId && (
-                      <div className="flex items-center gap-1 text-xs text-slate-600 mb-1">
+                      <div className="flex items-center gap-1 text-xs text-white/50 mb-1">
                         <MapPin className="h-3 w-3" />
                         <span>Vehicle: {driver.currentVehicleId}</span>
                       </div>
                     )}
                     {driver.currentTaskId && (
-                      <div className="flex items-center gap-1 text-xs text-slate-600 mb-1">
+                      <div className="flex items-center gap-1 text-xs text-white/50 mb-1">
                         <Navigation className="h-3 w-3" />
                         <span>Task: {driver.currentTaskId}</span>
                       </div>
                     )}
 
                     {/* Last update */}
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
-                      <div className="flex items-center gap-1 text-xs text-slate-500">
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.08]">
+                      <div className="flex items-center gap-1 text-xs text-white/40">
                         <Clock className="h-3 w-3" />
                         {driver.lastUpdate ? (
                           <span>
@@ -217,7 +217,7 @@ export function DriverActivityFeed({
                             e.stopPropagation();
                             onCallDriver?.(driver.id, driver.phone!);
                           }}
-                          className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 hover:underline"
+                          className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 hover:underline"
                         >
                           <Phone className="h-3 w-3" />
                           Call
@@ -238,7 +238,7 @@ export function DriverActivityFeed({
             ))}
 
             {enhancedDrivers.length === 0 && (
-              <div className="text-center py-12 text-slate-500">
+              <div className="text-center py-12 text-white/40">
                 <User className="h-16 w-16 mx-auto mb-4 opacity-20" />
                 <p>No drivers available</p>
               </div>

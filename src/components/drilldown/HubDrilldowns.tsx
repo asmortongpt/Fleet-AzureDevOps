@@ -93,7 +93,7 @@ export function DriversRosterDrilldown() {
                         >
                             <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-full ${driver.status === 'active' ? 'bg-emerald-500/20' :
-                                    driver.status === 'off-duty' ? 'bg-amber-500/20' : 'bg-slate-500/20'
+                                    driver.status === 'off-duty' ? 'bg-amber-500/20' : 'bg-white/[0.05]'
                                     }`}>
                                     <User className={`w-4 h-4 ${driver.status === 'active' ? 'text-emerald-700' :
                                         driver.status === 'off-duty' ? 'text-amber-400' : 'text-white/40'
@@ -106,7 +106,7 @@ export function DriversRosterDrilldown() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <Badge variant="outline" className={`${driver.status === 'active' ? 'border-emerald-500 text-emerald-700' :
-                                    driver.status === 'off-duty' ? 'border-amber-500 text-amber-400' : 'border-slate-500 text-white/40'
+                                    driver.status === 'off-duty' ? 'border-amber-500 text-amber-400' : 'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(driver.status)}
                                 </Badge>
@@ -371,7 +371,7 @@ export function GarageDrilldown() {
                         >
                             <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-full ${wo.status === 'in-progress' ? 'bg-amber-500/20' :
-                                    wo.status === 'pending' ? 'bg-slate-500/20' : 'bg-emerald-500/20'
+                                    wo.status === 'pending' ? 'bg-white/[0.05]' : 'bg-emerald-500/20'
                                     }`}>
                                     <Wrench className={`w-4 h-4 ${wo.status === 'in-progress' ? 'text-amber-400' :
                                         wo.status === 'pending' ? 'text-white/40' : 'text-emerald-700'
@@ -619,7 +619,7 @@ export function MaintenanceCalendarDrilldown() {
         switch (p) {
             case 'urgent': return 'border-red-500 text-red-400'
             case 'high': return 'border-amber-500 text-amber-400'
-            case 'medium': return 'border-blue-500 text-blue-400'
+            case 'medium': return 'border-emerald-500 text-emerald-400'
             default: return 'border-white/20 text-white/60'
         }
     }
@@ -745,7 +745,7 @@ export function ExecutiveDashboardDrilldown() {
                 </Card>
                 <Card className="bg-[#242424] border-white/[0.08]">
                     <CardContent className="p-2 text-center">
-                        <User className="w-4 h-4 text-blue-400 mx-auto mb-1" />
+                        <User className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{activeDrivers.length}</div>
                         <div className="text-sm text-white/40">Active Drivers</div>
                     </CardContent>
@@ -801,7 +801,7 @@ export function ExecutiveDashboardDrilldown() {
                             <span className="text-white font-medium">{drivers.length > 0 ? Math.round((activeDrivers.length / drivers.length) * 100) : 0}%</span>
                         </div>
                         <Progress value={drivers.length > 0 ? (activeDrivers.length / drivers.length) * 100 : 0} className="h-2 bg-white/[0.1]">
-                            <div className="h-full bg-blue-500 transition-all" style={{ width: `${drivers.length > 0 ? (activeDrivers.length / drivers.length) * 100 : 0}%` }} />
+                            <div className="h-full bg-emerald-500/50 transition-all" style={{ width: `${drivers.length > 0 ? (activeDrivers.length / drivers.length) * 100 : 0}%` }} />
                         </Progress>
                     </div>
                     <div className="space-y-1">
@@ -923,11 +923,11 @@ export function CostAnalysisDrilldown() {
                     </div>
                     <div className="space-y-1">
                         <div className="flex justify-between text-sm">
-                            <span className="text-blue-400">Maintenance ({maintPct}%)</span>
+                            <span className="text-emerald-400">Maintenance ({maintPct}%)</span>
                             <span className="text-white font-medium">{formatCurrency(totalMaintenanceCost)}</span>
                         </div>
                         <Progress value={maintPct} className="h-2 bg-white/[0.1]">
-                            <div className="h-full bg-blue-500 transition-all" style={{ width: `${maintPct}%` }} />
+                            <div className="h-full bg-emerald-500/50 transition-all" style={{ width: `${maintPct}%` }} />
                         </Progress>
                     </div>
                     <div className="text-xs text-white/40 pt-1">Avg fuel price: ${avgPricePerGallon}/gal</div>
@@ -1113,7 +1113,7 @@ export function FleetOptimizerDrilldown() {
             <Card className="bg-[#242424] border-white/[0.08]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
-                        <MapPin className="w-3 h-3 text-blue-400" />
+                        <MapPin className="w-3 h-3 text-emerald-400" />
                         Route Optimization
                     </CardTitle>
                 </CardHeader>
@@ -1124,7 +1124,7 @@ export function FleetOptimizerDrilldown() {
                             <div className="text-xs text-white/40">Completed</div>
                         </div>
                         <div className="p-2 bg-white/[0.03] rounded-lg text-center">
-                            <div className="text-sm font-bold text-blue-400">{inProgressRoutes.length}</div>
+                            <div className="text-sm font-bold text-emerald-400">{inProgressRoutes.length}</div>
                             <div className="text-xs text-white/40">In Progress</div>
                         </div>
                         <div className="p-2 bg-white/[0.03] rounded-lg text-center">

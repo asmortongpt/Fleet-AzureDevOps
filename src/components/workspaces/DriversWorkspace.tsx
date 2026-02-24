@@ -160,7 +160,7 @@ export function DriversWorkspace() {
                             </div>
                         </div>
                     ) : (
-                        <div className="h-full overflow-y-auto p-3 bg-slate-50 dark:bg-slate-950/50">
+                        <div className="h-full overflow-y-auto p-3 bg-white/[0.03] dark:bg-[#0a0a0a]/50">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                                 {filteredDrivers.map(driver => (
                                     <DriverCard
@@ -185,7 +185,7 @@ export function DriversWorkspace() {
                     <div className="w-[400px] border-l bg-background flex flex-col h-full shadow-sm z-20 transition-all">
                         <div className="p-2 border-b flex items-start justify-between bg-muted/20">
                             <div className="flex gap-2">
-                                <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-base font-bold">
+                                <div className="w-16 h-16 rounded-full bg-white/[0.08] dark:bg-[#1a1a1a] flex items-center justify-center text-base font-bold">
                                     {selectedDriver.name.slice(0, 2).toUpperCase()}
                                 </div>
                                 <div>

@@ -44,7 +44,7 @@ export function truncate(str: string, length: number): string {
 
 export function getStatusColor(status: string): string {
   const statusColors: Record<string, string> = {
-    open: 'bg-blue-500',
+    open: 'bg-emerald-500/50',
     in_progress: 'bg-yellow-500',
     assigned: 'bg-purple-500',
     completed: 'bg-green-500',
@@ -56,7 +56,7 @@ export function getStatusColor(status: string): string {
     critical: 'bg-red-600',
     high: 'bg-orange-500',
     medium: 'bg-yellow-500',
-    low: 'bg-blue-500',
+    low: 'bg-emerald-500/50',
   };
 
   return statusColors[status.toLowerCase()] || 'bg-gray-500';
@@ -67,8 +67,8 @@ export function getPriorityColor(priority: string): string {
     critical: 'text-red-600 bg-red-50',
     high: 'text-orange-600 bg-orange-50',
     medium: 'text-yellow-600 bg-yellow-50',
-    low: 'text-blue-800 bg-blue-50',
+    low: 'text-emerald-800 bg-emerald-500/5',
   };
 
-  return priorityColors[priority.toLowerCase()] || 'text-slate-700 bg-gray-50';
+  return priorityColors[priority.toLowerCase()] || 'text-white/70 bg-gray-50';
 }

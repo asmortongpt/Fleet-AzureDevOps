@@ -279,7 +279,7 @@ export const ConfigurationContent = memo(() => {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Gauge className="h-5 w-5 text-blue-500" aria-hidden="true" />
+              <Gauge className="h-5 w-5 text-emerald-500" aria-hidden="true" />
               <CardTitle>System Health Monitors</CardTitle>
             </div>
             <CardDescription>Real-time resource utilization with status indicators</CardDescription>
@@ -297,7 +297,7 @@ export const ConfigurationContent = memo(() => {
                   title="CPU Usage"
                   value={systemStatus?.cpu || 0}
                   icon={Cpu}
-                  iconColor="text-blue-500"
+                  iconColor="text-emerald-500"
                   warningThreshold={70}
                   criticalThreshold={85}
                 />
@@ -504,7 +504,7 @@ export const ConfigurationContent = memo(() => {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <Server className="h-5 w-5 text-blue-500" aria-hidden="true" />
+                  <Server className="h-5 w-5 text-emerald-500" aria-hidden="true" />
                   <CardTitle>API & Cache Statistics</CardTitle>
                 </div>
                 <CardDescription>Backend performance metrics</CardDescription>
@@ -520,7 +520,7 @@ export const ConfigurationContent = memo(() => {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 rounded-lg border">
                       <div className="flex items-center gap-3">
-                        <UploadCloud className="h-5 w-5 text-blue-500" aria-hidden="true" />
+                        <UploadCloud className="h-5 w-5 text-emerald-500" aria-hidden="true" />
                         <div>
                           <p className="text-sm font-medium">API Response Time</p>
                           <p className="text-xs text-muted-foreground">Average latency</p>

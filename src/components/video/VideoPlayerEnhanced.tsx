@@ -39,7 +39,7 @@ interface EventAnnotation {
 }
 
 const severityColors: Record<string, string> = {
-  minor: 'bg-blue-500',
+  minor: 'bg-emerald-500/50',
   moderate: 'bg-yellow-500',
   severe: 'bg-orange-500',
   critical: 'bg-red-500'

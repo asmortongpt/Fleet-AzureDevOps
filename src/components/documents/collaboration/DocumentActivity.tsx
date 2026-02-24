@@ -33,11 +33,11 @@ export function DocumentActivity({ activities }: DocumentActivityProps) {
   const getActivityColor = (action: ActivityItem['action']) => {
     const colors = {
       created: 'text-green-500',
-      updated: 'text-blue-800',
+      updated: 'text-emerald-800',
       viewed: 'text-gray-700',
       downloaded: 'text-purple-500',
       shared: 'text-orange-500',
-      commented: 'text-blue-800',
+      commented: 'text-emerald-800',
       tagged: 'text-yellow-500',
       moved: 'text-indigo-500',
     };

@@ -59,7 +59,7 @@ const lockerTypeLabels: Record<string, string> = {
 };
 
 const statusColors = {
-  open: 'bg-blue-100 text-blue-800',
+  open: 'bg-emerald-500/10 text-emerald-800',
   under_review: 'bg-yellow-100 text-yellow-800',
   closed: 'bg-gray-100 text-gray-800',
   archived: 'bg-purple-100 text-purple-800'
@@ -218,7 +218,7 @@ export default function EvidenceLocker() {
                 <p className="text-sm text-muted-foreground">Total Cases</p>
                 <p className="text-sm font-bold">{stats.total}</p>
               </div>
-              <Folder className="h-8 w-8 text-blue-800" />
+              <Folder className="h-8 w-8 text-emerald-800" />
             </div>
           </CardContent>
         </Card>

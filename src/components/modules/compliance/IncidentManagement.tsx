@@ -295,7 +295,7 @@ export function IncidentManagement() {
   const getSeverityColor = (severity: Incident['severity']) => {
     const colors = {
       low: "bg-gray-100 text-gray-700",
-      medium: "bg-blue-100 text-blue-700",
+      medium: "bg-emerald-500/10 text-emerald-700",
       high: "bg-orange-100 text-orange-700",
       critical: "bg-red-100 text-red-700"
     }
@@ -305,7 +305,7 @@ export function IncidentManagement() {
   const getStatusColor = (status: Incident['status']) => {
     const colors = {
       pending: "bg-yellow-100 text-yellow-700",
-      in_progress: "bg-blue-100 text-blue-700",
+      in_progress: "bg-emerald-500/10 text-emerald-700",
       completed: "bg-green-100 text-green-700",
       closed: "bg-gray-100 text-gray-700",
       cancelled: "bg-gray-100 text-gray-700"
@@ -559,7 +559,7 @@ export function IncidentManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Open/Investigating</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">{openIncidents}</div>
+            <div className="text-sm font-bold text-emerald-800">{openIncidents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <AlertTriangle className="w-3 h-3" />
               Active cases
@@ -922,7 +922,7 @@ export function IncidentManagement() {
                     <div className="relative border-l-2 border-muted-foreground/20 pl-3 space-y-2">
                       {timeline.map((event, index) => (
                         <div key={event.id} className="relative">
-                          <div className="absolute -left-[27px] top-0 w-4 h-4 rounded-full bg-blue-500 border-2 border-background" />
+                          <div className="absolute -left-[27px] top-0 w-4 h-4 rounded-full bg-emerald-500/50 border-2 border-background" />
                           <div className="text-xs text-muted-foreground mb-1">
                             {formatDateTime(event.timestamp)}
                           </div>

@@ -660,14 +660,14 @@ export const Login: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-3 lg:px-3">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="w-16 h-16 bg-emerald-600 rounded-lg flex items-center justify-center">
             <span className="text-white text-sm font-bold">DCF</span>
           </div>
         </div>
         <h2 className="mt-3 text-center text-base font-extrabold text-gray-900">
           Florida DCF Fleet Management
         </h2>
-        <p className="mt-2 text-center text-sm text-slate-700">
+        <p className="mt-2 text-center text-sm text-white/70">
           Sign in with your state credentials
         </p>
       </div>
@@ -686,7 +686,7 @@ export const Login: React.FC = () => {
               <button
                 onClick={handleLogin}
                 disabled={isLoading || isLoggingIn}
-                className="w-full flex justify-center py-3 px-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading || isLoggingIn ? (
                   <div className="flex items-center">
@@ -725,8 +725,8 @@ export const LoginCallbackComponent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
-      <p className="text-slate-700">Completing authentication...</p>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mb-2"></div>
+      <p className="text-white/70">Completing authentication...</p>
     </div>
   );
 };
@@ -754,7 +754,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
       </div>
     );
   }
@@ -807,7 +807,7 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
           <span className="text-red-600 text-sm">🚫</span>
         </div>
         <h2 className="text-sm font-bold text-gray-900 mb-2">Access Denied</h2>
-        <p className="text-slate-700 mb-2">
+        <p className="text-white/70 mb-2">
           You don't have the required permissions to access this resource.
         </p>
 
@@ -823,8 +823,8 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
         )}
 
         {(requiredPermission || requiredPermissions) && (
-          <div className="bg-blue-50 border border-blue-200 rounded p-2 mb-2">
-            <p className="text-sm text-blue-800">
+          <div className="bg-emerald-500/5 border border-emerald-500/20 rounded p-2 mb-2">
+            <p className="text-sm text-emerald-800">
               <strong>Required Permission:</strong> {requiredPermission || requiredPermissions?.join(', ')}
             </p>
           </div>
@@ -888,7 +888,7 @@ export const UserProfile: React.FC = () => {
           <label className="text-sm font-medium text-gray-700">Roles</label>
           <div className="flex flex-wrap gap-1 mt-1">
             {user.roles.map(role => (
-              <span key={role} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+              <span key={role} className="px-2 py-1 bg-emerald-500/10 text-emerald-800 text-xs rounded">
                 {role}
               </span>
             ))}
@@ -916,7 +916,7 @@ export const UserProfile: React.FC = () => {
         <button
           onClick={handleExtendSession}
           disabled={isExtending}
-          className="bg-blue-600 text-white px-2 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
+          className="bg-emerald-600 text-white px-2 py-2 rounded text-sm hover:bg-emerald-700 disabled:opacity-50"
         >
           {isExtending ? 'Extending...' : 'Extend Session'}
         </button>

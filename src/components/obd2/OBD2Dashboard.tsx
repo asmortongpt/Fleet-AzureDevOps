@@ -234,7 +234,7 @@ export const OBD2Dashboard: React.FC = () => {
         <h1 className="text-base font-bold text-gray-900 dark:text-white">
           OBD2 Vehicle Diagnostics
         </h1>
-        <p className="text-slate-700 dark:text-gray-700 mt-2">
+        <p className="text-white/70 dark:text-gray-700 mt-2">
           Real-time vehicle data streaming from OBD2 devices
         </p>
       </div>
@@ -333,7 +333,7 @@ export const OBD2Dashboard: React.FC = () => {
               <button
                 onClick={startEmulator}
                 disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isLoading ? 'Starting...' : 'Start Emulator'}
               </button>
@@ -526,7 +526,7 @@ export const OBD2Dashboard: React.FC = () => {
                 key={session.sessionId}
                 className={`flex items-center justify-between p-2 rounded-lg ${
                   session.sessionId === activeSession
-                    ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
+                    ? 'bg-emerald-500/5 dark:bg-emerald-900/20 border border-emerald-500/20 dark:border-emerald-800'
                     : 'bg-gray-50 dark:bg-gray-700'
                 }`}
               >
@@ -545,7 +545,7 @@ export const OBD2Dashboard: React.FC = () => {
                         setActiveSession(session.sessionId)
                         connectWebSocket(session.sessionId)
                       }}
-                      className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+                      className="px-3 py-1 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700"
                     >
                       Connect
                     </button>
@@ -579,7 +579,7 @@ const GaugeCard: React.FC<GaugeCardProps> = ({ label, value, unit, max, color })
   const percentage = Math.min((value / max) * 100, 100)
 
   const colorClasses = {
-    blue: 'bg-blue-500',
+    blue: 'bg-emerald-500/50',
     green: 'bg-green-500',
     orange: 'bg-orange-500',
     purple: 'bg-purple-500',
@@ -589,7 +589,7 @@ const GaugeCard: React.FC<GaugeCardProps> = ({ label, value, unit, max, color })
 
   return (
     <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-      <div className="text-sm text-slate-700 dark:text-gray-700 mb-1">{label}</div>
+      <div className="text-sm text-white/70 dark:text-gray-700 mb-1">{label}</div>
       <div className="text-sm font-bold text-gray-900 dark:text-white">
         {typeof value === 'number' ? formatNumber(value) : value}
         <span className="text-sm font-normal text-gray-700 ml-1">{unit}</span>
@@ -619,7 +619,7 @@ const DataCard: React.FC<DataCardProps> = ({ label, value, unit, warning }) => {
         ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
         : 'bg-gray-50 dark:bg-gray-700'
     }`}>
-      <div className="text-sm text-slate-700 dark:text-gray-700 mb-1">{label}</div>
+      <div className="text-sm text-white/70 dark:text-gray-700 mb-1">{label}</div>
       <div className={`text-base font-bold ${warning ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
         {value}
         {unit && <span className="text-sm font-normal text-gray-700 ml-1">{unit}</span>}

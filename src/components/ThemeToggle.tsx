@@ -39,7 +39,7 @@ export function ThemeToggle() {
           {resolvedTheme === "light" ? (
             <Sun className="h-4 w-4 text-amber-500" aria-hidden="true" />
           ) : (
-            <Moon className="h-4 w-4 text-blue-300" aria-hidden="true" />
+            <Moon className="h-4 w-4 text-emerald-300" aria-hidden="true" />
           )}
           <span className="sr-only">Toggle theme menu</span>
         </Button>
@@ -58,7 +58,7 @@ export function ThemeToggle() {
           onCheckedChange={() => setTheme("dark")}
           className="cursor-pointer gap-2"
         >
-          <Moon className="h-4 w-4 text-blue-300" />
+          <Moon className="h-4 w-4 text-emerald-300" />
           <span>Dark</span>
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem

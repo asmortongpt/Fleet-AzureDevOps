@@ -78,7 +78,7 @@ export function FleetMapDemo() {
             <MapPin className="h-8 w-8" />
             Fleet Map Demo
           </h1>
-          <p className="text-slate-700 mt-2">
+          <p className="text-white/70 mt-2">
             Real-time vehicle tracking with Google Maps integration
           </p>
         </div>
@@ -92,7 +92,7 @@ export function FleetMapDemo() {
       <div className="grid gap-2 md:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Total Vehicles</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/70">Total Vehicles</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold">{vehicles.length}</div>
@@ -101,7 +101,7 @@ export function FleetMapDemo() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Active</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/70">Active</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -113,19 +113,19 @@ export function FleetMapDemo() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">In Use</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/70">In Use</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <div className="text-sm font-bold">{vehiclesByStatus.in_use || 0}</div>
-              <Badge className="bg-blue-100 text-blue-800">Deployed</Badge>
+              <Badge className="bg-emerald-500/10 text-emerald-800">Deployed</Badge>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Maintenance</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/70">Maintenance</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -137,7 +137,7 @@ export function FleetMapDemo() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Out of Service</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/70">Out of Service</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -165,16 +165,16 @@ export function FleetMapDemo() {
                 className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                    <MapPin className="h-5 w-5 text-blue-800" />
+                  <div className="w-10 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                    <MapPin className="h-5 w-5 text-emerald-800" />
                   </div>
                   <div>
                     <div className="font-semibold">{vehicle.name}</div>
-                    <div className="text-sm text-slate-700">{vehicle.vehicleNumber}</div>
+                    <div className="text-sm text-white/70">{vehicle.vehicleNumber}</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-slate-700">{vehicle.location}</div>
+                  <div className="text-sm text-white/70">{vehicle.location}</div>
                   <div className="text-xs text-gray-700">
                     {vehicle.latitude.toFixed(4)}, {vehicle.longitude.toFixed(4)}
                   </div>
@@ -184,7 +184,7 @@ export function FleetMapDemo() {
                     vehicle.status === 'active'
                       ? 'bg-green-100 text-green-800'
                       : vehicle.status === 'in_use'
-                        ? 'bg-blue-100 text-blue-800'
+                        ? 'bg-emerald-500/10 text-emerald-800'
                         : vehicle.status === 'maintenance'
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
@@ -199,10 +199,10 @@ export function FleetMapDemo() {
       </Card>
 
       {/* Integration Info */}
-      <Card className="border-blue-200 bg-blue-50">
+      <Card className="border-emerald-500/20 bg-emerald-500/5">
         <CardHeader>
-          <CardTitle className="text-blue-900">Google Maps Integration Status</CardTitle>
-          <CardDescription className="text-blue-700">
+          <CardTitle className="text-emerald-900">Google Maps Integration Status</CardTitle>
+          <CardDescription className="text-emerald-700">
             Live connection to Google Maps API
           </CardDescription>
         </CardHeader>

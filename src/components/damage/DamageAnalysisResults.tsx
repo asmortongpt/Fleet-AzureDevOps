@@ -170,7 +170,7 @@ export function DamageAnalysisResults({
             </Badge>
           )}
           {analysis.depthEnhancement && (
-            <Badge variant="secondary" className="text-blue-700 bg-blue-100">
+            <Badge variant="secondary" className="text-emerald-700 bg-emerald-500/10">
               <Camera className="mr-1 h-3 w-3" />
               Depth Data Included
             </Badge>
@@ -226,7 +226,7 @@ export function DamageAnalysisResults({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold">Detected Damage ({analysis.damages.length})</h3>
-          <div className="text-sm text-slate-700">
+          <div className="text-sm text-white/70">
             Click to select/deselect damage items
           </div>
         </div>
@@ -246,7 +246,7 @@ export function DamageAnalysisResults({
               key={`${damage.type}-${damage.part}`}
               className={`cursor-pointer transition-all ${
                 isSelected
-                  ? 'border-2 border-blue-500 shadow-md'
+                  ? 'border-2 border-emerald-500 shadow-md'
                   : 'border-gray-200 opacity-60 hover:opacity-100'
               }`}
               onClick={() => toggleDamageSelection(index)}
@@ -333,7 +333,7 @@ export function DamageAnalysisResults({
                     </div>
                     <div>
                       <p className="text-gray-700">Total</p>
-                      <p className="font-bold text-blue-800">
+                      <p className="font-bold text-emerald-800">
                         ${(costBreakdown.laborCost + costBreakdown.partsCost).toFixed(2)}
                       </p>
                     </div>

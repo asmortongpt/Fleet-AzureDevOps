@@ -27,7 +27,7 @@ export function CompactVehicleList({
     const colors: Record<string, string> = {
       active: "bg-green-100 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900",
       idle: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700",
-      charging: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-700 dark:border-blue-900",
+      charging: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:bg-emerald-950 dark:text-emerald-700 dark:border-emerald-900",
       service: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
       emergency: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
       offline: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700",
@@ -110,7 +110,7 @@ export function CompactVehicleList({
                 key={vehicle.id}
                 className={cn(
                   "compact-list-item",
-                  wasRecentlyUpdated && "bg-blue-50 dark:bg-blue-950/20"
+                  wasRecentlyUpdated && "bg-emerald-500/5 dark:bg-emerald-950/20"
                 )}
                 onClick={() => onVehicleClick?.(vehicle)}
                 data-testid="vehicle-card"
@@ -120,7 +120,7 @@ export function CompactVehicleList({
                   <Car className="w-3.5 h-3.5" />
                   {wasRecentlyUpdated && (
                     <Circle
-                      className="absolute -top-0.5 -right-0.5 w-2 h-2 fill-blue-500 text-blue-800 animate-pulse"
+                      className="absolute -top-0.5 -right-0.5 w-2 h-2 fill-emerald-500 text-emerald-800 animate-pulse"
                      
                     />
                   )}
@@ -132,7 +132,7 @@ export function CompactVehicleList({
                       {vehicle.number}
                     </div>
                     {wasRecentlyUpdated && (
-                      <span className="inline-flex px-1.5 py-0.5 text-[8px] font-semibold text-blue-700 bg-blue-100 dark:bg-blue-950 dark:text-blue-700 rounded border border-blue-200 dark:border-blue-900">
+                      <span className="inline-flex px-1.5 py-0.5 text-[8px] font-semibold text-emerald-700 bg-emerald-500/10 dark:bg-emerald-950 dark:text-emerald-700 rounded border border-emerald-500/20 dark:border-emerald-900">
                         LIVE
                       </span>
                     )}
@@ -192,7 +192,7 @@ export function CompactVehicleListMini({
     const colors: Record<string, string> = {
       active: "text-green-600 dark:text-green-400",
       idle: "text-gray-700 dark:text-gray-700",
-      charging: "text-blue-800 dark:text-blue-700",
+      charging: "text-emerald-800 dark:text-emerald-700",
       service: "text-amber-600 dark:text-amber-400",
       emergency: "text-red-600 dark:text-red-400",
       offline: "text-gray-700 dark:text-gray-700",

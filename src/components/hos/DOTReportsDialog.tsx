@@ -309,7 +309,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-blue-600" />
+            <FileText className="h-5 w-5 text-emerald-600" />
             DOT Compliance Reports
           </DialogTitle>
           <DialogDescription>

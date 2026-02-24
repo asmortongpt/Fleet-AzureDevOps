@@ -104,7 +104,7 @@ export const colors = {
 
   // Accent Gradients
   gradients: {
-    blue: 'from-blue-500 to-cyan-500',
+    blue: 'from-emerald-500/50 to-cyan-500',
     emerald: 'from-emerald-500 to-teal-500',
     violet: 'from-violet-500 to-purple-500',
     orange: 'from-orange-500 to-amber-500',
@@ -127,8 +127,8 @@ export const colors = {
 export const glassEffect = {
   light: 'backdrop-blur-xl bg-white/80 border border-white/20',
   medium: 'backdrop-blur-xl bg-white/70 border border-white/20',
-  dark: 'backdrop-blur-xl bg-slate-900/80 border border-slate-800/20',
-  card: 'backdrop-blur-xl bg-white/80 rounded-2xl shadow-lg shadow-slate-200/50 border border-white/20',
+  dark: 'backdrop-blur-xl bg-[#111]/80 border border-white/[0.15]/20',
+  card: 'backdrop-blur-xl bg-white/80 rounded-2xl shadow-lg shadow-black/[0.1] border border-white/20',
 }
 
 // ============================================================================

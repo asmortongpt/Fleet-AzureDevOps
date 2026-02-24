@@ -263,7 +263,7 @@ export function DocumentComparison({
                     className={cn(
                       "px-2 py-1 border-l-4",
                       isAdded && highlightChanges && "bg-green-50 border-green-500 text-green-900",
-                      isModified && highlightChanges && "bg-blue-50 border-blue-500 text-blue-900",
+                      isModified && highlightChanges && "bg-emerald-500/5 border-emerald-500 text-emerald-900",
                       !isAdded && !isModified && !showUnchanged && "opacity-30"
                     )}
                   >
@@ -298,7 +298,7 @@ export function DocumentComparison({
                 "px-2 py-2 border-l-4",
                 change.type === 'added' && "bg-green-50 border-green-500 text-green-900",
                 change.type === 'removed' && "bg-red-50 border-red-500 text-red-900",
-                change.type === 'modified' && "bg-blue-50 border-blue-500 text-blue-900"
+                change.type === 'modified' && "bg-emerald-500/5 border-emerald-500 text-emerald-900"
               )}
             >
               <div className="flex items-center gap-2 mb-1">
@@ -323,7 +323,7 @@ export function DocumentComparison({
     return (
       <div className="space-y-2">
         {/* AI Generated Summary */}
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-3 rounded-lg border border-purple-200">
+        <div className="bg-gradient-to-r from-purple-50 to-emerald-500/5 p-3 rounded-lg border border-purple-200">
           <div className="flex items-center gap-2 mb-2">
             <Zap className="w-3 h-3 text-purple-600" />
             <h3 className="font-semibold text-sm">AI-Powered Change Summary</h3>
@@ -355,19 +355,19 @@ export function DocumentComparison({
             </div>
           </div>
 
-          <div className="bg-blue-50 p-2 rounded-lg border border-blue-200">
+          <div className="bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/20">
             <div className="flex items-center gap-2 mb-2">
-              <AlertCircle className="w-4 h-4 text-blue-800" />
-              <span className="text-sm font-medium text-blue-900">Modified</span>
+              <AlertCircle className="w-4 h-4 text-emerald-800" />
+              <span className="text-sm font-medium text-emerald-900">Modified</span>
             </div>
-            <div className="text-sm font-bold text-blue-700">
+            <div className="text-sm font-bold text-emerald-700">
               {comparisonResult.modified.length}
             </div>
           </div>
 
           <div className="bg-gray-50 p-2 rounded-lg border border-gray-200">
             <div className="flex items-center gap-2 mb-2">
-              <FileText className="w-4 h-4 text-slate-700" />
+              <FileText className="w-4 h-4 text-white/70" />
               <span className="text-sm font-medium text-gray-900">Change %</span>
             </div>
             <div className="text-sm font-bold text-gray-700">
@@ -410,7 +410,7 @@ export function DocumentComparison({
         <DialogHeader className="border-b pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <GitCompare className="h-6 w-6 text-blue-800" />
+              <GitCompare className="h-6 w-6 text-emerald-800" />
               <div>
                 <DialogTitle className="text-base">Document Comparison</DialogTitle>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -466,7 +466,7 @@ export function DocumentComparison({
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-500 mx-auto mb-2"></div>
                 <p className="text-gray-700">Analyzing changes...</p>
               </div>
             </div>

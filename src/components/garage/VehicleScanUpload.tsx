@@ -533,6 +533,7 @@ export function VehicleScanUpload({
           <button
             onClick={onClose}
             className="p-1 rounded hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            aria-label="Close scanner"
           >
             <X className="w-4 h-4" />
           </button>
