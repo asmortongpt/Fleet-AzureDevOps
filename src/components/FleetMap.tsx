@@ -1,6 +1,8 @@
 import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 import { MapPin, AlertCircle } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { MapContainer, TileLayer, Marker as LeafletMarker, Popup as LeafletPopup } from 'react-leaflet';
+import L from 'leaflet';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +10,10 @@ import logger from '@/utils/logger';
 
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+const USE_LEAFLET_FALLBACK =
+  !GOOGLE_MAPS_API_KEY ||
+  GOOGLE_MAPS_API_KEY.toLowerCase().includes('placeholder') ||
+  GOOGLE_MAPS_API_KEY.toLowerCase().startsWith('dev-');
 
 interface Vehicle {
   id: string;
@@ -30,11 +36,35 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const leafletIcon = useMemo(
+    () =>
+      new L.Icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      }),
+    []
+  );
+
+  // Ensure Leaflet CSS is present when using fallback
+  useEffect(() => {
+    if (!USE_LEAFLET_FALLBACK) return;
+    const existing = document.querySelector('link[data-leaflet]');
+    if (existing) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    link.setAttribute('data-leaflet', 'true');
+    document.head.appendChild(link);
+  }, []);
 
   // Initialize Google Maps
   useEffect(() => {
-    if (!GOOGLE_MAPS_API_KEY) {
-      setError('Google Maps API key not configured. Please set VITE_GOOGLE_MAPS_API_KEY in your environment.');
+    if (USE_LEAFLET_FALLBACK) {
       setLoading(false);
       return;
     }
@@ -48,6 +78,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
     const initMap = async () => {
       try {
         await importLibrary('maps');
+        await importLibrary('marker'); // Advanced markers
 
         if (mapRef.current) {
           const newMap = new google.maps.Map(mapRef.current, {
@@ -86,7 +117,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
     markers.forEach((marker) => marker.setMap(null));
 
     // Create new markers
-    const newMarkers: google.maps.Marker[] = [];
+    const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
     const bounds = new google.maps.LatLngBounds();
     let hasValidCoordinates = false;
 
@@ -99,14 +130,11 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
 
       hasValidCoordinates = true;
 
-      const marker = new google.maps.Marker({
+      const marker = new google.maps.marker.AdvancedMarkerElement({
         position: { lat, lng },
         map,
         title: vehicle.name || vehicle.vehicleNumber || 'Unknown Vehicle',
-        icon: {
-          url: getMarkerIcon(vehicle.status),
-          scaledSize: new google.maps.Size(32, 32),
-        },
+        content: createMarkerContent(getMarkerIcon(vehicle.status)),
       });
 
       // Info window for each marker
@@ -148,23 +176,32 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
 
   // Get marker icon based on vehicle status
   const getMarkerIcon = (status?: string): string => {
-    const baseUrl = 'http://maps.google.com/mapfiles/ms/icons/';
+    const baseUrl = 'https://maps.gstatic.com/mapfiles/ms2/micons/';
     switch (status?.toLowerCase()) {
       case 'active':
       case 'available':
-        return `${baseUrl}green-dot.png`;
+        return `${baseUrl}green.png`;
       case 'in_use':
       case 'in use':
-        return `${baseUrl}blue-dot.png`;
+        return `${baseUrl}blue.png`;
       case 'maintenance':
       case 'repair':
-        return `${baseUrl}yellow-dot.png`;
+        return `${baseUrl}yellow.png`;
       case 'out_of_service':
       case 'inactive':
-        return `${baseUrl}red-dot.png`;
+        return `${baseUrl}red.png`;
       default:
-        return `${baseUrl}purple-dot.png`;
+        return `${baseUrl}purple.png`;
     }
+  };
+
+  const createMarkerContent = (iconUrl: string) => {
+    const img = document.createElement('img');
+    img.src = iconUrl;
+    img.style.width = '32px';
+    img.style.height = '32px';
+    img.style.objectFit = 'contain';
+    return img;
   };
 
   const vehiclesWithCoords = vehicles.filter(
@@ -214,7 +251,36 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
           </Alert>
         )}
 
-        <div ref={mapRef} style={{ width: '100%', height, borderRadius: '8px' }} />
+        {USE_LEAFLET_FALLBACK ? (
+          <div style={{ height }}>
+            <MapContainer
+              center={[30.4383, -84.2807]}
+              zoom={12}
+              style={{ height: '100%', width: '100%', borderRadius: '8px' }}
+            >
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              {vehiclesWithCoords.map((v) => (
+                <LeafletMarker
+                  key={v.id}
+                  position={[v.latitude!, v.longitude!]}
+                  icon={leafletIcon}
+                >
+                  <LeafletPopup>
+                    <div className="space-y-1">
+                      <div className="font-semibold">{v.name || v.vehicleNumber}</div>
+                      <div className="text-sm text-muted-foreground">Status: {v.status || '—'}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {v.latitude?.toFixed(5)}, {v.longitude?.toFixed(5)}
+                      </div>
+                    </div>
+                  </LeafletPopup>
+                </LeafletMarker>
+              ))}
+            </MapContainer>
+          </div>
+        ) : (
+          <div ref={mapRef} style={{ width: '100%', height, borderRadius: '8px' }} />
+        )}
 
         {/* Legend */}
         {vehiclesWithCoords.length > 0 && (

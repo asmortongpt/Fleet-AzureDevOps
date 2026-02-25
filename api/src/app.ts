@@ -35,6 +35,8 @@ import { AuthorizationService } from './services/authz/AuthorizationService';
 import { ConfigurationManagementService } from './services/config/ConfigurationManagementService';
 import { SecretsManagementService } from './services/secrets/SecretsManagementService';
 
+const devBypassEnabled = process.env.VITE_SKIP_AUTH === 'true' || process.env.DEV_BYPASS_SECURITY === 'true';
+
 // Middleware
 
 // Routes
@@ -158,9 +160,13 @@ export class FleetAPI {
       next();
     });
 
-    // Rate limiting
-    const rateLimitMiddleware = createRateLimitMiddleware(this.redis);
-    this.app.use(rateLimitMiddleware.global);
+    // Rate limiting (disabled when dev bypass is active)
+    if (!devBypassEnabled) {
+      const rateLimitMiddleware = createRateLimitMiddleware(this.redis);
+      this.app.use(rateLimitMiddleware.global);
+    } else {
+      logger.warn('[RateLimit] Disabled in dev bypass mode');
+    }
 
     // Request logging
     this.app.use((req: Request, res: Response, next) => {

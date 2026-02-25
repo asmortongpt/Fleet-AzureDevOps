@@ -132,6 +132,10 @@ router.get(
       })
     } catch (error) {
       logger.error(`Get policies error:`, error) // Wave 16: Winston logger
+      // In dev/demo environments the policies table may not exist; return empty data instead of 500
+      if ((error as any)?.code === '42P01') {
+        return res.json({ data: [], pagination: { page: Number(req.query.page || 1), limit: Number(req.query.limit || 50), total: 0, pages: 0 } })
+      }
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -168,6 +172,9 @@ router.get(
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Get policies error:', error) // Wave 16: Winston logger
+      if ((error as any)?.code === '42P01') {
+        return res.status(404).json({ error: 'Policy not found' })
+      }
       res.status(500).json({ error: 'Internal server error' })
     }
   }

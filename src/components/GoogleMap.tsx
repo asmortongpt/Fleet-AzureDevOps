@@ -196,10 +196,16 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
   // Get and validate Google Maps API key
   // Try runtime config first (window._env_), then fall back to build-time env
   const apiKey = ((window as any)._env_?.VITE_GOOGLE_MAPS_API_KEY || import.meta.env.VITE_GOOGLE_MAPS_API_KEY)?.trim() || ""
-  const hasValidApiKey = apiKey.length > 0 && !forceFallback && !forceSimulatedView
+  const apiKeyLooksInvalid = apiKey.length === 0 || apiKey.toLowerCase().includes('placeholder') || apiKey.toLowerCase().startsWith('dev-')
+  const hasValidApiKey = !apiKeyLooksInvalid && !forceFallback && !forceSimulatedView
 
   // Handle global auth failure (Google Maps specific)
   useEffect(() => {
+    if (apiKeyLooksInvalid) {
+      setForceFallback(true)
+      setIsLoading(false)
+      return
+    }
     // Define global callback if not exists
     if (!(window as any).gm_authFailure) {
       (window as any).gm_authFailure = () => {

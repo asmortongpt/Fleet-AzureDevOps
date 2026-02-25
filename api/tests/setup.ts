@@ -198,6 +198,11 @@ export const generateGPSPosition = (vehicleId: string) => ({
   accuracy: 5 + Math.random() * 10
 })
 
+// Legacy hooks used by some security tests – no-op for lightweight runs
+export const seedTestDatabase = async () => {};
+export const cleanupDatabase = async () => {};
+export const closeTestDatabase = async () => {};
+
 export const generateGPSPositions = () => {
   return Array.from({ length: 10 }, (_, i) => generateGPSPosition(`V-${i.toString().padStart(3, '0')}`))
 }

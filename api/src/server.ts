@@ -14,6 +14,7 @@ import { processEmailJob } from './jobs/processors/email.processor'
 import { processNotificationJob } from './jobs/processors/notification.processor'
 import { processReportJob } from './jobs/processors/report.processor'
 import { emailQueue, notificationQueue, reportQueue, closeAllQueues } from './jobs/queue'
+import telematicsSyncJob from './jobs/telematics-sync'
 import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
 import { getCsrfToken } from './middleware/csrf'
 import { errorHandler } from './middleware/errorHandler'
@@ -387,10 +388,10 @@ if (process.env.NODE_ENV !== 'production' && process.env.SKIP_AUTH === 'true') {
         id: '00000000-0000-0000-0000-000000000001',
         email: 'dev@morton-tech.local',
         role: 'SuperAdmin',
-        tenant_id: '12345678-1234-1234-1234-123456789012',
+        tenant_id: '874954c7-b68b-5485-8ddd-183932497849',
         scope_level: 'global',
         userId: '00000000-0000-0000-0000-000000000001',
-        tenantId: '12345678-1234-1234-1234-123456789012',
+        tenantId: '874954c7-b68b-5485-8ddd-183932497849',
         name: 'Dev User',
       }
     }
@@ -892,6 +893,9 @@ const startServer = async () => {
 
     // Initialize Bull job processors
     initializeJobProcessors()
+
+    // Initialize Telematics Sync Job
+    telematicsSyncJob.start()
 
     // Track server startup in both monitoring systems
     telemetryService.trackEvent('ServerStartup', {

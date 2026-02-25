@@ -7,6 +7,8 @@ import { isValidIdentifier } from '../utils/sql-safety'
 
 import { AuthRequest } from './auth'
 
+const devBypassEnabled = process.env.VITE_SKIP_AUTH === 'true' || process.env.DEV_BYPASS_SECURITY === 'true'
+
 // Allowlist of tables for self-approval checks
 const SELF_APPROVAL_TABLES = ['work_orders', 'purchase_orders', 'safety_incidents'] as const;
 type SelfApprovalTable = typeof SELF_APPROVAL_TABLES[number];
@@ -72,7 +74,12 @@ async function setPermissionsInCache(userId: string, permissions: Set<string>): 
 /**
  * Get all permissions for a user
  */
-export async function getUserPermissions(userId: string): Promise<Set<string>> {
+export async function getUserPermissions(userId: string, requestRole?: string): Promise<Set<string>> {
+  if (devBypassEnabled) {
+    const allPermissions = new Set(['*'])
+    await setPermissionsInCache(userId, allPermissions)
+    return allPermissions
+  }
   // Check Redis cache first
   const cached = await getPermissionsFromCache(userId)
 
@@ -108,14 +115,14 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
       return allPermissions
     }
 
-    // Resolve role from the users table (source of truth for bootstrap defaults)
-    let userRole: string | undefined
+    // Resolve role from request (authoritative for middleware calls), then DB
+    let userRole: string | undefined = requestRole?.toLowerCase()
     try {
       const userResult = await pool.query('SELECT role FROM users WHERE id = $1', [userId])
-      userRole = userResult.rows[0]?.role?.toLowerCase()
+      userRole = userResult.rows[0]?.role?.toLowerCase() || userRole
     } catch (error) {
       logger.error('Failed to resolve user role for permissions bootstrap', { error, userId })
-      userRole = undefined
+      userRole = userRole || undefined
     }
 
     if (userRole === 'superadmin') {
@@ -309,9 +316,10 @@ export async function invalidatePermissionCache(userId: string): Promise<void> {
  */
 export async function hasPermission(
   userId: string,
-  permission: string
+  permission: string,
+  userRole?: string
 ): Promise<boolean> {
-  const permissions = await getUserPermissions(userId)
+  const permissions = await getUserPermissions(userId, userRole)
   return permissions.has('*') || permissions.has(permission)
 }
 
@@ -332,6 +340,11 @@ export function requirePermission(
   }
 ) {
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (devBypassEnabled) {
+      logger.debug('🔓 Permissions middleware bypassed in dev mode', { permission })
+      return next()
+    }
+
     if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' })
     }

@@ -29,17 +29,17 @@ describe('Role-Based Access Control (RBAC)', () => {
     testTenantId = uuidv4()
 
     await pool.query(
-      'INSERT INTO tenants (id, name, slug) VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING',
-      [testTenantId, 'Test Tenant RBAC', 'test-rbac']
+      'INSERT INTO tenants (id, name, slug) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
+      [testTenantId, 'Test Tenant RBAC', `test-rbac-${testTenantId.slice(0, 8)}`]
     )
 
     // Create test users with different roles
     const users = [
-      { role: 'superadmin', email: 'superadmin@test.com', name: 'SuperAdmin' },
-      { role: 'admin', email: 'admin@test.com', name: 'Admin' },
-      { role: 'manager', email: 'manager@test.com', name: 'Manager' },
-      { role: 'user', email: 'user@test.com', name: 'User' },
-      { role: 'readonly', email: 'readonly@test.com', name: 'ReadOnly' }
+      { role: 'SuperAdmin', email: '', name: 'SuperAdmin' },
+      { role: 'Admin', email: '', name: 'Admin' },
+      { role: 'Manager', email: '', name: 'Manager' },
+      { role: 'Driver', email: '', name: 'User' },
+      { role: 'Viewer', email: '', name: 'ReadOnly' }
     ]
 
     const promises = users.map(async (user) => {
@@ -48,7 +48,7 @@ describe('Role-Based Access Control (RBAC)', () => {
         `INSERT INTO users (id, tenant_id, email, first_name, last_name, role)
          VALUES ($1, $2, $3, $4, $5, $6)
          ON CONFLICT (id) DO NOTHING`,
-        [id, testTenantId, user.email, user.name, 'User', user.role]
+        [id, testTenantId, `${user.role}-${id}@test.com`, user.name, 'User', user.role]
       )
       return { id, role: user.role }
     })
@@ -75,7 +75,7 @@ describe('Role-Based Access Control (RBAC)', () => {
       'SELECT role FROM users WHERE id = $1',
       [superAdminId]
     )
-    expect(result.rows[0].role).toBe('superadmin')
+    expect(result.rows[0].role.toLowerCase()).toBe('superadmin')
   })
 
   // Test 2: Admin cannot access superadmin-only functions
@@ -137,7 +137,7 @@ describe('Role-Based Access Control (RBAC)', () => {
       'SELECT COUNT(*) as count FROM users WHERE tenant_id != $1 AND role = $2',
       [testTenantId, 'admin']
     )
-    expect(adminInTenant.rows[0].count).toBeGreaterThanOrEqual(0)
+    expect(Number(adminInTenant.rows[0].count)).toBeGreaterThanOrEqual(0)
   })
 
   // Test 9: Dynamic role assignment
@@ -219,10 +219,10 @@ describe('Multi-Tenancy Enforcement', () => {
   it('should prevent cross-tenant data access', async () => {
     // Create vehicle in tenant1
     const vehicleResult = await pool.query(
-      `INSERT INTO vehicles (tenant_id, vin, license_plate, make, model)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO vehicles (tenant_id, vin, license_plate, make, model, year)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id`,
-      [tenant1Id, 'VIN123', 'PLATE1', 'Toyota', 'Camry']
+      [tenant1Id, 'VIN123', 'PLATE1', 'Toyota', 'Camry', 2024]
     )
 
     // Query vehicle from tenant2 context
@@ -266,8 +266,8 @@ describe('Multi-Tenancy Enforcement', () => {
       [tenant2Id]
     )
     // Counts may be different but both should be valid
-    expect(tenant1Count.rows[0].count).toBeGreaterThanOrEqual(0)
-    expect(tenant2Count.rows[0].count).toBeGreaterThanOrEqual(0)
+    expect(Number(tenant1Count.rows[0].count)).toBeGreaterThanOrEqual(0)
+    expect(Number(tenant2Count.rows[0].count)).toBeGreaterThanOrEqual(0)
   })
 
   it('should not allow switching tenant context', () => {
@@ -362,8 +362,8 @@ describe('Resource-Level Access Control', () => {
     otherId = uuidv4()
 
     await pool.query(
-      'INSERT INTO tenants (id, name, slug) VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING',
-      [testTenantId, 'Test Tenant RLAC', 'test-rlac']
+      'INSERT INTO tenants (id, name, slug) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
+      [testTenantId, 'Test Tenant RLAC', `test-rlac-${testTenantId.slice(0, 8)}`]
     )
 
     await pool.query(
@@ -373,17 +373,17 @@ describe('Resource-Level Access Control', () => {
               ($13, $14, $15, $16, $17, $18)
        ON CONFLICT (id) DO NOTHING`,
       [
-        ownerId, testTenantId, 'owner@test.com', 'Owner', 'User', 'user',
-        managerId, testTenantId, 'manager@test.com', 'Manager', 'User', 'manager',
-        otherId, testTenantId, 'other@test.com', 'Other', 'User', 'user'
+        ownerId, testTenantId, `owner-${ownerId}@test.com`, 'Owner', 'User', 'user',
+        managerId, testTenantId, `manager-${managerId}@test.com`, 'Manager', 'User', 'manager',
+        otherId, testTenantId, `other-${otherId}@test.com`, 'Other', 'User', 'user'
       ]
     )
 
     const vehicleResult = await pool.query(
-      `INSERT INTO vehicles (tenant_id, vin, license_plate, make, model)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO vehicles (tenant_id, vin, license_plate, make, model, year)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id`,
-      [testTenantId, 'VIN456', 'PLATE2', 'Honda', 'Civic']
+      [testTenantId, 'VIN456', 'PLATE2', 'Honda', 'Civic', 2024]
     )
     resourceId = vehicleResult.rows[0].id
   })
@@ -504,8 +504,8 @@ describe('Insecure Direct Object Reference (IDOR) Prevention', () => {
     user2Id = uuidv4()
 
     await pool.query(
-      'INSERT INTO tenants (id, name, slug) VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING',
-      [testTenantId, 'Test Tenant IDOR', 'test-idor']
+      'INSERT INTO tenants (id, name, slug) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
+      [testTenantId, 'Test Tenant IDOR', `test-idor-${testTenantId.slice(0, 8)}`]
     )
 
     await pool.query(
@@ -513,24 +513,24 @@ describe('Insecure Direct Object Reference (IDOR) Prevention', () => {
        VALUES ($1, $2, $3, $4, $5, $6), ($7, $8, $9, $10, $11, $12)
        ON CONFLICT (id) DO NOTHING`,
       [
-        user1Id, testTenantId, 'user1@test.com', 'User', '1', 'user',
-        user2Id, testTenantId, 'user2@test.com', 'User', '2', 'user'
+        user1Id, testTenantId, `user1-${user1Id}@test.com`, 'User', '1', 'user',
+        user2Id, testTenantId, `user2-${user2Id}@test.com`, 'User', '2', 'user'
       ]
     )
 
     const vehicle1 = await pool.query(
-      `INSERT INTO vehicles (tenant_id, vin, license_plate, make, model)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO vehicles (tenant_id, vin, license_plate, make, model, year, number)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id`,
-      [testTenantId, 'VIN1', 'VEH1', 'Toyota', 'Camry']
+      [testTenantId, 'VIN1', 'VEH1', 'Toyota', 'Camry', 2024, 'NUM1']
     )
     vehicle1Id = vehicle1.rows[0].id
 
     const vehicle2 = await pool.query(
-      `INSERT INTO vehicles (tenant_id, vin, license_plate, make, model)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO vehicles (tenant_id, vin, license_plate, make, model, year, number)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id`,
-      [testTenantId, 'VIN2', 'VEH2', 'Honda', 'Civic']
+      [testTenantId, 'VIN2', 'VEH2', 'Honda', 'Civic', 2024, 'NUM2']
     )
     vehicle2Id = vehicle2.rows[0].id
   })
@@ -554,7 +554,7 @@ describe('Insecure Direct Object Reference (IDOR) Prevention', () => {
     // Attacker cannot simply increment ID to find other resources
     const result = await pool.query(
       'SELECT * FROM vehicles WHERE id = $1 AND tenant_id = $2',
-      [vehicle2Id + 1000, testTenantId]
+      [uuidv4(), testTenantId]
     )
     expect(result.rows.length).toBe(0)
   })

@@ -20,6 +20,14 @@ import { FIPSJWTService } from '../../../src/services/fips-jwt.service'
 import pool from '../../../src/config/database'
 import logger from '../../../src/config/logger'
 
+const signTestToken = (payload: object, options: jwt.SignOptions = {}) =>
+  FIPSJWTService.sign(payload, {
+    issuer: 'fleet-management-api',
+    audience: 'fleet-management-app',
+    expiresIn: '15m',
+    ...options
+  })
+
 describe('Authentication Middleware - authenticateJWT()', () => {
   let testUserId: string
   let testTenantId: string
@@ -45,15 +53,14 @@ describe('Authentication Middleware - authenticateJWT()', () => {
     )
 
     // Generate valid test token
-    testToken = FIPSJWTService.sign(
+    testToken = signTestToken(
       {
         id: testUserId,
         email: 'auth-test@example.com',
         tenant_id: testTenantId,
         role: 'admin',
         type: 'access'
-      },
-      { expiresIn: '15m' }
+      }
     )
   })
 
@@ -102,14 +109,13 @@ describe('Authentication Middleware - authenticateJWT()', () => {
     })
 
     it('should prefer Authorization header over cookie', async () => {
-      const headerToken = FIPSJWTService.sign(
+      const headerToken = signTestToken(
         {
           id: testUserId,
           email: 'header@example.com',
           tenant_id: testTenantId,
           type: 'access'
-        },
-        { expiresIn: '15m' }
+        }
       )
 
       const req = {
@@ -198,7 +204,7 @@ describe('Authentication Middleware - authenticateJWT()', () => {
 
   describe('Invalid/Expired tokens', () => {
     it('should reject expired token', async () => {
-      const expiredToken = FIPSJWTService.sign(
+      const expiredToken = signTestToken(
         {
           id: testUserId,
           email: 'expired@example.com',
@@ -306,7 +312,7 @@ describe('Authentication Middleware - authenticateJWT()', () => {
     })
 
     it('should reject token with NotBeforeError', async () => {
-      const futureToken = FIPSJWTService.sign(
+      const futureToken = signTestToken(
         {
           id: testUserId,
           email: 'future@example.com',
@@ -368,13 +374,12 @@ describe('Authentication Middleware - authenticateJWT()', () => {
   describe('Multiple concurrent requests', () => {
     it('should handle multiple concurrent JWT validations', async () => {
       const tokens = Array.from({ length: 5 }).map((_, i) =>
-        FIPSJWTService.sign(
+        signTestToken(
           {
             id: `user-${i}`,
             email: `user${i}@example.com`,
             type: 'access'
-          },
-          { expiresIn: '15m' }
+          }
         )
       )
 
@@ -422,7 +427,7 @@ describe('Authentication Middleware - authenticateJWT()', () => {
     })
 
     it('should handle token with optional claims', async () => {
-      const tokenWithOptional = FIPSJWTService.sign(
+      const tokenWithOptional = signTestToken(
         {
           id: testUserId,
           email: 'optional@example.com',
@@ -430,8 +435,7 @@ describe('Authentication Middleware - authenticateJWT()', () => {
           type: 'access',
           scope_level: 'team',
           team_driver_ids: ['driver-1', 'driver-2']
-        },
-        { expiresIn: '15m' }
+        }
       )
 
       const req = {
@@ -453,13 +457,12 @@ describe('Authentication Middleware - authenticateJWT()', () => {
 
   describe('Token type detection', () => {
     it('should detect local Fleet tokens by type claim', async () => {
-      const localToken = FIPSJWTService.sign(
+      const localToken = signTestToken(
         {
           id: testUserId,
           type: 'access',
           email: 'local@example.com'
-        },
-        { expiresIn: '15m' }
+        }
       )
 
       const req = {
@@ -813,13 +816,12 @@ describe('Auth Middleware Security', () => {
   describe('Replay attack prevention', () => {
     it('should validate token integrity on repeated use', async () => {
       const testUserId = uuidv4()
-      const testToken = FIPSJWTService.sign(
+      const testToken = signTestToken(
         {
           id: testUserId,
           email: 'replay@example.com',
           type: 'access'
-        },
-        { expiresIn: '15m' }
+        }
       )
 
       // First request
@@ -863,7 +865,7 @@ describe('Auth Middleware Security', () => {
         iat: Math.floor(Date.now() / 1000) + 30 // 30 seconds in future
       }
 
-      const token = FIPSJWTService.sign(payload, {
+      const token = signTestToken(payload, {
         expiresIn: '15m',
         noTimestamp: false
       })

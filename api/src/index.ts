@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import pg from 'pg';
 
 // This file is a legacy/experimental entrypoint and is not part of the supported server runtime.
@@ -10,6 +11,16 @@ if (process.env.ENABLE_LEGACY_API !== 'true') {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+const allowlist = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
+if (isDevelopment) {
+  allowlist.push('http://localhost:4173', 'http://127.0.0.1:4173', 'http://localhost:4175');
+}
 
 // Database configuration
 const pool = new pg.Pool({
@@ -22,6 +33,15 @@ const pool = new pg.Pool({
 
 // Middleware
 app.use(express.json());
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowlist.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS not allowed'), false);
+  },
+  credentials: true,
+}));
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {

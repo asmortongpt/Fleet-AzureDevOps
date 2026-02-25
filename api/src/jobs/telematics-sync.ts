@@ -96,22 +96,19 @@ async function runTelematicsSync(): Promise<void> {
   logger.info('=== Telematics Sync Started ===')
 
   try {
-    // Initialize Samsara service if not already initialized
-    if (!initializeSamsaraService()) {
-      logger.warn('No telematics providers configured, skipping sync')
-      return
-    }
-
     let vehiclesSynced = 0
     let telemetrySynced = 0
     let eventsSynced = 0
     let errors = 0
 
+    // Initialize Samsara service if not already initialized
+    initializeSamsaraService()
+
     // Check if we should sync vehicles (every 24 hours)
     const shouldSyncVehicles = !lastVehicleSync ||
       Date.now() - lastVehicleSync.getTime() > SYNC_VEHICLES_INTERVAL * 60 * 60 * 1000
 
-    // Sync vehicles if needed
+    // Sync vehicles from Samsara if available
     if (shouldSyncVehicles && samsaraService) {
       try {
         logger.info(`Syncing vehicles from Samsara...`)
@@ -127,7 +124,7 @@ async function runTelematicsSync(): Promise<void> {
       }
     }
 
-    // Sync telemetry (location, stats) - runs every time
+    // Sync telemetry (location, stats) from Samsara if available
     if (samsaraService) {
       try {
         logger.info(`Syncing telemetry from Samsara...`)
@@ -142,7 +139,7 @@ async function runTelematicsSync(): Promise<void> {
       }
     }
 
-    // Sync safety events (last hour) - runs every time
+    // Sync safety events (last hour) from Samsara if available
     if (samsaraService) {
       try {
         logger.info(`Syncing safety events from Samsara...`)
