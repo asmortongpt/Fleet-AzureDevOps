@@ -139,7 +139,7 @@ router.get('/callback', async (req: Request, res: Response) => {
   }
 
   try {
-    const { code, state, error } = req.query
+    const { code, state, error, user_id: queryUserId, tenant_id: queryTenantId } = req.query
 
     if (error) {
       logger.error('Smartcar OAuth error:', error)
@@ -150,7 +150,7 @@ router.get('/callback', async (req: Request, res: Response) => {
       return res.redirect(safeErrorUrl)
     }
 
-    if (!code || !state) {
+    if (!code) {
       const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
         error: 'smartcar_auth_failed',
         message: 'Missing authorization code'
@@ -158,9 +158,22 @@ router.get('/callback', async (req: Request, res: Response) => {
       return res.redirect(safeErrorUrl)
     }
 
-    // Decode state parameter
-    const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString('utf-8'))
-    const { vehicle_id, user_id, tenant_id } = stateData
+    // Handle both state parameter (standard OAuth) and direct query params (Smartcar test mode)
+    let vehicle_id: number | null = null
+    let user_id: string | null = null
+    let tenant_id: string | null = null
+
+    if (state) {
+      // Standard OAuth: state parameter contains encoded user context
+      const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString('utf-8'))
+      vehicle_id = stateData.vehicle_id
+      user_id = stateData.user_id
+      tenant_id = stateData.tenant_id
+    } else if (queryUserId) {
+      // Smartcar test mode: user_id and tenant_id passed as query parameters
+      user_id = queryUserId as string
+      tenant_id = (queryTenantId as string) || '874954c7-b68b-5485-8ddd-183932497849'
+    }
 
     // Validate user_id and tenant_id are present
     if (!user_id || !tenant_id) {
@@ -173,16 +186,34 @@ router.get('/callback', async (req: Request, res: Response) => {
     }
 
     // vehicle_id is now optional - only validate if provided
-    let parsedVehicleId: number | null = null
+    // Can be either UUID (fleet vehicle) or legacy numeric ID
+    let parsedVehicleId: string | number | null = null
     if (vehicle_id) {
-      parsedVehicleId = parseInt(vehicle_id, 10)
-      if (isNaN(parsedVehicleId) || parsedVehicleId <= 0) {
-        logger.warn(`Invalid vehicle_id in state parameter: ${vehicle_id}`)
-        const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
-          error: 'invalid_state',
-          message: 'Invalid vehicle identifier'
-        })
-        return res.redirect(safeErrorUrl)
+      // Check if UUID format (contains hyphens)
+      if (typeof vehicle_id === 'string' && vehicle_id.includes('-')) {
+        // UUID format - validate basic UUID pattern
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+        if (!uuidRegex.test(vehicle_id)) {
+          logger.warn(`Invalid UUID format in state parameter: ${vehicle_id}`)
+          const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
+            error: 'invalid_state',
+            message: 'Invalid vehicle identifier'
+          })
+          return res.redirect(safeErrorUrl)
+        }
+        parsedVehicleId = vehicle_id
+      } else {
+        // Legacy numeric ID
+        const numId = parseInt(vehicle_id, 10)
+        if (isNaN(numId) || numId <= 0) {
+          logger.warn(`Invalid vehicle_id in state parameter: ${vehicle_id}`)
+          const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
+            error: 'invalid_state',
+            message: 'Invalid vehicle identifier'
+          })
+          return res.redirect(safeErrorUrl)
+        }
+        parsedVehicleId = numId
       }
     }
 

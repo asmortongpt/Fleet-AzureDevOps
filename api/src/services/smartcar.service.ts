@@ -9,6 +9,7 @@
 
 import { AxiosInstance } from 'axios'
 import { Pool } from 'pg'
+import querystring from 'querystring'
 
 import logger from '../config/logger'
 import { createSafeAxiosInstance, safePost, safeDelete } from '../utils/ssrf-protection'
@@ -217,18 +218,21 @@ class SmartcarService {
     expires_in: number
     token_type: string
   }> {
+    // Smartcar OAuth endpoint requires form-urlencoded, not JSON
+    const data = querystring.stringify({
+      code,
+      grant_type: 'authorization_code',
+      redirect_uri: SMARTCAR_REDIRECT_URI,
+      client_id: SMARTCAR_CLIENT_ID,
+      client_secret: SMARTCAR_CLIENT_SECRET
+    })
+
     // SSRF Protection: Use safe HTTP client with domain allowlist
     const response = await safePost(
       `https://auth.smartcar.com/oauth/token`,
+      data,
       {
-        code,
-        grant_type: 'authorization_code',
-        redirect_uri: SMARTCAR_REDIRECT_URI,
-        client_id: SMARTCAR_CLIENT_ID,
-        client_secret: SMARTCAR_CLIENT_SECRET
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         allowedDomains: SMARTCAR_ALLOWED_DOMAINS,
       }
     )
@@ -241,17 +245,20 @@ class SmartcarService {
     refresh_token: string
     expires_in: number
   }> {
+    // Smartcar OAuth endpoint requires form-urlencoded, not JSON
+    const data = querystring.stringify({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: SMARTCAR_CLIENT_ID,
+      client_secret: SMARTCAR_CLIENT_SECRET
+    })
+
     // SSRF Protection: Use safe HTTP client with domain allowlist
     const response = await safePost(
       'https://auth.smartcar.com/oauth/token',
+      data,
       {
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-        client_id: SMARTCAR_CLIENT_ID,
-        client_secret: SMARTCAR_CLIENT_SECRET
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         allowedDomains: SMARTCAR_ALLOWED_DOMAINS,
       }
     )
@@ -315,7 +322,7 @@ class SmartcarService {
     return {
       latitude: response.data.latitude,
       longitude: response.data.longitude,
-      timestamp: response.data.meta.dataAge
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
     }
   }
 
@@ -328,7 +335,7 @@ class SmartcarService {
     const miles = response.data.distance * 0.621371
     return {
       distance: miles,
-      timestamp: response.data.meta.dataAge
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
     }
   }
 
@@ -368,7 +375,7 @@ class SmartcarService {
     return {
       percentRemaining: response.data.percentRemaining,
       range: response.data.range * 0.621371, // Convert km to miles
-      timestamp: response.data.meta.dataAge
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
     }
   }
 
@@ -381,7 +388,7 @@ class SmartcarService {
       percentRemaining: response.data.percentRemaining,
       amountRemaining: response.data.amountRemaining,
       range: response.data.range * 0.621371, // Convert km to miles
-      timestamp: response.data.meta.dataAge
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
     }
   }
 
@@ -393,7 +400,7 @@ class SmartcarService {
     return {
       isPluggedIn: response.data.isPluggedIn,
       state: response.data.state,
-      timestamp: response.data.meta.dataAge
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
     }
   }
 
@@ -619,7 +626,7 @@ class SmartcarService {
     )
   }
 
-  async getVehicleConnection(vehicleId: number): Promise<{
+  async getVehicleConnection(vehicleId: string | number): Promise<{
     external_vehicle_id: string
     access_token: string
     refresh_token: string
@@ -660,11 +667,18 @@ class SmartcarService {
     return result.rows
   }
 
-  async ensureValidToken(vehicleId: number): Promise<string> {
+  async ensureValidToken(vehicleId: string | number): Promise<string> {
     const connection = await this.getVehicleConnection(vehicleId)
 
     if (!connection) {
       throw new Error(`Vehicle not connected to Smartcar`)
+    }
+
+    // Check if using management token (test mode) - these don't expire
+    const isManagementToken = connection.metadata?.using_management_token === true
+    if (isManagementToken) {
+      logger.debug('Using Smartcar management token for test mode', { vehicleId })
+      return connection.access_token
     }
 
     // Check if token is expired or expiring soon (within 5 minutes)
@@ -675,7 +689,11 @@ class SmartcarService {
     if (expiresAt <= fiveMinutesFromNow) {
       logger.info('Refreshing Smartcar token', { vehicleId })
 
-      // Refresh token
+      // Refresh token (only if not using management token)
+      if (!connection.refresh_token) {
+        throw new Error(`No refresh token available for vehicle ${vehicleId}`)
+      }
+
       const refreshed = await this.refreshAccessToken(connection.refresh_token)
 
       // Update database
@@ -694,7 +712,7 @@ class SmartcarService {
     return connection.access_token
   }
 
-  async syncVehicleData(vehicleId: number): Promise<void> {
+  async syncVehicleData(vehicleId: string | number): Promise<void> {
     const accessToken = await this.ensureValidToken(vehicleId)
     const connection = await this.getVehicleConnection(vehicleId)
 
@@ -720,25 +738,30 @@ class SmartcarService {
         const battery = await this.getBattery(smartcarVehicleId, accessToken)
         batteryPercent = battery.percentRemaining
         range = battery.range
-      } catch {
-        // Not an EV, try fuel
+      } catch (err: unknown) {
+        // Not an EV or no permission, try fuel
         try {
           const fuel = await this.getFuel(smartcarVehicleId, accessToken)
           fuelPercent = fuel.percentRemaining
           range = fuel.range
         } catch {
-          // Neither available
+          // Neither available or no permission - that's OK, we have location data
+          logger.debug('Battery and fuel data not available for vehicle', { smartcarVehicleId })
         }
       }
 
       // Insert telemetry record
+      // Round range to integer for estimated_range_miles column
+      const rangeRounded = range !== null ? Math.round(range) : null
+      // Round odometer to 2 decimal places for numeric column
+      const odometerRounded = Math.round(odometer.distance * 100) / 100
       await this.db.query(
         `INSERT INTO vehicle_telemetry
          (vehicle_id, provider_id, timestamp, latitude, longitude,
           odometer_miles, battery_percent, fuel_percent, estimated_range_miles)
          VALUES ($1, (SELECT id FROM telematics_providers WHERE name = 'smartcar'),
                  NOW(), $2, $3, $4, $5, $6, $7)`,
-        [vehicleId, location.latitude, location.longitude, odometer.distance, batteryPercent, fuelPercent, range]
+        [vehicleId, location.latitude, location.longitude, odometerRounded, batteryPercent, fuelPercent, rangeRounded]
       )
 
       // Update last sync time

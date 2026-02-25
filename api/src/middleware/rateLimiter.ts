@@ -80,7 +80,7 @@ export function createRateLimiter(config: RateLimitConfig): RateLimitRequestHand
     handler
   } = config
 
-  return rateLimit({
+  const limiter = rateLimit({
     windowMs,
     max,
     standardHeaders,
@@ -106,10 +106,32 @@ export function createRateLimiter(config: RateLimitConfig): RateLimitRequestHand
       if (handler) {
         handler(req, res)
       } else {
-        standardHandler(req, res, retryAfter)
+        // use per-limiter message when available
+        res.status(429).json({
+          success: false,
+          error: 'Rate limit exceeded',
+          message,
+          retryAfter,
+          code: 'RATE_LIMIT_EXCEEDED',
+          timestamp: new Date().toISOString()
+        })
       }
     }
   })
+
+  // Expose reset helpers for tests
+  const store: any = (limiter as any).store
+  if (store && typeof store.resetAll === 'function') {
+    (limiter as any).resetAll = () => store.resetAll()
+  } else if (store && typeof store === 'object') {
+    (limiter as any).resetAll = () => {
+      if (store.hits && typeof store.hits === 'object') {
+        store.hits = {}
+      }
+    }
+  }
+
+  return limiter
 }
 
 /**
@@ -120,7 +142,7 @@ export function createRateLimiter(config: RateLimitConfig): RateLimitRequestHand
 export const authLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5,
-  skipSuccessfulRequests: true, // Don't count successful logins
+  skipSuccessfulRequests: false,
   message: 'Too many authentication attempts. Please try again in 15 minutes.',
   keyGenerator: (req) => {
     // Use email + IP for auth attempts to prevent targeted attacks
@@ -208,7 +230,22 @@ export const adminLimiter = createRateLimiter({
 export const fileUploadLimiter = createRateLimiter({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 5,
-  message: 'Too many file uploads. You can only upload 5 files per minute.'
+  message: 'Too many file uploads. You can only upload 5 files per minute.',
+  handler: (req, res) => {
+    const resetTime = req.rateLimit?.resetTime
+    const retryAfter = resetTime
+      ? Math.ceil((resetTime.getTime() - Date.now()) / 1000)
+      : 60
+    res.setHeader('Retry-After', retryAfter.toString())
+    res.status(429).json({
+      success: false,
+      error: 'Rate limit exceeded',
+      message: 'Too many file uploads. You can only upload 5 files per minute.',
+      retryAfter,
+      code: 'RATE_LIMIT_EXCEEDED',
+      timestamp: new Date().toISOString()
+    })
+  }
 })
 
 /**
@@ -298,15 +335,16 @@ export const webhookLimiter = createRateLimiter({
  */
 export const globalLimiter = createRateLimiter({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development' ? 1000 : 30,
+  max: 30,
   message: 'Too many requests from this IP. Please try again later.',
   skip: (req) => {
-    // Skip rate limiting for health checks
+    // Skip rate limiting for health checks and OAuth callbacks
     const path = req.path.toLowerCase()
     return path === '/health' ||
       path === '/api/health' ||
       path === '/api/status' ||
-      path.startsWith('/api/health')
+      path.startsWith('/api/health') ||
+      path === '/api/smartcar/callback'
   }
 })
 
