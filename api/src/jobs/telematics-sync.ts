@@ -10,6 +10,7 @@ import winston from 'winston'
 
 import pool from '../config/database'
 import SamsaraService from '../services/samsara.service'
+import SmartcarService from '../services/smartcar.service'
 
 // Configure logger
 const logger = winston.createLogger({
@@ -35,6 +36,7 @@ const SYNC_VEHICLES_INTERVAL = parseInt(process.env.SYNC_VEHICLES_INTERVAL_HOURS
 
 let lastVehicleSync: Date | null = null
 let samsaraService: SamsaraService | null = null
+let smartcarService: SmartcarService | null = null
 
 /**
  * Initialize Samsara service
@@ -55,6 +57,31 @@ return true
     return true
   } catch (error: unknown) {
     logger.error('Failed to initialize Samsara service', {
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
+    })
+    return false
+  }
+}
+
+/**
+ * Initialize Smartcar service
+ */
+function initializeSmartcarService(): boolean {
+  if (smartcarService) {
+    return true
+  }
+
+  if (!process.env.SMARTCAR_CLIENT_ID || !process.env.SMARTCAR_CLIENT_SECRET || !process.env.SMARTCAR_REDIRECT_URI) {
+    logger.warn('Smartcar not fully configured, Smartcar sync disabled')
+    return false
+  }
+
+  try {
+    smartcarService = new SmartcarService(pool)
+    logger.info('✅ Smartcar service initialized for sync job')
+    return true
+  } catch (error: unknown) {
+    logger.error('Failed to initialize Smartcar service', {
       error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
     return false
@@ -123,6 +150,42 @@ async function runTelematicsSync(): Promise<void> {
         logger.info(`✅ Synced ${eventsSynced} safety events`)
       } catch (error: unknown) {
         logger.error(`Error syncing safety events`, {
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
+          stack: error instanceof Error ? error.stack : undefined
+        })
+        errors++
+      }
+    }
+
+    // Sync Smartcar data for all connected vehicles
+    if (initializeSmartcarService() && smartcarService) {
+      try {
+        logger.info(`Syncing telemetry from Smartcar...`)
+
+        // Get all vehicles with active Smartcar connections
+        const smartcarConnectionsResult = await pool.query(
+          `SELECT DISTINCT vtc.vehicle_id
+           FROM vehicle_telematics_connections vtc
+           JOIN telematics_providers tp ON vtc.provider_id = tp.id
+           WHERE tp.name = 'smartcar' AND vtc.sync_status != 'disconnected'`
+        )
+
+        let smartcarSynced = 0
+        for (const row of smartcarConnectionsResult.rows) {
+          try {
+            await smartcarService.syncVehicleData(row.vehicle_id)
+            smartcarSynced++
+          } catch (error: unknown) {
+            logger.error(`Error syncing Smartcar data for vehicle ${row.vehicle_id}`, {
+              error: error instanceof Error ? error.message : 'An unexpected error occurred'
+            })
+            errors++
+          }
+        }
+
+        logger.info(`✅ Synced telemetry for ${smartcarSynced} Smartcar vehicles`)
+      } catch (error: unknown) {
+        logger.error(`Error syncing Smartcar telemetry`, {
           error: error instanceof Error ? error.message : 'An unexpected error occurred',
           stack: error instanceof Error ? error.stack : undefined
         })
@@ -256,8 +319,9 @@ export function startTelematicsSync(): void {
     throw new Error(`Invalid cron schedule: ${CRON_SCHEDULE}`)
   }
 
-  // Initialize Samsara service
+  // Initialize telematics providers
   initializeSamsaraService()
+  initializeSmartcarService()
 
   // Schedule the job
   const task = cron.schedule(
