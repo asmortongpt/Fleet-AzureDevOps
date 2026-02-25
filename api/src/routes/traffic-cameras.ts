@@ -56,6 +56,10 @@ router.get('/sources', authenticateJWT, async (_req: Request, res: Response, nex
     );
     res.json(result.rows);
   } catch (err) {
+    if ((err as any)?.code === '42P01') {
+      // Table not present in dev/demo — return empty to keep UI alive
+      return res.json([]);
+    }
     next(err);
   }
 });
@@ -72,6 +76,9 @@ router.get('/sources/list', authenticateJWT, async (_req: Request, res: Response
     );
     res.json(result.rows);
   } catch (err) {
+    if ((err as any)?.code === '42P01') {
+      return res.json([]);
+    }
     next(err);
   }
 });
