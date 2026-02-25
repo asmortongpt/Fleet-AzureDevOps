@@ -600,13 +600,9 @@ export class PreFlightChecklist {
 }
 
 /**
- * Singleton instance
+ * Create a new instance of PreFlightChecklist for each request
+ * This avoids race conditions from concurrent checklist runs
  */
-let instance: PreFlightChecklist | null = null
-
 export function getPreFlightChecklist(): PreFlightChecklist {
-  if (!instance) {
-    instance = new PreFlightChecklist()
-  }
-  return instance
+  return new PreFlightChecklist()
 }

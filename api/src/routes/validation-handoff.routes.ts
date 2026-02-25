@@ -19,6 +19,8 @@
  */
 
 import express, { Router, Request, Response, NextFunction } from 'express'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { requirePermission } from '../middleware/permissions'
 import { logger } from '../lib/logger'
 import { HandoffReportGenerator } from '../validation/HandoffReportGenerator'
 import {
@@ -66,7 +68,7 @@ const createGenerator = (req: Request) => {
  * - includeResolvedIssues: boolean (default: true)
  * - includeDismissedIssues: boolean (default: true)
  */
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const generator = createGenerator(req)
 
@@ -109,7 +111,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
  * - includeAppendices: boolean (default: true)
  * - includePageNumbers: boolean (default: true)
  */
-router.get('/report/html', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/report/html', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const generator = createGenerator(req)
 
@@ -147,20 +149,13 @@ router.get('/report/html', async (req: Request, res: Response, next: NextFunctio
  * - pageSize: 'A4' | 'Letter' | 'A3' (default: 'A4')
  * - includePageNumbers: boolean (default: true)
  */
-router.get('/report/pdf', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/report/pdf', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const generator = createGenerator(req)
-
-    const pdf = await generator.exportAsPdf()
-
-    res.setHeader('Content-Type', 'application/pdf')
-    res.setHeader(
-      'Content-Disposition',
-      'attachment; filename="handoff-report-' + new Date().toISOString().split('T')[0] + '.pdf"'
-    )
-    res.send(pdf)
-
-    logger.info('PDF report generated and sent', { size: pdf.length })
+    // PDF export not yet implemented
+    return res.status(501).json({
+      success: false,
+      error: 'PDF export is not yet implemented. Please use HTML or CSV format instead.'
+    })
   } catch (error) {
     logger.error('Error generating PDF report', { error })
     next(error)
@@ -176,7 +171,7 @@ router.get('/report/pdf', async (req: Request, res: Response, next: NextFunction
  *
  * Returns issues in CSV format for easy import into spreadsheets
  */
-router.get('/report/csv', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/report/csv', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const generator = createGenerator(req)
 
@@ -203,7 +198,7 @@ router.get('/report/csv', async (req: Request, res: Response, next: NextFunction
 /**
  * Get quality metrics only
  */
-router.get('/quality-metrics', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/quality-metrics', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const generator = createGenerator(req)
     const metrics = await generator.calculateQualityMetrics()
@@ -239,7 +234,7 @@ router.get('/quality-metrics', async (req: Request, res: Response, next: NextFun
  *   "signature": "digital-signature-data"
  * }
  */
-router.post('/sign-off', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/sign-off', authenticateJWT, requirePermission('validation:sign-off'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     // Validate request body
     const validationResult = ApprovalSignOffSchema.safeParse(req.body)
@@ -284,7 +279,7 @@ router.post('/sign-off', async (req: Request, res: Response, next: NextFunction)
 /**
  * Get approval history
  */
-router.get('/sign-off/history', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/sign-off/history', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const generator = createGenerator(req)
     const history = await generator.getApprovalHistory()
@@ -311,7 +306,7 @@ router.get('/sign-off/history', async (req: Request, res: Response, next: NextFu
 /**
  * Check readiness for customer testing
  */
-router.get('/ready-for-customer', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/ready-for-customer', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const generator = createGenerator(req)
     const readiness = await generator.getReadinessStatus()
@@ -350,7 +345,7 @@ router.get('/ready-for-customer', async (req: Request, res: Response, next: Next
  *   "includeSensitiveData": false
  * }
  */
-router.post('/save', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/save', authenticateJWT, requirePermission('validation:edit'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const generator = createGenerator(req)
 
@@ -397,7 +392,7 @@ router.post('/save', async (req: Request, res: Response, next: NextFunction) => 
 /**
  * List all saved reports
  */
-router.get('/reports', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/reports', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const generator = createGenerator(req)
     const reports = await generator.listReports()
@@ -424,7 +419,7 @@ router.get('/reports', async (req: Request, res: Response, next: NextFunction) =
 /**
  * Retrieve specific saved report
  */
-router.get('/reports/:reportId', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/reports/:reportId', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { reportId } = req.params
 

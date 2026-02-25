@@ -1,4 +1,6 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
+import { AuthRequest, authenticateJWT } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
 import { DashboardController } from '../validation/DashboardController';
 import { DashboardService } from '../validation/DashboardService';
 import { logger } from '../lib/logger';
@@ -18,7 +20,7 @@ const router = Router();
  * GET /api/validation/dashboard
  * Returns overall dashboard status and summary
  */
-router.get('/', async (req, res) => {
+router.get('/', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     await dashboardController.getDashboard(req, res);
   } catch (error) {
@@ -34,7 +36,7 @@ router.get('/', async (req, res) => {
  * GET /api/validation/issues
  * Returns list of issues with optional filtering
  */
-router.get('/issues', async (req, res) => {
+router.get('/issues', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     await dashboardController.getIssues(req, res);
   } catch (error) {
@@ -50,7 +52,7 @@ router.get('/issues', async (req, res) => {
  * GET /api/validation/issues/:id
  * Returns detailed view of a specific issue
  */
-router.get('/issues/:id', async (req, res) => {
+router.get('/issues/:id', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     await dashboardController.getIssueDetail(req, res);
   } catch (error) {

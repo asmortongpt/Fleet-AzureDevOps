@@ -356,22 +356,14 @@ export class ReportGenerator {
   }
 
   /**
-   * Generate PDF report (basic implementation using Buffer)
+   * Generate PDF report
+   * Currently not implemented - use HTML format instead
    */
   private async generatePdfReport(options?: ReportOptions): Promise<Buffer> {
-    // In production, would use a library like PDFKit or pdfjs
-    // For now, create a basic PDF structure
-    const htmlReport = this.generateHtmlReport(options);
-
-    // Create a minimal valid PDF with the HTML content
-    // In production, use: npm install pdfkit
-    const pdfHeader = Buffer.from('%PDF-1.4\n');
-    const content = Buffer.from(htmlReport);
-
-    const pdf = Buffer.concat([pdfHeader, content]);
-
-    logger.debug('PDF report generated');
-    return pdf;
+    logger.warn('PDF export requested but not yet implemented');
+    // TODO: Implement with PDFKit or Puppeteer when needed
+    // For now, throw error indicating feature not available
+    throw new Error('PDF export is not yet implemented. Please use HTML or CSV format instead.');
   }
 
   /**

@@ -1,4 +1,6 @@
 import { Router, Request, Response } from 'express';
+import { AuthRequest, authenticateJWT } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
 import { logger } from '../lib/logger';
 import { IssueTracker } from '../validation/IssueTracker';
 import { ReportGenerator } from '../validation/ReportGenerator';
@@ -25,7 +27,7 @@ const router = Router();
  * POST /api/validation/issues
  * Create a new issue
  */
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', authenticateJWT, requirePermission('validation:edit'), async (req: AuthRequest, res: Response) => {
   try {
     const request: CreateIssueRequest = req.body;
 
@@ -58,7 +60,7 @@ router.post('/', async (req: Request, res: Response) => {
  * GET /api/validation/issues
  * Get all issues with optional filtering
  */
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const { severity, status, category, text, assignedTo } = req.query;
 
@@ -93,7 +95,7 @@ router.get('/', async (req: Request, res: Response) => {
  * GET /api/validation/issues/:id
  * Get specific issue with history
  */
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -122,7 +124,7 @@ router.get('/:id', async (req: Request, res: Response) => {
  * PATCH /api/validation/issues/:id
  * Update issue details
  */
-router.patch('/:id', async (req: Request, res: Response) => {
+router.patch('/:id', authenticateJWT, requirePermission('validation:edit'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const request: UpdateIssueRequest = req.body;
@@ -165,7 +167,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
  * GET /api/validation/issues/:id/history
  * Get complete change history for an issue
  */
-router.get('/:id/history', async (req: Request, res: Response) => {
+router.get('/:id/history', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -198,7 +200,7 @@ router.get('/:id/history', async (req: Request, res: Response) => {
  * POST /api/validation/issues/:id/assign
  * Assign issue to team member
  */
-router.post('/:id/assign', async (req: Request, res: Response) => {
+router.post('/:id/assign', authenticateJWT, requirePermission('validation:edit'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const request: AssignIssueRequest = req.body;
@@ -238,7 +240,7 @@ router.post('/:id/assign', async (req: Request, res: Response) => {
  * POST /api/validation/issues/:id/verify-fix
  * Record fix verification attempt
  */
-router.post('/:id/verify-fix', async (req: Request, res: Response) => {
+router.post('/:id/verify-fix', authenticateJWT, requirePermission('validation:edit'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const request: VerifyFixRequest = req.body;
@@ -272,7 +274,7 @@ router.post('/:id/verify-fix', async (req: Request, res: Response) => {
  * POST /api/validation/issues/:id/reopen
  * Reopen a closed or dismissed issue
  */
-router.post('/:id/reopen', async (req: Request, res: Response) => {
+router.post('/:id/reopen', authenticateJWT, requirePermission('validation:edit'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { userId, reason } = req.body;
@@ -305,7 +307,7 @@ router.post('/:id/reopen', async (req: Request, res: Response) => {
  * GET /api/validation/reports/summary
  * Get summary metrics
  */
-router.get('/reports/summary', async (req: Request, res: Response) => {
+router.get('/reports/summary', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const summary = reportGenerator.generateSummary();
 
@@ -326,7 +328,7 @@ router.get('/reports/summary', async (req: Request, res: Response) => {
  * GET /api/validation/reports/metrics
  * Get detailed metrics
  */
-router.get('/reports/metrics', async (req: Request, res: Response) => {
+router.get('/reports/metrics', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const metrics = issueTracker.getIssueMetrics();
 
@@ -347,7 +349,7 @@ router.get('/reports/metrics', async (req: Request, res: Response) => {
  * GET /api/validation/reports/trending
  * Get trending metrics
  */
-router.get('/reports/trending', async (req: Request, res: Response) => {
+router.get('/reports/trending', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const trending = issueTracker.getTrendingMetrics();
 
@@ -368,7 +370,7 @@ router.get('/reports/trending', async (req: Request, res: Response) => {
  * GET /api/validation/reports/export
  * Export issues in specified format (json, csv, html, pdf)
  */
-router.get('/reports/export', async (req: Request, res: Response) => {
+router.get('/reports/export', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const { format = 'json' } = req.query;
 
@@ -383,11 +385,11 @@ router.get('/reports/export', async (req: Request, res: Response) => {
     const reportFormat = format as ReportFormat;
 
     if (reportFormat === 'pdf') {
-      // For PDF, use async generation
-      const pdf = await reportGenerator.generateReportAsync(reportFormat);
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename="issues-report.pdf"');
-      res.send(pdf);
+      // PDF export not yet implemented
+      return res.status(501).json({
+        success: false,
+        error: 'PDF export is not yet implemented. Please use HTML or CSV format instead.'
+      });
     } else {
       // For other formats, generate synchronously
       const report = reportGenerator.generateReport(reportFormat);
@@ -419,7 +421,7 @@ router.get('/reports/export', async (req: Request, res: Response) => {
  * POST /api/validation/issues/:id/add-note
  * Add a note to an issue
  */
-router.post('/:id/add-note', async (req: Request, res: Response) => {
+router.post('/:id/add-note', authenticateJWT, requirePermission('validation:edit'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { userId, note } = req.body;

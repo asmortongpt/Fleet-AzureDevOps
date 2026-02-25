@@ -3,7 +3,9 @@
  * REST API endpoints for deployment verification, health checks, and monitoring
  */
 
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
+import { AuthRequest, authenticateJWT } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
 import { FrameworkStatus } from '../validation/FrameworkStatus';
 import { logger } from '../lib/logger';
 
@@ -17,7 +19,7 @@ const router = Router();
  * Returns overall framework status and deployment information
  * Used by: Operations team, dashboards, monitoring systems
  */
-router.get('/', async (req, res) => {
+router.get('/', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const status = await frameworkStatus.getOverallStatus();
 
@@ -39,7 +41,7 @@ router.get('/', async (req, res) => {
  * Kubernetes liveness probe
  * Returns 200 if healthy, 503 if unhealthy
  */
-router.get('/health', async (req, res) => {
+router.get('/health', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const health = await frameworkStatus.healthCheck();
 
@@ -63,7 +65,7 @@ router.get('/health', async (req, res) => {
  * Kubernetes readiness probe
  * Returns 200 if ready to accept traffic, 503 if not ready
  */
-router.get('/ready', async (req, res) => {
+router.get('/ready', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const ready = await frameworkStatus.readinessCheck();
 
@@ -87,7 +89,7 @@ router.get('/ready', async (req, res) => {
  * Returns status of all validation agents
  * Shows: operational status, last run time, issue counts, performance metrics
  */
-router.get('/agents', async (req, res) => {
+router.get('/agents', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const agentStatus = await frameworkStatus.getAgentStatus();
 
@@ -109,7 +111,7 @@ router.get('/agents', async (req, res) => {
  * Returns framework metrics and performance indicators
  * Shows: issue detection rate, quality scores, validation runs, execution times
  */
-router.get('/metrics', async (req, res) => {
+router.get('/metrics', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const metrics = await frameworkStatus.getMetrics();
 
@@ -131,7 +133,7 @@ router.get('/metrics', async (req, res) => {
  * Returns performance baseline and resource utilization
  * Shows: agent execution times, memory usage, CPU usage, cache hit rates
  */
-router.get('/performance', async (req, res) => {
+router.get('/performance', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     const performance = await frameworkStatus.getPerformanceBaseline();
 

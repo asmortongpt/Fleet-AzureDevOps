@@ -16,7 +16,9 @@
  */
 
 import express, { Router, Request, Response, NextFunction } from 'express'
-import { getLogger } from '../config/logger'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { requirePermission } from '../middleware/permissions'
+import logger from '../config/logger'
 import {
   getPreFlightChecklist,
   ChecklistStatus,
@@ -32,7 +34,6 @@ import {
 import { z } from 'zod'
 
 const router: Router = express.Router()
-const logger = getLogger('ValidationChecklistRoutes')
 
 /**
  * Middleware to extract tenant context
@@ -60,7 +61,7 @@ const getTenantContext = (req: Request): ValidationContext | undefined => {
 /**
  * Get current checklist status
  */
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const checklist = getPreFlightChecklist()
 
@@ -103,7 +104,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
  *   timeout: 300
  * }
  */
-router.post('/run', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/run', authenticateJWT, requirePermission('validation:run'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const context = getTenantContext(req)
     if (!context) {
@@ -172,7 +173,7 @@ router.post('/run', async (req: Request, res: Response, next: NextFunction) => {
  * Params:
  *   category: visual_quality | data_quality | workflow_quality | performance | accessibility
  */
-router.post('/run/:category', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/run/:category', authenticateJWT, requirePermission('validation:run'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { category } = req.params
     const context = getTenantContext(req)
@@ -228,7 +229,7 @@ router.post('/run/:category', async (req: Request, res: Response, next: NextFunc
  * Params:
  *   itemId: The checklist item ID
  */
-router.get('/:itemId', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:itemId', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { itemId } = req.params
     const context = getTenantContext(req)
@@ -289,7 +290,7 @@ router.get('/:itemId', async (req: Request, res: Response, next: NextFunction) =
  *   evidence: { ... }
  * }
  */
-router.patch('/:itemId', async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/:itemId', authenticateJWT, requirePermission('validation:edit'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { itemId } = req.params
     const { status, notes, evidence } = req.body
@@ -344,7 +345,7 @@ router.patch('/:itemId', async (req: Request, res: Response, next: NextFunction)
 /**
  * Generate comprehensive pre-flight report
  */
-router.get('/report', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/report', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const context = getTenantContext(req)
 
@@ -393,7 +394,7 @@ router.get('/report', async (req: Request, res: Response, next: NextFunction) =>
  *   conditions: ["condition1", "condition2"]
  * }
  */
-router.post('/sign-off', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/sign-off', authenticateJWT, requirePermission('validation:sign-off'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const context = getTenantContext(req)
 
@@ -459,7 +460,7 @@ router.post('/sign-off', async (req: Request, res: Response, next: NextFunction)
 /**
  * Get sign-off approval history
  */
-router.get('/sign-off/history', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/sign-off/history', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const context = getTenantContext(req)
 
@@ -500,7 +501,7 @@ router.get('/sign-off/history', async (req: Request, res: Response, next: NextFu
 /**
  * Get dependency graph for checklist items
  */
-router.get('/dependencies', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/dependencies', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     logger.debug('Fetching checklist dependencies')
 
