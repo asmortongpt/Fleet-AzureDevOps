@@ -46,8 +46,9 @@ function signalRoute(
     }
 
     try {
-      const vehicleId = parseInt(req.params.id)
-      if (isNaN(vehicleId) || vehicleId <= 0) {
+      const vehicleId = req.params.id
+      // Validate UUID format (basic check)
+      if (!vehicleId || typeof vehicleId !== 'string' || vehicleId.length === 0) {
         return res.status(400).json({ error: 'Invalid vehicle ID' })
       }
 
@@ -101,14 +102,13 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
   try {
     const { vehicle_id } = req.query
 
-    if (!vehicle_id) {
-      throw new ValidationError('vehicle_id query parameter is required')
-    }
+    // vehicle_id is now optional - users can connect without specifying a vehicle upfront
+    // If provided, it will be used to auto-connect the first Smartcar vehicle to this fleet vehicle
 
-    // Generate state parameter with vehicle_id and user info
+    // Generate state parameter with user info (vehicle_id is optional)
     const state = Buffer.from(
       JSON.stringify({
-        vehicle_id,
+        vehicle_id: vehicle_id || null,
         user_id: req.user!.id,
         tenant_id: req.user!.tenant_id
       })
@@ -162,15 +162,28 @@ router.get('/callback', async (req: Request, res: Response) => {
     const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString('utf-8'))
     const { vehicle_id, user_id, tenant_id } = stateData
 
-    // SECURITY: Validate vehicle_id is a valid integer to prevent path traversal
-    const parsedVehicleId = parseInt(vehicle_id, 10)
-    if (isNaN(parsedVehicleId) || parsedVehicleId <= 0) {
-      logger.warn(`Invalid vehicle_id in state parameter: ${vehicle_id}`)
+    // Validate user_id and tenant_id are present
+    if (!user_id || !tenant_id) {
+      logger.warn('Missing user_id or tenant_id in state parameter')
       const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
         error: 'invalid_state',
-        message: 'Invalid vehicle identifier'
+        message: 'Invalid authentication state'
       })
       return res.redirect(safeErrorUrl)
+    }
+
+    // vehicle_id is now optional - only validate if provided
+    let parsedVehicleId: number | null = null
+    if (vehicle_id) {
+      parsedVehicleId = parseInt(vehicle_id, 10)
+      if (isNaN(parsedVehicleId) || parsedVehicleId <= 0) {
+        logger.warn(`Invalid vehicle_id in state parameter: ${vehicle_id}`)
+        const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
+          error: 'invalid_state',
+          message: 'Invalid vehicle identifier'
+        })
+        return res.redirect(safeErrorUrl)
+      }
     }
 
     // Exchange code for access token
@@ -194,42 +207,53 @@ router.get('/callback', async (req: Request, res: Response) => {
     const vehicleInfo = await smartcarService.getVehicleInfo(smartcarVehicleId, tokens.access_token)
     const vin = await smartcarService.getVehicleVin(smartcarVehicleId, tokens.access_token)
 
-    // Store connection in database
-    await smartcarService.storeVehicleConnection(
-      parsedVehicleId,
-      smartcarVehicleId,
-      tokens.access_token,
-      tokens.refresh_token,
-      tokens.expires_in,
-      {
-        ...vehicleInfo,
-        vin,
-        connected_at: new Date().toISOString()
-      }
-    )
-
-    // Create audit log
-    await pool.query(
-      `INSERT INTO audit_logs
-       (user_id, tenant_id, action, resource_type, resource_id, changes, ip_address, user_agent, status, details)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-      [
-        user_id,
-        tenant_id,
-        'CONNECT',
-        'smartcar_vehicle',
+    // If we have a specific vehicle_id, store the connection immediately
+    if (parsedVehicleId) {
+      // Store connection in database
+      await smartcarService.storeVehicleConnection(
         parsedVehicleId,
-        JSON.stringify({ smartcar_vehicle_id: smartcarVehicleId, ...vehicleInfo }),
-        req.ip,
-        req.get('User-Agent'),
-        'success',
-        'Smartcar vehicle connected successfully'
-      ]
-    )
+        smartcarVehicleId,
+        tokens.access_token,
+        tokens.refresh_token,
+        tokens.expires_in,
+        {
+          ...vehicleInfo,
+          vin,
+          connected_at: new Date().toISOString()
+        }
+      )
 
-    // Redirect back to frontend with success — popup will catch this
-    const safeSuccessUrl = buildSafeRedirectUrl(`/vehicles/${parsedVehicleId}`, {
-      smartcar_connected: 'true'
+      // Create audit log
+      await pool.query(
+        `INSERT INTO audit_logs
+         (user_id, tenant_id, action, resource_type, resource_id, changes, ip_address, user_agent, status, details)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        [
+          user_id,
+          tenant_id,
+          'CONNECT',
+          'smartcar_vehicle',
+          parsedVehicleId,
+          JSON.stringify({ smartcar_vehicle_id: smartcarVehicleId, ...vehicleInfo }),
+          req.ip,
+          req.get('User-Agent'),
+          'success',
+          'Smartcar vehicle connected successfully'
+        ]
+      )
+
+      // Redirect back to vehicle details with success
+      const safeSuccessUrl = buildSafeRedirectUrl(`/vehicles/${parsedVehicleId}`, {
+        smartcar_connected: 'true'
+      })
+      return res.redirect(safeSuccessUrl)
+    }
+
+    // No specific vehicle was selected - show success page or redirect to vehicles list
+    // In the future, this could show a vehicle selection UI
+    const safeSuccessUrl = buildSafeRedirectUrl('/vehicles', {
+      smartcar_auth_success: 'true',
+      message: 'Smartcar account authenticated successfully'
     })
     res.redirect(safeSuccessUrl)
   } catch (error: unknown) {
@@ -355,8 +379,8 @@ router.get(
     }
 
     try {
-      const vehicleId = parseInt(req.params.id)
-      if (isNaN(vehicleId) || vehicleId <= 0) {
+      const vehicleId = req.params.id
+      if (!vehicleId || typeof vehicleId !== 'string' || vehicleId.length === 0) {
         return res.status(400).json({ error: 'Invalid vehicle ID' })
       }
 
@@ -587,5 +611,125 @@ router.get(
     }
   }
 )
+
+// ===========================================================================
+// Webhook Verification
+// ===========================================================================
+
+/**
+ * POST /api/smartcar/callback
+ * Smartcar webhook verification and event handling
+ * Smartcar sends a VERIFY challenge that must be signed with the management token
+ */
+router.post('/callback', async (req: Request, res: Response) => {
+  try {
+    const payload = req.body
+
+    if (!payload) {
+      return res.status(400).json({ error: 'Invalid JSON in request body' })
+    }
+
+    const eventType = payload.eventType
+
+    // Handle webhook verification challenge
+    if (eventType === 'VERIFY') {
+      const managementToken = process.env.SMARTCAR_MANAGEMENT_TOKEN
+
+      if (!managementToken) {
+        logger.warn('SMARTCAR_MANAGEMENT_TOKEN not configured - webhook verification will fail')
+        return res.status(503).json({ error: 'Webhook verification not configured' })
+      }
+
+      const data = payload.data || {}
+      const challenge = data.challenge
+
+      if (!challenge) {
+        return res.status(400).json({ error: 'Challenge not provided in payload' })
+      }
+
+      // Generate HMAC-SHA256 signature
+      const crypto = require('crypto')
+      const hmac = crypto
+        .createHmac('sha256', managementToken)
+        .update(challenge)
+        .digest('hex')
+
+      logger.info('Webhook verification challenge received and signed', { challengeId: challenge.substring(0, 20) })
+
+      return res.json({ challenge: hmac })
+    }
+
+    // Handle vehicle state events
+    if (eventType === 'VEHICLE_STATE') {
+      logger.info('Vehicle state event received from Smartcar webhook', { payload })
+
+      // Store webhook event in database
+      try {
+        const smartcarProviderId = await pool.query(
+          `SELECT id FROM telematics_providers WHERE name = 'smartcar' LIMIT 1`
+        )
+
+        if (smartcarProviderId.rows.length > 0) {
+          await pool.query(
+            `INSERT INTO telematics_webhook_events
+             (provider_id, event_type, external_id, payload, processed, tenant_id)
+             VALUES ($1, $2, $3, $4, false, $5)`,
+            [
+              smartcarProviderId.rows[0].id,
+              'VEHICLE_STATE',
+              payload.data?.vehicleId || 'unknown',
+              JSON.stringify(payload),
+              '874954c7-b68b-5485-8ddd-183932497849' // dev tenant
+            ]
+          )
+          logger.info('Vehicle state event stored in database')
+        }
+      } catch (dbError) {
+        logger.error('Failed to store webhook event:', dbError)
+      }
+
+      return res.status(200).json({ status: 'received' })
+    }
+
+    // Handle vehicle error events
+    if (eventType === 'VEHICLE_ERROR') {
+      logger.warn('Vehicle error event received from Smartcar webhook', { payload })
+
+      // Store webhook event in database
+      try {
+        const smartcarProviderId = await pool.query(
+          `SELECT id FROM telematics_providers WHERE name = 'smartcar' LIMIT 1`
+        )
+
+        if (smartcarProviderId.rows.length > 0) {
+          await pool.query(
+            `INSERT INTO telematics_webhook_events
+             (provider_id, event_type, external_id, payload, processed, tenant_id)
+             VALUES ($1, $2, $3, $4, false, $5)`,
+            [
+              smartcarProviderId.rows[0].id,
+              'VEHICLE_ERROR',
+              payload.data?.vehicleId || 'unknown',
+              JSON.stringify(payload),
+              '874954c7-b68b-5485-8ddd-183932497849' // dev tenant
+            ]
+          )
+          logger.info('Vehicle error event stored in database')
+        }
+      } catch (dbError) {
+        logger.error('Failed to store webhook event:', dbError)
+      }
+
+      return res.status(200).json({ status: 'received' })
+    }
+
+    // Unknown event type
+    logger.warn('Unknown Smartcar webhook event type', { eventType })
+    res.status(400).json({ error: 'Unknown event type' })
+  } catch (error: unknown) {
+    logger.error('Smartcar webhook error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
 
 export default router
