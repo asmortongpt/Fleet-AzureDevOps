@@ -1,4 +1,4 @@
-import { logger } from '../lib/logger';
+import logger from '../config/logger';
 import {
   ValidationIssue,
   DashboardSummary,
@@ -19,6 +19,15 @@ import {
 export class DashboardService {
   private issues: Map<string, ValidationIssue> = new Map();
   private issueSequence: number = 0;
+  private issueTracker?: any;
+
+  /**
+   * Constructor optionally accepts IssueTracker for integration
+   * If not provided, DashboardService uses internal issue storage
+   */
+  constructor(issueTracker?: any) {
+    this.issueTracker = issueTracker;
+  }
 
   /**
    * Add a new issue to the dashboard
@@ -261,13 +270,22 @@ export class DashboardService {
       issuesByLoopStage[stage] = allIssues.filter(i => i.loopStage === stage).length;
     }
 
+    // Find the most recently updated issue (not first in array)
+    const lastUpdatedIssue = allIssues.length > 0
+      ? allIssues.reduce((latest, current) => {
+          const latestTime = new Date(latest.updatedAt).getTime();
+          const currentTime = new Date(current.updatedAt).getTime();
+          return currentTime > latestTime ? current : latest;
+        })
+      : null;
+
     const summary: DashboardSummary = {
       totalIssues: allIssues.length,
       qualityScore: this.calculateQualityScore(),
       issuesBySeverity,
       issuesByAgent,
       issuesByLoopStage,
-      lastUpdated: allIssues.length > 0 ? allIssues[0].updatedAt : new Date().toISOString(),
+      lastUpdated: lastUpdatedIssue ? lastUpdatedIssue.updatedAt : new Date().toISOString(),
       generatedAt: new Date().toISOString()
     };
 

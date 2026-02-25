@@ -1,4 +1,4 @@
-import { AgentOrchestrator } from './AgentOrchestrator';
+import { AgentOrchestrator, ExecutionResults } from './AgentOrchestrator';
 import { QualityLoopManager } from './QualityLoopManager';
 import { logger } from '../lib/logger';
 
@@ -187,27 +187,23 @@ export class ValidationFramework {
   /**
    * Calculate overall quality score (0-100)
    * Based on issue counts weighted by severity
-   * @param results Validation results
+   * @param results Validation results from ExecutionResults
    * @returns Quality score 0-100
    */
-  private calculateScore(results: any): number {
-    const criticalCount = this.countIssuesBySeverity(results, 'critical');
-    const highCount = this.countIssuesBySeverity(results, 'high');
-    const mediumCount = this.countIssuesBySeverity(results, 'medium');
+  private calculateScore(results: ExecutionResults): number {
+    const severityCounts = this.countIssuesBySeverity(results);
 
     const penalties =
-      (criticalCount * this.SEVERITY_WEIGHTS.critical) +
-      (highCount * this.SEVERITY_WEIGHTS.high) +
-      (mediumCount * this.SEVERITY_WEIGHTS.medium);
+      (severityCounts.critical * this.SEVERITY_WEIGHTS.critical) +
+      (severityCounts.high * this.SEVERITY_WEIGHTS.high) +
+      (severityCounts.medium * this.SEVERITY_WEIGHTS.medium);
 
     const score = this.MAX_QUALITY_SCORE - penalties;
     const finalScore = Math.max(0, score); // Ensure >= 0
 
     logger.debug('Calculated quality score', {
       finalScore,
-      criticalCount,
-      highCount,
-      mediumCount,
+      ...severityCounts,
       penalties
     });
 
@@ -216,17 +212,45 @@ export class ValidationFramework {
 
   /**
    * Count issues by severity level across all agent results
+   * Only iterates known agent results, not metadata fields
    * @param results All agent results
-   * @param severity Severity level to count
-   * @returns Count of issues with that severity
+   * @returns Count object with critical, high, medium, low counts
    */
-  private countIssuesBySeverity(results: any, severity: string): number {
-    let count = 0;
-    Object.values(results || {}).forEach((agent: any) => {
+  private countIssuesBySeverity(results: ExecutionResults): {
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+  } {
+    const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+
+    // Only iterate known agent result fields
+    const agentKeys: (keyof ExecutionResults)[] = [
+      'visualQA',
+      'responsiveDesign',
+      'scrollingAudit',
+      'typography',
+      'interactions',
+      'dataIntegrity'
+    ];
+
+    for (const agentKey of agentKeys) {
+      const agent = results[agentKey];
       if (agent?.issues && Array.isArray(agent.issues)) {
-        count += agent.issues.filter((i: any) => i.severity === severity).length;
+        for (const issue of agent.issues) {
+          if (issue.severity === 'critical') {
+            counts.critical++;
+          } else if (issue.severity === 'high') {
+            counts.high++;
+          } else if (issue.severity === 'medium') {
+            counts.medium++;
+          } else {
+            counts.low++;
+          }
+        }
       }
-    });
-    return count;
+    }
+
+    return counts;
   }
 }

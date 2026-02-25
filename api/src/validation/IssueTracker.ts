@@ -458,7 +458,7 @@ export class IssueTracker {
 
     const weeklyAverageResolutionTime =
       weeklyResolutionTimes.length > 0
-        ? weeklyResolutionTimes.reduce((a, b) => a + b) / weeklyResolutionTimes.length
+        ? weeklyResolutionTimes.reduce((a, b) => a + b, 0) / weeklyResolutionTimes.length
         : 0;
 
     return {

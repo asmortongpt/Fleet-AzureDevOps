@@ -1,7 +1,7 @@
 import { BaseAgent, AgentConfig } from './BaseAgent';
 import { ScreenshotCapture } from '../ScreenshotCapture';
 import { ImageComparison } from '../ImageComparison';
-import { logger } from '../../lib/logger';
+import logger from '../../config/logger';
 
 /**
  * Visual QA validation results
@@ -65,7 +65,7 @@ export class VisualQAAgent extends BaseAgent {
   }
 
   /**
-   * Capture screenshots at all 6 breakpoints
+   * Capture screenshots at all 6 breakpoints with parallel batching for performance
    */
   async captureBreakpoints(options: {
     pages: string[];
@@ -86,22 +86,37 @@ export class VisualQAAgent extends BaseAgent {
 
     const screenshots: Record<number, Record<string, Buffer>> = {};
 
-    for (const breakpoint of options.breakpoints) {
-      screenshots[breakpoint] = {};
-
-      for (const page of options.pages) {
-        try {
-          const screenshot = await this.screenshotCapture.capture({
-            url: `${this.baseUrl}${page}`,
-            width: breakpoint,
-            height: 1080
-          });
-          screenshots[breakpoint][page] = screenshot;
-          logger.debug(`Captured ${page} at ${breakpoint}px`);
-        } catch (error) {
+    // Create all capture promises in parallel (flattened array)
+    const capturePromises = options.breakpoints.flatMap(breakpoint =>
+      options.pages.map(page =>
+        this.screenshotCapture.capture({
+          url: `${this.baseUrl}${page}`,
+          width: breakpoint,
+          height: 1080
+        }).then(screenshot => ({
+          page,
+          breakpoint,
+          screenshot
+        })).catch(error => {
           logger.error(`Failed to capture ${page} at ${breakpoint}px`, { error });
           throw error;
+        })
+      )
+    );
+
+    // Execute in parallel batches to avoid resource exhaustion
+    // Process 4 captures concurrently to balance speed vs resource usage
+    const batchSize = 4;
+    for (let i = 0; i < capturePromises.length; i += batchSize) {
+      const batch = capturePromises.slice(i, i + batchSize);
+      const results = await Promise.all(batch);
+
+      for (const result of results) {
+        if (!screenshots[result.breakpoint]) {
+          screenshots[result.breakpoint] = {};
         }
+        screenshots[result.breakpoint][result.page] = result.screenshot;
+        logger.debug(`Captured ${result.page} at ${result.breakpoint}px`);
       }
     }
 

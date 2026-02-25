@@ -9,8 +9,7 @@
  * @date 2026-02-25
  */
 
-import { Logger } from 'winston'
-import { logger as baseLogger } from '../utils/logger'
+import logger from '../config/logger'
 import { pool } from '../db'
 import {
   ChecklistStatus,
@@ -21,7 +20,6 @@ import {
   BLOCKING_CATEGORIES
 } from './models/ChecklistModels'
 
-const logger = baseLogger
 
 /**
  * Checklist Validator

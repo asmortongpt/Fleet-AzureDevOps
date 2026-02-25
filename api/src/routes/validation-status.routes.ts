@@ -40,8 +40,9 @@ router.get('/', authenticateJWT, requirePermission('validation:view'), async (re
  * GET /api/validation/status/health
  * Kubernetes liveness probe
  * Returns 200 if healthy, 503 if unhealthy
+ * NOTE: No authentication - Kubernetes probes cannot send auth headers
  */
-router.get('/health', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
+router.get('/health', async (req: Request, res: Response) => {
   try {
     const health = await frameworkStatus.healthCheck();
 
@@ -64,8 +65,9 @@ router.get('/health', authenticateJWT, requirePermission('validation:view'), asy
  * GET /api/validation/status/ready
  * Kubernetes readiness probe
  * Returns 200 if ready to accept traffic, 503 if not ready
+ * NOTE: No authentication - Kubernetes probes cannot send auth headers
  */
-router.get('/ready', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
+router.get('/ready', async (req: Request, res: Response) => {
   try {
     const ready = await frameworkStatus.readinessCheck();
 

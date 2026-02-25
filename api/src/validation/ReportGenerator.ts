@@ -357,13 +357,27 @@ export class ReportGenerator {
 
   /**
    * Generate PDF report
-   * Currently not implemented - use HTML format instead
+   *
+   * NOTE: PDF generation requires external dependencies (puppeteer, pdfkit, or similar).
+   * This functionality is not yet implemented.
+   *
+   * To implement:
+   * - Use Puppeteer to render HTML to PDF, or
+   * - Use PDFKit for lower-level PDF generation, or
+   * - Use pdflib for programmatic PDF construction
+   *
+   * Currently, use the HTML export option instead and convert manually if needed.
+   *
+   * @param options Report generation options
+   * @returns Promise<Buffer> - PDF binary buffer
+   * @throws Error - PDF generation not yet implemented
    */
   private async generatePdfReport(options?: ReportOptions): Promise<Buffer> {
     logger.warn('PDF export requested but not yet implemented');
-    // TODO: Implement with PDFKit or Puppeteer when needed
-    // For now, throw error indicating feature not available
-    throw new Error('PDF export is not yet implemented. Please use HTML or CSV format instead.');
+    throw new Error(
+      'PDF export is not yet implemented. Please use HTML or CSV format instead. ' +
+      'To enable PDF export, integrate Puppeteer, PDFKit, or similar library.'
+    );
   }
 
   /**

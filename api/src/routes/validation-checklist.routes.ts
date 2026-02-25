@@ -19,6 +19,7 @@ import express, { Router, Request, Response, NextFunction } from 'express'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import logger from '../config/logger'
+// Logger is imported correctly as default export from config/logger.ts
 import {
   getPreFlightChecklist,
   ChecklistStatus,
@@ -220,6 +221,116 @@ router.post('/run/:category', authenticateJWT, requirePermission('validation:run
 })
 
 // ============================================================================
+// GET /api/validation/checklist/report
+// ============================================================================
+
+/**
+ * Generate comprehensive pre-flight report
+ */
+router.get('/report', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const context = getTenantContext(req)
+
+    if (!context) {
+      return res.status(401).json({
+        success: false,
+        error: 'Tenant context required'
+      })
+    }
+
+    logger.info('Generating pre-flight report', { tenantId: context.tenantId })
+
+    const checklist = getPreFlightChecklist()
+    const report: ChecklistReport = await checklist.generateReport()
+
+    res.json({
+      success: true,
+      data: report,
+      meta: {
+        endpoint: 'GET /api/validation/checklist/report',
+        timestamp: new Date().toISOString(),
+        reportId: report.id
+      }
+    })
+  } catch (error) {
+    logger.error('Error generating report:', error)
+    next(error)
+  }
+})
+
+// ============================================================================
+// GET /api/validation/checklist/dependencies
+// ============================================================================
+
+/**
+ * Get dependency graph for checklist items
+ */
+router.get('/dependencies', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    logger.debug('Fetching checklist dependencies')
+
+    const checklist = getPreFlightChecklist()
+    const dependencies = await checklist.getDependencies()
+
+    res.json({
+      success: true,
+      data: {
+        dependencies,
+        count: dependencies.length
+      },
+      meta: {
+        endpoint: 'GET /api/validation/checklist/dependencies',
+        timestamp: new Date().toISOString()
+      }
+    })
+  } catch (error) {
+    logger.error('Error fetching dependencies:', error)
+    next(error)
+  }
+})
+
+// ============================================================================
+// GET /api/validation/checklist/sign-off/history
+// ============================================================================
+
+/**
+ * Get sign-off approval history
+ */
+router.get('/sign-off/history', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const context = getTenantContext(req)
+
+    if (!context) {
+      return res.status(401).json({
+        success: false,
+        error: 'Tenant context required'
+      })
+    }
+
+    logger.debug('Fetching sign-off history', { tenantId: context.tenantId })
+
+    const checklist = getPreFlightChecklist()
+    const history = await checklist.getSignOffHistory()
+
+    res.json({
+      success: true,
+      data: {
+        approvals: history,
+        count: history.length,
+        hasApproved: history.some((a) => a.status === 'approved')
+      },
+      meta: {
+        endpoint: 'GET /api/validation/checklist/sign-off/history',
+        timestamp: new Date().toISOString()
+      }
+    })
+  } catch (error) {
+    logger.error('Error fetching sign-off history:', error)
+    next(error)
+  }
+})
+
+// ============================================================================
 // GET /api/validation/checklist/:itemId
 // ============================================================================
 
@@ -339,44 +450,6 @@ router.patch('/:itemId', authenticateJWT, requirePermission('validation:edit'), 
 })
 
 // ============================================================================
-// GET /api/validation/checklist/report
-// ============================================================================
-
-/**
- * Generate comprehensive pre-flight report
- */
-router.get('/report', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    const context = getTenantContext(req)
-
-    if (!context) {
-      return res.status(401).json({
-        success: false,
-        error: 'Tenant context required'
-      })
-    }
-
-    logger.info('Generating pre-flight report', { tenantId: context.tenantId })
-
-    const checklist = getPreFlightChecklist()
-    const report: ChecklistReport = await checklist.generateReport()
-
-    res.json({
-      success: true,
-      data: report,
-      meta: {
-        endpoint: 'GET /api/validation/checklist/report',
-        timestamp: new Date().toISOString(),
-        reportId: report.id
-      }
-    })
-  } catch (error) {
-    logger.error('Error generating report:', error)
-    next(error)
-  }
-})
-
-// ============================================================================
 // POST /api/validation/checklist/sign-off
 // ============================================================================
 
@@ -449,78 +522,6 @@ router.post('/sign-off', authenticateJWT, requirePermission('validation:sign-off
     })
   } catch (error) {
     logger.error('Error processing sign-off request:', error)
-    next(error)
-  }
-})
-
-// ============================================================================
-// GET /api/validation/checklist/sign-off/history
-// ============================================================================
-
-/**
- * Get sign-off approval history
- */
-router.get('/sign-off/history', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    const context = getTenantContext(req)
-
-    if (!context) {
-      return res.status(401).json({
-        success: false,
-        error: 'Tenant context required'
-      })
-    }
-
-    logger.debug('Fetching sign-off history', { tenantId: context.tenantId })
-
-    const checklist = getPreFlightChecklist()
-    const history = await checklist.getSignOffHistory()
-
-    res.json({
-      success: true,
-      data: {
-        approvals: history,
-        count: history.length,
-        hasApproved: history.some((a) => a.status === 'approved')
-      },
-      meta: {
-        endpoint: 'GET /api/validation/checklist/sign-off/history',
-        timestamp: new Date().toISOString()
-      }
-    })
-  } catch (error) {
-    logger.error('Error fetching sign-off history:', error)
-    next(error)
-  }
-})
-
-// ============================================================================
-// GET /api/validation/checklist/dependencies
-// ============================================================================
-
-/**
- * Get dependency graph for checklist items
- */
-router.get('/dependencies', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    logger.debug('Fetching checklist dependencies')
-
-    const checklist = getPreFlightChecklist()
-    const dependencies = await checklist.getDependencies()
-
-    res.json({
-      success: true,
-      data: {
-        dependencies,
-        count: dependencies.length
-      },
-      meta: {
-        endpoint: 'GET /api/validation/checklist/dependencies',
-        timestamp: new Date().toISOString()
-      }
-    })
-  } catch (error) {
-    logger.error('Error fetching dependencies:', error)
     next(error)
   }
 })

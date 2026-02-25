@@ -36,21 +36,25 @@ const router: Router = express.Router()
 
 /**
  * Middleware to extract and validate tenant context
+ * Requires valid auth context (guaranteed by authenticateJWT middleware)
  */
 const getTenantContext = (req: Request) => {
-  const tenantId = (req as any).user?.tenantId || 'default-tenant'
-  const userId = (req as any).user?.id || 'default-user'
+  const user = (req as any).user
+  if (!user?.tenantId || !user?.id) {
+    throw new Error('User context missing - authenticateJWT should have set this')
+  }
+
   const environment = (process.env.NODE_ENV as 'development' | 'staging' | 'production') || 'development'
 
-  return { tenantId, userId, environment }
+  return { tenantId: user.tenantId, userId: user.id, environment }
 }
 
 /**
- * Create generator instance for request
+ * Create generator instance for request with shared service instances
  */
 const createGenerator = (req: Request) => {
   const context = getTenantContext(req)
-  return new HandoffReportGenerator(context)
+  return HandoffReportGenerator.createWithSharedServices(context)
 }
 
 // ============================================================================

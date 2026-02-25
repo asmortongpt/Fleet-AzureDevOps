@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { DashboardController } from '../validation/DashboardController';
-import { DashboardService } from '../validation/DashboardService';
+import { getDashboardService } from '../validation/ServiceRegistry';
 import { logger } from '../lib/logger';
 
 /**
@@ -10,8 +10,8 @@ import { logger } from '../lib/logger';
  * REST API endpoints for quality loop dashboard
  */
 
-// Initialize service and controller
-const dashboardService = new DashboardService();
+// Initialize controller with shared dashboard service instance
+const dashboardService = getDashboardService();
 const dashboardController = new DashboardController(dashboardService);
 
 const router = Router();
@@ -68,7 +68,7 @@ router.get('/issues/:id', authenticateJWT, requirePermission('validation:view'),
  * POST /api/validation/issues/:id/approve
  * Approve an issue
  */
-router.post('/issues/:id/approve', async (req, res) => {
+router.post('/issues/:id/approve', authenticateJWT, requirePermission('validation:approve'), async (req: AuthRequest, res: Response) => {
   try {
     await dashboardController.approveIssue(req, res);
   } catch (error) {
@@ -84,7 +84,7 @@ router.post('/issues/:id/approve', async (req, res) => {
  * POST /api/validation/issues/:id/dismiss
  * Dismiss an issue as false positive
  */
-router.post('/issues/:id/dismiss', async (req, res) => {
+router.post('/issues/:id/dismiss', authenticateJWT, requirePermission('validation:dismiss'), async (req: AuthRequest, res: Response) => {
   try {
     await dashboardController.dismissIssue(req, res);
   } catch (error) {
@@ -100,7 +100,7 @@ router.post('/issues/:id/dismiss', async (req, res) => {
  * POST /api/validation/issues/:id/update-stage
  * Update issue quality loop stage
  */
-router.post('/issues/:id/update-stage', async (req, res) => {
+router.post('/issues/:id/update-stage', authenticateJWT, requirePermission('validation:update'), async (req: AuthRequest, res: Response) => {
   try {
     await dashboardController.updateIssueStage(req, res);
   } catch (error) {
@@ -116,7 +116,7 @@ router.post('/issues/:id/update-stage', async (req, res) => {
  * GET /api/validation/dashboard/html
  * Returns HTML rendering of the dashboard
  */
-router.get('/dashboard/html', async (req, res) => {
+router.get('/dashboard/html', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
   try {
     await dashboardController.getHtmlDashboard(req, res);
   } catch (error) {

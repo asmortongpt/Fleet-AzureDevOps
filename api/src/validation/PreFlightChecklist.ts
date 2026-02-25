@@ -10,9 +10,7 @@
  * @date 2026-02-25
  */
 
-import { Logger } from 'winston'
-import { logger as baseLogger } from '../utils/logger'
-import { pool } from '../db'
+import logger from '../config/logger'
 import {
   ChecklistStatus,
   ChecklistCategory,
@@ -31,7 +29,6 @@ import {
 } from './models/ChecklistModels'
 import { ChecklistValidator } from './ChecklistValidator'
 
-const logger = baseLogger
 
 /**
  * Enum-like status values for export

@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { logger } from '../lib/logger';
-import { IssueTracker } from '../validation/IssueTracker';
+import { getIssueTracker } from '../validation/ServiceRegistry';
 import { ReportGenerator } from '../validation/ReportGenerator';
 import {
   CreateIssueRequest,
@@ -15,13 +15,14 @@ import {
 /**
  * Validation Issues Routes
  * REST API for issue tracking, reporting, and management
+ * Uses shared service instances from ServiceRegistry for consistent state
  */
 
-// Initialize services
-const issueTracker = new IssueTracker();
-const reportGenerator = new ReportGenerator(issueTracker);
-
 const router = Router();
+
+// Get shared instances
+const issueTracker = getIssueTracker();
+const reportGenerator = new ReportGenerator(issueTracker);
 
 /**
  * POST /api/validation/issues
@@ -84,6 +85,120 @@ router.get('/', authenticateJWT, requirePermission('validation:view'), async (re
     });
   } catch (error) {
     logger.error('Error retrieving issues', { error });
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * GET /api/validation/reports/summary
+ * Get summary metrics
+ */
+router.get('/reports/summary', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
+  try {
+    const summary = reportGenerator.generateSummary();
+
+    res.json({
+      success: true,
+      data: summary
+    });
+  } catch (error) {
+    logger.error('Error generating report summary', { error });
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * GET /api/validation/reports/metrics
+ * Get detailed metrics
+ */
+router.get('/reports/metrics', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
+  try {
+    const metrics = issueTracker.getIssueMetrics();
+
+    res.json({
+      success: true,
+      data: metrics
+    });
+  } catch (error) {
+    logger.error('Error retrieving metrics', { error });
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * GET /api/validation/reports/trending
+ * Get trending metrics
+ */
+router.get('/reports/trending', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
+  try {
+    const trending = issueTracker.getTrendingMetrics();
+
+    res.json({
+      success: true,
+      data: trending
+    });
+  } catch (error) {
+    logger.error('Error retrieving trending metrics', { error });
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * GET /api/validation/reports/export
+ * Export issues in specified format (json, csv, html, pdf)
+ */
+router.get('/reports/export', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
+  try {
+    const { format = 'json' } = req.query;
+
+    const validFormats = ['json', 'csv', 'html', 'pdf'];
+    if (!validFormats.includes(format as string)) {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid format. Supported formats: ${validFormats.join(', ')}`
+      });
+    }
+
+    const reportFormat = format as ReportFormat;
+
+    if (reportFormat === 'pdf') {
+      // PDF export not yet implemented
+      return res.status(501).json({
+        success: false,
+        error: 'PDF export is not yet implemented. Please use HTML or CSV format instead.'
+      });
+    } else {
+      // For other formats, generate synchronously
+      const report = reportGenerator.generateReport(reportFormat);
+
+      if (reportFormat === 'csv') {
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="issues-report.csv"');
+      } else if (reportFormat === 'html') {
+        res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Content-Disposition', 'inline; filename="issues-report.html"');
+      } else {
+        res.setHeader('Content-Type', 'application/json');
+      }
+
+      res.send(report);
+    }
+
+    logger.info('Report exported', { format });
+  } catch (error) {
+    logger.error('Error exporting report', { error });
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -296,120 +411,6 @@ router.post('/:id/reopen', authenticateJWT, requirePermission('validation:edit')
     });
   } catch (error) {
     logger.error('Error reopening issue', { error });
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/validation/reports/summary
- * Get summary metrics
- */
-router.get('/reports/summary', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
-  try {
-    const summary = reportGenerator.generateSummary();
-
-    res.json({
-      success: true,
-      data: summary
-    });
-  } catch (error) {
-    logger.error('Error generating report summary', { error });
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/validation/reports/metrics
- * Get detailed metrics
- */
-router.get('/reports/metrics', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
-  try {
-    const metrics = issueTracker.getIssueMetrics();
-
-    res.json({
-      success: true,
-      data: metrics
-    });
-  } catch (error) {
-    logger.error('Error retrieving metrics', { error });
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/validation/reports/trending
- * Get trending metrics
- */
-router.get('/reports/trending', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
-  try {
-    const trending = issueTracker.getTrendingMetrics();
-
-    res.json({
-      success: true,
-      data: trending
-    });
-  } catch (error) {
-    logger.error('Error retrieving trending metrics', { error });
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/validation/reports/export
- * Export issues in specified format (json, csv, html, pdf)
- */
-router.get('/reports/export', authenticateJWT, requirePermission('validation:view'), async (req: AuthRequest, res: Response) => {
-  try {
-    const { format = 'json' } = req.query;
-
-    const validFormats = ['json', 'csv', 'html', 'pdf'];
-    if (!validFormats.includes(format as string)) {
-      return res.status(400).json({
-        success: false,
-        error: `Invalid format. Supported formats: ${validFormats.join(', ')}`
-      });
-    }
-
-    const reportFormat = format as ReportFormat;
-
-    if (reportFormat === 'pdf') {
-      // PDF export not yet implemented
-      return res.status(501).json({
-        success: false,
-        error: 'PDF export is not yet implemented. Please use HTML or CSV format instead.'
-      });
-    } else {
-      // For other formats, generate synchronously
-      const report = reportGenerator.generateReport(reportFormat);
-
-      if (reportFormat === 'csv') {
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', 'attachment; filename="issues-report.csv"');
-      } else if (reportFormat === 'html') {
-        res.setHeader('Content-Type', 'text/html');
-        res.setHeader('Content-Disposition', 'inline; filename="issues-report.html"');
-      } else {
-        res.setHeader('Content-Type', 'application/json');
-      }
-
-      res.send(report);
-    }
-
-    logger.info('Report exported', { format });
-  } catch (error) {
-    logger.error('Error exporting report', { error });
     res.status(500).json({
       success: false,
       error: 'Internal server error'

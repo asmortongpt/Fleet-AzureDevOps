@@ -111,7 +111,7 @@ export class ScrollingAuditAgent extends BaseAgent {
       highScrolls: scrolls.filter((s) => s.severity === 'high').length,
       mediumScrolls: scrolls.filter((s) => s.severity === 'medium').length,
       lowScrolls: scrolls.filter((s) => s.severity === 'low').length,
-      pagesAffected: new Set(scrolls.map((s) => s.selector)).size
+      pagesAffected: this.PAGES.length  // Count pages from the PAGES array
     };
   }
 
