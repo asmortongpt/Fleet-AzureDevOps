@@ -37,8 +37,9 @@ export abstract class BaseAgent {
 
   /**
    * Get the validation results
+   * Returns null if execute() has not been called yet
    */
-  abstract getResults<T = any>(): T;
+  abstract getResults<T = any>(): T | null;
 
   /**
    * Cleanup resources allocated by the agent

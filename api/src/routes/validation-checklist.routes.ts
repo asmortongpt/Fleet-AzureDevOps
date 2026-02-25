@@ -128,7 +128,7 @@ router.post('/run', authenticateJWT, requirePermission('validation:run'), async 
       return res.status(400).json({
         success: false,
         error: 'Invalid validation context',
-        details: validationError instanceof z.ZodError ? validationError.errors : []
+        details: validationError instanceof z.ZodError ? validationError.issues : []
       })
     }
 
@@ -485,7 +485,7 @@ router.post('/sign-off', authenticateJWT, requirePermission('validation:sign-off
       return res.status(400).json({
         success: false,
         error: 'Invalid sign-off request',
-        details: validationError instanceof z.ZodError ? validationError.errors : []
+        details: validationError instanceof z.ZodError ? validationError.issues : []
       })
     }
 

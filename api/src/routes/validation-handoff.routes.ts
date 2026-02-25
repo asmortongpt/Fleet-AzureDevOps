@@ -27,6 +27,7 @@ import {
   ApprovalSignOffSchema,
   HandoffReportOptionsSchema,
   ExportOptionsSchema,
+  ExportFormat,
   type HandoffReportOptions,
   type ExportOptions,
   type ApprovalSignOff
@@ -120,7 +121,7 @@ router.get('/report/html', authenticateJWT, requirePermission('validation:view')
     const generator = createGenerator(req)
 
     const exportOptions: ExportOptions = {
-      format: 'html',
+      format: ExportFormat.HTML,
       includeTableOfContents: req.query.includeTableOfContents !== 'false',
       includeAppendices: req.query.includeAppendices !== 'false',
       includePageNumbers: req.query.includePageNumbers !== 'false'
@@ -246,7 +247,7 @@ router.post('/sign-off', authenticateJWT, requirePermission('validation:sign-off
       return res.status(400).json({
         success: false,
         error: 'Invalid approval data',
-        details: validationResult.error.errors
+        details: validationResult.error.issues
       })
     }
 
@@ -361,7 +362,7 @@ router.post('/save', authenticateJWT, requirePermission('validation:edit'), asyn
         return res.status(400).json({
           success: false,
           error: 'Invalid report options',
-          details: validationResult.error.errors
+          details: validationResult.error.issues
         })
       }
       options = validationResult.data

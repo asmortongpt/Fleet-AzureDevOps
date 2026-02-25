@@ -49,15 +49,26 @@ interface ValidationContext {
  * Uses injected shared service instances and persistent storage to maintain consistent state across requests
  */
 export class HandoffReportGenerator {
+  private context: ValidationContext
+  private issueTracker: IssueTracker
+  private dashboardService: DashboardService
+  private checklist: PreFlightChecklist
+
   constructor(
-    private context: ValidationContext,
-    private issueTracker: IssueTracker,
-    private dashboardService: DashboardService,
-    private checklist: PreFlightChecklist
-  ) {}
+    context: ValidationContext,
+    issueTracker?: IssueTracker,
+    dashboardService?: DashboardService,
+    checklist?: PreFlightChecklist
+  ) {
+    this.context = context
+    // Use provided instances or create fresh defaults
+    this.issueTracker = issueTracker || new IssueTracker()
+    this.dashboardService = dashboardService || new DashboardService()
+    this.checklist = checklist || new PreFlightChecklist()
+  }
 
   /**
-   * Factory method to create with shared service instances
+   * Factory method to create with shared service instances from ServiceRegistry
    */
   static createWithSharedServices(context: ValidationContext): HandoffReportGenerator {
     const { getIssueTracker, getDashboardService, getPreFlightChecklist } = require('./ServiceRegistry')
@@ -497,7 +508,7 @@ export class HandoffReportGenerator {
     const passPercentage = (passCount / totalItems) * 100
 
     // Determine status: blocked if there are critical failures, issues if warnings, ready if clean
-    const status = failCount > 0 ? 'blocked' : warningCount > 0 ? 'issues' : 'ready'
+    const status: 'ready' | 'issues' | 'blocked' = failCount > 0 ? 'blocked' : warningCount > 0 ? 'issues' : 'ready'
 
     return {
       totalItems,
@@ -509,7 +520,7 @@ export class HandoffReportGenerator {
       passPercentage: Math.round(passPercentage * 100) / 100,
       status,
       blockingItems: failCount > 0 ? ['Minor accessibility issues in legacy components'] : [],
-      itemsRequiringAttention: warningCount > 0 ? ['Performance optimization recommendations'] : undefined,
+      itemsRequiringAttention: warningCount > 0 ? ['Performance optimization recommendations'] : [],
       signedOffAt: new Date(),
       signedOffBy: this.context.userId
     }

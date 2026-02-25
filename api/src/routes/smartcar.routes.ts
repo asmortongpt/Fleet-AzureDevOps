@@ -159,7 +159,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     }
 
     // Handle both state parameter (standard OAuth) and direct query params (Smartcar test mode)
-    let vehicle_id: number | null = null
+    let vehicle_id: string | number | null = null
     let user_id: string | null = null
     let tenant_id: string | null = null
 
@@ -204,7 +204,7 @@ router.get('/callback', async (req: Request, res: Response) => {
         parsedVehicleId = vehicle_id
       } else {
         // Legacy numeric ID
-        const numId = parseInt(vehicle_id, 10)
+        const numId = parseInt(String(vehicle_id), 10)
         if (isNaN(numId) || numId <= 0) {
           logger.warn(`Invalid vehicle_id in state parameter: ${vehicle_id}`)
           const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
@@ -240,9 +240,12 @@ router.get('/callback', async (req: Request, res: Response) => {
 
     // If we have a specific vehicle_id, store the connection immediately
     if (parsedVehicleId) {
-      // Store connection in database
+      // Store connection in database (convert to number for legacy DB schema)
+      const numericVehicleId = typeof parsedVehicleId === 'string'
+        ? parseInt(parsedVehicleId, 10)
+        : parsedVehicleId
       await smartcarService.storeVehicleConnection(
-        parsedVehicleId,
+        numericVehicleId,
         smartcarVehicleId,
         tokens.access_token,
         tokens.refresh_token,

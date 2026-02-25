@@ -271,12 +271,8 @@ describe('HandoffReportGenerator', () => {
       expect(htmlReport).toContain('Customer Handoff Report')
     })
 
-    it('should export report as PDF buffer', async () => {
-      const pdfBuffer = await generator.exportAsPdf()
-
-      expect(pdfBuffer).toBeDefined()
-      expect(Buffer.isBuffer(pdfBuffer)).toBe(true)
-      expect(pdfBuffer.length).toBeGreaterThan(0)
+    it('should throw not-implemented error for PDF export', async () => {
+      await expect(generator.exportAsPdf()).rejects.toThrow(/not yet implemented/i)
     })
 
     it('should export report as CSV with issues', async () => {

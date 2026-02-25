@@ -238,7 +238,7 @@ export const ChecklistItemConfigSchema = z.object({
   critical: z.boolean(),
   timeout: z.number().positive().optional(),
   dependencies: z.array(z.string()).optional(),
-  metadata: z.record(z.unknown()).optional()
+  metadata: z.record(z.string(), z.unknown()).optional()
 })
 
 // ============================================================================

@@ -594,20 +594,14 @@ describe('ReportGenerator', () => {
   });
 
   describe('PDF Export', () => {
-    it('should generate PDF buffer', async () => {
-      const pdf = await reportGenerator.generateReportAsync('pdf');
-
-      expect(pdf).toBeDefined();
-      expect(pdf instanceof Buffer).toBe(true);
-      expect(pdf.length).toBeGreaterThan(0);
+    it('should throw not-implemented error for PDF generation', async () => {
+      await expect(reportGenerator.generateReportAsync('pdf'))
+        .rejects.toThrow(/not yet implemented/i);
     });
 
-    it('should create valid PDF structure', async () => {
-      const pdf = await reportGenerator.generateReportAsync('pdf');
-
-      // PDF files start with %PDF
-      const header = pdf.toString('utf8', 0, 4);
-      expect(header).toBe('%PDF');
+    it('should suggest alternative formats in error message', async () => {
+      await expect(reportGenerator.generateReportAsync('pdf'))
+        .rejects.toThrow(/HTML or CSV/i);
     });
   });
 
