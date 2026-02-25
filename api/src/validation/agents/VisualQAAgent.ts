@@ -41,9 +41,11 @@ export class VisualQAAgent extends BaseAgent {
 
   private readonly BREAKPOINTS = [375, 480, 768, 1024, 1440, 1920];
   private readonly PAGES = ['/', '/vehicles', '/drivers', '/dashboard'];
+  private readonly baseUrl: string;
 
   constructor(config?: AgentConfig) {
     super(config);
+    this.baseUrl = config?.baseUrl || 'http://localhost:5173';
     this.screenshotCapture = new ScreenshotCapture(config);
     this.imageComparison = new ImageComparison();
   }
@@ -69,6 +71,14 @@ export class VisualQAAgent extends BaseAgent {
     pages: string[];
     breakpoints: number[];
   }): Promise<Record<number, Record<string, Buffer>>> {
+    // Validate input
+    if (!Array.isArray(options.breakpoints) || options.breakpoints.length === 0) {
+      throw new Error('breakpoints must be a non-empty array');
+    }
+    if (!Array.isArray(options.pages) || options.pages.length === 0) {
+      throw new Error('pages must be a non-empty array');
+    }
+
     logger.debug('Capturing breakpoints', {
       pageCount: options.pages.length,
       breakpointCount: options.breakpoints.length
@@ -82,7 +92,7 @@ export class VisualQAAgent extends BaseAgent {
       for (const page of options.pages) {
         try {
           const screenshot = await this.screenshotCapture.capture({
-            url: `http://localhost:5173${page}`,
+            url: `${this.baseUrl}${page}`,
             width: breakpoint,
             height: 1080
           });
@@ -101,11 +111,16 @@ export class VisualQAAgent extends BaseAgent {
   /**
    * Analyze page for text overflow issues
    */
-  async analyzeForTextOverflow(page: string): Promise<any> {
+  async analyzeForTextOverflow(page: string): Promise<{
+    page: string;
+    screenshot: Buffer;
+    issues: any[];
+    severity: string;
+  }> {
     logger.debug('Analyzing for text overflow', { page });
 
     const screenshot = await this.screenshotCapture.capture({
-      url: `http://localhost:5173${page}`,
+      url: `${this.baseUrl}${page}`,
       width: 1920,
       height: 1080
     });
@@ -133,7 +148,7 @@ export class VisualQAAgent extends BaseAgent {
    */
   async captureCurrentState(page: string, width: number): Promise<Buffer> {
     return await this.screenshotCapture.capture({
-      url: `http://localhost:5173${page}`,
+      url: `${this.baseUrl}${page}`,
       width,
       height: 1080
     });
@@ -172,7 +187,7 @@ export class VisualQAAgent extends BaseAgent {
   /**
    * Execute complete visual QA validation
    */
-  async execute(): Promise<VisualQAResults> {
+  async execute<T = VisualQAResults>(): Promise<T> {
     try {
       logger.debug('Starting Visual QA execution');
       const startTime = Date.now();
@@ -210,7 +225,7 @@ export class VisualQAAgent extends BaseAgent {
         issueCount: issues.length
       });
 
-      return this.results;
+      return this.results as T;
     } catch (error) {
       logger.error('Visual QA execution failed', { error });
       throw error;
@@ -220,8 +235,8 @@ export class VisualQAAgent extends BaseAgent {
   /**
    * Get the validation results
    */
-  getResults(): VisualQAResults {
-    return this.results;
+  getResults<T = VisualQAResults>(): T {
+    return this.results as T;
   }
 
   /**

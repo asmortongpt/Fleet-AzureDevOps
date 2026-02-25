@@ -5,6 +5,7 @@ export interface AgentConfig {
   headless?: boolean;
   timeout?: number;
   retries?: number;
+  baseUrl?: string; // Default to 'http://localhost:5173' or configurable
 }
 
 /**
@@ -32,12 +33,18 @@ export abstract class BaseAgent {
   /**
    * Execute the validation
    */
-  abstract execute(): Promise<any>;
+  abstract execute<T = any>(): Promise<T>;
 
   /**
    * Get the validation results
    */
-  abstract getResults(): any;
+  abstract getResults<T = any>(): T;
+
+  /**
+   * Cleanup resources allocated by the agent
+   * Should be called after validation is complete
+   */
+  abstract cleanup(): Promise<void>;
 
   /**
    * Helper: Convert config timeout to seconds

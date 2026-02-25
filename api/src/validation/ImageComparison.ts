@@ -17,7 +17,17 @@ export class ImageComparison {
   /**
    * Compare current screenshot against baseline
    * Returns difference metrics
-   * Placeholder: Will implement with pixelmatch or similar
+   *
+   * PLACEHOLDER IMPLEMENTATION - Returns hardcoded values
+   * TODO: Implement real pixel comparison using pixelmatch library
+   * Current implementation intentionally returns zero differences
+   * to allow tests to pass while waiting for pixelmatch integration
+   *
+   * Real implementation plan:
+   * 1. Parse both PNG/JPEG images using sharp or similar
+   * 2. Pixel-by-pixel comparison using pixelmatch
+   * 3. Calculate diff percentage based on changed pixels
+   * 4. Return metrics and generated diff image
    */
   async compare(current: Buffer, baseline: Buffer): Promise<ComparisonResult> {
     logger.debug('Comparing images', {
@@ -25,18 +35,13 @@ export class ImageComparison {
       baselineSize: baseline.length
     });
 
-    // Placeholder: Will implement with pixelmatch or similar
-    // In real implementation:
-    // 1. Parse both images
-    // 2. Pixel-by-pixel comparison
-    // 3. Calculate diff percentage
-    // 4. Return metrics and diff image
+    logger.warn('ImageComparison.compare() is a placeholder - real implementation pending');
 
     const result: ComparisonResult = {
       pixelDifference: 0,
       percentChanged: 0,
       screenshot: current,
-      message: 'Baseline comparison complete'
+      message: 'PLACEHOLDER: Returns hardcoded zero difference'
     };
 
     logger.debug('Image comparison complete', {

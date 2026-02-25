@@ -1,5 +1,6 @@
 import { chromium, Browser } from 'playwright';
 import { logger } from '../lib/logger';
+import { AgentConfig } from './agents/BaseAgent';
 
 /**
  * Options for screenshot capture
@@ -18,7 +19,7 @@ export interface CaptureOptions {
 export class ScreenshotCapture {
   private browser: Browser | null = null;
 
-  constructor(private config: any = {}) {}
+  constructor(private config: AgentConfig = {}) {}
 
   /**
    * Launch Playwright browser instance
