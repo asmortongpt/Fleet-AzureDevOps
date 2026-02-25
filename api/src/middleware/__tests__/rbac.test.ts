@@ -317,10 +317,10 @@ describe('RBAC Middleware', () => {
 
       await middleware(mockReq as AuthRequest, mockRes, mockNext)
 
-      expect(mockRes.status).toHaveBeenCalledWith(500)
+      expect(mockRes.status).toHaveBeenCalledWith(403)
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Internal server error'
+          error: 'Permission evaluation failed'
         })
       )
     })
@@ -592,73 +592,101 @@ describe('RBAC Middleware', () => {
     })
 
     it('should log authorization failure with all details', async () => {
+      const originalEnv = process.env.NODE_ENV
+      process.env.NODE_ENV = 'development' // Override test env to allow logging
+
       pool.query.mockResolvedValue({ rows: [{ id: 1 }] })
 
-      await logAuthorizationFailure({
-        userId: testUserId,
-        tenantId: testTenantId,
-        action: 'DELETE /api/vehicles/123',
-        reason: 'Insufficient role'
-      })
+      try {
+        await logAuthorizationFailure({
+          userId: testUserId,
+          tenantId: testTenantId,
+          action: 'DELETE /api/vehicles/123',
+          reason: 'Insufficient role'
+        })
 
-      expect(pool.query).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO audit_logs'),
-        expect.arrayContaining([
-          testUserId,
-          testTenantId,
-          'DELETE /api/vehicles/123',
-          'authorization',
-          null // resourceId
-        ])
-      )
+        expect(pool.query).toHaveBeenCalledWith(
+          expect.stringContaining('INSERT INTO audit_logs'),
+          expect.arrayContaining([
+            testUserId,
+            testTenantId,
+            'DELETE /api/vehicles/123',
+            'authorization',
+            null // resourceId
+          ])
+        )
+      } finally {
+        process.env.NODE_ENV = originalEnv
+      }
     })
 
     it('should include resource type and ID in log', async () => {
+      const originalEnv = process.env.NODE_ENV
+      process.env.NODE_ENV = 'development' // Override test env to allow logging
+
       pool.query.mockResolvedValue({ rows: [{ id: 1 }] })
 
-      await logAuthorizationFailure({
-        userId: testUserId,
-        tenantId: testTenantId,
-        action: 'DELETE /api/vehicles/123',
-        reason: 'Tenant violation',
-        resourceType: 'vehicle',
-        resourceId: 'vehicle-456'
-      })
+      try {
+        await logAuthorizationFailure({
+          userId: testUserId,
+          tenantId: testTenantId,
+          action: 'DELETE /api/vehicles/123',
+          reason: 'Tenant violation',
+          resourceType: 'vehicle',
+          resourceId: 'vehicle-456'
+        })
 
-      expect(pool.query).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.arrayContaining(['vehicle', 'vehicle-456'])
-      )
+        expect(pool.query).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.arrayContaining(['vehicle', 'vehicle-456'])
+        )
+      } finally {
+        process.env.NODE_ENV = originalEnv
+      }
     })
 
     it('should include role and permissions in details JSON', async () => {
+      const originalEnv = process.env.NODE_ENV
+      process.env.NODE_ENV = 'development' // Override test env to allow logging
+
       pool.query.mockResolvedValue({ rows: [{ id: 1 }] })
 
-      await logAuthorizationFailure({
-        userId: testUserId,
-        tenantId: testTenantId,
-        action: 'POST /api/vehicles',
-        reason: 'Insufficient permissions',
-        requiredRoles: ['admin'],
-        userRole: 'user',
-        requiredPermissions: [PERMISSIONS.VEHICLE_CREATE]
-      })
+      try {
+        await logAuthorizationFailure({
+          userId: testUserId,
+          tenantId: testTenantId,
+          action: 'POST /api/vehicles',
+          reason: 'Insufficient permissions',
+          requiredRoles: ['admin'],
+          userRole: 'user',
+          requiredPermissions: [PERMISSIONS.VEHICLE_CREATE]
+        })
 
-      expect(pool.query).toHaveBeenCalled()
+        expect(pool.query).toHaveBeenCalled()
+      } finally {
+        process.env.NODE_ENV = originalEnv
+      }
     })
 
     it('should handle logging errors gracefully', async () => {
+      const originalEnv = process.env.NODE_ENV
+      process.env.NODE_ENV = 'development' // Override test env to allow logging
+
       pool.query.mockRejectedValue(new Error('Logging failed'))
 
-      // Should not throw
-      await logAuthorizationFailure({
-        userId: testUserId,
-        tenantId: testTenantId,
-        action: 'POST /api/test',
-        reason: 'Test'
-      })
+      try {
+        // Should not throw
+        await logAuthorizationFailure({
+          userId: testUserId,
+          tenantId: testTenantId,
+          action: 'POST /api/test',
+          reason: 'Test'
+        })
 
-      expect(pool.query).toHaveBeenCalled()
+        expect(pool.query).toHaveBeenCalled()
+      } finally {
+        process.env.NODE_ENV = originalEnv
+      }
     })
   })
 
@@ -765,8 +793,8 @@ describe('RBAC Middleware', () => {
       const middleware = requirePermission([PERMISSIONS.VEHICLE_READ])
       await middleware(mockReq as AuthRequest, mockRes, mockNext)
 
-      // Should not crash, returns 500
-      expect(mockRes.status).toHaveBeenCalledWith(500)
+      // Should not crash, returns 403 (fail closed)
+      expect(mockRes.status).toHaveBeenCalledWith(403)
     })
 
     it('should maintain cache consistency during concurrent reads', async () => {
