@@ -222,6 +222,7 @@ import notificationsRouter from './routes/notifications'
 import qualityGatesRouter from './routes/quality-gates'
 import validationDashboardRouter from './routes/validation-dashboard.routes'
 import validationIssuesRouter from './routes/validation-issues.routes'
+import validationChecklistRouter from './routes/validation-checklist.routes'
 import routeOptimizationRouter from './routes/route-optimization.routes'
 // import routeEmulatorRouter from './routes/route-emulator.routes'
 import routesRouter from './routes/routes'
@@ -666,6 +667,7 @@ app.use('/api/sync', syncRouter)
 app.use('/api/quality-gates', qualityGatesRouter)
 app.use('/api/validation', validationDashboardRouter)
 app.use('/api/validation/issues', validationIssuesRouter)
+app.use('/api/validation/checklist', validationChecklistRouter)
 app.use('/api/system', systemConnectionsRouter)
 app.use('/api/admin/jobs', adminJobsRouter)
 app.use('/api/admin', adminRouter) // PHASE 3: Admin dashboard & config - Priority A
