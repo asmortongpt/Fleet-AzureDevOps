@@ -24,21 +24,21 @@ export function Section({
   return (
     <section
       className={cn(
-        'flex flex-col rounded-lg border border-white/[0.08] bg-[#242424] shadow-sm',
+        'flex flex-col rounded-xl border border-[rgba(0,204,254,0.08)] bg-[#221060] shadow-sm',
         className
       )}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-1.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(0,204,254,0.06)] px-3 py-1.5">
         <div className="flex items-center gap-2">
           {icon ? (
-            <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/[0.06] text-white/60">
+            <div className="flex h-5 w-5 items-center justify-center rounded-md bg-[#2A1878] text-[rgba(255,255,255,0.65)]">
               {icon}
             </div>
           ) : null}
           <div>
-            <h3 className="text-[13px] font-semibold text-foreground">{title}</h3>
+            <h3 className="font-['Montserrat',sans-serif] font-semibold text-lg text-white">{title}</h3>
             {description ? (
-              <p className="text-[11px] text-muted-foreground">{description}</p>
+              <p className="text-[11px] text-[rgba(255,255,255,0.65)]">{description}</p>
             ) : null}
           </div>
         </div>

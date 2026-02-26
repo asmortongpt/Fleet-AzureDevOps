@@ -36,12 +36,12 @@ export function EmptyState({
       role="status"
       aria-live="polite"
     >
-      <div className="mb-2 p-2 rounded-full bg-muted/50" aria-hidden="true">
+      <div className="mb-2 p-2 rounded-full bg-[#2A1878]/50" aria-hidden="true">
         {icon}
       </div>
 
-      <h3 className="text-base font-semibold mb-2 text-foreground">{title}</h3>
-      <p className="text-muted-foreground mb-3 max-w-md text-sm leading-relaxed">
+      <h3 className="text-base font-semibold mb-2 text-white">{title}</h3>
+      <p className="text-[rgba(255,255,255,0.40)] mb-3 max-w-md text-sm leading-relaxed">
         {description}
       </p>
 
@@ -58,6 +58,7 @@ export function EmptyState({
             onClick={secondaryAction.onClick}
             variant="outline"
             size="lg"
+            className="border-[rgba(0,204,254,0.08)] text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-[#2A1878]"
           >
             {secondaryAction.label}
           </Button>
@@ -65,15 +66,15 @@ export function EmptyState({
       </div>
 
       {helpArticle && (
-        <div className="mt-3 p-2 border rounded-lg bg-muted/30 max-w-md">
+        <div className="mt-3 p-2 border border-[rgba(0,204,254,0.08)] rounded-lg bg-[#2A1878]/30 max-w-md">
           <div className="flex items-center gap-2 text-sm">
-            <BookOpen className="h-4 w-4 text-primary flex-shrink-0" />
-            <span className="text-muted-foreground">New to this feature?</span>
+            <BookOpen className="h-4 w-4 text-[#00CCFE] flex-shrink-0" />
+            <span className="text-[rgba(255,255,255,0.65)]">New to this feature?</span>
             <a
               href={helpArticle.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary hover:underline font-medium"
+              className="text-[#00CCFE] hover:underline font-medium"
             >
               {helpArticle.title} →
             </a>

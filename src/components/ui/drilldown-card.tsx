@@ -1,5 +1,6 @@
 /**
  * DrilldownCard - Interactive Data Visualization with Deep Drilldown
+ * ArchonY Brand
  *
  * Provides multi-level data exploration with breadcrumb navigation,
  * allowing users to drill from summary to detail level.
@@ -19,7 +20,6 @@ import React, { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { SmartTooltip } from '@/components/ui/smart-tooltip'
 import { cn } from '@/lib/utils'
 
@@ -120,8 +120,13 @@ export function DrilldownCard({
   }
 
   return (
-    <Card className={cn('relative', className)}>
-      <CardHeader>
+    <div
+      className={cn(
+        'relative rounded-xl border border-[rgba(0,204,254,0.08)] bg-[#221060] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(26,6,72,0.4)]',
+        className
+      )}
+    >
+      <div className="p-4">
         {/* Breadcrumb Navigation */}
         <div className="flex items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2 flex-wrap">
@@ -131,7 +136,7 @@ export function DrilldownCard({
                   variant="ghost"
                   size="sm"
                   onClick={drillUp}
-                  className="h-7 w-7 p-0"
+                  className="h-7 w-7 p-0 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-[#2A1878]"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
@@ -148,7 +153,7 @@ export function DrilldownCard({
                 return (
                   <React.Fragment key={historyLevelId}>
                     {index > 0 && (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      <ChevronRight className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                     )}
                     <button
                       onClick={() => jumpToLevel(index)}
@@ -156,8 +161,8 @@ export function DrilldownCard({
                       className={cn(
                         'text-sm font-medium transition-colors',
                         isLast
-                          ? 'text-foreground cursor-default'
-                          : 'text-muted-foreground hover:text-foreground'
+                          ? 'text-white cursor-default'
+                          : 'text-[rgba(255,255,255,0.65)] hover:text-white'
                       )}
                     >
                       {level.title}
@@ -171,7 +176,7 @@ export function DrilldownCard({
           {/* Actions */}
           <div className="flex items-center gap-2">
             {currentLevel.metadata?.count !== undefined && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs bg-[#2A1878] text-[rgba(255,255,255,0.65)] border-[rgba(0,204,254,0.08)]">
                 {currentLevel.metadata.count} items
               </Badge>
             )}
@@ -182,7 +187,7 @@ export function DrilldownCard({
                   variant="outline"
                   size="sm"
                   onClick={handleExport}
-                  className="h-8"
+                  className="h-8 border-[rgba(0,204,254,0.08)] text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-[#2A1878]"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Export
@@ -195,18 +200,18 @@ export function DrilldownCard({
         {/* Level Title */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
-            <CardTitle className="text-base">{currentLevel.title}</CardTitle>
+            <div className="text-base font-semibold text-white">{currentLevel.title}</div>
             {currentLevel.description && (
-              <CardDescription className="mt-1">
+              <p className="mt-1 text-xs text-[rgba(255,255,255,0.65)]">
                 {currentLevel.description}
-              </CardDescription>
+              </p>
             )}
           </div>
         </div>
 
         {/* Metadata */}
         {currentLevel.metadata && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
+          <div className="flex items-center gap-2 text-xs text-[rgba(255,255,255,0.65)] mt-2">
             {currentLevel.metadata.total && (
               <span>{currentLevel.metadata.total}</span>
             )}
@@ -215,9 +220,9 @@ export function DrilldownCard({
             )}
           </div>
         )}
-      </CardHeader>
+      </div>
 
-      <CardContent>
+      <div className="px-4 pb-4">
         {/* Dynamic Content */}
         <div className="transition-all duration-200">
           {currentLevel.component}
@@ -225,15 +230,15 @@ export function DrilldownCard({
 
         {/* Navigation Hints */}
         {currentIndex < levels.length - 1 && (
-          <div className="mt-2 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+          <div className="mt-2 p-3 bg-[#2A1878]/50 rounded-lg text-sm text-[rgba(255,255,255,0.65)]">
             <p className="flex items-center gap-2">
               <ExternalLink className="h-4 w-4" />
               Click on items above to drill down into {levels[currentIndex + 1]?.title.toLowerCase()}
             </p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 

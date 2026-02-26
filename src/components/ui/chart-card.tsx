@@ -2,7 +2,6 @@ import { Info, RefreshCw, Download } from "lucide-react"
 import { ComponentProps, ReactNode } from "react"
 
 import { Button } from "./button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./card"
 
 import { cn } from "@/lib/utils"
 import { formatDate, formatNumber } from "@/utils/format-helpers"
@@ -54,24 +53,30 @@ export function ChartCard({
     ...cardProps
   } = props
   return (
-    <Card className={cn("h-full flex flex-col", className)} {...cardProps}>
-      <CardHeader className="pb-2">
+    <div
+      className={cn(
+        "h-full flex flex-col rounded-xl border border-[rgba(0,204,254,0.08)] bg-[#221060] shadow-sm",
+        className
+      )}
+      {...cardProps}
+    >
+      <div className="pb-2 px-4 pt-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-sm flex items-center gap-2">
+            <div className="text-sm font-semibold text-white flex items-center gap-2">
               {title}
               {helpText && (
                 <button
-                  className="text-muted-foreground hover:text-foreground transition-colors touch-icon-btn"
+                  className="text-[rgba(255,255,255,0.40)] hover:text-white transition-colors touch-icon-btn"
                   title={helpText}
                   aria-label={`Help for ${title}`}
                 >
                   <Info className="w-4 h-4" />
                 </button>
               )}
-            </CardTitle>
+            </div>
             {description && (
-              <CardDescription className="mt-1.5">{description}</CardDescription>
+              <p className="mt-1.5 text-xs text-[rgba(255,255,255,0.65)]">{description}</p>
             )}
           </div>
 
@@ -83,7 +88,7 @@ export function ChartCard({
                 variant="ghost"
                 onClick={onRefresh}
                 disabled={loading}
-                className="touch-icon-btn"
+                className="touch-icon-btn text-[rgba(255,255,255,0.65)] hover:text-white"
                 aria-label="Refresh chart data"
               >
                 <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
@@ -94,7 +99,7 @@ export function ChartCard({
                 size="sm"
                 variant="ghost"
                 onClick={onExport}
-                className="touch-icon-btn"
+                className="touch-icon-btn text-[rgba(255,255,255,0.65)] hover:text-white"
                 aria-label="Export chart data"
               >
                 <Download className="w-4 h-4" />
@@ -106,7 +111,7 @@ export function ChartCard({
 
         {/* Metadata Bar */}
         {(dataSource || lastUpdated) && (
-          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mt-3 pt-3 border-t">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-[rgba(255,255,255,0.65)] mt-3 pt-3 border-t border-[rgba(0,204,254,0.08)]">
             {dataSource && (
               <div className="flex items-center gap-1.5">
                 <span className="font-medium">Source:</span>
@@ -121,14 +126,14 @@ export function ChartCard({
             )}
           </div>
         )}
-      </CardHeader>
+      </div>
 
-      <CardContent className="flex-1 flex flex-col gap-2">
+      <div className="flex-1 flex flex-col gap-2 px-4 pb-4">
         {/* Chart */}
         <div className="flex-1 min-h-[200px] w-full" role="img" aria-label={title}>
           {loading ? (
             <div className="w-full h-full flex items-center justify-center">
-              <div className="text-muted-foreground animate-pulse">Loading chart...</div>
+              <div className="text-[rgba(255,255,255,0.40)] animate-pulse">Loading chart...</div>
             </div>
           ) : (
             chart
@@ -137,18 +142,18 @@ export function ChartCard({
 
         {/* Legend */}
         {showLegend && legend && (
-          <div className="border-t pt-2">
+          <div className="border-t border-[rgba(0,204,254,0.08)] pt-2">
             {legend}
           </div>
         )}
 
         {/* Statistics Summary */}
         {metadata && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 border-t pt-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 border-t border-[rgba(0,204,254,0.08)] pt-2">
             {metadata.min !== undefined && (
               <div>
-                <div className="text-xs text-muted-foreground font-medium">Min</div>
-                <div className="text-sm font-semibold metric-number">
+                <div className="text-xs text-[rgba(255,255,255,0.65)] font-medium">Min</div>
+                <div className="text-sm font-semibold text-white metric-number">
                   {metadata.min}
                   {metadata.unit && ` ${metadata.unit}`}
                 </div>
@@ -156,8 +161,8 @@ export function ChartCard({
             )}
             {metadata.max !== undefined && (
               <div>
-                <div className="text-xs text-muted-foreground font-medium">Max</div>
-                <div className="text-sm font-semibold metric-number">
+                <div className="text-xs text-[rgba(255,255,255,0.65)] font-medium">Max</div>
+                <div className="text-sm font-semibold text-white metric-number">
                   {metadata.max}
                   {metadata.unit && ` ${metadata.unit}`}
                 </div>
@@ -165,8 +170,8 @@ export function ChartCard({
             )}
             {metadata.average !== undefined && (
               <div>
-                <div className="text-xs text-muted-foreground font-medium">Average</div>
-                <div className="text-sm font-semibold metric-number">
+                <div className="text-xs text-[rgba(255,255,255,0.65)] font-medium">Average</div>
+                <div className="text-sm font-semibold text-white metric-number">
                   {metadata.average.toFixed(1)}
                   {metadata.unit && ` ${metadata.unit}`}
                 </div>
@@ -174,8 +179,8 @@ export function ChartCard({
             )}
             {metadata.total !== undefined && (
               <div>
-                <div className="text-xs text-muted-foreground font-medium">Total</div>
-                <div className="text-sm font-semibold metric-number">
+                <div className="text-xs text-[rgba(255,255,255,0.65)] font-medium">Total</div>
+                <div className="text-sm font-semibold text-white metric-number">
                   {formatNumber(metadata.total)}
                   {metadata.unit && ` ${metadata.unit}`}
                 </div>
@@ -183,8 +188,8 @@ export function ChartCard({
             )}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 

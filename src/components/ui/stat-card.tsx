@@ -1,9 +1,9 @@
 /**
- * Professional Statistics Card Component
+ * Professional Statistics Card Component - ArchonY Brand
  *
  * Features:
  * - Clean corporate design with responsive layout
- * - Subtle shadows and borders
+ * - ArchonY deep purple backgrounds
  * - Trend indicators (up/down)
  * - Professional color variants
  * - Accessible and keyboard-navigable
@@ -33,58 +33,58 @@ interface StatCardProps {
 
 const variantStyles = {
     default: {
-        bg: 'bg-card',
-        border: 'border-border/50',
-        hoverBorder: 'hover:border-border',
-        accent: 'from-muted-foreground/50 to-muted-foreground/30',
-        iconBg: 'bg-muted/50',
-        iconColor: 'text-muted-foreground',
-        valueColor: 'text-foreground'
+        bg: 'bg-[#221060]',
+        border: 'border-[rgba(0,204,254,0.08)]',
+        hoverBorder: 'hover:border-[rgba(0,204,254,0.2)]',
+        accent: 'from-[rgba(255,255,255,0.5)] to-[rgba(255,255,255,0.2)]',
+        iconBg: 'bg-[#2A1878]',
+        iconColor: 'text-[rgba(255,255,255,0.65)]',
+        valueColor: 'text-white'
     },
     primary: {
-        bg: 'bg-card',
-        border: 'border-primary/20',
-        hoverBorder: 'hover:border-primary/40',
-        accent: 'from-primary to-primary/70',
-        iconBg: 'bg-primary/10',
-        iconColor: 'text-primary',
-        valueColor: 'text-foreground'
+        bg: 'bg-[#221060]',
+        border: 'border-[#00CCFE]/20',
+        hoverBorder: 'hover:border-[#00CCFE]/40',
+        accent: 'from-[#00CCFE] to-[#00CCFE]/70',
+        iconBg: 'bg-[#00CCFE]/10',
+        iconColor: 'text-[#00CCFE]',
+        valueColor: 'text-white'
     },
     success: {
-        bg: 'bg-card',
+        bg: 'bg-[#221060]',
         border: 'border-success/20',
         hoverBorder: 'hover:border-success/40',
         accent: 'from-success to-success/70',
         iconBg: 'bg-success/10',
         iconColor: 'text-success',
-        valueColor: 'text-foreground'
+        valueColor: 'text-white'
     },
     warning: {
-        bg: 'bg-card',
+        bg: 'bg-[#221060]',
         border: 'border-warning/20',
         hoverBorder: 'hover:border-warning/40',
         accent: 'from-warning to-warning/70',
         iconBg: 'bg-warning/10',
         iconColor: 'text-warning',
-        valueColor: 'text-foreground'
+        valueColor: 'text-white'
     },
     danger: {
-        bg: 'bg-card',
+        bg: 'bg-[#221060]',
         border: 'border-destructive/20',
         hoverBorder: 'hover:border-destructive/40',
         accent: 'from-destructive to-destructive/70',
         iconBg: 'bg-destructive/10',
         iconColor: 'text-destructive',
-        valueColor: 'text-foreground'
+        valueColor: 'text-white'
     },
     info: {
-        bg: 'bg-card',
-        border: 'border-emerald-500/20',
-        hoverBorder: 'hover:border-emerald-500/40',
-        accent: 'from-emerald-500 to-emerald-500/70',
-        iconBg: 'bg-emerald-500/10',
-        iconColor: 'text-emerald-400',
-        valueColor: 'text-foreground'
+        bg: 'bg-[#221060]',
+        border: 'border-[#00CCFE]/20',
+        hoverBorder: 'hover:border-[#00CCFE]/40',
+        accent: 'from-[#00CCFE] to-[#00CCFE]/70',
+        iconBg: 'bg-[#00CCFE]/10',
+        iconColor: 'text-[#00CCFE]',
+        valueColor: 'text-white'
     }
 }
 
@@ -137,7 +137,7 @@ export function StatCard({
     const displayTrendValue = trendValue || (change !== undefined ? `${change > 0 ? '+' : ''}${change}%` : undefined)  // Convert change to string
 
     const TrendIcon = trend === 'up' ? ArrowUp : trend === 'down' ? ArrowDown : Minus
-    const trendColor = trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-muted-foreground'
+    const trendColor = trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-[rgba(255,255,255,0.65)]'
 
     return (
         <div
@@ -153,7 +153,7 @@ export function StatCard({
             aria-label={isClickable ? `${title}: ${value}. ${drilldownLabel}` : undefined}
             className={cn(
                 // Base
-                'group relative overflow-hidden rounded-md border',
+                'group relative overflow-hidden rounded-xl border',
                 sizes.padding,
                 // Shadow and transitions
                 'shadow-sm transition-all duration-300 ease-out',
@@ -165,7 +165,7 @@ export function StatCard({
                     'cursor-pointer',
                     'hover:-translate-y-0.5',
                     'active:translate-y-0 active:shadow-sm active:scale-[0.99]',
-                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00CCFE] focus-visible:ring-offset-2'
                 ],
                 // Variant styles
                 styles.bg,
@@ -184,7 +184,7 @@ export function StatCard({
             <div className="relative flex items-start justify-between gap-3">
                 <div className="space-y-0.5 min-w-0 flex-1">
                     <p className={cn(
-                        'font-semibold text-muted-foreground uppercase tracking-wider truncate',
+                        'font-semibold text-[rgba(255,255,255,0.65)] uppercase tracking-wider truncate',
                         sizes.title
                     )}>
                         {title}
@@ -199,7 +199,7 @@ export function StatCard({
                     {(displaySubtitle || trend) && (
                         <div className="flex items-center gap-2 flex-wrap">
                             {displaySubtitle && (
-                                <p className={cn('text-muted-foreground truncate', sizes.subtitle)}>{displaySubtitle}</p>
+                                <p className={cn('text-[rgba(255,255,255,0.65)] truncate', sizes.subtitle)}>{displaySubtitle}</p>
                             )}
                             {trend && displayTrendValue && (
                                 <div className={cn('flex items-center gap-0.5 font-medium', trendColor, sizes.subtitle)}>
@@ -229,7 +229,7 @@ export function StatCard({
             {/* Drilldown indicator */}
             {isClickable && (
                 <div className="absolute bottom-3 right-3 opacity-0 translate-x-1 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-300">
-                    <ChevronRight className="w-4 h-4 text-primary" />
+                    <ChevronRight className="w-4 h-4 text-[#00CCFE]" />
                 </div>
             )}
         </div>
@@ -250,14 +250,14 @@ interface ProgressRingProps {
 }
 
 const ringColors = {
-    blue: 'stroke-primary',
+    blue: 'stroke-[#00CCFE]',
     green: 'stroke-success',
     yellow: 'stroke-warning',
     red: 'stroke-destructive'
 }
 
 const ringBgColors = {
-    blue: 'text-primary/10',
+    blue: 'text-[#00CCFE]/10',
     green: 'text-success/10',
     yellow: 'text-warning/10',
     red: 'text-destructive/10'
@@ -302,9 +302,9 @@ export function ProgressRing({
                 />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-sm sm:text-base font-bold text-foreground tabular-nums">{progress}%</span>
-                {label && <span className="text-xs text-muted-foreground font-medium">{label}</span>}
-                {sublabel && <span className="text-xs text-muted-foreground/70">{sublabel}</span>}
+                <span className="text-sm sm:text-base font-bold text-white tabular-nums">{progress}%</span>
+                {label && <span className="text-xs text-[rgba(255,255,255,0.65)] font-medium">{label}</span>}
+                {sublabel && <span className="text-xs text-[rgba(255,255,255,0.40)]">{sublabel}</span>}
             </div>
         </div>
     )
@@ -321,7 +321,7 @@ interface StatusDotProps {
 
 const statusColors = {
     online: 'bg-success',
-    offline: 'bg-muted-foreground',
+    offline: 'bg-[rgba(255,255,255,0.40)]',
     warning: 'bg-warning',
     error: 'bg-destructive'
 }
@@ -348,7 +348,7 @@ export function StatusDot({ status, label, size = 'default' }: StatusDotProps) {
                     statusColors[status]
                 )} />
             </span>
-            {label && <span className="text-sm text-muted-foreground font-medium">{label}</span>}
+            {label && <span className="text-sm text-[rgba(255,255,255,0.65)] font-medium">{label}</span>}
         </div>
     )
 }
@@ -377,18 +377,18 @@ export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
                 }
             }}
             className={cn(
-                'flex items-center justify-between py-2.5 border-b border-border/50 last:border-0',
+                'flex items-center justify-between py-2.5 border-b border-[rgba(0,204,254,0.08)] last:border-0',
                 'transition-all duration-200',
                 isClickable && [
                     'cursor-pointer rounded-lg px-2 -mx-2',
-                    'hover:bg-muted/40 active:bg-muted/60',
-                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                    'hover:bg-[#2A1878]/40 active:bg-[#2A1878]/60',
+                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00CCFE]'
                 ]
             )}
         >
-            <span className="text-xs sm:text-sm text-muted-foreground">{label}</span>
+            <span className="text-xs sm:text-sm text-[rgba(255,255,255,0.65)]">{label}</span>
             <div className="flex items-center gap-1.5">
-                <span className="text-sm sm:text-base font-semibold text-foreground tabular-nums">{value}</span>
+                <span className="text-sm sm:text-base font-semibold text-white tabular-nums">{value}</span>
                 {trend && (
                     <span className={cn(
                         'transition-transform duration-200',
@@ -399,7 +399,7 @@ export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
                     </span>
                 )}
                 {isClickable && (
-                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground opacity-50" />
+                    <ChevronRight className="w-3.5 h-3.5 text-[rgba(255,255,255,0.40)] opacity-50" />
                 )}
             </div>
         </div>
@@ -435,7 +435,7 @@ interface MetricBadgeProps {
 }
 
 const badgeVariants = {
-    default: 'bg-muted text-muted-foreground',
+    default: 'bg-[#2A1878] text-[rgba(255,255,255,0.65)]',
     success: 'bg-success/10 text-success',
     warning: 'bg-warning/10 text-warning',
     danger: 'bg-destructive/10 text-destructive'
