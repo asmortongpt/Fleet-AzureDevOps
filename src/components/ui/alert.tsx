@@ -8,9 +8,9 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-card text-card-foreground",
+        default: "bg-[#221060] border-[rgba(0,204,254,0.15)] text-white",
         destructive:
-          "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-title]:text-gray-900 dark:*:data-[slot=alert-title]:text-red-300 *:data-[slot=alert-description]:text-gray-800 dark:*:data-[slot=alert-description]:text-red-300",
+          "bg-[#FF4300]/10 border-[#FF4300]/30 text-[#FF4300] [&>svg]:text-current *:data-[slot=alert-title]:text-[#FF4300] *:data-[slot=alert-description]:text-[#FF4300]/80",
       },
     },
     defaultVariants: {
@@ -39,7 +39,7 @@ function AlertTitle({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="alert-title"
       className={cn(
-        "col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight text-gray-900 dark:text-gray-100",
+        "col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight text-white",
         className
       )}
       {...props}
@@ -55,7 +55,7 @@ function AlertDescription({
     <div
       data-slot="alert-description"
       className={cn(
-        "text-gray-800 dark:text-gray-200 col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
+        "text-[rgba(255,255,255,0.7)] col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
         className
       )}
       {...props}

@@ -5,44 +5,44 @@ import { ComponentProps } from "react"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-full border px-3 py-1 text-xs font-bold w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1.5 [&>svg]:pointer-events-none transition-all duration-200 overflow-hidden",
+  "inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium font-['Montserrat',sans-serif] w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1.5 [&>svg]:pointer-events-none transition-all duration-200 overflow-hidden",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-white/90 text-[#1a1a1a] shadow-sm font-bold",
+          "bg-[#1F3076] text-white border-transparent",
         secondary:
-          "border-transparent bg-white/10 text-white/90 shadow-sm font-bold",
+          "bg-[#1F3076]/60 text-white/90 border-transparent",
         destructive:
-          "border-transparent bg-rose-600 text-white shadow-sm font-bold",
+          "bg-[#FF4300]/20 text-[#FF4300] border border-[#FF4300]/30",
         success:
-          "border-transparent bg-emerald-600 text-white shadow-sm font-bold",
+          "bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30",
         warning:
-          "border-transparent bg-amber-500 text-white shadow-sm font-bold",
+          "bg-[#FDC016]/20 text-[#FDC016] border border-[#FDC016]/30",
         info:
-          "border-transparent bg-sky-600 text-white shadow-sm font-bold",
+          "bg-[#00CCFE]/20 text-[#00CCFE] border border-[#00CCFE]/30",
         outline:
-          "text-white/80 border-white/20 bg-transparent hover:bg-white/5 backdrop-blur-sm",
+          "border-[rgba(0,204,254,0.15)] text-[rgba(255,255,255,0.65)] bg-transparent hover:bg-white/5 backdrop-blur-sm",
         ghost:
-          "border-transparent text-muted-foreground bg-muted/50 hover:bg-muted",
+          "border-transparent text-[rgba(255,255,255,0.5)] bg-[#221060]/50 hover:bg-[#221060]",
         // Subtle variants with lighter backgrounds
         "primary-subtle":
-          "border-transparent bg-white/10 text-white/80 hover:bg-white/15 font-bold ring-1 ring-white/10",
+          "border-transparent bg-[#1F3076]/30 text-white/80 hover:bg-[#1F3076]/50 font-bold ring-1 ring-[#1F3076]/40",
         "destructive-subtle":
-          "border-transparent bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 font-bold ring-1 ring-rose-500/20",
+          "bg-[#FF4300]/15 text-[#FF4300] hover:bg-[#FF4300]/25 font-bold ring-1 ring-[#FF4300]/20 border-transparent",
         "success-subtle":
-          "border-transparent bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 font-bold ring-1 ring-emerald-500/20",
+          "bg-[#10B981]/15 text-[#10B981] hover:bg-[#10B981]/25 font-bold ring-1 ring-[#10B981]/20 border-transparent",
         "warning-subtle":
-          "border-transparent bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 font-bold ring-1 ring-amber-500/20",
+          "bg-[#FDC016]/15 text-[#FDC016] hover:bg-[#FDC016]/25 font-bold ring-1 ring-[#FDC016]/20 border-transparent",
         // Status variants for real-time indicators
         online:
-          "border-transparent bg-emerald-600 text-white shadow-sm animate-pulse font-bold",
+          "border-transparent bg-[#10B981] text-white shadow-sm animate-pulse font-bold",
         offline:
-          "border-transparent bg-muted text-muted-foreground font-bold",
+          "border-transparent bg-[#221060] text-[rgba(255,255,255,0.5)] font-bold",
         pending:
-          "border-transparent bg-amber-500 text-white shadow-sm font-bold",
+          "border-transparent bg-[#FDC016] text-white shadow-sm font-bold",
         error:
-          "border-transparent bg-rose-600 text-white shadow-sm font-bold",
+          "border-transparent bg-[#FF4300] text-white shadow-sm font-bold",
       },
       size: {
         default: "h-7 text-xs px-3",
@@ -93,10 +93,10 @@ function DotBadge({
   const displayCount = count && count > max ? `${max}+` : count
 
   const variants = {
-    primary: "bg-primary text-primary-foreground",
-    destructive: "bg-destructive text-destructive-foreground",
-    success: "bg-success text-white",
-    warning: "bg-warning text-white",
+    primary: "bg-[#1F3076] text-white",
+    destructive: "bg-[#FF4300] text-white",
+    success: "bg-[#10B981] text-white",
+    warning: "bg-[#FDC016] text-white",
   }
 
   if (!count || count === 0) return null
@@ -130,10 +130,10 @@ function StatusBadge({
   ...props
 }: StatusBadgeProps) {
   const statusConfig = {
-    online: { color: "bg-success", label: label || "Online" },
-    offline: { color: "bg-muted-foreground", label: label || "Offline" },
-    busy: { color: "bg-destructive", label: label || "Busy" },
-    away: { color: "bg-warning", label: label || "Away" },
+    online: { color: "bg-[#10B981]", label: label || "Online" },
+    offline: { color: "bg-[rgba(255,255,255,0.3)]", label: label || "Offline" },
+    busy: { color: "bg-[#FF4300]", label: label || "Busy" },
+    away: { color: "bg-[#FDC016]", label: label || "Away" },
   }
 
   const config = statusConfig[status]
@@ -143,7 +143,7 @@ function StatusBadge({
       data-slot="status-badge"
       className={cn(
         "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium",
-        "bg-muted/50 text-foreground",
+        "bg-[#221060]/50 text-white",
         className
       )}
       {...props}
