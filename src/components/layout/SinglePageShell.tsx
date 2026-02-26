@@ -9,7 +9,7 @@
  * - Desktop (>=1024px): Nav rail + content + side/takeover panels
  * - Tablet/Mobile (<1024px): Bottom tab bar + full-width panels
  */
-import { useState, useEffect, memo } from 'react'
+import { useState, useEffect, memo, lazy, Suspense } from 'react'
 
 import { ActivityBar } from './ActivityBar'
 import { BottomDrawer } from './BottomDrawer'
@@ -24,7 +24,10 @@ import { PanelManager } from './PanelManager'
 
 import { AIAssistantFloatingButton } from '@/components/ai/AIAssistantButton'
 import { usePanel } from '@/contexts/PanelContext'
+import { useFeatureDiscovery } from '@/hooks/use-feature-discovery'
 import { cn } from '@/lib/utils'
+
+const FeatureTooltip = lazy(() => import('@/components/onboarding/FeatureTooltip'))
 
 interface SinglePageShellProps {
   moduleContent?: React.ReactNode
@@ -33,6 +36,7 @@ interface SinglePageShellProps {
 export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: SinglePageShellProps) {
   const [isDesktop, setIsDesktop] = useState(true)
   const { setFlyout } = usePanel()
+  const { currentTip, dismissTip, disableAll } = useFeatureDiscovery()
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>
@@ -108,6 +112,19 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
 
       {/* Draggable AI Assistant floating button */}
       <AIAssistantFloatingButton hubType="fleet" />
+
+      {/* Progressive feature discovery tooltips */}
+      {currentTip && (
+        <Suspense fallback={null}>
+          <FeatureTooltip
+            target={currentTip.target}
+            title={currentTip.title}
+            description={currentTip.description}
+            onDismiss={dismissTip}
+            onDisableAll={disableAll}
+          />
+        </Suspense>
+      )}
     </div>
   )
 })

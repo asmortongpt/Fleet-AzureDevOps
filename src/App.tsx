@@ -1,7 +1,7 @@
 import { withAITracking } from '@microsoft/applicationinsights-react-js'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Shield } from "lucide-react"
-import { useMemo, lazy, Suspense, useEffect } from "react"
+import { useMemo, useState, lazy, Suspense, useEffect } from "react"
 import { Toaster } from 'react-hot-toast'
 
 import { DrilldownManager } from "@/components/DrilldownManager"
@@ -20,6 +20,9 @@ import { pageTransitionVariants } from '@/lib/animations'
 import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
 import logger from '@/utils/logger'
+
+// Onboarding Wizard - lazy loaded
+const OnboardingWizard = lazy(() => import("@/components/onboarding/OnboardingWizard").then(m => ({ default: m.OnboardingWizard })))
 
 // Feature flag for new single-page layout - MAP-FIRST UX
 const USE_NEW_LAYOUT = true // ENABLED: Map is central landing page feature
@@ -170,12 +173,12 @@ const SafetyAlertsPage = lazy(() => import("@/pages/SafetyAlertsPage"))
 const HeavyEquipmentPage = lazy(() => import("@/pages/HeavyEquipmentPage"))
 // const CreateDamageReportPage = lazy(() => import("@/pages/CreateDamageReport").then(m => ({ default: m.CreateDamageReport })))
 
-// Loading spinner component for Suspense fallback
+// Loading spinner component for Suspense fallback — ArchonY branded
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-[400px]">
     <div className="flex flex-col items-center gap-3">
-      <div className="w-4 h-4 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      <p className="text-sm text-muted-foreground">Loading module...</p>
+      <div className="w-4 h-4 border-4 border-[#00CCFE] border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm text-[rgba(255,255,255,0.40)]" style={{ fontFamily: "'Montserrat', sans-serif" }}>Loading module...</p>
     </div>
   </div>
 )
@@ -187,6 +190,11 @@ function App() {
   useEffect(() => { telemetryService.initialize() }, [])
 
   const fleetData = useFleetData()
+
+  // First-run onboarding wizard state
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return localStorage.getItem('fleet_onboarding_completed') !== 'true'
+  })
 
   // Initialize Policy Enforcement Engine on app startup
   useEffect(() => {
@@ -230,10 +238,10 @@ function App() {
 
     if (!hasAccessToModule) {
       return (
-        <div className="flex flex-col items-center justify-center h-full p-3 text-center bg-gray-50 rounded-lg">
-          <Shield className="w-16 h-16 text-red-500 mb-2" />
-          <h2 className="text-sm font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-white/70 mb-3">
+        <div className="flex flex-col items-center justify-center h-full p-3 text-center bg-[#1A0648] rounded-lg">
+          <Shield className="w-16 h-16 text-[#FF4300] mb-2" />
+          <h2 className="text-sm font-bold text-white mb-2" style={{ fontFamily: "'Cinzel', Georgia, serif" }}>Access Denied</h2>
+          <p className="text-[rgba(255,255,255,0.65)] mb-3">
             You do not have permission to view this module.
           </p>
           <Button onClick={() => setActiveModule('fleet-hub-consolidated')}>
@@ -541,6 +549,13 @@ function App() {
           </QueryErrorBoundary>
         </EnhancedErrorBoundary>
 
+        {/* First-run onboarding wizard overlay */}
+        {showOnboarding && (
+          <Suspense fallback={null}>
+            <OnboardingWizard onComplete={() => setShowOnboarding(false)} />
+          </Suspense>
+        )}
+
         {/* Toast notifications */}
         <div role="status" aria-live="polite" aria-label="Toast notifications">
           <ToastContainer />
@@ -551,11 +566,12 @@ function App() {
             toastOptions={{
               duration: 4000,
               style: {
-                background: 'hsl(var(--card))',
-                color: 'hsl(var(--card-foreground))',
-                border: '1px solid hsl(var(--border))',
+                background: '#2A1878',
+                color: '#FFFFFF',
+                border: '1px solid rgba(0, 204, 254, 0.15)',
                 borderRadius: '0.75rem',
                 fontSize: '0.875rem',
+                fontFamily: "'Montserrat', sans-serif",
               },
             }}
           />
@@ -606,22 +622,23 @@ function App() {
           toastOptions={{
             duration: 4000,
             style: {
-              background: 'hsl(var(--card))',
-              color: 'hsl(var(--card-foreground))',
-              border: '1px solid hsl(var(--border))',
+              background: '#2A1878',
+              color: '#FFFFFF',
+              border: '1px solid rgba(0, 204, 254, 0.15)',
               borderRadius: '0.75rem',
               fontSize: '0.875rem',
+              fontFamily: "'Montserrat', sans-serif",
             },
             success: {
               iconTheme: {
-                primary: 'hsl(var(--primary))',
-                secondary: 'hsl(var(--primary-foreground))',
+                primary: '#10B981',
+                secondary: '#FFFFFF',
               },
             },
             error: {
               iconTheme: {
-                primary: 'hsl(var(--destructive))',
-                secondary: 'white',
+                primary: '#FF4300',
+                secondary: '#FFFFFF',
               },
             },
           }}

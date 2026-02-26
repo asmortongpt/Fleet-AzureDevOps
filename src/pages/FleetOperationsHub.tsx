@@ -1488,7 +1488,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
       <div className="flex flex-col gap-1.5">
         {/* Active Work Orders */}
         <Section
-          title="Active Work Orders"
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Active Work Orders</span>}
           description="Current maintenance tasks and their status"
           icon={<ClipboardList className="h-4 w-4" />}
           actions={
@@ -1567,7 +1567,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
         {/* Schedule + Overdue */}
         <div className="grid grid-cols-2 gap-1.5">
           <Section
-            title="Upcoming Maintenance"
+            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Upcoming Maintenance</span>}
             description="Scheduled preventive maintenance"
             icon={<Calendar className="h-4 w-4" />}
           >
@@ -1593,7 +1593,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
           </Section>
 
           <Section
-            title="Overdue Maintenance"
+            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Overdue Maintenance</span>}
             description="Requires immediate attention"
             icon={<AlertTriangle className="h-4 w-4" />}
           >
@@ -1626,7 +1626,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
 
         {/* Parts Inventory */}
         <Section
-          title="Parts Inventory"
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Parts Inventory</span>}
           description="Common maintenance parts and supplies"
           icon={<Package className="h-4 w-4" />}
         >
@@ -1659,7 +1659,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
         {/* Predictive Alerts */}
         {highConfidencePredictions.length > 0 && (
           <Section
-            title="Predictive Alerts"
+            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Predictive Alerts</span>}
             description={`${highConfidencePredictions.length} high-confidence predictions`}
             icon={<Activity className="h-4 w-4" />}
           >
@@ -1790,7 +1790,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
       <div className="flex flex-col gap-1.5">
         {/* Asset Inventory */}
         <Section
-          title="Asset Inventory"
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Asset Inventory</span>}
           description="Heavy machinery, equipment, and tools"
           icon={<Box className="h-4 w-4" />}
           actions={
@@ -1852,7 +1852,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
         {/* Utilization + Maintenance Schedule */}
         <div className="grid grid-cols-2 gap-1.5">
           <Section
-            title="Asset Utilization"
+            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Asset Utilization</span>}
             description="Usage metrics for key assets"
             icon={<BarChart className="h-4 w-4" />}
           >
@@ -1869,7 +1869,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
           </Section>
 
           <Section
-            title="Asset Maintenance Schedule"
+            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Asset Maintenance Schedule</span>}
             description="Upcoming asset servicing"
             icon={<Calendar className="h-4 w-4" />}
           >
@@ -1904,7 +1904,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
 
         {/* Asset Categories Breakdown */}
         <Section
-          title="Asset Categories"
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Asset Categories</span>}
           description="Breakdown by equipment type"
           icon={<Package className="h-4 w-4" />}
         >
@@ -1929,7 +1929,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
         {/* Asset Lifecycle + High-Value Assets + Low Stock */}
         <div className="grid grid-cols-3 gap-1.5">
           <Section
-            title="Asset Lifecycle"
+            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Asset Lifecycle</span>}
             description="Age distribution of assets"
             icon={<Clock className="h-4 w-4" />}
           >
@@ -1949,7 +1949,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
           </Section>
 
           <Section
-            title="High-Value Assets"
+            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>High-Value Assets</span>}
             description="Top assets by current value"
             icon={<DollarSign className="h-4 w-4" />}
           >
@@ -1975,7 +1975,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
           </Section>
 
           <Section
-            title="Low Stock Alert"
+            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Low Stock Alert</span>}
             description="Inventory items at or below reorder point"
             icon={<AlertTriangle className="h-4 w-4" />}
           >
