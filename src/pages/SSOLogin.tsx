@@ -1,20 +1,15 @@
 /**
- * SSO Login Page - Official ArchonY Fleet Management Solution
- * Based on ADELE Brand Guidelines - January 26, 2026
+ * SSO Login Page - ArchonY Fleet Command
  *
- * Official ArchonY Product Logo Features:
- * - Modern, technology-forward typography
- * - Flowing curve representing "intelligent pivot"
- * - "INTELLIGENT PERFORMANCE" tagline
- * - Greek "archon" meaning "presiding officer" or "ruler"
+ * Official ArchonY branding with ambient background effects.
+ * Microsoft SSO authentication flow.
  *
  * CTA Official Color Palette:
- * - DAYTIME (Navy)
- * - BLUE SKIES (Cyan)
- * - MIDNIGHT (Deep Purple)
- * - NOON (Orange)
- * - GOLDEN HOUR (Yellow)
- * - Gradient Bar (Golden Hour → Noon)
+ * - DAYTIME (#1F3076) - Navy
+ * - BLUE SKIES (#00CCFE) - Cyan accent
+ * - MIDNIGHT (#1A0648) - Deep Purple
+ * - NOON (#FF4300) - Orange
+ * - GOLDEN HOUR (#FDC016) - Yellow
  */
 
 import { AlertCircle, Loader2 } from 'lucide-react'
@@ -24,7 +19,6 @@ import { useNavigate } from 'react-router-dom'
 import { EmailButton } from '@/components/email/EmailButton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { useMsalAuth } from '@/hooks/use-msal-auth'
 import logger from '@/utils/logger'
 
@@ -33,7 +27,6 @@ export function SSOLogin() {
   const { login, isAuthenticated, isLoading, error: msalError, clearError } = useMsalAuth()
   const [localError, setLocalError] = useState<string | null>(null)
 
-  // Redirect to home if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       logger.info('[SSO LOGIN] User already authenticated, redirecting to home')
@@ -41,7 +34,6 @@ export function SSOLogin() {
     }
   }, [isAuthenticated, navigate])
 
-  // Check for error in URL parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const errorParam = params.get('error')
@@ -57,12 +49,10 @@ export function SSOLogin() {
     }
   }, [])
 
-  // Combine MSAL error and local error
   const displayError = msalError || localError
 
   const handleSignIn = async () => {
     try {
-      // Clear any previous errors
       setLocalError(null)
       clearError()
 
@@ -70,10 +60,8 @@ export function SSOLogin() {
         redirectUri: window.location.origin + '/auth/callback'
       })
 
-      // This will redirect the page to Microsoft login
       await login()
 
-      // Note: Code below won't execute because login() redirects the page
       logger.debug('[SSO LOGIN] Login redirect in progress...')
     } catch (err) {
       logger.error('[SSO LOGIN] Login initiation failed:', err)
@@ -86,115 +74,100 @@ export function SSOLogin() {
   }
 
   return (
-    <main
-      className="relative flex min-h-screen items-center justify-center overflow-hidden"
-      style={{
-        background: 'linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 50%, hsl(var(--background)) 100%)'
-      }}
-    >
-      {/* Premium background effects - MIDNIGHT to DAYTIME gradient */}
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0D0320]">
+      {/* Ambient background effects */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Animated gradient orbs - BLUE SKIES and GOLDEN HOUR */}
+        {/* Gradient orbs */}
         <div
-          className="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full"
+          className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full"
           style={{
-            background: 'radial-gradient(circle, hsl(var(--chart-5) / 0.15) 0%, transparent 70%)',
-            filter: 'blur(60px)'
+            background: 'radial-gradient(circle, rgba(31,48,118,0.15) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+            animation: 'float 60s ease-in-out infinite'
           }}
         />
         <div
-          className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-pulse rounded-full"
+          className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full"
           style={{
-            background: 'radial-gradient(circle, hsl(var(--chart-3) / 0.12) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(0,204,254,0.12) 0%, transparent 70%)',
             filter: 'blur(60px)',
-            animationDelay: '2s'
+            animation: 'float 60s ease-in-out infinite reverse'
           }}
         />
 
-        {/* Grid overlay */}
+        {/* Dot grid pattern */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.05]"
           style={{
-            backgroundImage: 'linear-gradient(90deg, hsl(var(--border) / 0.08) 1px, transparent 1px), linear-gradient(hsl(var(--border) / 0.08) 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
+            backgroundImage: 'radial-gradient(circle, rgba(0,204,254,0.3) 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
           }}
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-md px-4">
+      <div className="relative z-10 w-full max-w-[420px] px-4">
         {/* Official ArchonY Product Branding */}
         <div className="mb-8 text-center">
-          {/* ArchonY Logo - Official from ADELE Branding Package */}
+          {/* ArchonY Logo */}
           <div className="flex justify-center mb-6">
             <img
               src="/logos/png/archony-logo-reverse-600px.png"
               alt="ArchonY - Intelligent Performance"
               className="h-24 w-auto"
-              style={{ filter: 'drop-shadow(0 4px 8px hsl(var(--foreground) / 0.15))' }}
+              style={{ filter: 'drop-shadow(0 4px 8px rgba(0,204,254,0.15))' }}
             />
           </div>
 
-          {/* Company Name & CTA Lockup */}
+          {/* Company Name */}
           <h1
-            className="mb-3 text-xl font-medium tracking-tight"
-            style={{
-              color: 'hsl(var(--foreground))',
-              fontFamily: '"Inter", -apple-system, sans-serif'
-            }}
+            className="mb-3 text-xl font-medium tracking-tight text-white"
+            style={{ fontFamily: '"Cinzel", Georgia, serif' }}
           >
             Capital Tech Alliance
           </h1>
 
-          {/* Official Gradient Bar - GOLDEN HOUR to NOON */}
-          <div
-            className="mx-auto w-24 h-1 rounded-full mb-4"
-            style={{
-              background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
-              boxShadow: '0 2px 8px hsl(var(--chart-3) / 0.4)'
-            }}
-          />
+          {/* Gradient Bar */}
+          <div className="mx-auto w-24 h-[3px] rounded-full mb-4 bg-gradient-to-r from-[#00CCFE] via-[#1F3076] to-transparent" />
 
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-[rgba(255,255,255,0.65)]">
             Fleet Management Solution
           </p>
         </div>
 
-        {/* Login Card */}
-        <Card className="border-border/50 bg-card/90 shadow-2xl backdrop-blur-xl text-card-foreground">
+        {/* Login Card - Glass morphism */}
+        <div
+          className="rounded-2xl border border-[rgba(0,204,254,0.15)] shadow-[0_8px_24px_rgba(26,6,72,0.5)] overflow-hidden"
+          style={{ background: 'rgba(34,16,96,0.6)', backdropFilter: 'blur(20px)' }}
+        >
           <div className="p-6">
             {/* Welcome Header */}
             <div className="mb-6 text-center">
-              <h2 className="mb-2 text-xl font-semibold text-foreground">
+              <h2
+                className="mb-2 text-xl font-semibold text-white"
+                style={{ fontFamily: '"Montserrat", sans-serif' }}
+              >
                 Welcome
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[rgba(255,255,255,0.65)]">
                 Sign in to access your fleet dashboard
               </p>
             </div>
 
             {/* Error Alert */}
             {displayError && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-sm">{displayError}</AlertDescription>
+              <Alert className="mb-4 border-[#FF4300]/40 bg-[#FF4300]/10">
+                <AlertCircle className="h-4 w-4 text-[#FF4300]" />
+                <AlertDescription className="text-sm text-white">{displayError}</AlertDescription>
               </Alert>
             )}
 
-            {/* Microsoft Sign-In Button - Official Gradient */}
+            {/* Microsoft Sign-In Button */}
             <Button
               onClick={handleSignIn}
               disabled={isLoading}
               size="lg"
-              style={{
-                background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
-                boxShadow: '0 4px 12px hsl(var(--chart-3) / 0.3)'
-              }}
-              className="group relative mb-4 h-12 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+              className="group relative mb-4 h-12 w-full overflow-hidden bg-[#1F3076] hover:bg-[#2A1878] font-semibold text-white transition-all duration-300 hover:shadow-lg active:scale-[0.98] disabled:opacity-50"
             >
-              <div
-                className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                style={{ background: 'linear-gradient(90deg, hsl(var(--chart-6)) 0%, hsl(var(--chart-3)) 100%)' }}
-              />
               <span className="relative flex items-center justify-center gap-2.5">
                 {isLoading ? (
                   <>
@@ -215,7 +188,7 @@ export function SSOLogin() {
               </span>
             </Button>
 
-            <p className="text-center text-xs text-muted-foreground mt-4 inline-flex items-center justify-center gap-1 w-full">
+            <p className="text-center text-xs text-[rgba(255,255,255,0.40)] mt-4 inline-flex items-center justify-center gap-1 w-full">
               Need assistance?{' '}
               <EmailButton
                 to="support@capitaltechalliance.com"
@@ -223,18 +196,18 @@ export function SSOLogin() {
                 label="Contact Support"
                 variant="link"
                 size="sm"
-                className="h-auto p-0 text-xs font-semibold text-primary"
+                className="h-auto p-0 text-xs font-semibold text-[#00CCFE]"
               />
             </p>
           </div>
-        </Card>
+        </div>
 
         {/* Footer */}
         <div className="mt-6 space-y-1 text-center">
-          <p className="text-xs font-semibold text-muted-foreground">
+          <p className="text-xs font-semibold text-[rgba(255,255,255,0.65)]">
             ArchonY Enterprise Solutions v2.0
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-[rgba(255,255,255,0.40)]">
             © {new Date().getFullYear()} Capital Tech Alliance. All rights reserved.
           </p>
         </div>

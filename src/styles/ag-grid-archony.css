@@ -1,0 +1,97 @@
+/**
+ * AG Grid ArchonY Theme
+ * Custom theme overrides for the ArchonY Fleet Command design system.
+ */
+.ag-theme-archony {
+  --ag-background-color: #1A0648;
+  --ag-header-background-color: #2A1878;
+  --ag-odd-row-background-color: #1A0648;
+  --ag-row-hover-color: #2A1878;
+  --ag-selected-row-background-color: #332090;
+  --ag-range-selection-background-color: rgba(0, 204, 254, 0.1);
+  --ag-border-color: rgba(0, 204, 254, 0.08);
+  --ag-secondary-border-color: rgba(0, 204, 254, 0.05);
+  --ag-header-foreground-color: rgba(255, 255, 255, 0.65);
+  --ag-foreground-color: #FFFFFF;
+  --ag-secondary-foreground-color: rgba(255, 255, 255, 0.65);
+  --ag-accent-color: #00CCFE;
+  --ag-font-family: 'Montserrat', sans-serif;
+  --ag-font-size: 13px;
+  --ag-header-font-family: 'Montserrat', sans-serif;
+  --ag-header-font-size: 12px;
+  --ag-header-font-weight: 500;
+  --ag-row-height: 44px;
+  --ag-header-height: 40px;
+  --ag-cell-horizontal-padding: 16px;
+  --ag-border-radius: 8px;
+  --ag-input-focus-border-color: #00CCFE;
+  --ag-checkbox-checked-color: #00CCFE;
+  --ag-modal-overlay-background-color: rgba(13, 3, 32, 0.6);
+  --ag-card-shadow: 0 8px 24px rgba(26, 6, 72, 0.5);
+  --ag-popup-shadow: 0 8px 24px rgba(26, 6, 72, 0.5);
+}
+
+/* Header cell styling */
+.ag-theme-archony .ag-header-cell {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 11px;
+}
+
+/* Row borders */
+.ag-theme-archony .ag-row {
+  border-bottom-color: rgba(0, 204, 254, 0.05);
+}
+
+/* Cell focus ring */
+.ag-theme-archony .ag-cell-focus {
+  border-color: #00CCFE !important;
+}
+
+/* Filter panel */
+.ag-theme-archony .ag-filter-toolpanel,
+.ag-theme-archony .ag-column-panel {
+  background-color: #221060;
+}
+
+/* Context menu */
+.ag-theme-archony .ag-menu {
+  background-color: #221060;
+  border: 1px solid rgba(0, 204, 254, 0.15);
+  border-radius: 8px;
+}
+
+.ag-theme-archony .ag-menu-option-active {
+  background-color: #2A1878;
+}
+
+/* Scrollbar styling */
+.ag-theme-archony ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.ag-theme-archony ::-webkit-scrollbar-track {
+  background: #1A0648;
+}
+
+.ag-theme-archony ::-webkit-scrollbar-thumb {
+  background: rgba(0, 204, 254, 0.2);
+  border-radius: 3px;
+}
+
+.ag-theme-archony ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 204, 254, 0.35);
+}
+
+/* Pagination */
+.ag-theme-archony .ag-paging-panel {
+  border-top-color: rgba(0, 204, 254, 0.08);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Status bar */
+.ag-theme-archony .ag-status-bar {
+  border-top-color: rgba(0, 204, 254, 0.08);
+  background-color: #1A0648;
+}

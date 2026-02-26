@@ -89,6 +89,7 @@ import "./index.css"
 
 // ArchonY Design System — Brand tokens, animations, utility classes
 import "./styles/archony-tokens.css"
+import "./styles/ag-grid-archony.css"
 
 // Data router created with createBrowserRouter + createRoutesFromElements
 // This replaces the legacy BrowserRouter with the modern data router API,
