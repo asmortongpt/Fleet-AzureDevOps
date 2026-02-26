@@ -107,24 +107,24 @@ const ReservationCalendarView = lazy(() => import('@/components/scheduling/Reser
 function ProgressBar({ value, color }: { value: number; color: string }) {
   const pct = Math.max(0, Math.min(100, value))
   return (
-    <div className="h-2 bg-white/10 rounded-full">
+    <div className="h-2 bg-[rgba(0,204,254,0.08)] rounded-full">
       <div className={`h-2 ${color} rounded-full`} style={{ width: `${pct}%` }} />
     </div>
   )
 }
 
 function getScoreColor(score: number) {
-  if (score >= 90) return 'text-emerald-400'
-  if (score >= 70) return 'text-foreground'
-  if (score >= 50) return 'text-amber-400'
-  return 'text-rose-400'
+  if (score >= 90) return 'text-[#00CCFE]'
+  if (score >= 70) return 'text-white'
+  if (score >= 50) return 'text-[#FDC016]'
+  return 'text-[#FF4300]'
 }
 
 function getBarColor(score: number) {
-  if (score >= 90) return 'bg-emerald-500'
-  if (score >= 70) return 'bg-foreground/60'
-  if (score >= 50) return 'bg-amber-500'
-  return 'bg-rose-500'
+  if (score >= 90) return 'bg-[#00CCFE]'
+  if (score >= 70) return 'bg-[rgba(255,255,255,0.60)]'
+  if (score >= 50) return 'bg-[#FDC016]'
+  return 'bg-[#FF4300]'
 }
 
 // ============================================================================
@@ -279,19 +279,19 @@ const OverviewTabContent = memo(function OverviewTabContent() {
   }))
   const woTypeChartData = Object.entries(woTypeDistribution).map(([name, value]) => ({
     name: formatEnum(name), value: value as number,
-    fill: name === 'preventive' ? '#10B981' : name === 'corrective' ? '#06b6d4' : name === 'emergency' ? '#EF4444' : name === 'inspection' ? '#F59E0B' : '#8B5CF6',
+    fill: name === 'preventive' ? '#10B981' : name === 'corrective' ? '#00CCFE' : name === 'emergency' ? '#FF4300' : name === 'inspection' ? '#FDC016' : '#1F3076',
   }))
   const healthDistributionData = [
     { name: 'Excellent (90+)', value: fleetHealth.excellent, fill: '#10B981' },
-    { name: 'Good (70-89)', value: fleetHealth.good, fill: '#06b6d4' },
-    { name: 'Fair (50-69)', value: fleetHealth.fair, fill: '#F59E0B' },
-    { name: 'Poor (<50)', value: fleetHealth.poor, fill: '#EF4444' },
+    { name: 'Good (70-89)', value: fleetHealth.good, fill: '#00CCFE' },
+    { name: 'Fair (50-69)', value: fleetHealth.fair, fill: '#FDC016' },
+    { name: 'Poor (<50)', value: fleetHealth.poor, fill: '#FF4300' },
   ].filter(d => d.value > 0)
   const hosChartData = [
     { name: 'Driving', value: hosCompliance.statuses.driving, fill: '#10B981' },
-    { name: 'On Duty', value: hosCompliance.statuses.on_duty, fill: '#06b6d4' },
-    { name: 'Off Duty', value: hosCompliance.statuses.off_duty, fill: '#6b7280' },
-    { name: 'Sleeper', value: hosCompliance.statuses.sleeper, fill: '#8B5CF6' },
+    { name: 'On Duty', value: hosCompliance.statuses.on_duty, fill: '#00CCFE' },
+    { name: 'Off Duty', value: hosCompliance.statuses.off_duty, fill: '#2A1878' },
+    { name: 'Sleeper', value: hosCompliance.statuses.sleeper, fill: '#1F3076' },
   ].filter(d => d.value > 0)
 
   return (
@@ -318,33 +318,33 @@ const OverviewTabContent = memo(function OverviewTabContent() {
 
       {/* Attention Required Banner */}
       {(maintenanceOverview.emergencyCount > 0 || complianceAlerts.totalAlerts > 0) && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-2 rounded border border-rose-800/30 bg-rose-950/10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-2 rounded border border-[rgba(255,67,0,0.3)] bg-[rgba(255,67,0,0.08)]">
           <div className="flex items-center gap-2">
-            <Siren className="h-5 w-5 text-rose-400" />
+            <Siren className="h-5 w-5 text-[#FF4300]" />
             <div>
-              <p className="text-xs font-semibold text-rose-300">{maintenanceOverview.emergencyCount}</p>
-              <p className="text-xs text-white/50">Emergency WOs</p>
+              <p className="text-xs font-semibold text-[#FF4300]">{maintenanceOverview.emergencyCount}</p>
+              <p className="text-xs text-[rgba(255,255,255,0.40)]">Emergency WOs</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Car className="h-5 w-5 text-amber-400" />
+            <Car className="h-5 w-5 text-[#FDC016]" />
             <div>
-              <p className="text-xs font-semibold text-amber-300">{complianceAlerts.expiringRegistrations}</p>
-              <p className="text-xs text-white/50">Expiring Registrations</p>
+              <p className="text-xs font-semibold text-[#FDC016]">{complianceAlerts.expiringRegistrations}</p>
+              <p className="text-xs text-[rgba(255,255,255,0.40)]">Expiring Registrations</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <UserCheck className="h-5 w-5 text-amber-400" />
+            <UserCheck className="h-5 w-5 text-[#FDC016]" />
             <div>
-              <p className="text-xs font-semibold text-amber-300">{complianceAlerts.expiringMedicalCards}</p>
-              <p className="text-xs text-white/50">Expiring Med Cards</p>
+              <p className="text-xs font-semibold text-[#FDC016]">{complianceAlerts.expiringMedicalCards}</p>
+              <p className="text-xs text-[rgba(255,255,255,0.40)]">Expiring Med Cards</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <ShieldAlert className="h-5 w-5 text-amber-400" />
+            <ShieldAlert className="h-5 w-5 text-[#FDC016]" />
             <div>
-              <p className="text-xs font-semibold text-amber-300">{complianceAlerts.overdueDrugTests}</p>
-              <p className="text-xs text-white/50">Overdue Drug Tests</p>
+              <p className="text-xs font-semibold text-[#FDC016]">{complianceAlerts.overdueDrugTests}</p>
+              <p className="text-xs text-[rgba(255,255,255,0.40)]">Overdue Drug Tests</p>
             </div>
           </div>
         </div>
@@ -352,23 +352,23 @@ const OverviewTabContent = memo(function OverviewTabContent() {
 
       {/* ROW 2: FLEET HEALTH + HOS COMPLIANCE */}
       <div className="grid grid-cols-2 gap-1.5">
-        <Section title="Fleet Health Overview" description="Vehicle health score distribution" icon={<HeartPulse className="h-4 w-4" />}>
+        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Fleet Health Overview</span>} description="Vehicle health score distribution" icon={<HeartPulse className="h-4 w-4" />}>
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-4">
               <GaugeChart title="Fleet Health" value={fleetHealth.avgScore} size={90} height={110} />
               <div className="flex-1 flex flex-col gap-1">
-                <p className="text-xs text-muted-foreground">{fleetHealth.totalWithScores} of {vehicles.length} vehicles with scores</p>
+                <p className="text-xs text-[rgba(255,255,255,0.40)]">{fleetHealth.totalWithScores} of {vehicles.length} vehicles with scores</p>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {[
-                { label: 'Excellent', count: fleetHealth.excellent, color: 'text-emerald-400' },
-                { label: 'Good', count: fleetHealth.good, color: 'text-foreground' },
-                { label: 'Fair', count: fleetHealth.fair, color: 'text-amber-400' },
-                { label: 'Poor', count: fleetHealth.poor, color: 'text-rose-400' },
+                { label: 'Excellent', count: fleetHealth.excellent, color: 'text-[#00CCFE]' },
+                { label: 'Good', count: fleetHealth.good, color: 'text-white' },
+                { label: 'Fair', count: fleetHealth.fair, color: 'text-[#FDC016]' },
+                { label: 'Poor', count: fleetHealth.poor, color: 'text-[#FF4300]' },
               ].map(item => (
-                <div key={item.label} className="text-center rounded border border-white/[0.08] bg-[#242424] p-1.5">
-                  <p className="text-[10px] text-muted-foreground">{item.label}</p>
+                <div key={item.label} className="text-center rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5">
+                  <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{item.label}</p>
                   <p className={`text-sm font-semibold ${item.color}`}>{item.count}</p>
                 </div>
               ))}
@@ -379,7 +379,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
           </div>
         </Section>
 
-        <Section title="HOS Compliance" description="Hours of Service status" icon={<Timer className="h-4 w-4" />}>
+        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>HOS Compliance</span>} description="Hours of Service status" icon={<Timer className="h-4 w-4" />}>
           <div className="flex flex-col gap-2">
             <div className="grid grid-cols-2 gap-2">
               {[
@@ -388,22 +388,22 @@ const OverviewTabContent = memo(function OverviewTabContent() {
                 { label: 'Off Duty', value: hosCompliance.statuses.off_duty, icon: Clock },
                 { label: 'Sleeper', value: hosCompliance.statuses.sleeper, icon: BedDouble },
               ].map(item => (
-                <div key={item.label} className="rounded border border-white/[0.08] bg-[#242424] p-1.5">
+                <div key={item.label} className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5">
                   <div className="flex items-center gap-1 mb-0.5">
-                    <item.icon className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-[10px] text-muted-foreground">{item.label}</span>
+                    <item.icon className="h-3 w-3 text-[rgba(255,255,255,0.40)]" />
+                    <span className="text-[10px] text-[rgba(255,255,255,0.40)]">{item.label}</span>
                   </div>
-                  <p className="text-sm font-bold text-foreground">{item.value}</p>
+                  <p className="text-sm font-bold text-white">{item.value}</p>
                 </div>
               ))}
             </div>
-            <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5">
+            <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium text-foreground">Total Hours Available</p>
-                  <p className="text-[10px] text-muted-foreground">Across all active drivers</p>
+                  <p className="text-xs font-medium text-white">Total Hours Available</p>
+                  <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Across all active drivers</p>
                 </div>
-                <p className="text-sm font-bold text-foreground">{formatNumber(hosCompliance.totalHoursAvailable)}h</p>
+                <p className="text-sm font-bold text-white">{formatNumber(hosCompliance.totalHoursAvailable)}h</p>
               </div>
             </div>
             {hosChartData.length > 0 && (
@@ -413,37 +413,37 @@ const OverviewTabContent = memo(function OverviewTabContent() {
         </Section>
 
         {/* ROW 3: SAFETY METRICS + DEPARTMENT UTILIZATION */}
-        <Section title="Safety Metrics" description="Driver safety scoring" icon={<Shield className="h-4 w-4" />}>
+        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Safety Metrics</span>} description="Driver safety scoring" icon={<Shield className="h-4 w-4" />}>
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-4">
               <div>
                 <span className={`text-xl font-bold ${getScoreColor(safetyMetrics.avgSafety)}`}>
                   {safetyMetrics.avgSafety > 0 ? safetyMetrics.avgSafety : '--'}
                 </span>
-                <span className="text-xs text-muted-foreground ml-1">/ 100</span>
+                <span className="text-xs text-[rgba(255,255,255,0.40)] ml-1">/ 100</span>
               </div>
               <div className="flex-1">
                 <ProgressBar value={safetyMetrics.avgSafety} color={getBarColor(safetyMetrics.avgSafety)} />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Across {safetyMetrics.totalDrivers} drivers</p>
+            <p className="text-xs text-[rgba(255,255,255,0.40)]">Across {safetyMetrics.totalDrivers} drivers</p>
             {safetyMetrics.needsAttention > 0 && (
-              <Alert variant="destructive" className="border-rose-800/40">
+              <Alert variant="destructive" className="border-[rgba(255,67,0,0.4)]">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertDescription className="text-red-300">
+                <AlertDescription className="text-[#FF4300]">
                   <span className="font-semibold">{safetyMetrics.needsAttention} driver{safetyMetrics.needsAttention !== 1 ? 's' : ''}</span> with safety score below 70 -- requires review
                 </AlertDescription>
               </Alert>
             )}
             <div className="grid grid-cols-4 gap-2">
               {[
-                { label: 'Excellent', color: 'text-emerald-400', count: drivers.filter((d: any) => (d.safetyScore ?? d.safety_score ?? 0) >= 90).length },
-                { label: 'Good', color: 'text-foreground', count: drivers.filter((d: any) => { const s = d.safetyScore ?? d.safety_score ?? 0; return s >= 70 && s < 90 }).length },
-                { label: 'Fair', color: 'text-amber-400', count: drivers.filter((d: any) => { const s = d.safetyScore ?? d.safety_score ?? 0; return s >= 50 && s < 70 }).length },
-                { label: 'Poor', color: 'text-rose-400', count: drivers.filter((d: any) => (d.safetyScore ?? d.safety_score ?? 0) < 50).length },
+                { label: 'Excellent', color: 'text-[#00CCFE]', count: drivers.filter((d: any) => (d.safetyScore ?? d.safety_score ?? 0) >= 90).length },
+                { label: 'Good', color: 'text-white', count: drivers.filter((d: any) => { const s = d.safetyScore ?? d.safety_score ?? 0; return s >= 70 && s < 90 }).length },
+                { label: 'Fair', color: 'text-[#FDC016]', count: drivers.filter((d: any) => { const s = d.safetyScore ?? d.safety_score ?? 0; return s >= 50 && s < 70 }).length },
+                { label: 'Poor', color: 'text-[#FF4300]', count: drivers.filter((d: any) => (d.safetyScore ?? d.safety_score ?? 0) < 50).length },
               ].map(item => (
-                <div key={item.label} className="text-center rounded border border-white/[0.08] bg-[#242424] p-1.5">
-                  <p className="text-[10px] text-muted-foreground">{item.label}</p>
+                <div key={item.label} className="text-center rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5">
+                  <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{item.label}</p>
                   <p className={`text-sm font-semibold ${item.color}`}>{item.count}</p>
                 </div>
               ))}
@@ -451,31 +451,31 @@ const OverviewTabContent = memo(function OverviewTabContent() {
           </div>
         </Section>
 
-        <Section title="Department Utilization" description="Vehicle count and uptime by department" icon={<Building2 className="h-4 w-4" />}>
+        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Department Utilization</span>} description="Vehicle count and uptime by department" icon={<Building2 className="h-4 w-4" />}>
           <div className="flex flex-col gap-2">
             {departmentChartData.length > 0 ? (
               <ResponsiveBarChart title="Vehicles by Department" data={departmentChartData} dataKey="count" height={150} showValues compact />
             ) : (
-              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No department data available</div>
+              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No department data available</div>
             )}
           </div>
         </Section>
 
         {/* ROW 4: MAINTENANCE OVERVIEW + COMPLIANCE ALERTS */}
-        <Section title="Maintenance Overview" description="Work orders, downtime, and categories" icon={<Wrench className="h-4 w-4" />}>
+        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Maintenance Overview</span>} description="Work orders, downtime, and categories" icon={<Wrench className="h-4 w-4" />}>
           <div className="flex flex-col gap-2">
             <div className="grid grid-cols-3 gap-1.5">
-              <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
-                <p className="text-[10px] text-muted-foreground">Open WOs</p>
-                <p className="text-sm font-bold text-foreground">{maintenanceOverview.openWorkOrders}</p>
+              <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
+                <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Open WOs</p>
+                <p className="text-sm font-bold text-white">{maintenanceOverview.openWorkOrders}</p>
               </div>
-              <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
-                <p className="text-[10px] text-muted-foreground">Downtime</p>
-                <p className="text-sm font-bold text-foreground">{maintenanceOverview.totalDowntimeHours}h</p>
+              <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
+                <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Downtime</p>
+                <p className="text-sm font-bold text-white">{maintenanceOverview.totalDowntimeHours}h</p>
               </div>
-              <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
-                <p className="text-[10px] text-muted-foreground">Emergency</p>
-                <p className="text-sm font-bold text-rose-400">{maintenanceOverview.emergencyCount}</p>
+              <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
+                <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Emergency</p>
+                <p className="text-sm font-bold text-[#FF4300]">{maintenanceOverview.emergencyCount}</p>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-1.5">
@@ -485,9 +485,9 @@ const OverviewTabContent = memo(function OverviewTabContent() {
                 { label: 'Parts Wait', value: maintenanceMetrics?.partsWaiting ?? 0 },
                 { label: 'Done Today', value: maintenanceMetrics?.completedToday ?? 0 },
               ].map(item => (
-                <div key={item.label} className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
-                  <span className="text-[10px] text-muted-foreground block">{item.label}</span>
-                  <span className="text-xs font-semibold text-foreground">{item.value}</span>
+                <div key={item.label} className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
+                  <span className="text-[10px] text-[rgba(255,255,255,0.40)] block">{item.label}</span>
+                  <span className="text-xs font-semibold text-white">{item.value}</span>
                 </div>
               ))}
             </div>
@@ -497,13 +497,13 @@ const OverviewTabContent = memo(function OverviewTabContent() {
           </div>
         </Section>
 
-        <Section title="Compliance Alerts" description="Expiring certifications and overdue items" icon={<Siren className="h-4 w-4" />}>
+        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Compliance Alerts</span>} description="Expiring certifications and overdue items" icon={<Siren className="h-4 w-4" />}>
           <div className="flex flex-col gap-2">
             {complianceAlerts.totalAlerts === 0 ? (
               <div className="flex flex-col items-center justify-center h-20 text-center">
-                <CheckCircle className="h-6 w-6 text-emerald-500 mb-1" />
-                <p className="text-sm font-medium text-foreground">All Clear</p>
-                <p className="text-xs text-muted-foreground">No compliance alerts at this time</p>
+                <CheckCircle className="h-6 w-6 text-[#10B981] mb-1" />
+                <p className="text-sm font-medium text-white">All Clear</p>
+                <p className="text-xs text-[rgba(255,255,255,0.40)]">No compliance alerts at this time</p>
               </div>
             ) : (
               <>
@@ -514,12 +514,12 @@ const OverviewTabContent = memo(function OverviewTabContent() {
                 ].map(alert => (
                   <div
                     key={alert.title}
-                    className={`rounded border p-2 cursor-pointer transition-colors hover:bg-white/[0.04] ${
+                    className={`rounded border p-2 cursor-pointer transition-colors hover:bg-[#2A1878] ${
                       alert.count > 0
                         ? alert.severity === 'red'
-                          ? 'border-rose-800/40 bg-rose-950/20'
-                          : 'border-amber-800/40 bg-amber-950/20'
-                        : 'border-white/[0.08] bg-[#242424]'
+                          ? 'border-[rgba(255,67,0,0.4)] bg-[rgba(255,67,0,0.12)]'
+                          : 'border-[rgba(253,192,22,0.3)] bg-[rgba(253,192,22,0.1)]'
+                        : 'border-[rgba(0,204,254,0.08)] bg-[#221060]'
                     }`}
                     role="button"
                     tabIndex={0}
@@ -530,21 +530,21 @@ const OverviewTabContent = memo(function OverviewTabContent() {
                       <div className="flex items-center gap-2">
                         <alert.icon className={`h-4 w-4 ${
                           alert.count > 0
-                            ? alert.severity === 'red' ? 'text-rose-400' : 'text-amber-400'
-                            : 'text-muted-foreground'
+                            ? alert.severity === 'red' ? 'text-[#FF4300]' : 'text-[#FDC016]'
+                            : 'text-[rgba(255,255,255,0.40)]'
                         }`} />
                         <div>
-                          <p className="text-xs font-medium text-foreground">{alert.title}</p>
-                          <p className="text-[10px] text-muted-foreground">{alert.desc}</p>
+                          <p className="text-xs font-medium text-white">{alert.title}</p>
+                          <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{alert.desc}</p>
                         </div>
                       </div>
                       <Badge variant={alert.count > 0 ? 'destructive' : 'secondary'}>{alert.count}</Badge>
                     </div>
                   </div>
                 ))}
-                <div className="rounded border border-white/[0.08] bg-[#242424] p-2">
+                <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-medium text-foreground">Total Compliance Issues</p>
+                    <p className="text-xs font-medium text-white">Total Compliance Issues</p>
                     <Badge variant={complianceAlerts.totalAlerts > 5 ? 'destructive' : 'secondary'}>
                       {complianceAlerts.totalAlerts}
                     </Badge>
@@ -679,7 +679,7 @@ const FleetTabContent = memo(function FleetTabContent() {
       {/* Fleet Alerts */}
       {(lowFuelVehicles.length > 0 || highMileageVehicles.length > 0) && (
         <Section
-          title="Fleet Alerts"
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Fleet Alerts</span>}
           description={`${lowFuelVehicles.length + highMileageVehicles.length} vehicles need attention`}
           icon={<AlertTriangle className="h-4 w-4" />}
         >
@@ -687,7 +687,7 @@ const FleetTabContent = memo(function FleetTabContent() {
             {lowFuelVehicles.slice(0, 5).map((v: any) => (
               <div
                 key={`fuel-${v.id}`}
-                className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2 cursor-pointer hover:bg-[#2A1878] transition-colors"
                 onClick={() => push({
                   type: 'vehicle-details',
                   label: formatVehicleName(v),
@@ -695,12 +695,12 @@ const FleetTabContent = memo(function FleetTabContent() {
                 })}
               >
                 <div className="flex items-center gap-2">
-                  <Fuel className="h-3.5 w-3.5 text-amber-400" />
+                  <Fuel className="h-3.5 w-3.5 text-[#FDC016]" />
                   <div>
-                    <p className="text-xs font-medium text-foreground">
+                    <p className="text-xs font-medium text-white">
                       {formatVehicleName(v)}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">Fuel: {v.fuel_level != null ? `${v.fuel_level}%` : 'N/A'}</p>
+                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Fuel: {v.fuel_level != null ? `${v.fuel_level}%` : 'N/A'}</p>
                   </div>
                 </div>
                 <Badge variant={v.severity === 'high' ? 'destructive' : 'secondary'} className="text-[10px] px-1 py-0">
@@ -711,7 +711,7 @@ const FleetTabContent = memo(function FleetTabContent() {
             {highMileageVehicles.slice(0, 5).map((v: any) => (
               <div
                 key={`mile-${v.id}`}
-                className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2 cursor-pointer hover:bg-[#2A1878] transition-colors"
                 onClick={() => push({
                   type: 'vehicle-details',
                   label: formatVehicleName(v),
@@ -719,12 +719,12 @@ const FleetTabContent = memo(function FleetTabContent() {
                 })}
               >
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-3.5 w-3.5 text-amber-400" />
+                  <TrendingUp className="h-3.5 w-3.5 text-[#FDC016]" />
                   <div>
-                    <p className="text-xs font-medium text-foreground">
+                    <p className="text-xs font-medium text-white">
                       {formatVehicleName(v)}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">Mileage: {formatNumber(v.mileage)} mi</p>
+                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Mileage: {formatNumber(v.mileage)} mi</p>
                   </div>
                 </div>
                 <Badge variant={v.severity === 'high' ? 'destructive' : 'secondary'} className="text-[10px] px-1 py-0">
@@ -741,7 +741,7 @@ const FleetTabContent = memo(function FleetTabContent() {
         {/* Live Fleet Tracking - give map a proper height */}
         <div className="shrink-0" style={{ minHeight: '400px' }}>
           <Section
-            title="Live Fleet Tracking"
+            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Live Fleet Tracking</span>}
             description="Real-time vehicle locations and status"
             icon={<MapPin className="h-4 w-4" />}
             className="h-full"
@@ -760,7 +760,7 @@ const FleetTabContent = memo(function FleetTabContent() {
         {/* Vehicle Telemetry - allow content to flow naturally */}
         <div className="shrink-0">
           <Section
-            title="Vehicle Telemetry"
+            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Vehicle Telemetry</span>}
             description="Performance metrics and diagnostics"
             icon={<Gauge className="h-4 w-4" />}
             className="overflow-visible"
@@ -777,7 +777,7 @@ const FleetTabContent = memo(function FleetTabContent() {
         {/* Virtual Garage - allow content to flow naturally */}
         <div className="shrink-0">
           <Section
-            title="Virtual Garage"
+            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Virtual Garage</span>}
             description="3D vehicle models and inventory"
             icon={<Car className="h-4 w-4" />}
             className="overflow-visible"
@@ -794,7 +794,7 @@ const FleetTabContent = memo(function FleetTabContent() {
         {(user?.role === 'Admin' || user?.role === 'Manager' || user?.role === 'SuperAdmin') && (
           <div className="shrink-0">
             <Section
-              title="EV Charging Management"
+              title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>EV Charging Management</span>}
               description="Electric vehicle charging stations and schedules"
               icon={<Plug className="h-4 w-4" />}
               className="overflow-visible"
@@ -907,7 +907,7 @@ const DriversTabContent = memo(function DriversTabContent() {
       {/* Main content */}
       <div className="grid grid-cols-2 gap-1.5">
         <Section
-          title="Driver Performance Trends"
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Driver Performance Trends</span>}
           description="Safety scores and compliance over time"
           icon={<LineChart className="h-4 w-4" />}
         >
@@ -921,17 +921,17 @@ const DriversTabContent = memo(function DriversTabContent() {
                 violations: point.violations
               }))}
               dataKeys={['safety_score', 'violations']}
-              colors={['hsl(var(--success))', 'hsl(var(--destructive))']}
+              colors={['#00CCFE', '#FF4300']}
               height={120}
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No performance trend data available</div>
+            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No performance trend data available</div>
           )}
         </Section>
 
         <Section
-          title="Top Performers"
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Top Performers</span>}
           description="Drivers with highest safety scores"
           icon={<Award className="h-4 w-4" />}
         >
@@ -940,7 +940,7 @@ const DriversTabContent = memo(function DriversTabContent() {
               {topPerformers.slice(0, 5).map((driver: any, index) => (
                 <div
                   key={driver.id}
-                  className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer transition-colors"
+                  className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2 cursor-pointer transition-colors"
                   role="button"
                   tabIndex={0}
                   aria-label={`View details for ${driver.name}`}
@@ -948,19 +948,19 @@ const DriversTabContent = memo(function DriversTabContent() {
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
                 >
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/[0.06] text-foreground text-xs font-bold">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[rgba(0,204,254,0.06)] text-white text-xs font-bold">
                       {index + 1}
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-semibold text-foreground">{driver.name}</p>
+                        <p className="text-xs font-semibold text-white">{driver.name}</p>
                         {(driver.employment_type || driver.employmentType) && (
                           <Badge variant="outline" className="text-[10px] px-1 py-0">
                             {formatEnum(driver.employment_type || driver.employmentType)}
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[10px] text-muted-foreground">{driver.licenseNumber}</p>
+                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{driver.licenseNumber}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -976,7 +976,7 @@ const DriversTabContent = memo(function DriversTabContent() {
                       {formatEnum(driver.status)}
                     </Badge>
                     <div className="text-right">
-                      <p className="text-xs font-semibold text-foreground">{driver.safetyScore || 0}/100</p>
+                      <p className="text-xs font-semibold text-white">{driver.safetyScore || 0}/100</p>
                     </div>
                   </div>
                 </div>
@@ -988,7 +988,7 @@ const DriversTabContent = memo(function DriversTabContent() {
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No records found</div>
+            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
           )}
         </Section>
       </div>
@@ -996,26 +996,26 @@ const DriversTabContent = memo(function DriversTabContent() {
       {/* Drivers Needing Attention */}
       {(lowSafetyDrivers.length > 0 || driversWithViolations.length > 0 || expiringLicenses.length > 0) && (
         <Section
-          title="Drivers Needing Attention"
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Drivers Needing Attention</span>}
           description={`${lowSafetyDrivers.length + driversWithViolations.length + expiringLicenses.length} items requiring review`}
           icon={<AlertTriangle className="h-4 w-4" />}
         >
           <div className="grid grid-cols-3 gap-1.5">
             {/* Low Safety Scores */}
             <div className="flex flex-col gap-1">
-              <p className="text-[10px] text-muted-foreground font-medium mb-0.5">Low Safety Scores ({lowSafetyDrivers.length})</p>
+              <p className="text-[10px] text-[rgba(255,255,255,0.40)] font-medium mb-0.5">Low Safety Scores ({lowSafetyDrivers.length})</p>
               {lowSafetyDrivers.slice(0, 3).map((driver: any) => (
                 <div
                   key={`safety-${driver.id}`}
-                  className="rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
                   role="button"
                   tabIndex={0}
                   onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
                 >
-                  <p className="text-xs font-medium text-foreground truncate">{driver.name}</p>
+                  <p className="text-xs font-medium text-white truncate">{driver.name}</p>
                   <div className="flex items-center justify-between mt-0.5">
-                    <p className="text-[10px] text-muted-foreground">Score: {driver.safetyScore}</p>
+                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Score: {driver.safetyScore}</p>
                     <Badge variant="destructive" className="text-[10px] px-1 py-0">Low</Badge>
                   </div>
                 </div>
@@ -1023,19 +1023,19 @@ const DriversTabContent = memo(function DriversTabContent() {
             </div>
             {/* Violations */}
             <div className="flex flex-col gap-1">
-              <p className="text-[10px] text-muted-foreground font-medium mb-0.5">With Violations ({driversWithViolations.length})</p>
+              <p className="text-[10px] text-[rgba(255,255,255,0.40)] font-medium mb-0.5">With Violations ({driversWithViolations.length})</p>
               {driversWithViolations.slice(0, 3).map((driver: any) => (
                 <div
                   key={`viol-${driver.id}`}
-                  className="rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
                   role="button"
                   tabIndex={0}
                   onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
                 >
-                  <p className="text-xs font-medium text-foreground truncate">{driver.name}</p>
+                  <p className="text-xs font-medium text-white truncate">{driver.name}</p>
                   <div className="flex items-center justify-between mt-0.5">
-                    <p className="text-[10px] text-muted-foreground">{driver.violationCount} violations</p>
+                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{driver.violationCount} violations</p>
                     <Badge variant="secondary" className="text-[10px] px-1 py-0">Review</Badge>
                   </div>
                 </div>
@@ -1043,19 +1043,19 @@ const DriversTabContent = memo(function DriversTabContent() {
             </div>
             {/* Expiring Licenses */}
             <div className="flex flex-col gap-1">
-              <p className="text-[10px] text-muted-foreground font-medium mb-0.5">Expiring Licenses ({expiringLicenses.length})</p>
+              <p className="text-[10px] text-[rgba(255,255,255,0.40)] font-medium mb-0.5">Expiring Licenses ({expiringLicenses.length})</p>
               {expiringLicenses.slice(0, 3).map((driver: any) => (
                 <div
                   key={`lic-${driver.id}`}
-                  className="rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
                   role="button"
                   tabIndex={0}
                   onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
                 >
-                  <p className="text-xs font-medium text-foreground truncate">{driver.name}</p>
+                  <p className="text-xs font-medium text-white truncate">{driver.name}</p>
                   <div className="flex items-center justify-between mt-0.5">
-                    <p className="text-[10px] text-muted-foreground">Exp: {formatDate(driver.licenseExpiry)}</p>
+                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Exp: {formatDate(driver.licenseExpiry)}</p>
                     <Badge variant="secondary" className="text-[10px] px-1 py-0">Expiring</Badge>
                   </div>
                 </div>
@@ -1186,7 +1186,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
       {/* Trend Charts */}
       <div className="grid grid-cols-2 gap-1.5">
         <Section
-          title="Route Completion Trend"
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Route Completion Trend</span>}
           description="Completed routes over the past 7 days"
           icon={<LineChart className="h-4 w-4" />}
         >
@@ -1195,16 +1195,16 @@ const OperationsTabContent = memo(function OperationsTabContent() {
               title="Route Completion"
               data={completionTrendData}
               dataKeys={['completed', 'target']}
-              colors={['hsl(var(--success))', 'hsl(var(--muted-foreground))']}
+              colors={['#00CCFE', 'rgba(255,255,255,0.40)']}
               height={120}
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No trend data available</div>
+            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No trend data available</div>
           )}
         </Section>
         <Section
-          title="Fuel Consumption"
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Fuel Consumption</span>}
           description="Daily fuel usage over the past 7 days"
           icon={<Fuel className="h-4 w-4" />}
         >
@@ -1218,7 +1218,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No fuel data available</div>
+            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No fuel data available</div>
           )}
         </Section>
       </div>
@@ -1226,7 +1226,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
       {/* Main content */}
       <div className="grid grid-cols-2 gap-1.5">
         <Section
-          title={`Active Routes (${routes.length})`}
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>{`Active Routes (${routes.length})`}</span>}
           description="Real-time route tracking"
           icon={<Map className="h-4 w-4" />}
         >
@@ -1235,7 +1235,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
               {routes.slice(0, 5).map(route => (
                 <div
                   key={route.id}
-                  className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer transition-colors"
+                  className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2 cursor-pointer transition-colors"
                   role="button"
                   tabIndex={0}
                   aria-label={`View details for ${route.name || 'Route'}`}
@@ -1243,10 +1243,10 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: route.id, type: 'route', label: route.name || 'Route', data: { routeId: route.id } }); } }}
                 >
                   <div className="flex items-center gap-2">
-                    <RouteIcon className="h-4 w-4 text-muted-foreground" />
+                    <RouteIcon className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                     <div>
-                      <p className="text-xs font-semibold text-foreground">{route.name || `${formatEnum(route.routeType || 'route')} Route`}</p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs font-semibold text-white">{route.name || `${formatEnum(route.routeType || 'route')} Route`}</p>
+                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
                         {route.originName || 'Origin'} to {route.destinationName || 'Destination'}
                       </p>
                     </div>
@@ -1263,22 +1263,22 @@ const OperationsTabContent = memo(function OperationsTabContent() {
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No active routes</div>
+            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No active routes</div>
           )}
         </Section>
 
         <Section
-          title="Recent Fuel Transactions"
+          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Recent Fuel Transactions</span>}
           description="Latest fuel purchases and costs"
           icon={<Fuel className="h-4 w-4" />}
         >
           {fuelTransactions.length > 0 ? (
             <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
               {fuelTransactions.slice(0, 5).map((transaction: any) => (
-                <div key={transaction.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
+                <div key={transaction.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-semibold text-foreground">
+                      <p className="text-xs font-semibold text-white">
                         {vehicleNameMap[transaction.vehicleId] || 'Unknown Vehicle'}
                       </p>
                       {(transaction.station_brand || transaction.stationBrand) && (
@@ -1287,14 +1287,14 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                         </Badge>
                       )}
                     </div>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
                       {transaction.amount} gal @ {formatCurrency(transaction.pricePerUnit || 0)}/gal
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-semibold text-foreground">{formatCurrency(transaction.cost)}</p>
+                    <p className="text-xs font-semibold text-white">{formatCurrency(transaction.cost)}</p>
                     <div className="flex items-center gap-1 justify-end">
-                      <p className="text-[10px] text-muted-foreground">{transaction.location || '—'}</p>
+                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{transaction.location || '—'}</p>
                       {(transaction.mpg_calculated || transaction.mpgCalculated) && (
                         <Badge variant="secondary" className="text-[10px] px-1 py-0">
                           {formatNumber(Number(transaction.mpg_calculated || transaction.mpgCalculated), 1)} MPG
@@ -1306,7 +1306,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No fuel transactions</div>
+            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No fuel transactions</div>
           )}
         </Section>
       </div>
@@ -1469,17 +1469,17 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
       {/* Cost Breakdown Row */}
       {(costBreakdown.partsCost > 0 || costBreakdown.laborCost > 0) && (
         <div className="grid grid-cols-3 gap-1.5">
-          <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
-            <p className="text-[10px] text-muted-foreground">Total Cost</p>
-            <p className="text-sm font-bold text-foreground">{formatCurrency(safeMetrics.totalCost)}</p>
+          <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
+            <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Total Cost</p>
+            <p className="text-sm font-bold text-white">{formatCurrency(safeMetrics.totalCost)}</p>
           </div>
-          <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
-            <p className="text-[10px] text-muted-foreground">Parts Cost</p>
-            <p className="text-sm font-bold text-foreground">{formatCurrency(costBreakdown.partsCost)}</p>
+          <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
+            <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Parts Cost</p>
+            <p className="text-sm font-bold text-white">{formatCurrency(costBreakdown.partsCost)}</p>
           </div>
-          <div className="rounded border border-white/[0.08] bg-[#242424] p-1.5 text-center">
-            <p className="text-[10px] text-muted-foreground">Labor Cost</p>
-            <p className="text-sm font-bold text-foreground">{formatCurrency(costBreakdown.laborCost)}</p>
+          <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
+            <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Labor Cost</p>
+            <p className="text-sm font-bold text-white">{formatCurrency(costBreakdown.laborCost)}</p>
           </div>
         </div>
       )}
@@ -1513,16 +1513,16 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
             <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 max-h-96">
               {filteredOrders.slice(0, 10).map((order: any) => (
                 <div key={order.id} className={`flex items-center justify-between rounded border p-2 ${
-                  order.is_emergency || order.isEmergency ? 'border-rose-800/40 bg-rose-950/20' : 'border-white/[0.08] bg-[#242424]'
+                  order.is_emergency || order.isEmergency ? 'border-[rgba(255,67,0,0.4)] bg-[rgba(255,67,0,0.12)]' : 'border-[rgba(0,204,254,0.08)] bg-[#221060]'
                 }`}>
                   <div className="flex items-center gap-2">
                     <Tool className={`h-4 w-4 ${
-                      order.priority === 'high' || order.priority === 'urgent' ? 'text-rose-400' :
-                      order.priority === 'medium' ? 'text-foreground' : 'text-muted-foreground'
+                      order.priority === 'high' || order.priority === 'urgent' ? 'text-[#FF4300]' :
+                      order.priority === 'medium' ? 'text-white' : 'text-[rgba(255,255,255,0.40)]'
                     }`} />
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-semibold text-foreground">{order.title || `${formatEnum(order.type || 'maintenance')} Maintenance`}</p>
+                        <p className="text-xs font-semibold text-white">{order.title || `${formatEnum(order.type || 'maintenance')} Maintenance`}</p>
                         {(order.is_emergency || order.isEmergency) && (
                           <Badge variant="destructive" className="text-[10px] px-1 py-0">
                             <Siren className="h-3 w-3 mr-0.5" />
@@ -1535,7 +1535,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
                         {order.vehicleName || 'Unknown Vehicle'} · Created: {formatDate(order.createdAt)}
                         {(order.parts_cost || order.partsCost || order.labor_cost || order.laborCost) && (
                           <span className="ml-1">
@@ -1560,7 +1560,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No active work orders</div>
+            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No active work orders</div>
           )}
         </Section>
 
@@ -1574,10 +1574,10 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
             {upcomingOrders.length > 0 ? (
               <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
                 {upcomingOrders.slice(0, 4).map((maintenance) => (
-                  <div key={maintenance.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
+                  <div key={maintenance.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
                     <div>
-                      <p className="text-xs font-semibold text-foreground">{maintenance.title || `${formatEnum(maintenance.type || 'maintenance')} Maintenance`}</p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs font-semibold text-white">{maintenance.title || `${formatEnum(maintenance.type || 'maintenance')} Maintenance`}</p>
+                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
                         {maintenance.vehicleName || 'Unknown Vehicle'} · {formatDate(maintenance.createdAt)}
                       </p>
                     </div>
@@ -1588,7 +1588,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No scheduled maintenance</div>
+              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No scheduled maintenance</div>
             )}
           </Section>
 
@@ -1600,13 +1600,13 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
             {overdueOrders.length > 0 ? (
               <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
                 {overdueOrders.map((overdue: any) => (
-                  <Alert key={overdue.id} variant="destructive" className="border-rose-800/40 bg-rose-950/30">
-                    <AlertTriangle className="h-4 w-4 text-rose-400" />
+                  <Alert key={overdue.id} variant="destructive" className="border-[rgba(255,67,0,0.4)] bg-[rgba(255,67,0,0.15)]">
+                    <AlertTriangle className="h-4 w-4 text-[#FF4300]" />
                     <AlertDescription>
                       <div className="flex items-center gap-3 justify-between">
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-rose-200 truncate">{overdue.title || `${formatEnum(overdue.type || 'Maintenance')} Maintenance`}</p>
-                          <p className="text-[10px] text-rose-300/70">
+                          <p className="text-xs font-semibold text-[#FF4300] truncate">{overdue.title || `${formatEnum(overdue.type || 'Maintenance')} Maintenance`}</p>
+                          <p className="text-[10px] text-[#FF4300]/70">
                             {overdue.vehicleName || 'Unknown Vehicle'} · Overdue by {overdue.daysOverdue} days
                           </p>
                         </div>
@@ -1619,7 +1619,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No overdue maintenance</div>
+              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No overdue maintenance</div>
             )}
           </Section>
         </div>
@@ -1637,14 +1637,14 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                 const reorderPoint = Number(item.reorderPoint ?? item.reorder_point ?? 0)
                 const status = quantity <= reorderPoint ? 'low-stock' : 'in-stock'
                 return (
-                  <div key={item.id || item.partNumber || item.name} className="rounded border border-white/[0.08] bg-[#242424] p-2">
+                  <div key={item.id || item.partNumber || item.name} className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
                     <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs font-semibold text-foreground">{item.name || item.partNumber || 'Part'}</p>
+                      <p className="text-xs font-semibold text-white">{item.name || item.partNumber || 'Part'}</p>
                       <Badge variant={status === 'in-stock' ? 'default' : 'destructive'} className="text-[10px] px-1 py-0">
                         {status === 'in-stock' ? 'In Stock' : 'Low Stock'}
                       </Badge>
                     </div>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
                       Qty: {quantity} {item.unitOfMeasure || item.unit_of_measure || ''} · Reorder: {reorderPoint}
                     </p>
                   </div>
@@ -1652,7 +1652,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
               })}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No parts inventory available</div>
+            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No parts inventory available</div>
           )}
         </Section>
 
@@ -1666,20 +1666,20 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
             <div className="flex flex-col gap-1">
               {highConfidencePredictions.slice(0, 6).map((prediction: any) => (
                 <div key={prediction.id} className={`flex items-center justify-between rounded border p-2 ${
-                  prediction.severity === 'critical' ? 'border-rose-800/40 bg-rose-950/20' :
-                  prediction.severity === 'high' ? 'border-amber-800/40 bg-amber-950/20' :
-                  'border-white/[0.08] bg-[#242424]'
+                  prediction.severity === 'critical' ? 'border-[rgba(255,67,0,0.4)] bg-[rgba(255,67,0,0.12)]' :
+                  prediction.severity === 'high' ? 'border-[rgba(253,192,22,0.3)] bg-[rgba(253,192,22,0.1)]' :
+                  'border-[rgba(0,204,254,0.08)] bg-[#221060]'
                 }`}>
                   <div className="flex items-center gap-2">
                     <AlertTriangle className={`h-3.5 w-3.5 ${
-                      prediction.severity === 'critical' ? 'text-rose-400' :
-                      prediction.severity === 'high' ? 'text-amber-400' : 'text-muted-foreground'
+                      prediction.severity === 'critical' ? 'text-[#FF4300]' :
+                      prediction.severity === 'high' ? 'text-[#FDC016]' : 'text-[rgba(255,255,255,0.40)]'
                     }`} />
                     <div>
-                      <p className="text-xs font-medium text-foreground">
+                      <p className="text-xs font-medium text-white">
                         {prediction.vehicleName || 'Unknown Vehicle'} - {prediction.issue || 'Predicted Issue'}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
                         {prediction.daysUntilFailure} days until failure · Confidence: {prediction.confidence}%
                         {prediction.estimatedCost ? ` · Est. ${formatCurrency(prediction.estimatedCost)}` : ''}
                       </p>
@@ -1737,9 +1737,9 @@ const AssetsTabContent = memo(function AssetsTabContent() {
 
   const utilizationData = [
     { name: 'In Use', value: statusDistribution.active || 0, fill: '#10B981' },
-    { name: 'Available', value: statusDistribution.available || 0, fill: '#06b6d4' },
-    { name: 'Maintenance', value: statusDistribution.maintenance || 0, fill: '#F59E0B' },
-    { name: 'Retired', value: statusDistribution.retired || 0, fill: '#6b7280' },
+    { name: 'Available', value: statusDistribution.available || 0, fill: '#00CCFE' },
+    { name: 'Maintenance', value: statusDistribution.maintenance || 0, fill: '#FDC016' },
+    { name: 'Retired', value: statusDistribution.retired || 0, fill: '#2A1878' },
   ].filter((entry) => entry.value > 0)
 
   if (isLoading) {
@@ -1805,12 +1805,12 @@ const AssetsTabContent = memo(function AssetsTabContent() {
               {assets.slice(0, 6).map((asset: any) => {
                 const healthScore = asset.health_score != null ? Number(asset.health_score) : null
                 return (
-                  <div key={asset.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
+                  <div key={asset.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
                     <div className="flex items-center gap-2">
-                      <Box className="h-4 w-4 text-muted-foreground" />
+                      <Box className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                       <div>
-                        <p className="text-xs font-semibold text-foreground">{asset.assetTag || asset.name} - {asset.name}</p>
-                        <p className="text-[10px] text-muted-foreground">
+                        <p className="text-xs font-semibold text-white">{asset.assetTag || asset.name} - {asset.name}</p>
+                        <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
                           {formatEnum(asset.type)} · {asset.location}
                           {(asset.department || asset.dept) && (
                             <span className="ml-1">· {asset.department || asset.dept}</span>
@@ -1821,9 +1821,9 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                     <div className="flex items-center gap-1.5">
                       {healthScore != null && (
                         <span className={`inline-flex items-center px-1.5 py-0 rounded text-[10px] font-medium ${
-                          healthScore >= 80 ? 'text-emerald-400 bg-emerald-900/30' :
-                          healthScore >= 60 ? 'text-amber-400 bg-amber-900/30' :
-                          'text-rose-400 bg-rose-900/30'
+                          healthScore >= 80 ? 'text-[#00CCFE] bg-[rgba(0,204,254,0.15)]' :
+                          healthScore >= 60 ? 'text-[#FDC016] bg-[rgba(253,192,22,0.15)]' :
+                          'text-[#FF4300] bg-[rgba(255,67,0,0.15)]'
                         }`}>
                           {healthScore}%
                         </span>
@@ -1845,7 +1845,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
               })}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No assets available</div>
+            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No assets available</div>
           )}
         </Section>
 
@@ -1864,7 +1864,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                 compact
               />
             ) : (
-              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No utilization data available</div>
+              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No utilization data available</div>
             )}
           </Section>
 
@@ -1876,10 +1876,10 @@ const AssetsTabContent = memo(function AssetsTabContent() {
             {maintenanceRequired.length > 0 ? (
               <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
                 {maintenanceRequired.slice(0, 4).map((maintenance) => (
-                  <div key={maintenance.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
+                  <div key={maintenance.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
                     <div>
-                      <p className="text-xs font-semibold text-foreground">{maintenance.assetTag || maintenance.name} - {maintenance.name}</p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs font-semibold text-white">{maintenance.assetTag || maintenance.name} - {maintenance.name}</p>
+                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
                         {formatEnum(maintenance.type)} · Due: {formatDate(maintenance.nextServiceDate || maintenance.lastServiceDate)}
                       </p>
                     </div>
@@ -1897,7 +1897,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No asset maintenance due</div>
+              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No asset maintenance due</div>
             )}
           </Section>
         </div>
@@ -1915,11 +1915,11 @@ const AssetsTabContent = memo(function AssetsTabContent() {
               value: 0,
               items: value
             }))).map((cat) => (
-              <div key={cat.name} className="rounded border border-white/[0.08] bg-[#242424] p-2">
-                <p className="text-xs font-semibold text-foreground">{formatEnum(cat.name)}</p>
+              <div key={cat.name} className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
+                <p className="text-xs font-semibold text-white">{formatEnum(cat.name)}</p>
                 <div className="flex items-center justify-between mt-1">
-                  <p className="text-[10px] text-muted-foreground">{cat.count} assets</p>
-                  <p className="text-[10px] font-semibold text-foreground">{cat.value ? formatCurrency(cat.value) : '—'}</p>
+                  <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{cat.count} assets</p>
+                  <p className="text-[10px] font-semibold text-white">{cat.value ? formatCurrency(cat.value) : '—'}</p>
                 </div>
               </div>
             ))}
@@ -1936,14 +1936,14 @@ const AssetsTabContent = memo(function AssetsTabContent() {
             {(() => {
               const lcData = [
                 { name: 'New (<1yr)', value: lifecycleData.new, fill: '#10B981' },
-                { name: 'Operational (1-5yr)', value: lifecycleData.operational, fill: '#06b6d4' },
-                { name: 'Aging (5-10yr)', value: lifecycleData.aging, fill: '#F59E0B' },
-                { name: 'End of Life (10yr+)', value: lifecycleData.endOfLife, fill: '#EF4444' },
+                { name: 'Operational (1-5yr)', value: lifecycleData.operational, fill: '#00CCFE' },
+                { name: 'Aging (5-10yr)', value: lifecycleData.aging, fill: '#FDC016' },
+                { name: 'End of Life (10yr+)', value: lifecycleData.endOfLife, fill: '#FF4300' },
               ].filter(d => d.value > 0)
               return lcData.length > 0 ? (
                 <ResponsivePieChart title="Lifecycle" data={lcData} height={120} innerRadius={30} showPercentages compact />
               ) : (
-                <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No lifecycle data</div>
+                <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No lifecycle data</div>
               )
             })()}
           </Section>
@@ -1956,21 +1956,21 @@ const AssetsTabContent = memo(function AssetsTabContent() {
             {highValueAssets.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {highValueAssets.slice(0, 5).map((asset: any) => (
-                  <div key={asset.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  <div key={asset.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
                     role="button" tabIndex={0}
                     onClick={() => handleViewAsset(asset.id)}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleViewAsset(asset.id); } }}
                   >
                     <div>
-                      <p className="text-xs font-medium text-foreground truncate">{asset.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{formatEnum(asset.type)} · {formatEnum(asset.condition)}</p>
+                      <p className="text-xs font-medium text-white truncate">{asset.name}</p>
+                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{formatEnum(asset.type)} · {formatEnum(asset.condition)}</p>
                     </div>
-                    <p className="text-xs font-semibold text-foreground">{formatCurrency(asset.currentValue)}</p>
+                    <p className="text-xs font-semibold text-white">{formatCurrency(asset.currentValue)}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No assets</div>
+              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No assets</div>
             )}
           </Section>
 
@@ -1982,26 +1982,26 @@ const AssetsTabContent = memo(function AssetsTabContent() {
             {lowStockItems.length > 0 || outOfStockItems.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {outOfStockItems.slice(0, 3).map((item: any) => (
-                  <div key={`oos-${item.id}`} className="flex items-center justify-between rounded border border-rose-800/40 bg-rose-950/20 p-1.5">
+                  <div key={`oos-${item.id}`} className="flex items-center justify-between rounded border border-[rgba(255,67,0,0.4)] bg-[rgba(255,67,0,0.12)] p-1.5">
                     <div>
-                      <p className="text-xs font-medium text-foreground truncate">{item.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{item.category}</p>
+                      <p className="text-xs font-medium text-white truncate">{item.name}</p>
+                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{item.category}</p>
                     </div>
                     <Badge variant="destructive" className="text-[10px] px-1 py-0">Out of Stock</Badge>
                   </div>
                 ))}
                 {lowStockItems.slice(0, 3).map((item: any) => (
-                  <div key={`low-${item.id}`} className="flex items-center justify-between rounded border border-amber-800/40 bg-amber-950/20 p-1.5">
+                  <div key={`low-${item.id}`} className="flex items-center justify-between rounded border border-[rgba(253,192,22,0.3)] bg-[rgba(253,192,22,0.1)] p-1.5">
                     <div>
-                      <p className="text-xs font-medium text-foreground truncate">{item.name}</p>
-                      <p className="text-[10px] text-muted-foreground">Qty: {item.quantity} / Reorder: {item.reorderPoint}</p>
+                      <p className="text-xs font-medium text-white truncate">{item.name}</p>
+                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Qty: {item.quantity} / Reorder: {item.reorderPoint}</p>
                     </div>
                     <Badge variant="secondary" className="text-[10px] px-1 py-0">Low Stock</Badge>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">All stock levels OK</div>
+              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">All stock levels OK</div>
             )}
           </Section>
         </div>
@@ -2031,14 +2031,14 @@ export default function FleetOperationsHub() {
 
   return (
     <HubPage
-      title="Fleet Operations"
+      title={<span style={{ fontFamily: '"Cinzel", Georgia, serif' }}>Fleet Command</span>}
       description="Comprehensive fleet management, driver tracking, and operations control"
       icon={<Car className="h-5 w-5" />}
-      className="cta-hub"
+      className="cta-hub bg-[#1A0648]"
     >
       <div className="flex flex-col h-full gap-1.5 overflow-hidden">
         {/* Tab Navigation */}
-        <div className="flex items-center gap-0.5 overflow-x-auto pb-0.5 border-b border-white/[0.08] cta-tabs">
+        <div className="flex items-center gap-0.5 overflow-x-auto pb-0.5 border-b border-[rgba(0,204,254,0.08)] cta-tabs">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
             const Icon = tab.icon
@@ -2051,8 +2051,8 @@ export default function FleetOperationsHub() {
                   relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg cta-tab
                   transition-colors whitespace-nowrap shrink-0
                   ${isActive
-                    ? 'cta-pill text-white shadow-md cta-tab--active'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                    ? 'bg-[#332090] text-white shadow-md border-b-2 border-b-[#00CCFE] cta-tab--active'
+                    : 'text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]'
                   }
                 `}
               >

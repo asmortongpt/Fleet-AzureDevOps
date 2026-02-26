@@ -75,16 +75,16 @@ const fetcher = apiFetcher
 
 /** Returns semantic color class based on percentage thresholds */
 function semanticPercentColor(value: number): string {
-  if (value >= 75) return 'text-emerald-400'
-  if (value >= 50) return 'text-amber-400'
-  return 'text-rose-400'
+  if (value >= 75) return 'text-[#10B981]'
+  if (value >= 50) return 'text-[#FDC016]'
+  return 'text-[#FF4300]'
 }
 
 /** Returns semantic bg color class for progress bars */
 function semanticPercentBg(value: number): string {
-  if (value >= 75) return 'bg-emerald-500'
-  if (value >= 50) return 'bg-amber-500'
-  return 'bg-rose-500'
+  if (value >= 75) return 'bg-[#10B981]'
+  if (value >= 50) return 'bg-[#FDC016]'
+  return 'bg-[#FF4300]'
 }
 
 // ============================================================================
@@ -233,7 +233,7 @@ const AdminTabContent = memo(function AdminTabContent() {
 
   if (adminError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
         Unable to load admin data. Please try again.
       </div>
     )
@@ -283,8 +283,8 @@ const AdminTabContent = memo(function AdminTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {userGroups.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
-                <Users className="h-6 w-6 text-white/20" />
+              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
+                <Users className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
                 <p>No user accounts found. Users will appear here after Azure AD sync.</p>
               </div>
             ) : (
@@ -292,7 +292,7 @@ const AdminTabContent = memo(function AdminTabContent() {
                 {userGroups.map((userGroup) => (
                   <div
                     key={userGroup.role}
-                    className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                    className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3 cursor-pointer hover:bg-[#2A1878] transition-colors"
                     onClick={() => push({
                       id: userGroup.role,
                       type: 'user',
@@ -315,10 +315,10 @@ const AdminTabContent = memo(function AdminTabContent() {
                     aria-label={`View details for ${formatEnum(userGroup.role)} users`}
                   >
                     <div className="flex items-center gap-3">
-                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <Users className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                       <div>
-                        <p className="font-semibold text-foreground">{formatEnum(userGroup.role)}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="font-semibold text-white">{formatEnum(userGroup.role)}</p>
+                        <p className="text-sm text-[rgba(255,255,255,0.40)]">
                           {userGroup.count} {userGroup.count === 1 ? 'user' : 'users'}
                         </p>
                       </div>
@@ -339,17 +339,17 @@ const AdminTabContent = memo(function AdminTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {systemStatusItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
-                <CheckCircle className="h-6 w-6 text-white/20" />
+              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
+                <CheckCircle className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
                 <p>System health checks will appear once the health endpoint responds.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {systemStatusItems.map((service) => (
-                  <div key={service.service} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={service.service} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
                     <div>
-                      <p className="font-medium text-foreground">{formatEnum(service.service)}</p>
-                      <p className="text-sm text-muted-foreground">Details: {service.uptime}</p>
+                      <p className="font-medium text-white">{formatEnum(service.service)}</p>
+                      <p className="text-sm text-[rgba(255,255,255,0.40)]">Details: {service.uptime}</p>
                     </div>
                     <Badge variant={service.status === 'healthy' ? 'default' : service.status === 'warning' ? 'secondary' : 'destructive'}>
                       {formatEnum(service.status)}
@@ -369,15 +369,15 @@ const AdminTabContent = memo(function AdminTabContent() {
             icon={<Activity className="h-4 w-4" />}
           >
             <div className="flex items-center gap-2 mb-2 shrink-0">
-              <div className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-[#242424] p-0.5">
+              <div className="flex items-center gap-1 rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-0.5">
                 {(['all', '24h', '7d', '30d'] as const).map((period) => (
                   <button
                     key={period}
                     onClick={() => setAuditDateFilter(period)}
                     className={`px-2.5 py-1 text-xs rounded-md transition-colors ${
                       auditDateFilter === period
-                        ? 'bg-white/[0.12] text-foreground font-medium'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.06]'
+                        ? 'bg-[#332090] text-white font-medium'
+                        : 'text-[rgba(255,255,255,0.40)] hover:text-white/90 hover:bg-[#2A1878]'
                     }`}
                     aria-label={`Filter audit logs: ${period === 'all' ? 'All time' : `Last ${period}`}`}
                   >
@@ -399,30 +399,30 @@ const AdminTabContent = memo(function AdminTabContent() {
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto">
               {filteredAuditRows.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
-                  <Activity className="h-6 w-6 text-white/20" />
+                <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
+                  <Activity className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
                   <p>No audit log entries found for the selected time period.</p>
                   {auditDateFilter !== 'all' && (
-                    <button onClick={() => setAuditDateFilter('all')} className="text-emerald-400 hover:text-emerald-300 text-xs underline">
+                    <button onClick={() => setAuditDateFilter('all')} className="text-[#10B981] hover:text-[#00CCFE] text-xs underline">
                       Show all entries
                     </button>
                   )}
                 </div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-[#242424]">
-                    <tr className="border-b border-white/[0.08]">
-                      <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Action</th>
-                      <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Resource</th>
-                      <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">User</th>
-                      <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Timestamp</th>
+                  <thead className="sticky top-0 bg-[#1A0648]">
+                    <tr className="border-b border-[rgba(0,204,254,0.08)]">
+                      <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Action</th>
+                      <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Resource</th>
+                      <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">User</th>
+                      <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Timestamp</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredAuditRows.slice(0, 10).map((log: any) => (
                       <tr
                         key={log.id}
-                        className="border-b border-white/[0.04] cursor-pointer hover:bg-white/[0.04]"
+                        className="border-b border-[rgba(0,204,254,0.04)] cursor-pointer hover:bg-[#2A1878]"
                         onClick={() => push({
                           id: log.id,
                           type: 'audit-log',
@@ -444,10 +444,10 @@ const AdminTabContent = memo(function AdminTabContent() {
                         tabIndex={0}
                         aria-label={`View details for audit log: ${log.action} on ${log.resource}`}
                       >
-                        <td className="py-1.5 px-2 text-foreground">{formatEnum(log.action)}</td>
-                        <td className="py-1.5 px-2 text-foreground">{formatEnum(log.resource)}</td>
-                        <td className="py-1.5 px-2 text-muted-foreground">{log.userName || '\u2014'}</td>
-                        <td className="py-1.5 px-2 text-muted-foreground">{formatDateTime(log.timestamp)}</td>
+                        <td className="py-1.5 px-2 text-white">{formatEnum(log.action)}</td>
+                        <td className="py-1.5 px-2 text-white">{formatEnum(log.resource)}</td>
+                        <td className="py-1.5 px-2 text-[rgba(255,255,255,0.40)]">{log.userName || '\u2014'}</td>
+                        <td className="py-1.5 px-2 text-[rgba(255,255,255,0.40)]">{formatDateTime(log.timestamp)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -529,7 +529,7 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
     <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* Session-only override warning (P0-3) */}
       {Object.keys(featureFlagOverrides).length > 0 && (
-        <div className="text-[10px] text-amber-400/80 flex items-center gap-1 px-2 py-1 bg-amber-950/20 rounded border border-amber-500/20">
+        <div className="text-[10px] text-[#FDC016]/80 flex items-center gap-1 px-2 py-1 bg-[#221060]/40 rounded border border-[#FDC016]/20">
           <AlertTriangle className="h-3 w-3 shrink-0" />
           Feature flag overrides are session-only and will reset on page reload
         </div>
@@ -545,8 +545,8 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {configCategories.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
-                <Settings className="h-6 w-6 text-white/20" />
+              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
+                <Settings className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
                 <p>No configuration categories available.</p>
               </div>
             ) : (
@@ -554,12 +554,12 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
                 {configCategories.map((item) => {
                   const Icon = item.icon
                   return (
-                    <div key={item.category} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                    <div key={item.category} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
                       <div className="flex items-center gap-3">
-                        <Icon className="h-4 w-4 text-muted-foreground" />
+                        <Icon className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                         <div>
-                          <p className="font-semibold text-foreground">{item.category}</p>
-                          <p className="text-sm text-muted-foreground">{item.settings} settings available</p>
+                          <p className="font-semibold text-white">{item.category}</p>
+                          <p className="text-sm text-[rgba(255,255,255,0.40)]">{item.settings} settings available</p>
                         </div>
                       </div>
                       <Button variant="outline" size="sm" onClick={() => handleConfigureSettings(item.category, item.settingsTab)}>Configure</Button>
@@ -579,22 +579,22 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {featureFlags.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
-                <ToggleLeft className="h-6 w-6 text-white/20" />
+              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
+                <ToggleLeft className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
                 <p>No feature flags configured for this tenant.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {featureFlags.map((flag) => (
-                  <div key={flag.feature} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={flag.feature} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold text-foreground truncate">{formatEnum(flag.feature)}</p>
+                        <p className="font-semibold text-white truncate">{formatEnum(flag.feature)}</p>
                         <Badge variant={flag.enabled ? 'default' : 'secondary'}>
                           {flag.enabled ? 'Enabled' : 'Disabled'}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-0.5">{flag.description}</p>
+                      <p className="text-sm text-[rgba(255,255,255,0.40)] mt-0.5">{flag.description}</p>
                     </div>
                     <Button variant="outline" size="sm" className="ml-2 shrink-0" onClick={() => handleToggleFeature(flag.feature, flag.enabled)}>Toggle</Button>
                   </div>
@@ -694,7 +694,7 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
 
   if (dataGovernanceError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
         Unable to load data governance information. Please try again.
       </div>
     )
@@ -760,29 +760,29 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
                   { source: 'Maintenance Records', records: databaseStats.maintenanceRecords, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
                   { source: 'Database Size', records: databaseStats.databaseSize, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
                 ].map((source) => (
-                  <div key={source.source} className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={source.source} className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
                     <div className="flex items-center justify-between mb-1">
-                      <p className="font-semibold text-foreground text-sm">{source.source}</p>
+                      <p className="font-semibold text-white text-sm">{source.source}</p>
                       <span className={`text-xs font-medium ${semanticPercentColor(source.quality)}`}>
                         {source.quality}%
                       </span>
                     </div>
                     {/* Horizontal progress bar */}
-                    <div className="w-full h-1.5 rounded-full bg-white/[0.06] mb-1.5">
+                    <div className="w-full h-1.5 rounded-full bg-[rgba(0,204,254,0.06)] mb-1.5">
                       <div
                         className={`h-full rounded-full ${semanticPercentBg(source.quality)}`}
                         style={{ width: `${source.quality}%` }}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-[rgba(255,255,255,0.40)]">
                       {source.records ?? '\u2014'} records · Updated: {formatDateTime(source.lastUpdated)}
                     </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
-                <Database className="h-6 w-6 text-white/20" />
+              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
+                <Database className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
                 <p>Database health data not available. Check backend connectivity.</p>
               </div>
             )}
@@ -803,17 +803,17 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {auditRows.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
-                <Info className="h-6 w-6 text-white/20" />
+              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
+                <Info className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
                 <p>No recent system activity recorded.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {auditRows.slice(0, 5).map((entry: any) => (
-                  <div key={entry.id} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={entry.id} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
                     <div>
-                      <p className="font-semibold text-foreground text-sm">{formatEnum(entry.action)}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="font-semibold text-white text-sm">{formatEnum(entry.action)}</p>
+                      <p className="text-xs text-[rgba(255,255,255,0.40)]">
                         {formatEnum(entry.resource)} · {formatDateTime(entry.timestamp)}
                       </p>
                     </div>
@@ -830,13 +830,13 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
 
       {/* Backup Confirmation Dialog */}
       <Dialog open={showBackupDialog} onOpenChange={setShowBackupDialog}>
-        <DialogContent className="bg-[#242424] border-white/[0.08]">
+        <DialogContent className="bg-[#1A0648] border-[rgba(0,204,254,0.08)]">
           <DialogHeader>
             <DialogTitle>Run System Backup</DialogTitle>
           </DialogHeader>
-          <div className="py-4 text-sm text-muted-foreground">
+          <div className="py-4 text-sm text-[rgba(255,255,255,0.40)]">
             <p>This will create a snapshot of the current database and configuration state.</p>
-            <p className="mt-2 text-xs text-white/40">Backup includes: database tables, tenant configuration, and system settings.</p>
+            <p className="mt-2 text-xs text-[rgba(255,255,255,0.40)]">Backup includes: database tables, tenant configuration, and system settings.</p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowBackupDialog(false)} disabled={backupInProgress}>
@@ -948,7 +948,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
 
   if (integrationsError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
         Unable to load integrations data. Please try again.
       </div>
     )
@@ -996,19 +996,19 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {integrations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
-                <Plug className="h-6 w-6 text-white/20" />
+              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
+                <Plug className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
                 <p>No integrations connected. Configure API connections in Settings.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {integrations.map((integration: any) => (
-                  <div key={integration.name} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={integration.name} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
                     <div className="flex items-center gap-3">
-                      <Plug className="h-4 w-4 text-muted-foreground" />
+                      <Plug className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                       <div>
-                        <p className="font-semibold text-foreground text-sm">{integration.name}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="font-semibold text-white text-sm">{integration.name}</p>
+                        <p className="text-xs text-[rgba(255,255,255,0.40)]">
                           {integration.capabilities?.join(', ') || 'Integration'} · {integration.responseTime ? `${integration.responseTime}ms` : '\u2014'}
                         </p>
                       </div>
@@ -1036,7 +1036,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
             title="API Usage Trends"
             data={apiUsageData}
             dataKeys={['calls']}
-            colors={['hsl(var(--chart-1))']}
+            colors={['#00CCFE']}
             height={140}
             compact
           />
@@ -1051,28 +1051,28 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
           >
             <div className="flex-1 min-h-0 overflow-y-auto">
               {!smartcarStatus?.configured ? (
-                <div className="flex flex-col items-center justify-center h-28 text-muted-foreground text-sm gap-2">
-                  <Plug className="h-6 w-6 text-white/20" />
-                  <p>Smartcar is not configured. Set <code className="text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">SMARTCAR_CLIENT_ID</code>, <code className="text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">SMARTCAR_CLIENT_SECRET</code>, and <code className="text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">SMARTCAR_REDIRECT_URI</code> in your environment.</p>
+                <div className="flex flex-col items-center justify-center h-28 text-[rgba(255,255,255,0.40)] text-sm gap-2">
+                  <Plug className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
+                  <p>Smartcar is not configured. Set <code className="text-xs bg-[rgba(0,204,254,0.06)] px-1.5 py-0.5 rounded">SMARTCAR_CLIENT_ID</code>, <code className="text-xs bg-[rgba(0,204,254,0.06)] px-1.5 py-0.5 rounded">SMARTCAR_CLIENT_SECRET</code>, and <code className="text-xs bg-[rgba(0,204,254,0.06)] px-1.5 py-0.5 rounded">SMARTCAR_REDIRECT_URI</code> in your environment.</p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {/* Summary cards */}
                   <div className="grid grid-cols-3 gap-1.5">
-                    <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
-                      <p className="text-xs text-muted-foreground">Connected Vehicles</p>
-                      <p className="text-lg font-bold text-foreground">{smartcarConnections?.total ?? 0}</p>
+                    <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
+                      <p className="text-xs text-[rgba(255,255,255,0.40)]">Connected Vehicles</p>
+                      <p className="text-lg font-bold text-white">{smartcarConnections?.total ?? 0}</p>
                     </div>
-                    <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
-                      <p className="text-xs text-muted-foreground">Mode</p>
-                      <p className="text-lg font-bold text-foreground">
+                    <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
+                      <p className="text-xs text-[rgba(255,255,255,0.40)]">Mode</p>
+                      <p className="text-lg font-bold text-white">
                         <Badge variant={smartcarConnections?.mode === 'test' ? 'secondary' : 'default'}>
                           {smartcarConnections?.mode === 'test' ? 'Test (Simulator)' : 'Live'}
                         </Badge>
                       </p>
                     </div>
-                    <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
-                      <p className="text-xs text-muted-foreground">Status</p>
+                    <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
+                      <p className="text-xs text-[rgba(255,255,255,0.40)]">Status</p>
                       <p className="text-lg font-bold">
                         <Badge variant="default">
                           <CheckCircle className="h-3.5 w-3.5 mr-1" />
@@ -1084,32 +1084,32 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
 
                   {/* Connected vehicles table */}
                   {Array.isArray(smartcarConnections?.connections) && smartcarConnections.connections.length > 0 ? (
-                    <div className="rounded-lg border border-white/[0.08] overflow-hidden">
+                    <div className="rounded-lg border border-[rgba(0,204,254,0.08)] overflow-hidden">
                       <table className="w-full text-sm">
-                        <thead className="bg-[#242424]">
-                          <tr className="border-b border-white/[0.08]">
-                            <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Vehicle</th>
-                            <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Status</th>
-                            <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Last Sync</th>
-                            <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Error</th>
+                        <thead className="bg-[#1A0648]">
+                          <tr className="border-b border-[rgba(0,204,254,0.08)]">
+                            <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Vehicle</th>
+                            <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Status</th>
+                            <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Last Sync</th>
+                            <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Error</th>
                           </tr>
                         </thead>
                         <tbody>
                           {smartcarConnections.connections.map((conn: any) => (
-                            <tr key={conn.vehicle_id} className="border-b border-white/[0.04] hover:bg-white/[0.04]">
-                              <td className="py-1.5 px-2 text-foreground">
+                            <tr key={conn.vehicle_id} className="border-b border-[rgba(0,204,254,0.04)] hover:bg-[#2A1878]">
+                              <td className="py-1.5 px-2 text-white">
                                 {conn.vehicle_name || `Vehicle #${conn.vehicle_id}`}
-                                {conn.license_plate && <span className="text-xs text-muted-foreground ml-1">({conn.license_plate})</span>}
+                                {conn.license_plate && <span className="text-xs text-[rgba(255,255,255,0.40)] ml-1">({conn.license_plate})</span>}
                               </td>
                               <td className="py-1.5 px-2">
                                 <Badge variant={conn.sync_status === 'active' ? 'default' : conn.sync_status === 'error' ? 'destructive' : 'secondary'}>
                                   {formatEnum(conn.sync_status || 'unknown')}
                                 </Badge>
                               </td>
-                              <td className="py-1.5 px-2 text-muted-foreground text-xs">
+                              <td className="py-1.5 px-2 text-[rgba(255,255,255,0.40)] text-xs">
                                 {conn.updated_at ? formatDateTime(conn.updated_at) : '\u2014'}
                               </td>
-                              <td className="py-1.5 px-2 text-xs text-rose-400 truncate max-w-[200px]">
+                              <td className="py-1.5 px-2 text-xs text-[#FF4300] truncate max-w-[200px]">
                                 {conn.sync_error || '\u2014'}
                               </td>
                             </tr>
@@ -1118,7 +1118,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
                       </table>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center h-20 text-muted-foreground text-sm gap-1">
+                    <div className="flex flex-col items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm gap-1">
                       <p>No vehicles connected yet. Use the vehicle detail panel to connect vehicles via Smartcar.</p>
                     </div>
                   )}
@@ -1203,7 +1203,7 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
 
   if (documentsError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
         Unable to load documents data. Please try again.
       </div>
     )
@@ -1249,19 +1249,19 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {documentCategories.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
-                <FolderOpen className="h-6 w-6 text-white/20" />
+              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
+                <FolderOpen className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
                 <p>No documents uploaded yet. Upload files to organize them into categories.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {documentCategories.map((cat) => (
-                  <div key={cat.category} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={cat.category} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
                     <div className="flex items-center gap-3">
-                      <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                      <FolderOpen className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                       <div>
-                        <p className="font-semibold text-foreground text-sm">{formatEnum(cat.category)}</p>
-                        <p className="text-xs text-muted-foreground">{cat.count} {cat.count === 1 ? 'document' : 'documents'}</p>
+                        <p className="font-semibold text-white text-sm">{formatEnum(cat.category)}</p>
+                        <p className="text-xs text-[rgba(255,255,255,0.40)]">{cat.count} {cat.count === 1 ? 'document' : 'documents'}</p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm" onClick={() => handleBrowseDocuments(cat.category)}>Browse</Button>
@@ -1280,19 +1280,19 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {recentDocuments.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
-                <FileText className="h-6 w-6 text-white/20" />
+              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
+                <FileText className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
                 <p>No recent documents. Uploaded files will appear here.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {recentDocuments.map((doc: any) => (
-                  <div key={doc.id} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={doc.id} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <FileText className="h-4 w-4 text-[rgba(255,255,255,0.40)] shrink-0" />
                       <div className="min-w-0">
-                        <p className="font-semibold text-foreground text-sm truncate">{doc.file_name || doc.name || doc.title}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="font-semibold text-white text-sm truncate">{doc.file_name || doc.name || doc.title}</p>
+                        <p className="text-xs text-[rgba(255,255,255,0.40)]">
                           {doc.uploaded_by_name || 'System'} ·{' '}
                           {formatDate(doc.uploaded_at)} ·{' '}
                           {doc.file_size ? `${(doc.file_size / 1_000_000).toFixed(2)} MB` : '\u2014'}
@@ -1328,7 +1328,7 @@ export default function AdminConfigurationHub() {
 
   return (
     <HubPage
-      title="Administration & Configuration"
+      title={<span style={{ fontFamily: '"Cinzel", Georgia, serif' }}>Admin & Configuration</span>}
       description="System administration, configuration, data governance, integrations, and document management"
       icon={<Settings className="h-5 w-5" />}
       className="cta-hub"

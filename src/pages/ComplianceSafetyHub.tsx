@@ -319,8 +319,8 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
   if (fleetDataError) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-destructive font-medium">Failed to load data</p>
-        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <p className="text-[#FF4300] font-medium">Failed to load data</p>
+        <p className="text-sm text-[rgba(255,255,255,0.40)]">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Retry
         </Button>
@@ -376,21 +376,21 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
       {/* Main Content: Categories + Renewals */}
       <div className="grid grid-cols-2 gap-1.5">
         {/* Compliance Status by Category */}
-        <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
-            <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold text-foreground">Compliance by Category</h3>
+            <ClipboardCheck className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+            <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Compliance by Category</h3>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1.5">
             {categoryBreakdowns.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
             ) : (
               categoryBreakdowns.map((item) => {
                 const IconComponent = item.icon
                 return (
                   <div
                     key={item.category}
-                    className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04]"
+                    className="flex items-center justify-between rounded-md border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2 cursor-pointer hover:bg-[#2A1878]"
                     onClick={() => push({
                       id: item.category,
                       type: 'compliance-item',
@@ -414,20 +414,20 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <IconComponent className={`h-4 w-4 shrink-0 ${
-                        item.status === 'good' ? 'text-emerald-500' : 'text-yellow-500'
+                        item.status === 'good' ? 'text-[#10B981]' : 'text-[#FDC016]'
                       }`} />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground">{item.category}</p>
-                        <p className="text-xs text-muted-foreground truncate">{item.details}</p>
+                        <p className="text-sm font-medium text-white">{item.category}</p>
+                        <p className="text-xs text-[rgba(255,255,255,0.40)] truncate">{item.details}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <div className="w-16">
-                        <div className="h-2 bg-white/10 rounded-full">
-                          <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${item.rate}%` }} />
+                        <div className="h-2 bg-[rgba(0,204,254,0.1)] rounded-full">
+                          <div className="h-2 bg-[#10B981] rounded-full" style={{ width: `${item.rate}%` }} />
                         </div>
                       </div>
-                      <span className="text-xs font-medium text-foreground w-8 text-right">{item.rate}%</span>
+                      <span className="text-xs font-medium text-white w-8 text-right">{item.rate}%</span>
                       <Badge variant={item.status === 'good' ? 'default' : 'secondary'}>
                         {item.status === 'good' ? 'Compliant' : 'Review'}
                       </Badge>
@@ -440,38 +440,38 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
         </div>
 
         {/* Upcoming Renewals */}
-        <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold text-foreground">Upcoming Renewals</h3>
-            <span className="text-xs text-muted-foreground ml-auto">Within 60 days</span>
+            <Clock className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+            <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Upcoming Renewals</h3>
+            <span className="text-xs text-[rgba(255,255,255,0.40)] ml-auto">Within 60 days</span>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {renewals.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-32 gap-2">
-                <CheckCircle className="h-6 w-6 text-emerald-500" />
-                <span className="text-sm text-muted-foreground">All certifications current. No renewals due within 60 days.</span>
+                <CheckCircle className="h-6 w-6 text-[#10B981]" />
+                <span className="text-sm text-[rgba(255,255,255,0.40)]">All certifications current. No renewals due within 60 days.</span>
               </div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-[#242424]">
-                  <tr className="border-b border-white/[0.08]">
-                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Item</th>
-                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Type</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Days Left</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Action</th>
+                <thead className="sticky top-0 bg-[#221060]">
+                  <tr className="border-b border-[rgba(0,204,254,0.08)]">
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Item</th>
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Type</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Days Left</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {renewals.map((renewal, index) => (
-                    <tr key={index} className="border-b border-white/[0.06]">
-                      <td className="py-1.5 px-2 text-foreground text-xs">{renewal.item}</td>
+                    <tr key={index} className="border-b border-[rgba(0,204,254,0.08)]">
+                      <td className="py-1.5 px-2 text-white text-xs">{renewal.item}</td>
                       <td className="py-1.5 px-2">
                         <Badge variant="outline">{formatEnum(renewal.type)}</Badge>
                       </td>
                       <td className="py-1.5 px-2 text-right">
                         <span className={`text-xs font-medium ${
-                          renewal.daysLeft <= 14 ? 'text-red-400' : renewal.daysLeft <= 30 ? 'text-yellow-400' : 'text-foreground'
+                          renewal.daysLeft <= 14 ? 'text-[#FF4300]' : renewal.daysLeft <= 30 ? 'text-[#FDC016]' : 'text-white'
                         }`}>
                           {renewal.daysLeft}d
                         </span>
@@ -507,14 +507,14 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
 
       {/* P0-2: Alert banner from compliance dashboard */}
       {dashAlerts.length > 0 && (
-        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-2.5">
+        <div className="rounded-lg border border-[#FDC016]/30 bg-[#FDC016]/10 p-2.5">
           <div className="flex items-center gap-2 mb-1">
-            <AlertTriangle className="h-4 w-4 text-yellow-500 shrink-0" />
-            <h4 className="text-xs font-semibold text-yellow-400">Compliance Alerts</h4>
+            <AlertTriangle className="h-4 w-4 text-[#FDC016] shrink-0" />
+            <h4 className="text-xs font-semibold text-[#FDC016]">Compliance Alerts</h4>
           </div>
           <div className="flex flex-col gap-1">
             {dashAlerts.slice(0, 3).map((alert: any, i: number) => (
-              <p key={i} className="text-xs text-white/60">{alert.message || alert.description || String(alert)}</p>
+              <p key={i} className="text-xs text-[rgba(255,255,255,0.65)]">{alert.message || alert.description || String(alert)}</p>
             ))}
           </div>
         </div>
@@ -680,8 +680,8 @@ const SafetyTabContent = memo(function SafetyTabContent() {
   if (fleetDataError) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-destructive font-medium">Failed to load data</p>
-        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <p className="text-[#FF4300] font-medium">Failed to load data</p>
+        <p className="text-sm text-[rgba(255,255,255,0.40)]">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Retry
         </Button>
@@ -762,46 +762,46 @@ const SafetyTabContent = memo(function SafetyTabContent() {
         {/* Left: Score Distribution + Driver Rankings */}
         <div className="flex flex-col gap-1.5 min-h-0">
           {/* Score Distribution Chart */}
-          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+          <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold text-foreground">Score Distribution</h3>
+              <TrendingUp className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+              <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Score Distribution</h3>
             </div>
             <ResponsiveBarChart
               title=""
               data={scoreDistribution}
               dataKeys={['drivers']}
-              colors={['hsl(var(--primary))']}
+              colors={['#00CCFE']}
               height={140}
               compact
             />
           </div>
 
           {/* Driver Safety Rankings — capped to 5 rows (P0-6) */}
-          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+          <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold text-foreground">Driver Rankings</h3>
-              <span className="text-xs text-muted-foreground ml-auto">Lowest first</span>
+              <Users className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+              <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Driver Rankings</h3>
+              <span className="text-xs text-[rgba(255,255,255,0.40)] ml-auto">Lowest first</span>
             </div>
             <div className="max-h-[200px] overflow-y-auto">
               {driverRankings.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+                <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-[#242424]">
-                    <tr className="border-b border-white/[0.08]">
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Driver</th>
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Score</th>
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">HOS</th>
-                      <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Incidents</th>
+                  <thead className="sticky top-0 bg-[#221060]">
+                    <tr className="border-b border-[rgba(0,204,254,0.08)]">
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Driver</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Score</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">HOS</th>
+                      <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Incidents</th>
                     </tr>
                   </thead>
                   <tbody>
                     {visibleDriverRankings.map((driver: any) => (
                       <tr
                         key={driver.id}
-                        className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                        className="border-b border-[rgba(0,204,254,0.08)] cursor-pointer hover:bg-[#2A1878]"
                         onClick={() => push({
                           id: driver.id,
                           type: 'driver',
@@ -823,12 +823,12 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                         tabIndex={0}
                         aria-label={`View details for driver ${driver.name}`}
                       >
-                        <td className="py-1.5 px-2 text-xs text-foreground">{driver.name}</td>
+                        <td className="py-1.5 px-2 text-xs text-white">{driver.name}</td>
                         <td className="py-1.5 px-2">
                           <span className={`text-xs font-medium ${
-                            driver.safetyScore >= 90 ? 'text-emerald-400' :
-                            driver.safetyScore >= 70 ? 'text-yellow-400' :
-                            'text-red-400'
+                            driver.safetyScore >= 90 ? 'text-[#10B981]' :
+                            driver.safetyScore >= 70 ? 'text-[#FDC016]' :
+                            'text-[#FF4300]'
                           }`}>
                             {driver.safetyScore}
                           </span>
@@ -839,7 +839,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                           </Badge>
                         </td>
                         <td className="py-1.5 px-2 text-right">
-                          <span className={`text-xs ${driver.incidents > 0 ? 'text-red-400 font-medium' : 'text-foreground'}`}>
+                          <span className={`text-xs ${driver.incidents > 0 ? 'text-[#FF4300] font-medium' : 'text-white'}`}>
                             {driver.incidents}
                           </span>
                         </td>
@@ -850,11 +850,11 @@ const SafetyTabContent = memo(function SafetyTabContent() {
               )}
             </div>
             {driverRankings.length > 5 && (
-              <div className="pt-1.5 border-t border-white/[0.06] mt-1">
+              <div className="pt-1.5 border-t border-[rgba(0,204,254,0.08)] mt-1">
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="w-full h-6 text-xs text-muted-foreground hover:text-foreground"
+                  className="w-full h-6 text-xs text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]"
                   onClick={() => push({
                     id: 'all-driver-rankings',
                     type: 'driver-rankings',
@@ -870,10 +870,10 @@ const SafetyTabContent = memo(function SafetyTabContent() {
 
           {/* Training Progress — moved alongside charts to reduce vertical height (P0-6) */}
           {trainingProgressData.length > 0 && (
-            <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+            <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3">
               <div className="flex items-center gap-2 mb-2">
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold text-foreground">Training Progress</h3>
+                <BookOpen className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+                <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Training Progress</h3>
               </div>
               <div className="flex flex-col gap-1.5">
                 {trainingProgressData.slice(0, 4).map((training: any) => {
@@ -881,13 +881,13 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                   return (
                     <div key={training.course}>
                       <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-xs text-foreground truncate mr-2">{training.course}</span>
-                        <span className="text-xs text-muted-foreground shrink-0">
+                        <span className="text-xs text-white truncate mr-2">{training.course}</span>
+                        <span className="text-xs text-[rgba(255,255,255,0.40)] shrink-0">
                           {training.completed}/{training.total} ({pct}%)
                         </span>
                       </div>
-                      <div className="h-2 bg-white/10 rounded-full">
-                        <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${pct}%` }} />
+                      <div className="h-2 bg-[rgba(0,204,254,0.1)] rounded-full">
+                        <div className="h-2 bg-[#10B981] rounded-full" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   )
@@ -900,38 +900,38 @@ const SafetyTabContent = memo(function SafetyTabContent() {
         {/* Right: Incident Trends + Recent Incidents */}
         <div className="flex flex-col gap-1.5 min-h-0">
           {/* Incident Trends */}
-          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+          <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingDown className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold text-foreground">Incident Trends</h3>
+              <TrendingDown className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+              <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Incident Trends</h3>
             </div>
             <ResponsiveLineChart
               title=""
               data={incidentTrendData}
               dataKeys={['incidents']}
-              colors={['hsl(var(--destructive))']}
+              colors={['#FF4300']}
               height={140}
               compact
             />
           </div>
 
           {/* Recent Incidents — capped to 5 rows (P0-6) */}
-          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+          <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2">
-              <AlertCircle className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold text-foreground">Recent Incidents</h3>
+              <AlertCircle className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+              <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Recent Incidents</h3>
             </div>
             <div className="max-h-[200px] overflow-y-auto">
               {recentIncidents.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+                <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-[#242424]">
-                    <tr className="border-b border-white/[0.08]">
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Type</th>
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Severity</th>
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Date</th>
-                      <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+                  <thead className="sticky top-0 bg-[#221060]">
+                    <tr className="border-b border-[rgba(0,204,254,0.08)]">
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Type</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Severity</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Date</th>
+                      <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -942,7 +942,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                       return (
                         <tr
                           key={incident.id}
-                          className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                          className="border-b border-[rgba(0,204,254,0.08)] cursor-pointer hover:bg-[#2A1878]"
                           onClick={() => push({
                             id: incident.id,
                             type: 'incident',
@@ -964,7 +964,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                           tabIndex={0}
                           aria-label={`View details for incident: ${incidentLabel}`}
                         >
-                          <td className="py-1.5 px-2 text-xs text-foreground">{formatEnum(incidentLabel)}</td>
+                          <td className="py-1.5 px-2 text-xs text-white">{formatEnum(incidentLabel)}</td>
                           <td className="py-1.5 px-2">
                             <Badge variant={
                               severity === 'minor' || severity === 'low' ? 'secondary' :
@@ -973,7 +973,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                               {formatEnum(severity)}
                             </Badge>
                           </td>
-                          <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                          <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">
                             {formatDate(incident.incident_date || incident.created_at)}
                           </td>
                           <td className="py-1.5 px-2 text-right">
@@ -989,11 +989,11 @@ const SafetyTabContent = memo(function SafetyTabContent() {
               )}
             </div>
             {recentIncidents.length > 5 && (
-              <div className="pt-1.5 border-t border-white/[0.06] mt-1">
+              <div className="pt-1.5 border-t border-[rgba(0,204,254,0.08)] mt-1">
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="w-full h-6 text-xs text-muted-foreground hover:text-foreground"
+                  className="w-full h-6 text-xs text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]"
                   onClick={() => push({
                     id: 'all-incidents',
                     type: 'incidents',
@@ -1134,37 +1134,37 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
       {/* Main Content: Categories + Violations */}
       <div className="grid grid-cols-2 gap-1.5">
         {/* Policy Categories */}
-        <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
-            <BookMarked className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold text-foreground">Policy Categories</h3>
+            <BookMarked className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+            <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Policy Categories</h3>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {policyCategories.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-[#242424]">
-                  <tr className="border-b border-white/[0.08]">
-                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Policies</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Adherence</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Action</th>
+                <thead className="sticky top-0 bg-[#221060]">
+                  <tr className="border-b border-[rgba(0,204,254,0.08)]">
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Category</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Policies</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Adherence</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {policyCategories.map((item) => (
-                    <tr key={item.category} className="border-b border-white/[0.06]">
-                      <td className="py-1.5 px-2 text-xs text-foreground">{formatEnum(item.category)}</td>
-                      <td className="py-1.5 px-2 text-right text-xs text-foreground">{item.policies}</td>
+                    <tr key={item.category} className="border-b border-[rgba(0,204,254,0.08)]">
+                      <td className="py-1.5 px-2 text-xs text-white">{formatEnum(item.category)}</td>
+                      <td className="py-1.5 px-2 text-right text-xs text-white">{item.policies}</td>
                       <td className="py-1.5 px-2 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <div className="w-12">
-                            <div className="h-2 bg-white/10 rounded-full">
-                              <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${item.adherence}%` }} />
+                            <div className="h-2 bg-[rgba(0,204,254,0.1)] rounded-full">
+                              <div className="h-2 bg-[#10B981] rounded-full" style={{ width: `${item.adherence}%` }} />
                             </div>
                           </div>
-                          <span className="text-xs text-foreground">{item.adherence}%</span>
+                          <span className="text-xs text-white">{item.adherence}%</span>
                         </div>
                       </td>
                       <td className="py-1.5 px-2 text-right">
@@ -1181,21 +1181,21 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
         </div>
 
         {/* Recent Policy Violations */}
-        <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
-            <Gavel className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold text-foreground">Recent Violations</h3>
+            <Gavel className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+            <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Recent Violations</h3>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {policyViolations.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-[#242424]">
-                  <tr className="border-b border-white/[0.08]">
-                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Violation</th>
-                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Details</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+                <thead className="sticky top-0 bg-[#221060]">
+                  <tr className="border-b border-[rgba(0,204,254,0.08)]">
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Violation</th>
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Details</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1205,7 +1205,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                     return (
                       <tr
                         key={violation.id}
-                        className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                        className="border-b border-[rgba(0,204,254,0.08)] cursor-pointer hover:bg-[#2A1878]"
                         onClick={() => push({
                           id: violation.id,
                           type: 'violation',
@@ -1227,8 +1227,8 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                         tabIndex={0}
                         aria-label={`View details for violation: ${violationLabel}`}
                       >
-                        <td className="py-1.5 px-2 text-xs text-foreground">{formatEnum(violationLabel)}</td>
-                        <td className="py-1.5 px-2 text-xs text-muted-foreground truncate max-w-[200px]">
+                        <td className="py-1.5 px-2 text-xs text-white">{formatEnum(violationLabel)}</td>
+                        <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)] truncate max-w-[200px]">
                           {violation.message || '\u2014'}
                         </td>
                         <td className="py-1.5 px-2 text-right">
@@ -1248,26 +1248,26 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
 
       {/* P0-3: Active Policies list to fill dead space */}
       {activePolicies.length > 0 && (
-        <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
-            <FileCheck className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold text-foreground">Active Policies</h3>
-            <span className="text-xs text-muted-foreground ml-auto">{activePolicies.length} policies</span>
+            <FileCheck className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+            <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Active Policies</h3>
+            <span className="text-xs text-[rgba(255,255,255,0.40)] ml-auto">{activePolicies.length} policies</span>
           </div>
           <div className="max-h-[240px] overflow-y-auto">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[#242424]">
-                <tr className="border-b border-white/[0.08]">
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Policy Name</th>
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
-                  <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+              <thead className="sticky top-0 bg-[#221060]">
+                <tr className="border-b border-[rgba(0,204,254,0.08)]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Policy Name</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Category</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {activePolicies.slice(0, 10).map((policy: any) => (
                   <tr
                     key={policy.id}
-                    className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                    className="border-b border-[rgba(0,204,254,0.08)] cursor-pointer hover:bg-[#2A1878]"
                     onClick={() => push({
                       id: policy.id,
                       type: 'policy',
@@ -1278,8 +1278,8 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                     tabIndex={0}
                     aria-label={`View policy: ${policy.name || policy.title}`}
                   >
-                    <td className="py-1.5 px-2 text-xs text-foreground font-medium">{policy.name || policy.title || '\u2014'}</td>
-                    <td className="py-1.5 px-2 text-xs text-muted-foreground">{formatEnum(policy.category || 'General')}</td>
+                    <td className="py-1.5 px-2 text-xs text-white font-medium">{policy.name || policy.title || '\u2014'}</td>
+                    <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">{formatEnum(policy.category || 'General')}</td>
                     <td className="py-1.5 px-2 text-right">
                       <Badge variant="default">Active</Badge>
                     </td>
@@ -1289,11 +1289,11 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
             </table>
           </div>
           {activePolicies.length > 10 && (
-            <div className="pt-1.5 border-t border-white/[0.06] mt-1">
+            <div className="pt-1.5 border-t border-[rgba(0,204,254,0.08)] mt-1">
               <Button
                 size="sm"
                 variant="ghost"
-                className="w-full h-6 text-xs text-muted-foreground hover:text-foreground"
+                className="w-full h-6 text-xs text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]"
                 onClick={() => push({
                   id: 'all-policies',
                   type: 'policies',
@@ -1402,34 +1402,34 @@ const ReportingTabContent = memo(function ReportingTabContent() {
 
   return (
     <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+      <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
         <div className="flex items-center gap-2 mb-2">
-          <FileText className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold text-foreground">Compliance & Safety Reports</h3>
+          <FileText className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+          <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Compliance & Safety Reports</h3>
         </div>
         <div className="flex-1 min-h-0 overflow-y-auto">
           {complianceTemplates.length === 0 ? (
-            <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+            <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[#242424]">
-                <tr className="border-b border-white/[0.08]">
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Report</th>
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Last Generated</th>
-                  <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Actions</th>
+              <thead className="sticky top-0 bg-[#221060]">
+                <tr className="border-b border-[rgba(0,204,254,0.08)]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Report</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Category</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Last Generated</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {complianceTemplates.map((report: any) => {
                   const lastGenerated = lastGeneratedMap.get(report.id)
                   return (
-                    <tr key={report.id} className="border-b border-white/[0.06]">
-                      <td className="py-1.5 px-2 text-xs text-foreground font-medium">{report.title}</td>
-                      <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                    <tr key={report.id} className="border-b border-[rgba(0,204,254,0.08)]">
+                      <td className="py-1.5 px-2 text-xs text-white font-medium">{report.title}</td>
+                      <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">
                         {formatEnum(report.category || report.domain || 'compliance')}
                       </td>
-                      <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                      <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">
                         {formatDate(lastGenerated?.generatedAt)}
                       </td>
                       <td className="py-1.5 px-2 text-right">
@@ -1458,35 +1458,35 @@ const ReportingTabContent = memo(function ReportingTabContent() {
       </div>
 
       {/* P0-4: Recent History section to fill dead space */}
-      <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+      <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
         <div className="flex items-center gap-2 mb-2">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold text-foreground">Recent History</h3>
-          <span className="text-xs text-muted-foreground ml-auto">{history.length} reports</span>
+          <Clock className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+          <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Recent History</h3>
+          <span className="text-xs text-[rgba(255,255,255,0.40)] ml-auto">{history.length} reports</span>
         </div>
         <div className="max-h-[240px] overflow-y-auto">
           {history.length === 0 ? (
-            <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No report history available</div>
+            <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No report history available</div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[#242424]">
-                <tr className="border-b border-white/[0.08]">
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Report Name</th>
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Generated</th>
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Generated By</th>
-                  <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+              <thead className="sticky top-0 bg-[#221060]">
+                <tr className="border-b border-[rgba(0,204,254,0.08)]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Report Name</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Generated</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Generated By</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {history.slice(0, 10).map((entry: any, idx: number) => (
-                  <tr key={entry.id || idx} className="border-b border-white/[0.06]">
-                    <td className="py-1.5 px-2 text-xs text-foreground font-medium">
+                  <tr key={entry.id || idx} className="border-b border-[rgba(0,204,254,0.08)]">
+                    <td className="py-1.5 px-2 text-xs text-white font-medium">
                       {entry.title || entry.reportName || entry.name || '\u2014'}
                     </td>
-                    <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                    <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">
                       {formatDate(entry.generatedAt || entry.created_at || entry.timestamp)}
                     </td>
-                    <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                    <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">
                       {entry.generatedBy || entry.created_by || entry.user || '\u2014'}
                     </td>
                     <td className="py-1.5 px-2 text-right">
@@ -1587,9 +1587,9 @@ export default function ComplianceSafetyHub() {
 
   return (
     <HubPage
-      title="Compliance & Safety"
+      title={<span style={{ fontFamily: '"Cinzel", Georgia, serif' }}>Safety &amp; Compliance</span>}
       description="Comprehensive compliance monitoring, safety management, and policy enforcement"
-      icon={<Shield className="h-6 w-6" />}
+      icon={<Shield className="h-6 w-6 text-[#00CCFE]" />}
       className="cta-hub"
     >
       <div className="flex flex-col h-full gap-1.5 overflow-hidden">

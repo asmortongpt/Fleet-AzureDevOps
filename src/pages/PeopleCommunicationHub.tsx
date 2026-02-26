@@ -77,6 +77,7 @@ const rawFetcher = (url: string) =>
  * People Tab - HR and team management
  */
 const PeopleTabContent = memo(function PeopleTabContent() {
+  const { push } = useDrilldown()
   const { data: users, error: usersError, isLoading: usersLoading } = useSWR<any[]>(
     '/api/users?limit=200',
     fetcher,
@@ -165,7 +166,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
 
   if (peopleError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
         Unable to load people data. Please try again.
       </div>
     )
@@ -228,20 +229,23 @@ const PeopleTabContent = memo(function PeopleTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {teamRows.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
             ) : (
               <div className="space-y-1.5">
                 {teamRows.map((dept: any) => (
                   <div
                     key={dept.id}
-                    className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5"
-                    title="Team details coming soon"
+                    className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => push({ id: dept.id, type: 'team', label: dept.name || 'Team', data: { teamId: dept.id, teamName: dept.name } })}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: dept.id, type: 'team', label: dept.name || 'Team', data: { teamId: dept.id, teamName: dept.name } }); } }}
                   >
                     <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <Users className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                       <div>
-                        <p className="text-sm font-medium text-foreground">{dept.name}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-sm font-medium text-white">{dept.name}</p>
+                        <p className="text-xs text-[rgba(255,255,255,0.40)]">
                           Lead: {dept.team_lead_name || '\u2014'} -- {formatNumber(dept.member_count || 0)} members
                         </p>
                       </div>
@@ -266,27 +270,30 @@ const PeopleTabContent = memo(function PeopleTabContent() {
           >
             <div className="flex-1 min-h-0 overflow-y-auto">
               {recentUsers.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+                <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
               ) : (
                 <div className="space-y-1.5">
                   {recentUsers.map((user, index) => (
                     <div
                       key={index}
-                      className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5"
-                      title="User details coming soon"
+                      className="flex items-start gap-2 rounded border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => push({ type: 'user', label: user.name || 'User', data: { userName: user.name, department: user.department } })}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ type: 'user', label: user.name || 'User', data: { userName: user.name, department: user.department } }); } }}
                     >
                       {/* P1-6: UserPlus for active, UserX for inactive */}
                       {user.isActive ? (
-                        <UserPlus className="h-4 w-4 text-emerald-400 mt-0.5" />
+                        <UserPlus className="h-4 w-4 text-[#10B981] mt-0.5" />
                       ) : (
-                        <UserX className="h-4 w-4 text-muted-foreground mt-0.5" />
+                        <UserX className="h-4 w-4 text-[rgba(255,255,255,0.40)] mt-0.5" />
                       )}
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-sm font-medium text-white">{user.name}</p>
+                        <p className="text-xs text-[rgba(255,255,255,0.40)]">
                           {user.department}
                         </p>
-                        <p className="text-xs text-muted-foreground">Added on {formatDate(user.createdAt)}</p>
+                        <p className="text-xs text-[rgba(255,255,255,0.40)]">Added on {formatDate(user.createdAt)}</p>
                       </div>
                     </div>
                   ))}
@@ -302,25 +309,25 @@ const PeopleTabContent = memo(function PeopleTabContent() {
           >
             <div className="flex-1 min-h-0 overflow-y-auto">
               {trainingProgressData.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+                <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
               ) : (
                 <div className="space-y-1.5">
                   {trainingProgressData.map((training) => {
                     // P1-7: Conditional progress bar colors
                     const completionPct = training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0
                     return (
-                      <div key={training.program} className="rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                      <div key={training.program} className="rounded border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2.5">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-foreground">{training.program}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm font-medium text-white">{training.program}</p>
+                          <p className="text-xs text-[rgba(255,255,255,0.40)]">
                             {formatNumber(training.completed)}/{formatNumber(training.enrolled)} ({Math.round(completionPct)}%)
                           </p>
                         </div>
-                        <div className="w-full bg-white/[0.06] rounded-full h-1.5 mt-1.5">
+                        <div className="w-full bg-[rgba(0,204,254,0.06)] rounded-full h-1.5 mt-1.5">
                           <div
                             className={`rounded-full h-1.5 ${
-                              completionPct > 75 ? 'bg-emerald-500' :
-                              completionPct > 50 ? 'bg-amber-500' : 'bg-rose-500'
+                              completionPct > 75 ? 'bg-[#10B981]' :
+                              completionPct > 50 ? 'bg-[#FDC016]' : 'bg-[#FF4300]'
                             }`}
                             style={{ width: `${completionPct}%` }}
                           />
@@ -342,6 +349,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
  * Communication Tab - Messaging and announcements
  */
 const CommunicationTabContent = memo(function CommunicationTabContent() {
+  const { push } = useDrilldown()
   const { data: communicationLogs, error: communicationLogsError, isLoading: commLogsLoading } = useSWR<any[]>(
     '/api/communication-logs?limit=50',
     fetcher,
@@ -392,7 +400,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
 
   if (communicationError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
         Unable to load communication data. Please try again.
       </div>
     )
@@ -455,26 +463,29 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {messages.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
             ) : (
               <div className="space-y-1.5">
                 {messages.slice(0, 8).map((msg: any) => (
                   <div
                     key={msg.id}
-                    className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5"
-                    title="Message details coming soon"
+                    className="flex items-start gap-2 rounded border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => push({ id: msg.id, type: 'message-detail', label: msg.subject || 'Message', data: { messageId: msg.id, sender: msg.sender_name, subject: msg.subject } })}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: msg.id, type: 'message-detail', label: msg.subject || 'Message', data: { messageId: msg.id, sender: msg.sender_name, subject: msg.subject } }); } }}
                   >
-                    <User className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <User className="h-4 w-4 text-[rgba(255,255,255,0.40)] mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         {/* P0-3: Fix from_address → sender_name */}
-                        <p className="text-sm font-medium text-foreground truncate">{msg.sender_name || 'System'}</p>
+                        <p className="text-sm font-medium text-white truncate">{msg.sender_name || 'System'}</p>
                         {/* P1-12: Fix is_read badge — use status field instead of non-existent is_read */}
                         {msg.status === 'pending' && <Badge variant="default">New</Badge>}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{msg.subject || msg.message_body || 'Message'}</p>
+                      <p className="text-xs text-[rgba(255,255,255,0.40)] mt-0.5 truncate">{msg.subject || msg.message_body || 'Message'}</p>
                       {/* P0-3: Fix sent_at → created_at */}
-                      <p className="text-xs text-muted-foreground mt-0.5">
+                      <p className="text-xs text-[rgba(255,255,255,0.40)] mt-0.5">
                         {formatDateTime(msg.created_at)}
                       </p>
                     </div>
@@ -494,18 +505,18 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
           >
             <div className="flex-1 min-h-0 overflow-y-auto">
               {announcementRows.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+                <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
               ) : (
                 <div className="space-y-1.5">
                   {announcementRows.slice(0, 5).map((announcement: any) => (
-                    <div key={announcement.id} className="rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                    <div key={announcement.id} className="rounded border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2.5">
                       <div className="flex items-center justify-between mb-1">
                         <Badge variant="secondary">{formatEnum(announcement.type) || 'Announcement'}</Badge>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-[rgba(255,255,255,0.40)]">
                           {formatDate(announcement.published_at)}
                         </p>
                       </div>
-                      <p className="text-sm font-medium text-foreground">{announcement.title}</p>
+                      <p className="text-sm font-medium text-white">{announcement.title}</p>
                     </div>
                   ))}
                 </div>
@@ -520,20 +531,23 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
           >
             <div className="flex-1 min-h-0 overflow-y-auto">
               {channelRows.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+                <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
               ) : (
                 <div className="space-y-1.5">
                   {channelRows.map((channel: any) => (
                     <div
                       key={channel.id}
-                      className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5"
-                      title="Channel details coming soon"
+                      className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => push({ id: channel.id, type: 'channel-messages', label: `#${channel.name}`, data: { channelId: channel.id, channelName: channel.name } })}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: channel.id, type: 'channel-messages', label: `#${channel.name}`, data: { channelId: channel.id, channelName: channel.name } }); } }}
                     >
                       <div className="flex items-center gap-2">
-                        <Hash className="h-4 w-4 text-muted-foreground" />
+                        <Hash className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                         <div>
-                          <p className="text-sm font-medium text-foreground">#{channel.name}</p>
-                          <p className="text-xs text-muted-foreground">{formatNumber(channel.member_count || 0)} members</p>
+                          <p className="text-sm font-medium text-white">#{channel.name}</p>
+                          <p className="text-xs text-[rgba(255,255,255,0.40)]">{formatNumber(channel.member_count || 0)} members</p>
                         </div>
                       </div>
                     </div>
@@ -676,7 +690,7 @@ const WorkTabContent = memo(function WorkTabContent() {
 
   if (tasksError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
         Unable to load tasks data. Please try again.
       </div>
     )
@@ -747,12 +761,12 @@ const WorkTabContent = memo(function WorkTabContent() {
               {taskColumns.map((column) => (
                 <div key={column.status}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <h3 className="text-xs font-semibold text-foreground">{column.status}</h3>
+                    <h3 className="text-xs font-semibold text-white">{column.status}</h3>
                     <Badge variant="outline" className="text-[10px]">{formatNumber(column.count)}</Badge>
                   </div>
                   <div className="space-y-1">
                     {column.tasks.length === 0 ? (
-                      <div className="text-xs text-muted-foreground">No tasks</div>
+                      <div className="text-xs text-[rgba(255,255,255,0.40)]">No tasks</div>
                     ) : (
                       column.tasks.map((task: any) => {
                         // P1-13: Show due date, color red if overdue
@@ -761,7 +775,7 @@ const WorkTabContent = memo(function WorkTabContent() {
                         return (
                           <div
                             key={task.id}
-                            className="rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04]"
+                            className="rounded border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2 cursor-pointer hover:bg-[#2A1878]"
                             onClick={() => push({
                               id: task.id,
                               type: 'task',
@@ -783,7 +797,7 @@ const WorkTabContent = memo(function WorkTabContent() {
                             tabIndex={0}
                             aria-label={`View details for task: ${task.title}`}
                           >
-                            <p className="text-xs font-medium text-foreground">{task.title}</p>
+                            <p className="text-xs font-medium text-white">{task.title}</p>
                             <div className="flex items-center justify-between mt-1">
                               <Badge variant={
                                 task.priority === 'high' || task.priority === 'urgent' ? 'destructive' :
@@ -793,7 +807,7 @@ const WorkTabContent = memo(function WorkTabContent() {
                               </Badge>
                             </div>
                             {dueDate && (
-                              <p className={`text-[10px] mt-1 ${isOverdue ? 'text-rose-400' : 'text-muted-foreground'}`}>
+                              <p className={`text-[10px] mt-1 ${isOverdue ? 'text-[#FF4300]' : 'text-[rgba(255,255,255,0.40)]'}`}>
                                 {isOverdue ? 'Overdue: ' : 'Due: '}{formatDate(task.dueDate)}
                               </p>
                             )}
@@ -804,7 +818,7 @@ const WorkTabContent = memo(function WorkTabContent() {
                     {/* P1-13: "View All" link when more tasks exist */}
                     {column.count > 5 && (
                       <button
-                        className="text-xs text-emerald-400 hover:underline w-full text-center py-1"
+                        className="text-xs text-[#10B981] hover:underline w-full text-center py-1"
                         onClick={() => push({
                           id: `tasks-${column.key}`,
                           type: 'tasks',
@@ -832,16 +846,16 @@ const WorkTabContent = memo(function WorkTabContent() {
           >
             <div className="flex-1 min-h-0 overflow-y-auto">
               {upcomingDeadlines.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+                <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
               ) : (
                 <div className="space-y-1.5">
                   {upcomingDeadlines.slice(0, 5).map((item: any) => (
-                    <div key={item.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                    <div key={item.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2.5">
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <Calendar className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                         <div>
-                          <p className="text-sm font-medium text-foreground">{item.title}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm font-medium text-white">{item.title}</p>
+                          <p className="text-xs text-[rgba(255,255,255,0.40)]">
                             Due {formatDateTime(item.dueDate)}
                           </p>
                         </div>
@@ -862,16 +876,16 @@ const WorkTabContent = memo(function WorkTabContent() {
           >
             <div className="flex-1 min-h-0 overflow-y-auto">
               {meetings.length === 0 ? (
-                <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No upcoming meetings</div>
+                <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No upcoming meetings</div>
               ) : (
                 <div className="space-y-1.5">
                   {meetings.map((meeting: any) => (
-                    <div key={meeting.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                    <div key={meeting.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2.5">
                       <div className="flex items-center gap-2">
-                        <Video className="h-4 w-4 text-muted-foreground" />
+                        <Video className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                         <div>
-                          <p className="text-sm font-medium text-foreground">{meeting.subject || meeting.title || 'Meeting'}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm font-medium text-white">{meeting.subject || meeting.title || 'Meeting'}</p>
+                          <p className="text-xs text-[rgba(255,255,255,0.40)]">
                             {formatDateTime(meeting.start || meeting.start_time)}
                           </p>
                         </div>
@@ -894,31 +908,31 @@ const WorkTabContent = memo(function WorkTabContent() {
 
       {/* Meeting Details Dialog */}
       <Dialog open={!!selectedMeeting} onOpenChange={(open) => { if (!open) setSelectedMeeting(null); }}>
-        <DialogContent className="bg-[#242424] border-white/[0.08]">
+        <DialogContent className="bg-[#1A0648] border-[rgba(0,204,254,0.08)]">
           <DialogHeader>
             <DialogTitle>{selectedMeeting?.subject || selectedMeeting?.title || 'Meeting Details'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 text-sm">
             <div>
-              <p className="text-muted-foreground text-xs">Time</p>
-              <p className="text-foreground">{formatDateTime(selectedMeeting?.start || selectedMeeting?.start_time)} - {formatDateTime(selectedMeeting?.end || selectedMeeting?.end_time)}</p>
+              <p className="text-[rgba(255,255,255,0.40)] text-xs">Time</p>
+              <p className="text-white">{formatDateTime(selectedMeeting?.start || selectedMeeting?.start_time)} - {formatDateTime(selectedMeeting?.end || selectedMeeting?.end_time)}</p>
             </div>
             {selectedMeeting?.location && (
               <div>
-                <p className="text-muted-foreground text-xs">Location</p>
-                <p className="text-foreground">{selectedMeeting.location}</p>
+                <p className="text-[rgba(255,255,255,0.40)] text-xs">Location</p>
+                <p className="text-white">{selectedMeeting.location}</p>
               </div>
             )}
             {selectedMeeting?.description && (
               <div>
-                <p className="text-muted-foreground text-xs">Description</p>
-                <p className="text-foreground text-xs">{selectedMeeting.description}</p>
+                <p className="text-[rgba(255,255,255,0.40)] text-xs">Description</p>
+                <p className="text-white text-xs">{selectedMeeting.description}</p>
               </div>
             )}
             {selectedMeeting?.attendees && (
               <div>
-                <p className="text-muted-foreground text-xs">Attendees</p>
-                <p className="text-foreground text-xs">
+                <p className="text-[rgba(255,255,255,0.40)] text-xs">Attendees</p>
+                <p className="text-white text-xs">
                   {Array.isArray(selectedMeeting.attendees)
                     ? selectedMeeting.attendees.map((a: any) => typeof a === 'string' ? a : (a.name || a.email || '')).join(', ')
                     : String(selectedMeeting.attendees)
@@ -935,7 +949,7 @@ const WorkTabContent = memo(function WorkTabContent() {
 
       {/* P0-4: Add Task Dialog */}
       <Dialog open={showAddTask} onOpenChange={setShowAddTask}>
-        <DialogContent className="bg-[#242424] border-white/[0.08]">
+        <DialogContent className="bg-[#1A0648] border-[rgba(0,204,254,0.08)]">
           <DialogHeader>
             <DialogTitle>Create Task</DialogTitle>
           </DialogHeader>
@@ -944,16 +958,16 @@ const WorkTabContent = memo(function WorkTabContent() {
               placeholder="Task title"
               value={newTask.title}
               onChange={e => setNewTask(p => ({...p, title: e.target.value}))}
-              className="bg-[#1a1a1a] border-white/[0.08]"
+              className="bg-[#1A0648] border-[rgba(0,204,254,0.08)]"
             />
             <Input
               placeholder="Description"
               value={newTask.description}
               onChange={e => setNewTask(p => ({...p, description: e.target.value}))}
-              className="bg-[#1a1a1a] border-white/[0.08]"
+              className="bg-[#1A0648] border-[rgba(0,204,254,0.08)]"
             />
             <select
-              className="w-full rounded-md bg-[#1a1a1a] border border-white/[0.08] text-white/80 p-2 text-sm"
+              className="w-full rounded-md bg-[#1A0648] border border-[rgba(0,204,254,0.08)] text-[rgba(255,255,255,0.65)] p-2 text-sm"
               value={newTask.priority}
               onChange={e => setNewTask(p => ({...p, priority: e.target.value}))}
             >
@@ -982,7 +996,7 @@ export default function PeopleCommunicationHub() {
 
   return (
     <HubPage
-      title="People & Communication"
+      title={<span style={{ fontFamily: '"Cinzel", Georgia, serif' }}>People & Communication</span>}
       description="Team management, internal communication, and work coordination"
       icon={Users}
       className="cta-hub"

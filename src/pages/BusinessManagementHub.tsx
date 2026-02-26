@@ -267,10 +267,10 @@ const FinancialTabContent = memo(function FinancialTabContent() {
 
   if (financialError) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-destructive font-medium">Failed to load financial data</p>
-        <p className="text-sm text-muted-foreground">{financialError instanceof Error ? financialError.message : 'Unable to load financial data. Please try again.'}</p>
-        <Button variant="outline" onClick={() => window.location.reload()}>
+      <div className="flex flex-col items-center justify-center h-64 gap-4 bg-[#1A0648]">
+        <p className="text-[#FF4300] font-medium">Failed to load financial data</p>
+        <p className="text-sm text-[rgba(255,255,255,0.40)]">{financialError instanceof Error ? financialError.message : 'Unable to load financial data. Please try again.'}</p>
+        <Button variant="outline" className="border-[rgba(0,204,254,0.15)] text-white hover:bg-[#2A1878]" onClick={() => window.location.reload()}>
           Retry
         </Button>
       </div>
@@ -281,8 +281,8 @@ const FinancialTabContent = memo(function FinancialTabContent() {
   const hasBudgetTrendData = costTrendData.some(d => d.budget != null && d.budget > 0)
   const trendDataKeys = hasBudgetTrendData ? ['actual', 'budget'] : ['actual']
   const trendColors = hasBudgetTrendData
-    ? ['hsl(var(--chart-2))', '#10B981']
-    : ['hsl(var(--chart-2))']
+    ? ['#00CCFE', '#10B981']
+    : ['#00CCFE']
 
   return (
     <div className="flex flex-col gap-1.5 p-1.5">
@@ -318,7 +318,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
           icon={isOverBudget ? TrendingDown : Target}
           trend={isOverBudget ? 'down' : (budgetDelta > 0 ? 'up' : 'neutral')}
           description={isOverBudget ? "Over budget" : (budgetTotal > 0 ? "Under budget" : "No budget allocations")}
-          className={isOverBudget ? "border-rose-500/20" : ""}
+          className={isOverBudget ? "border-[#FF4300]/20" : ""}
         />
       </div>
 
@@ -343,7 +343,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
                 compact
               />
             ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
             )}
           </Section>
           <Section
@@ -361,7 +361,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
                 />
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
             )}
           </Section>
         </div>
@@ -377,18 +377,18 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             {/* P1-11: Removed inner overflow-y-auto */}
             <div className="flex-1 min-h-0">
               {recentTransactions.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+                <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
               ) : (
                 <div className="flex flex-col gap-1">
                   {recentTransactions.map((transaction, index) => (
-                    <div key={index} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                    <div key={index} className="flex items-center justify-between rounded-md border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2">
                       <div>
-                        <p className="text-sm font-medium text-foreground">{transaction.description}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-sm font-medium text-white">{transaction.description}</p>
+                        <p className="text-xs text-[rgba(255,255,255,0.40)]">
                           {formatEnum(transaction.category)} · {formatDate(transaction.date)}
                         </p>
                       </div>
-                      <p className="text-sm font-semibold text-foreground">{formatCurrency(transaction.amount)}</p>
+                      <p className="text-sm font-semibold text-white">{formatCurrency(transaction.amount)}</p>
                     </div>
                   ))}
                 </div>
@@ -403,17 +403,17 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             className="flex-none"
           >
             <div className="grid grid-cols-3 gap-1.5">
-              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
-                <p className="text-xs text-white/60">Parts</p>
-                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalPartsCost)}</p>
+              <div className="rounded-md border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2 text-center">
+                <p className="text-xs text-[rgba(255,255,255,0.65)]">Parts</p>
+                <p className="text-sm font-semibold text-white">{formatCurrency(workOrderCosts.totalPartsCost)}</p>
               </div>
-              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
-                <p className="text-xs text-white/60">Labor</p>
-                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalLaborCost)}</p>
+              <div className="rounded-md border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2 text-center">
+                <p className="text-xs text-[rgba(255,255,255,0.65)]">Labor</p>
+                <p className="text-sm font-semibold text-white">{formatCurrency(workOrderCosts.totalLaborCost)}</p>
               </div>
-              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
-                <p className="text-xs text-white/60">Total</p>
-                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalWoCost)}</p>
+              <div className="rounded-md border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2 text-center">
+                <p className="text-xs text-[rgba(255,255,255,0.65)]">Total</p>
+                <p className="text-sm font-semibold text-white">{formatCurrency(workOrderCosts.totalWoCost)}</p>
               </div>
             </div>
           </Section>
@@ -431,22 +431,22 @@ const FinancialTabContent = memo(function FinancialTabContent() {
                 <div className="flex flex-col gap-1.5">
                   {departmentCosts.map((dept) => (
                     <div key={dept.department} className="flex items-center gap-2">
-                      <span className="text-xs text-white/80 w-24 truncate" title={dept.department}>{dept.department}</span>
-                      <div className="flex-1 h-1.5 rounded-full bg-white/[0.06]">
+                      <span className="text-xs text-[rgba(255,255,255,0.65)] w-24 truncate" title={dept.department}>{dept.department}</span>
+                      <div className="flex-1 h-1.5 rounded-full bg-[rgba(0,204,254,0.06)]">
                         <div
-                          className="h-full rounded-full bg-emerald-500/60"
+                          className="h-full rounded-full bg-[#00CCFE]/60"
                           style={{ width: `${totalDeptCost > 0 ? (dept.cost / totalDeptCost * 100) : 0}%` }}
                         />
                       </div>
-                      <span className="text-xs text-white/60 w-16 text-right">{formatCurrency(dept.cost)}</span>
-                      <span className="text-[10px] text-white/40 w-8 text-right">
+                      <span className="text-xs text-[rgba(255,255,255,0.65)] w-16 text-right">{formatCurrency(dept.cost)}</span>
+                      <span className="text-[10px] text-[rgba(255,255,255,0.40)] w-8 text-right">
                         {totalDeptCost > 0 ? `${Math.round(dept.cost / totalDeptCost * 100)}%` : '0%'}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+                <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
               )}
             </div>
           </Section>
@@ -573,10 +573,10 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
 
   if (procurementError) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-destructive font-medium">Failed to load procurement data</p>
-        <p className="text-sm text-muted-foreground">{procurementError instanceof Error ? procurementError.message : 'Unable to load procurement data. Please try again.'}</p>
-        <Button variant="outline" onClick={() => window.location.reload()}>
+      <div className="flex flex-col items-center justify-center h-64 gap-4 bg-[#1A0648]">
+        <p className="text-[#FF4300] font-medium">Failed to load procurement data</p>
+        <p className="text-sm text-[rgba(255,255,255,0.40)]">{procurementError instanceof Error ? procurementError.message : 'Unable to load procurement data. Please try again.'}</p>
+        <Button variant="outline" className="border-[rgba(0,204,254,0.15)] text-white hover:bg-[#2A1878]" onClick={() => window.location.reload()}>
           Retry
         </Button>
       </div>
@@ -635,7 +635,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                 {displayedVendors.map((vendor) => (
                   <div
                     key={vendor.id}
-                    className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2 cursor-pointer"
+                    className="flex items-center justify-between rounded-md border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2 cursor-pointer hover:bg-[#2A1878] hover:border-[rgba(0,204,254,0.15)] transition-colors"
                     onClick={() => push({
                       id: vendor.id,
                       type: 'vendor',
@@ -658,10 +658,10 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                     aria-label={`View details for vendor ${vendor.name}`}
                   >
                     <div className="flex items-center gap-2">
-                      <Building className="h-4 w-4 text-white/40" />
+                      <Building className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                       <div>
-                        <p className="text-sm font-medium text-foreground">{vendor.name}</p>
-                        <p className="text-xs text-white/60">
+                        <p className="text-sm font-medium text-white">{vendor.name}</p>
+                        <p className="text-xs text-[rgba(255,255,255,0.65)]">
                           {formatEnum(vendor.category)} · {vendor.orders} {vendor.orders === 1 ? 'order' : 'orders'}
                           {vendor.woCost > 0 && (
                             <span className="ml-1">· WO: {formatCurrency(vendor.woCost)}</span>
@@ -673,8 +673,8 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                       className="flex items-center gap-1"
                       title="Based on delivery performance"
                     >
-                      <Award className="h-4 w-4 text-white/40" />
-                      <span className="text-sm font-medium text-foreground">{vendor.rating ? `${vendor.rating}/5` : '--'}</span>
+                      <Award className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+                      <span className="text-sm font-medium text-white">{vendor.rating ? `${vendor.rating}/5` : '--'}</span>
                     </div>
                   </div>
                 ))}
@@ -683,7 +683,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full mt-1"
+                    className="w-full mt-1 border-[rgba(0,204,254,0.15)] text-[#00CCFE] hover:bg-[#2A1878]"
                     onClick={() => setShowAllVendors(true)}
                   >
                     View All Vendors ({topVendors.length})
@@ -693,7 +693,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full mt-1"
+                    className="w-full mt-1 border-[rgba(0,204,254,0.15)] text-[#00CCFE] hover:bg-[#2A1878]"
                     onClick={() => setShowAllVendors(false)}
                   >
                     Show Less
@@ -701,7 +701,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
             )}
           </div>
         </Section>
@@ -720,7 +720,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                 {recentPurchaseOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2 cursor-pointer"
+                    className="flex items-center justify-between rounded-md border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2 cursor-pointer hover:bg-[#2A1878] hover:border-[rgba(0,204,254,0.15)] transition-colors"
                     onClick={() => push({
                       id: order.id,
                       type: 'purchase-order',
@@ -743,21 +743,21 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                     aria-label={`View details for purchase order ${order.number || order.id}`}
                   >
                     <div>
-                      <p className="text-sm font-medium text-foreground">{order.number || String(order.id).slice(0, 8)}</p>
-                      <p className="text-xs text-white/60">{order.vendor}</p>
+                      <p className="text-sm font-medium text-white">{order.number || String(order.id).slice(0, 8)}</p>
+                      <p className="text-xs text-[rgba(255,255,255,0.65)]">{order.vendor}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       {/* P1-9: Use comprehensive status badge mapping */}
                       <Badge variant={statusVariant(order.status)}>
                         {formatEnum(order.status) || '--'}
                       </Badge>
-                      <p className="text-sm font-semibold text-foreground">{formatCurrency(order.amount)}</p>
+                      <p className="text-sm font-semibold text-white">{formatCurrency(order.amount)}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
             )}
           </div>
         </Section>
@@ -801,7 +801,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
 
   if (fleetError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
         {fleetError instanceof Error ? fleetError.message : 'Failed to load analytics data.'}
       </div>
     )
@@ -993,12 +993,12 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
               title="Fleet Costs"
               data={costTrendData}
               dataKeys={['actual']}
-              colors={['hsl(var(--chart-2))']}
+              colors={['#00CCFE']}
               height={140}
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-32 text-white/40 text-sm">No cost trend data available</div>
+            <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No cost trend data available</div>
           )}
         </Section>
 
@@ -1018,7 +1018,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-32 text-white/40 text-sm">No performance data available</div>
+            <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No performance data available</div>
           )}
         </Section>
       </div>
@@ -1035,23 +1035,23 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
             {actionItems.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {actionItems.map((item, index) => (
-                  <div key={index} className="flex items-start gap-2 rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                  <div key={index} className="flex items-start gap-2 rounded-md border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2">
                     <div className={`mt-0.5 h-2 w-2 rounded-full shrink-0 ${
-                      item.severity === 'high' ? 'bg-rose-500' :
-                      item.severity === 'medium' ? 'bg-amber-500' :
-                      'bg-emerald-500'
+                      item.severity === 'high' ? 'bg-[#FF4300]' :
+                      item.severity === 'medium' ? 'bg-[#FDC016]' :
+                      'bg-[#10B981]'
                     }`} />
                     <div>
-                      <p className="text-sm font-medium text-foreground">{item.label}</p>
-                      <p className="text-xs text-white/40">{item.detail}</p>
+                      <p className="text-sm font-medium text-white">{item.label}</p>
+                      <p className="text-xs text-[rgba(255,255,255,0.40)]">{item.detail}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-white/40 text-sm">
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-emerald-500" />
+                  <CheckCircle className="h-4 w-4 text-[#10B981]" />
                   <span>No action items -- fleet is in good shape</span>
                 </div>
               </div>
@@ -1072,22 +1072,22 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
                   const maxCost = topCostDrivers[0]?.cost || 1
                   return (
                     <div key={index} className="flex items-center gap-2">
-                      <span className="text-xs text-white/60 w-6 text-right">{index + 1}.</span>
-                      <span className="text-xs text-white/80 w-32 truncate" title={vehicle.name}>{vehicle.name}</span>
-                      <div className="flex-1 h-1.5 rounded-full bg-white/[0.06]">
+                      <span className="text-xs text-[rgba(255,255,255,0.65)] w-6 text-right">{index + 1}.</span>
+                      <span className="text-xs text-[rgba(255,255,255,0.65)] w-32 truncate" title={vehicle.name}>{vehicle.name}</span>
+                      <div className="flex-1 h-1.5 rounded-full bg-[rgba(0,204,254,0.06)]">
                         <div
-                          className="h-full rounded-full bg-emerald-500/60"
+                          className="h-full rounded-full bg-[#00CCFE]/60"
                           style={{ width: `${(vehicle.cost / maxCost * 100)}%` }}
                         />
                       </div>
-                      <span className="text-xs text-white/60 w-16 text-right">{formatCurrency(vehicle.cost)}</span>
-                      <span className="text-[10px] text-white/40 w-12 text-right">{vehicle.woCount} WOs</span>
+                      <span className="text-xs text-[rgba(255,255,255,0.65)] w-16 text-right">{formatCurrency(vehicle.cost)}</span>
+                      <span className="text-[10px] text-[rgba(255,255,255,0.40)] w-12 text-right">{vehicle.woCount} WOs</span>
                     </div>
                   )
                 })}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-white/40 text-sm">No cost data available</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No cost data available</div>
             )}
           </div>
         </Section>
@@ -1191,7 +1191,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
 
   if (reportsError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
         Unable to load reports data. Please try again.
       </div>
     )
@@ -1239,16 +1239,16 @@ const ReportsTabContent = memo(function ReportsTabContent() {
           {/* P1-11: Removed inner overflow-y-auto */}
           <div className="flex-1 min-h-0">
             {templates.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
             ) : (
               <div className="flex flex-col gap-1">
                 {templates.map((report: any) => (
-                  <div key={report.id} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                  <div key={report.id} className="flex items-center justify-between rounded-md border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2">
                     <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-white/40" />
+                      <FileText className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
                       <div>
-                        <p className="text-sm font-medium text-foreground">{report.title}</p>
-                        <p className="text-xs text-white/60">
+                        <p className="text-sm font-medium text-white">{report.title}</p>
+                        <p className="text-xs text-[rgba(255,255,255,0.65)]">
                           {formatEnum(report.category || report.domain) || 'General'} · {report.isCore ? 'Core' : 'Custom'}
                         </p>
                       </div>
@@ -1256,6 +1256,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
                     <Button
                       variant="outline"
                       size="sm"
+                      className="border-[rgba(0,204,254,0.15)] text-[#00CCFE] hover:bg-[#2A1878]"
                       onClick={() => handleGenerateReport(report.id, report.title)}
                     >
                       <Download className="h-3 w-3 mr-1" />
@@ -1278,20 +1279,21 @@ const ReportsTabContent = memo(function ReportsTabContent() {
           {/* P1-11: Removed inner overflow-y-auto */}
           <div className="flex-1 min-h-0">
             {history.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
             ) : (
               <div className="flex flex-col gap-1">
                 {history.map((item: any) => (
-                  <div key={item.id} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                  <div key={item.id} className="flex items-center justify-between rounded-md border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2">
                     <div>
-                      <p className="text-sm font-medium text-foreground">{item.title}</p>
-                      <p className="text-xs text-white/60">
+                      <p className="text-sm font-medium text-white">{item.title}</p>
+                      <p className="text-xs text-[rgba(255,255,255,0.65)]">
                         Generated by {item.generatedBy || 'System'} · {formatDate(item.generatedAt)}
                       </p>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
+                      className="border-[rgba(0,204,254,0.15)] text-[#00CCFE] hover:bg-[#2A1878]"
                       onClick={() => handleDownloadReport(item.title, item.downloadUrl)}
                       disabled={!item.downloadUrl}
                     >
@@ -1318,29 +1320,29 @@ export default function BusinessManagementHub() {
 
   return (
     <HubPage
-      className="cta-hub cta-business-hub"
-      title="Business Management"
+      className="cta-hub cta-business-hub bg-[#0D0320]"
+      title={<span style={{ fontFamily: '"Cinzel", Georgia, serif' }}>Business Intelligence</span>}
       description="Financial oversight, procurement, analytics, and comprehensive reporting"
-      icon={<BarChart className="h-5 w-5" />}
+      icon={<BarChart className="h-5 w-5 text-[#00CCFE]" />}
     >
       <div className="flex flex-col h-full gap-1.5 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="financial" className="flex items-center gap-2" data-testid="hub-tab-financial" aria-label="Financial">
+          <TabsList className="grid w-full grid-cols-4 bg-[#221060] border border-[rgba(0,204,254,0.08)]">
+            <TabsTrigger value="financial" className="flex items-center gap-2 data-[state=active]:bg-[#332090] data-[state=active]:text-[#00CCFE] data-[state=active]:border-b-2 data-[state=active]:border-b-[#00CCFE] text-[rgba(255,255,255,0.65)]" data-testid="hub-tab-financial" aria-label="Financial">
               <DollarSign className="h-4 w-4" />
-              <span className="hidden sm:inline">Financial</span>
+              <span className="hidden sm:inline" style={{ fontFamily: '"Montserrat", sans-serif' }}>Financial</span>
             </TabsTrigger>
-            <TabsTrigger value="procurement" className="flex items-center gap-2" data-testid="hub-tab-procurement" aria-label="Procurement">
+            <TabsTrigger value="procurement" className="flex items-center gap-2 data-[state=active]:bg-[#332090] data-[state=active]:text-[#00CCFE] data-[state=active]:border-b-2 data-[state=active]:border-b-[#00CCFE] text-[rgba(255,255,255,0.65)]" data-testid="hub-tab-procurement" aria-label="Procurement">
               <ShoppingCart className="h-4 w-4" />
-              <span className="hidden sm:inline">Procurement</span>
+              <span className="hidden sm:inline" style={{ fontFamily: '"Montserrat", sans-serif' }}>Procurement</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2" data-testid="hub-tab-analytics" aria-label="Analytics">
+            <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-[#332090] data-[state=active]:text-[#00CCFE] data-[state=active]:border-b-2 data-[state=active]:border-b-[#00CCFE] text-[rgba(255,255,255,0.65)]" data-testid="hub-tab-analytics" aria-label="Analytics">
               <BarChart className="h-4 w-4" />
-              <span className="hidden sm:inline">Analytics</span>
+              <span className="hidden sm:inline" style={{ fontFamily: '"Montserrat", sans-serif' }}>Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2" data-testid="hub-tab-reports" aria-label="Reports">
+            <TabsTrigger value="reports" className="flex items-center gap-2 data-[state=active]:bg-[#332090] data-[state=active]:text-[#00CCFE] data-[state=active]:border-b-2 data-[state=active]:border-b-[#00CCFE] text-[rgba(255,255,255,0.65)]" data-testid="hub-tab-reports" aria-label="Reports">
               <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Reports</span>
+              <span className="hidden sm:inline" style={{ fontFamily: '"Montserrat", sans-serif' }}>Reports</span>
             </TabsTrigger>
           </TabsList>
 

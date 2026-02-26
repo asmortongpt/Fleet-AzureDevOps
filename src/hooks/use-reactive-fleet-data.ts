@@ -54,8 +54,21 @@ const STALE_TIMES = {
  * while some older UI code expected camelCase. Support both, but always normalize
  * to the fields used by the reactive dashboards (snake_case + string UUID id).
  */
-const VehicleSchema = z
-  .object({
+// Preprocess: PostgreSQL returns null for missing fields, but Zod .optional()
+// only accepts undefined. Convert all null values to undefined before validation.
+const nullToUndefined = (val: unknown) => {
+  if (val && typeof val === 'object' && !Array.isArray(val)) {
+    const obj: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(val as Record<string, unknown>)) {
+      obj[k] = v === null ? undefined : v
+    }
+    return obj
+  }
+  return val
+}
+
+const VehicleSchema = z.preprocess(nullToUndefined,
+  z.object({
     id: z.string().uuid(),
     make: z.string().min(1).max(50).trim(),
     model: z.string().min(1).max(50).trim().optional().default(''),
@@ -106,6 +119,7 @@ const VehicleSchema = z
       current_longitude: lng == null ? undefined : Number(lng),
     }
   })
+) // close z.preprocess
 
 /**
  * Fleet Metrics Schema - Validates aggregated fleet data

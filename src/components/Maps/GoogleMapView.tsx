@@ -158,15 +158,28 @@ const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) 
   const createMarkerIcon = (status: Vehicle['status'], type: Vehicle['type']): google.maps.Icon => {
     const color = getMarkerColor(status)
 
-    // SVG marker with vehicle icon
+    // SVG marker with vehicle type icon path
+    const iconPaths: Record<string, string> = {
+      truck: 'M2 11V7a1 1 0 011-1h7v6H3a1 1 0 01-1-1zm8-5h3.2a1 1 0 01.8.4l2 3 .5.6v3a1 1 0 01-1 1h-1M10 6v7m-5 1a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm9 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z',
+      van: 'M2 12V6a1 1 0 011-1h8a1 1 0 011 1v1l2 2v3a1 1 0 01-1 1h-1M2 12h1m-1 0a1 1 0 001 1h1M4.5 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm7 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z',
+      bus: 'M1 12V5a1 1 0 011-1h14a1 1 0 011 1v7M1 12h16M4 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm10 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM6 4v4m4-4v4m4-4v4',
+      suv: 'M2 12h14M4 15a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm10 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM2 12V9a1 1 0 011-1h2l2-3h4l2 3h2a1 1 0 011 1v3',
+      sedan: 'M3 11h12M4.5 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm9 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM3 11l1.5-4h9L15 11M5 7V5.5a.5.5 0 01.5-.5h7a.5.5 0 01.5.5V7',
+    }
+    const iconPath = iconPaths[type] || iconPaths.sedan
     const svg = `
       <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="ms" x="-20%" y="-10%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000" flood-opacity="0.3"/>
+          </filter>
+        </defs>
         <path d="M20 0C8.954 0 0 8.954 0 20c0 14.5 20 30 20 30s20-15.5 20-30C40 8.954 31.046 0 20 0z"
-              fill="${color}" stroke="hsl(var(--background))" stroke-width="2"/>
-        <circle cx="20" cy="20" r="12" fill="hsl(var(--background))"/>
-        <text x="20" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="${color}">
-          ${type === 'truck' ? '🚛' : type === 'van' ? '🚐' : type === 'bus' ? '🚌' : '🚗'}
-        </text>
+              fill="${color}" stroke="white" stroke-width="2" filter="url(#ms)"/>
+        <circle cx="20" cy="18" r="10" fill="rgba(0,0,0,0.2)"/>
+        <g transform="translate(11,9)">
+          <path d="${iconPath}" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
       </svg>
     `
 

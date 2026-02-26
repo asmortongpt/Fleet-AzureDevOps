@@ -33,7 +33,7 @@ interface FleetMapProps {
 export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
+  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const leafletIcon = useMemo(
@@ -114,7 +114,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
     if (!map || !vehicles.length) return;
 
     // Clear existing markers
-    markers.forEach((marker) => marker.setMap(null));
+    markers.forEach((marker) => { marker.map = null; });
 
     // Create new markers
     const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
@@ -158,13 +158,13 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
       });
 
       newMarkers.push(marker);
-      bounds.extend(marker.getPosition()!);
+      bounds.extend(marker.position as google.maps.LatLng);
     });
 
     // Fit map to show all markers
     if (hasValidCoordinates && newMarkers.length > 0) {
       if (newMarkers.length === 1) {
-        map.setCenter(newMarkers[0].getPosition()!);
+        map.setCenter(newMarkers[0].position as google.maps.LatLng);
         map.setZoom(14);
       } else {
         map.fitBounds(bounds);
