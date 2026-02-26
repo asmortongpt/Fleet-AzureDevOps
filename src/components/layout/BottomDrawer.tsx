@@ -17,7 +17,7 @@ export function BottomDrawer() {
     <div
       className={cn(
         'absolute bottom-0 left-0 right-0 z-10',
-        'bg-background/95 backdrop-blur-xl border-t border-border/50',
+        'bg-[#1A0648]/95 backdrop-blur-xl border-t border-[rgba(0,204,254,0.08)]',
         'transition-all duration-300 ease-in-out',
         open ? 'h-[200px] sm:h-[280px]' : 'h-8'
       )}
@@ -25,10 +25,10 @@ export function BottomDrawer() {
       {/* Grab bar */}
       <button
         onClick={toggleBottomDrawer}
-        className="w-full flex items-center justify-center gap-2 h-8 text-muted-foreground hover:text-foreground transition-colors"
+        className="w-full flex items-center justify-center gap-2 h-8 text-[rgba(255,255,255,0.40)] hover:text-white transition-colors"
         aria-label={open ? 'Collapse activity panel' : 'Expand activity panel'}
       >
-        <div className="w-8 h-0.5 rounded-full bg-border/50" />
+        <div className="w-8 h-0.5 rounded-full bg-[rgba(0,204,254,0.08)]" />
         {open ? (
           <ChevronDown className="w-3 h-3" />
         ) : (
@@ -54,9 +54,9 @@ export function BottomDrawer() {
             ].map((item) => (
               <div
                 key={item.text}
-                className="flex items-start gap-3 py-2 text-xs border-b border-border/50 last:border-0"
+                className="flex items-start gap-3 py-2 text-xs border-b border-[rgba(0,204,254,0.08)] last:border-0"
               >
-                <span className="text-muted-foreground shrink-0 w-12 sm:w-14 text-right tabular-nums font-mono text-[10px] sm:text-[11px]">
+                <span className="text-[rgba(255,255,255,0.40)] shrink-0 w-12 sm:w-14 text-right tabular-nums font-mono text-[10px] sm:text-[11px]">
                   {item.time}
                 </span>
                 <div className={cn(
@@ -66,7 +66,7 @@ export function BottomDrawer() {
                   item.type === 'alert' ? 'bg-white/40' :
                   'bg-white/20'
                 )} />
-                <span className="text-muted-foreground">{item.text}</span>
+                <span className="text-[rgba(255,255,255,0.40)]">{item.text}</span>
               </div>
             ))}
           </div>

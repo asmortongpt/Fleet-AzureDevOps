@@ -165,7 +165,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00CCFE]"></div>
       </div>
     )
   }
@@ -174,7 +174,7 @@ export default function ProfilePage() {
   if (!currentUser) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-2">
-        <p className="text-muted-foreground text-center max-w-md">
+        <p className="text-[rgba(255,255,255,0.40)] text-center max-w-md">
           {loadError || 'Unable to load user profile. Please ensure you are logged in.'}
         </p>
         <Button variant="outline" onClick={() => window.location.reload()}>
@@ -191,7 +191,7 @@ export default function ProfilePage() {
       <div className="flex items-center justify-between mb-3">
         <div>
           <h1 className="text-base font-bold">My Profile</h1>
-          <p className="text-muted-foreground mt-1">Manage your personal information</p>
+          <p className="text-[rgba(255,255,255,0.40)] mt-1">Manage your personal information</p>
         </div>
 
         {!isEditing ? (
@@ -229,7 +229,7 @@ export default function ProfilePage() {
             {isEditing && (
               <div>
                 <Label htmlFor="avatar" className="cursor-pointer">
-                  <div className="flex items-center gap-2 px-2 py-2 bg-secondary rounded-md hover:bg-secondary/80 transition-colors">
+                  <div className="flex items-center gap-2 px-2 py-2 bg-[#221060] rounded-md hover:bg-[#2A1878] transition-colors">
                     <Upload className="h-4 w-4" />
                     <span className="text-sm font-medium">Upload Photo</span>
                   </div>
@@ -241,7 +241,7 @@ export default function ProfilePage() {
                     className="hidden"
                   />
                 </Label>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-[rgba(255,255,255,0.40)] mt-2">
                   JPG, PNG or GIF (max 5MB)
                 </p>
               </div>
@@ -263,10 +263,10 @@ export default function ProfilePage() {
                   id="firstName"
                   {...register('firstName')}
                   disabled={!isEditing}
-                  className={!isEditing ? 'bg-muted' : ''}
+                  className={!isEditing ? 'bg-[#221060]' : ''}
                 />
                 {errors.firstName && (
-                  <p className="text-sm text-destructive">{errors.firstName.message}</p>
+                  <p className="text-sm text-[#FF4300]">{errors.firstName.message}</p>
                 )}
               </div>
 
@@ -276,10 +276,10 @@ export default function ProfilePage() {
                   id="lastName"
                   {...register('lastName')}
                   disabled={!isEditing}
-                  className={!isEditing ? 'bg-muted' : ''}
+                  className={!isEditing ? 'bg-[#221060]' : ''}
                 />
                 {errors.lastName && (
-                  <p className="text-sm text-destructive">{errors.lastName.message}</p>
+                  <p className="text-sm text-[#FF4300]">{errors.lastName.message}</p>
                 )}
               </div>
             </div>
@@ -290,10 +290,10 @@ export default function ProfilePage() {
                 id="displayName"
                 {...register('displayName')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-muted' : ''}
+                className={!isEditing ? 'bg-[#221060]' : ''}
               />
               {errors.displayName && (
-                <p className="text-sm text-destructive">{errors.displayName.message}</p>
+                <p className="text-sm text-[#FF4300]">{errors.displayName.message}</p>
               )}
             </div>
 
@@ -312,10 +312,10 @@ export default function ProfilePage() {
                 type="email"
                 {...register('email')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-muted' : ''}
+                className={!isEditing ? 'bg-[#221060]' : ''}
               />
               {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
+                <p className="text-sm text-[#FF4300]">{errors.email.message}</p>
               )}
             </div>
 
@@ -327,10 +327,10 @@ export default function ProfilePage() {
                 placeholder="+1 (555) 000-0000"
                 {...register('phone')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-muted' : ''}
+                className={!isEditing ? 'bg-[#221060]' : ''}
               />
               {errors.phone && (
-                <p className="text-sm text-destructive">{errors.phone.message}</p>
+                <p className="text-sm text-[#FF4300]">{errors.phone.message}</p>
               )}
             </div>
         </Section>
@@ -349,7 +349,7 @@ export default function ProfilePage() {
                   id="jobTitle"
                   {...register('jobTitle')}
                   disabled={!isEditing}
-                  className={!isEditing ? 'bg-muted' : ''}
+                  className={!isEditing ? 'bg-[#221060]' : ''}
                 />
               </div>
 
@@ -359,7 +359,7 @@ export default function ProfilePage() {
                   id="department"
                   {...register('department')}
                   disabled={!isEditing}
-                  className={!isEditing ? 'bg-muted' : ''}
+                  className={!isEditing ? 'bg-[#221060]' : ''}
                 />
               </div>
             </div>
@@ -372,10 +372,10 @@ export default function ProfilePage() {
                 placeholder="Tell us about yourself..."
                 {...register('bio')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-muted resize-none' : 'resize-none'}
+                className={!isEditing ? 'bg-[#221060] resize-none' : 'resize-none'}
               />
               {errors.bio && (
-                <p className="text-sm text-destructive">{errors.bio.message}</p>
+                <p className="text-sm text-[#FF4300]">{errors.bio.message}</p>
               )}
             </div>
         </Section>
@@ -398,10 +398,10 @@ export default function ProfilePage() {
                 placeholder="https://linkedin.com/in/username"
                 {...register('linkedin')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-muted' : ''}
+                className={!isEditing ? 'bg-[#221060]' : ''}
               />
               {errors.linkedin && (
-                <p className="text-sm text-destructive">{errors.linkedin.message}</p>
+                <p className="text-sm text-[#FF4300]">{errors.linkedin.message}</p>
               )}
             </div>
 
@@ -416,10 +416,10 @@ export default function ProfilePage() {
                 placeholder="https://github.com/username"
                 {...register('github')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-muted' : ''}
+                className={!isEditing ? 'bg-[#221060]' : ''}
               />
               {errors.github && (
-                <p className="text-sm text-destructive">{errors.github.message}</p>
+                <p className="text-sm text-[#FF4300]">{errors.github.message}</p>
               )}
             </div>
 
@@ -434,10 +434,10 @@ export default function ProfilePage() {
                 placeholder="https://twitter.com/username"
                 {...register('twitter')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-muted' : ''}
+                className={!isEditing ? 'bg-[#221060]' : ''}
               />
               {errors.twitter && (
-                <p className="text-sm text-destructive">{errors.twitter.message}</p>
+                <p className="text-sm text-[#FF4300]">{errors.twitter.message}</p>
               )}
             </div>
         </Section>
@@ -453,7 +453,7 @@ export default function ProfilePage() {
         >
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">User ID</span>
-              <span className="text-sm text-muted-foreground font-mono">{currentUser.id}</span>
+              <span className="text-sm text-[rgba(255,255,255,0.40)] font-mono">{currentUser.id}</span>
             </div>
             <Separator />
             <div className="flex justify-between items-center">
@@ -473,7 +473,7 @@ export default function ProfilePage() {
             <Separator />
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Member Since</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-[rgba(255,255,255,0.40)]">
                 {formatDate(currentUser.createdAt)}
               </span>
             </div>
@@ -482,7 +482,7 @@ export default function ProfilePage() {
                 <Separator />
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Last Active</span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-[rgba(255,255,255,0.40)]">
                     {formatDateTime(currentUser.lastActive)}
                   </span>
                 </div>

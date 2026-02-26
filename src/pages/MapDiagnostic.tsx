@@ -78,7 +78,7 @@ export default function MapDiagnostic() {
             <MapPin className="h-6 w-6" />
             Map Diagnostics
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-[rgba(255,255,255,0.40)] mt-1">
             Live GPS positions from the fleet tracking service
           </p>
         </div>
@@ -89,9 +89,9 @@ export default function MapDiagnostic() {
       </div>
 
       {error && (
-        <Card className="border-destructive/40 bg-destructive/5">
+        <Card className="border-[#FF4300]/40 bg-[#FF4300]/5">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive">
+            <CardTitle className="flex items-center gap-2 text-[#FF4300]">
               <AlertTriangle className="h-5 w-5" />
               Failed to Load GPS Data
             </CardTitle>
@@ -146,7 +146,7 @@ export default function MapDiagnostic() {
           {isLoading ? (
             <Skeleton className="h-[600px] w-full" />
           ) : vehicles.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No GPS positions available.</div>
+            <div className="text-sm text-[rgba(255,255,255,0.40)]">No GPS positions available.</div>
           ) : (
             <FleetMap vehicles={vehicles} height="600px" />
           )}
@@ -166,7 +166,7 @@ export default function MapDiagnostic() {
               <Skeleton className="h-12 w-full" />
             </div>
           ) : vehicles.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No vehicles reporting GPS data.</div>
+            <div className="text-sm text-[rgba(255,255,255,0.40)]">No vehicles reporting GPS data.</div>
           ) : (
             <div className="space-y-3">
               {vehicles.map((vehicle) => (
@@ -175,18 +175,18 @@ export default function MapDiagnostic() {
                   className="flex items-center justify-between p-3 border rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                      <MapPin className="h-4 w-4 text-primary" />
+                    <div className="h-9 w-9 rounded-full bg-[#00CCFE]/10 flex items-center justify-center">
+                      <MapPin className="h-4 w-4 text-[#00CCFE]" />
                     </div>
                     <div>
                       <div className="font-semibold">{vehicle.name}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-[rgba(255,255,255,0.40)]">
                         {vehicle.location || 'Location unavailable'}
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-[rgba(255,255,255,0.40)]">
                       {vehicle.latitude?.toFixed(4)}, {vehicle.longitude?.toFixed(4)}
                     </div>
                     <Badge variant="outline" className="mt-1">

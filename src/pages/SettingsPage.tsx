@@ -199,7 +199,7 @@ export default function SettingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-base font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">
+          <p className="text-[rgba(255,255,255,0.40)]">
             Manage your account settings and preferences
           </p>
         </div>
@@ -214,7 +214,7 @@ export default function SettingsPage() {
 
         {/* Save Success Indicator */}
         {saveSuccess && (
-          <Badge variant="outline" className="gap-2 bg-green-50 text-green-700 border-green-200">
+          <Badge variant="outline" className="gap-2 bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30">
             <Check className="w-4 h-4" />
             Saved
           </Badge>
@@ -237,8 +237,8 @@ export default function SettingsPage() {
                   onClick={() => handleTabChange(category.id)}
                   className={`w-full flex items-start gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
                     activeTab === category.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-accent hover:text-accent-foreground'
+                      ? 'bg-[#00CCFE] text-[#0D0320]'
+                      : 'hover:bg-[#2A1878] hover:text-white'
                   }`}
                 >
                   <span className="mt-0.5">{category.icon}</span>
@@ -247,8 +247,8 @@ export default function SettingsPage() {
                     <div
                       className={`text-xs mt-0.5 ${
                         activeTab === category.id
-                          ? 'text-primary-foreground/80'
-                          : 'text-muted-foreground'
+                          ? 'text-[#0D0320]/80'
+                          : 'text-[rgba(255,255,255,0.40)]'
                       }`}
                     >
                       {category.description}
@@ -299,7 +299,7 @@ export default function SettingsPage() {
             <AlertDialogCancel onClick={() => setShowUnsavedDialog(false)}>
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDiscardChanges} className="bg-destructive">
+            <AlertDialogAction onClick={handleDiscardChanges} className="bg-[#FF4300]">
               Discard Changes
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -307,8 +307,8 @@ export default function SettingsPage() {
       </AlertDialog>
 
       {/* Keyboard Shortcut Hint */}
-      <div className="text-xs text-muted-foreground text-center">
-        Press <kbd className="px-2 py-1 bg-muted rounded">Cmd/Ctrl + S</kbd> to save changes
+      <div className="text-xs text-[rgba(255,255,255,0.40)] text-center">
+        Press <kbd className="px-2 py-1 bg-[#221060] rounded">Cmd/Ctrl + S</kbd> to save changes
       </div>
     </div>
     </ErrorBoundary>

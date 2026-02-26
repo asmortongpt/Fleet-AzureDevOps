@@ -202,15 +202,15 @@ export function AuthCallback() {
   }, [instance, accounts, navigate, hasProcessed])
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden flex flex-col items-center justify-center bg-[hsl(var(--background))]">
+    <div className="min-h-screen w-full relative overflow-hidden flex flex-col items-center justify-center bg-[#0D0320]">
       {/* CINEMATIC BACKGROUND */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--card))_0%,hsl(var(--background))_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1A0648_0%,#0D0320_100%)]" />
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[hsl(var(--primary))] rounded-full blur-[180px] pointer-events-none opacity-10"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#00CCFE] rounded-full blur-[180px] pointer-events-none opacity-10"
         />
         <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: 'linear-gradient(90deg, hsl(var(--border) / 0.08) 1px, transparent 1px), linear-gradient(hsl(var(--border) / 0.08) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(90deg, rgba(0,204,254,0.08) 1px, transparent 1px), linear-gradient(rgba(0,204,254,0.08) 1px, transparent 1px)',
           backgroundSize: '60px 60px'
         }} />
       </div>
@@ -223,52 +223,52 @@ export function AuthCallback() {
           <img
             src="/logos/png/archony-logo-reverse-300px.png"
             alt="ArchonY"
-            className="h-12 w-auto mb-6 drop-shadow-[0_0_20px_hsl(var(--primary)/0.4)] mix-blend-lighten"
+            className="h-12 w-auto mb-6 drop-shadow-[0_0_20px_rgba(0,204,254,0.4)] mix-blend-lighten"
           />
           <div className="flex items-center gap-3">
-            <div className="h-px w-6 bg-border/50" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">Secure Synchronization</span>
-            <div className="h-px w-6 bg-border/50" />
+            <div className="h-px w-6 bg-[rgba(0,204,254,0.08)]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[rgba(255,255,255,0.40)]">Secure Synchronization</span>
+            <div className="h-px w-6 bg-[rgba(0,204,254,0.08)]" />
           </div>
         </div>
 
         {/* LOADING CORE */}
-        <div className="flex flex-col items-center gap-8 glass-premium p-10 rounded-[32px] border-border/50 shadow-2xl">
+        <div className="flex flex-col items-center gap-8 glass-premium p-10 rounded-[32px] border-[rgba(0,204,254,0.08)] shadow-2xl">
           <div className="relative">
             <div
-              className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[hsl(var(--primary))] border-b-2 border-l-2 border-border/50 animate-spin"
+              className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[#00CCFE] border-b-2 border-l-2 border-[rgba(0,204,254,0.08)] animate-spin"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
+              <Loader2 className="w-6 h-6 text-[rgba(255,255,255,0.40)] animate-spin" />
             </div>
-            <div className="absolute -inset-4 bg-emerald-500/10 blur-2xl rounded-full" />
+            <div className="absolute -inset-4 bg-[#00CCFE]/10 blur-2xl rounded-full" />
           </div>
 
           <div className="flex flex-col items-center gap-2">
-            <h3 className="text-sm font-black text-foreground uppercase tracking-widest text-shadow-premium">
+            <h3 className="text-sm font-black text-white uppercase tracking-widest text-shadow-premium">
               {errorMessage ? 'Authentication Error' : 'Establishing Protocol'}
             </h3>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.1em]">
+            <p className="text-[10px] font-bold text-[rgba(255,255,255,0.40)] uppercase tracking-[0.1em]">
               {errorMessage || 'Verified by Microsoft Azure AD'}
             </p>
           </div>
 
-          <div className="w-48 h-1 bg-muted/40 rounded-full overflow-hidden relative">
+          <div className="w-48 h-1 bg-[#221060]/40 rounded-full overflow-hidden relative">
             <div
-              className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-[hsl(var(--primary))] to-transparent shadow-[0_0_10px_hsl(var(--primary))] animate-pulse"
+              className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-[#00CCFE] to-transparent shadow-[0_0_10px_#00CCFE] animate-pulse"
             />
           </div>
         </div>
 
         {/* SECURITY FOOTER */}
         <div
-          className="mt-16 flex items-center gap-6 text-muted-foreground"
+          className="mt-16 flex items-center gap-6 text-[rgba(255,255,255,0.40)]"
         >
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span className="text-[9px] font-black uppercase tracking-widest">Safe Redirection</span>
           </div>
-          <div className="w-1 h-1 rounded-full bg-border/50" />
+          <div className="w-1 h-1 rounded-full bg-[rgba(0,204,254,0.08)]" />
           <div className="flex items-center gap-2">
             <Zap className="w-3.5 h-3.5" />
             <span className="text-[9px] font-black uppercase tracking-widest">ArchonY V3</span>

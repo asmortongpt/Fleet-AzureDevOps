@@ -13,13 +13,13 @@ import type { Vehicle } from '@/lib/types'
 
 function MapLoadingFallback() {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-background">
+    <div className="absolute inset-0 flex items-center justify-center bg-[#1A0648]">
       <div className="flex flex-col items-center gap-4">
         <div className="relative w-10 h-10">
           <div className="absolute inset-0 border-2 border-white/10 rounded-full" />
           <div className="absolute inset-0 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
         </div>
-        <span className="text-xs text-muted-foreground tracking-widest uppercase">Loading Map</span>
+        <span className="text-xs text-[rgba(255,255,255,0.40)] tracking-widest uppercase">Loading Map</span>
       </div>
     </div>
   )

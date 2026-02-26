@@ -28,15 +28,15 @@ export function ActionableError({
   ...props
 }: ActionableErrorProps) {
   const variantStyles = {
-    error: "bg-destructive/10 border-destructive/30 text-destructive-foreground",
-    warning: "bg-warning/10 border-warning/30 text-warning-foreground",
-    info: "bg-accent/10 border-accent/30 text-accent-foreground",
+    error: "bg-[#FF4300]/10 border-[#FF4300]/30 text-white",
+    warning: "bg-[#FDC016]/10 border-[#FDC016]/30 text-white",
+    info: "bg-[#00CCFE]/10 border-[#00CCFE]/30 text-white",
   }
 
   const iconStyles = {
-    error: "text-destructive",
-    warning: "text-warning",
-    info: "text-accent",
+    error: "text-[#FF4300]",
+    warning: "text-[#FDC016]",
+    info: "text-[#00CCFE]",
   }
 
   return (
@@ -61,14 +61,14 @@ export function ActionableError({
           <div>
             <h3 className="font-semibold text-base mb-1">{title}</h3>
             {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
+              <p className="text-sm text-[rgba(255,255,255,0.40)]">{description}</p>
             )}
           </div>
 
           {causes.length > 0 && (
             <div className="text-sm">
               <p className="font-medium mb-2">This might be due to:</p>
-              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              <ul className="list-disc list-inside space-y-1 text-[rgba(255,255,255,0.40)]">
                 {causes.map((cause) => (
                   <li key={cause}>{cause}</li>
                 ))}

@@ -361,13 +361,13 @@ export function createStatusColumn<T>(
       let badgeClass = 'bg-[#2A1878]/30 text-[rgba(255,255,255,0.65)] border-[rgba(0,204,254,0.08)]'
 
       if (statusLower === 'active' || statusLower === 'online' || statusLower === 'available') {
-        badgeClass = 'bg-[hsl(var(--chart-2)/0.2)] text-[hsl(var(--chart-2))] border-[hsl(var(--chart-2)/0.3)]'
+        badgeClass = 'bg-[#10B981]/20 text-[#10B981] border-[#10B981]/30'
       } else if (statusLower === 'inactive' || statusLower === 'offline') {
         badgeClass = 'bg-[#2A1878]/30 text-[rgba(255,255,255,0.65)] border-[rgba(0,204,254,0.08)]'
       } else if (statusLower === 'warning' || statusLower === 'maintenance') {
-        badgeClass = 'bg-[hsl(var(--chart-3)/0.2)] text-[hsl(var(--chart-3))] border-[hsl(var(--chart-3)/0.3)]'
+        badgeClass = 'bg-[#FDC016]/20 text-[#FDC016] border-[#FDC016]/30'
       } else if (statusLower === 'critical' || statusLower === 'alert') {
-        badgeClass = 'bg-[hsl(var(--chart-6)/0.2)] text-[hsl(var(--chart-6))] border-[hsl(var(--chart-6)/0.3)]'
+        badgeClass = 'bg-[#FF4300]/20 text-[#FF4300] border-[#FF4300]/30'
       }
 
       return (

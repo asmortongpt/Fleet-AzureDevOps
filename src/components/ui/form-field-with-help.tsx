@@ -29,14 +29,14 @@ export function FormFieldWithHelp({
       <div className="flex items-center justify-between">
         <Label className="flex items-center gap-2">
           {label}
-          {required && <span className="text-destructive">*</span>}
+          {required && <span className="text-[#FF4300]">*</span>}
           <InfoPopover
             title={helpTitle || label}
             content={
               <div className="space-y-2">
                 <p>{helpText}</p>
                 {example && (
-                  <div className="p-2 bg-muted rounded text-xs">
+                  <div className="p-2 bg-[#221060] rounded text-xs">
                     <span className="font-semibold">Example: </span>
                     {example}
                   </div>
@@ -51,10 +51,10 @@ export function FormFieldWithHelp({
       {children}
 
       {error && (
-        <p className="text-sm text-destructive">{error}</p>
+        <p className="text-sm text-[#FF4300]">{error}</p>
       )}
 
-      <p className="text-xs text-muted-foreground">{helpText}</p>
+      <p className="text-xs text-[rgba(255,255,255,0.40)]">{helpText}</p>
     </div>
   )
 }

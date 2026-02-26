@@ -51,7 +51,7 @@ export function PasswordReset() {
     <div
       className="relative flex min-h-screen items-center justify-center overflow-hidden"
       style={{
-        background: 'linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 50%, hsl(var(--background)) 100%)',
+        background: 'linear-gradient(135deg, #0D0320 0%, #1A0648 50%, #0D0320 100%)',
         minHeight: '100vh'
       }}
     >
@@ -61,14 +61,14 @@ export function PasswordReset() {
         <div
           className="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full"
           style={{
-            background: 'radial-gradient(circle, hsl(var(--chart-5) / 0.25) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(0,204,254,0.25) 0%, transparent 70%)',
             filter: 'blur(60px)'
           }}
         />
         <div
           className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-pulse rounded-full"
           style={{
-            background: 'radial-gradient(circle, hsl(var(--chart-6) / 0.2) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(255,67,0,0.2) 0%, transparent 70%)',
             filter: 'blur(60px)',
             animationDelay: '2s'
           }}
@@ -78,7 +78,7 @@ export function PasswordReset() {
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: 'linear-gradient(90deg, hsl(var(--border) / 0.08) 1px, transparent 1px), linear-gradient(hsl(var(--border) / 0.08) 1px, transparent 1px)',
+            backgroundImage: 'linear-gradient(90deg, rgba(0,204,254,0.08) 1px, transparent 1px), linear-gradient(rgba(0,204,254,0.08) 1px, transparent 1px)',
             backgroundSize: '60px 60px'
           }}
         />
@@ -95,12 +95,12 @@ export function PasswordReset() {
               height="80"
               viewBox="0 0 80 80"
               className="absolute top-0 left-1/2 -translate-x-1/2"
-              style={{ filter: 'drop-shadow(0 4px 8px hsl(var(--chart-3) / 0.5))' }}
+              style={{ filter: 'drop-shadow(0 4px 8px rgba(0,204,254,0.5))' }}
             >
               <defs>
                 <linearGradient id="ctaGradientPasswordReset" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: 'hsl(var(--chart-3))' }} />
-                  <stop offset="100%" style={{ stopColor: 'hsl(var(--chart-6))' }} />
+                  <stop offset="0%" style={{ stopColor: '#00CCFE' }} />
+                  <stop offset="100%" style={{ stopColor: '#FF4300' }} />
                 </linearGradient>
               </defs>
               <path
@@ -125,9 +125,9 @@ export function PasswordReset() {
                   fontFamily: '"Inter", -apple-system, sans-serif',
                   fontWeight: 700,
                   letterSpacing: '0.15em',
-                  color: 'hsl(var(--foreground))',
-                  textShadow: '0 2px 8px hsl(var(--chart-5) / 0.6), 0 4px 12px hsl(var(--chart-3) / 0.4)',
-                  background: 'linear-gradient(90deg, hsl(var(--foreground)) 0%, hsl(var(--chart-1)) 50%, hsl(var(--foreground)) 100%)',
+                  color: 'white',
+                  textShadow: '0 2px 8px rgba(0,204,254,0.6), 0 4px 12px rgba(0,204,254,0.4)',
+                  background: 'linear-gradient(90deg, white 0%, #00CCFE 50%, white 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text'
@@ -138,8 +138,8 @@ export function PasswordReset() {
               <div
                 className="text-[10px] font-semibold uppercase tracking-[0.2em]"
                 style={{
-                  color: 'hsl(var(--chart-1))',
-                  textShadow: '0 0 10px hsl(var(--chart-5) / 0.8)',
+                  color: '#00CCFE',
+                  textShadow: '0 0 10px rgba(0,204,254,0.8)',
                   fontWeight: 600
                 }}
               >
@@ -152,8 +152,8 @@ export function PasswordReset() {
         <h1
           className="mb-2 text-2xl font-semibold tracking-tight"
           style={{
-              color: 'hsl(var(--foreground))',
-              textShadow: '0 2px 4px hsl(var(--foreground) / 0.5)'
+              color: 'white',
+              textShadow: '0 2px 4px rgba(255,255,255,0.5)'
           }}
         >
           Capital Tech Alliance
@@ -163,31 +163,31 @@ export function PasswordReset() {
           <div
             className="mx-auto w-24 h-1 rounded-full mb-3"
             style={{
-              background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
-              boxShadow: '0 2px 8px hsl(var(--chart-3) / 0.6)'
+              background: 'linear-gradient(90deg, #00CCFE 0%, #FF4300 100%)',
+              boxShadow: '0 2px 8px rgba(0,204,254,0.6)'
             }}
           />
         </div>
 
         {/* Premium Password Reset Card */}
-        <Card className="border-border/50 bg-card/90 shadow-2xl shadow-black/20 backdrop-blur-xl text-card-foreground">
+        <Card className="border-[rgba(0,204,254,0.08)] bg-[#1A0648]/90 shadow-2xl shadow-black/20 backdrop-blur-xl text-white">
           <div className="p-5">
             {/* Card Title Section */}
             <div className="mb-3.5 text-center">
-              <h2 className="mb-1 flex items-center justify-center gap-2 text-xl font-semibold text-foreground">
-                <Shield className="h-5 w-5 text-primary" />
+              <h2 className="mb-1 flex items-center justify-center gap-2 text-xl font-semibold text-white">
+                <Shield className="h-5 w-5 text-[#00CCFE]" />
                 <span>Reset Password</span>
               </h2>
-              <p className="text-xs text-muted-foreground mb-2">
+              <p className="text-xs text-[rgba(255,255,255,0.40)] mb-2">
                 Enter your email address and we'll send you a link to reset your password
               </p>
-              <div className="text-[10px] text-foreground bg-muted/40 border border-border/50 rounded-md p-2">
+              <div className="text-[10px] text-white bg-[#221060]/40 border border-[rgba(0,204,254,0.08)] rounded-md p-2">
                 <strong>Note:</strong> If you sign in with Microsoft, please use{' '}
                 <a
                   href="https://aka.ms/sspr"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold hover:underline text-primary"
+                  className="font-semibold hover:underline text-[#00CCFE]"
                 >
                   Microsoft Self-Service Password Reset
                 </a> instead.
@@ -203,7 +203,7 @@ export function PasswordReset() {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="reset-email" className="text-sm font-medium text-foreground">
+                    <Label htmlFor="reset-email" className="text-sm font-medium text-white">
                       Email Address
                     </Label>
                     <Input
@@ -214,7 +214,7 @@ export function PasswordReset() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isLoading}
-                      className="h-11 border-border/50 focus:border-primary/60"
+                      className="h-11 border-[rgba(0,204,254,0.08)] focus:border-[#00CCFE]/60"
                     />
                   </div>
 
@@ -222,15 +222,15 @@ export function PasswordReset() {
                     type="submit"
                     size="lg"
                     style={{
-                      background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
-                      boxShadow: '0 10px 20px hsl(var(--chart-3) / 0.4)'
+                      background: 'linear-gradient(90deg, #00CCFE 0%, #FF4300 100%)',
+                      boxShadow: '0 10px 20px rgba(0,204,254,0.4)'
                     }}
                     className="group relative mb-3.5 h-11 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
                     disabled={isLoading}
                   >
                     <div
                       className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                      style={{ background: 'linear-gradient(90deg, hsl(var(--chart-6)) 0%, hsl(var(--chart-3)) 100%)' }}
+                      style={{ background: 'linear-gradient(90deg, #FF4300 0%, #00CCFE 100%)' }}
                     />
                     <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-20">
                       <div className="h-full w-full bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer" />
@@ -252,7 +252,7 @@ export function PasswordReset() {
                   <Link
                     to="/login"
                     className="text-sm font-medium hover:underline"
-                    style={{ color: 'hsl(var(--chart-1))' }}
+                    style={{ color: '#00CCFE' }}
                   >
                     ← Back to Login
                   </Link>
@@ -260,8 +260,8 @@ export function PasswordReset() {
               </>
             ) : (
               <div className="space-y-4">
-                <Alert className="border-emerald-400/40 bg-emerald-500/10">
-                  <AlertDescription className="text-emerald-100">
+                <Alert className="border-[#10B981]/40 bg-[#10B981]/10">
+                  <AlertDescription className="text-[#10B981]">
                     <strong>Check your email!</strong>
                     <br />
                     If an account exists for {email}, you will receive a password reset link shortly.
@@ -269,21 +269,21 @@ export function PasswordReset() {
                 </Alert>
 
                 <div className="text-center space-y-3">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[rgba(255,255,255,0.40)]">
                     Didn't receive the email? Check your spam folder or{' '}
                     <button
                       onClick={() => {
                         setIsSubmitted(false)
                         setEmail('')
                       }}
-                      className="font-medium hover:underline text-primary"
+                      className="font-medium hover:underline text-[#00CCFE]"
                     >
                       try again
                     </button>
                   </p>
                   <Link
                     to="/login"
-                    className="block text-sm font-medium hover:underline text-primary"
+                    className="block text-sm font-medium hover:underline text-[#00CCFE]"
                   >
                     ← Back to Login
                   </Link>
@@ -292,7 +292,7 @@ export function PasswordReset() {
             )}
 
             {/* Support Link */}
-            <p className="text-center text-[10px] text-muted-foreground inline-flex items-center justify-center gap-1 w-full">
+            <p className="text-center text-[10px] text-[rgba(255,255,255,0.40)] inline-flex items-center justify-center gap-1 w-full">
               Need assistance?{' '}
               <EmailButton
                 to="support@capitaltechalliance.com"
@@ -300,7 +300,7 @@ export function PasswordReset() {
                 label="Contact Support"
                 variant="link"
                 size="sm"
-                className="h-auto p-0 text-[10px] font-semibold text-primary"
+                className="h-auto p-0 text-[10px] font-semibold text-[#00CCFE]"
               />
             </p>
           </div>
@@ -308,10 +308,10 @@ export function PasswordReset() {
 
         {/* Premium Footer */}
         <div className="mt-4 space-y-1 text-center">
-          <p className="text-[10px] font-semibold text-muted-foreground">
+          <p className="text-[10px] font-semibold text-[rgba(255,255,255,0.40)]">
             Fleet Management System v2.0
           </p>
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
             © {new Date().getFullYear()} Capital Tech Alliance. All rights reserved.
           </p>
         </div>

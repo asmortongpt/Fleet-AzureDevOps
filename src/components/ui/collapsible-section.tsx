@@ -68,7 +68,7 @@ export function CollapsibleSection({
     <div
       className={cn(
         'border rounded-lg overflow-hidden transition-all',
-        'bg-card',
+        'bg-[#221060]',
         className
       )}
     >
@@ -79,7 +79,7 @@ export function CollapsibleSection({
         onClick={handleToggle}
         className={cn(
           'w-full flex items-center justify-between p-2',
-          'hover:bg-muted/50 transition-colors',
+          'hover:bg-[#2A1878]/50 transition-colors',
           'rounded-none'
         )}
         aria-expanded={isExpanded}
@@ -96,7 +96,7 @@ export function CollapsibleSection({
               )}
             </div>
             {description && (
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-[rgba(255,255,255,0.40)] mt-1">
                 {description}
               </p>
             )}
@@ -106,9 +106,9 @@ export function CollapsibleSection({
         {/* Expand/Collapse Icon */}
         <div className="ml-2">
           {isExpanded ? (
-            <ChevronUp className="h-5 w-5 text-muted-foreground" />
+            <ChevronUp className="h-5 w-5 text-[rgba(255,255,255,0.40)]" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+            <ChevronDown className="h-5 w-5 text-[rgba(255,255,255,0.40)]" />
           )}
         </div>
       </Button>

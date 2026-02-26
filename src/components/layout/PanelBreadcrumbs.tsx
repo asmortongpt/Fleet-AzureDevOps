@@ -31,15 +31,15 @@ export function PanelBreadcrumbs() {
 
         return (
           <span key={entry.id} className="flex items-center gap-1 shrink-0">
-            <ChevronRight className="w-3 h-3 text-muted-foreground" />
+            <ChevronRight className="w-3 h-3 text-[rgba(255,255,255,0.40)]" />
             <button
               onClick={() => !isLast && goToPanel(idx)}
               disabled={isLast}
               className={cn(
                 'transition-colors truncate max-w-[160px]',
                 isLast
-                  ? 'text-foreground font-medium cursor-default'
-                  : 'text-muted-foreground hover:text-[--cta-blue-skies] cursor-pointer'
+                  ? 'text-white font-medium cursor-default'
+                  : 'text-[rgba(255,255,255,0.40)] hover:text-[--cta-blue-skies] cursor-pointer'
               )}
             >
               {label}

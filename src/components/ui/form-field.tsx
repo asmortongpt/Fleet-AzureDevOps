@@ -128,7 +128,7 @@ export function FormField({
 
       {/* Hint Text */}
       {hint && !showError && (
-        <div id={`${name}-hint`} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+        <div id={`${name}-hint`} className="flex items-start gap-1.5 text-xs text-[rgba(255,255,255,0.40)]">
           <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" aria-hidden="true" />
           <span>{hint}</span>
         </div>

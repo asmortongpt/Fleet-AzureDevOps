@@ -83,11 +83,11 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
     return (
         <div className="min-h-screen cta-hub">
             {/* Main content wrapper */}
-            <div className="relative z-10 flex h-screen w-full text-foreground overflow-hidden font-sans">
+            <div className="relative z-10 flex h-screen w-full text-white overflow-hidden font-sans">
                 {/* Skip Link for Accessibility */}
                 <a
                     href="#main-content"
-                    className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-2 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:shadow-sm focus:ring-2 focus:ring-primary/50"
+                    className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-2 focus:py-2 focus:bg-[#00CCFE] focus:text-white focus:rounded-lg focus:shadow-sm focus:ring-2 focus:ring-[#00CCFE]/50"
                 >
                     Skip to main content
                 </a>
@@ -122,7 +122,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
                     variant="ghost"
                     size="icon"
                     className={cn(
-                        "absolute top-4 right-4 text-foreground/80 hover:text-foreground hover:bg-muted/50 lg:hidden rounded-full transition-all duration-200",
+                        "absolute top-4 right-4 text-white/80 hover:text-white hover:bg-[#2A1878]/50 lg:hidden rounded-full transition-all duration-200",
                         mobileMenuOpen ? "opacity-100 scale-100" : "opacity-0 scale-90 pointer-events-none"
                     )}
                     onClick={toggleMobileMenu}
@@ -135,7 +135,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
             {/* MAIN CONTENT AREA */}
             <main
                 id="main-content"
-                className="flex-1 flex flex-col relative z-10 overflow-hidden backdrop-blur-xl bg-background/70 min-w-0"
+                className="flex-1 flex flex-col relative z-10 overflow-hidden backdrop-blur-xl bg-[#1A0648]/70 min-w-0"
             >
                 {/* Header with mobile menu button */}
                 <div className="relative shrink-0">
@@ -143,7 +143,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 text-foreground/80 hover:text-foreground hover:bg-muted/50 lg:hidden rounded-full transition-all duration-200"
+                            className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 text-white/80 hover:text-white hover:bg-[#2A1878]/50 lg:hidden rounded-full transition-all duration-200"
                             onClick={toggleMobileMenu}
                             aria-label="Open navigation menu"
                             aria-expanded={mobileMenuOpen}
@@ -168,7 +168,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
                 </div>
 
                 {/* Footer for accessibility */}
-                <footer className="shrink-0 px-4 py-2 text-xs text-muted-foreground border-t border-border/50 backdrop-blur-xl bg-background/60">
+                <footer className="shrink-0 px-4 py-2 text-xs text-[rgba(255,255,255,0.40)] border-t border-[rgba(0,204,254,0.08)] backdrop-blur-xl bg-[#1A0648]/60">
                     <div className="flex items-center justify-between">
                         <span>&copy; {new Date().getFullYear()} CTAFleet. All rights reserved.</span>
                         <span>v1.0.0</span>

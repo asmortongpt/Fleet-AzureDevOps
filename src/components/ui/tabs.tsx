@@ -51,7 +51,7 @@ function TabsTrigger({
         // Active state
         "data-[state=active]:border-b-[#00CCFE] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:bg-transparent data-[state=active]:shadow-none",
         // Focus state
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00CCFE] focus-visible:ring-offset-2",
         // Disabled state
         "disabled:pointer-events-none disabled:opacity-50",
         // SVG handling
@@ -73,7 +73,7 @@ function TabsContent({
       className={cn(
         "flex-1 outline-none mt-2 text-white",
         "data-[state=active]:animate-fade-in",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00CCFE] focus-visible:ring-offset-2",
         className
       )}
       {...props}
@@ -90,7 +90,7 @@ function TabsListUnderline({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "inline-flex h-9 items-center gap-2 border-b border-border/50",
+        "inline-flex h-9 items-center gap-2 border-b border-[rgba(0,204,254,0.08)]",
         "overflow-x-auto no-scrollbar",
         className
       )}
@@ -112,12 +112,12 @@ function TabsTriggerUnderline({
         "text-sm font-medium whitespace-nowrap",
         "transition-colors duration-200",
         // Default state
-        "text-muted-foreground hover:text-foreground",
+        "text-[rgba(255,255,255,0.40)] hover:text-white",
         // Active state
-        "data-[state=active]:text-foreground",
+        "data-[state=active]:text-white",
         // Underline indicator
         "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5",
-        "after:bg-primary after:rounded-full after:transition-transform after:duration-200",
+        "after:bg-[#00CCFE] after:rounded-full after:transition-transform after:duration-200",
         "after:scale-x-0 data-[state=active]:after:scale-x-100",
         // Focus state
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded-md",
@@ -141,7 +141,7 @@ function TabsListPill({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "inline-flex items-center gap-1 p-1 rounded-full bg-muted/30",
+        "inline-flex items-center gap-1 p-1 rounded-full bg-[#221060]/30",
         className
       )}
       {...props}
@@ -162,11 +162,11 @@ function TabsTriggerPill({
         "text-xs font-medium whitespace-nowrap",
         "transition-all duration-200",
         // Default state
-        "text-muted-foreground hover:text-foreground",
+        "text-[rgba(255,255,255,0.40)] hover:text-white",
         // Active state
-        "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+        "data-[state=active]:bg-[#1A0648] data-[state=active]:text-white data-[state=active]:shadow-sm",
         // Focus state
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00CCFE]",
         // Disabled state
         "disabled:pointer-events-none disabled:opacity-50",
         // SVG handling

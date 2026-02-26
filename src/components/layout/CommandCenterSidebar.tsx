@@ -47,7 +47,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                     isSidebarOpen ? "px-3 gap-3" : "px-0 justify-center",
                     isActive
                         ? "bg-gradient-to-r from-white/10 to-transparent text-white shadow-md shadow-white/5 border-l-4 border-l-white"
-                        : "text-muted-foreground hover:text-foreground hover:bg-gradient-to-r hover:from-muted/40 hover:to-transparent"
+                        : "text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-gradient-to-r hover:from-[#2A1878]/40 hover:to-transparent"
                 )}
                 style={{ animationDelay: `${index * 30}ms` }}
                 aria-label={item.label}
@@ -114,7 +114,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 {isSidebarOpen && (
                     <h3 className={cn(
                         "px-3 py-1.5 text-xs font-bold uppercase tracking-wider",
-                        accentColor === "primary" ? "text-primary/80" : "text-muted-foreground"
+                        accentColor === "primary" ? "text-[#00CCFE]/80" : "text-[rgba(255,255,255,0.40)]"
                     )}>
                         {title}
                     </h3>
@@ -131,12 +131,12 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             <div
                 aria-label="Application sidebar"
                 className={cn(
-                    "z-20 flex flex-col h-full backdrop-blur-xl bg-background/95 border-r border-border/50 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-pro",
+                    "z-20 flex flex-col h-full backdrop-blur-xl bg-[#1A0648]/95 border-r border-[rgba(0,204,254,0.08)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-pro",
                     isSidebarOpen ? "w-56" : "w-16"
                 )}
             >
                 {/* Logo Area */}
-                <div className="h-14 flex items-center justify-between px-4 border-b border-border/50 shrink-0">
+                <div className="h-14 flex items-center justify-between px-4 border-b border-[rgba(0,204,254,0.08)] shrink-0">
                     {isSidebarOpen ? (
                         <ArchonYLogo variant="full" showAnimation />
                     ) : (
@@ -155,7 +155,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 </nav>
 
                 {/* Bottom Actions */}
-                <div className="p-2 border-t border-border/50 shrink-0 space-y-2">
+                <div className="p-2 border-t border-[rgba(0,204,254,0.08)] shrink-0 space-y-2">
                     {/* Settings Button */}
                     {!isSidebarOpen ? (
                         <Tooltip delayDuration={0}>
@@ -166,7 +166,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                         navigateTo('settings');
                                         onNavigate?.();
                                     }}
-                                    className="w-full justify-center h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                                    className="w-full justify-center h-10 rounded-lg text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]/60"
                                     aria-label="Settings"
                                 >
                                     <Settings className="w-4 h-4" />
@@ -183,7 +183,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                 navigateTo('settings');
                                 onNavigate?.();
                             }}
-                            className="w-full justify-start h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 px-3 gap-3"
+                            className="w-full justify-start h-10 rounded-lg text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]/60 px-3 gap-3"
                             aria-label="Settings"
                         >
                             <Settings className="w-4 h-4 shrink-0" />
@@ -200,7 +200,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                     size="sm"
                                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                                     className={cn(
-                                        "w-full h-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200",
+                                        "w-full h-9 rounded-lg text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]/60 transition-all duration-200",
                                         isSidebarOpen ? "justify-start px-3 gap-2" : "justify-center"
                                     )}
                                     aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}

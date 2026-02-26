@@ -59,7 +59,7 @@ function DrawerContent({
         data-slot="drawer-content"
         className={cn(
           "group/drawer-content fixed z-50 flex h-auto flex-col",
-          "bg-background/95 backdrop-blur-xl",
+          "bg-[#1A0648]/95 backdrop-blur-xl",
           // Bottom drawer
           "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0",
           "data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[85vh]",
@@ -77,23 +77,23 @@ function DrawerContent({
           "data-[vaul-drawer-direction=left]:w-[85vw] data-[vaul-drawer-direction=left]:sm:w-[400px] data-[vaul-drawer-direction=left]:sm:max-w-md",
           "data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:rounded-r-2xl",
           // Border styling
-          "border-border/50",
+          "border-[rgba(0,204,254,0.08)]/50",
           className
         )}
         {...props}
       >
         {/* Drag handle for bottom drawer */}
-        <div className="mx-auto mt-2 hidden h-1.5 w-12 shrink-0 rounded-full bg-muted-foreground/20 group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
+        <div className="mx-auto mt-2 hidden h-1.5 w-12 shrink-0 rounded-full bg-[rgba(255,255,255,0.40)]/20 group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
 
         {/* Close button for side drawers */}
         {showClose && (
           <DrawerPrimitive.Close
             className={cn(
               "absolute top-4 right-4 rounded-lg p-2",
-              "text-muted-foreground hover:text-foreground",
-              "bg-muted/50 hover:bg-muted",
+              "text-[rgba(255,255,255,0.40)] hover:text-white",
+              "bg-[#221060]/50 hover:bg-[#221060]",
               "transition-all duration-200",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+              "focus:outline-none focus:ring-2 focus:ring-[#00CCFE] focus:ring-offset-2",
               "hidden group-data-[vaul-drawer-direction=left]/drawer-content:block group-data-[vaul-drawer-direction=right]/drawer-content:block",
               "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4"
             )}
@@ -115,7 +115,7 @@ function DrawerHeader({ className, ...props }: ComponentProps<"div">) {
       data-slot="drawer-header"
       className={cn(
         "flex flex-col gap-1.5 p-2 sm:p-3",
-        "border-b border-border/50",
+        "border-b border-[rgba(0,204,254,0.08)]/50",
         className
       )}
       {...props}
@@ -129,7 +129,7 @@ function DrawerFooter({ className, ...props }: ComponentProps<"div">) {
       data-slot="drawer-footer"
       className={cn(
         "mt-auto flex flex-col gap-2 p-2 sm:p-3",
-        "border-t border-border/50",
+        "border-t border-[rgba(0,204,254,0.08)]/50",
         className
       )}
       {...props}
@@ -144,7 +144,7 @@ function DrawerTitle({
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"
-      className={cn("text-sm font-semibold text-foreground tracking-tight", className)}
+      className={cn("text-sm font-semibold text-white tracking-tight", className)}
       {...props}
     />
   )
@@ -157,7 +157,7 @@ function DrawerDescription({
   return (
     <DrawerPrimitive.Description
       data-slot="drawer-description"
-      className={cn("text-sm text-muted-foreground leading-relaxed", className)}
+      className={cn("text-sm text-[rgba(255,255,255,0.40)] leading-relaxed", className)}
       {...props}
     />
   )
