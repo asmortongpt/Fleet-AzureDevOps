@@ -56,13 +56,20 @@ export interface AuthRequest extends Request {
 let checkRevokedFn: ((req: AuthRequest, res: Response, next: NextFunction) => void) | null = null
 
 // Development bypass helpers -------------------------------------------------
-const devBypassEnabled = process.env.VITE_SKIP_AUTH === 'true' || process.env.DEV_BYPASS_SECURITY === 'true'
+const devBypassEnabled = process.env.SKIP_AUTH === 'true' || process.env.VITE_SKIP_AUTH === 'true' || process.env.DEV_BYPASS_SECURITY === 'true'
 let cachedDefaultTenantId: string | null = null
 
 async function resolveDefaultTenantId(): Promise<string | null> {
   if (cachedDefaultTenantId) return cachedDefaultTenantId
   try {
-    const { rows } = await pool.query('SELECT id FROM tenants ORDER BY created_at ASC LIMIT 1')
+    // Pick the tenant with the most vehicles (Demo Fleet) rather than the first-created (Default Tenant with 0 vehicles)
+    const { rows } = await pool.query(
+      `SELECT t.id FROM tenants t
+       LEFT JOIN vehicles v ON v.tenant_id = t.id
+       GROUP BY t.id
+       ORDER BY COUNT(v.id) DESC
+       LIMIT 1`
+    )
     cachedDefaultTenantId = rows[0]?.id || null
   } catch (error) {
     logger.warn('Dev bypass: unable to resolve default tenant id', { error })

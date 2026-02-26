@@ -657,7 +657,7 @@ export function LeafletMap({
     <div
       ref={mapContainerRef}
       className={`leaflet-map-container ${className}`}
-      style={{ minHeight: `${minHeight}px` }}
+      style={{ minHeight: `${minHeight}px`, height: '100%', width: '100%' }}
       role="region"
       aria-label={ariaLabel}
     >

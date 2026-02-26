@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from "react"
 
-
+import { LeafletMap } from "./LeafletMap"
 import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "@/components/UniversalMap/utils/coordinates"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import type { MarkerStyle, MarkerSize } from "@/stores/useMapMarkerSettings"
@@ -707,89 +707,26 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
    * Render "Tactical Grid View" (Fallback for missing API key)
    */
   if (!hasValidApiKey) {
+    // Normalize vehicle locations for LeafletMap (expects .latitude/.longitude)
+    const normalizedVehicles = vehicles.map(v => ({
+      ...v,
+      location: v.location ? {
+        ...v.location,
+        latitude: v.location.latitude ?? v.location.lat,
+        longitude: v.location.longitude ?? v.location.lng,
+      } : v.location,
+    }))
+
     return (
-      <div
-        className={`relative w-full h-full min-h-[500px] bg-[#0a0a0a] overflow-hidden ${className}`}
-      >
-        {/* Grid Background */}
-        <div className="absolute inset-0"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(51, 65, 85, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(51, 65, 85, 0.3) 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-          }}
-        />
-
-        {/* Radar Sweep Effect */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent animate-spin-slow opacity-20" style={{ animationDuration: '8s' }} />
-
-        {/* Center Crosshair */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-64 h-64 border border-emerald-500/20 rounded-full flex items-center justify-center">
-            <div className="w-48 h-48 border border-emerald-500/20 rounded-full flex items-center justify-center">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            </div>
-          </div>
-          {/* Cross lines */}
-          <div className="absolute w-full h-px bg-emerald-500/20" />
-          <div className="absolute h-full w-px bg-emerald-500/20" />
-        </div>
-
-        {/* Simulated Vehicle Markers (Kinetic Movement) */}
-        {vehicles.map((v) => {
-          // Deterministic pseudo-random position based on ID
-          const hash = v.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-          const top = (hash * 17) % 70 + 15; // 15-85%
-          const left = (hash * 31) % 70 + 15; // 15-85%
-
-          // Generate a random duration for the patrol loop
-          const duration = 20 + (hash % 15);
-          const delay = -(hash % 20);
-
-          return (
-            <div
-              key={v.id}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 group cursor-pointer animate-patrol"
-              style={{
-                top: `${top}%`,
-                left: `${left}%`,
-                animationDuration: `${duration}s`,
-                animationDelay: `${delay}s`,
-                '--tx-1': `${(hash % 50) - 25}px`,
-                '--ty-1': `${(hash % 40) - 20}px`,
-                '--tx-2': `${(hash % 60) - 30}px`,
-                '--ty-2': `${(hash % 50) - 25}px`,
-                '--tx-3': `${(hash % 40) - 20}px`,
-                '--ty-3': `${(hash % 60) - 30}px`,
-              } as any}
-            >
-              <div className="relative">
-                <div className={`w-3 h-3 rounded-full ${
-                  v.status === 'active' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' :
-                  v.status === 'assigned' ? 'bg-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.5)]' :
-                  v.status === 'dispatched' ? 'bg-orange-400 shadow-[0_0_10px_rgba(251,146,60,0.5)]' :
-                  v.status === 'en_route' ? 'bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.5)]' :
-                  v.status === 'on_site' ? 'bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]' :
-                  v.status === 'completed' ? 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]' :
-                  v.status === 'service' || v.status === 'maintenance' ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]' :
-                  v.status === 'emergency' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' :
-                  v.status === 'charging' ? 'bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.5)]' :
-                  'bg-gray-500'
-                } transition-all`} />
-                <div className="absolute -inset-2 border border-emerald-500/30 rounded-full opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300" />
-
-                {/* Tooltip */}
-                <div className="absolute left-4 top-0 bg-[#111] border border-emerald-500/30 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none backdrop-blur-md shadow-sm">
-                  <div className="text-emerald-700 font-bold">{v.name}</div>
-                  <div className="text-white/70">{v.status.toUpperCase()}</div>
-                  <div className="text-[9px] text-gray-800 mt-1">
-                    LAT: {typeof v.location?.lat === 'number' ? v.location.lat.toFixed(4) : '—'}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <LeafletMap
+        vehicles={normalizedVehicles as any}
+        showVehicles={true}
+        showFacilities={false}
+        showCameras={false}
+        className={className}
+        mapStyle="dark"
+        autoFitBounds={true}
+      />
     )
   }
 
