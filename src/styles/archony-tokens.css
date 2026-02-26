@@ -1,0 +1,291 @@
+/* ArchonY Fleet Command — Design Tokens */
+/* Brand: Capital Technology Alliance / ArchonY "Intelligent Performance" */
+
+:root {
+  /* === Brand Colors === */
+  --cta-midnight: #1A0648;
+  --cta-daytime: #1F3076;
+  --cta-blue-skies: #00CCFE;
+  --cta-noon: #FF4300;
+  --cta-golden-hour: #FDC016;
+
+  /* === Semantic Colors === */
+  --success: #10B981;
+  --error: #FF4300;
+  --warning: #FDC016;
+  --info: #00CCFE;
+
+  /* === Gradients === */
+  --gradient-brand: linear-gradient(135deg, #1A0648 0%, #1F3076 25%, #00CCFE 50%, #FF4300 75%, #FDC016 100%);
+  --gradient-bar: linear-gradient(90deg, #1F3076, #00CCFE, #FF4300, #FDC016);
+
+  /* === Typography === */
+  --font-display: 'Cinzel', 'Times New Roman', serif;
+  --font-body: 'Montserrat', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* === Font Sizes === */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.75rem;
+  --text-4xl: 2rem;
+
+  /* === Spacing (8px grid) === */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* === Border Radius === */
+  --radius-sm: 4px;
+  --radius-default: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* === Z-Index === */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-command-palette: 1080;
+
+  /* === Transitions === */
+  --transition-fast: 100ms ease;
+  --transition-default: 150ms ease;
+  --transition-medium: 200ms ease;
+  --transition-slow: 300ms ease;
+  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* === Nav Dimensions === */
+  --nav-rail-width: 64px;
+  --nav-rail-expanded: 240px;
+  --command-bar-height: 48px;
+  --detail-panel-width: 380px;
+  --activity-bar-height: 48px;
+  --tab-bar-height: 44px;
+}
+
+/* === Dark Mode (Default) === */
+:root,
+[data-theme="dark"] {
+  --surface-0: #0D0320;
+  --surface-1: #1A0648;
+  --surface-2: #221060;
+  --surface-3: #2A1878;
+  --surface-4: #332090;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-muted: rgba(255, 255, 255, 0.40);
+  --text-inverse: #1A0648;
+
+  --border-subtle: rgba(0, 204, 254, 0.08);
+  --border-default: rgba(0, 204, 254, 0.15);
+  --border-strong: rgba(0, 204, 254, 0.25);
+  --border-focus: rgba(0, 204, 254, 0.50);
+
+  --shadow-sm: 0 1px 3px rgba(26, 6, 72, 0.3);
+  --shadow-md: 0 4px 12px rgba(26, 6, 72, 0.4);
+  --shadow-lg: 0 8px 24px rgba(26, 6, 72, 0.5);
+  --shadow-glow: 0 0 20px rgba(0, 204, 254, 0.15);
+  --shadow-glow-strong: 0 0 30px rgba(0, 204, 254, 0.25);
+
+  color-scheme: dark;
+}
+
+/* === Light Mode === */
+[data-theme="light"] {
+  --surface-0: #F5F5F7;
+  --surface-1: #FFFFFF;
+  --surface-2: #FAFAFA;
+  --surface-3: #F0F0F2;
+  --surface-4: #E8E8EC;
+
+  --text-primary: #1A0648;
+  --text-secondary: rgba(26, 6, 72, 0.65);
+  --text-muted: rgba(26, 6, 72, 0.40);
+  --text-inverse: #FFFFFF;
+
+  --border-subtle: rgba(26, 6, 72, 0.06);
+  --border-default: rgba(26, 6, 72, 0.12);
+  --border-strong: rgba(26, 6, 72, 0.20);
+  --border-focus: rgba(31, 48, 118, 0.50);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 20px rgba(31, 48, 118, 0.10);
+  --shadow-glow-strong: 0 0 30px rgba(31, 48, 118, 0.15);
+
+  color-scheme: light;
+}
+
+/* === ArchonY Animations === */
+@keyframes archony-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes archony-pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 204, 254, 0); }
+  50% { box-shadow: 0 0 12px 4px rgba(0, 204, 254, 0.3); }
+}
+
+@keyframes archony-alert-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 67, 0, 0); }
+  50% { box-shadow: 0 0 12px 4px rgba(255, 67, 0, 0.4); }
+}
+
+@keyframes archony-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes archony-slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes archony-slide-in-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes archony-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes archony-scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes archony-count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes archony-orb-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -20px) scale(1.05); }
+  50% { transform: translate(-20px, 30px) scale(0.95); }
+  75% { transform: translate(10px, 10px) scale(1.02); }
+}
+
+@keyframes archony-orb-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-20px, 30px) scale(0.95); }
+  50% { transform: translate(30px, -10px) scale(1.05); }
+  75% { transform: translate(-10px, -20px) scale(0.98); }
+}
+
+/* === Utility Classes === */
+
+/* Skeleton shimmer loading */
+.archony-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--surface-3) 50%,
+    var(--surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: archony-shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+/* Gradient bar (brand signature) */
+.archony-gradient-bar {
+  height: 3px;
+  background: var(--gradient-bar);
+  border-radius: var(--radius-full);
+}
+
+/* Active nav indicator */
+.archony-nav-active {
+  position: relative;
+}
+.archony-nav-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 3px;
+  background: var(--gradient-bar);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* Focus ring */
+.archony-focus-ring:focus-visible {
+  outline: 2px solid var(--cta-blue-skies);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+/* Glass morphism */
+.archony-glass {
+  background: rgba(34, 16, 96, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+[data-theme="light"] .archony-glass {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Tab active gradient underline */
+.archony-tab-active {
+  position: relative;
+}
+.archony-tab-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--gradient-bar);
+  border-radius: var(--radius-full) var(--radius-full) 0 0;
+}
+
+/* Alert pulse for critical items */
+.archony-alert-critical {
+  animation: archony-alert-pulse 2s infinite;
+}
+
+/* Accent glow on hover */
+.archony-glow-hover:hover {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

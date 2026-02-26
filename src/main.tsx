@@ -87,6 +87,9 @@ import logger from './utils/logger'
 // All CSS consolidated in index.css (5 files: index.css + 4 imports)
 import "./index.css"
 
+// ArchonY Design System — Brand tokens, animations, utility classes
+import "./styles/archony-tokens.css"
+
 // Data router created with createBrowserRouter + createRoutesFromElements
 // This replaces the legacy BrowserRouter with the modern data router API,
 // enabling future use of data loaders, actions, and error boundaries at the route level.
