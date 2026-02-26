@@ -46,15 +46,16 @@ export function ThemeProvider({
     // Add new theme class
     root.classList.add(activeTheme);
 
-    // Update data attribute for Tailwind
+    // Update data attributes for Tailwind + ArchonY tokens
     root.setAttribute('data-appearance', activeTheme);
+    root.setAttribute('data-theme', activeTheme);
 
-    // Update meta theme-color
+    // Update meta theme-color (ArchonY Midnight for dark, warm gray for light)
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
       metaThemeColor.setAttribute(
         'content',
-        activeTheme === 'dark' ? '#1f2937' : '#ffffff'
+        activeTheme === 'dark' ? '#1A0648' : '#F5F5F7'
       );
     }
   }, [theme]);

@@ -5,7 +5,7 @@
 
 import type { Theme } from './types'
 
-// Standard Light Theme (WCAG AA)
+// ArchonY Light Theme (WCAG AA)
 export const THEME_LIGHT: Theme = {
   id: 'light',
   name: 'Light',
@@ -13,24 +13,24 @@ export const THEME_LIGHT: Theme = {
   wcagLevel: 'AA',
   contrastRatio: 4.5,
   colors: {
-    primary: '#2563EB',
-    secondary: '#7C3AED',
-    accent: '#EC4899',
-    background: '#FFFFFF',
-    surface: '#F8FAFC',
-    foreground: '#0F172A',
-    muted: '#CBD5E1',
-    mutedForeground: '#64748B',
-    border: '#E2E8F0',
-    success: '#16A34A',
-    warning: '#D97706',
-    error: '#DC2626',
-    info: '#2563EB',
-    destructive: '#DC2626',
+    primary: '#1F3076',      // Daytime
+    secondary: '#1A0648',    // Midnight
+    accent: '#00CCFE',       // Blue Skies
+    background: '#F5F5F7',   // Surface-0 light
+    surface: '#FFFFFF',      // Surface-1 light
+    foreground: '#1A0648',   // Midnight as text
+    muted: '#E8E8EC',        // Surface-4 light
+    mutedForeground: 'rgba(26, 6, 72, 0.65)',
+    border: 'rgba(26, 6, 72, 0.12)',
+    success: '#10B981',
+    warning: '#FDC016',      // Golden Hour
+    error: '#FF4300',        // Noon
+    info: '#00CCFE',         // Blue Skies
+    destructive: '#FF4300',  // Noon
   },
 }
 
-// Standard Dark Theme (WCAG AA)
+// ArchonY Dark Theme (Default — WCAG AA)
 export const THEME_DARK: Theme = {
   id: 'dark',
   name: 'Dark',
@@ -38,20 +38,20 @@ export const THEME_DARK: Theme = {
   wcagLevel: 'AA',
   contrastRatio: 4.5,
   colors: {
-    primary: '#60A5FA',
-    secondary: '#A78BFA',
-    accent: '#F472B6',
-    background: '#0F172A',
-    surface: '#1E293B',
-    foreground: '#F8FAFC',
-    muted: '#475569',
-    mutedForeground: '#CBD5E1',
-    border: '#334155',
-    success: '#4ADE80',
-    warning: '#FBBF24',
-    error: '#F87171',
-    info: '#60A5FA',
-    destructive: '#F87171',
+    primary: '#00CCFE',      // Blue Skies
+    secondary: '#1F3076',    // Daytime
+    accent: '#00CCFE',       // Blue Skies
+    background: '#0D0320',   // Surface-0
+    surface: '#1A0648',      // Surface-1 (Midnight)
+    foreground: '#FFFFFF',
+    muted: '#2A1878',        // Surface-3
+    mutedForeground: 'rgba(255, 255, 255, 0.65)',
+    border: 'rgba(0, 204, 254, 0.15)',
+    success: '#10B981',
+    warning: '#FDC016',      // Golden Hour
+    error: '#FF4300',        // Noon
+    info: '#00CCFE',         // Blue Skies
+    destructive: '#FF4300',  // Noon
   },
 }
 
