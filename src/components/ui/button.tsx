@@ -50,35 +50,35 @@ const RippleEffect: React.FC<{ trigger?: boolean }> = ({ trigger = false }) => {
 }
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-['Montserrat',sans-serif] font-semibold transition-all duration-150 ease-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#00CCFE]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A0648]",
   {
     variants: {
       variant: {
         default:
-          "bg-white text-[#1a1a1a] hover:bg-white/90 shadow-sm rounded-lg font-semibold",
+          "bg-[#1F3076] text-white hover:bg-[#263a8a] hover:shadow-[0_0_20px_rgba(0,204,254,0.15)] shadow-sm rounded-lg",
         destructive:
-          "bg-rose-600 hover:bg-rose-700 text-white shadow-sm rounded-lg font-semibold",
+          "bg-[#FF4300] hover:bg-[#e63d00] text-white shadow-sm rounded-lg",
         outline:
-          "border-2 border-white/20 bg-transparent hover:bg-white/5 text-white/90 rounded-lg transition-colors duration-200 font-semibold hover:border-white/40",
+          "border border-[rgba(0,204,254,0.15)] bg-transparent hover:bg-[#221060] text-white rounded-lg transition-colors duration-200",
         secondary:
-          "bg-white/10 hover:bg-white/15 text-white/90 shadow-sm rounded-lg font-semibold border border-white/[0.08]",
+          "bg-transparent border border-[rgba(0,204,254,0.15)] hover:bg-[#2A1878] text-white shadow-sm rounded-lg",
         ghost:
-          "hover:bg-white/10 text-foreground rounded-lg transition-colors duration-200",
+          "hover:bg-[#2A1878]/60 text-[rgba(255,255,255,0.85)] rounded-lg transition-colors duration-200",
         link:
-          "text-white/80 underline-offset-4 hover:underline hover:text-white font-semibold",
+          "text-[#00CCFE] underline-offset-4 hover:underline",
         success:
-          "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm rounded-lg font-semibold",
+          "bg-[#10B981] hover:bg-[#0d9668] text-white shadow-sm rounded-lg",
         warning:
-          "bg-amber-500 hover:bg-amber-600 text-white shadow-sm rounded-lg font-semibold",
+          "bg-[#FDC016] hover:bg-[#e5ad14] text-[#1A0648] shadow-sm rounded-lg",
         professional:
-          "bg-[#333] hover:bg-[#444] text-white shadow-sm rounded-lg font-semibold border border-white/[0.06]",
+          "bg-[#221060] hover:bg-[#2A1878] text-white shadow-sm rounded-lg border border-[rgba(0,204,254,0.08)]",
       },
       size: {
-        default: "h-10 px-4 py-2 has-[>svg]:px-4 rounded-lg",
+        default: "h-9 px-4 py-2 has-[>svg]:px-4 rounded-lg",
         sm: "h-8 gap-1.5 px-3 text-xs has-[>svg]:px-2 rounded-md",
         lg: "h-11 px-6 text-base has-[>svg]:px-3 rounded-lg",
         xl: "h-12 px-8 text-lg has-[>svg]:px-4 rounded-xl font-bold",
-        icon: "size-10 rounded-lg",
+        icon: "size-9 rounded-lg",
         "icon-sm": "size-8 rounded-md",
         "icon-lg": "size-12 rounded-lg",
         touch: "h-12 px-6 py-3 has-[>svg]:px-3 min-h-[48px] min-w-[48px] rounded-lg",
