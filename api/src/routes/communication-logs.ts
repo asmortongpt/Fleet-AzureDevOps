@@ -8,6 +8,7 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { setTenantContext } from '../middleware/tenant-context'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 import { flexUuid } from '../middleware/validation'
@@ -42,6 +43,7 @@ const updateCommunicationLogSchema = createCommunicationLogSchema.partial()
 
 const router = express.Router()
 router.use(authenticateJWT)
+router.use(setTenantContext)
 
 // GET /communication-logs
 router.get(
@@ -50,31 +52,24 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const db = req.dbClient || pool
       const { page = 1, limit = 50 } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
-      const result = await pool.query(
+      const result = await db.query(
         `SELECT id,
                 tenant_id,
                 communication_type,
                 direction,
-                sender_id AS from_user_id,
-                sender_name,
+                from_user_id,
+                to_user_id,
+                vehicle_id,
                 subject,
-                body AS message_body,
-                status,
-                priority,
-                channel,
-                participants,
-                recipients,
-                related_entity_type,
-                related_entity_id,
-                follow_up_required,
-                follow_up_date,
-                follow_up_notes,
-                metadata,
-                created_at,
-                updated_at
+                body,
+                timestamp,
+                attachments,
+                notes,
+                created_at
          FROM communication_logs
          WHERE tenant_id = $1
          ORDER BY created_at DESC
@@ -82,7 +77,7 @@ router.get(
         [req.user!.tenant_id, limit, offset]
       )
 
-      const countResult = await pool.query(
+      const countResult = await db.query(
         `SELECT COUNT(*) FROM communication_logs WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
@@ -110,7 +105,8 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
+      const db = req.dbClient || pool
+      const result = await db.query(
         `SELECT id,
                 tenant_id,
                 communication_type,
@@ -155,6 +151,7 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const db = req.dbClient || pool
       const parsed = createCommunicationLogSchema.safeParse(req.body)
       if (!parsed.success) {
         return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
@@ -168,7 +165,7 @@ router.post(
         1
       )
 
-      const result = await pool.query(
+      const result = await db.query(
         `INSERT INTO communication_logs (${columnNames}) VALUES (${placeholders}) RETURNING *`,
         [req.user!.tenant_id, ...values]
       )
@@ -188,6 +185,7 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const db = req.dbClient || pool
       const parsed = updateCommunicationLogSchema.safeParse(req.body)
       if (!parsed.success) {
         return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
@@ -196,7 +194,7 @@ router.put(
       const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
-      const result = await pool.query(
+      const result = await db.query(
         `UPDATE communication_logs SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...values]
       )
@@ -220,7 +218,8 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
+      const db = req.dbClient || pool
+      const result = await db.query(
         'DELETE FROM communication_logs WHERE id = $1 AND tenant_id = $2 RETURNING id',
         [req.params.id, req.user!.tenant_id]
       )

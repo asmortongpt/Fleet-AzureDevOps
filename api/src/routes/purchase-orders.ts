@@ -11,17 +11,20 @@ import logger from '../config/logger'
 import { flexUuid } from '../middleware/validation'
 
 const createPurchaseOrderSchema = z.object({
-  number: z.string().min(1).max(100),
+  poNumber: z.string().min(1).max(100),
   vendorId: flexUuid,
   orderDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
   expectedDeliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional(),
   subtotal: z.number().min(0),
-  taxAmount: z.number().min(0).optional(),
-  shippingCost: z.number().min(0).optional(),
-  totalAmount: z.number().min(0),
+  tax: z.number().min(0).optional(),
+  shipping: z.number().min(0).optional(),
+  total: z.number().min(0),
   shippingAddress: z.string().max(500).optional(),
   notes: z.string().max(2000).optional(),
-  lineItems: z.array(z.record(z.string(), z.unknown())).optional()
+  lineItems: z.array(z.record(z.string(), z.unknown())).optional(),
+  poType: z.string().optional(),
+  poCategory: z.string().optional(),
+  urgencyLevel: z.string().optional(),
 })
 
 const router = Router()
@@ -55,13 +58,14 @@ router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
   }
 
   const result = await client.query(
-    `SELECT po.id, po.number, po.vendor_id as "vendorId", v.name as "vendorName",
+    `SELECT po.id, po.po_number as "number", po.vendor_id as "vendorId",
+            v.vendor_name as "vendorName",
             po.status, po.order_date as "orderDate",
             po.expected_delivery_date as "expectedDeliveryDate",
             po.actual_delivery_date as "actualDeliveryDate",
-            po.subtotal, po.tax_amount as "taxAmount", po.shipping_cost as "shippingCost",
-            po.total_amount as "totalAmount", po.payment_status as "paymentStatus",
-            po.paid_amount as "paidAmount",
+            po.subtotal, po.tax as "taxAmount", po.shipping as "shippingCost",
+            po.total as "totalAmount",
+            po.workflow_status as "workflowStatus",
             po.created_at as "createdAt", po.updated_at as "updatedAt"
      FROM purchase_orders po
      LEFT JOIN vendors v ON po.vendor_id = v.id
@@ -93,16 +97,19 @@ router.get("/:id", asyncHandler(async (req: AuthRequest, res: Response) => {
   }
 
   const result = await client.query(
-    `SELECT po.id, po.number, po.vendor_id as "vendorId", v.name as "vendorName",
+    `SELECT po.id, po.po_number as "number", po.vendor_id as "vendorId",
+            v.vendor_name as "vendorName",
             po.status, po.order_date as "orderDate",
             po.expected_delivery_date as "expectedDeliveryDate",
             po.actual_delivery_date as "actualDeliveryDate",
-            po.subtotal, po.tax_amount as "taxAmount", po.shipping_cost as "shippingCost",
-            po.total_amount as "totalAmount", po.payment_status as "paymentStatus",
-            po.paid_amount as "paidAmount", po.requested_by_id as "requestedById",
-            po.approved_by_id as "approvedById", po.approved_at as "approvedAt",
+            po.subtotal, po.tax as "taxAmount", po.shipping as "shippingCost",
+            po.total as "totalAmount",
+            po.created_by as "createdBy", po.approved_by as "approvedBy",
+            po.approved_at as "approvedAt",
+            po.po_type as "poType", po.po_category as "poCategory",
+            po.urgency_level as "urgencyLevel", po.workflow_status as "workflowStatus",
             po.shipping_address as "shippingAddress", po.notes, po.line_items as "lineItems",
-            po.metadata, po.created_at as "createdAt", po.updated_at as "updatedAt"
+            po.created_at as "createdAt", po.updated_at as "updatedAt"
      FROM purchase_orders po
      LEFT JOIN vendors v ON po.vendor_id = v.id
      WHERE po.id = $1 AND po.tenant_id = $2`,
@@ -129,18 +136,19 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
   if (!parsed.success) {
     return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
   }
-  const { number, vendorId, orderDate, expectedDeliveryDate, subtotal, taxAmount, shippingCost, totalAmount, shippingAddress, notes, lineItems } = parsed.data
+  const { poNumber, vendorId, orderDate, expectedDeliveryDate, subtotal, tax, shipping, total, shippingAddress, notes, lineItems, poType, poCategory, urgencyLevel } = parsed.data
 
   const result = await client.query(
     `INSERT INTO purchase_orders (
-      tenant_id, number, vendor_id, order_date, expected_delivery_date,
-      subtotal, tax_amount, shipping_cost, total_amount, shipping_address,
-      notes, line_items, requested_by_id
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-    RETURNING id, number, status, total_amount as "totalAmount"`,
-    [tenantId, number, vendorId, orderDate, expectedDeliveryDate || null,
-      subtotal, taxAmount || 0, shippingCost || 0, totalAmount, shippingAddress || null,
-      notes || null, lineItems ? JSON.stringify(lineItems) : null, userId]
+      tenant_id, po_number, vendor_id, order_date, expected_delivery_date,
+      subtotal, tax, shipping, total, shipping_address,
+      notes, line_items, created_by, po_type, po_category, urgency_level
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+    RETURNING id, po_number as "number", status, total as "totalAmount"`,
+    [tenantId, poNumber, vendorId, orderDate, expectedDeliveryDate || null,
+      subtotal, tax || 0, shipping || 0, total, shippingAddress || null,
+      notes || null, lineItems ? JSON.stringify(lineItems) : null, userId,
+      poType || null, poCategory || null, urgencyLevel || null]
   )
 
   logger.info('Purchase order created', { poId: result.rows[0].id, tenantId })
@@ -150,8 +158,7 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
 const updatePurchaseOrderSchema = z.object({
   status: z.enum(['draft', 'pending', 'approved', 'ordered', 'received', 'cancelled']).optional(),
   actualDeliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional(),
-  paymentStatus: z.enum(['unpaid', 'partial', 'paid']).optional(),
-  paidAmount: z.number().min(0).optional(),
+  workflowStatus: z.string().optional(),
   notes: z.string().max(2000).optional(),
 })
 
@@ -168,29 +175,20 @@ router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Re
   if (!parsed.success) {
     return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
   }
-  const { status, actualDeliveryDate, paymentStatus, paidAmount, notes } = parsed.data
-
-  // Handle approval timestamp
-  let approvedAt = null
-  let approvedById = null
-  if (status === 'approved') {
-    approvedAt = new Date()
-    approvedById = userId
-  }
+  const { status, actualDeliveryDate, workflowStatus, notes } = parsed.data
 
   const result = await client.query(
-    `UPDATE purchase_orders 
+    `UPDATE purchase_orders
      SET status = COALESCE($1, status),
          actual_delivery_date = COALESCE($2, actual_delivery_date),
-         payment_status = COALESCE($3, payment_status),
-         paid_amount = COALESCE($4, paid_amount),
-         notes = COALESCE($5, notes),
+         workflow_status = COALESCE($3, workflow_status),
+         notes = COALESCE($4, notes),
          approved_at = CASE WHEN $1 = 'approved' THEN NOW() ELSE approved_at END,
-         approved_by_id = CASE WHEN $1 = 'approved' THEN $6 ELSE approved_by_id END,
+         approved_by = CASE WHEN $1 = 'approved' THEN $5 ELSE approved_by END,
          updated_at = NOW()
-     WHERE id = $7 AND tenant_id = $8
-     RETURNING id, number, status, total_amount as "totalAmount"`,
-    [status, actualDeliveryDate, paymentStatus, paidAmount, notes, userId, req.params.id, tenantId]
+     WHERE id = $6 AND tenant_id = $7
+     RETURNING id, po_number as "number", status, total as "totalAmount"`,
+    [status, actualDeliveryDate, workflowStatus, notes, userId, req.params.id, tenantId]
   )
 
   if (result.rows.length === 0) {

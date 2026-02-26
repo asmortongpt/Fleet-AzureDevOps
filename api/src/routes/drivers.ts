@@ -27,12 +27,12 @@ const createDriverSchema = z.object({
   last_name: z.string().optional(),
   email: z.string().email(),
   phone: z.string().min(7),
-  employee_number: z.string().optional(),
+  user_id: z.string().uuid().optional(),
   license_number: z.string().min(1),
   license_state: z.string().length(2).optional(),
-  license_expiry_date: z.string(),
-  status: z.enum(['active', 'inactive', 'suspended', 'terminated', 'on_leave', 'training']).optional(),
-  department: z.string().optional()
+  license_expiration: z.string(),
+  cdl_class: z.string().optional(),
+  status: z.enum(['active', 'inactive', 'suspended', 'terminated', 'on_leave', 'training']).optional()
 })
 
 const updateDriverSchema = createDriverSchema.partial()
@@ -66,16 +66,15 @@ router.get(
           d.user_id,
           d.license_number,
           d.license_state,
-          d.license_expiry_date,
-          d.cdl,
+          d.license_expiration,
           d.cdl_class,
+          d.cdl_endorsements,
           d.hire_date,
           d.termination_date,
           d.status,
-          d.performance_score,
+          d.safety_score,
           d.emergency_contact_name,
           d.emergency_contact_phone,
-          d.metadata,
           u.first_name,
           u.last_name,
           u.email,
@@ -83,33 +82,20 @@ router.get(
           u.role,
           d.created_at,
           d.updated_at,
-          d.department,
-          d.region,
-          d.position_title,
-          d.employment_type,
-          d.safety_score,
-          d.drug_test_date,
-          d.drug_test_result,
-          d.alcohol_test_date,
-          d.alcohol_test_result,
+          d.employment_classification,
+          d.last_drug_test_date,
+          d.last_drug_test_result,
+          d.last_alcohol_test_date,
+          d.last_alcohol_test_result,
           d.background_check_date,
           d.background_check_status,
           d.mvr_check_date,
-          d.mvr_check_status,
-          d.medical_card_expiry,
-          d.endorsements,
-          d.avatar_url,
-          d.address_line1,
+          d.mvr_status,
+          d.medical_card_expiration,
+          d.address,
           d.city,
           d.state,
-          d.zip_code,
-          d.hos_status,
-          d.hours_available,
-          d.cycle_hours_used,
-          d.assigned_vehicle_id,
-          d.supervisor_id,
-          d.cost_center,
-          d.facility_id
+          d.zip_code
         FROM drivers d
         LEFT JOIN users u ON d.user_id = u.id
         WHERE d.tenant_id = $1
@@ -157,11 +143,10 @@ router.get(
           d.user_id,
           d.license_number,
           d.license_state,
-          d.license_expiry_date,
-          d.cdl,
+          d.license_expiration,
           d.cdl_class,
           d.status,
-          d.performance_score,
+          d.safety_score,
           u.first_name,
           u.last_name,
           u.email,
@@ -205,7 +190,7 @@ router.get(
           COUNT(CASE WHEN status = 'active' THEN 1 END) as active_drivers,
           COUNT(CASE WHEN status = 'inactive' THEN 1 END) as inactive_drivers,
           COUNT(CASE WHEN status = 'suspended' THEN 1 END) as suspended_drivers,
-          AVG(performance_score) as avg_performance_score
+          AVG(safety_score) as avg_performance_score
         FROM drivers d
         WHERE tenant_id = $1`,
         [req.user!.tenant_id!],
@@ -318,22 +303,26 @@ router.get(
           d.user_id,
           d.license_number,
           d.license_state,
-          d.license_expiry_date,
-          d.cdl,
+          d.license_expiration,
           d.cdl_class,
+          d.cdl_endorsements,
           d.hire_date,
           d.termination_date,
           d.status,
-          d.performance_score,
           d.safety_score,
+          d.total_miles_driven,
+          d.total_hours_driven,
+          d.incidents_count,
+          d.violations_count,
           d.emergency_contact_name,
           d.emergency_contact_phone,
-          d.metadata,
-          d.department,
-          d.avatar_url,
-          d.hos_status,
-          d.hours_available,
-          d.assigned_vehicle_id,
+          d.notes,
+          d.address,
+          d.city,
+          d.state,
+          d.zip_code,
+          d.medical_card_expiration,
+          d.employment_classification,
           u.first_name,
           u.last_name,
           u.email,
@@ -560,59 +549,65 @@ router.post(
         return res.status(400).json({ error: 'first_name and last_name are required' })
       }
 
-      const licenseExpiry = new Date(payload.license_expiry_date)
+      const licenseExpiry = new Date(payload.license_expiration)
       if (Number.isNaN(licenseExpiry.getTime())) {
-        return res.status(400).json({ error: 'license_expiry_date must be a valid date' })
+        return res.status(400).json({ error: 'license_expiration must be a valid date' })
       }
 
-      const metadata: Record<string, any> = {}
-      if (payload.department) {
-        metadata.department = payload.department
+      let userId = payload.user_id || null
+
+      // If no user_id provided, find or create a user record
+      if (!userId) {
+        const existingUser = await tenantSafeQuery(
+          `SELECT id FROM users WHERE email = $1 AND tenant_id = $2`,
+          [payload.email.toLowerCase(), req.user!.tenant_id!],
+          req.user!.tenant_id!
+        )
+
+        if (existingUser.rows.length > 0) {
+          userId = existingUser.rows[0].id
+        } else {
+          const newUser = await tenantSafeQuery(
+            `INSERT INTO users (tenant_id, first_name, last_name, email, phone, role)
+             VALUES ($1, $2, $3, $4, $5, 'User')
+             RETURNING id`,
+            [req.user!.tenant_id!, firstName, lastName, payload.email.toLowerCase(), payload.phone],
+            req.user!.tenant_id!
+          )
+          userId = newUser.rows[0].id
+        }
       }
 
       const result = await tenantSafeQuery(
         `INSERT INTO drivers (
           tenant_id,
-          first_name,
-          last_name,
-          email,
-          phone,
-          employee_number,
+          user_id,
           license_number,
           license_state,
-          license_expiry_date,
-          status,
-          metadata
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+          license_expiration,
+          cdl_class,
+          status
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7)
         RETURNING
           id,
           tenant_id,
-          email,
-          first_name,
-          last_name,
-          phone,
-          employee_number,
+          user_id,
           license_number,
           license_state,
-          license_expiry_date,
-          performance_score,
-          cdl,
+          license_expiration,
+          cdl_class,
+          safety_score,
           status,
-          metadata,
           created_at,
           updated_at`,
         [
           req.user!.tenant_id!,
-          firstName,
-          lastName,
-          payload.email.toLowerCase(),
-          payload.phone,
-          payload.employee_number || null,
+          userId,
           payload.license_number,
           payload.license_state || null,
           licenseExpiry.toISOString(),
-          payload.status || 'active',
-          metadata
+          payload.cdl_class || null,
+          payload.status || 'active'
         ],
         req.user!.tenant_id!
       )
@@ -641,34 +636,50 @@ router.put(
       const firstName = payload.first_name || nameParts.firstName
       const lastName = payload.last_name || nameParts.lastName
 
+      // Update user fields (first_name, last_name, email, phone) on the users table
+      const userFields: string[] = []
+      const userValues: any[] = []
+      let userIndex = 1
+
+      if (payload.email) {
+        userFields.push(`email = $${userIndex++}`)
+        userValues.push(payload.email.toLowerCase())
+      }
+      if (firstName) {
+        userFields.push(`first_name = $${userIndex++}`)
+        userValues.push(firstName)
+      }
+      if (lastName) {
+        userFields.push(`last_name = $${userIndex++}`)
+        userValues.push(lastName)
+      }
+      if (payload.phone) {
+        userFields.push(`phone = $${userIndex++}`)
+        userValues.push(payload.phone)
+      }
+
+      if (userFields.length > 0) {
+        // Get user_id from the driver record
+        const driverLookup = await tenantSafeQuery(
+          `SELECT user_id FROM drivers WHERE id = $1 AND tenant_id = $2`,
+          [req.params.id, req.user!.tenant_id!],
+          req.user!.tenant_id!
+        )
+        if (driverLookup.rows.length > 0 && driverLookup.rows[0].user_id) {
+          const userWhereId = userIndex++
+          userValues.push(driverLookup.rows[0].user_id)
+          await tenantSafeQuery(
+            `UPDATE users SET ${userFields.join(', ')} WHERE id = $${userWhereId}`,
+            userValues,
+            req.user!.tenant_id!
+          )
+        }
+      }
+
+      // Update driver fields on the drivers table
       const fields: string[] = []
       const values: any[] = []
       let index = 1
-
-      if (payload.email) {
-        fields.push(`email = $${index++}`)
-        values.push(payload.email.toLowerCase())
-      }
-
-      if (firstName) {
-        fields.push(`first_name = $${index++}`)
-        values.push(firstName)
-      }
-
-      if (lastName) {
-        fields.push(`last_name = $${index++}`)
-        values.push(lastName)
-      }
-
-      if (payload.phone) {
-        fields.push(`phone = $${index++}`)
-        values.push(payload.phone)
-      }
-
-      if (payload.employee_number !== undefined) {
-        fields.push(`employee_number = $${index++}`)
-        values.push(payload.employee_number)
-      }
 
       if (payload.license_number) {
         fields.push(`license_number = $${index++}`)
@@ -680,13 +691,18 @@ router.put(
         values.push(payload.license_state)
       }
 
-      if (payload.license_expiry_date) {
-        const licenseExpiry = new Date(payload.license_expiry_date)
+      if (payload.license_expiration) {
+        const licenseExpiry = new Date(payload.license_expiration)
         if (Number.isNaN(licenseExpiry.getTime())) {
-          return res.status(400).json({ error: 'license_expiry_date must be a valid date' })
+          return res.status(400).json({ error: 'license_expiration must be a valid date' })
         }
-        fields.push(`license_expiry_date = $${index++}`)
+        fields.push(`license_expiration = $${index++}`)
         values.push(licenseExpiry.toISOString())
+      }
+
+      if (payload.cdl_class !== undefined) {
+        fields.push(`cdl_class = $${index++}`)
+        values.push(payload.cdl_class)
       }
 
       if (payload.status) {
@@ -694,17 +710,27 @@ router.put(
         values.push(payload.status)
       }
 
-      const metadataPatch: Record<string, any> = {}
-      if (payload.department !== undefined) {
-        metadataPatch.department = payload.department
-      }
-      if (Object.keys(metadataPatch).length > 0) {
-        fields.push(`metadata = COALESCE(metadata, '{}'::jsonb) || $${index++}::jsonb`)
-        values.push(JSON.stringify(metadataPatch))
+      if (fields.length === 0 && userFields.length === 0) {
+        return res.status(400).json({ error: 'No valid fields provided for update' })
       }
 
+      // If no driver-specific fields to update, just return the current record
       if (fields.length === 0) {
-        return res.status(400).json({ error: 'No valid fields provided for update' })
+        const currentResult = await tenantSafeQuery(
+          `SELECT d.id, d.tenant_id, d.user_id, d.license_number, d.license_state,
+                  d.license_expiration, d.cdl_class, d.safety_score, d.status,
+                  d.created_at, d.updated_at,
+                  u.first_name, u.last_name, u.email, u.phone
+           FROM drivers d
+           LEFT JOIN users u ON d.user_id = u.id
+           WHERE d.id = $1 AND d.tenant_id = $2`,
+          [req.params.id, req.user!.tenant_id!],
+          req.user!.tenant_id!
+        )
+        if (currentResult.rows.length === 0) {
+          return res.status(404).json({ error: 'Driver not found' })
+        }
+        return res.json(currentResult.rows[0])
       }
 
       const whereIdIndex = index++
@@ -718,18 +744,13 @@ router.put(
          RETURNING
           id,
           tenant_id,
-          email,
-          first_name,
-          last_name,
-          phone,
-          employee_number,
+          user_id,
           license_number,
           license_state,
-          license_expiry_date,
-          performance_score,
-          cdl,
+          license_expiration,
+          cdl_class,
+          safety_score,
           status,
-          metadata,
           created_at,
           updated_at`,
         values,

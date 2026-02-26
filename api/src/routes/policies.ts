@@ -11,42 +11,40 @@ import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const createPolicySchema = z.object({
-  name: z.string(),
+  policy_name: z.string(),
+  policy_type: z.string().optional(),
   description: z.string().optional(),
-  category: z.string().optional(),
-  content: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
-  version: z.union([z.string(), z.number()]).optional(),
+  rules: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
   is_active: z.boolean().optional(),
-  effective_date: z.string().optional(),
+  priority: z.number().optional(),
 }).passthrough()
 
 const updatePolicySchema = z.object({
-  name: z.string().optional(),
+  policy_name: z.string().optional(),
+  policy_type: z.string().optional(),
   description: z.string().optional(),
-  category: z.string().optional(),
-  content: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
-  version: z.union([z.string(), z.number()]).optional(),
+  rules: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
   is_active: z.boolean().optional(),
-  effective_date: z.string().optional(),
+  priority: z.number().optional(),
 }).passthrough()
 
 
 const router = express.Router()
 router.use(authenticateJWT)
 
-const parsePolicyContent = (content: unknown): Record<string, unknown> => {
-  if (!content) {
+const parsePolicyRules = (rules: unknown): Record<string, unknown> => {
+  if (!rules) {
 return {}
 }
-  if (typeof content === 'string') {
+  if (typeof rules === 'string') {
     try {
-      return JSON.parse(content)
+      return JSON.parse(rules)
     } catch {
       return {}
     }
   }
-  if (typeof content === 'object') {
-return content as Record<string, unknown>
+  if (typeof rules === 'object') {
+return rules as Record<string, unknown>
 }
   return {}
 }
@@ -100,16 +98,15 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        `SELECT 
+        `SELECT
       id,
       tenant_id,
-      name,
+      policy_name,
+      policy_type,
       description,
-      category,
-      content,
-      version,
+      rules,
       is_active,
-      effective_date,
+      priority,
       created_by,
       created_at,
       updated_at FROM policies WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
@@ -152,13 +149,12 @@ router.get(
         `SELECT
       id,
       tenant_id,
-      name,
+      policy_name,
+      policy_type,
       description,
-      category,
-      content,
-      version,
+      rules,
       is_active,
-      effective_date,
+      priority,
       created_by,
       created_at,
       updated_at FROM policies WHERE id = $1 AND tenant_id = $2`,
@@ -199,13 +195,13 @@ router.post(
       }
 
       const policy = result.rows[0]
-      const content = parsePolicyContent(policy.content)
-      const status = String(content.status ?? (policy.is_active ? 'active' : 'draft')).toLowerCase()
+      const rulesContent = parsePolicyRules(policy.rules)
+      const status = String(rulesContent.status ?? (policy.is_active ? 'active' : 'draft')).toLowerCase()
       const isActive = status === 'active' || policy.is_active === true
 
       const evaluation = {
         policy_id: policy.id,
-        policy_name: policy.name,
+        policy_name: policy.policy_name,
         evaluated_at: new Date().toISOString(),
         context,
         checks: [] as Record<string, unknown>[],
@@ -228,7 +224,7 @@ router.post(
         })
       }
 
-      const applicableRoles = content.appliesToRoles || content.roles
+      const applicableRoles = rulesContent.appliesToRoles || rulesContent.roles
       if (Array.isArray(applicableRoles) && context.employee_role) {
         const applies = applicableRoles.includes(context.employee_role)
         evaluation.checks.push({
@@ -241,7 +237,7 @@ router.post(
         })
       }
 
-      const conditions = Array.isArray(content.conditions) ? content.conditions : []
+      const conditions = Array.isArray(rulesContent.conditions) ? rulesContent.conditions : []
       if (conditions.length > 0) {
         const failedConditions: Record<string, unknown>[] = []
 

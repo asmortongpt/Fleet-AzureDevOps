@@ -369,7 +369,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
   const messages = Array.isArray(communicationLogs) ? communicationLogs : []
   const announcementRows = Array.isArray(announcements) ? announcements : []
   const channelRows = Array.isArray(teams) ? teams : []
-  const unreadCount = typeof notifications?.unread_count === 'number' ? notifications.unread_count : 0
+  const unreadCount = typeof notifications?.data?.unread_count === 'number' ? notifications.data.unread_count : (typeof notifications?.unread_count === 'number' ? notifications.unread_count : 0)
 
   // Compute average response time from message timestamps (proxy: avg gap between consecutive messages)
   const avgResponseTime = useMemo(() => {

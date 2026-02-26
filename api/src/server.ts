@@ -386,17 +386,17 @@ app.use(telemetryMiddleware)
 // Sets req.user so authenticateJWT middleware skips JWT validation
 // SECURITY: Triple-gated - NODE_ENV + SKIP_AUTH + not production
 if (process.env.NODE_ENV !== 'production' && process.env.SKIP_AUTH === 'true') {
-  logger.info('[DEV] Auth bypass middleware enabled - all API requests will use Morton-tech tenant')
+  logger.info('[DEV] Auth bypass middleware enabled - all API requests will use Demo Fleet tenant')
   app.use((req: any, _res: any, next: any) => {
     if (req.path.startsWith('/api/') && !req.path.startsWith('/api/auth/')) {
       req.user = {
         id: '00000000-0000-0000-0000-000000000001',
         email: 'dev@morton-tech.local',
         role: 'SuperAdmin',
-        tenant_id: '874954c7-b68b-5485-8ddd-183932497849',
+        tenant_id: '11111111-1111-1111-1111-111111111111',
         scope_level: 'global',
         userId: '00000000-0000-0000-0000-000000000001',
-        tenantId: '874954c7-b68b-5485-8ddd-183932497849',
+        tenantId: '11111111-1111-1111-1111-111111111111',
         name: 'Dev User',
       }
     }

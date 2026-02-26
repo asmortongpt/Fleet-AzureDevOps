@@ -12,31 +12,29 @@ import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 const createInspectionSchema = z.object({
   vehicle_id: z.union([z.string(), z.number()]),
   driver_id: z.union([z.string(), z.number()]).optional(),
-  type: z.string(),
+  inspection_type: z.string(),
   status: z.string().optional(),
   started_at: z.string().optional(),
   completed_at: z.string().nullable().optional(),
-  passed_inspection: z.boolean().optional(),
   odometer_reading: z.number().optional(),
   notes: z.string().optional(),
-  defects: z.unknown().optional(),
-  checklist: z.unknown().optional(),
-  signature: z.string().optional(),
+  form_data: z.unknown().optional(),
+  defects_found: z.unknown().optional(),
+  signature_data: z.string().optional(),
 }).passthrough()
 
 const updateInspectionSchema = z.object({
   vehicle_id: z.union([z.string(), z.number()]).optional(),
   driver_id: z.union([z.string(), z.number()]).optional(),
-  type: z.string().optional(),
+  inspection_type: z.string().optional(),
   status: z.string().optional(),
   started_at: z.string().optional(),
   completed_at: z.string().nullable().optional(),
-  passed_inspection: z.boolean().optional(),
   odometer_reading: z.number().optional(),
   notes: z.string().optional(),
-  defects: z.unknown().optional(),
-  checklist: z.unknown().optional(),
-  signature: z.string().optional(),
+  form_data: z.unknown().optional(),
+  defects_found: z.unknown().optional(),
+  signature_data: z.string().optional(),
 }).passthrough()
 
 /**
@@ -69,18 +67,19 @@ router.get(
         idx++
       }
       if (type) {
-        where.push(`i.type = $${idx}`)
+        where.push(`i.inspection_type = $${idx}`)
         params.push(type)
         idx++
       }
 
       const sql = `
         SELECT i.*,
-               v.number as vehicle_number,
-               d.first_name || ' ' || d.last_name as driver_name
+               CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
+               COALESCE(u.first_name || ' ' || u.last_name, u.email) as driver_name
         FROM inspections i
         LEFT JOIN vehicles v ON i.vehicle_id = v.id
         LEFT JOIN drivers d ON i.driver_id = d.id
+        LEFT JOIN users u ON d.user_id = u.id
         WHERE ${where.join(' AND ')}
         ORDER BY i.started_at DESC
         LIMIT $${idx} OFFSET $${idx + 1}
@@ -107,23 +106,23 @@ router.get(
       const result = await pool.query(
         `SELECT
           pv.id,
-          pv.violation_date,
-          pv.violation_description as description,
+          pv.violation_time as violation_date,
           pv.severity,
-          pv.case_status as status,
-          pv.location,
-          pv.employee_number as driver_id,
-          d.first_name || ' ' || d.last_name as driver_name,
-          pt.policy_name
+          pv.acknowledged,
+          pv.notes as description,
+          pv.driver_id,
+          COALESCE(u.first_name || ' ' || u.last_name, u.email) as driver_name,
+          pt.template_name as policy_name
         FROM policy_violations pv
-        LEFT JOIN drivers d ON pv.employee_number = d.id
+        LEFT JOIN drivers d ON pv.driver_id = d.id
+        LEFT JOIN users u ON d.user_id = u.id
         LEFT JOIN policy_templates pt ON pv.policy_id = pt.id
         JOIN inspections i ON i.id = $1
         WHERE pv.vehicle_id = i.vehicle_id
-          AND pv.violation_date BETWEEN
+          AND pv.violation_time BETWEEN
             (i.started_at::date - INTERVAL '30 days')
             AND (i.started_at::date + INTERVAL '30 days')
-        ORDER BY pv.violation_date DESC`,
+        ORDER BY pv.violation_time DESC`,
         [inspectionId]
       )
 
@@ -144,11 +143,12 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT i.*,
-                v.number as vehicle_number,
-                d.first_name || ' ' || d.last_name as driver_name
+                CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
+                COALESCE(u.first_name || ' ' || u.last_name, u.email) as driver_name
          FROM inspections i
          LEFT JOIN vehicles v ON i.vehicle_id = v.id
          LEFT JOIN drivers d ON i.driver_id = d.id
+         LEFT JOIN users u ON d.user_id = u.id
          WHERE i.id = $1 AND i.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )

@@ -20,8 +20,8 @@ router.get(
       const tenantId = req.user!.tenant_id
 
       let query = `
-        SELECT id, tenant_id, user_id, title, message, type, priority, related_entity_type,
-               related_entity_id, action_url, is_read, read_at, sent_at, metadata, created_at
+        SELECT id, tenant_id, user_id, notification_type as type, title, message, link as action_url,
+               is_read, read_at, priority, created_at
         FROM notifications
         WHERE tenant_id = $1
       `
@@ -36,7 +36,7 @@ router.get(
         params.push(category)
       }
 
-      query += ` ORDER BY sent_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`
+      query += ` ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)

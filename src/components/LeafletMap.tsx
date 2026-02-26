@@ -548,7 +548,7 @@ export function LeafletMap({
             })
 
             const marker = Leaflet.marker([lat, lng], { icon })
-              .bindPopup(`<b>${vehicle.name}</b><br/>Status: ${formatEnum(vehicle.status)}`)
+              .bindPopup(`<b>${vehicle.year ? vehicle.year + ' ' : ''}${vehicle.make || ''} ${vehicle.model || vehicle.name || 'Unknown Vehicle'}</b><br/>Status: ${formatEnum(vehicle.status)}`)
               .on('click', () => onMarkerClick?.(vehicle.id, 'vehicle'))
 
             marker.addTo(vehicleLayerRef.current)

@@ -175,7 +175,12 @@ class APIClient {
               if (retryResponse.status === 204) {
                 return {} as T
               }
-              return await retryResponse.json()
+              const retryData = await retryResponse.json()
+              // Unwrap standard API envelope { success, data, meta }
+              if (retryData && typeof retryData === 'object' && 'success' in retryData && 'data' in retryData) {
+                return retryData.data as T;
+              }
+              return retryData as T
             }
           }
         }
@@ -192,7 +197,14 @@ class APIClient {
         return {} as T
       }
 
-      return await response.json()
+      const data = await response.json()
+
+      // Unwrap standard API envelope { success, data, meta }
+      if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
+        return data.data as T;
+      }
+
+      return data as T
     } catch (error) {
       clearTimeout(timeoutId)
 

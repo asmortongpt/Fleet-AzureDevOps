@@ -19,10 +19,14 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'cost_analysis' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { startDate, endDate } = req.query
+      let { startDate, endDate } = req.query
 
+      // Default to last 30 days if not provided
       if (!startDate || !endDate) {
-        throw new ValidationError("startDate and endDate are required")
+        const now = new Date()
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+        startDate = startDate || thirtyDaysAgo.toISOString().split('T')[0]
+        endDate = endDate || now.toISOString().split('T')[0]
       }
 
       const summary = await costAnalysisService.getCostSummary(

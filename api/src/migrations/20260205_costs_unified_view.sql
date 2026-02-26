@@ -61,7 +61,7 @@ CREATE OR REPLACE VIEW unified_costs AS
     NULL::uuid AS route_id,
     NULL::uuid AS vendor_id,
     ft.total_cost::numeric AS amount,
-    COALESCE(ft.vendor_name, 'Fuel')::text AS description,
+    COALESCE(ft.station_name, 'Fuel')::text AS description,
     ft.transaction_date AS transaction_date,
     ft.receipt_number AS invoice_number,
     false AS is_budgeted,
@@ -84,10 +84,10 @@ CREATE OR REPLACE VIEW unified_costs AS
     NULL::uuid AS driver_id,
     NULL::uuid AS route_id,
     NULL::uuid AS vendor_id,
-    COALESCE(wo.actual_cost, wo.estimated_cost)::numeric AS amount,
-    wo.title::text AS description,
-    COALESCE(wo.actual_end_date, wo.created_at) AS transaction_date,
-    wo.number AS invoice_number,
+    COALESCE(wo.total_cost, wo.estimated_total_cost)::numeric AS amount,
+    wo.description::text AS description,
+    COALESCE(wo.actual_end, wo.created_at) AS transaction_date,
+    wo.work_order_number AS invoice_number,
     false AS is_budgeted,
     false AS is_anomaly,
     NULL::numeric AS anomaly_score,
@@ -96,7 +96,7 @@ CREATE OR REPLACE VIEW unified_costs AS
     'work_orders'::text AS source_table,
     wo.id AS source_id
   FROM work_orders wo
-  WHERE COALESCE(wo.actual_cost, wo.estimated_cost) IS NOT NULL
+  WHERE COALESCE(wo.total_cost, wo.estimated_total_cost) IS NOT NULL
 
   UNION ALL
 
@@ -104,15 +104,15 @@ CREATE OR REPLACE VIEW unified_costs AS
   SELECT
     i.tenant_id,
     'invoice'::text AS cost_category,
-    i.type::text AS cost_subcategory,
+    i.invoice_type::text AS cost_subcategory,
     NULL::uuid AS vehicle_id,
     NULL::uuid AS driver_id,
     NULL::uuid AS route_id,
     i.vendor_id,
     i.total_amount::numeric AS amount,
-    COALESCE(i.notes, ('Invoice ' || i.number))::text AS description,
+    COALESCE(i.notes, ('Invoice ' || i.invoice_number))::text AS description,
     i.invoice_date AS transaction_date,
-    i.number AS invoice_number,
+    i.invoice_number AS invoice_number,
     false AS is_budgeted,
     false AS is_anomaly,
     NULL::numeric AS anomaly_score,

@@ -554,32 +554,32 @@ router.get('/costs/summary',
             AND transaction_date < ${previousPeriodEnd}
         `, [tenantId]),
 
-        // Maintenance costs current period (use work_orders actual_cost)
+        // Maintenance costs current period (use work_orders total_cost)
         pool.query(`
-          SELECT COALESCE(SUM(COALESCE(actual_cost, estimated_cost)), 0)::numeric as total
+          SELECT COALESCE(SUM(COALESCE(total_cost, estimated_total_cost)), 0)::numeric as total
           FROM work_orders
           WHERE tenant_id = $1::uuid
-            AND (actual_cost IS NOT NULL OR estimated_cost IS NOT NULL)
-            AND COALESCE(actual_end_date, actual_start_date, updated_at) >= ${currentPeriodStart}
+            AND (total_cost IS NOT NULL OR estimated_total_cost IS NOT NULL)
+            AND COALESCE(actual_end, actual_start, updated_at) >= ${currentPeriodStart}
         `, [tenantId]),
 
         // Maintenance costs previous period
         pool.query(`
-          SELECT COALESCE(SUM(COALESCE(actual_cost, estimated_cost)), 0)::numeric as total
+          SELECT COALESCE(SUM(COALESCE(total_cost, estimated_total_cost)), 0)::numeric as total
           FROM work_orders
           WHERE tenant_id = $1::uuid
-            AND (actual_cost IS NOT NULL OR estimated_cost IS NOT NULL)
-            AND COALESCE(actual_end_date, actual_start_date, updated_at) >= ${previousPeriodStart}
-            AND COALESCE(actual_end_date, actual_start_date, updated_at) < ${previousPeriodEnd}
+            AND (total_cost IS NOT NULL OR estimated_total_cost IS NOT NULL)
+            AND COALESCE(actual_end, actual_start, updated_at) >= ${previousPeriodStart}
+            AND COALESCE(actual_end, actual_start, updated_at) < ${previousPeriodEnd}
         `, [tenantId]),
 
         // Total miles driven (for cost per mile) — use actual trip distances, not odometer readings
         pool.query(`
-          SELECT COALESCE(SUM(t.distance_miles), 0)::numeric as total_miles
+          SELECT COALESCE(SUM(t.distance_km * 0.621371), 0)::numeric as total_miles
           FROM trips t
           WHERE t.tenant_id = $1::uuid
-            AND t.status = 'completed'
-            AND t.start_time >= (NOW() - INTERVAL '6 months')
+            AND t.ended_at IS NOT NULL
+            AND t.started_at >= (NOW() - INTERVAL '6 months')
         `, [tenantId])
         ,
         // Active budget total for target cost-per-mile benchmark

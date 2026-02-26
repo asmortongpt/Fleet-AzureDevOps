@@ -178,7 +178,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
     if (!Array.isArray(budgets)) return new Map<string, number>()
     const map = new Map<string, number>()
     budgets.forEach((b: any) => {
-      const period = b.month || b.period || b.fiscal_quarter
+      const period = b.category || b.month || b.period || b.fiscal_quarter
       if (period) {
         map.set(period, Number(b.allocated || b.allocated_amount || 0))
       }

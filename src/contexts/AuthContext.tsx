@@ -83,8 +83,8 @@ const DEV_USER: User = {
   lastName: 'User',
   role: 'SuperAdmin',
   permissions: ['*'],
-  tenantId: '874954c7-b68b-5485-8ddd-183932497849',
-  tenantName: 'CTA Fleet Services',
+  tenantId: '11111111-1111-1111-1111-111111111111',
+  tenantName: 'Demo Fleet',
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {

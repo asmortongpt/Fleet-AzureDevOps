@@ -335,7 +335,7 @@ export const webhookLimiter = createRateLimiter({
  */
 export const globalLimiter = createRateLimiter({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 30,
+  max: process.env.NODE_ENV === 'production' ? 30 : 500,
   message: 'Too many requests from this IP. Please try again later.',
   skip: (req) => {
     // Skip rate limiting for health checks and OAuth callbacks

@@ -19,7 +19,8 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     const result = await pool.query(
-      `SELECT id, name, domain, billing_email, subscription_tier, settings, is_active, created_at, updated_at
+      `SELECT id, name, domain, billing_email, tenant_tier, billing_plan, settings, is_active, created_at, updated_at,
+              max_users, max_vehicles, company_logo_url, primary_brand_color
        FROM tenants
        WHERE id = $1`,
       [tenantId]
@@ -38,9 +39,9 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
         name: row.name,
         domain: row.domain,
         status: row.is_active ? 'active' : 'suspended',
-        plan: row.subscription_tier || 'standard',
-        max_users: settings.max_users ?? settings.maxUsers ?? 0,
-        max_vehicles: settings.max_vehicles ?? settings.maxVehicles ?? 0,
+        plan: row.tenant_tier || row.billing_plan || 'standard',
+        max_users: row.max_users ?? settings.max_users ?? settings.maxUsers ?? 0,
+        max_vehicles: row.max_vehicles ?? settings.max_vehicles ?? settings.maxVehicles ?? 0,
         features: settings.features || [],
         settings,
         billing_email: row.billing_email,

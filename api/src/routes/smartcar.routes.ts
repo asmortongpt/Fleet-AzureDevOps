@@ -13,7 +13,10 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import SmartcarService from '../services/smartcar.service'
+import { processWebhookEvent } from '../services/smartcar-webhook-processor'
 import { buildSafeRedirectUrl } from '../utils/redirect-validator'
+
+const DEV_TENANT_ID = '11111111-1111-1111-1111-111111111111'
 
 
 const router = express.Router()
@@ -695,34 +698,20 @@ router.post('/callback', async (req: Request, res: Response) => {
 
     // Handle vehicle state events
     if (eventType === 'VEHICLE_STATE') {
-      logger.info('Vehicle state event received from Smartcar webhook', { payload })
+      logger.info('Vehicle state event received from Smartcar webhook', {
+        eventId: payload.eventId,
+        vehicleId: payload.data?.vehicle?.id,
+        signalCount: payload.data?.signals?.length,
+      })
 
-      // Store webhook event in database
       try {
-        const smartcarProviderId = await pool.query(
-          `SELECT id FROM telematics_providers WHERE name = 'smartcar' LIMIT 1`
-        )
-
-        if (smartcarProviderId.rows.length > 0) {
-          await pool.query(
-            `INSERT INTO telematics_webhook_events
-             (provider_id, event_type, external_id, payload, processed, tenant_id)
-             VALUES ($1, $2, $3, $4, false, $5)`,
-            [
-              smartcarProviderId.rows[0].id,
-              'VEHICLE_STATE',
-              payload.data?.vehicleId || 'unknown',
-              JSON.stringify(payload),
-              '874954c7-b68b-5485-8ddd-183932497849' // dev tenant
-            ]
-          )
-          logger.info('Vehicle state event stored in database')
-        }
-      } catch (dbError) {
-        logger.error('Failed to store webhook event:', dbError)
+        const result = await processWebhookEvent(pool, payload, DEV_TENANT_ID)
+        logger.info('Webhook event processed into telemetry', result)
+        return res.status(200).json({ status: 'processed', ...result })
+      } catch (processError) {
+        logger.error('Failed to process webhook event into telemetry:', processError)
+        return res.status(200).json({ status: 'received_but_processing_failed' })
       }
-
-      return res.status(200).json({ status: 'received' })
     }
 
     // Handle vehicle error events
@@ -763,6 +752,82 @@ router.post('/callback', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     logger.error('Smartcar webhook error:', error)
     res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// ===========================================================================
+// Dev-only: Local Webhook Test Endpoint
+// ===========================================================================
+
+/**
+ * POST /api/smartcar/webhook/test
+ * Accepts a Smartcar webhook payload and processes it locally.
+ * Auto-creates vehicle + smartcar_vehicles link if needed.
+ * Only available when SKIP_AUTH=true (dev mode).
+ */
+router.post('/webhook/test', async (req: Request, res: Response) => {
+  // Gate to dev mode only
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Not found' })
+  }
+
+  try {
+    const payload = req.body
+
+    if (!payload || !payload.data?.vehicle?.id || !payload.data?.signals) {
+      return res.status(400).json({
+        error: 'Invalid payload. Expected Smartcar VEHICLE_STATE webhook format with data.vehicle.id and data.signals[]',
+      })
+    }
+
+    const tenantId = (req.query.tenant_id as string) || DEV_TENANT_ID
+
+    logger.info('=== Smartcar Webhook Test Endpoint ===', {
+      eventId: payload.eventId,
+      vehicleId: payload.data.vehicle.id,
+      make: payload.data.vehicle.make,
+      model: payload.data.vehicle.model,
+      signalCount: payload.data.signals.length,
+      tenantId,
+    })
+
+    const result = await processWebhookEvent(pool, payload, tenantId)
+
+    // Fetch results using a client with tenant context (RLS)
+    const readClient = await pool.connect()
+    try {
+      await readClient.query(`SET app.current_tenant_id = '${tenantId}'`)
+
+      const telemetryRow = await readClient.query(
+        `SELECT * FROM telematics_data WHERE id = $1`,
+        [result.telemetry_id],
+      )
+
+      const vehicleRow = await readClient.query(
+        `SELECT id, make, model, year, latitude, longitude, heading, odometer,
+                fuel_type, status, telematics_data
+         FROM vehicles WHERE id = $1`,
+        [result.vehicle_id],
+      )
+
+      res.json({
+        success: true,
+        message: `Processed ${result.signals_processed} signals into telemetry`,
+        data: {
+          vehicle: vehicleRow.rows[0] || null,
+          telemetry: telemetryRow.rows[0] || null,
+          processing: result,
+        },
+      })
+    } finally {
+      readClient.release()
+    }
+  } catch (error: unknown) {
+    logger.error('Webhook test endpoint error:', error)
+    res.status(500).json({
+      error: 'Processing failed',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    })
   }
 })
 

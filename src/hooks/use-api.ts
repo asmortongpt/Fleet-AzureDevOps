@@ -405,7 +405,7 @@ export function useIncidents(filters: { tenant_id: string; [key: string]: string
       const res = await secureFetch(`/api/incidents${qs}`)
       if (!res.ok) throw new Error('Network response was not ok')
       const payload = await res.json()
-      return payload?.data ?? payload
+      return unwrapArray<Record<string, unknown>>(payload)
     },
     staleTime: 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -436,7 +436,7 @@ export function useInspections(filters: { tenant_id: string; [key: string]: stri
       const res = await secureFetch(`/api/inspections${qs}`)
       if (!res.ok) throw new Error('Network response was not ok')
       const payload = await res.json()
-      return payload?.data ?? payload
+      return unwrapArray<Record<string, unknown>>(payload)
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,

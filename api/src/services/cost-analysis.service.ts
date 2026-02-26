@@ -260,10 +260,10 @@ export class CostAnalysisService {
       `SELECT
          COALESCE(
            NULLIF(NULLIF(description, ''), 'Auto-generated cost entry'),
-           CASE COALESCE(source_table, source_type, '')
-             WHEN 'fuel_transactions' THEN INITCAP(REPLACE(cost_category, '_', ' ')) || ' - ' || COALESCE(subcategory, 'Fleet')
-             WHEN 'work_orders' THEN 'Maintenance - ' || COALESCE(subcategory, INITCAP(REPLACE(cost_category, '_', ' ')))
-             WHEN 'invoices' THEN 'Invoice ' || COALESCE(reference_number, '#' || LEFT(source_id::text, 8))
+           CASE source_table
+             WHEN 'fuel_transactions' THEN INITCAP(REPLACE(cost_category, '_', ' ')) || ' - ' || COALESCE(cost_subcategory, 'Fleet')
+             WHEN 'work_orders' THEN 'Maintenance - ' || COALESCE(cost_subcategory, INITCAP(REPLACE(cost_category, '_', ' ')))
+             WHEN 'invoices' THEN 'Invoice ' || COALESCE(invoice_number, '#' || LEFT(source_id::text, 8))
              ELSE INITCAP(REPLACE(cost_category, '_', ' '))
            END
          ) AS description,
@@ -595,12 +595,13 @@ return
          uc.amount::text AS amount,
          uc.description,
          uc.invoice_number,
-         COALESCE(v.number, v.name) AS vehicle_number,
-         NULLIF(TRIM(CONCAT(COALESCE(d.first_name, ''), ' ', COALESCE(d.last_name, ''))), '') AS driver_name,
-         vn.name AS vendor_name
+         COALESCE(v.license_plate, CONCAT(v.year, ' ', v.make, ' ', v.model)) AS vehicle_number,
+         NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') AS driver_name,
+         vn.vendor_name AS vendor_name
        FROM unified_costs uc
        LEFT JOIN vehicles v ON uc.vehicle_id = v.id
        LEFT JOIN drivers d ON uc.driver_id = d.id
+       LEFT JOIN users u ON d.user_id = u.id
        LEFT JOIN vendors vn ON uc.vendor_id = vn.id
        WHERE uc.tenant_id = $1
        AND uc.transaction_date BETWEEN $2 AND $3

@@ -8,6 +8,7 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { setTenantContext } from '../middleware/tenant-context'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const createGeofenceSchema = z.object({
@@ -45,6 +46,7 @@ const geofenceUpdateSchema = z.object({
 
 const router = express.Router()
 router.use(authenticateJWT)
+router.use(setTenantContext)
 
 // GET /geofences
 router.get(
@@ -53,11 +55,12 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const db = req.dbClient || pool
       const { page = 1, limit = 50 } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
-      const result = await pool.query(
-        `SELECT 
+      const result = await db.query(
+        `SELECT
           id,
           tenant_id,
           name,
@@ -82,7 +85,7 @@ router.get(
         [req.user!.tenant_id, limit, offset]
       )
 
-      const countResult = await pool.query(
+      const countResult = await db.query(
         `SELECT COUNT(*) FROM geofences WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
@@ -110,7 +113,8 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
+      const db = req.dbClient || pool
+      const result = await db.query(
         `SELECT
           id,
           tenant_id,
@@ -153,6 +157,7 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const db = req.dbClient || pool
       const parsed = createGeofenceSchema.safeParse(req.body)
       if (!parsed.success) {
         return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
@@ -165,7 +170,7 @@ router.post(
         1
       )
 
-      const result = await pool.query(
+      const result = await db.query(
         `INSERT INTO geofences (${columnNames}) VALUES (${placeholders}) RETURNING *`,
         [req.user!.tenant_id, ...values]
       )
@@ -185,6 +190,7 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const db = req.dbClient || pool
       const parsed = geofenceUpdateSchema.safeParse(req.body)
       if (!parsed.success) {
         return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
@@ -192,7 +198,7 @@ router.put(
       const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
-      const result = await pool.query(
+      const result = await db.query(
         `UPDATE geofences SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...values]
       )
@@ -216,7 +222,8 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
+      const db = req.dbClient || pool
+      const result = await db.query(
         'DELETE FROM geofences WHERE id = $1 AND tenant_id = $2 RETURNING id',
         [req.params.id, req.user!.tenant_id]
       )

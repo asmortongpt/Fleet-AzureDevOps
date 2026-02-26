@@ -291,7 +291,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
   // Extract dashboard metrics for radial charts (P0-2)
   const dashMetrics = useMemo(() => {
     if (!complianceDashboard) return null
-    const metrics = complianceDashboard?.metrics || complianceDashboard?.data?.metrics
+    const metrics = complianceDashboard?.metrics
     if (!metrics) return null
     // metrics could be an object with named keys or an array
     if (Array.isArray(metrics)) {

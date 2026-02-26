@@ -23,8 +23,8 @@ const transformRouteResponse = (dbRow: any) => {
   return {
     id: dbRow.id,
     routeId: dbRow.id,
-    number: dbRow.name || `RT-${String(dbRow.id).slice(0, 8).toUpperCase()}`,
-    name: dbRow.name || null,
+    number: dbRow.name || dbRow.route_name || `RT-${String(dbRow.id).slice(0, 8).toUpperCase()}`,
+    name: dbRow.name || dbRow.route_name || null,
     vehicleId: dbRow.vehicle_id,
     vehicleName: dbRow.vehicle_name || null,
     driverId: dbRow.driver_id,
@@ -40,7 +40,7 @@ const transformRouteResponse = (dbRow: any) => {
     eta: dbRow.planned_end_time || '',
     optimizationScore: calculateOptimizationScore(dbRow),
     estimatedDuration: dbRow.estimated_duration || 0,
-    type: dbRow.route_type || 'delivery',
+    type: 'delivery',
     date: dbRow.planned_start_time || new Date().toISOString(),
     startLocation: dbRow.start_location,
     endLocation: dbRow.end_location,
@@ -102,7 +102,6 @@ router.get(
       const {
         page = 1,
         pageSize = 50,
-        type,
         status,
         driverId,
         vehicleId,
@@ -120,48 +119,37 @@ router.get(
       let query = `SELECT
       r.id,
       r.tenant_id,
-      r.name,
-      r.assigned_vehicle_id as vehicle_id,
-      r.assigned_driver_id as driver_id,
+      r.route_name as name,
+      r.vehicle_id,
+      r.driver_id,
       r.status,
-      r.type as route_type,
-      r.start_facility_id as start_location,
-      r.end_facility_id as end_location,
-      sf.name as start_facility_name,
-      ef.name as end_facility_name,
-      r.scheduled_start_time as planned_start_time,
-      r.scheduled_end_time as planned_end_time,
+      r.start_location,
+      r.end_location,
+      r.planned_start_time,
+      r.planned_end_time,
       r.actual_start_time,
       r.actual_end_time,
-      r.actual_distance as total_distance,
+      r.total_distance,
       r.estimated_duration,
       r.actual_duration,
       r.waypoints,
-      r.optimized_route as optimized_waypoints,
-      r.metadata as route_geometry,
-      r.description as notes,
+      r.optimized_waypoints,
+      r.route_geometry,
+      r.notes,
       r.created_at,
       r.updated_at,
-      v.name as vehicle_name,
-      CONCAT(d.first_name, ' ', d.last_name) as driver_name
+      CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
+      COALESCE(u.first_name || ' ' || u.last_name, u.email) as driver_name
       FROM routes r
-      LEFT JOIN facilities sf ON sf.id = r.start_facility_id AND sf.tenant_id = r.tenant_id
-      LEFT JOIN facilities ef ON ef.id = r.end_facility_id AND ef.tenant_id = r.tenant_id
-      LEFT JOIN vehicles v ON r.assigned_vehicle_id = v.id
-      LEFT JOIN drivers d ON r.assigned_driver_id = d.id
+      LEFT JOIN vehicles v ON r.vehicle_id = v.id
+      LEFT JOIN drivers d ON r.driver_id = d.id
+      LEFT JOIN users u ON d.user_id = u.id
       WHERE r.tenant_id = $1`
       let countQuery = `SELECT COUNT(*) FROM routes r WHERE r.tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       // Apply filters
-      if (type) {
-        query += ` AND r.type = $${paramIndex}`
-        countQuery += ` AND r.type = $${paramIndex}`
-        params.push(type)
-        paramIndex++
-      }
-
       if (status) {
         query += ` AND r.status = $${paramIndex}`
         countQuery += ` AND r.status = $${paramIndex}`
@@ -170,22 +158,22 @@ router.get(
       }
 
       if (driverId) {
-        query += ` AND r.assigned_driver_id = $${paramIndex}`
-        countQuery += ` AND r.assigned_driver_id = $${paramIndex}`
+        query += ` AND r.driver_id = $${paramIndex}`
+        countQuery += ` AND r.driver_id = $${paramIndex}`
         params.push(driverId)
         paramIndex++
       }
 
       if (vehicleId) {
-        query += ` AND r.assigned_vehicle_id = $${paramIndex}`
-        countQuery += ` AND r.assigned_vehicle_id = $${paramIndex}`
+        query += ` AND r.vehicle_id = $${paramIndex}`
+        countQuery += ` AND r.vehicle_id = $${paramIndex}`
         params.push(vehicleId)
         paramIndex++
       }
 
       if (date) {
-        query += ` AND DATE(r.scheduled_start_time) = DATE($${paramIndex})`
-        countQuery += ` AND DATE(r.scheduled_start_time) = DATE($${paramIndex})`
+        query += ` AND DATE(r.planned_start_time) = DATE($${paramIndex})`
+        countQuery += ` AND DATE(r.planned_start_time) = DATE($${paramIndex})`
         params.push(date)
         paramIndex++
       }
@@ -193,8 +181,8 @@ router.get(
       // If user is a driver, filter to only their routes
       if (userResult.rows.length > 0) {
         const driverId = userResult.rows[0].id
-        query += ` AND r.assigned_driver_id = $${paramIndex}`
-        countQuery += ` AND r.assigned_driver_id = $${paramIndex}`
+        query += ` AND r.driver_id = $${paramIndex}`
+        countQuery += ` AND r.driver_id = $${paramIndex}`
         params.push(driverId)
         paramIndex++
       }
@@ -238,29 +226,29 @@ router.get(
         SELECT
           r.id,
           r.tenant_id,
-          r.name as route_name,
-          r.assigned_vehicle_id as vehicle_id,
-          r.assigned_driver_id as driver_id,
+          r.route_name as name,
+          r.vehicle_id,
+          r.driver_id,
           r.status,
-          r.type as route_type,
-          r.start_facility_id as start_location,
-          r.end_facility_id as end_location,
-          r.scheduled_start_time as planned_start_time,
-          r.scheduled_end_time as planned_end_time,
+          r.start_location,
+          r.end_location,
+          r.planned_start_time,
+          r.planned_end_time,
           r.actual_start_time,
-          r.actual_distance as total_distance,
+          r.total_distance,
           r.estimated_duration,
           r.waypoints,
-          r.optimized_route as optimized_waypoints,
-          r.description as notes,
+          r.optimized_waypoints,
+          r.notes,
           r.created_at,
           r.updated_at,
-          v.name as vehicle_name,
+          CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
           v.license_plate,
-          CONCAT(d.first_name, ' ', d.last_name) as driver_name
+          COALESCE(u.first_name || ' ' || u.last_name, u.email) as driver_name
         FROM routes r
-        LEFT JOIN vehicles v ON r.assigned_vehicle_id = v.id
-        LEFT JOIN drivers d ON r.assigned_driver_id = d.id
+        LEFT JOIN vehicles v ON r.vehicle_id = v.id
+        LEFT JOIN drivers d ON r.driver_id = d.id
+        LEFT JOIN users u ON d.user_id = u.id
         WHERE r.tenant_id = $1
           AND r.status IN ('in_progress', 'active', 'planned')
       `
@@ -270,11 +258,11 @@ router.get(
       // If user is a driver, filter to only their routes
       if (userResult.rows.length > 0) {
         const driverId = userResult.rows[0].id
-        query += ` AND r.assigned_driver_id = $2`
+        query += ` AND r.driver_id = $2`
         params.push(driverId)
       }
 
-      query += ` ORDER BY r.scheduled_start_time ASC`
+      query += ` ORDER BY r.planned_start_time ASC`
 
       const result = await req.dbClient!.query(query, params)
 
@@ -420,7 +408,7 @@ router.get(
         WITH scoped AS (
           SELECT
             COALESCE(jsonb_array_length(COALESCE(waypoints, '[]'::jsonb)), 0) AS stops,
-            COALESCE(actual_distance, estimated_distance, 0) AS miles,
+            COALESCE(total_distance, 0) AS miles,
             actual_duration AS duration,
             status
           FROM routes
@@ -469,7 +457,7 @@ router.get(
         WITH scoped AS (
           SELECT
             COALESCE(jsonb_array_length(COALESCE(waypoints, '[]'::jsonb)), 0) AS stops,
-            COALESCE(actual_distance, estimated_distance, 0) AS miles,
+            COALESCE(total_distance, 0) AS miles,
             actual_duration AS duration,
             status
           FROM routes
@@ -521,7 +509,7 @@ router.get(
 
       // If user is a driver, verify the route belongs to them
       const routeResult = await req.dbClient!.query(
-        `SELECT id FROM routes WHERE id = $1 AND assigned_driver_id = $2 AND tenant_id = $3`,
+        `SELECT id FROM routes WHERE id = $1 AND driver_id = $2 AND tenant_id = $3`,
         [req.params.id, driverResult.rows[0].id, req.user!.tenant_id]
       )
 
@@ -535,24 +523,23 @@ router.get(
         `SELECT
       id,
       tenant_id,
-      name,
-      assigned_vehicle_id as vehicle_id,
-      assigned_driver_id as driver_id,
+      route_name as name,
+      vehicle_id,
+      driver_id,
       status,
-      type as route_type,
-      start_facility_id as start_location,
-      end_facility_id as end_location,
-      scheduled_start_time as planned_start_time,
-      scheduled_end_time as planned_end_time,
+      start_location,
+      end_location,
+      planned_start_time,
+      planned_end_time,
       actual_start_time,
       actual_end_time,
-      actual_distance as total_distance,
+      total_distance,
       estimated_duration,
       actual_duration,
       waypoints,
-      optimized_route as optimized_waypoints,
-      metadata as route_geometry,
-      description as notes,
+      optimized_waypoints,
+      route_geometry,
+      notes,
       created_at,
       updated_at FROM routes WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
@@ -623,14 +610,14 @@ router.post(
 
       const insertData = {
         tenant_id: req.user!.tenant_id,
-        name: `Route ${new Date().toISOString()}`,
-        assigned_vehicle_id: vehicleId,
-        assigned_driver_id: driverId,
+        route_name: `Route ${new Date().toISOString()}`,
+        vehicle_id: vehicleId,
+        driver_id: driverId,
         status: status || 'planned',
         waypoints: JSON.stringify(waypoints),
-        optimized_route: optimize ? JSON.stringify(waypoints) : null,
+        optimized_waypoints: optimize ? JSON.stringify(waypoints) : null,
         estimated_duration: estimatedDuration,
-        scheduled_start_time: startTime || new Date().toISOString()
+        planned_start_time: startTime || new Date().toISOString()
       }
 
       const { columnNames, placeholders, values } = buildInsertClause(
@@ -659,9 +646,9 @@ const updateRouteSchema = z.object({
   start_location: z.string().max(500).optional(),
   end_location: z.string().max(500).optional(),
   waypoints: z.unknown().optional(),
-  distance: z.number().min(0).optional(),
-  assigned_vehicle_id: flexUuid.optional(),
-  assigned_driver_id: flexUuid.optional(),
+  total_distance: z.number().min(0).optional(),
+  vehicle_id: flexUuid.optional(),
+  driver_id: flexUuid.optional(),
 }).passthrough()
 
 router.put(
@@ -699,12 +686,12 @@ router.put(
       const data = parsed.data
 
       // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
-      const { assigned_vehicle_id, assigned_driver_id } = data
+      const { vehicle_id, driver_id } = data
 
-      if (assigned_vehicle_id) {
+      if (vehicle_id) {
         const vehicleCheck = await req.dbClient!.query(
           'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
-          [assigned_vehicle_id, req.user!.tenant_id]
+          [vehicle_id, req.user!.tenant_id]
         )
         if (vehicleCheck.rows.length === 0) {
           return res.status(403).json({
@@ -714,10 +701,10 @@ router.put(
         }
       }
 
-      if (assigned_driver_id) {
+      if (driver_id) {
         const driverCheck = await req.dbClient!.query(
           'SELECT id FROM drivers WHERE id = $1 AND tenant_id = $2',
-          [assigned_driver_id, req.user!.tenant_id]
+          [driver_id, req.user!.tenant_id]
         )
         if (driverCheck.rows.length === 0) {
           return res.status(403).json({
@@ -819,7 +806,7 @@ router.put(
       const optimizedStops = stops.sort((a: any, b: any) => a.priority - b.priority)
 
       const result = await req.dbClient!.query(
-        `UPDATE routes SET optimized_route = $1, updated_at = NOW() WHERE id = $2 AND tenant_id = $3 RETURNING *`,
+        `UPDATE routes SET optimized_waypoints = $1, updated_at = NOW() WHERE id = $2 AND tenant_id = $3 RETURNING *`,
         [JSON.stringify(optimizedStops), req.params.id, req.user!.tenant_id]
       )
 

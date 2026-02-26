@@ -22,6 +22,7 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { setTenantContext } from '../middleware/tenant-context'
 
 
 import { flexUuid } from '../middleware/validation'
@@ -30,6 +31,7 @@ const router = Router()
 
 // Apply authentication to all routes
 router.use(authenticateJWT)
+router.use(setTenantContext)
 
 /**
  * @openapi
@@ -58,6 +60,7 @@ router.use(authenticateJWT)
  */
 router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
+    const db = req.dbClient || pool
     const { type, status, location, assigned_to, search } = req.query
     const tenantId = req.user?.tenant_id
 
@@ -135,7 +138,7 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
 
     query += ` GROUP BY a.id, u.first_name, u.last_name, f.name ORDER BY a.created_at DESC`
 
-    const result = await pool.query(query, params)
+    const result = await db.query(query, params)
 
     res.json({
       data: result.rows,
@@ -156,9 +159,10 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
  */
 router.get('/analytics', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
+    const db = req.dbClient || pool
     const tenantId = req.user?.tenant_id
 
-    const result = await pool.query(
+    const result = await db.query(
       `SELECT
         a.id,
         a.asset_number as asset_tag,
@@ -211,10 +215,11 @@ router.get('/analytics', requirePermission('vehicle:view:fleet'), async (req: Au
  */
 router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
+    const db = req.dbClient || pool
     const { id } = req.params
     const tenantId = req.user?.tenant_id
 
-    const result = await pool.query(
+    const result = await db.query(
       `SELECT
         a.id,
         a.asset_number,
@@ -251,7 +256,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     }
 
     // Get maintenance requests linked to this asset
-    const maintenance = await pool.query(
+    const maintenance = await db.query(
       `SELECT id, request_number, request_type, priority, status, title, description,
               requested_date, scheduled_date, completed_date, total_cost
        FROM maintenance_requests
@@ -666,10 +671,11 @@ router.post('/:id/transfer',csrfProtection, requirePermission('vehicle:update:fl
  */
 router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
+    const db = req.dbClient || pool
     const { id } = req.params
     const tenantId = req.user?.tenant_id
 
-    const result = await pool.query(
+    const result = await db.query(
       `SELECT 
         id,
         purchase_date,
@@ -737,24 +743,25 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
  */
 router.get('/analytics/summary', requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
+    const db = req.dbClient || pool
     const tenantId = req.user?.tenant_id
 
     const [statusCounts, typeCounts, totalValue, depreciationSum] = await Promise.all([
-      pool.query(
+      db.query(
         `SELECT status, COUNT(*) as count
          FROM assets
          WHERE tenant_id = $1
          GROUP BY status`,
         [tenantId]
       ),
-      pool.query(
+      db.query(
         `SELECT type as asset_type, COUNT(*) as count
          FROM assets
          WHERE tenant_id = $1
          GROUP BY type`,
         [tenantId]
       ),
-      pool.query(
+      db.query(
         `SELECT
            SUM(CAST(purchase_price AS DECIMAL)) as total_purchase_value,
            SUM(CAST(current_value AS DECIMAL)) as total_current_value,
@@ -763,7 +770,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
          WHERE tenant_id = $1 AND status != 'disposed'`,
         [tenantId]
       ),
-      pool.query(
+      db.query(
         `SELECT
            SUM(CAST(purchase_price AS DECIMAL) - CAST(current_value AS DECIMAL) as total_depreciation
          FROM assets

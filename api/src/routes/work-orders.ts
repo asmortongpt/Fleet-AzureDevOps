@@ -127,26 +127,27 @@ router.get(
         queryParams.push(priority)
         whereClause += (whereClause ? ' AND' : 'WHERE') + ` wo.priority = $${queryParams.length}`
       }
-      // Note: facility_id filter removed - column doesn't exist in work_orders table
+      if (facility_id) {
+        queryParams.push(facility_id)
+        whereClause += (whereClause ? ' AND' : 'WHERE') + ` wo.facility_id = $${queryParams.length}`
+      }
 
       const result = await client.query(
-        `SELECT wo.id, wo.tenant_id, wo.number as work_order_number, wo.vehicle_id, wo.title,
+        `SELECT wo.id, wo.tenant_id, wo.work_order_number, wo.vehicle_id,
                 wo.description, wo.type, wo.priority, wo.status,
-                wo.assigned_to_id as assigned_technician_id,
-                wo.requested_by_id, wo.approved_by_id,
-                wo.scheduled_start_date as scheduled_start,
-                wo.scheduled_end_date as scheduled_end,
-                wo.actual_start_date as actual_start,
-                wo.actual_end_date as actual_end,
-                wo.labor_hours, wo.estimated_cost, wo.actual_cost,
-                wo.odometer_at_start as odometer_reading,
-                wo.notes, wo.metadata, wo.created_at, wo.updated_at,
-                wo.category, wo.facility_id, wo.total_cost, wo.parts_cost, wo.labor_cost,
-                wo.downtime_hours, wo.root_cause, wo.resolution_notes, wo.vendor_id,
-                wo.driver_id, wo.bay_number, wo.is_emergency, wo.quality_check_passed,
-                wo.completed_at, wo.subcategory, wo.external_reference,
-                v.name as vehicle_name, v.make as vehicle_make,
-                v.model as vehicle_model, v.year as vehicle_year
+                wo.assigned_technician_id,
+                wo.scheduled_start,
+                wo.scheduled_end,
+                wo.actual_start,
+                wo.actual_end,
+                wo.labor_hours, wo.labor_cost, wo.parts_cost, wo.total_cost,
+                wo.odometer_reading,
+                wo.notes, wo.created_by, wo.created_at, wo.updated_at,
+                wo.facility_id,
+                wo.downtime_hours, wo.root_cause,
+                v.make as vehicle_make,
+                v.model as vehicle_model, v.year as vehicle_year,
+                CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name
          FROM work_orders wo
          LEFT JOIN vehicles v ON v.id = wo.vehicle_id AND v.tenant_id = wo.tenant_id
          ${whereClause} ORDER BY wo.created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
@@ -198,25 +199,21 @@ router.get(
 
       // RLS automatically filters - if work order doesn't exist OR is in different tenant, returns nothing
       const result = await client.query(
-        `SELECT wo.id, wo.tenant_id, wo.number as work_order_number, wo.vehicle_id, wo.title,
+        `SELECT wo.id, wo.tenant_id, wo.work_order_number, wo.vehicle_id,
                 wo.description, wo.type, wo.priority, wo.status,
-                wo.assigned_to_id as assigned_technician_id,
-                wo.requested_by_id, wo.approved_by_id,
-                wo.scheduled_start_date as scheduled_start,
-                wo.scheduled_end_date as scheduled_end,
-                wo.actual_start_date as actual_start,
-                wo.actual_end_date as actual_end,
-                wo.labor_hours, wo.estimated_cost, wo.actual_cost,
-                wo.parts_cost, wo.labor_cost, wo.total_cost,
-                wo.odometer_at_start as odometer_reading,
-                wo.odometer_at_end, wo.notes, wo.metadata, wo.created_at, wo.updated_at,
-                v.name as vehicle_name,
-                COALESCE(assigned_user.first_name || ' ' || assigned_user.last_name, assigned_user.email) as assigned_to_name,
-                COALESCE(requested_user.first_name || ' ' || requested_user.last_name, requested_user.email) as requested_by_name
+                wo.assigned_technician_id,
+                wo.scheduled_start,
+                wo.scheduled_end,
+                wo.actual_start,
+                wo.actual_end,
+                wo.labor_hours, wo.labor_cost, wo.parts_cost, wo.total_cost,
+                wo.odometer_reading,
+                wo.notes, wo.created_by, wo.created_at, wo.updated_at,
+                CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
+                COALESCE(assigned_user.first_name || ' ' || assigned_user.last_name, assigned_user.email) as assigned_to_name
          FROM work_orders wo
          LEFT JOIN vehicles v ON v.id = wo.vehicle_id
-         LEFT JOIN users assigned_user ON assigned_user.id = wo.assigned_to_id
-         LEFT JOIN users requested_user ON requested_user.id = wo.requested_by_id
+         LEFT JOIN users assigned_user ON assigned_user.id = wo.assigned_technician_id
          WHERE wo.id = $1`,
         [req.params.id]
       )
@@ -278,21 +275,17 @@ router.post(
       }
 
       // Insert work order - tenant_id comes from req.body (injected by injectTenantId middleware)
-      // Auto-generate title from type and description if not provided
-      const title = validated.title || `${validated.type.charAt(0).toUpperCase() + validated.type.slice(1)} - ${validated.description.substring(0, 100)}`
-
       const result = await client.query(
         `INSERT INTO work_orders (
-          tenant_id, number, title, vehicle_id, facility_id,
-          assigned_to_id, type, priority, status, description,
-          odometer_at_start, engine_hours_in, scheduled_start_date,
-          scheduled_end_date, notes, created_by
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+          tenant_id, work_order_number, vehicle_id, facility_id,
+          assigned_technician_id, type, priority, status, description,
+          odometer_reading, engine_hours_reading, scheduled_start,
+          scheduled_end, notes, created_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
         RETURNING *`,
         [
           req.body.tenant_id,  // From injectTenantId middleware
           validated.work_order_number,
-          title,
           validated.vehicle_id,
           validated.facility_id || null,
           validated.assigned_technician_id || null,
@@ -367,17 +360,30 @@ router.put(
 
       const validatedData = parsed.data as Record<string, unknown>
 
-      const allowedFields = [
-        'status', 'priority', 'description', 'vehicle_id', 'facility_id',
-        'assigned_technician_id', 'scheduled_start', 'scheduled_end',
-        'actual_start', 'actual_end', 'labor_hours', 'labor_cost',
-        'parts_cost', 'odometer_reading', 'engine_hours_reading', 'notes'
-      ] as const
+      // Map from Zod schema field names to actual database column names
+      const fieldMapping: Record<string, string> = {
+        'status': 'status',
+        'priority': 'priority',
+        'description': 'description',
+        'vehicle_id': 'vehicle_id',
+        'facility_id': 'facility_id',
+        'assigned_technician_id': 'assigned_technician_id',
+        'scheduled_start': 'scheduled_start',
+        'scheduled_end': 'scheduled_end',
+        'actual_start': 'actual_start',
+        'actual_end': 'actual_end',
+        'labor_hours': 'labor_hours',
+        'labor_cost': 'labor_cost',
+        'parts_cost': 'parts_cost',
+        'odometer_reading': 'odometer_reading',
+        'engine_hours_reading': 'engine_hours_reading',
+        'notes': 'notes'
+      }
 
-      for (const field of allowedFields) {
-        if (validatedData[field] !== undefined) {
-          fields.push(`${field} = $${paramCount++}`)
-          values.push(validatedData[field])
+      for (const [schemaField, dbColumn] of Object.entries(fieldMapping)) {
+        if (validatedData[schemaField] !== undefined) {
+          fields.push(`${dbColumn} = $${paramCount++}`)
+          values.push(validatedData[schemaField])
         }
       }
 

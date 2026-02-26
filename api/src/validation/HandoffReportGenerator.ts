@@ -278,7 +278,7 @@ export class HandoffReportGenerator {
         issuesResolved: week3Resolved,
         milestones: [
           criticalIssues === 0 ? 'All critical issues resolved' : `${criticalIssues} critical issues remain`,
-          `${Math.round((resolvedIssues / totalIssues) * 100)}% of issues resolved`,
+          `${totalIssues > 0 ? Math.round((resolvedIssues / totalIssues) * 100) : 100}% of issues resolved`,
           'Performance meets targets'
         ],
         notes: `Week 3 focused on workflow validation. Resolved ${week3Resolved} issues from ${week3Issues} found.`

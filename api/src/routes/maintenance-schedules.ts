@@ -106,16 +106,16 @@ const checkDueSchedules = async (client: PoolClient, daysAhead: number, includeO
 
   // RLS handles tenant filtering, no need for tenant_id in WHERE clause
   const query = includeOverdue
-    ? 'SELECT * FROM maintenance_schedules WHERE (next_service_date <= $1 OR next_service_date < NOW())'
-    : 'SELECT * FROM maintenance_schedules WHERE next_service_date <= $1 AND next_service_date >= NOW()'
+    ? 'SELECT * FROM maintenance_schedules WHERE (next_due_date <= $1 OR next_due_date < NOW())'
+    : 'SELECT * FROM maintenance_schedules WHERE next_due_date <= $1 AND next_due_date >= NOW()'
 
   const result = await client.query(query, [futureDate])
 
   return result.rows.map((schedule: Record<string, unknown>) => ({
     schedule,
     vehicle: { id: schedule.vehicle_id as string | number },
-    is_overdue: new Date(schedule.next_service_date as string) < new Date(),
-    days_until_due: Math.floor((new Date(schedule.next_service_date as string).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    is_overdue: new Date(schedule.next_due_date as string) < new Date(),
+    days_until_due: Math.floor((new Date(schedule.next_due_date as string).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
   }))
 }
 
@@ -125,20 +125,17 @@ const generateWorkOrder = async (client: PoolClient, schedule: Record<string, un
     vehicle_id: schedule.vehicle_id,
     type: 'preventive',
     priority: 'medium',
-    description: schedule.description || schedule.name,
-    estimated_cost: schedule.estimated_cost || 0,
-    status: 'open',
-    metadata: { schedule_id: schedule.id, ...overrideTemplate },
+    description: schedule.description || schedule.maintenance_type,
+    status: 'pending',
     created_at: new Date()
   }
 
   // RLS handles tenant_id, but we include it for data integrity
   const result = await client.query(
-    `INSERT INTO work_orders (tenant_id, vehicle_id, type, priority, description, estimated_cost, status, metadata, created_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+    `INSERT INTO work_orders (tenant_id, vehicle_id, type, priority, description, status)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
     [workOrder.tenant_id, workOrder.vehicle_id, workOrder.type, workOrder.priority,
-     workOrder.description, workOrder.estimated_cost, workOrder.status,
-     JSON.stringify(workOrder.metadata), workOrder.created_at]
+     workOrder.description, workOrder.status]
   )
 
   return result.rows[0].id
@@ -149,7 +146,7 @@ const getRecurringScheduleStats = async (client: PoolClient) => {
   const result = await client.query(
     `SELECT COUNT(*) as total,
             SUM(CASE WHEN is_active THEN 1 ELSE 0 END) as active,
-            SUM(estimated_cost) as total_estimated_cost
+            SUM(estimated_total_cost) as total_estimated_cost
      FROM maintenance_schedules`
   )
 
@@ -195,15 +192,15 @@ router.get(
       }
 
       if (service_type) {
-        filters += `${filters ? ' AND' : 'WHERE'} type = $${paramIndex++}`
+        filters += `${filters ? ' AND' : 'WHERE'} maintenance_type = $${paramIndex++}`
         params.push(service_type as string)
       }
 
       const result = await client.query(
-        `SELECT id, tenant_id, vehicle_id, name, description, type,
+        `SELECT id, tenant_id, vehicle_id, maintenance_type,
                 interval_miles, interval_days, last_service_date, last_service_mileage,
-                next_service_date, next_service_mileage, estimated_cost, estimated_duration,
-                is_active, metadata, created_at, updated_at
+                next_due_date, next_due_mileage, estimated_total_cost, estimated_duration_hours,
+                is_active, created_at, updated_at
          FROM maintenance_schedules ${filters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
         [...params, paginationParams.limit, paginationParams.offset]
       )
@@ -249,10 +246,10 @@ router.get(
 
       // RLS handles tenant filtering
       const result = await client.query(
-        `SELECT id, tenant_id, vehicle_id, name, description, type,
+        `SELECT id, tenant_id, vehicle_id, maintenance_type,
                 interval_miles, interval_days, last_service_date, last_service_mileage,
-                next_service_date, next_service_mileage, estimated_cost, estimated_duration,
-                is_active, metadata, created_at, updated_at
+                next_due_date, next_due_mileage, estimated_total_cost, estimated_duration_hours,
+                is_active, created_at, updated_at
          FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, tenantId]
       )
@@ -272,21 +269,15 @@ router.get(
 // POST /maintenance-schedules
 const maintenanceScheduleSchema = z.object({
   vehicle_id: flexUuid.optional(),
-  schedule_type: z.string().max(100).optional(),
-  service_type: z.string().max(200).optional(),
-  description: z.string().max(2000).optional(),
-  frequency_miles: z.number().min(0).optional(),
-  frequency_days: z.number().int().min(0).optional(),
+  maintenance_type: z.string().max(200).optional(),
+  interval_miles: z.number().min(0).optional(),
+  interval_days: z.number().int().min(0).optional(),
   last_service_date: z.string().optional(),
   last_service_mileage: z.number().min(0).optional(),
-  next_service_date: z.string().optional(),
-  next_service_mileage: z.number().min(0).optional(),
-  estimated_cost: z.number().min(0).optional(),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-  status: z.enum(['active', 'inactive', 'completed', 'overdue']).optional(),
-  notes: z.string().max(2000).optional(),
-  recurrence_pattern: z.record(z.string(), z.unknown()).optional(),
-  metadata: z.record(z.string(), z.unknown()).optional(),
+  next_due_date: z.string().optional(),
+  next_due_mileage: z.number().min(0).optional(),
+  estimated_total_cost: z.number().min(0).optional(),
+  is_active: z.boolean().optional(),
 }).passthrough()
 
 router.post(
@@ -451,27 +442,19 @@ router.post(
       // Create schedule
       const result = await client.query(
         `INSERT INTO maintenance_schedules (
-          tenant_id, vehicle_id, name, description, type,
-          interval_days, next_service_date, estimated_cost,
-          is_active, metadata
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          tenant_id, vehicle_id, maintenance_type,
+          interval_days, next_due_date, estimated_total_cost,
+          is_active
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *`,
         [
           req.user!.tenant_id,
           data.vehicle_id,
-          data.service_type || 'Recurring Maintenance',
-          data.notes || '',
           data.service_type || 'preventive',
           data.recurrence_pattern?.interval_value || 30,
           nextDue,
           data.estimated_cost || 0,
-          data.auto_create_work_order !== false,
-          JSON.stringify({
-            recurrence_pattern: data.recurrence_pattern,
-            work_order_template: data.work_order_template,
-            parts: data.parts,
-            priority: data.priority
-          })
+          data.auto_create_work_order !== false
         ]
       )
 
@@ -511,9 +494,9 @@ router.put(
         })
       }
 
-      // Get existing metadata (RLS handles tenant filtering)
+      // Check existing schedule exists (RLS handles tenant filtering)
       const existing = await client.query(
-        `SELECT metadata FROM maintenance_schedules WHERE id = $1`,
+        `SELECT id, interval_days, interval_miles, interval_hours FROM maintenance_schedules WHERE id = $1`,
         [req.params.id]
       )
 
@@ -521,25 +504,28 @@ router.put(
         return res.status(404).json({ error: `Recurring schedule not found` })
       }
 
-      const currentMetadata = existing.rows[0].metadata || {}
-      const updatedMetadata = {
-        ...currentMetadata,
-        recurrence_pattern: data.recurrence_pattern
+      const updateFields: string[] = []
+      const updateValues: (string | number | boolean)[] = []
+      let paramIndex = 2
+
+      // Map recurrence_pattern fields to actual columns
+      if (data.recurrence_pattern) {
+        const pattern = data.recurrence_pattern as unknown as Record<string, unknown>
+        if (pattern.interval_value !== undefined) {
+          updateFields.push(`interval_days = $${paramIndex}`)
+          updateValues.push(Number(pattern.interval_value) || 30)
+          paramIndex++
+        }
       }
 
-      const updateFields: string[] = [`metadata = $3`]
-      const updateValues: (string | boolean)[] = [JSON.stringify(updatedMetadata)]
-      let paramIndex = 4
-
       if (data.auto_create_work_order !== undefined) {
-        updateFields.push(`is_active = $${paramIndex}`)
+        updateFields.push(`auto_generate_work_order = $${paramIndex}`)
         updateValues.push(data.auto_create_work_order)
         paramIndex++
       }
 
-      if (data.work_order_template) {
-        updatedMetadata.work_order_template = data.work_order_template
-        updateValues[0] = JSON.stringify(updatedMetadata)
+      if (updateFields.length === 0) {
+        updateFields.push(`updated_at = NOW()`)
       }
 
       // RLS handles tenant filtering
@@ -599,15 +585,12 @@ router.get(
       }
 
       if (service_type) {
-        dueSchedules = dueSchedules.filter((s) => s.schedule.type === service_type)
+        dueSchedules = dueSchedules.filter((s) => s.schedule.maintenance_type === service_type)
       }
 
       if (priority) {
         const priorityFilter = priority
-        dueSchedules = dueSchedules.filter((s) => {
-          const metadata = (s.schedule.metadata || {}) as Record<string, unknown>
-          return metadata.priority === priorityFilter
-        })
+        dueSchedules = dueSchedules.filter((s) => s.schedule.priority_level === priorityFilter)
       }
 
       res.json({
@@ -616,7 +599,7 @@ router.get(
           total: dueSchedules.length,
           overdue: dueSchedules.filter((s) => s.is_overdue).length,
           due_within_7_days: dueSchedules.filter((s) => s.days_until_due <= 7 && !s.is_overdue).length,
-          total_estimated_cost: dueSchedules.reduce((sum, s) => sum + (Number(s.schedule.estimated_cost) || 0), 0)
+          total_estimated_cost: dueSchedules.reduce((sum, s) => sum + (Number(s.schedule.estimated_total_cost) || 0), 0)
         }
       })
     } catch (error: unknown) {
@@ -655,10 +638,10 @@ router.post(
 
       // Get schedule (RLS handles tenant filtering)
       const scheduleResult = await client.query(
-        `SELECT id, tenant_id, vehicle_id, name, description, type,
+        `SELECT id, tenant_id, vehicle_id, maintenance_type,
                 interval_miles, interval_days, last_service_date, last_service_mileage,
-                next_service_date, next_service_mileage, estimated_cost, estimated_duration,
-                is_active, metadata, created_at, updated_at
+                next_due_date, next_due_mileage, estimated_total_cost, estimated_duration_hours,
+                is_active, created_at, updated_at
          FROM maintenance_schedules WHERE id = $1`,
         [req.params.id]
       )
@@ -672,20 +655,20 @@ router.post(
       // Check if due (unless skip_due_check is true)
       if (!skip_due_check) {
         const now = new Date()
-        const nextDue = new Date(schedule.next_service_date)
+        const nextDue = new Date(schedule.next_due_date)
         if (nextDue > now) {
           return res.status(400).json({
             error: 'Schedule is not due yet',
-            next_service_date: schedule.next_service_date
+            next_due_date: schedule.next_due_date
           })
         }
       }
 
       // Get vehicle telemetry (RLS handles tenant filtering)
       const telemetryResult = await client.query(
-        `SELECT * FROM vehicle_telemetry_snapshots
+        `SELECT * FROM telemetry_data
          WHERE vehicle_id = $1
-         ORDER BY snapshot_date DESC LIMIT 1`,
+         ORDER BY timestamp DESC LIMIT 1`,
         [schedule.vehicle_id]
       )
 
@@ -696,7 +679,7 @@ router.post(
 
       // Get created work order
       const workOrderResult = await client.query(
-        `SELECT id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to FROM work_orders WHERE id = $1`,
+        `SELECT id, tenant_id, vehicle_id, type, priority, description, status, created_at, updated_at, created_by, assigned_technician_id FROM work_orders WHERE id = $1`,
         [workOrderId]
       )
 
@@ -730,10 +713,10 @@ router.get(
 
       // Get schedule (RLS handles tenant filtering)
       const scheduleResult = await client.query(
-        `SELECT id, tenant_id, vehicle_id, name, description, type,
+        `SELECT id, tenant_id, vehicle_id, maintenance_type,
                 interval_miles, interval_days, last_service_date, last_service_mileage,
-                next_service_date, next_service_mileage, estimated_cost, estimated_duration,
-                is_active, metadata, created_at, updated_at
+                next_due_date, next_due_mileage, estimated_total_cost, estimated_duration_hours,
+                is_active, created_at, updated_at
          FROM maintenance_schedules WHERE id = $1`,
         [req.params.id]
       )
@@ -742,22 +725,20 @@ router.get(
         return res.status(404).json({ error: `Schedule not found` })
       }
 
-      // Get history with work orders (RLS handles tenant filtering)
+      // Get related work orders for this vehicle (since maintenance_schedule_history table doesn't exist)
       const historyResult = await client.query(
-        `SELECT
-          msh.*,
-          wo.work_order_number, wo.title, wo.status as work_order_status,
-          wo.actual_cost, wo.completed_date
-         FROM maintenance_schedule_history msh
-         LEFT JOIN work_orders wo ON msh.work_order_id = wo.id
-         WHERE msh.schedule_id = $1
-         ORDER BY msh.created_at DESC`,
+        `SELECT wo.id, wo.work_order_number, wo.status as work_order_status,
+                wo.total_cost, wo.created_at
+         FROM work_orders wo
+         WHERE wo.vehicle_id = (SELECT vehicle_id FROM maintenance_schedules WHERE id = $1)
+           AND wo.type = 'preventive'
+         ORDER BY wo.created_at DESC`,
         [req.params.id]
       )
 
       // Calculate statistics
-      const totalWorkOrders = historyResult.rows.filter((h) => h.status === `success`).length
-      const totalCost = historyResult.rows.reduce((sum, h) => sum + (h.actual_cost || 0), 0)
+      const totalWorkOrders = historyResult.rows.filter((h: any) => h.work_order_status === 'completed').length
+      const totalCost = historyResult.rows.reduce((sum: number, h: any) => sum + (Number(h.total_cost) || 0), 0)
 
       res.json({
         schedule: scheduleResult.rows[0],
