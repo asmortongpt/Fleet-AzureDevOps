@@ -104,15 +104,15 @@ export function CommandPalette() {
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={close}
       />
 
       {/* Palette */}
-      <div className="relative w-full max-w-lg mx-4 bg-background/95 border border-border/50 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden">
+      <div className="relative w-full max-w-[640px] mx-4 bg-[#221060] border border-[rgba(0,204,254,0.15)] rounded-xl shadow-[0_8px_24px_rgba(26,6,72,0.5)] overflow-hidden">
         {/* Search input */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border/50">
-          <Search className="w-4 h-4 text-white/50 shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[rgba(0,204,254,0.08)]">
+          <Search className="w-4 h-4 text-[rgba(255,255,255,0.40)] shrink-0" />
           <input
             ref={inputRef}
             value={query}
@@ -122,11 +122,11 @@ export function CommandPalette() {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search modules, vehicles, drivers..."
-            className="flex-1 bg-transparent text-foreground text-sm placeholder:text-muted-foreground outline-none"
+            className="flex-1 bg-transparent text-white text-sm placeholder:text-[rgba(255,255,255,0.40)] font-['Montserrat'] outline-none"
           />
           <button
             onClick={close}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-[rgba(255,255,255,0.40)] hover:text-white transition-colors"
             aria-label="Close command palette"
           >
             <X className="w-4 h-4" />
@@ -136,13 +136,13 @@ export function CommandPalette() {
         {/* Results */}
         <div className="max-h-[360px] overflow-y-auto py-2">
           {query && results.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-8">
+            <p className="text-xs text-[rgba(255,255,255,0.40)] text-center py-8">
               No results for &ldquo;{query}&rdquo;
             </p>
           )}
 
           {!query && (
-            <p className="text-xs text-muted-foreground text-center py-8">
+            <p className="text-xs text-[rgba(255,255,255,0.40)] text-center py-8">
               Type to search across all modules and records
             </p>
           )}
@@ -150,7 +150,7 @@ export function CommandPalette() {
           {Object.entries(grouped).map(([cat, mods]) => (
             <div key={cat}>
               <div className="px-4 py-1.5">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/40">
+                <span className="text-[10px] uppercase tracking-[0.15em] text-[rgba(255,255,255,0.40)] font-['Montserrat'] font-medium">
                   {categoryLabels[cat as ModuleCategory] ?? cat}
                 </span>
               </div>
@@ -166,8 +166,8 @@ export function CommandPalette() {
                     className={cn(
                       'w-full flex items-center justify-between px-4 py-2.5 text-sm transition-all',
                       isSelected
-                        ? 'bg-white/[0.08] text-foreground'
-                        : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+                        ? 'bg-[#2A1878] text-white rounded-lg'
+                        : 'text-[rgba(255,255,255,0.65)] hover:bg-[#2A1878]/50 hover:text-white'
                     )}
                   >
                     <span>{mod.label}</span>
@@ -180,10 +180,10 @@ export function CommandPalette() {
         </div>
 
         {/* Footer hints */}
-        <div className="flex items-center gap-4 px-4 py-2 border-t border-border/50 text-[10px] text-muted-foreground">
-          <span><kbd className="px-1 py-0.5 bg-muted/40 rounded text-[10px] border border-border/50">&uarr;&darr;</kbd> Navigate</span>
-          <span><kbd className="px-1 py-0.5 bg-muted/40 rounded text-[10px] border border-border/50">Enter</kbd> Open</span>
-          <span><kbd className="px-1 py-0.5 bg-muted/40 rounded text-[10px] border border-border/50">Esc</kbd> Close</span>
+        <div className="flex items-center gap-4 px-4 py-2 border-t border-[rgba(0,204,254,0.08)] text-[10px] text-[rgba(255,255,255,0.40)]">
+          <span><kbd className="px-1 py-0.5 bg-[#1A0648] rounded text-[10px] border border-[rgba(0,204,254,0.08)] text-[rgba(255,255,255,0.40)]">&uarr;&darr;</kbd> Navigate</span>
+          <span><kbd className="px-1 py-0.5 bg-[#1A0648] rounded text-[10px] border border-[rgba(0,204,254,0.08)] text-[rgba(255,255,255,0.40)]">Enter</kbd> Open</span>
+          <span><kbd className="px-1 py-0.5 bg-[#1A0648] rounded text-[10px] border border-[rgba(0,204,254,0.08)] text-[rgba(255,255,255,0.40)]">Esc</kbd> Close</span>
         </div>
       </div>
     </div>

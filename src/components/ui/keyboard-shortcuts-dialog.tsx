@@ -20,12 +20,10 @@ export function KeyboardShortcutsDialog() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Open dialog with ? key
       if (e.key === "?" && e.shiftKey) {
         e.preventDefault()
         setIsOpen(true)
       }
-      // Close dialog with Escape
       if (e.key === "Escape" && isOpen) {
         setIsOpen(false)
       }
@@ -44,16 +42,17 @@ export function KeyboardShortcutsDialog() {
     {
       category: "Navigation",
       shortcuts: [
-        { keys: [modKey, "K"], description: "Open search" },
-        { keys: [modKey, "1-9"], description: "Switch between modules" },
-        { keys: ["Escape"], description: "Close modal/dialog" },
-        { keys: [modKey, "B"], description: "Toggle sidebar" },
+        { keys: [modKey, "K"], description: "Open command palette" },
+        { keys: ["1–5"], description: "Switch between hubs" },
+        { keys: ["["], description: "Toggle sidebar" },
+        { keys: ["/"], description: "Focus search" },
+        { keys: ["Escape"], description: "Close panel / modal" },
       ],
     },
     {
       category: "Actions",
       shortcuts: [
-        { keys: [modKey, "N"], description: "Create new item" },
+        { keys: ["N"], description: "New item (context-sensitive)" },
         { keys: [modKey, "S"], description: "Save changes" },
         { keys: [modKey, "Enter"], description: "Submit form" },
       ],
@@ -79,7 +78,7 @@ export function KeyboardShortcutsDialog() {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 z-50 animate-in fade-in"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 animate-in fade-in"
         onClick={() => setIsOpen(false)}
         aria-hidden="true"
       />
@@ -89,13 +88,17 @@ export function KeyboardShortcutsDialog() {
         role="dialog"
         aria-labelledby="keyboard-shortcuts-title"
         aria-modal="true"
-        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-card rounded-lg shadow-sm border animate-in fade-in zoom-in-95"
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#221060] rounded-xl shadow-[0_8px_24px_rgba(26,6,72,0.5)] border border-[rgba(0,204,254,0.15)] animate-in fade-in zoom-in-95"
       >
         {/* Header */}
-        <div className="sticky top-0 bg-card border-b px-3 py-2 flex items-center justify-between">
+        <div className="sticky top-0 bg-[#221060] border-b border-[rgba(0,204,254,0.08)] px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Keyboard className="w-3 h-3 text-primary" />
-            <h2 id="keyboard-shortcuts-title" className="text-sm font-semibold">
+            <Keyboard className="w-4 h-4 text-[#00CCFE]" />
+            <h2
+              id="keyboard-shortcuts-title"
+              className="text-sm font-semibold text-white"
+              style={{ fontFamily: '"Montserrat", sans-serif' }}
+            >
               Keyboard Shortcuts
             </h2>
           </div>
@@ -103,33 +106,39 @@ export function KeyboardShortcutsDialog() {
             size="icon"
             variant="ghost"
             onClick={() => setIsOpen(false)}
-            className="touch-icon-btn"
+            className="text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]"
             aria-label="Close dialog"
           >
             <X className="w-4 h-4" />
           </Button>
         </div>
 
+        {/* Gradient accent */}
+        <div className="h-[3px] bg-gradient-to-r from-[#00CCFE]/30 via-[#1F3076]/20 to-transparent" />
+
         {/* Content */}
-        <div className="p-3 space-y-2">
+        <div className="p-4 space-y-4">
           {shortcutGroups.map((group) => (
             <div key={group.category}>
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+              <h3
+                className="text-[10px] font-medium uppercase tracking-[0.15em] text-[rgba(255,255,255,0.40)] mb-3"
+                style={{ fontFamily: '"Montserrat", sans-serif' }}
+              >
                 {group.category}
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {group.shortcuts.map((shortcut) => (
                   <div
                     key={shortcut.description}
-                    className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-muted/50 transition-colors"
+                    className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-[#2A1878] transition-colors"
                   >
-                    <span className="text-sm">{shortcut.description}</span>
+                    <span className="text-sm text-[rgba(255,255,255,0.65)]">{shortcut.description}</span>
                     <div className="flex gap-1">
                       {shortcut.keys.map((key, keyIndex) => (
                         <kbd
                           key={keyIndex}
                           className={cn(
-                            "inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded border bg-muted text-xs font-mono font-medium",
+                            "inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-md border border-[rgba(0,204,254,0.15)] bg-[#1A0648] text-xs font-mono font-medium text-[rgba(255,255,255,0.65)]",
                             "shadow-sm"
                           )}
                         >
@@ -145,9 +154,9 @@ export function KeyboardShortcutsDialog() {
         </div>
 
         {/* Footer */}
-        <div className="border-t px-3 py-2 bg-muted/30">
-          <p className="text-xs text-muted-foreground text-center">
-            Press <kbd className="px-1.5 py-0.5 rounded bg-muted text-xs font-mono">?</kbd> to toggle
+        <div className="border-t border-[rgba(0,204,254,0.08)] px-4 py-2.5 bg-[#1A0648]/50">
+          <p className="text-xs text-[rgba(255,255,255,0.40)] text-center">
+            Press <kbd className="px-1.5 py-0.5 rounded-md bg-[#1A0648] text-xs font-mono border border-[rgba(0,204,254,0.15)] text-[rgba(255,255,255,0.65)]">?</kbd> to toggle
             this dialog
           </p>
         </div>

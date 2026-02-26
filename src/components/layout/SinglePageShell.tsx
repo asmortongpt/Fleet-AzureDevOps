@@ -1,15 +1,17 @@
 /**
- * SinglePageShell - Root layout for CTA Fleet application
+ * SinglePageShell - Root layout for ArchonY Fleet Command
  *
  * Fixed viewport (100vh x 100vw, overflow-hidden). No page scrolling.
- * Layout: IconRail (56px left) + CompactHeader (44px top) + MapCanvas + Panels
+ * Layout: NavRail (64px left) + CommandBar (48px top) + Content + DetailPanel (conditional)
+ *         + ActivityBar (48px bottom, collapsible)
  *
  * Responsive:
- * - Desktop (>=1024px): Icon rail + map + side/takeover panels
+ * - Desktop (>=1024px): Nav rail + content + side/takeover panels
  * - Tablet/Mobile (<1024px): Bottom tab bar + full-width panels
  */
 import { useState, useEffect, memo } from 'react'
 
+import { ActivityBar } from './ActivityBar'
 import { BottomDrawer } from './BottomDrawer'
 import { CommandPalette } from './CommandPalette'
 import { CompactHeader } from './CompactHeader'
@@ -51,8 +53,8 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
   }, [])
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex cta-hub">
-      {/* Left: Icon Rail (desktop only) */}
+    <div className="h-screen w-screen overflow-hidden flex bg-[#0D0320] cta-hub">
+      {/* Left: Nav Rail (desktop only) */}
       {isDesktop && (
         <div
           className="relative flex shrink-0"
@@ -65,18 +67,19 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
 
       {/* Main content area */}
       <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {/* Top: Compact Header with CTA Fleet branding */}
+        {/* Top: Command Bar */}
         <CompactHeader />
 
-        {/* Content: Module content OR Map + Overlays */}
-        <div className={cn("flex-1 relative overflow-hidden", !isDesktop && "pb-14")}>
+        {/* Content area with Surface-1 background */}
+        <div className={cn(
+          "flex-1 relative overflow-hidden bg-[#1A0648] rounded-tl-lg",
+          !isDesktop && "pb-14 rounded-tl-none"
+        )}>
           {moduleContent ? (
-            // Show module content if provided
             <div className="w-full h-full overflow-hidden">
               {moduleContent}
             </div>
           ) : (
-            // Default: Show map with overlays
             <>
               {/* Map (always mounted behind everything) */}
               <MapCanvas />
@@ -92,6 +95,9 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
             </>
           )}
         </div>
+
+        {/* Activity Bar (desktop only) */}
+        {isDesktop && <ActivityBar />}
       </main>
 
       {/* Mobile/Tablet: Bottom tab bar */}

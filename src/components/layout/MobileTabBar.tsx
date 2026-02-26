@@ -2,15 +2,14 @@
  * MobileTabBar - Bottom tab bar for tablet/mobile breakpoints
  *
  * Replaces the IconRail when viewport < 1024px.
- * 6 icons + labels in a horizontal strip.
+ * 5 icons + labels in a horizontal strip matching the 5-hub model.
  */
 import {
-  Truck,
-  Route,
-  Wrench,
+  Map,
   ShieldCheck,
   BarChart3,
-  MapPin,
+  Users,
+  Settings,
 } from 'lucide-react'
 import { useCallback, type ReactNode } from 'react'
 
@@ -19,19 +18,18 @@ import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
 interface TabDef {
-  id: ModuleCategory | 'map'
+  id: ModuleCategory | 'admin'
   label: string
   icon: ReactNode
   moduleId?: string
 }
 
 const tabs: TabDef[] = [
-  { id: 'map', label: 'Map', icon: <MapPin className="w-4 h-4" /> },
-  { id: 'fleet', label: 'Fleet', icon: <Truck className="w-4 h-4" />, moduleId: 'fleet' },
-  { id: 'operations', label: 'Ops', icon: <Route className="w-4 h-4" />, moduleId: 'dispatch-console' },
-  { id: 'maintenance', label: 'Maint', icon: <Wrench className="w-4 h-4" />, moduleId: 'garage' },
+  { id: 'fleet', label: 'Fleet', icon: <Map className="w-4 h-4" />, moduleId: 'fleet' },
   { id: 'safety', label: 'Safety', icon: <ShieldCheck className="w-4 h-4" />, moduleId: 'safety' },
-  { id: 'analytics', label: 'Reports', icon: <BarChart3 className="w-4 h-4" />, moduleId: 'financial' },
+  { id: 'analytics', label: 'Business', icon: <BarChart3 className="w-4 h-4" />, moduleId: 'financial' },
+  { id: 'operations', label: 'People', icon: <Users className="w-4 h-4" />, moduleId: 'dispatch-console' },
+  { id: 'admin', label: 'Admin', icon: <Settings className="w-4 h-4" /> },
 ]
 
 export function MobileTabBar() {
@@ -40,11 +38,11 @@ export function MobileTabBar() {
 
   const handleTabClick = useCallback(
     (tab: TabDef) => {
-      if (tab.id === 'map') {
+      if (!tab.moduleId) {
+        // Admin tab - navigate without a module
         closeAll()
         return
       }
-      if (!tab.moduleId) return
       const mod = getModule(tab.moduleId)
       if (!mod) return
       openPanel({
@@ -59,12 +57,10 @@ export function MobileTabBar() {
   )
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border/50 safe-bottom lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0D0320] backdrop-blur-xl border-t border-[rgba(0,204,254,0.08)] safe-bottom lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="flex items-center justify-around h-12 sm:h-14">
         {tabs.map(tab => {
-          const isActive =
-            (tab.id === 'map' && !state.stack.length) ||
-            (tab.id !== 'map' && activeCategory === tab.id)
+          const isActive = activeCategory === tab.id
 
           return (
             <button
@@ -72,7 +68,7 @@ export function MobileTabBar() {
               onClick={() => handleTabClick(tab)}
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors',
-                isActive ? 'text-white' : 'text-muted-foreground'
+                isActive ? 'text-[#00CCFE]' : 'text-[rgba(255,255,255,0.40)]'
               )}
               aria-label={tab.label}
             >
