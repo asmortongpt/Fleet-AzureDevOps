@@ -3,7 +3,7 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 
 export interface SectionProps {
-  title: string
+  title: React.ReactNode
   description?: string
   icon?: React.ReactNode
   actions?: React.ReactNode

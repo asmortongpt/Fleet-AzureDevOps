@@ -36,7 +36,7 @@ export function HubTabItem({ children }: HubTabItemProps) {
 }
 
 export interface HubPageProps {
-    title: string
+    title: ReactNode
     icon?: ReactNode | React.ComponentType<{ className?: string }>
     description?: string
     tabs?: HubTab[]
