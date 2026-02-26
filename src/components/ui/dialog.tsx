@@ -62,7 +62,7 @@ function DialogContent({
           "fixed top-[50%] left-[50%] z-50 translate-x-[-50%] translate-y-[-50%]",
           "w-full max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)] md:max-w-lg",
           // Visual styles
-          "bg-card/95 backdrop-blur-xl border border-border/50 rounded-lg shadow-sm",
+          "bg-[#221060] border border-[rgba(0,204,254,0.15)] rounded-xl shadow-[0_8px_24px_rgba(26,6,72,0.5)] text-white",
           "grid gap-2 p-3",
           // Animations
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -80,10 +80,10 @@ function DialogContent({
           <DialogPrimitive.Close
             className={cn(
               "absolute top-4 right-4 rounded-lg p-1.5",
-              "text-muted-foreground hover:text-foreground",
-              "bg-transparent hover:bg-muted/50",
+              "text-[rgba(255,255,255,0.65)] hover:text-white",
+              "bg-transparent hover:bg-white/10",
               "transition-all duration-200",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+              "focus:outline-none focus:ring-2 focus:ring-[rgba(0,204,254,0.3)] focus:ring-offset-2 focus:ring-offset-[#221060]",
               "disabled:pointer-events-none",
               "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4"
             )}
@@ -101,7 +101,7 @@ function DialogHeader({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
+      className={cn("flex flex-col gap-2 text-center sm:text-left text-white", className)}
       {...props}
     />
   )
@@ -113,7 +113,7 @@ function DialogFooter({ className, ...props }: ComponentProps<"div">) {
       data-slot="dialog-footer"
       className={cn(
         "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        "pt-2 border-t border-border/50",
+        "pt-2 border-t border-[rgba(0,204,254,0.08)]",
         className
       )}
       {...props}
@@ -128,7 +128,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-sm leading-none font-semibold tracking-tight", className)}
+      className={cn("text-sm leading-none font-semibold tracking-tight font-['Montserrat',sans-serif] text-white", className)}
       {...props}
     />
   )
@@ -141,7 +141,7 @@ function DialogDescription({
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("text-muted-foreground text-sm leading-relaxed", className)}
+      className={cn("text-[rgba(255,255,255,0.65)] text-sm leading-relaxed", className)}
       {...props}
     />
   )
@@ -165,8 +165,8 @@ function DialogContentFullscreen({
           "sm:translate-x-[-50%] sm:translate-y-[-50%]",
           "w-full sm:max-w-lg sm:max-h-[85vh]",
           // Visual styles
-          "bg-background sm:bg-card/95 sm:backdrop-blur-xl",
-          "sm:border sm:border-border/50 sm:rounded-lg sm:shadow-sm",
+          "bg-[#221060] sm:bg-[#221060]",
+          "sm:border sm:border-[rgba(0,204,254,0.15)] sm:rounded-xl sm:shadow-[0_8px_24px_rgba(26,6,72,0.5)] text-white",
           "flex flex-col overflow-hidden",
           // Animations
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -185,10 +185,10 @@ function DialogContentFullscreen({
           <DialogPrimitive.Close
             className={cn(
               "absolute top-4 right-4 rounded-lg p-2",
-              "text-muted-foreground hover:text-foreground",
-              "bg-muted/50 hover:bg-muted",
+              "text-[rgba(255,255,255,0.65)] hover:text-white",
+              "bg-white/10 hover:bg-white/20",
               "transition-all duration-200",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+              "focus:outline-none focus:ring-2 focus:ring-[rgba(0,204,254,0.3)] focus:ring-offset-2 focus:ring-offset-[#221060]",
               "disabled:pointer-events-none",
               "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-5"
             )}
