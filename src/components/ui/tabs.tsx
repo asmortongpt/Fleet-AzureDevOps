@@ -26,8 +26,7 @@ function TabsList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "bg-muted/50 text-muted-foreground inline-flex min-h-8 h-auto w-fit items-center justify-center rounded-md p-1 gap-0.5",
-        "backdrop-blur-sm border border-border/30",
+        "bg-transparent inline-flex items-center border-b border-[rgba(0,204,254,0.08)] rounded-none p-0 h-auto gap-0 w-full",
         className
       )}
       {...props}
@@ -44,14 +43,13 @@ function TabsTrigger({
       data-slot="tabs-trigger"
       className={cn(
         // Base styles
-        "inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-lg px-2 py-2",
-        "text-sm font-medium whitespace-nowrap",
-        "transition-all duration-200 ease-out",
+        "inline-flex items-center justify-center gap-2 rounded-none border-b-[3px] border-transparent px-4 py-3",
+        "font-['Montserrat',sans-serif] text-sm font-normal whitespace-nowrap",
+        "bg-transparent transition-all duration-200",
         // Default state
-        "text-muted-foreground hover:text-foreground hover:bg-background/50",
+        "text-[rgba(255,255,255,0.65)] hover:text-[rgba(255,255,255,0.85)]",
         // Active state
-        "data-[state=active]:bg-background data-[state=active]:text-foreground",
-        "data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border/50",
+        "data-[state=active]:border-b-[#00CCFE] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:bg-transparent data-[state=active]:shadow-none",
         // Focus state
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         // Disabled state
@@ -73,7 +71,7 @@ function TabsContent({
     <TabsPrimitive.Content
       data-slot="tabs-content"
       className={cn(
-        "flex-1 outline-none mt-2",
+        "flex-1 outline-none mt-2 text-white",
         "data-[state=active]:animate-fade-in",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         className
