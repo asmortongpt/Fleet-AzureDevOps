@@ -78,7 +78,7 @@ export function FleetMapDemo() {
             <MapPin className="h-8 w-8" />
             Fleet Map Demo
           </h1>
-          <p className="text-white/70 mt-2">
+          <p className="text-[var(--text-primary)] mt-2">
             Real-time vehicle tracking with Google Maps integration
           </p>
         </div>
@@ -92,7 +92,7 @@ export function FleetMapDemo() {
       <div className="grid gap-2 md:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-white/70">Total Vehicles</CardTitle>
+            <CardTitle className="text-sm font-medium text-[var(--text-primary)]">Total Vehicles</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold">{vehicles.length}</div>
@@ -101,7 +101,7 @@ export function FleetMapDemo() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-white/70">Active</CardTitle>
+            <CardTitle className="text-sm font-medium text-[var(--text-primary)]">Active</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -113,7 +113,7 @@ export function FleetMapDemo() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-white/70">In Use</CardTitle>
+            <CardTitle className="text-sm font-medium text-[var(--text-primary)]">In Use</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export function FleetMapDemo() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-white/70">Maintenance</CardTitle>
+            <CardTitle className="text-sm font-medium text-[var(--text-primary)]">Maintenance</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -137,7 +137,7 @@ export function FleetMapDemo() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-white/70">Out of Service</CardTitle>
+            <CardTitle className="text-sm font-medium text-[var(--text-primary)]">Out of Service</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -170,12 +170,12 @@ export function FleetMapDemo() {
                   </div>
                   <div>
                     <div className="font-semibold">{vehicle.name}</div>
-                    <div className="text-sm text-white/70">{vehicle.vehicleNumber}</div>
+                    <div className="text-sm text-[var(--text-primary)]">{vehicle.vehicleNumber}</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-white/70">{vehicle.location}</div>
-                  <div className="text-xs text-white/40">
+                  <div className="text-sm text-[var(--text-primary)]">{vehicle.location}</div>
+                  <div className="text-xs text-[var(--text-tertiary)]">
                     {vehicle.latitude.toFixed(4)}, {vehicle.longitude.toFixed(4)}
                   </div>
                 </div>

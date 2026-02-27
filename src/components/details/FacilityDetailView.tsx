@@ -142,7 +142,7 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-[#0a0a0a]">
+    <div className="h-full overflow-y-auto bg-[var(--surface-0)]">
       {/* Header */}
       <div className="bg-amber-900/40 text-white p-3">
         <div className="flex items-start justify-between">
@@ -204,24 +204,24 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-white/60">Type:</span>
+                    <span className="text-[var(--text-secondary)]">Type:</span>
                     <span className="font-medium">{facilityDetails.type || 'Facility'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/60">Status:</span>
+                    <span className="text-[var(--text-secondary)]">Status:</span>
                     {getStatusBadge(facilityDetails.status || 'operational')}
                   </div>
                   <div className="flex flex-col gap-1 pt-2 border-t">
-                    <p className="text-xs text-white/60">Address:</p>
+                    <p className="text-xs text-[var(--text-secondary)]">Address:</p>
                     <p className="font-medium">{facilityDetails.address ?? '—'}</p>
                     <p className="font-medium">{facilityDetails.city ?? '—'}, {facilityDetails.state ?? '—'} {facilityDetails.zip ?? '—'}</p>
                   </div>
                   <div className="flex items-center gap-2 pt-2">
-                    <Phone className="w-3 h-3 text-white/60" />
+                    <Phone className="w-3 h-3 text-[var(--text-secondary)]" />
                     <span className="text-xs">{facilityDetails.phone ?? '—'}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Mail className="w-3 h-3 text-white/60" />
+                    <Mail className="w-3 h-3 text-[var(--text-secondary)]" />
                     <span className="text-xs">{facilityDetails.email ?? '—'}</span>
                   </div>
                 </CardContent>
@@ -237,13 +237,13 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                 <CardContent className="space-y-3">
                   <div>
                     <div className="flex justify-between mb-1 text-sm">
-                      <span className="text-white/60">Vehicle Capacity</span>
+                      <span className="text-[var(--text-secondary)]">Vehicle Capacity</span>
                       <span className={`font-bold ${getUtilizationColor(capacityMetrics.utilizationRate)}`}>
                         {capacityMetrics.utilizationRate}%
                       </span>
                     </div>
                     <Progress value={capacityMetrics.utilizationRate} />
-                    <p className="text-xs text-white/60 mt-1">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
                       {capacityMetrics.currentVehicles} / {capacityMetrics.vehicleCapacity || 0} vehicles
                     </p>
                   </div>
@@ -259,7 +259,7 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-white/60">Total Staff:</span>
+                    <span className="text-[var(--text-secondary)]">Total Staff:</span>
                     <span className="font-medium">{staff.length}</span>
                   </div>
                 </CardContent>
@@ -275,15 +275,15 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-white/60">Vehicle Capacity</span>
+                  <span className="text-[var(--text-secondary)]">Vehicle Capacity</span>
                   <span className="font-medium">{capacityMetrics.vehicleCapacity || 0}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Current Vehicles</span>
+                  <span className="text-[var(--text-secondary)]">Current Vehicles</span>
                   <span className="font-medium">{capacityMetrics.currentVehicles}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Available Spaces</span>
+                  <span className="text-[var(--text-secondary)]">Available Spaces</span>
                   <span className="font-medium">{capacityMetrics.availableSpaces}</span>
                 </div>
               </CardContent>
@@ -296,7 +296,7 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                 <CardContent className="space-y-2 text-sm">
                   {utilizationHistory.map((entry: any) => (
                     <div key={entry.id || entry.month} className="flex justify-between">
-                      <span className="text-white/60">{entry.label || entry.month || 'Period'}</span>
+                      <span className="text-[var(--text-secondary)]">{entry.label || entry.month || 'Period'}</span>
                       <span className="font-medium">{entry.utilization ?? entry.rate ?? '—'}</span>
                     </div>
                   ))}
@@ -313,13 +313,13 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
               </CardHeader>
               <CardContent className="space-y-2">
                 {assignedVehicles.length === 0 ? (
-                  <div className="text-sm text-white/60">No vehicles assigned.</div>
+                  <div className="text-sm text-[var(--text-secondary)]">No vehicles assigned.</div>
                 ) : (
                   assignedVehicles.map((vehicle: { id: string; make: string; model: string; year: number; status: string; assignedDate: string; driver: string }) => (
                     <div key={vehicle.id} className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                       <div>
                         <p className="font-medium">{formatVehicleName(vehicle)}</p>
-                        <p className="text-xs text-white/60">{vehicle.id}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{vehicle.id}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">{formatEnum(vehicle.status)}</Badge>
@@ -342,13 +342,13 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
               </CardHeader>
               <CardContent className="space-y-2">
                 {staff.length === 0 ? (
-                  <div className="text-sm text-white/60">No staff records available.</div>
+                  <div className="text-sm text-[var(--text-secondary)]">No staff records available.</div>
                 ) : (
                   staff.map(member => (
                     <div key={member.id} className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                       <div>
                         <p className="font-medium">{member.name}</p>
-                        <p className="text-xs text-white/60">{member.role}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{member.role}</p>
                       </div>
                       {member.phone && (
                         <Badge variant="outline">{member.phone}</Badge>
@@ -371,13 +371,13 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
               </CardHeader>
               <CardContent className="space-y-2">
                 {equipment.length === 0 ? (
-                  <div className="text-sm text-white/60">No equipment records available.</div>
+                  <div className="text-sm text-[var(--text-secondary)]">No equipment records available.</div>
                 ) : (
                   equipment.map((asset: any) => (
                     <div key={asset.id || asset.name} className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                       <div>
                         <p className="font-medium">{asset.name || 'Asset'}</p>
-                        <p className="text-xs text-white/60">{asset.type || asset.category || 'Equipment'}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{asset.type || asset.category || 'Equipment'}</p>
                       </div>
                       <Badge variant="outline">{asset.status || '—'}</Badge>
                     </div>

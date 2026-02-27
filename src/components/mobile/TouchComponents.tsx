@@ -87,7 +87,7 @@ export function SwipeableCard({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         style={{ transform: `translateX(${offsetX}px)` }}
-        className={`bg-white dark:bg-[#18181b] transition-transform ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`bg-white dark:bg-[var(--surface-3)] transition-transform ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       >
         {children}
       </div>
@@ -359,7 +359,7 @@ export function ActionSheet({
       >
         {title && (
           <div className="text-center mb-2">
-            <h3 className="text-sm font-semibold text-white/80 dark:text-white/80">
+            <h3 className="text-sm font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary)]">
               {title}
             </h3>
           </div>
@@ -379,7 +379,7 @@ export function ActionSheet({
                 ${
                   option.destructive
                     ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
-                    : 'text-white/80 dark:text-white/80 bg-white/[0.05] dark:bg-[#18181b] hover:bg-white/[0.06] dark:hover:bg-white/[0.08]'
+                    : 'text-[var(--text-primary)] dark:text-[var(--text-primary)] bg-white/[0.05] dark:bg-[var(--surface-3)] hover:bg-white/[0.06] dark:hover:bg-[var(--surface-glass-hover)]'
                 }
               `}
             >
@@ -391,7 +391,7 @@ export function ActionSheet({
           {/* Cancel button */}
           <button
             onClick={onClose}
-            className="w-full px-2 py-3 rounded-lg touch-target bg-white dark:bg-[#18181b] border-2 border-white/[0.08] dark:border-white/[0.08] text-white/80 dark:text-white/80 font-semibold hover:bg-white/[0.03] dark:hover:bg-white/[0.08] active:scale-[0.98]"
+            className="w-full px-2 py-3 rounded-lg touch-target bg-white dark:bg-[var(--surface-3)] border-2 border-[var(--border-default)] dark:border-[var(--border-default)] text-[var(--text-primary)] dark:text-[var(--text-primary)] font-semibold hover:bg-white/[0.03] dark:hover:bg-[var(--surface-glass-hover)] active:scale-[0.98]"
           >
             {cancelLabel}
           </button>

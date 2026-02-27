@@ -258,9 +258,9 @@ export function OperationsHubEnhanced() {
             )}
           </Badge>
         </div>
-        <p className="text-xs text-white/40">Real-time fleet operations control center</p>
+        <p className="text-xs text-[var(--text-tertiary)]">Real-time fleet operations control center</p>
         {lastUpdate && (
-          <p className="text-xs text-white/70 mt-1">
+          <p className="text-xs text-[var(--text-primary)] mt-1">
             Last update: {formatTime(lastUpdate)}
           </p>
         )}
@@ -295,28 +295,28 @@ export function OperationsHubEnhanced() {
         <Card className="border-l-4 border-l-emerald-500">
           <CardContent className="pt-3 pb-2 px-3">
             <div className="text-lg font-bold text-emerald-800">{metrics.activeJobs}</div>
-            <div className="text-xs text-white/60">Active Jobs</div>
+            <div className="text-xs text-[var(--text-secondary)]">Active Jobs</div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-amber-500">
           <CardContent className="pt-3 pb-2 px-3">
             <div className="text-lg font-bold text-amber-600">{metrics.pendingDispatch}</div>
-            <div className="text-xs text-white/60">Pending</div>
+            <div className="text-xs text-[var(--text-secondary)]">Pending</div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-green-500">
           <CardContent className="pt-3 pb-2 px-3">
             <div className="text-lg font-bold text-green-600">{metrics.enRoute}</div>
-            <div className="text-xs text-white/60">En Route</div>
+            <div className="text-xs text-[var(--text-secondary)]">En Route</div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-amber-500">
           <CardContent className="pt-3 pb-2 px-3">
             <div className="text-lg font-bold text-amber-600">{metrics.completed}</div>
-            <div className="text-xs text-white/60">Completed</div>
+            <div className="text-xs text-[var(--text-secondary)]">Completed</div>
           </CardContent>
         </Card>
       </div>
@@ -403,8 +403,8 @@ export function OperationsHubEnhanced() {
                       }`}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-white/90 font-medium truncate">{alert.message}</p>
-                      <p className="text-white/40 mt-0.5">{alert.timestamp}</p>
+                      <p className="text-[var(--text-primary)] font-medium truncate">{alert.message}</p>
+                      <p className="text-[var(--text-tertiary)] mt-0.5">{alert.timestamp}</p>
                     </div>
                   </div>
                 </div>
@@ -416,7 +416,7 @@ export function OperationsHubEnhanced() {
 
       {/* Quick Actions */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-white/70">Quick Actions</h3>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Quick Actions</h3>
         <div className="grid grid-cols-2 gap-2">
           <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => push({ type: 'work-order-create', label: 'New Job', data: {} })}>
             <Package className="h-3 w-3" />
@@ -513,7 +513,7 @@ export function OperationsHubEnhanced() {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <Package className="h-12 w-12 animate-spin mx-auto text-emerald-600" />
-          <p className="mt-4 text-white/60">Loading operations data...</p>
+          <p className="mt-4 text-[var(--text-secondary)]">Loading operations data...</p>
         </div>
       </div>
     );

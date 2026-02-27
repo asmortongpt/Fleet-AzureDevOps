@@ -67,7 +67,7 @@ export function Login() {
         </div>
 
         {/* Login Card */}
-        <div className="bg-[#111111] text-white rounded-2xl border border-white/[0.04] overflow-hidden">
+        <div className="bg-[var(--surface-2)] text-white rounded-2xl border border-[var(--border-subtle)] overflow-hidden">
           <div className="p-10">
             {/* Error Alert */}
             {(urlError || emailLoginMutation.isError) && (
@@ -176,7 +176,7 @@ export function Login() {
           </div>
 
           {/* Security Footer */}
-          <div className="bg-white/[0.03] px-10 py-4 border-t border-white/[0.04]">
+          <div className="bg-white/[0.03] px-10 py-4 border-t border-[var(--border-subtle)]">
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <Lock className="w-3.5 h-3.5" />
               <span className="font-medium">256-bit encrypted connection</span>

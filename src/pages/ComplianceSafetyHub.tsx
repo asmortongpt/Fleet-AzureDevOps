@@ -376,7 +376,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
       {/* Main Content: Categories + Renewals */}
       <div className="grid grid-cols-2 gap-3">
         {/* Compliance Status by Category */}
-        <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
             <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
             <h3 className="text-sm font-semibold text-foreground">Compliance by Category</h3>
@@ -390,7 +390,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
                 return (
                   <div
                     key={item.category}
-                    className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2 cursor-pointer hover:bg-white/[0.04]"
+                    className="flex items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 cursor-pointer hover:bg-[var(--surface-glass-hover)]"
                     onClick={() => push({
                       id: item.category,
                       type: 'compliance-item',
@@ -440,7 +440,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
         </div>
 
         {/* Upcoming Renewals */}
-        <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <h3 className="text-sm font-semibold text-foreground">Upcoming Renewals</h3>
@@ -454,8 +454,8 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
               </div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-[#111111]">
-                  <tr className="border-b border-white/[0.04]">
+                <thead className="sticky top-0 bg-[var(--surface-2)]">
+                  <tr className="border-b border-[var(--border-subtle)]">
                     <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Item</th>
                     <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Type</th>
                     <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Days Left</th>
@@ -514,7 +514,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
           </div>
           <div className="flex flex-col gap-1">
             {dashAlerts.slice(0, 3).map((alert: any, i: number) => (
-              <p key={i} className="text-xs text-white/60">{alert.message || alert.description || String(alert)}</p>
+              <p key={i} className="text-xs text-[var(--text-secondary)]">{alert.message || alert.description || String(alert)}</p>
             ))}
           </div>
         </div>
@@ -762,7 +762,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
         {/* Left: Score Distribution + Driver Rankings */}
         <div className="flex flex-col gap-3 min-h-0">
           {/* Score Distribution Chart */}
-          <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3">
+          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3">
             <div className="flex items-center gap-2 mb-1">
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
               <h3 className="text-sm font-semibold text-foreground">Score Distribution</h3>
@@ -778,7 +778,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           </div>
 
           {/* Driver Safety Rankings — capped to 5 rows (P0-6) */}
-          <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2">
               <Users className="h-4 w-4 text-muted-foreground" />
               <h3 className="text-sm font-semibold text-foreground">Driver Rankings</h3>
@@ -789,8 +789,8 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-[#111111]">
-                    <tr className="border-b border-white/[0.04]">
+                  <thead className="sticky top-0 bg-[var(--surface-2)]">
+                    <tr className="border-b border-[var(--border-subtle)]">
                       <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Driver</th>
                       <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Score</th>
                       <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">HOS</th>
@@ -801,7 +801,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                     {visibleDriverRankings.map((driver: any) => (
                       <tr
                         key={driver.id}
-                        className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                        className="border-b border-white/[0.06] cursor-pointer hover:bg-[var(--surface-glass-hover)]"
                         onClick={() => push({
                           id: driver.id,
                           type: 'driver',
@@ -870,7 +870,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
 
           {/* Training Progress — moved alongside charts to reduce vertical height (P0-6) */}
           {trainingProgressData.length > 0 && (
-            <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3">
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3">
               <div className="flex items-center gap-2 mb-2">
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
                 <h3 className="text-sm font-semibold text-foreground">Training Progress</h3>
@@ -900,7 +900,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
         {/* Right: Incident Trends + Recent Incidents */}
         <div className="flex flex-col gap-3 min-h-0">
           {/* Incident Trends */}
-          <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3">
+          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3">
             <div className="flex items-center gap-2 mb-1">
               <TrendingDown className="h-4 w-4 text-muted-foreground" />
               <h3 className="text-sm font-semibold text-foreground">Incident Trends</h3>
@@ -916,7 +916,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           </div>
 
           {/* Recent Incidents — capped to 5 rows (P0-6) */}
-          <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="h-4 w-4 text-muted-foreground" />
               <h3 className="text-sm font-semibold text-foreground">Recent Incidents</h3>
@@ -926,8 +926,8 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-[#111111]">
-                    <tr className="border-b border-white/[0.04]">
+                  <thead className="sticky top-0 bg-[var(--surface-2)]">
+                    <tr className="border-b border-[var(--border-subtle)]">
                       <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Type</th>
                       <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Severity</th>
                       <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Date</th>
@@ -942,7 +942,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                       return (
                         <tr
                           key={incident.id}
-                          className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                          className="border-b border-white/[0.06] cursor-pointer hover:bg-[var(--surface-glass-hover)]"
                           onClick={() => push({
                             id: incident.id,
                             type: 'incident',
@@ -1134,7 +1134,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
       {/* Main Content: Categories + Violations */}
       <div className="grid grid-cols-2 gap-3">
         {/* Policy Categories */}
-        <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
             <BookMarked className="h-4 w-4 text-muted-foreground" />
             <h3 className="text-sm font-semibold text-foreground">Policy Categories</h3>
@@ -1144,8 +1144,8 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-[#111111]">
-                  <tr className="border-b border-white/[0.04]">
+                <thead className="sticky top-0 bg-[var(--surface-2)]">
+                  <tr className="border-b border-[var(--border-subtle)]">
                     <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
                     <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Policies</th>
                     <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Adherence</th>
@@ -1181,7 +1181,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
         </div>
 
         {/* Recent Policy Violations */}
-        <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
             <Gavel className="h-4 w-4 text-muted-foreground" />
             <h3 className="text-sm font-semibold text-foreground">Recent Violations</h3>
@@ -1191,8 +1191,8 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-[#111111]">
-                  <tr className="border-b border-white/[0.04]">
+                <thead className="sticky top-0 bg-[var(--surface-2)]">
+                  <tr className="border-b border-[var(--border-subtle)]">
                     <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Violation</th>
                     <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Details</th>
                     <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
@@ -1205,7 +1205,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                     return (
                       <tr
                         key={violation.id}
-                        className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                        className="border-b border-white/[0.06] cursor-pointer hover:bg-[var(--surface-glass-hover)]"
                         onClick={() => push({
                           id: violation.id,
                           type: 'violation',
@@ -1248,7 +1248,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
 
       {/* P0-3: Active Policies list to fill dead space */}
       {activePolicies.length > 0 && (
-        <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
             <FileCheck className="h-4 w-4 text-muted-foreground" />
             <h3 className="text-sm font-semibold text-foreground">Active Policies</h3>
@@ -1256,8 +1256,8 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
           </div>
           <div className="max-h-[240px] overflow-y-auto">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[#111111]">
-                <tr className="border-b border-white/[0.04]">
+              <thead className="sticky top-0 bg-[var(--surface-2)]">
+                <tr className="border-b border-[var(--border-subtle)]">
                   <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Policy Name</th>
                   <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
                   <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
@@ -1267,7 +1267,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                 {activePolicies.slice(0, 10).map((policy: any) => (
                   <tr
                     key={policy.id}
-                    className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                    className="border-b border-white/[0.06] cursor-pointer hover:bg-[var(--surface-glass-hover)]"
                     onClick={() => push({
                       id: policy.id,
                       type: 'policy',
@@ -1402,7 +1402,7 @@ const ReportingTabContent = memo(function ReportingTabContent() {
 
   return (
     <div className="flex flex-col gap-3 p-4 overflow-y-auto">
-      <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 flex flex-col min-h-0">
         <div className="flex items-center gap-2 mb-2">
           <FileText className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-sm font-semibold text-foreground">Compliance & Safety Reports</h3>
@@ -1412,8 +1412,8 @@ const ReportingTabContent = memo(function ReportingTabContent() {
             <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[#111111]">
-                <tr className="border-b border-white/[0.04]">
+              <thead className="sticky top-0 bg-[var(--surface-2)]">
+                <tr className="border-b border-[var(--border-subtle)]">
                   <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Report</th>
                   <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
                   <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Last Generated</th>
@@ -1458,7 +1458,7 @@ const ReportingTabContent = memo(function ReportingTabContent() {
       </div>
 
       {/* P0-4: Recent History section to fill dead space */}
-      <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 flex flex-col min-h-0">
         <div className="flex items-center gap-2 mb-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-sm font-semibold text-foreground">Recent History</h3>
@@ -1469,8 +1469,8 @@ const ReportingTabContent = memo(function ReportingTabContent() {
             <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No report history available</div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[#111111]">
-                <tr className="border-b border-white/[0.04]">
+              <thead className="sticky top-0 bg-[var(--surface-2)]">
+                <tr className="border-b border-[var(--border-subtle)]">
                   <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Report Name</th>
                   <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Generated</th>
                   <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Generated By</th>

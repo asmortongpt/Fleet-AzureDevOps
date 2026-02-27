@@ -75,7 +75,7 @@ const ComplianceDetailsPanel: React.FC<{
       case 'medium': return 'text-amber-400'
       case 'high': return 'text-orange-400'
       case 'critical': return 'text-rose-400'
-      default: return 'text-white/40'
+      default: return 'text-[var(--text-tertiary)]'
     }
   }
 
@@ -101,7 +101,7 @@ const ComplianceDetailsPanel: React.FC<{
 
   if (!selectedZone) {
     return (
-      <div className="p-3 text-center text-white/40">
+      <div className="p-3 text-center text-[var(--text-tertiary)]">
         <MapPin className="h-9 w-12 mx-auto mb-3 opacity-50" />
         <p className="text-sm">Select a compliance zone on the map to view details</p>
       </div>
@@ -118,7 +118,7 @@ const ComplianceDetailsPanel: React.FC<{
               {getStatusIcon(selectedZone.status)}
               <div>
                 <h3 className="font-semibold">{selectedZone.name}</h3>
-                <p className="text-sm text-white/40 capitalize">
+                <p className="text-sm text-[var(--text-tertiary)] capitalize">
                   {selectedZone.type} Zone
                 </p>
               </div>
@@ -139,24 +139,24 @@ const ComplianceDetailsPanel: React.FC<{
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <div className="text-white/40">Severity</div>
+                <div className="text-[var(--text-tertiary)]">Severity</div>
                 <div className={cn("font-semibold capitalize", getSeverityColor(selectedZone.severity))}>
                   {selectedZone.severity}
                 </div>
               </div>
               <div>
-                <div className="text-white/40">Vehicles</div>
+                <div className="text-[var(--text-tertiary)]">Vehicles</div>
                 <div className="font-semibold">{selectedZone.vehicles.length}</div>
               </div>
               {selectedZone.jurisdiction && (
                 <div className="col-span-2">
-                  <div className="text-white/40">Jurisdiction</div>
+                  <div className="text-[var(--text-tertiary)]">Jurisdiction</div>
                   <div className="font-medium">{selectedZone.jurisdiction}</div>
                 </div>
               )}
               {selectedZone.dueDate && (
                 <div className="col-span-2">
-                  <div className="text-white/40 flex items-center gap-1">
+                  <div className="text-[var(--text-tertiary)] flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     Due Date
                   </div>
@@ -168,7 +168,7 @@ const ComplianceDetailsPanel: React.FC<{
             <Separator />
 
             <div>
-              <div className="text-sm text-white/40 mb-1">Description</div>
+              <div className="text-sm text-[var(--text-tertiary)] mb-1">Description</div>
               <p className="text-sm">{selectedZone.description}</p>
             </div>
           </CardContent>
@@ -325,7 +325,7 @@ export function ComplianceMapView() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-sm font-bold">Compliance Map</h1>
-            <p className="text-sm text-white/40">
+            <p className="text-sm text-[var(--text-tertiary)]">
               Monitor compliance zones, inspections, and violations
             </p>
           </div>
@@ -377,7 +377,7 @@ export function ComplianceMapView() {
 
           {/* Zone Statistics Overlay */}
           <div
-            className="absolute top-4 left-4 bg-[#111111] border border-white/[0.04] rounded-lg p-2 z-10"
+            className="absolute top-4 left-4 bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-2 z-10"
             data-testid="compliance-stats-overlay"
           >
             <h3 className="font-semibold mb-3 flex items-center gap-2">
@@ -416,8 +416,8 @@ export function ComplianceMapView() {
           </div>
 
           {/* Zone Markers on Map */}
-          <div className="absolute bottom-4 left-4 bg-[#111111] border border-white/[0.04] rounded-lg p-3 z-10">
-            <div className="text-xs text-white/40 mb-2">Active Zones</div>
+          <div className="absolute bottom-4 left-4 bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-3 z-10">
+            <div className="text-xs text-[var(--text-tertiary)] mb-2">Active Zones</div>
             <div className="flex flex-wrap gap-2">
               {filteredZones.map(zone => (
                 <Button
@@ -436,7 +436,7 @@ export function ComplianceMapView() {
         </div>
 
         {/* RIGHT: Details Panel (30%) */}
-        <div className="bg-[#0a0a0a]" data-testid="compliance-details-panel">
+        <div className="bg-[var(--surface-0)]" data-testid="compliance-details-panel">
           <ComplianceDetailsPanel
             selectedZone={selectedZone}
             onViewDetails={handleViewDetails}

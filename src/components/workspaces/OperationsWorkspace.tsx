@@ -69,7 +69,7 @@ export function OperationsWorkspace() {
   }, [vehicles, routes, activeTab, searchQuery]);
 
   return (
-    <div className="flex h-full w-full bg-[#0a0a0a] text-white/80 overflow-hidden relative group/workspace">
+    <div className="flex h-full w-full bg-[var(--surface-0)] text-[var(--text-primary)] overflow-hidden relative group/workspace">
 
       {/* 
         MAIN MAP AREA (Canvas) 
@@ -78,22 +78,22 @@ export function OperationsWorkspace() {
         {/* Floating Toolbar */}
         <div className="absolute top-4 left-4 right-4 z-10 flex justify-between pointer-events-none">
           <div className="pointer-events-auto flex items-center gap-3">
-            <div className="p-1.5 rounded-md flex items-center gap-2 border border-white/[0.04] bg-[#0e0e0e]">
+            <div className="p-1.5 rounded-md flex items-center gap-2 border border-[var(--border-subtle)] bg-[var(--surface-1)]">
               <Button
                 variant="ghost"
                 size="sm"
-                className={cn("h-9 w-9 p-0 hover:bg-white/10 rounded-lg", !isSidebarCollapsed && "text-emerald-700 bg-emerald-500/10")}
+                className={cn("h-9 w-9 p-0 hover:bg-[var(--surface-glass-hover)] rounded-lg", !isSidebarCollapsed && "text-emerald-700 bg-emerald-500/10")}
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
               >
                 <Layout className="h-5 w-5" />
               </Button>
               <Separator orientation="vertical" className="h-5 bg-white/10 mx-1" />
-              <Button variant="ghost" size="sm" className="h-9 px-3 gap-2 hover:bg-white/10 text-xs font-medium text-white/60 rounded-lg">
-                <MapIcon className="h-4 w-4 text-white/60" />
+              <Button variant="ghost" size="sm" className="h-9 px-3 gap-2 hover:bg-[var(--surface-glass-hover)] text-xs font-medium text-[var(--text-secondary)] rounded-lg">
+                <MapIcon className="h-4 w-4 text-[var(--text-secondary)]" />
                 Map Layers
               </Button>
-              <Button variant="ghost" size="sm" className="h-9 px-3 gap-2 hover:bg-white/10 text-xs font-medium text-white/60 rounded-lg">
-                <Filter className="h-4 w-4 text-white/60" />
+              <Button variant="ghost" size="sm" className="h-9 px-3 gap-2 hover:bg-[var(--surface-glass-hover)] text-xs font-medium text-[var(--text-secondary)] rounded-lg">
+                <Filter className="h-4 w-4 text-[var(--text-secondary)]" />
                 Filters
               </Button>
             </div>
@@ -101,13 +101,13 @@ export function OperationsWorkspace() {
 
           {/* Global Search / Command Bar */}
           <div className="pointer-events-auto w-96">
-            <div className="rounded-md flex items-center px-2 h-9 border border-white/[0.04] bg-[#0e0e0e] focus-within:ring-1 focus-within:ring-emerald-500/50 transition-all">
-              <Search className="h-4 w-4 text-white/60 mr-3" />
+            <div className="rounded-md flex items-center px-2 h-9 border border-[var(--border-subtle)] bg-[var(--surface-1)] focus-within:ring-1 focus-within:ring-emerald-500/50 transition-all">
+              <Search className="h-4 w-4 text-[var(--text-secondary)] mr-3" />
               <input
-                className="bg-transparent border-none outline-none text-sm text-white/70 placeholder:text-white/40 w-full"
+                className="bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] w-full"
                 placeholder="Search drivers, vehicles, or locations..."
               />
-              <kbd className="hidden sm:inline-flex h-6 items-center gap-1 rounded border border-white/10 bg-white/5 px-2 font-mono text-[10px] font-medium text-white/60 opacity-100">
+              <kbd className="hidden sm:inline-flex h-6 items-center gap-1 rounded border border-[var(--border-default)] bg-white/5 px-2 font-mono text-[10px] font-medium text-[var(--text-secondary)] opacity-100">
                 <span className="text-xs">⌘</span>K
               </kbd>
             </div>
@@ -122,19 +122,19 @@ export function OperationsWorkspace() {
       */}
         {!isSidebarCollapsed && (
           <div
-            className="h-full border-l border-white/[0.04] bg-[#0e0e0e] relative z-20 flex flex-col"
+            className="h-full border-l border-[var(--border-subtle)] bg-[var(--surface-1)] relative z-20 flex flex-col"
             style={{ width: 400 }}
           >
             {/* Sidebar Header */}
-            <div className="p-5 border-b border-white/[0.04] flex flex-col gap-2 bg-white/[0.03]">
+            <div className="p-5 border-b border-[var(--border-subtle)] flex flex-col gap-2 bg-white/[0.03]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-emerald-500/10 rounded-lg">
                     <Navigation className="h-5 w-5 text-emerald-800" />
                   </div>
                   <div>
-                    <h2 className="font-semibold text-sm tracking-wide text-white/70">Dispatch Queue</h2>
-                    <p className="text-[10px] text-white/35">Real-time operations feed</p>
+                    <h2 className="font-semibold text-sm tracking-wide text-[var(--text-primary)]">Dispatch Queue</h2>
+                    <p className="text-[10px] text-[var(--text-tertiary)]">Real-time operations feed</p>
                   </div>
                 </div>
                 <div className="flex gap-1">
@@ -143,11 +143,11 @@ export function OperationsWorkspace() {
                   </Badge>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-white/10 rounded-full" aria-label="More options">
-                        <MoreHorizontal className="h-4 w-4 text-white/60" />
+                      <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-[var(--surface-glass-hover)] rounded-full" aria-label="More options">
+                        <MoreHorizontal className="h-4 w-4 text-[var(--text-secondary)]" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-[#161616] border-white/[0.04] text-white/60">
+                    <DropdownMenuContent align="end" className="w-48 bg-[#161616] border-[var(--border-subtle)] text-[var(--text-secondary)]">
                       <DropdownMenuItem className="focus:bg-white/[0.06]">Export Manifest</DropdownMenuItem>
                       <DropdownMenuItem className="focus:bg-white/[0.06]">Batch Assignment</DropdownMenuItem>
                     </DropdownMenuContent>
@@ -158,39 +158,39 @@ export function OperationsWorkspace() {
               {/* Quick Filters */}
               <div className="flex gap-2">
                 <div className="relative w-full">
-                  <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-white/40" />
+                  <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[var(--text-tertiary)]" />
                   <Input
                     placeholder="Filter queue..."
-                    className="bg-white/5 border-white/10 h-9 text-xs pl-3 focus-visible:ring-emerald-500/50 rounded-lg placeholder:text-white/50"
+                    className="bg-white/5 border-[var(--border-default)] h-9 text-xs pl-3 focus-visible:ring-emerald-500/50 rounded-lg placeholder:text-[var(--text-secondary)]"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button size="icon" variant="ghost" className="h-9 w-9 bg-white/5 border border-white/5 hover:bg-white/10 rounded-lg shrink-0" aria-label="Add new task">
-                  <Plus className="h-4 w-4 text-white/60" />
+                <Button size="icon" variant="ghost" className="h-9 w-9 bg-white/5 border border-white/5 hover:bg-[var(--surface-glass-hover)] rounded-lg shrink-0" aria-label="Add new task">
+                  <Plus className="h-4 w-4 text-[var(--text-secondary)]" />
                 </Button>
               </div>
             </div>
 
-            <div className="px-5 py-3 shrink-0 bg-white/[0.02] border-b border-white/[0.04]">
+            <div className="px-5 py-3 shrink-0 bg-white/[0.02] border-b border-[var(--border-subtle)]">
               <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
-                <TabsList className="w-full bg-white/[0.03] p-1 h-9 border border-white/[0.04] rounded-lg">
-                  <TabsTrigger value="all" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/35">All</TabsTrigger>
-                  <TabsTrigger value="active" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-700 text-white/35">Active</TabsTrigger>
-                  <TabsTrigger value="pending" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400 text-white/35">Pending</TabsTrigger>
-                  <TabsTrigger value="alerts" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 text-white/35">Alerts</TabsTrigger>
+                <TabsList className="w-full bg-white/[0.03] p-1 h-9 border border-[var(--border-subtle)] rounded-lg">
+                  <TabsTrigger value="all" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-white/10 data-[state=active]:text-white text-[var(--text-tertiary)]">All</TabsTrigger>
+                  <TabsTrigger value="active" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-700 text-[var(--text-tertiary)]">Active</TabsTrigger>
+                  <TabsTrigger value="pending" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400 text-[var(--text-tertiary)]">Pending</TabsTrigger>
+                  <TabsTrigger value="alerts" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 text-[var(--text-tertiary)]">Alerts</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
 
             {/* Content Stream */}
-            <ScrollArea className="flex-1 p-0 bg-[#0a0a0a]">
+            <ScrollArea className="flex-1 p-0 bg-[var(--surface-0)]">
               <div className="p-2 space-y-3">
                 {tasks.map((task) => (
                   <TaskCard key={task.id} task={task} />
                 ))}
                 {tasks.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-16 text-white/50 gap-2">
+                  <div className="flex flex-col items-center justify-center py-16 text-[var(--text-secondary)] gap-2">
                     <div className="p-3 rounded-full bg-white/5 border border-white/5">
                       <Filter className="h-6 w-6 opacity-50" />
                     </div>
@@ -201,7 +201,7 @@ export function OperationsWorkspace() {
             </ScrollArea>
 
             {/* Footer Status */}
-            <div className="p-3 border-t border-white/[0.04] text-[10px] text-white/35 flex justify-between bg-[#0a0a0a]">
+            <div className="p-3 border-t border-[var(--border-subtle)] text-[10px] text-[var(--text-tertiary)] flex justify-between bg-[var(--surface-0)]">
               <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online</span>
               <span>Updated: Just now</span>
             </div>
@@ -217,10 +217,10 @@ function TaskCard({ task }: { task: any }) {
     'delayed': { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', solid: 'bg-red-500' },
     'completed': { color: 'text-emerald-700', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', solid: 'bg-emerald-500' },
     'pending': { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', solid: 'bg-amber-500' },
-  }[task.status as string] || { color: 'text-white/60', bg: 'bg-white/[0.1]/10', border: 'border-white/[0.12]/20', solid: 'bg-white/[0.1]' };
+  }[task.status as string] || { color: 'text-[var(--text-secondary)]', bg: 'bg-white/[0.1]/10', border: 'border-[var(--border-strong)]/20', solid: 'bg-white/[0.1]' };
 
   return (
-    <Card className="border border-white/[0.04] bg-[#111111] hover:bg-[#161616] rounded-md p-0 cursor-pointer transition-all group relative overflow-hidden hover:border-white/[0.08]">
+    <Card className="border border-[var(--border-subtle)] bg-[var(--surface-2)] hover:bg-[#161616] rounded-md p-0 cursor-pointer transition-all group relative overflow-hidden hover:border-[var(--border-default)]">
       {/* Status Stripe */}
       <div className={cn("absolute left-0 top-0 bottom-0 w-1 transition-colors", statusConfig.solid)} />
 
@@ -229,29 +229,29 @@ function TaskCard({ task }: { task: any }) {
           <Badge variant="outline" className={cn("text-[10px] h-5 border px-2 uppercase tracking-wider font-bold rounded-md", statusConfig.color, statusConfig.bg, statusConfig.border)}>
             {formatEnum(task.status)}
           </Badge>
-          <span className="text-[10px] text-white/35 font-mono flex items-center gap-1.5 bg-black/20 px-1.5 py-0.5 rounded">
+          <span className="text-[10px] text-[var(--text-tertiary)] font-mono flex items-center gap-1.5 bg-black/20 px-1.5 py-0.5 rounded">
             <Clock className="h-3 w-3" /> {task.time}
           </span>
         </div>
 
-        <h4 className="text-sm font-semibold text-white/70 mb-1.5 leading-snug group-hover:text-emerald-700 transition-colors pr-3">
+        <h4 className="text-sm font-semibold text-[var(--text-primary)] mb-1.5 leading-snug group-hover:text-emerald-700 transition-colors pr-3">
           {task.title}
         </h4>
 
         <div className="grid grid-cols-2 gap-2 mt-3">
-          <div className="flex items-center gap-2 text-xs text-white/60 bg-white/[0.03] p-1.5 rounded-lg border border-white/5">
-            <Truck className="h-3.5 w-3.5 text-white/40 shrink-0" />
+          <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] bg-white/[0.03] p-1.5 rounded-lg border border-white/5">
+            <Truck className="h-3.5 w-3.5 text-[var(--text-tertiary)] shrink-0" />
             <span className="truncate">{task.vehicle}</span>
           </div>
-          <div className="flex items-center gap-2 text-xs text-white/60 bg-white/[0.03] p-1.5 rounded-lg border border-white/5">
-            <User className="h-3.5 w-3.5 text-white/40 shrink-0" />
+          <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] bg-white/[0.03] p-1.5 rounded-lg border border-white/5">
+            <User className="h-3.5 w-3.5 text-[var(--text-tertiary)] shrink-0" />
             <span className="truncate">{task.driver}</span>
           </div>
         </div>
 
         {/* Hover Actions (Desktop) */}
         <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-          <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full hover:bg-white/10 text-white/60 hover:text-white" aria-label="Task actions">
+          <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full hover:bg-[var(--surface-glass-hover)] text-[var(--text-secondary)] hover:text-white" aria-label="Task actions">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </div>

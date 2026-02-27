@@ -45,10 +45,10 @@ export function ReportCard({ report, domainMeta, onClick }: ReportCardProps) {
       <div className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/[0.04] text-white/30">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/[0.04] text-[var(--text-muted)]">
               <FileText className="h-4 w-4" />
             </div>
-            <span className="text-[10px] font-medium text-white/35 uppercase tracking-wider">
+            <span className="text-[10px] font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
               {domainMeta.label}
             </span>
           </div>
@@ -56,18 +56,18 @@ export function ReportCard({ report, domainMeta, onClick }: ReportCardProps) {
             onClick={(e) => {
               e.stopPropagation();
             }}
-            className="p-1 rounded-lg hover:bg-white/[0.04] transition-colors"
+            className="p-1 rounded-lg hover:bg-[var(--surface-glass-hover)] transition-colors"
             aria-label="Add to favorites"
           >
-            <Star className="h-4 w-4 text-white/20 hover:text-amber-400" />
+            <Star className="h-4 w-4 text-[var(--text-muted)] hover:text-amber-400" />
           </button>
         </div>
 
-        <h3 className="text-[14px] font-semibold text-white mb-2 line-clamp-2 min-h-[2.5rem] group-hover:text-white/90 transition-colors">
+        <h3 className="text-[14px] font-semibold text-white mb-2 line-clamp-2 min-h-[2.5rem] group-hover:text-[var(--text-primary)] transition-colors">
           {report.title}
         </h3>
 
-        <div className="flex items-center gap-2 text-[11px] text-white/30">
+        <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">
           <span className="font-mono bg-white/[0.04] px-2 py-0.5 rounded">{report.id}</span>
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />

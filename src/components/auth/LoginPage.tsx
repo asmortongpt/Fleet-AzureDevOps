@@ -87,24 +87,24 @@ export const LoginPage = () => {
 
   if (!msalReady) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#09090b] text-white">
-        <div className="bg-[#111111] border border-white/[0.04] p-8 rounded-2xl flex flex-col items-center">
+      <div className="flex items-center justify-center min-h-screen bg-[var(--surface-0)] text-white">
+        <div className="bg-[var(--surface-2)] border border-[var(--border-subtle)] p-8 rounded-2xl flex flex-col items-center">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white/60 mb-4"></div>
-          <p className="text-white/60 text-sm tracking-wide">INITIALIZING SECURE SESSION</p>
+          <p className="text-[var(--text-secondary)] text-sm tracking-wide">INITIALIZING SECURE SESSION</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-[#09090b] relative overflow-hidden font-sans">
+    <div className="flex min-h-screen w-full bg-[var(--surface-0)] relative overflow-hidden font-sans">
       {/* Minimal background */}
 
       <div className="w-full h-full flex items-center justify-center p-4 relative z-10">
-        <div className="w-full max-w-[1000px] grid md:grid-cols-2 gap-0 overflow-hidden rounded-3xl border border-white/[0.04] bg-[#0e0e0e]">
+        <div className="w-full max-w-[1000px] grid md:grid-cols-2 gap-0 overflow-hidden rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-1)]">
 
           {/* Left Side - Brand & Info */}
-          <div className="hidden md:flex flex-col justify-between p-10 bg-[#0a0a0a] relative overflow-hidden">
+          <div className="hidden md:flex flex-col justify-between p-10 bg-[var(--surface-0)] relative overflow-hidden">
             {/* Overlay grid pattern */}
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
 
@@ -112,7 +112,7 @@ export const LoginPage = () => {
             <div className="absolute top-0 left-0 w-full h-px bg-white/[0.04]" />
 
             <div>
-              <div className="inline-flex items-center gap-2 mb-2 p-1.5 pr-3 bg-white/[0.03] rounded-full border border-white/[0.04]">
+              <div className="inline-flex items-center gap-2 mb-2 p-1.5 pr-3 bg-white/[0.03] rounded-full border border-[var(--border-subtle)]">
                 <div className="bg-white rounded-full p-1">
                   <Truck className="w-3.5 h-3.5 text-[#09090b]" />
                 </div>
@@ -121,34 +121,34 @@ export const LoginPage = () => {
               <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
                 Capital Technology Alliance
               </h1>
-              <p className="text-white/50 text-sm leading-relaxed max-w-sm">
+              <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-sm">
                 Next-generation fleet management system powered by AI analytics and real-time telemetry.
               </p>
             </div>
 
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-white/[0.03] flex items-center justify-center border border-white/[0.04] shrink-0">
-                  <Shield className="w-5 h-5 text-white/60" />
+                <div className="w-10 h-10 rounded-xl bg-white/[0.03] flex items-center justify-center border border-[var(--border-subtle)] shrink-0">
+                  <Shield className="w-5 h-5 text-[var(--text-secondary)]" />
                 </div>
                 <div>
                   <h3 className="text-white text-sm font-semibold">Enterprise Security</h3>
-                  <p className="text-white/35 text-xs">MFA-enforced access control</p>
+                  <p className="text-[var(--text-tertiary)] text-xs">MFA-enforced access control</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-white/[0.03] flex items-center justify-center border border-white/[0.04] shrink-0">
-                  <Fingerprint className="w-5 h-5 text-white/60" />
+                <div className="w-10 h-10 rounded-xl bg-white/[0.03] flex items-center justify-center border border-[var(--border-subtle)] shrink-0">
+                  <Fingerprint className="w-5 h-5 text-[var(--text-secondary)]" />
                 </div>
                 <div>
                   <h3 className="text-white text-sm font-semibold">Biometric Ready</h3>
-                  <p className="text-white/35 text-xs">Seamless FIDO2 integration</p>
+                  <p className="text-[var(--text-tertiary)] text-xs">Seamless FIDO2 integration</p>
                 </div>
               </div>
             </div>
 
-            <div className="text-[10px] text-white/30 font-mono mt-8">
+            <div className="text-[10px] text-[var(--text-muted)] font-mono mt-8">
               SYSTEM_ID: CTA-FLEET-2026<br />
               SECURE_GATEWAY_V4.2
             </div>
@@ -158,12 +158,12 @@ export const LoginPage = () => {
           <div className="p-8 md:p-12 flex flex-col justify-center bg-white/[0.02]">
             <div className="text-center mb-10 md:hidden">
               <h2 className="text-xl font-bold text-white">Fleet Connect</h2>
-              <p className="text-white/40 text-sm">Secure Access Portal</p>
+              <p className="text-[var(--text-tertiary)] text-sm">Secure Access Portal</p>
             </div>
 
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-              <p className="text-white/50 text-sm">
+              <p className="text-[var(--text-secondary)] text-sm">
                 Please authenticate using your organizational account to access the command center.
               </p>
             </div>
@@ -199,10 +199,10 @@ export const LoginPage = () => {
 
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-white/10" />
+                  <span className="w-full border-t border-[var(--border-default)]" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-[#0e0e0e] px-2 text-white/35">Alternative Methods</span>
+                  <span className="bg-[var(--surface-1)] px-2 text-[var(--text-tertiary)]">Alternative Methods</span>
                 </div>
               </div>
 
@@ -210,15 +210,15 @@ export const LoginPage = () => {
                 onClick={handleLoginPopup}
                 disabled={isLoading}
                 variant="outline"
-                className="w-full h-12 border-white/[0.04] bg-white/[0.03] hover:bg-white/[0.06] text-white hover:text-white"
+                className="w-full h-12 border-[var(--border-subtle)] bg-white/[0.03] hover:bg-white/[0.06] text-white hover:text-white"
               >
-                <Lock className="w-4 h-4 mr-2 text-white/35" />
+                <Lock className="w-4 h-4 mr-2 text-[var(--text-tertiary)]" />
                 Use Browser Popup
               </Button>
             </div>
 
             <div className="mt-10 text-center">
-              <div className="flex items-center justify-center gap-2 text-[10px] text-white/35 uppercase tracking-widest hover:text-white/60 transition-colors cursor-help">
+              <div className="flex items-center justify-center gap-2 text-[10px] text-[var(--text-tertiary)] uppercase tracking-widest hover:text-[var(--text-secondary)] transition-colors cursor-help">
                 <Shield className="w-3 h-3" />
                 <span>Protected by Azure Sentinel</span>
               </div>

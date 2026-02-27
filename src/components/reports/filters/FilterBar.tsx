@@ -106,11 +106,11 @@ export function FilterBar({
     localFilters.shop !== 'All';
 
   return (
-    <div className="bg-white border border-white/[0.08] rounded-lg p-2">
+    <div className="bg-white border border-[var(--border-default)] rounded-lg p-2">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
         {/* Date Range */}
         <div>
-          <label htmlFor="date-range" className="block text-sm font-medium text-white/40 mb-1">
+          <label htmlFor="date-range" className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
             Date Range
           </label>
           <DateRangePicker
@@ -122,7 +122,7 @@ export function FilterBar({
 
         {/* Business Area */}
         <div>
-          <label htmlFor="business-area" className="block text-sm font-medium text-white/40 mb-1">
+          <label htmlFor="business-area" className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
             Business Area
           </label>
           <div className="relative">
@@ -130,19 +130,19 @@ export function FilterBar({
               id="business-area"
               value={localFilters.businessArea}
               onChange={(e) => updateFilter('businessArea', e.target.value)}
-              className="w-full px-3 py-2 border border-white/[0.08] rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full px-3 py-2 border border-[var(--border-default)] rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             >
               <option value="All">All</option>
               <option value="Fleet">Fleet</option>
               <option value="StarMetro">StarMetro</option>
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)] pointer-events-none" />
           </div>
         </div>
 
         {/* Division */}
         <div>
-          <label htmlFor="division" className="block text-sm font-medium text-white/40 mb-1">
+          <label htmlFor="division" className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
             Division
           </label>
           <div className="relative">
@@ -151,7 +151,7 @@ export function FilterBar({
               value={localFilters.division}
               onChange={(e) => updateFilter('division', e.target.value)}
               disabled={localFilters.businessArea === 'All'}
-              className="w-full px-3 py-2 border border-white/[0.08] rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-white/[0.05] disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-[var(--border-default)] rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-white/[0.05] disabled:cursor-not-allowed"
             >
               <option value="All">All Divisions</option>
               {availableDivisions.map((div) => (
@@ -160,13 +160,13 @@ export function FilterBar({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)] pointer-events-none" />
           </div>
         </div>
 
         {/* Department */}
         <div>
-          <label htmlFor="department" className="block text-sm font-medium text-white/40 mb-1">
+          <label htmlFor="department" className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
             Department
           </label>
           <div className="relative">
@@ -175,7 +175,7 @@ export function FilterBar({
               value={localFilters.department}
               onChange={(e) => updateFilter('department', e.target.value)}
               disabled={localFilters.division === 'All'}
-              className="w-full px-3 py-2 border border-white/[0.08] rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-white/[0.05] disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-[var(--border-default)] rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-white/[0.05] disabled:cursor-not-allowed"
             >
               <option value="All">All Departments</option>
               {availableDepartments.map((dept) => (
@@ -184,13 +184,13 @@ export function FilterBar({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)] pointer-events-none" />
           </div>
         </div>
 
         {/* Shop */}
         <div>
-          <label htmlFor="shop" className="block text-sm font-medium text-white/40 mb-1">
+          <label htmlFor="shop" className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
             Shop
           </label>
           <div className="relative">
@@ -199,7 +199,7 @@ export function FilterBar({
               value={localFilters.shop}
               onChange={(e) => updateFilter('shop', e.target.value)}
               disabled={localFilters.department === 'All'}
-              className="w-full px-3 py-2 border border-white/[0.08] rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-white/[0.05] disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-[var(--border-default)] rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-white/[0.05] disabled:cursor-not-allowed"
             >
               <option value="All">All Shops</option>
               {availableShops.map((shop) => (
@@ -208,14 +208,14 @@ export function FilterBar({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)] pointer-events-none" />
           </div>
         </div>
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.08]">
-        <div className="text-sm text-white/70">
+      <div className="flex items-center justify-between mt-2 pt-2 border-t border-[var(--border-default)]">
+        <div className="text-sm text-[var(--text-primary)]">
           {hasActiveFilters && (
             <span className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-emerald-500 rounded-full" />

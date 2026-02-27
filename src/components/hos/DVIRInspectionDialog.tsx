@@ -464,7 +464,7 @@ export function DVIRInspectionDialog({
 
                 {/* Standard Components */}
                 <div className="p-3">
-                  <h4 className="text-sm font-semibold text-white/40 mb-2">
+                  <h4 className="text-sm font-semibold text-[var(--text-tertiary)] mb-2">
                     Standard Items
                   </h4>
                   {components

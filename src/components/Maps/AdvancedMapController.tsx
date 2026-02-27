@@ -42,7 +42,7 @@ export function AdvancedMapController() {
           <motion.button
             key={btn}
             onClick={() => setZoom(prev => btn === '+' ? Math.min(prev + 1, 20) : Math.max(prev - 1, 1))}
-            className="w-10 h-10 rounded-lg border border-white/[0.04] hover:border-white/[0.08] bg-[#111111] hover:bg-[#161616] transition-all flex items-center justify-center font-bold text-lg text-white"
+            className="w-10 h-10 rounded-lg border border-[var(--border-subtle)] hover:border-[var(--border-default)] bg-[var(--surface-2)] hover:bg-[#161616] transition-all flex items-center justify-center font-bold text-lg text-white"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
@@ -59,7 +59,7 @@ export function AdvancedMapController() {
       >
         <motion.button
           onClick={() => setShowLayerPanel(!showLayerPanel)}
-          className="p-3 rounded-lg border border-white/[0.04] hover:border-white/[0.08] bg-[#111111] hover:bg-[#161616] transition-all"
+          className="p-3 rounded-lg border border-[var(--border-subtle)] hover:border-[var(--border-default)] bg-[var(--surface-2)] hover:bg-[#161616] transition-all"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -68,7 +68,7 @@ export function AdvancedMapController() {
 
         {showLayerPanel && (
           <motion.div
-            className="absolute top-full left-0 mt-2 rounded-xl border border-white/[0.04] bg-[#111111] p-3 space-y-2 min-w-max"
+            className="absolute top-full left-0 mt-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 space-y-2 min-w-max"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -86,7 +86,7 @@ export function AdvancedMapController() {
                 {layer.enabled ? (
                   <Eye className="w-4 h-4 text-green-400" />
                 ) : (
-                  <EyeOff className="w-4 h-4 text-white/35" />
+                  <EyeOff className="w-4 h-4 text-[var(--text-tertiary)]" />
                 )}
               </motion.button>
             ))}
@@ -96,7 +96,7 @@ export function AdvancedMapController() {
 
       {/* Map Info Overlay */}
       <motion.div
-        className="absolute bottom-6 left-6 z-40 rounded-xl border border-white/[0.04] bg-[#111111] p-6 max-w-sm"
+        className="absolute bottom-6 left-6 z-40 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-2)] p-6 max-w-sm"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -104,13 +104,13 @@ export function AdvancedMapController() {
         <div className="flex items-start justify-between mb-4">
           <div>
             <h3 className="font-bold">Map Control</h3>
-            <p className="text-xs text-white/35 mt-1">Zoom level: {zoom}x</p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-1">Zoom level: {zoom}x</p>
           </div>
-          <Settings className="w-4 h-4 text-white/35" />
+          <Settings className="w-4 h-4 text-[var(--text-tertiary)]" />
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-semibold text-white/60">Active Layers: {layers.filter(l => l.enabled).length}</p>
+          <p className="text-xs font-semibold text-[var(--text-secondary)]">Active Layers: {layers.filter(l => l.enabled).length}</p>
           <div className="flex flex-wrap gap-1">
             {layers.filter(l => l.enabled).map(layer => (
               <span

@@ -61,15 +61,15 @@ export function DriversWorkspace() {
     }, [drivers, vehicles])
 
     return (
-        <div className="flex h-screen w-full flex-col overflow-hidden bg-[#0a0a0a]">
+        <div className="flex h-screen w-full flex-col overflow-hidden bg-[var(--surface-0)]">
             {/* Top Bar */}
-            <div className="flex items-center justify-between border-b border-white/[0.04] px-2 py-2 bg-[#0e0e0e] z-10">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-2 py-2 bg-[var(--surface-1)] z-10">
                 <div className="flex items-center gap-2">
                     <Badge variant="outline" className="h-6 gap-1">
                         <Users className="h-3 w-3" />
                         <span className="font-medium">Drivers Workspace</span>
                     </Badge>
-                    <span className="text-white/60 text-sm">
+                    <span className="text-[var(--text-secondary)] text-sm">
                         {filteredDrivers.length} active
                     </span>
                 </div>
@@ -101,10 +101,10 @@ export function DriversWorkspace() {
                             {/* Overlay Driver List for Map View */}
                             <div className="absolute top-4 left-4 w-80 flex flex-col gap-2 pointer-events-none">
                                 <div className="pointer-events-auto">
-                                    <Card className="border border-white/[0.04] bg-[#0e0e0e]">
+                                    <Card className="border border-[var(--border-subtle)] bg-[var(--surface-1)]">
                                         <div className="p-2 gap-2 flex flex-col">
                                             <div className="relative">
-                                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-white/60" />
+                                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-[var(--text-secondary)]" />
                                                 <Input
                                                     placeholder="Find driver..."
                                                     className="pl-3 h-9"
@@ -160,7 +160,7 @@ export function DriversWorkspace() {
                             </div>
                         </div>
                     ) : (
-                        <div className="h-full overflow-y-auto p-3 bg-[#0a0a0a]">
+                        <div className="h-full overflow-y-auto p-3 bg-[var(--surface-0)]">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                                 {filteredDrivers.map(driver => (
                                     <DriverCard
@@ -182,15 +182,15 @@ export function DriversWorkspace() {
 
                 {/* Right Panel - Driver Details */}
                 {selectedDriver && (
-                    <div className="w-[400px] border-l border-white/[0.04] bg-[#0e0e0e] flex flex-col h-full z-20 transition-all">
-                        <div className="p-2 border-b border-white/[0.04] flex items-start justify-between bg-white/[0.03]">
+                    <div className="w-[400px] border-l border-[var(--border-subtle)] bg-[var(--surface-1)] flex flex-col h-full z-20 transition-all">
+                        <div className="p-2 border-b border-[var(--border-subtle)] flex items-start justify-between bg-white/[0.03]">
                             <div className="flex gap-2">
-                                <div className="w-16 h-16 rounded-full bg-[#1a1a1a] flex items-center justify-center text-base font-bold">
+                                <div className="w-16 h-16 rounded-full bg-[var(--surface-3)] flex items-center justify-center text-base font-bold">
                                     {selectedDriver.name.slice(0, 2).toUpperCase()}
                                 </div>
                                 <div>
                                     <h2 className="text-sm font-bold">{selectedDriver.name}</h2>
-                                    <div className="flex items-center gap-2 text-sm text-white/60">
+                                    <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
                                         <Badge variant="outline" className="uppercase text-[10px]">{selectedDriver.licenseType}</Badge>
                                         <span>• {selectedDriver.department}</span>
                                     </div>
@@ -204,7 +204,7 @@ export function DriversWorkspace() {
                                 {/* Status Section */}
                                 <Card>
                                     <CardHeader className="pb-2">
-                                        <CardTitle className="text-sm font-medium text-white/60 uppercase tracking-wider">Current Status</CardTitle>
+                                        <CardTitle className="text-sm font-medium text-[var(--text-secondary)] uppercase tracking-wider">Current Status</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="flex items-center justify-between mb-2">
@@ -213,26 +213,26 @@ export function DriversWorkspace() {
                                                 }`}>
                                                 {selectedDriver.status.replace('_', ' ').toUpperCase()}
                                             </Badge>
-                                            <span className="text-xs text-white/60">Since 08:30 AM</span>
+                                            <span className="text-xs text-[var(--text-secondary)]">Since 08:30 AM</span>
                                         </div>
 
                                         {selectedDriver.location && (
                                             <div className="flex items-center gap-2 text-sm">
-                                                <MapIcon className="w-4 h-4 text-white/60" />
+                                                <MapIcon className="w-4 h-4 text-[var(--text-secondary)]" />
                                                 <span>{selectedDriver.location.address || 'No address'}</span>
                                             </div>
                                         )}
 
                                         {selectedDriverVehicle && (
                                             <div className="mt-2 pt-2 border-t">
-                                                <div className="text-xs text-white/60 mb-2">ASSIGNED ASSET</div>
+                                                <div className="text-xs text-[var(--text-secondary)] mb-2">ASSIGNED ASSET</div>
                                                 <div className="flex items-center gap-3 bg-white/[0.04] p-2 rounded-lg">
-                                                    <div className="p-2 bg-[#111111] rounded-md border border-white/[0.04]">
+                                                    <div className="p-2 bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)]">
                                                         <Users className="w-4 h-4" />
                                                     </div>
                                                     <div>
                                                         <div className="font-medium text-sm">{selectedDriver.assignedVehicle}</div>
-                                                        <div className="text-xs text-white/60">International LT625</div>
+                                                        <div className="text-xs text-[var(--text-secondary)]">International LT625</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -248,7 +248,7 @@ export function DriversWorkspace() {
                                                 <Award className="w-4 h-4 text-yellow-500" />
                                             </div>
                                             <div className="text-sm font-bold">{selectedDriver.performance?.safetyScore}</div>
-                                            <div className="text-xs text-white/60">Safety Score</div>
+                                            <div className="text-xs text-[var(--text-secondary)]">Safety Score</div>
                                         </CardContent>
                                     </Card>
                                     <Card>
@@ -257,7 +257,7 @@ export function DriversWorkspace() {
                                                 <TrendingUp className="w-4 h-4 text-green-500" />
                                             </div>
                                             <div className="text-sm font-bold">{selectedDriver.performance?.onTimeRate}%</div>
-                                            <div className="text-xs text-white/60">On-Time Rate</div>
+                                            <div className="text-xs text-[var(--text-secondary)]">On-Time Rate</div>
                                         </CardContent>
                                     </Card>
                                 </div>

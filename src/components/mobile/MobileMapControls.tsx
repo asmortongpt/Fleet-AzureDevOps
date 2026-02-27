@@ -52,7 +52,7 @@ export function MobileMapControls({
           size="icon"
           className={cn(
             buttonSize,
-            'rounded-full bg-white text-white/90 hover:bg-white/[0.05]',
+            'rounded-full bg-white text-[var(--text-primary)] hover:bg-white/[0.05]',
             'active:scale-95 transition-all touch-manipulation'
           )}
           onClick={onToggleFullscreen}
@@ -74,7 +74,7 @@ export function MobileMapControls({
           size="icon"
           className={cn(
             buttonSize,
-            'rounded-full bg-white text-white/90 hover:bg-white/[0.05]',
+            'rounded-full bg-white text-[var(--text-primary)] hover:bg-white/[0.05]',
             'active:scale-95 transition-all touch-manipulation'
           )}
           onClick={onToggleLayers}
@@ -92,7 +92,7 @@ export function MobileMapControls({
           size="icon"
           className={cn(
             buttonSize,
-            'rounded-full bg-white text-white/90 hover:bg-white/[0.05]',
+            'rounded-full bg-white text-[var(--text-primary)] hover:bg-white/[0.05]',
             'active:scale-95 transition-all touch-manipulation'
           )}
           onClick={onLocate}

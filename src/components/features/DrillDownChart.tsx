@@ -152,18 +152,18 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
-        <div className="bg-white dark:bg-[#1a1a1a] border border-white/[0.04] dark:border-white/[0.15] rounded-lg p-2">
-          <p className="text-base font-semibold text-white/90 dark:text-white/80 mb-2">{data.name}</p>
+        <div className="bg-white dark:bg-[var(--surface-3)] border border-[var(--border-subtle)] dark:border-[var(--border-strong)] rounded-lg p-2">
+          <p className="text-base font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary)] mb-2">{data.name}</p>
           <p className="text-sm font-bold text-emerald-800 mb-1">
             {formatCurrencyCompact(data.value)}
           </p>
           {data.percentage && (
-            <p className="text-sm text-white/50 dark:text-white/70">
+            <p className="text-sm text-[var(--text-secondary)] dark:text-[var(--text-primary)]">
               {data.percentage}% of total
             </p>
           )}
           {data.detail && (
-            <p className="text-sm text-white/50 dark:text-white/70 mt-1">
+            <p className="text-sm text-[var(--text-secondary)] dark:text-[var(--text-primary)] mt-1">
               {data.detail}
             </p>
           )}
@@ -184,19 +184,19 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
   }
 
   return (
-    <div className={cn("bg-white dark:bg-[#1a1a1a] rounded-lg border border-white/[0.04] dark:border-white/[0.15] p-3", className)}>
+    <div className={cn("bg-white dark:bg-[var(--surface-3)] rounded-lg border border-[var(--border-subtle)] dark:border-[var(--border-strong)] p-3", className)}>
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-base font-semibold text-white/90 dark:text-white/80 mb-1">{title}</h3>
+          <h3 className="text-base font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary)] mb-1">{title}</h3>
           {subtitle && (
-            <p className="text-base text-white/50 dark:text-white/70">{subtitle}</p>
+            <p className="text-base text-[var(--text-secondary)] dark:text-[var(--text-primary)]">{subtitle}</p>
           )}
         </div>
       </div>
 
       {/* Breadcrumb Navigation */}
-      <div className="flex items-center gap-2 mb-3 p-3 bg-white/[0.03] dark:bg-[#111]/50 rounded-lg">
+      <div className="flex items-center gap-2 mb-3 p-3 bg-white/[0.03] dark:bg-[var(--surface-2)]/50 rounded-lg">
         {breadcrumbs.map((crumb, index) => (
           <div key={crumb.label} className="flex items-center gap-2">
             <button
@@ -205,13 +205,13 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
                 "text-sm font-medium px-3 py-1.5 rounded-lg transition-all",
                 index === breadcrumbs.length - 1
                   ? "bg-emerald-500/10 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-700"
-                  : "text-white/50 dark:text-white/70 hover:bg-white/[0.08] dark:hover:bg-white/[0.15]"
+                  : "text-[var(--text-secondary)] dark:text-[var(--text-primary)] hover:bg-[var(--surface-glass-hover)] dark:hover:bg-white/[0.15]"
               )}
             >
               {crumb.label}
             </button>
             {index < breadcrumbs.length - 1 && (
-              <CaretRight className="w-4 h-4 text-white/70" />
+              <CaretRight className="w-4 h-4 text-[var(--text-primary)]" />
             )}
           </div>
         ))}
@@ -275,10 +275,10 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
       {/* Level Indicator & Back Button */}
       <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-white/50 dark:text-white/70">
+          <span className="text-sm text-[var(--text-secondary)] dark:text-[var(--text-primary)]">
             Level {currentLevel} of 3
           </span>
-          <span className="text-xs px-2 py-1 bg-white/[0.05] dark:bg-white/[0.15] text-white/50 dark:text-white/70 rounded">
+          <span className="text-xs px-2 py-1 bg-white/[0.05] dark:bg-white/[0.15] text-[var(--text-secondary)] dark:text-[var(--text-primary)] rounded">
             {currentLevel === 1 ? 'Categories' : currentLevel === 2 ? 'Subcategories' : 'Details'}
           </span>
         </div>
@@ -295,7 +295,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
 
       {/* Instruction */}
       {currentLevel < 3 && (
-        <p className="mt-2 text-sm text-white/40 dark:text-white/70 text-center">
+        <p className="mt-2 text-sm text-[var(--text-tertiary)] dark:text-[var(--text-primary)] text-center">
           Click on any bar to drill down into details
         </p>
       )}

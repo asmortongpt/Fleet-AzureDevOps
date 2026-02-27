@@ -58,7 +58,7 @@ export function MobileVehicleCard({
       <div
         onClick={() => onClick?.(vehicle)}
         className={cn(
-          'flex items-center gap-3 p-3 border-b border-white/[0.04]',
+          'flex items-center gap-3 p-3 border-b border-[var(--border-subtle)]',
           'active:bg-white/[0.03] transition-colors touch-manipulation cursor-pointer',
           className
         )}
@@ -121,7 +121,7 @@ export function MobileVehicleCard({
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <Truck className="h-4 w-4 text-white/50 flex-shrink-0" />
+                <Truck className="h-4 w-4 text-[var(--text-secondary)] flex-shrink-0" />
                 <h3 className="font-semibold text-sm truncate">{vehicle.id}</h3>
               </div>
               <p className="text-xs text-muted-foreground truncate">
@@ -157,7 +157,7 @@ export function MobileVehicleCard({
           </div>
 
           {/* Status Badge */}
-          <div className="mt-3 pt-3 border-t border-white/[0.04]">
+          <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]">
             <Badge
               variant={vehicle.status === 'active' ? 'default' : 'secondary'}
               className="w-full justify-center text-xs py-1"
@@ -185,7 +185,7 @@ export function MobileVehicleCard({
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <Truck className="h-5 w-5 text-white/50 flex-shrink-0" />
+              <Truck className="h-5 w-5 text-[var(--text-secondary)] flex-shrink-0" />
               <h3 className="font-bold text-base truncate">{vehicle.id}</h3>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -260,7 +260,7 @@ export function MobileVehicleCard({
 
         {/* Quick Actions */}
         {showQuickActions && onQuickAction && (
-          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/[0.04]">
+          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[var(--border-subtle)]">
             <Button
               variant="outline"
               size="sm"
@@ -308,7 +308,7 @@ export function MobileVehicleCard({
 export function MobileVehicleCardSkeleton({ variant = 'compact' }: { variant?: 'compact' | 'detailed' | 'list' }) {
   if (variant === 'list') {
     return (
-      <div className="flex items-center gap-3 p-3 border-b border-white/[0.04] animate-pulse">
+      <div className="flex items-center gap-3 p-3 border-b border-[var(--border-subtle)] animate-pulse">
         <div className="w-1 h-14 bg-white/[0.08] rounded-full" />
         <div className="flex-1 space-y-2">
           <div className="h-4 bg-white/[0.08] rounded w-24" />

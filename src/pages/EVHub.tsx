@@ -130,7 +130,7 @@ const EVHub = () => {
     <ErrorBoundary>
     <div className="h-screen overflow-hidden cta-hub">
       {/* Header */}
-      <div className="px-4 py-3 bg-[#0e0e0e] border-b border-white/[0.04]">
+      <div className="px-4 py-3 bg-[var(--surface-1)] border-b border-[var(--border-subtle)]">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
@@ -237,7 +237,7 @@ const EVHub = () => {
                   evVehicles.map((vehicle) => (
                     <div
                       key={vehicle.id}
-                      className="p-3 border rounded-lg bg-[#111111] border-white/[0.04] transition-colors"
+                      className="p-3 border rounded-lg bg-[var(--surface-2)] border-[var(--border-subtle)] transition-colors"
                       data-testid="vehicle-item"
                     >
                       <div className="flex items-start justify-between">

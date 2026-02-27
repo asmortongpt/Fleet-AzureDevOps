@@ -125,7 +125,7 @@ export default function ComplianceHub() {
           return (
             <span className={cn(
               'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
-              typeColors[type] || 'bg-white/[0.04] text-white/40 border-white/[0.04]'
+              typeColors[type] || 'bg-white/[0.04] text-[var(--text-tertiary)] border-[var(--border-subtle)]'
             )}>
               {type}
             </span>
@@ -148,7 +148,7 @@ export default function ComplianceHub() {
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-primary" />
-            <span className="text-white/40">{row.getValue('driver')}</span>
+            <span className="text-[var(--text-tertiary)]">{row.getValue('driver')}</span>
           </div>
         ),
       },
@@ -157,7 +157,7 @@ export default function ComplianceHub() {
         header: 'Date',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-white/40" />
+            <Calendar className="h-4 w-4 text-[var(--text-tertiary)]" />
             <span className="text-white">{row.getValue('date')}</span>
           </div>
         ),
@@ -167,7 +167,7 @@ export default function ComplianceHub() {
         accessorKey: 'category',
         header: 'Category',
         cell: ({ row }) => (
-          <span className="text-white/40 text-sm">{row.getValue('category')}</span>
+          <span className="text-[var(--text-tertiary)] text-sm">{row.getValue('category')}</span>
         ),
       },
       {
@@ -175,7 +175,7 @@ export default function ComplianceHub() {
         header: 'Severity',
         cell: ({ row }) => {
           const severity = row.getValue('severity') as string | undefined
-          if (!severity) return <span className="text-white/40">-</span>
+          if (!severity) return <span className="text-[var(--text-tertiary)]">-</span>
 
           const severityColors: Record<string, string> = {
             'Low': 'text-[hsl(var(--chart-2))]',
@@ -203,7 +203,7 @@ export default function ComplianceHub() {
         accessorKey: 'inspector',
         header: 'Inspector',
         cell: ({ row }) => (
-          <span className="text-white/40 text-sm">{row.getValue('inspector') || '-'}</span>
+          <span className="text-[var(--text-tertiary)] text-sm">{row.getValue('inspector') || '-'}</span>
         ),
       },
       {
@@ -211,13 +211,13 @@ export default function ComplianceHub() {
         header: 'Due Date',
         cell: ({ row }) => {
           const dueDate = row.getValue('dueDate') as string | undefined
-          if (!dueDate) return <span className="text-white/40">-</span>
+          if (!dueDate) return <span className="text-[var(--text-tertiary)]">-</span>
 
           const isOverdue = new Date(dueDate) < new Date()
           return (
             <div className="flex items-center gap-2">
-              <Clock className={cn('h-4 w-4', isOverdue ? 'text-rose-400' : 'text-white/40')} />
-              <span className={cn('text-sm', isOverdue ? 'text-rose-400 font-semibold' : 'text-white/40')}>
+              <Clock className={cn('h-4 w-4', isOverdue ? 'text-rose-400' : 'text-[var(--text-tertiary)]')} />
+              <span className={cn('text-sm', isOverdue ? 'text-rose-400 font-semibold' : 'text-[var(--text-tertiary)]')}>
                 {dueDate}
               </span>
             </div>
@@ -228,7 +228,7 @@ export default function ComplianceHub() {
         accessorKey: 'notes',
         header: 'Notes',
         cell: ({ row }) => (
-          <span className="text-white/40 text-xs max-w-xs truncate block">
+          <span className="text-[var(--text-tertiary)] text-xs max-w-xs truncate block">
             {row.getValue('notes') || '-'}
           </span>
         ),
@@ -262,7 +262,7 @@ export default function ComplianceHub() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
         <p className="text-rose-400 font-medium">Failed to load data</p>
-        <p className="text-sm text-white/40">{fleetData.error instanceof Error ? fleetData.error.message : 'An unexpected error occurred'}</p>
+        <p className="text-sm text-[var(--text-tertiary)]">{fleetData.error instanceof Error ? fleetData.error.message : 'An unexpected error occurred'}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Retry
         </Button>
@@ -272,13 +272,13 @@ export default function ComplianceHub() {
 
   return (
     <ErrorBoundary>
-    <div className="min-h-screen bg-[#0e0e0e] p-3 space-y-3">
+    <div className="min-h-screen bg-[var(--surface-1)] p-3 space-y-3">
       {/* Header */}
       <div className="relative">
         <div className="absolute top-0 left-0 w-full h-px bg-white/[0.04]" />
         <div className="pt-3">
           <h1 className="text-xl font-bold text-white mb-1">Compliance Management</h1>
-          <p className="text-sm text-white/40">
+          <p className="text-sm text-[var(--text-tertiary)]">
             Intelligent Technology. Integrated Partnership. - CTA Fleet
           </p>
         </div>
@@ -335,7 +335,7 @@ export default function ComplianceHub() {
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-white">Compliance Records</h2>
-            <p className="text-xs text-white/40 mt-0.5">
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
               {selectedRecords.length > 0 && `${selectedRecords.length} selected • `}
               All records visible • Professional table layout
             </p>
@@ -343,7 +343,7 @@ export default function ComplianceHub() {
           <div className="flex gap-2">
             <Button
               variant="outline"
-              className="bg-[#111111] border-white/[0.04] text-white hover:bg-primary/10"
+              className="bg-[var(--surface-2)] border-[var(--border-subtle)] text-white hover:bg-primary/10"
               onClick={() => exportToCSV(complianceRecords.map(r => ({
                 recordType: r.recordType,
                 vehicle: r.vehicle,
@@ -365,7 +365,7 @@ export default function ComplianceHub() {
         </div>
 
         {(!fleetData.isLoading && complianceRecords.length === 0) ? (
-          <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-6 text-sm text-white/40">
+          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-6 text-sm text-[var(--text-tertiary)]">
             No compliance records found. Populate inspections/incidents for this tenant to display results.
           </div>
         ) : (
@@ -383,7 +383,7 @@ export default function ComplianceHub() {
       </div>
 
       {/* Footer */}
-      <div className="text-center text-xs text-white/40 pt-6 border-t border-white/[0.04]">
+      <div className="text-center text-xs text-[var(--text-tertiary)] pt-6 border-t border-[var(--border-subtle)]">
         CTA Compliance Management • CTA Fleet Platform • DOT & FMCSA compliant • Professional data tables
       </div>
     </div>
@@ -401,9 +401,9 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, trend = 'neutral' }: StatCardProps) {
   return (
-    <div className="bg-[#111111] border border-white/[0.04] rounded-lg p-3 hover:border-white/10 transition-all">
+    <div className="bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-3 hover:border-[var(--border-default)] transition-all">
       <div className="flex items-center justify-between mb-1.5">
-        <div className="text-[10px] font-semibold text-white/40 uppercase tracking-wide">
+        <div className="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wide">
           {label}
         </div>
         {icon}

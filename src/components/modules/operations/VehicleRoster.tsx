@@ -65,7 +65,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
         switch (status) {
             case "active": return "text-green-500 border-green-200 bg-green-50";
             case "maintenance": return "text-amber-500 border-amber-200 bg-amber-50";
-            case "inactive": return "text-white/40 border-white/[0.08] bg-white/[0.03]";
+            case "inactive": return "text-[var(--text-tertiary)] border-[var(--border-default)] bg-white/[0.03]";
             default: return "text-emerald-800 border-emerald-500/20 bg-emerald-500/5";
         }
     };
@@ -73,11 +73,11 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent
-                className="w-[400px] sm:w-[540px] flex flex-col p-0 text-foreground glass-panel border-white/10"
+                className="w-[400px] sm:w-[540px] flex flex-col p-0 text-foreground glass-panel border-[var(--border-default)]"
                 side="left"
                 style={{ backgroundColor: 'transparent' }}
             >
-                <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
+                <SheetHeader className="p-3 border-b border-[var(--border-default)] bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
                             <Truck className="w-4 h-4 text-emerald-700" />

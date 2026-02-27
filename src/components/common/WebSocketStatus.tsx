@@ -80,7 +80,7 @@ export function WebSocketStatus({
       default:
         return {
           color: 'bg-white/[0.1] hover:bg-white/[0.1]',
-          textColor: 'text-white/50',
+          textColor: 'text-[var(--text-secondary)]',
           label: 'Offline',
           icon: <WifiOff className="h-3 w-3" />,
           variant: 'secondary' as const,
@@ -117,7 +117,7 @@ export function WebSocketStatus({
           <DropdownMenuSeparator />
           <div className="px-2 py-1.5 text-sm space-y-2">
             <div className="flex justify-between">
-              <span className="text-white/40">Status:</span>
+              <span className="text-[var(--text-tertiary)]">Status:</span>
               <span className={cn('font-medium', statusInfo.textColor)}>
                 {statusInfo.label}
               </span>
@@ -125,20 +125,20 @@ export function WebSocketStatus({
             {isConnected && (
               <>
                 <div className="flex justify-between">
-                  <span className="text-white/40">Uptime:</span>
+                  <span className="text-[var(--text-tertiary)]">Uptime:</span>
                   <span className="font-mono text-xs">
                     {formatUptime(stats.uptime)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/40">Messages:</span>
+                  <span className="text-[var(--text-tertiary)]">Messages:</span>
                   <span className="font-mono text-xs">
                     ↓{stats.messagesReceived} ↑{stats.messagesSent}
                   </span>
                 </div>
                 {stats.latency !== null && (
                   <div className="flex justify-between">
-                    <span className="text-white/40">Latency:</span>
+                    <span className="text-[var(--text-tertiary)]">Latency:</span>
                     <span className="font-mono text-xs">{stats.latency}ms</span>
                   </div>
                 )}
@@ -147,11 +147,11 @@ export function WebSocketStatus({
             {!isConnected && (
               <>
                 <div className="flex justify-between">
-                  <span className="text-white/40">Reconnects:</span>
+                  <span className="text-[var(--text-tertiary)]">Reconnects:</span>
                   <span className="font-mono text-xs">{stats.reconnects}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/40">Errors:</span>
+                  <span className="text-[var(--text-tertiary)]">Errors:</span>
                   <span className="font-mono text-xs">{stats.errors}</span>
                 </div>
               </>
@@ -180,7 +180,7 @@ export function WebSocketStatus({
         {statusInfo.icon}
         <span className="text-xs font-medium">{statusInfo.label}</span>
         {showDetails && isConnected && (
-          <span className="text-xs font-mono text-white/40">
+          <span className="text-xs font-mono text-[var(--text-tertiary)]">
             {formatUptime(stats.uptime)}
           </span>
         )}
@@ -245,9 +245,9 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
         };
       default:
         return {
-          color: 'text-white/50',
+          color: 'text-[var(--text-secondary)]',
           bgColor: 'bg-white/[0.03]',
-          borderColor: 'border-white/[0.04]',
+          borderColor: 'border-[var(--border-subtle)]',
           label: 'Disconnected',
           icon: <WifiOff className="h-5 w-5" />,
         };
@@ -267,8 +267,8 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
         <div className="flex items-center gap-3">
           <div className={statusInfo.color}>{statusInfo.icon}</div>
           <div>
-            <h3 className="font-semibold text-white/90">{statusInfo.label}</h3>
-            <p className="text-xs text-white/40">Real-time connection status</p>
+            <h3 className="font-semibold text-[var(--text-primary)]">{statusInfo.label}</h3>
+            <p className="text-xs text-[var(--text-tertiary)]">Real-time connection status</p>
           </div>
         </div>
         {!isConnected && (
@@ -282,14 +282,14 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
         {isConnected && (
           <>
             <div>
-              <div className="text-white/40 mb-1">Uptime</div>
-              <div className="font-mono text-sm font-semibold text-white/90">
+              <div className="text-[var(--text-tertiary)] mb-1">Uptime</div>
+              <div className="font-mono text-sm font-semibold text-[var(--text-primary)]">
                 {Math.floor(stats.uptime / 60)}m {stats.uptime % 60}s
               </div>
             </div>
             <div>
-              <div className="text-white/40 mb-1">Messages</div>
-              <div className="font-mono text-sm font-semibold text-white/90">
+              <div className="text-[var(--text-tertiary)] mb-1">Messages</div>
+              <div className="font-mono text-sm font-semibold text-[var(--text-primary)]">
                 ↓{stats.messagesReceived} ↑{stats.messagesSent}
               </div>
             </div>
@@ -298,14 +298,14 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
         {!isConnected && (
           <>
             <div>
-              <div className="text-white/40 mb-1">Reconnects</div>
-              <div className="font-mono text-sm font-semibold text-white/90">
+              <div className="text-[var(--text-tertiary)] mb-1">Reconnects</div>
+              <div className="font-mono text-sm font-semibold text-[var(--text-primary)]">
                 {stats.reconnects}
               </div>
             </div>
             <div>
-              <div className="text-white/40 mb-1">Errors</div>
-              <div className="font-mono text-sm font-semibold text-white/90">
+              <div className="text-[var(--text-tertiary)] mb-1">Errors</div>
+              <div className="font-mono text-sm font-semibold text-[var(--text-primary)]">
                 {stats.errors}
               </div>
             </div>
@@ -314,8 +314,8 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
       </div>
 
       {stats.lastConnectedAt && (
-        <div className="mt-2 pt-2 border-t border-white/[0.04]">
-          <div className="text-xs text-white/40">
+        <div className="mt-2 pt-2 border-t border-[var(--border-subtle)]">
+          <div className="text-xs text-[var(--text-tertiary)]">
             Last connected:{' '}
             <span className="font-mono">
               {formatTime(stats.lastConnectedAt)}

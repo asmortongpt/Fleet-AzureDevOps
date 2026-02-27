@@ -750,7 +750,7 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
         <div className="text-center p-3 max-w-md">
           <div className="text-sm mb-2">⚠️</div>
           <p className="text-destructive font-semibold mb-2">Map Error</p>
-          <p className="text-sm text-white/60 mb-2">{error}</p>
+          <p className="text-sm text-[var(--text-secondary)] mb-2">{error}</p>
           <button
             onClick={retryLoad}
             className="px-2 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
@@ -764,7 +764,7 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
             Switch to Grid View
           </button>
           {retryCount > 0 && (
-            <p className="text-xs text-white/35 mt-2">
+            <p className="text-xs text-[var(--text-tertiary)] mt-2">
               Retry attempts: {retryCount}
             </p>
           )}
@@ -782,7 +782,7 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
     >
       <div ref={mapRef} className="absolute inset-0 w-full h-full rounded-lg overflow-hidden" />
       {isLoading && (
-        <div data-testid="loading-indicator" className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#0a0a0a]">
+        <div data-testid="loading-indicator" className="absolute inset-0 w-full h-full flex items-center justify-center bg-[var(--surface-0)]">
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-2">
               <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
@@ -791,7 +791,7 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
             <p className="text-sm font-medium text-white mb-1">
               Loading Google Maps...
             </p>
-            <p className="text-xs text-white/35">
+            <p className="text-xs text-[var(--text-tertiary)]">
               React 19 Compatible • Production Ready
             </p>
           </div>

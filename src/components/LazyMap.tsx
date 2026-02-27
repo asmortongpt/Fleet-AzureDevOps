@@ -66,7 +66,7 @@ function SimpleLoadingSkeleton({ minHeight }: { minHeight: number }) {
     >
       <div className="text-center">
         <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-primary mx-auto mb-2" />
-        <p className="text-sm text-white/60">Loading map...</p>
+        <p className="text-sm text-[var(--text-secondary)]">Loading map...</p>
       </div>
     </div>
   );
@@ -100,14 +100,14 @@ function DetailedLoadingSkeleton({ minHeight }: { minHeight: number }) {
       <div className="text-center max-w-md px-3">
         <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary mx-auto mb-3" />
         <h3 className="text-base font-semibold text-white mb-2">Loading Map</h3>
-        <p className="text-sm text-white/60 mb-2">{stages[loadingStage]}</p>
+        <p className="text-sm text-[var(--text-secondary)] mb-2">{stages[loadingStage]}</p>
         <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
           <div
             className="bg-primary h-full transition-all duration-300"
             style={{ width: `${((loadingStage + 1) / stages.length) * 100}%` }}
           />
         </div>
-        <p className="text-xs text-white/35 mt-2">
+        <p className="text-xs text-[var(--text-tertiary)] mt-2">
           {Math.round(((loadingStage + 1) / stages.length) * 100)}% complete
         </p>
       </div>
@@ -124,7 +124,7 @@ function AnimatedLoadingSkeleton({ minHeight }: { minHeight: number }) {
       aria-live="polite"
       aria-label="Loading map"
     >
-      <div className="absolute inset-0 bg-[#0e0e0e] animate-pulse" />
+      <div className="absolute inset-0 bg-[var(--surface-1)] animate-pulse" />
       <div className="absolute inset-0 opacity-10">
         <div
           className="w-full h-full"
@@ -138,7 +138,7 @@ function AnimatedLoadingSkeleton({ minHeight }: { minHeight: number }) {
         />
       </div>
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center bg-[#111111] p-3 rounded-lg border border-white/[0.04]">
+        <div className="text-center bg-[var(--surface-2)] p-3 rounded-lg border border-[var(--border-subtle)]">
           <div className="mb-2 flex justify-center">
             <svg
               className="w-16 h-16 text-primary animate-bounce"
@@ -150,7 +150,7 @@ function AnimatedLoadingSkeleton({ minHeight }: { minHeight: number }) {
             </svg>
           </div>
           <h3 className="text-base font-semibold text-white mb-2">Loading Interactive Map</h3>
-          <p className="text-sm text-white/60">Preparing geographic interface...</p>
+          <p className="text-sm text-[var(--text-secondary)]">Preparing geographic interface...</p>
           <div className="flex justify-center gap-1.5 mt-2">
             {[0, 1, 2].map((i) => (
               <div
@@ -222,8 +222,8 @@ function DefaultErrorFallback({
           </svg>
         </div>
         <h3 className="text-sm font-semibold text-red-400 mb-3">Failed to Load Map</h3>
-        <p className="text-sm text-white/60 mb-1">{error instanceof Error ? error.message : String(error)}</p>
-        <p className="text-xs text-white/35 mb-3">
+        <p className="text-sm text-[var(--text-secondary)] mb-1">{error instanceof Error ? error.message : String(error)}</p>
+        <p className="text-xs text-[var(--text-tertiary)] mb-3">
           This may be due to network issues or missing dependencies.
         </p>
         <button
@@ -234,7 +234,7 @@ function DefaultErrorFallback({
         </button>
         {import.meta.env.MODE === 'development' && (
           <details className="mt-3 text-left">
-            <summary className="text-xs text-white/35 cursor-pointer hover:text-white">
+            <summary className="text-xs text-[var(--text-tertiary)] cursor-pointer hover:text-white">
               Error Details (Dev Only)
             </summary>
             <pre className="mt-2 text-xs bg-muted p-3 rounded overflow-auto max-h-40">

@@ -404,21 +404,21 @@ export function EditVehicleDialog({
       <DialogContent className="max-w-2xl max-h-[85vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Pencil className="h-4 w-4 text-white/60" />
+            <Pencil className="h-4 w-4 text-[var(--text-secondary)]" />
             {titleText}
           </DialogTitle>
         </DialogHeader>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-white/40" />
+            <Loader2 className="h-6 w-6 animate-spin text-[var(--text-tertiary)]" />
           </div>
         ) : (
           <div className="max-h-[calc(85vh-140px)] overflow-y-auto pr-1 space-y-4">
             {/* VIN — read-only */}
             {vin && (
               <div className="space-y-1">
-                <Label className="text-xs font-semibold text-white/60 uppercase tracking-wider">VIN (read-only)</Label>
+                <Label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">VIN (read-only)</Label>
                 <Input
                   value={vin}
                   readOnly
@@ -430,7 +430,7 @@ export function EditVehicleDialog({
 
             {/* ---- Asset Classification ---- */}
             <div>
-              <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+              <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                 Asset Classification
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -510,7 +510,7 @@ export function EditVehicleDialog({
 
             {/* ---- Basic Info ---- */}
             <div>
-              <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+              <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                 Basic Information
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -617,7 +617,7 @@ export function EditVehicleDialog({
 
             {/* ---- Location ---- */}
             <div>
-              <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+              <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                 Location
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -653,7 +653,7 @@ export function EditVehicleDialog({
 
             {/* ---- Status & Odometer ---- */}
             <div>
-              <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+              <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                 Status & Metrics
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -710,7 +710,7 @@ export function EditVehicleDialog({
             {/* ---- Heavy Equipment Specs (conditional) ---- */}
             {showHeavyEquipmentFields && (
               <div>
-                <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+                <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                   Heavy Equipment Specifications
                 </p>
                 <div className="grid grid-cols-2 gap-2">
@@ -765,7 +765,7 @@ export function EditVehicleDialog({
 
             {/* ---- Insurance ---- */}
             <div>
-              <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+              <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                 Insurance
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -801,7 +801,7 @@ export function EditVehicleDialog({
 
             {/* ---- Financial ---- */}
             <div>
-              <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+              <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                 Financial
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -840,7 +840,7 @@ export function EditVehicleDialog({
             {/* ---- Trailer Specs (conditional) ---- */}
             {showTrailerFields && (
               <div>
-                <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+                <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                   Trailer Specifications
                 </p>
                 <div className="grid grid-cols-2 gap-2">
@@ -878,7 +878,7 @@ export function EditVehicleDialog({
         )}
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 pt-2 border-t border-white/[0.04]">
+        <div className="flex justify-end gap-3 pt-2 border-t border-[var(--border-subtle)]">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
             <X className="h-3.5 w-3.5 mr-1.5" />
             Cancel

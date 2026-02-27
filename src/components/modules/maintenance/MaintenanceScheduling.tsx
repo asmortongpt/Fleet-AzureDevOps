@@ -119,7 +119,7 @@ export function MaintenanceScheduling() {
 
   const getPriorityColor = (priority: MaintenanceSchedule["priority"]) => {
     const colors: Record<MaintenanceSchedule["priority"], string> = {
-      low: "bg-white/[0.05] text-white/40",
+      low: "bg-white/[0.05] text-[var(--text-tertiary)]",
       medium: "bg-emerald-500/10 text-emerald-700",
       high: "bg-orange-100 text-orange-700",
       urgent: "bg-red-100 text-red-700"

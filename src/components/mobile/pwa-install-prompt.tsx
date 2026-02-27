@@ -93,7 +93,7 @@ export function PWAInstallPrompt() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[9998] bg-[#111111] text-white border-t border-white/[0.04]"
+      className="fixed bottom-0 left-0 right-0 z-[9998] bg-[var(--surface-2)] text-white border-t border-[var(--border-subtle)]"
       role="dialog"
       aria-labelledby="pwa-install-title"
       aria-describedby="pwa-install-description"
@@ -127,7 +127,7 @@ export function PWAInstallPrompt() {
 
               <button
                 onClick={handleDismiss}
-                className="px-2 py-2 text-white hover:bg-white/10 rounded-lg font-medium transition-colors text-sm md:text-base"
+                className="px-2 py-2 text-white hover:bg-[var(--surface-glass-hover)] rounded-lg font-medium transition-colors text-sm md:text-base"
               >
                 Maybe Later
               </button>
@@ -136,7 +136,7 @@ export function PWAInstallPrompt() {
 
           <button
             onClick={handleDismiss}
-            className="flex-shrink-0 p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="flex-shrink-0 p-2 hover:bg-[var(--surface-glass-hover)] rounded-lg transition-colors"
             aria-label="Close install prompt"
           >
             <X className="w-3 h-3" aria-hidden="true" />
@@ -146,7 +146,7 @@ export function PWAInstallPrompt() {
 
       {/* iOS Instructions Visual */}
       {isIOS && (
-        <div className="border-t border-white/[0.04] bg-white/[0.03] px-2 py-3">
+        <div className="border-t border-[var(--border-subtle)] bg-white/[0.03] px-2 py-3">
           <div className="flex items-center gap-3 text-xs md:text-sm">
             <span>Tap</span>
             <div className="p-1.5 bg-white/20 rounded">

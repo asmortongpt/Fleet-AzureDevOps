@@ -132,7 +132,7 @@ function DocumentCard({ document, isSelected, onSelect, onOpen }: DocumentCardPr
   return (
     <div
       className={`
-        group relative rounded-lg border border-white/[0.04] bg-[#111111] overflow-hidden
+        group relative rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] overflow-hidden
         transition-all duration-200 cursor-pointer
         hover:scale-[1.02]
         ${isSelected ? 'ring-2 ring-emerald-500' : ''}
@@ -162,7 +162,7 @@ function DocumentCard({ document, isSelected, onSelect, onOpen }: DocumentCardPr
           checked={isSelected}
           onCheckedChange={onSelect}
           aria-label={`Select ${document.name}`}
-          className="bg-[#0a0a0a]/80"
+          className="bg-[var(--surface-0)]/80"
         />
       </div>
 
@@ -179,7 +179,7 @@ function DocumentCard({ document, isSelected, onSelect, onOpen }: DocumentCardPr
             <Button
               variant="secondary"
               size="icon"
-              className="h-8 w-8 bg-[#0a0a0a]/80"
+              className="h-8 w-8 bg-[var(--surface-0)]/80"
               aria-label={`Actions for ${document.name}`}
             >
               <MoreVertical className="h-4 w-4" />
@@ -255,7 +255,7 @@ function DocumentCard({ document, isSelected, onSelect, onOpen }: DocumentCardPr
         </h3>
 
         {/* Metadata */}
-        <div className="flex items-center gap-2 text-xs text-white/35">
+        <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
           <span>{formatFileSize(document.size)}</span>
           <span>•</span>
           <span>{formatRelativeTime(document.createdAt)}</span>
@@ -304,7 +304,7 @@ function DocumentGridSkeleton() {
   return (
     <div className="p-2 grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-2">
       {Array.from({ length: 12 }).map((_, i) => (
-        <div key={i} className="rounded-lg border border-white/[0.04] bg-[#111111] overflow-hidden">
+        <div key={i} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] overflow-hidden">
           <Skeleton className="aspect-[4/3] w-full" />
           <div className="p-3 space-y-2">
             <Skeleton className="h-4 w-full" />
@@ -324,10 +324,10 @@ function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center p-3">
       <div className="w-24 h-24 rounded-full bg-white/[0.03] flex items-center justify-center mb-2">
-        <Eye className="w-12 h-9 text-white/35" />
+        <Eye className="w-12 h-9 text-[var(--text-tertiary)]" />
       </div>
       <h3 className="text-sm font-semibold text-white mb-2">No documents found</h3>
-      <p className="text-white/35 max-w-sm mb-3">
+      <p className="text-[var(--text-tertiary)] max-w-sm mb-3">
         Upload your first document to get started, or adjust your search filters.
       </p>
       <Button>

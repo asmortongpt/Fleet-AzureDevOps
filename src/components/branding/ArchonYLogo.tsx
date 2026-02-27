@@ -120,7 +120,7 @@ export function CTAFleetLogo({
       <span className="text-2xl font-black tracking-tight text-white">
         CTA FLEET
       </span>
-      <span className="text-xs font-light tracking-wider text-white/60">
+      <span className="text-xs font-light tracking-wider text-[var(--text-secondary)]">
         CAPITAL TECHNOLOGY ALLIANCE
       </span>
     </motion.div>

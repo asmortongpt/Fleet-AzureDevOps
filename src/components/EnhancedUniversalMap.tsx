@@ -306,7 +306,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
                 key={provider}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs ${
                   isActive
-                    ? 'bg-white dark:bg-[#18181b]'
+                    ? 'bg-white dark:bg-[var(--surface-3)]'
                     : 'bg-white/[0.05] dark:bg-[#111113] opacity-60'
                 }`}
               >
@@ -318,7 +318,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
                   {provider === 'google' ? 'Google' : 'OSM'}
                 </span>
                 {stats && (
-                  <span className="text-white/40 dark:text-white/40">
+                  <span className="text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
                     {Math.round(stats.averageResponseTime)}ms
                   </span>
                 )}
@@ -335,7 +335,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
           <Card>
             <CardContent className="py-3 px-2">
               <div className="flex items-center gap-3">
-                <div className="text-sm text-white/40 dark:text-white/60">
+                <div className="text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]">
                   Map service issue detected
                 </div>
                 <div className="flex gap-2">

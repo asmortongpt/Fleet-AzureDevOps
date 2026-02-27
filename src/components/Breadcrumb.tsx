@@ -19,7 +19,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
           <li key={item.label} className="inline-flex items-center">
             {index > 0 && (
               <svg
-                className="w-4 h-4 text-white/40"
+                className="w-4 h-4 text-[var(--text-tertiary)]"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -33,12 +33,12 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
             {item.href && index < items.length - 1 ? (
               <Link
                 to={item.href}
-                className="inline-flex items-center text-sm font-medium text-white/40 hover:text-emerald-800"
+                className="inline-flex items-center text-sm font-medium text-[var(--text-tertiary)] hover:text-emerald-800"
               >
                 {item.label}
               </Link>
             ) : (
-              <span className="inline-flex items-center text-sm font-medium text-white/40">
+              <span className="inline-flex items-center text-sm font-medium text-[var(--text-tertiary)]">
                 {item.label}
               </span>
             )}

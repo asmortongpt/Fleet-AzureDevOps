@@ -392,7 +392,7 @@ export function EVChargingManagement() {
   const getStatusColor = (status: ChargingStation["status"]) => {
     const colors = {
       online: "bg-green-100 text-green-700",
-      offline: "bg-white/[0.05] text-white/40",
+      offline: "bg-white/[0.05] text-[var(--text-tertiary)]",
       maintenance: "bg-yellow-100 text-yellow-700"
     }
     return colors[status]

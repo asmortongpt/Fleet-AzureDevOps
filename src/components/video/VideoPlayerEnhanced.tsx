@@ -401,7 +401,7 @@ export default function VideoPlayerEnhanced({
 
         {/* Event Timeline Below Video */}
         {events.length > 0 && (
-          <div className="p-2 border-t border-white/[0.04]">
+          <div className="p-2 border-t border-[var(--border-subtle)]">
             <h4 className="font-semibold mb-3 text-white">Safety Events in Video</h4>
             <div className="space-y-2">
               {events.map((event) => (
@@ -416,12 +416,12 @@ export default function VideoPlayerEnhanced({
                     </Badge>
                     <div>
                       <div className="font-medium">{event.eventType}</div>
-                      <div className="text-sm text-white/60">
+                      <div className="text-sm text-[var(--text-secondary)]">
                         {event.description}
                       </div>
                     </div>
                   </div>
-                  <div className="text-sm text-white/60">
+                  <div className="text-sm text-[var(--text-secondary)]">
                     {formatTime(event.timestamp)}
                   </div>
                 </div>

@@ -44,7 +44,7 @@ export function RouteGuard({
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600"></div>
-        <span className="ml-3 text-white/70">Checking permissions...</span>
+        <span className="ml-3 text-[var(--text-primary)]">Checking permissions...</span>
       </div>
     );
   }

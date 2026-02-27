@@ -157,12 +157,12 @@ export function MaintenanceManagerDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#111] p-2">
+    <div className="min-h-screen bg-[var(--surface-2)] p-2">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h1 className="text-sm font-bold text-white mb-1">Maintenance Dashboard</h1>
-          <p className="text-sm text-white/40">Work Order Management & Preventive Maintenance</p>
+          <p className="text-sm text-[var(--text-tertiary)]">Work Order Management & Preventive Maintenance</p>
         </div>
         <Button size="sm"
           onClick={handleViewCalendar}
@@ -175,7 +175,7 @@ export function MaintenanceManagerDashboard() {
       </div>
 
       {/* Work Queue Summary */}
-      <Card className="bg-[#111111] border-amber-500/30 p-2 mb-3">
+      <Card className="bg-[var(--surface-2)] border-amber-500/30 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <Wrench className="w-4 h-4 text-amber-400" />
           <h2 className="text-sm font-bold text-white">Work Queue</h2>
@@ -206,7 +206,7 @@ export function MaintenanceManagerDashboard() {
 
           {/* In Progress */}
           <div
-            className="bg-white/[0.04] rounded-md p-2 border border-white/[0.04] hover:border-white/[0.12] transition-all"
+            className="bg-white/[0.04] rounded-md p-2 border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all"
           >
             <div className="flex items-start justify-between mb-2">
               <Wrench className="w-4 h-4 text-emerald-400" />
@@ -268,7 +268,7 @@ export function MaintenanceManagerDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Overdue Maintenance */}
-        <Card className="bg-[#111111] border-white/[0.04] p-2">
+        <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-red-400" />
@@ -289,7 +289,7 @@ export function MaintenanceManagerDashboard() {
                     <Car className="w-4 h-4 text-red-400" />
                     <div>
                       <p className="font-bold text-white">{item.vehicle_name}</p>
-                      <p className="text-sm text-white/60">{item.maintenance_type}</p>
+                      <p className="text-sm text-[var(--text-secondary)]">{item.maintenance_type}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -315,7 +315,7 @@ export function MaintenanceManagerDashboard() {
         {/* Upcoming Maintenance & Parts Inventory */}
         <div className="space-y-2">
           {/* Upcoming Maintenance */}
-          <Card className="bg-[#111111] border-white/[0.04] p-2">
+          <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)] p-2">
             <div className="flex items-center gap-2 mb-3">
               <Calendar className="w-4 h-4 text-emerald-400" />
               <h2 className="text-sm font-bold text-white">Upcoming Maintenance (Next 7 Days)</h2>
@@ -325,7 +325,7 @@ export function MaintenanceManagerDashboard() {
               {upcomingSchedule.map((schedule) => (
                 <div
                   key={schedule.date}
-                  className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]"
+                  className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-[var(--border-subtle)]"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-9 bg-emerald-950/50 rounded-lg flex items-center justify-center border border-emerald-500/30">
@@ -333,7 +333,7 @@ export function MaintenanceManagerDashboard() {
                     </div>
                     <div>
                       <p className="font-bold text-white">{schedule.date}</p>
-                      <p className="text-sm text-white/40">{schedule.count} vehicles scheduled</p>
+                      <p className="text-sm text-[var(--text-tertiary)]">{schedule.count} vehicles scheduled</p>
                     </div>
                   </div>
                   <Button size="sm"
@@ -356,7 +356,7 @@ export function MaintenanceManagerDashboard() {
           </Card>
 
           {/* Parts Inventory Status */}
-          <Card className="bg-[#111111] border-white/[0.04] p-2">
+          <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)] p-2">
             <div className="flex items-center gap-2 mb-3">
               <Package className="w-4 h-4 text-amber-400" />
               <h2 className="text-sm font-bold text-white">Parts Inventory Status</h2>
@@ -369,14 +369,14 @@ export function MaintenanceManagerDashboard() {
                   "rounded-lg p-2 border transition-all cursor-pointer",
                   partsInventory.below_reorder > 0
                     ? "bg-amber-950/30 border-amber-500/30 hover:border-amber-400/50"
-                    : "bg-white/[0.03] border-white/[0.04]"
+                    : "bg-white/[0.03] border-[var(--border-subtle)]"
                 )}
                 onClick={handleReorderParts}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-400" />
-                    <span className="text-sm text-white/60">Below Reorder Level</span>
+                    <span className="text-sm text-[var(--text-secondary)]">Below Reorder Level</span>
                   </div>
                   <span className="text-sm font-bold text-white">
                     {partsInventory.below_reorder}
@@ -400,7 +400,7 @@ export function MaintenanceManagerDashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-white/60">In Stock</span>
+                    <span className="text-sm text-[var(--text-secondary)]">In Stock</span>
                   </div>
                   <span className="text-sm font-bold text-white">
                     {partsInventory.in_stock}
@@ -409,9 +409,9 @@ export function MaintenanceManagerDashboard() {
               </div>
 
               {/* Total Items */}
-              <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
+              <div className="bg-white/[0.03] rounded-lg p-3 border border-[var(--border-subtle)]">
                 <div className="flex items-center justify-between">
-                  <span className="text-white/40 text-sm">Total Inventory Items</span>
+                  <span className="text-[var(--text-tertiary)] text-sm">Total Inventory Items</span>
                   <span className="text-sm font-bold text-white">
                     {partsInventory.total_items}
                   </span>

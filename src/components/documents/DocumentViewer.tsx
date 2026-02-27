@@ -149,8 +149,8 @@ export function DocumentViewer({
               className="w-full flex-1 border-0"
               title={`Preview: ${document.name}`}
             />
-            <div className="p-3 border-t border-white/[0.04] bg-[#0e0e0e] flex items-center justify-between">
-              <span className="text-sm text-white/35">
+            <div className="p-3 border-t border-[var(--border-subtle)] bg-[var(--surface-1)] flex items-center justify-between">
+              <span className="text-sm text-[var(--text-tertiary)]">
                 Powered by Microsoft Office Online
               </span>
               <Button variant="outline" size="sm" onClick={handleDownload}>
@@ -165,7 +165,7 @@ export function DocumentViewer({
         return (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <p className="text-white/35 mb-2">
+              <p className="text-[var(--text-tertiary)] mb-2">
                 Preview not available for this file type
               </p>
               <Button onClick={handleDownload}>
@@ -181,10 +181,10 @@ export function DocumentViewer({
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent
-        className={`max-w-7xl h-[90vh] p-0 bg-[#0a0a0a] border-white/[0.04] ${isFullscreen ? 'max-w-full h-screen' : ''}`}
+        className={`max-w-7xl h-[90vh] p-0 bg-[var(--surface-0)] border-[var(--border-subtle)] ${isFullscreen ? 'max-w-full h-screen' : ''}`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b border-white/[0.04] bg-[#0e0e0e]">
+        <div className="flex items-center justify-between p-2 border-b border-[var(--border-subtle)] bg-[var(--surface-1)]">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             {/* Navigation */}
             {(onPrevious || onNext) && (
@@ -213,7 +213,7 @@ export function DocumentViewer({
             {/* Document info */}
             <div className="min-w-0 flex-1">
               <h2 className="font-semibold truncate">{document.name}</h2>
-              <div className="flex items-center gap-2 text-xs text-white/35">
+              <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
                 <Badge variant="outline">{document.type}</Badge>
                 <span>{formatFileSize(document.size)}</span>
                 <span>•</span>
@@ -331,7 +331,7 @@ export function DocumentViewer({
 
         {/* Page indicator for PDFs */}
         {document.type === 'pdf' && document.pageCount && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#0a0a0a]/95 backdrop-blur-sm border border-white/[0.04] rounded-full px-2 py-2">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[var(--surface-0)]/95 backdrop-blur-sm border border-[var(--border-subtle)] rounded-full px-2 py-2">
             <span className="text-sm font-medium text-white">
               Page {viewerState.currentPage} of {document.pageCount}
             </span>

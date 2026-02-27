@@ -140,7 +140,7 @@ export function OSHAComplianceDashboard() {
 
     const getTRIRStatus = (trir: number | null) => {
         // Industry average for warehousing is around 4.5-5.5
-        if (trir === null) return { label: '—', color: 'text-white/40', variant: 'outline' as const }
+        if (trir === null) return { label: '—', color: 'text-[var(--text-tertiary)]', variant: 'outline' as const }
         if (trir < 3.0) return { label: 'Excellent', color: 'text-green-400', variant: 'default' as const }
         if (trir < 5.0) return { label: 'Good', color: 'text-emerald-400', variant: 'secondary' as const }
         if (trir < 7.0) return { label: 'Fair', color: 'text-yellow-400', variant: 'secondary' as const }
@@ -221,7 +221,7 @@ export function OSHAComplianceDashboard() {
                         <ShieldCheck className="w-4 h-4" />
                         OSHA Compliance Dashboard
                     </h2>
-                    <p className="text-white/40 mt-1">OSHA 300 Log and regulatory compliance metrics</p>
+                    <p className="text-[var(--text-tertiary)] mt-1">OSHA 300 Log and regulatory compliance metrics</p>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" className="gap-2" onClick={handleDownloadOSHA300}>
@@ -237,13 +237,13 @@ export function OSHAComplianceDashboard() {
 
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/60 flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
                             <Clipboard className="w-4 h-4" />
                             TRIR
                         </CardTitle>
-                        <CardDescription className="text-xs text-white/40">
+                        <CardDescription className="text-xs text-[var(--text-tertiary)]">
                             Total Recordable Incident Rate
                         </CardDescription>
                     </CardHeader>
@@ -254,23 +254,23 @@ export function OSHAComplianceDashboard() {
                                 {trirStatus.label}
                             </Badge>
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-white/40">
+                        <div className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
                             <TrendingDown className="w-3 h-3 text-green-400" />
                             <span>YoY trend requires labor-hours source</span>
                         </div>
-                        <p className="text-xs text-white/40 mt-2">
+                        <p className="text-xs text-[var(--text-tertiary)] mt-2">
                             Industry avg: 4.5-5.5
                         </p>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/60 flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
                             <FirstAid className="w-4 h-4" />
                             DART Rate
                         </CardTitle>
-                        <CardDescription className="text-xs text-white/40">
+                        <CardDescription className="text-xs text-[var(--text-tertiary)]">
                             Days Away, Restricted, or Transferred
                         </CardDescription>
                     </CardHeader>
@@ -278,23 +278,23 @@ export function OSHAComplianceDashboard() {
                         <div className="flex items-baseline gap-2 mb-2">
                             <span className="text-base font-bold text-white">{metrics.dart_rate ?? '—'}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-white/40">
+                        <div className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
                             <TrendingDown className="w-3 h-3 text-green-400" />
                             <span>YoY trend requires labor-hours source</span>
                         </div>
-                        <p className="text-xs text-white/40 mt-2">
+                        <p className="text-xs text-[var(--text-tertiary)] mt-2">
                             Target: &lt; 2.5
                         </p>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/60 flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
                             <ShieldCheck className="w-4 h-4" />
                             Compliance Score
                         </CardTitle>
-                        <CardDescription className="text-xs text-white/40">
+                        <CardDescription className="text-xs text-[var(--text-tertiary)]">
                             Overall OSHA Compliance
                         </CardDescription>
                     </CardHeader>
@@ -305,20 +305,20 @@ export function OSHAComplianceDashboard() {
                             </span>
                         </div>
                         <Progress value={metrics.compliance_score || 0} className="h-2 mb-2" />
-                        <div className="flex items-center gap-1 text-xs text-white/40">
+                        <div className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
                             <TrendingUp className="w-3 h-3 text-green-400" />
                             <span>Compliance scoring requires an audit/rubric source</span>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/60 flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
                             <AlertTriangle className="w-4 h-4" />
                             Recordable Incidents
                         </CardTitle>
-                        <CardDescription className="text-xs text-white/40">
+                        <CardDescription className="text-xs text-[var(--text-tertiary)]">
                             Current Year Total
                         </CardDescription>
                     </CardHeader>
@@ -326,7 +326,7 @@ export function OSHAComplianceDashboard() {
                         <div className="flex items-baseline gap-2 mb-2">
                             <span className="text-base font-bold text-white">{metrics.total_recordable_incidents}</span>
                         </div>
-                        <div className="text-xs text-white/40 space-y-1">
+                        <div className="text-xs text-[var(--text-tertiary)] space-y-1">
                             <div>Lost Time: {entries.filter(e => e.days_away_from_work > 0).length}</div>
                             <div>Restricted: {entries.filter(e => e.days_job_transfer_restriction > 0).length}</div>
                         </div>
@@ -335,7 +335,7 @@ export function OSHAComplianceDashboard() {
             </div>
 
             {/* OSHA 300 Log Table */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
@@ -343,7 +343,7 @@ export function OSHAComplianceDashboard() {
                                 <FileText className="w-3 h-3" />
                                 OSHA 300 Log - Year {new Date().getFullYear()}
                             </CardTitle>
-                            <CardDescription className="text-white/40 mt-1">
+                            <CardDescription className="text-[var(--text-tertiary)] mt-1">
                                 Log of work-related injuries and illnesses (29 CFR 1904)
                             </CardDescription>
                         </div>
@@ -357,41 +357,41 @@ export function OSHAComplianceDashboard() {
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-white/[0.04] hover:bg-[#111111]">
-                                    <TableHead className="text-white/80">Case #</TableHead>
-                                    <TableHead className="text-white/80">Employee</TableHead>
-                                    <TableHead className="text-white/80">Job Title</TableHead>
-                                    <TableHead className="text-white/80">Date</TableHead>
-                                    <TableHead className="text-white/80">Location</TableHead>
-                                    <TableHead className="text-white/80">Injury/Illness</TableHead>
-                                    <TableHead className="text-white/80">Body Part</TableHead>
-                                    <TableHead className="text-white/80">Classification</TableHead>
-                                    <TableHead className="text-white/80 text-center">Days Away</TableHead>
-                                    <TableHead className="text-white/80 text-center">Days Restricted</TableHead>
+                                <TableRow className="border-[var(--border-subtle)] hover:bg-[var(--surface-2)]">
+                                    <TableHead className="text-[var(--text-primary)]">Case #</TableHead>
+                                    <TableHead className="text-[var(--text-primary)]">Employee</TableHead>
+                                    <TableHead className="text-[var(--text-primary)]">Job Title</TableHead>
+                                    <TableHead className="text-[var(--text-primary)]">Date</TableHead>
+                                    <TableHead className="text-[var(--text-primary)]">Location</TableHead>
+                                    <TableHead className="text-[var(--text-primary)]">Injury/Illness</TableHead>
+                                    <TableHead className="text-[var(--text-primary)]">Body Part</TableHead>
+                                    <TableHead className="text-[var(--text-primary)]">Classification</TableHead>
+                                    <TableHead className="text-[var(--text-primary)] text-center">Days Away</TableHead>
+                                    <TableHead className="text-[var(--text-primary)] text-center">Days Restricted</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {entries.map((entry) => (
-                                    <TableRow key={entry.id} className="border-white/[0.04] hover:bg-[#1a1a1a]/30">
+                                    <TableRow key={entry.id} className="border-[var(--border-subtle)] hover:bg-[var(--surface-3)]/30">
                                         <TableCell className="font-medium text-white">
                                             {entry.case_number}
                                         </TableCell>
-                                        <TableCell className="text-white/80">
+                                        <TableCell className="text-[var(--text-primary)]">
                                             {entry.employee_name}
                                         </TableCell>
-                                        <TableCell className="text-white/80">
+                                        <TableCell className="text-[var(--text-primary)]">
                                             {entry.job_title}
                                         </TableCell>
-                                        <TableCell className="text-white/80">
+                                        <TableCell className="text-[var(--text-primary)]">
                                             {formatDate(entry.incident_date)}
                                         </TableCell>
-                                        <TableCell className="text-white/80">
+                                        <TableCell className="text-[var(--text-primary)]">
                                             {entry.location}
                                         </TableCell>
-                                        <TableCell className="text-white/80">
+                                        <TableCell className="text-[var(--text-primary)]">
                                             {entry.injury_type}
                                         </TableCell>
-                                        <TableCell className="text-white/80">
+                                        <TableCell className="text-[var(--text-primary)]">
                                             {entry.body_part}
                                         </TableCell>
                                         <TableCell>
@@ -399,10 +399,10 @@ export function OSHAComplianceDashboard() {
                                                 {getInjuryClassification(entry)}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-center text-white/80">
+                                        <TableCell className="text-center text-[var(--text-primary)]">
                                             {entry.days_away_from_work || '-'}
                                         </TableCell>
-                                        <TableCell className="text-center text-white/80">
+                                        <TableCell className="text-center text-[var(--text-primary)]">
                                             {entry.days_job_transfer_restriction || '-'}
                                         </TableCell>
                                     </TableRow>
@@ -415,11 +415,11 @@ export function OSHAComplianceDashboard() {
 
             {/* Compliance Requirements */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                     <CardHeader>
                         <CardTitle className="text-white text-sm">OSHA Recordkeeping Requirements</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-2 text-sm text-white/80">
+                    <CardContent className="space-y-2 text-sm text-[var(--text-primary)]">
                         <div className="flex items-start gap-2">
                             <ShieldCheck className="w-4 h-4 mt-0.5 text-green-400" />
                             <span>Maintain OSHA 300 Log for 5 years</span>
@@ -443,29 +443,29 @@ export function OSHAComplianceDashboard() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                     <CardHeader>
                         <CardTitle className="text-white text-sm">Upcoming Deadlines</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <div className="flex items-center justify-between p-3 bg-[#1a1a1a]/30 rounded">
+                        <div className="flex items-center justify-between p-3 bg-[var(--surface-3)]/30 rounded">
                             <div>
-                                <div className="text-white/80 font-medium">OSHA 300A Summary Posting</div>
-                                <div className="text-xs text-white/40">Annual summary for current year</div>
+                                <div className="text-[var(--text-primary)] font-medium">OSHA 300A Summary Posting</div>
+                                <div className="text-xs text-[var(--text-tertiary)]">Annual summary for current year</div>
                             </div>
                             <Badge variant="secondary">Feb 1, 2025</Badge>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-[#1a1a1a]/30 rounded">
+                        <div className="flex items-center justify-between p-3 bg-[var(--surface-3)]/30 rounded">
                             <div>
-                                <div className="text-white/80 font-medium">Electronic Submission</div>
-                                <div className="text-xs text-white/40">Submit to OSHA Injury Tracking Application</div>
+                                <div className="text-[var(--text-primary)] font-medium">Electronic Submission</div>
+                                <div className="text-xs text-[var(--text-tertiary)]">Submit to OSHA Injury Tracking Application</div>
                             </div>
                             <Badge variant="secondary">Mar 2, 2025</Badge>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-[#1a1a1a]/30 rounded">
+                        <div className="flex items-center justify-between p-3 bg-[var(--surface-3)]/30 rounded">
                             <div>
-                                <div className="text-white/80 font-medium">Annual Safety Review</div>
-                                <div className="text-xs text-white/40">Management review of safety program</div>
+                                <div className="text-[var(--text-primary)] font-medium">Annual Safety Review</div>
+                                <div className="text-xs text-[var(--text-tertiary)]">Management review of safety program</div>
                             </div>
                             <Badge variant="secondary">Jan 15, 2025</Badge>
                         </div>

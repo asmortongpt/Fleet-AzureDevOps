@@ -156,7 +156,7 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
         <div className="p-2 space-y-2">
           {/* Preset ranges */}
           <div>
-            <h4 className="text-sm font-medium mb-2 text-white/40">Quick Select</h4>
+            <h4 className="text-sm font-medium mb-2 text-[var(--text-tertiary)]">Quick Select</h4>
             <div className="grid grid-cols-2 gap-2">
               {PRESETS.map((preset) => (
                 <Button
@@ -174,10 +174,10 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
 
           {/* Custom range */}
           <div className="border-t pt-2">
-            <h4 className="text-sm font-medium mb-2 text-white/40">Custom Range</h4>
+            <h4 className="text-sm font-medium mb-2 text-[var(--text-tertiary)]">Custom Range</h4>
             <div className="space-y-2">
               <div>
-                <label htmlFor="custom-start" className="block text-xs text-white/70 mb-1">
+                <label htmlFor="custom-start" className="block text-xs text-[var(--text-primary)] mb-1">
                   Start Date
                 </label>
                 <input
@@ -185,11 +185,11 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
                   type="date"
                   value={customStart}
                   onChange={(e) => setCustomStart(e.target.value)}
-                  className="w-full px-3 py-2 border border-white/[0.08] rounded-md text-sm"
+                  className="w-full px-3 py-2 border border-[var(--border-default)] rounded-md text-sm"
                 />
               </div>
               <div>
-                <label htmlFor="custom-end" className="block text-xs text-white/70 mb-1">
+                <label htmlFor="custom-end" className="block text-xs text-[var(--text-primary)] mb-1">
                   End Date
                 </label>
                 <input
@@ -198,7 +198,7 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
                   value={customEnd}
                   onChange={(e) => setCustomEnd(e.target.value)}
                   min={customStart}
-                  className="w-full px-3 py-2 border border-white/[0.08] rounded-md text-sm"
+                  className="w-full px-3 py-2 border border-[var(--border-default)] rounded-md text-sm"
                 />
               </div>
               <Button

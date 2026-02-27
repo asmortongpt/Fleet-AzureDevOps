@@ -167,7 +167,7 @@ export function DocumentScanner({
         <CardContent className="p-3">
           <div
             className={`border-2 border-dashed rounded-lg p-3 text-center transition-colors ${
-              isDragging ? 'border-primary bg-primary/5' : 'border-white/[0.08]'
+              isDragging ? 'border-primary bg-primary/5' : 'border-[var(--border-default)]'
             }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -182,7 +182,7 @@ export function DocumentScanner({
               className="hidden"
             />
 
-            <Upload className="w-12 h-9 mx-auto mb-2 text-white/40" />
+            <Upload className="w-12 h-9 mx-auto mb-2 text-[var(--text-tertiary)]" />
 
             <h3 className="text-sm font-semibold mb-2">
               Upload {documentType ? documentType.replace('_', ' ') : 'Document'}

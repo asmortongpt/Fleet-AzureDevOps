@@ -215,7 +215,7 @@ export function FuelPurchasing() {
           <Fuel className="h-8 w-8 text-emerald-400" />
           Fuel Purchasing Intelligence
         </h1>
-        <p className="text-white/40 mt-2" style={{ color: brandColors.archon.mediumGray }}>
+        <p className="text-[var(--text-tertiary)] mt-2" style={{ color: brandColors.archon.mediumGray }}>
           Real-time pricing, predictive analytics, and optimization for smart fuel purchasing
         </p>
       </div>
@@ -292,28 +292,28 @@ export function FuelPurchasing() {
                   <Badge variant="secondary" className="uppercase">
                     {purchaseRecommendation.recommendation.replace('_', ' ')}
                   </Badge>
-                  <span className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+                  <span className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
                     {purchaseRecommendation.confidence}% confidence
                   </span>
                 </div>
                 <p className="text-sm mb-3">{purchaseRecommendation.reasoning}</p>
                 <div className="grid grid-cols-4 gap-2">
                   <div>
-                    <div className="text-xs text-white/40">Current Price</div>
+                    <div className="text-xs text-[var(--text-tertiary)]">Current Price</div>
                     <div className="font-semibold">{formatPrice(purchaseRecommendation.currentPrice)}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-white/40">Forecasted Price</div>
+                    <div className="text-xs text-[var(--text-tertiary)]">Forecasted Price</div>
                     <div className="font-semibold">{formatPrice(purchaseRecommendation.forecastedPrice)}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-white/40">Expected Savings</div>
+                    <div className="text-xs text-[var(--text-tertiary)]">Expected Savings</div>
                     <div className="font-semibold text-green-600">
                       {formatCurrency(purchaseRecommendation.expectedSavings)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-white/40">Optimal Date</div>
+                    <div className="text-xs text-[var(--text-tertiary)]">Optimal Date</div>
                     <div className="font-semibold">{purchaseRecommendation.optimalPurchaseDate}</div>
                   </div>
                 </div>
@@ -417,7 +417,7 @@ export function FuelPurchasing() {
                       <TableRow key={station.id}>
                         <TableCell>
                           <div className="font-medium">{station.stationName}</div>
-                          <div className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{station.brand}</div>
+                          <div className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>{station.brand}</div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
@@ -451,7 +451,7 @@ export function FuelPurchasing() {
                   </TableBody>
                 </Table>
               ) : (
-                <div className="text-center py-3 text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+                <div className="text-center py-3 text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
                   No stations found. Try adjusting your search criteria.
                 </div>
               )}

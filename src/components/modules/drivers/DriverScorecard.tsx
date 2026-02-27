@@ -133,7 +133,7 @@ export function DriverScorecard() {
   const getTrendIcon = (trend: string) => {
     if (trend === 'improving') return <TrendingUp className="h-4 w-4 text-green-500" />
     if (trend === 'declining') return <TrendingDown className="h-4 w-4 text-red-500" />
-    return <Minus className="h-4 w-4 text-white/35" />
+    return <Minus className="h-4 w-4 text-[var(--text-tertiary)]" />
   }
 
   const getScoreColor = (score: number) => {
@@ -200,12 +200,12 @@ export function DriverScorecard() {
             <div className="grid grid-cols-3 gap-2 mb-3">
               {/* 2nd Place */}
               <Card
-                className="border border-white/[0.04] cursor-pointer hover:bg-[#161616] transition-all"
+                className="border border-[var(--border-subtle)] cursor-pointer hover:bg-[#161616] transition-all"
                 onClick={() => leaderboard[1] && handleDriverDrilldown(leaderboard[1])}
               >
                 <CardHeader className="text-center pb-3">
                   <div className="flex justify-center mb-2">
-                    <Medal className="h-9 w-12 text-white/60" />
+                    <Medal className="h-9 w-12 text-[var(--text-secondary)]" />
                   </div>
                   <CardTitle className="text-sm">{leaderboard[1]?.driverName}</CardTitle>
                   <CardDescription>2nd Place</CardDescription>
@@ -423,8 +423,8 @@ export function DriverScorecard() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-3 text-white/35">
-                      <Target className="h-9 w-12 mx-auto mb-3 text-white/35" />
+                    <div className="text-center py-3 text-[var(--text-tertiary)]">
+                      <Target className="h-9 w-12 mx-auto mb-3 text-[var(--text-tertiary)]" />
                       <p>No achievements earned yet. Keep driving safely!</p>
                     </div>
                   )}

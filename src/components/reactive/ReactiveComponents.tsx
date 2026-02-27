@@ -92,7 +92,7 @@ export function ReactiveMetricCard({
   const trendColors: Record<string, string> = {
     up: 'text-green-600 dark:text-green-400',
     down: 'text-red-600 dark:text-red-400',
-    neutral: 'text-white/70 dark:text-white/40',
+    neutral: 'text-[var(--text-primary)] dark:text-[var(--text-tertiary)]',
   }
 
   return (
@@ -187,7 +187,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center p-12 text-white/40 dark:text-white/40">
+      <div className="flex items-center justify-center p-12 text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
         {emptyMessage}
       </div>
     )
@@ -196,13 +196,13 @@ export function ReactiveDataTable<T extends Record<string, any>>({
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
-        <thead className="bg-white/[0.03] dark:bg-[#18181b] border-b border-white/[0.08] dark:border-white/[0.08]">
+        <thead className="bg-white/[0.03] dark:bg-[var(--surface-3)] border-b border-[var(--border-default)] dark:border-[var(--border-default)]">
           <tr>
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`px-3 py-3 text-left text-xs font-medium text-white/40 dark:text-white/40 uppercase tracking-wider ${
-                  column.sortable ? 'cursor-pointer hover:bg-white/[0.05] dark:hover:bg-white/[0.08]' : ''
+                className={`px-3 py-3 text-left text-xs font-medium text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] uppercase tracking-wider ${
+                  column.sortable ? 'cursor-pointer hover:bg-white/[0.05] dark:hover:bg-[var(--surface-glass-hover)]' : ''
                 }`}
                 onClick={() => column.sortable && handleSort(column.key)}
               >
@@ -222,7 +222,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
               key={String(item[keyField])}
               className={`${
                 onRowClick
-                  ? 'cursor-pointer hover:bg-white/[0.03] dark:hover:bg-[#18181b]'
+                  ? 'cursor-pointer hover:bg-white/[0.03] dark:hover:bg-[var(--surface-3)]'
                   : ''
               }`}
               onClick={() => onRowClick?.(item)}
@@ -284,14 +284,14 @@ export function RealtimeAlertsFeed() {
             <div className="flex gap-2">
               <button
                 onClick={() => acknowledgeAlert(alert.id)}
-                className="text-xs px-3 py-1 rounded bg-white dark:bg-[#18181b] hover:bg-white/[0.05] dark:hover:bg-white/[0.08]"
+                className="text-xs px-3 py-1 rounded bg-white dark:bg-[var(--surface-3)] hover:bg-white/[0.05] dark:hover:bg-[var(--surface-glass-hover)]"
                 aria-label="Acknowledge alert"
               >
                 ✓
               </button>
               <button
                 onClick={() => removeAlert(alert.id)}
-                className="text-xs px-3 py-1 rounded bg-white dark:bg-[#18181b] hover:bg-white/[0.05] dark:hover:bg-white/[0.08]"
+                className="text-xs px-3 py-1 rounded bg-white dark:bg-[var(--surface-3)] hover:bg-white/[0.05] dark:hover:bg-[var(--surface-glass-hover)]"
                 aria-label="Dismiss alert"
               >
                 ✕
@@ -302,7 +302,7 @@ export function RealtimeAlertsFeed() {
       ))}
 
       {alerts.length === 0 && (
-        <div className="text-center py-3 text-white/40 dark:text-white/40">
+        <div className="text-center py-3 text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
           No active alerts
         </div>
       )}
@@ -413,7 +413,7 @@ export function LiveVehicleList({ onVehicleClick }: { onVehicleClick?: (vehicle:
           active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
           maintenance: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
           offline: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-          retired: 'bg-white/[0.05] text-white/60 dark:bg-[#111113] dark:text-white/80',
+          retired: 'bg-white/[0.05] text-[var(--text-secondary)] dark:bg-[#111113] dark:text-[var(--text-primary)]',
         }
 
         return (

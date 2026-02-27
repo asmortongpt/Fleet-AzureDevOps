@@ -171,7 +171,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
       >
         {getStatusIcon()}
         {isExpanded && (
-          <span className="text-sm font-medium text-white/40">{getStatusText()}</span>
+          <span className="text-sm font-medium text-[var(--text-tertiary)]">{getStatusText()}</span>
         )}
       </button>
     );
@@ -190,9 +190,9 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           <div className="flex items-center space-x-3">
             {getStatusIcon()}
             <div>
-              <p className="text-sm font-medium text-white/60">{getStatusText()}</p>
+              <p className="text-sm font-medium text-[var(--text-secondary)]">{getStatusText()}</p>
               {syncStatus?.message && (
-                <p className="text-xs text-white/70">{syncStatus.message}</p>
+                <p className="text-xs text-[var(--text-primary)]">{syncStatus.message}</p>
               )}
             </div>
           </div>
@@ -201,7 +201,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           <div className="flex items-center space-x-2">
             {showDetails && pendingCount > 0 && (
               <div className="bg-white px-3 py-1 rounded-full">
-                <p className="text-xs font-medium text-white/40">
+                <p className="text-xs font-medium text-[var(--text-tertiary)]">
                   {pendingCount} operation{pendingCount !== 1 ? 's' : ''}
                 </p>
               </div>
@@ -214,14 +214,14 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
                 title="Sync now"
                 aria-label="Sync now"
               >
-                <RefreshCw size={16} className="text-white/70" />
+                <RefreshCw size={16} className="text-[var(--text-primary)]" />
               </button>
             )}
 
             {!compact && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-xs font-medium text-white/70 hover:text-white/60 transition-colors"
+                className="text-xs font-medium text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition-colors"
               >
                 {isExpanded ? 'Hide' : 'Details'}
               </button>
@@ -231,29 +231,29 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 
         {/* Expanded Details */}
         {showDetails && isExpanded && (
-          <div className="mt-3 pt-3 border-t border-white/[0.08]">
+          <div className="mt-3 pt-3 border-t border-[var(--border-default)]">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <p className="text-white/40">Network Status</p>
-                <p className="font-medium text-white/60">
+                <p className="text-[var(--text-tertiary)]">Network Status</p>
+                <p className="font-medium text-[var(--text-secondary)]">
                   {isOnline ? 'Connected' : 'Disconnected'}
                 </p>
               </div>
               <div>
-                <p className="text-white/40">Pending Operations</p>
-                <p className="font-medium text-white/60">{pendingCount}</p>
+                <p className="text-[var(--text-tertiary)]">Pending Operations</p>
+                <p className="font-medium text-[var(--text-secondary)]">{pendingCount}</p>
               </div>
               {lastSyncTime && (
                 <div className="col-span-2">
-                  <p className="text-white/40">Last Sync</p>
-                  <p className="font-medium text-white/60">
+                  <p className="text-[var(--text-tertiary)]">Last Sync</p>
+                  <p className="font-medium text-[var(--text-secondary)]">
                     {formatDateTime(lastSyncTime)}
                   </p>
                 </div>
               )}
               {syncStatus?.error && (
                 <div className="col-span-2">
-                  <p className="text-white/40">Error</p>
+                  <p className="text-[var(--text-tertiary)]">Error</p>
                   <p className="font-medium text-red-600 text-xs">
                     {typeof syncStatus.error === 'string'
                       ? syncStatus.error

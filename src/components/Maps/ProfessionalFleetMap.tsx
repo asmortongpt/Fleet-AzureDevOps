@@ -109,7 +109,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
       label: 'Idle',
       count: statusMetrics.idle,
       color: 'bg-white/40',
-      textColor: 'text-white/60',
+      textColor: 'text-[var(--text-secondary)]',
       bgColor: 'bg-white/[0.03]'
     },
     {
@@ -141,7 +141,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
       label: 'Offline',
       count: statusMetrics.offline,
       color: 'bg-white/20',
-      textColor: 'text-white/40',
+      textColor: 'text-[var(--text-tertiary)]',
       bgColor: 'bg-white/[0.03]'
     }
   ]
@@ -175,23 +175,23 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {/* Map Legend (Styled for Dark Mode/Immersive) */}
         {showLegend && activeLegendItems.length > 0 && (
           <div className="absolute bottom-4 left-4 z-10">
-            <div className="bg-[#111111] border border-white/[0.04] rounded-lg p-3">
-              <div className="text-[10px] font-semibold text-white/35 uppercase tracking-wide mb-2">
+            <div className="bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-3">
+              <div className="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wide mb-2">
                 Vehicle Status
               </div>
               <div className="space-y-1.5">
                 {activeLegendItems.map((item) => (
                   <div
                     key={item.label}
-                    className={`flex items-center justify-between gap-3 px-2 py-1.5 rounded-md hover:bg-white/[0.04] transition-colors cursor-default`}
+                    className={`flex items-center justify-between gap-3 px-2 py-1.5 rounded-md hover:bg-[var(--surface-glass-hover)] transition-colors cursor-default`}
                   >
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                      <span className="text-xs font-medium text-white/80">
+                      <span className="text-xs font-medium text-[var(--text-primary)]">
                         {item.label}
                       </span>
                     </div>
-                    <Badge variant="outline" className="h-4 px-1.5 text-[10px] bg-[#1a1a1a] border-white/[0.04] text-white/40">
+                    <Badge variant="outline" className="h-4 px-1.5 text-[10px] bg-[var(--surface-3)] border-[var(--border-subtle)] text-[var(--text-tertiary)]">
                       {item.count}
                     </Badge>
                   </div>
@@ -204,9 +204,9 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {/* Facilities Legend (Immersive) */}
         {showLegend && facilities.length > 0 && (
           <div className="absolute bottom-4 right-4 z-10">
-            <div className="bg-[#111111] border border-white/[0.04] rounded-lg p-3 flex items-center gap-2">
+            <div className="bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-3 flex items-center gap-2">
               <MapPin className="w-3 h-3 text-emerald-600" />
-              <span className="text-xs font-medium text-white/80">
+              <span className="text-xs font-medium text-[var(--text-primary)]">
                 {facilities.length} Locations
               </span>
             </div>
@@ -257,8 +257,8 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {/* Map Legend */}
         {showLegend && activeLegendItems.length > 0 && (
           <div className="absolute bottom-4 left-4 z-10">
-            <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-3">
-              <div className="text-xs font-semibold text-white/35 uppercase tracking-wide mb-2">
+            <div className="bg-[var(--surface-2)] rounded-lg border border-[var(--border-subtle)] p-3">
+              <div className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wide mb-2">
                 Vehicle Status
               </div>
               <div className="space-y-1.5">
@@ -288,9 +288,9 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {/* Facilities Legend (if facilities present) */}
         {showLegend && facilities.length > 0 && (
           <div className="absolute bottom-4 right-4 z-10">
-            <div className="bg-[#111111] rounded-lg border border-white/[0.04] px-3 py-2 flex items-center gap-2">
+            <div className="bg-[var(--surface-2)] rounded-lg border border-[var(--border-subtle)] px-3 py-2 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm font-medium text-white/80">
+              <span className="text-sm font-medium text-[var(--text-primary)]">
                 {facilities.length} {facilities.length === 1 ? 'location' : 'locations'}
               </span>
             </div>

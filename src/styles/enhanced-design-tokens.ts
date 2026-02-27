@@ -168,7 +168,7 @@ export const enhancedDesignTokens = {
     // Dashboard backgrounds
     dashboard: {
       primary: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #fbbf24 100%)',
-      dark: 'linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%)',
+      dark: 'linear-gradient(180deg, var(--surface-0) 0%, var(--surface-3) 100%)',
       subtle: 'linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%)',
     },
   },

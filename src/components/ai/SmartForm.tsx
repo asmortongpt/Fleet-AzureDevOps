@@ -157,7 +157,7 @@ export function SmartForm({
       warning: 'text-yellow-600',
       error: 'text-red-600'
     }
-    return colors[severity as keyof typeof colors] || 'text-white/70'
+    return colors[severity as keyof typeof colors] || 'text-[var(--text-primary)]'
   }
 
   const getSeverityBgColor = (severity: string) => {

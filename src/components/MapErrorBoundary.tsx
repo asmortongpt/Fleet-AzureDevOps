@@ -516,7 +516,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
                     </Badge>
                   </div>
                   {provider && (
-                    <div className="text-sm text-white/40 dark:text-white/40">
+                    <div className="text-sm text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
                       Provider: {provider === 'google' ? 'Google Maps' : 'Leaflet/OpenStreetMap'}
                     </div>
                   )}
@@ -528,7 +528,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
                       Retrying...
                     </div>
                   ) : retryCount > 0 ? (
-                    <div className="text-sm text-white/40">
+                    <div className="text-sm text-[var(--text-tertiary)]">
                       Attempt {retryCount}/{maxRetries}
                     </div>
                   ) : null}
@@ -555,10 +555,10 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
               {/* Technical Details (Development Only) */}
               {import.meta.env.MODE === 'development' && (
                 <details className="text-sm">
-                  <summary className="cursor-pointer text-white/70 dark:text-white/40 hover:text-white/80 dark:hover:text-white/80">
+                  <summary className="cursor-pointer text-[var(--text-primary)] dark:text-[var(--text-tertiary)] hover:text-[var(--text-primary)] dark:hover:text-[var(--text-primary)]">
                     Technical Details
                   </summary>
-                  <pre className="mt-2 p-3 bg-white/[0.05] dark:bg-[#18181b] rounded text-xs overflow-auto">
+                  <pre className="mt-2 p-3 bg-white/[0.05] dark:bg-[var(--surface-3)] rounded text-xs overflow-auto">
                     {JSON.stringify(
                       {
                         message: categorizedError.message,

@@ -155,37 +155,37 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-[#0a0a0a]">
+    <div className="h-full overflow-y-auto bg-[var(--surface-0)]">
       {/* Header */}
-      <div className="bg-[#111111] text-white p-3">
+      <div className="bg-[var(--surface-2)] text-white p-3">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <Navigation className="w-4 h-4" />
               <div>
                 <h1 className="text-sm font-bold">{routeDetails.name || 'Route Details'}</h1>
-                <p className="text-white/60">Route ID: {routeDetails.id}</p>
+                <p className="text-[var(--text-secondary)]">Route ID: {routeDetails.id}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
               <div>
-                <p className="text-xs text-white/35">Distance</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Distance</p>
                 <p className="text-sm font-semibold">{routeOverview.totalDistance || 0} mi</p>
               </div>
               <div>
-                <p className="text-xs text-white/35">Duration</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Duration</p>
                 <p className="text-sm font-semibold">{routeOverview.totalDuration}</p>
               </div>
               <div>
-                <p className="text-xs text-white/35">Avg Speed</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Avg Speed</p>
                 <p className="text-sm font-semibold">{routeOverview.avgSpeed || 0} mph</p>
               </div>
               <div>
-                <p className="text-xs text-white/35">Stops</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Stops</p>
                 <p className="text-sm font-semibold">{routeOverview.stops || 0}</p>
               </div>
               <div>
-                <p className="text-xs text-white/35">Fuel Efficiency</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Fuel Efficiency</p>
                 <p className="text-sm font-semibold">{routeOverview.fuelEfficiency || 0} MPG</p>
               </div>
             </div>
@@ -224,8 +224,8 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               <CardContent>
                 <div className="aspect-video bg-white/[0.04] rounded-lg flex items-center justify-center mb-2">
                   <div className="text-center">
-                    <MapPin className="w-12 h-9 text-white/35 mx-auto mb-2" />
-                    <p className="text-sm text-white/35">Route geometry unavailable.</p>
+                    <MapPin className="w-12 h-9 text-[var(--text-tertiary)] mx-auto mb-2" />
+                    <p className="text-sm text-[var(--text-tertiary)]">Route geometry unavailable.</p>
                   </div>
                 </div>
 
@@ -252,7 +252,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-white/60">Speed</span>
+                    <span className="text-[var(--text-secondary)]">Speed</span>
                     <div className="flex items-center gap-2">
                       <Button size="sm" variant="outline" onClick={() => setPlaybackSpeed(0.5)}>0.5x</Button>
                       <Button size="sm" variant={playbackSpeed === 1 ? "default" : "outline"} onClick={() => setPlaybackSpeed(1)}>1x</Button>
@@ -273,7 +273,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               </CardHeader>
               <CardContent className="space-y-2">
                 {stops.length === 0 ? (
-                  <div className="text-sm text-white/60">No stop data available.</div>
+                  <div className="text-sm text-[var(--text-secondary)]">No stop data available.</div>
                 ) : (
                   stops.map((stop: any) => (
                     <div key={stop.id || stop.name} className="flex items-start gap-2 p-2 bg-white/[0.04] rounded-md">
@@ -281,9 +281,9 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <p className="font-medium">{stop.name || 'Stop'}</p>
-                          <span className="text-xs text-white/60">{stop.arrivalTime || stop.arrival_time || ''}</span>
+                          <span className="text-xs text-[var(--text-secondary)]">{stop.arrivalTime || stop.arrival_time || ''}</span>
                         </div>
-                        <p className="text-xs text-white/60">{stop.address || stop.location || ''}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{stop.address || stop.location || ''}</p>
                       </div>
                     </div>
                   ))
@@ -300,7 +300,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               </CardHeader>
               <CardContent className="space-y-2">
                 {events.length === 0 ? (
-                  <div className="text-sm text-white/60">No events available.</div>
+                  <div className="text-sm text-[var(--text-secondary)]">No events available.</div>
                 ) : (
                   events.map((event: any, idx: number) => (
                     <div key={`${event.time}-${idx}`} className="flex items-start gap-2 p-2 bg-white/[0.04] rounded-md">
@@ -310,8 +310,8 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                           <p className="font-medium">{event.description}</p>
                           {getEventBadge(event.severity)}
                         </div>
-                        <p className="text-xs text-white/60">{event.location}</p>
-                        <p className="text-xs text-white/60">{event.time}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{event.location}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{event.time}</p>
                       </div>
                     </div>
                   ))
@@ -383,13 +383,13 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               </CardHeader>
               <CardContent className="space-y-2">
                 {geofences.length === 0 ? (
-                  <div className="text-sm text-white/60">No geofence data available.</div>
+                  <div className="text-sm text-[var(--text-secondary)]">No geofence data available.</div>
                 ) : (
                   geofences.map((fence: any) => (
                     <div key={fence.id || fence.name} className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                       <div>
                         <p className="font-medium">{fence.name || 'Geofence'}</p>
-                        <p className="text-xs text-white/60">{fence.type || 'unknown'}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{fence.type || 'unknown'}</p>
                       </div>
                       <Badge variant="outline">{fence.interactions || 0}</Badge>
                     </div>

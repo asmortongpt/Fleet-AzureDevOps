@@ -243,10 +243,10 @@ export function MaintenanceHub() {
       case 'preventive': return 'bg-emerald-500/10 text-emerald-800 border-emerald-500/20';
       case 'corrective': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'inspection': return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'body_work': return 'bg-white/[0.05] text-white/60 border-white/[0.08]';
+      case 'body_work': return 'bg-white/[0.05] text-[var(--text-secondary)] border-[var(--border-default)]';
       case 'electrical': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'tire_service': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-white/[0.05] text-white/70 border-white/[0.04]';
+      default: return 'bg-white/[0.05] text-[var(--text-primary)] border-[var(--border-subtle)]';
     }
   };
 

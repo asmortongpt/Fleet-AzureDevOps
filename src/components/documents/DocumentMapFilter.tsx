@@ -65,15 +65,15 @@ export function DocumentMapFilter({
   return (
     <div className="absolute top-4 right-4 z-[1000] max-w-sm">
       {/* Filter Panel */}
-      <div className="bg-white dark:bg-[#18181b] rounded-lg border border-white/[0.08] dark:border-white/[0.08]">
+      <div className="bg-white dark:bg-[var(--surface-3)] rounded-lg border border-[var(--border-default)] dark:border-[var(--border-default)]">
         {/* Header */}
         <div
-          className="flex items-center justify-between p-2 cursor-pointer border-b border-white/[0.08] dark:border-white/[0.08]"
+          className="flex items-center justify-between p-2 cursor-pointer border-b border-[var(--border-default)] dark:border-[var(--border-default)]"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <div className="flex items-center gap-2">
             <svg
-              className="w-3 h-3 text-white/70 dark:text-white/40"
+              className="w-3 h-3 text-[var(--text-primary)] dark:text-[var(--text-tertiary)]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -85,7 +85,7 @@ export function DocumentMapFilter({
                 d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
               />
             </svg>
-            <h3 className="font-semibold text-white/80 dark:text-white/80">
+            <h3 className="font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary)]">
               Filters
             </h3>
             {hasActiveFilters && (
@@ -97,13 +97,13 @@ export function DocumentMapFilter({
 
           <div className="flex items-center gap-2">
             {/* Document count */}
-            <span className="text-sm text-white/70 dark:text-white/40">
+            <span className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
               {filteredDocuments} / {totalDocuments}
             </span>
 
             {/* Expand/collapse icon */}
             <svg
-              className={`w-3 h-3 text-white/40 transition-transform ${
+              className={`w-3 h-3 text-[var(--text-tertiary)] transition-transform ${
                 isExpanded ? 'rotate-180' : ''
               }`}
               fill="none"
@@ -125,7 +125,7 @@ export function DocumentMapFilter({
           <div className="p-2 space-y-2">
             {/* Search */}
             <div>
-              <label className="block text-sm font-medium text-white/40 dark:text-white/60 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] mb-2">
                 Search Documents
               </label>
               <div className="relative">
@@ -134,10 +134,10 @@ export function DocumentMapFilter({
                   value={searchQuery}
                   onChange={e => startTransition(() => onSearchChange(e.target.value))}
                   placeholder="Search by filename or address..."
-                  className="w-full px-3 py-2 pl-10 border border-white/[0.08] dark:border-white/[0.08] rounded-lg bg-white dark:bg-white/[0.08] text-white/80 dark:text-white/80 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full px-3 py-2 pl-10 border border-[var(--border-default)] dark:border-[var(--border-default)] rounded-lg bg-white dark:bg-white/[0.08] text-[var(--text-primary)] dark:text-[var(--text-primary)] placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
                 <svg
-                  className="absolute left-3 top-2.5 w-3 h-3 text-white/40"
+                  className="absolute left-3 top-2.5 w-3 h-3 text-[var(--text-tertiary)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -155,30 +155,30 @@ export function DocumentMapFilter({
             {/* Categories */}
             {categories.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-white/40 dark:text-white/60 mb-2">
+                <label className="block text-sm font-medium text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] mb-2">
                   Categories
                 </label>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {categories.map(category => (
                     <label
                       key={category.id}
-                      className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/[0.03] dark:hover:bg-white/[0.08] cursor-pointer transition-colors"
+                      className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/[0.03] dark:hover:bg-[var(--surface-glass-hover)] cursor-pointer transition-colors"
                     >
                       <input
                         type="checkbox"
                         checked={selectedCategories.includes(category.categoryName)}
                         onChange={() => toggleCategory(category.categoryName)}
-                        className="w-4 h-4 text-emerald-800 border-white/[0.08] rounded focus:ring-emerald-500"
+                        className="w-4 h-4 text-emerald-800 border-[var(--border-default)] rounded focus:ring-emerald-500"
                       />
                       <span
                         className="w-3 h-3 rounded-full flex-shrink-0"
                         style={{ backgroundColor: category.color }}
                       />
-                      <span className="text-sm text-white/40 dark:text-white/60 flex-1">
+                      <span className="text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] flex-1">
                         {category.categoryName}
                       </span>
                       {category.documentCount !== undefined && (
-                        <span className="text-xs text-white/40 dark:text-white/40">
+                        <span className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
                           {category.documentCount}
                         </span>
                       )}
@@ -190,7 +190,7 @@ export function DocumentMapFilter({
 
             {/* Map Style */}
             <div>
-              <label className="block text-sm font-medium text-white/40 dark:text-white/60 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] mb-2">
                 Map Style
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -199,7 +199,7 @@ export function DocumentMapFilter({
                   className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
                     mapStyle === 'osm'
                       ? 'bg-emerald-500/50 text-white'
-                      : 'bg-white/[0.05] dark:bg-white/[0.08] text-white/40 dark:text-white/60 hover:bg-white/[0.06] dark:hover:bg-white/[0.15]'
+                      : 'bg-white/[0.05] dark:bg-white/[0.08] text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] hover:bg-white/[0.06] dark:hover:bg-white/[0.15]'
                   }`}
                 >
                   Standard
@@ -209,7 +209,7 @@ export function DocumentMapFilter({
                   className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
                     mapStyle === 'dark'
                       ? 'bg-emerald-500/50 text-white'
-                      : 'bg-white/[0.05] dark:bg-white/[0.08] text-white/40 dark:text-white/60 hover:bg-white/[0.06] dark:hover:bg-white/[0.15]'
+                      : 'bg-white/[0.05] dark:bg-white/[0.08] text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] hover:bg-white/[0.06] dark:hover:bg-white/[0.15]'
                   }`}
                 >
                   Dark
@@ -219,7 +219,7 @@ export function DocumentMapFilter({
                   className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
                     mapStyle === 'satellite'
                       ? 'bg-emerald-500/50 text-white'
-                      : 'bg-white/[0.05] dark:bg-white/[0.08] text-white/40 dark:text-white/60 hover:bg-white/[0.06] dark:hover:bg-white/[0.15]'
+                      : 'bg-white/[0.05] dark:bg-white/[0.08] text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] hover:bg-white/[0.06] dark:hover:bg-white/[0.15]'
                   }`}
                 >
                   Satellite
@@ -231,7 +231,7 @@ export function DocumentMapFilter({
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="w-full px-3 py-2 bg-white/[0.05] dark:bg-white/[0.08] text-white/40 dark:text-white/60 text-sm font-medium rounded-lg hover:bg-white/[0.06] dark:hover:bg-white/[0.15] transition-colors flex items-center justify-center gap-2"
+                className="w-full px-3 py-2 bg-white/[0.05] dark:bg-white/[0.08] text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] text-sm font-medium rounded-lg hover:bg-white/[0.06] dark:hover:bg-white/[0.15] transition-colors flex items-center justify-center gap-2"
               >
                 <svg
                   className="w-4 h-4"

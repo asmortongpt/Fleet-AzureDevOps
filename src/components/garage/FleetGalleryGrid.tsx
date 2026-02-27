@@ -33,7 +33,7 @@ function statusColor(status: string): string {
     case 'in_service': case 'in_use': return 'text-teal-400 bg-teal-500/20';
     case 'pending': case 'scheduled': return 'text-amber-400 bg-amber-500/20';
     case 'inactive': case 'out_of_service': return 'text-rose-400 bg-rose-500/20';
-    default: return 'text-white/50 bg-white/[0.08]';
+    default: return 'text-[var(--text-secondary)] bg-white/[0.08]';
   }
 }
 
@@ -140,26 +140,26 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
   }, [filtered]);
 
   return (
-    <div className="absolute inset-0 z-15 top-12 bottom-14 bg-[#0e0e0e]/95 overflow-y-auto">
+    <div className="absolute inset-0 z-15 top-12 bottom-14 bg-[var(--surface-1)]/95 overflow-y-auto">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-[#0e0e0e] border-b border-white/[0.04] px-4 py-3">
+      <div className="sticky top-0 z-10 bg-[var(--surface-1)] border-b border-[var(--border-subtle)] px-4 py-3">
         <div className="flex items-center gap-3">
-          <h2 className="text-sm font-semibold text-white/80">Fleet Gallery</h2>
-          <span className="text-[10px] text-white/40">{filtered.length} vehicles</span>
+          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Fleet Gallery</h2>
+          <span className="text-[10px] text-[var(--text-tertiary)]">{filtered.length} vehicles</span>
           <div className="flex-1" />
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)]" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search make, model..."
-              className="h-8 pl-8 pr-3 w-56 text-xs bg-white/[0.05] border border-white/[0.04] rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-500/40"
+              className="h-8 pl-8 pr-3 w-56 text-xs bg-white/[0.05] border border-[var(--border-subtle)] rounded-lg text-white placeholder:text-[var(--text-muted)] focus:outline-none focus:border-emerald-500/40"
             />
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
             aria-label="Close gallery"
           >
             <X className="w-4 h-4" />
@@ -179,10 +179,10 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
             <button
               key={v.id}
               onClick={() => onSelectVehicle(v.id)}
-              className="group text-left bg-[#111111] rounded-xl border border-white/[0.04] hover:border-emerald-500/30 hover:bg-white/[0.03] transition-all overflow-hidden"
+              className="group text-left bg-[var(--surface-2)] rounded-xl border border-[var(--border-subtle)] hover:border-emerald-500/30 hover:bg-white/[0.03] transition-all overflow-hidden"
             >
               {/* Thumbnail */}
-              <div className="relative aspect-[16/9] bg-[#0a0a0a] overflow-hidden">
+              <div className="relative aspect-[16/9] bg-[var(--surface-0)] overflow-hidden">
                 {hasError ? (
                   <div className="flex items-center justify-center h-full text-white/15">
                     <span className="text-xs">No preview</span>
@@ -199,12 +199,12 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
                 {/* Accuracy badge overlay */}
                 <div className="absolute top-2 right-2">
                   {resolution.isExactMatch ? (
-                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#111]/80 backdrop-blur-sm">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[var(--surface-2)]/80 backdrop-blur-sm">
                       <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
                       <span className="text-[8px] font-medium text-emerald-400">Exact</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#111]/80 backdrop-blur-sm">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[var(--surface-2)]/80 backdrop-blur-sm">
                       <AlertTriangle className="w-2.5 h-2.5 text-amber-400" />
                       <span className="text-[8px] font-medium text-amber-400">Approx</span>
                     </div>
@@ -215,7 +215,7 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
               {/* Info */}
               <div className="px-3 py-2.5">
                 <div className="flex items-center justify-between">
-                  <div className="text-xs font-medium text-white/80 truncate">
+                  <div className="text-xs font-medium text-[var(--text-primary)] truncate">
                     {formatVehicleName(v)}
                   </div>
                   {/* Feature 5: Condition sparkline */}
@@ -230,7 +230,7 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
                     </span>
                   )}
                   {!resolution.isExactMatch && resolution.matchedModelName && (
-                    <span className="text-[9px] text-white/30 truncate">
+                    <span className="text-[9px] text-[var(--text-muted)] truncate">
                       3D: {resolution.matchedModelName}
                     </span>
                   )}
@@ -242,7 +242,7 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
       </div>
 
       {filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-white/30">
+        <div className="flex flex-col items-center justify-center py-20 text-[var(--text-muted)]">
           <Search className="w-8 h-8 mb-2" />
           <p className="text-sm">No vehicles match "{search}"</p>
         </div>

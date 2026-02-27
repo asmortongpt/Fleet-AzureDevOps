@@ -85,8 +85,8 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
         if (!active || !payload) return null
 
         return (
-            <div className="bg-[#1a1a1a]/95 border border-white/[0.15] rounded-lg p-2">
-                <p className="text-white/60 font-medium mb-2">{label}</p>
+            <div className="bg-[var(--surface-3)]/95 border border-[var(--border-strong)] rounded-lg p-2">
+                <p className="text-[var(--text-secondary)] font-medium mb-2">{label}</p>
                 {payload.map((entry: any) => (
                     <div key={entry.name} className="flex items-center justify-between gap-2 text-sm">
                         <span className="flex items-center gap-2">
@@ -94,7 +94,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                                 className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: entry.color }}
                             />
-                            <span className="text-white/70">{entry.name}:</span>
+                            <span className="text-[var(--text-primary)]">{entry.name}:</span>
                         </span>
                         <span className="font-semibold text-white">
                             {formatCurrency(entry.value)}
@@ -266,7 +266,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
 
     if (!data || data.length === 0) {
         return (
-            <div className="flex items-center justify-center h-full text-white/70">
+            <div className="flex items-center justify-center h-full text-[var(--text-primary)]">
                 <p>No cost data available</p>
             </div>
         )
@@ -277,8 +277,8 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
             {/* Summary Stats */}
             {stats && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+                    <div className="bg-[var(--surface-3)]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-[var(--text-primary)] text-sm mb-1">
                             <DollarSign className="w-4 h-4" />
                             <span>Total Cost</span>
                         </div>
@@ -286,24 +286,24 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                             {formatCurrency(stats.totalCost)}
                         </p>
                     </div>
-                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+                    <div className="bg-[var(--surface-3)]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-[var(--text-primary)] text-sm mb-1">
                             <span>Average</span>
                         </div>
                         <p className="text-sm font-bold text-white">
                             {formatCurrency(stats.avgCost)}
                         </p>
                     </div>
-                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+                    <div className="bg-[var(--surface-3)]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-[var(--text-primary)] text-sm mb-1">
                             <span>Peak</span>
                         </div>
                         <p className="text-sm font-bold text-white">
                             {formatCurrency(stats.maxCost)}
                         </p>
                     </div>
-                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+                    <div className="bg-[var(--surface-3)]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-[var(--text-primary)] text-sm mb-1">
                             {stats.trend === 'up' ? (
                                 <TrendingUp className="w-4 h-4 text-red-400" />
                             ) : (
@@ -319,7 +319,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
             )}
 
             {/* Chart */}
-            <div className="bg-[#1a1a1a]/40 rounded-lg p-3">
+            <div className="bg-[var(--surface-3)]/40 rounded-lg p-3">
                 <ResponsiveContainer width="100%" height={400}>
                     {renderChart()}
                 </ResponsiveContainer>

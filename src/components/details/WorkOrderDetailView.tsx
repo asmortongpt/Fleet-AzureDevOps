@@ -136,38 +136,38 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-[#0a0a0a]">
+    <div className="h-full overflow-y-auto bg-[var(--surface-0)]">
       {/* Header */}
-      <div className="bg-[#111111] text-white p-3">
+      <div className="bg-[var(--surface-2)] text-white p-3">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <Wrench className="w-4 h-4" />
               <div>
                 <h1 className="text-sm font-bold">{workOrderDetails.title}</h1>
-                <p className="text-white/60">Work Order #{workOrderDetails.id}</p>
+                <p className="text-[var(--text-secondary)]">Work Order #{workOrderDetails.id}</p>
               </div>
             </div>
             <div className="flex gap-2 mt-2 flex-wrap">
               <div>
-                <p className="text-xs text-white/35">Status</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Status</p>
                 <p className="text-sm font-semibold">{workOrderDetails.status}</p>
               </div>
               <div>
-                <p className="text-xs text-white/35">Priority</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Priority</p>
                 <p className="text-sm font-semibold">{workOrderDetails.priority}</p>
               </div>
               <div>
-                <p className="text-xs text-white/35">Created</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Created</p>
                 <p className="text-sm font-semibold">{workOrderDetails.createdDate || workOrderDetails.created_at || '—'}</p>
               </div>
               <div>
-                <p className="text-xs text-white/35">Due Date</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Due Date</p>
                 <p className="text-sm font-semibold">{workOrderDetails.dueDate || workOrderDetails.scheduled_end || '—'}</p>
               </div>
               {workOrderDetails.category && (
                 <div>
-                  <p className="text-xs text-white/35">Category</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">Category</p>
                   <p className="text-sm font-semibold capitalize">{workOrderDetails.category.replace(/_/g, ' ')}</p>
                 </div>
               )}
@@ -215,58 +215,58 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-white/60">Status:</span>
+                    <span className="text-[var(--text-secondary)]">Status:</span>
                     {getStatusBadge(workOrderDetails.status)}
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/60">Priority:</span>
+                    <span className="text-[var(--text-secondary)]">Priority:</span>
                     {getPriorityBadge(workOrderDetails.priority)}
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/60">Vehicle:</span>
+                    <span className="text-[var(--text-secondary)]">Vehicle:</span>
                     <Button variant="link" size="sm" className="h-auto p-0 text-emerald-400">
                       {workOrderDetails.vehicleId || workOrderDetails.vehicle_id || '—'}
                     </Button>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/60">Assigned To:</span>
+                    <span className="text-[var(--text-secondary)]">Assigned To:</span>
                     <span className="font-medium">
                       {workOrderDetails.assignedTo || workOrderDetails.assigned_to || '—'}
                     </span>
                   </div>
                   {workOrderDetails.category && (
                     <div className="flex justify-between">
-                      <span className="text-white/60">Category:</span>
+                      <span className="text-[var(--text-secondary)]">Category:</span>
                       <CategoryBadge category={workOrderDetails.category} />
                     </div>
                   )}
                   {workOrderDetails.subcategory && (
                     <div className="flex justify-between">
-                      <span className="text-white/60">Subcategory:</span>
+                      <span className="text-[var(--text-secondary)]">Subcategory:</span>
                       <span className="font-medium capitalize">{workOrderDetails.subcategory.replace(/_/g, ' ')}</span>
                     </div>
                   )}
                   {workOrderDetails.facility_id && (
                     <div className="flex justify-between">
-                      <span className="text-white/60 flex items-center gap-1"><Building2 className="w-3 h-3" />Facility:</span>
+                      <span className="text-[var(--text-secondary)] flex items-center gap-1"><Building2 className="w-3 h-3" />Facility:</span>
                       <span className="font-medium">{workOrderDetails.facility_id}</span>
                     </div>
                   )}
                   {workOrderDetails.bay_number && (
                     <div className="flex justify-between">
-                      <span className="text-white/60 flex items-center gap-1"><Hash className="w-3 h-3" />Bay:</span>
+                      <span className="text-[var(--text-secondary)] flex items-center gap-1"><Hash className="w-3 h-3" />Bay:</span>
                       <span className="font-medium">{workOrderDetails.bay_number}</span>
                     </div>
                   )}
                   {workOrderDetails.downtime_hours != null && (
                     <div className="flex justify-between">
-                      <span className="text-white/60 flex items-center gap-1"><Timer className="w-3 h-3" />Downtime:</span>
+                      <span className="text-[var(--text-secondary)] flex items-center gap-1"><Timer className="w-3 h-3" />Downtime:</span>
                       <span className="font-medium">{Number(workOrderDetails.downtime_hours).toFixed(1)} hours</span>
                     </div>
                   )}
                   {workOrderDetails.external_reference && (
                     <div className="flex justify-between">
-                      <span className="text-white/60">Ext. Reference:</span>
+                      <span className="text-[var(--text-secondary)]">Ext. Reference:</span>
                       <span className="font-medium font-mono text-xs">{workOrderDetails.external_reference}</span>
                     </div>
                   )}
@@ -279,15 +279,15 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-white/60">Parts:</span>
+                    <span className="text-[var(--text-secondary)]">Parts:</span>
                     <span className="font-medium">${(Number(workOrderDetails.parts_cost) || totals.partsCost).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/60">Labor:</span>
+                    <span className="text-[var(--text-secondary)]">Labor:</span>
                     <span className="font-medium">${(Number(workOrderDetails.labor_cost) || totals.laborCost).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/60">Tax:</span>
+                    <span className="text-[var(--text-secondary)]">Tax:</span>
                     <span className="font-medium">
                       {totals.taxRate > 0 ? `${(totals.taxRate * 100).toFixed(2)}%` : '—'}
                     </span>
@@ -311,7 +311,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                           title="Labor cost"
                         />
                       </div>
-                      <div className="flex justify-between mt-1 text-[10px] text-white/60">
+                      <div className="flex justify-between mt-1 text-[10px] text-[var(--text-secondary)]">
                         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />Parts</span>
                         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />Labor</span>
                       </div>
@@ -328,12 +328,12 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                   <div className="space-y-3">
                     <div>
                       <div className="flex justify-between mb-1 text-sm">
-                        <span className="text-white/60">Completion</span>
+                        <span className="text-[var(--text-secondary)]">Completion</span>
                         <span className="font-medium">{progress}%</span>
                       </div>
                       <Progress value={progress} />
                     </div>
-                    <div className="text-xs text-white/60">
+                    <div className="text-xs text-[var(--text-secondary)]">
                       Estimated completion: {workOrderDetails.scheduled_end || workOrderDetails.dueDate || '—'}
                     </div>
                   </div>
@@ -346,7 +346,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                 <CardTitle>Description</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-white/60">{workOrderDetails.description}</p>
+                <p className="text-sm text-[var(--text-secondary)]">{workOrderDetails.description}</p>
               </CardContent>
             </Card>
 
@@ -362,19 +362,19 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                 <CardContent className="space-y-3">
                   {workOrderDetails.root_cause && (
                     <div>
-                      <p className="text-xs font-semibold text-white/60 mb-1">Root Cause</p>
+                      <p className="text-xs font-semibold text-[var(--text-secondary)] mb-1">Root Cause</p>
                       <p className="text-sm bg-white/[0.04]/50 rounded-md p-2">{workOrderDetails.root_cause}</p>
                     </div>
                   )}
                   {workOrderDetails.resolution_notes && (
                     <div>
-                      <p className="text-xs font-semibold text-white/60 mb-1">Resolution Notes</p>
+                      <p className="text-xs font-semibold text-[var(--text-secondary)] mb-1">Resolution Notes</p>
                       <p className="text-sm bg-white/[0.04]/50 rounded-md p-2">{workOrderDetails.resolution_notes}</p>
                     </div>
                   )}
                   {workOrderDetails.completed_at && (
                     <div className="flex justify-between text-sm pt-2 border-t">
-                      <span className="text-white/60">Completed At:</span>
+                      <span className="text-[var(--text-secondary)]">Completed At:</span>
                       <span className="font-medium">{formatDateTime(workOrderDetails.completed_at)}</span>
                     </div>
                   )}
@@ -395,13 +395,13 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
               <CardContent>
                 <div className="space-y-2">
                   {parts.length === 0 ? (
-                    <div className="text-sm text-white/60">No parts available.</div>
+                    <div className="text-sm text-[var(--text-secondary)]">No parts available.</div>
                   ) : (
                     parts.map((part: any) => (
                       <div key={part.id} className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                         <div>
                           <p className="font-medium">{part.name || part.part_name || 'Part'}</p>
-                          <p className="text-xs text-white/60">
+                          <p className="text-xs text-[var(--text-secondary)]">
                             {part.part_number || part.partNumber || '—'}
                           </p>
                         </div>
@@ -429,13 +429,13 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
               <CardContent>
                 <div className="space-y-2">
                   {labor.length === 0 ? (
-                    <div className="text-sm text-white/60">No labor entries available.</div>
+                    <div className="text-sm text-[var(--text-secondary)]">No labor entries available.</div>
                   ) : (
                     labor.map((entry: any) => (
                       <div key={entry.id} className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                         <div>
                           <p className="font-medium">{entry.technician_name || entry.technician || 'Technician'}</p>
-                          <p className="text-xs text-white/60">{entry.task_description || entry.task || 'Task'}</p>
+                          <p className="text-xs text-[var(--text-secondary)]">{entry.task_description || entry.task || 'Task'}</p>
                         </div>
                         <div className="text-right text-sm">
                           <p>{entry.hours || 0} hrs × ${(entry.rate || 0).toFixed(2)}</p>
@@ -461,14 +461,14 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
               <CardContent>
                 <div className="space-y-2">
                   {timeline.length === 0 ? (
-                    <div className="text-sm text-white/60">No timeline events available.</div>
+                    <div className="text-sm text-[var(--text-secondary)]">No timeline events available.</div>
                   ) : (
                     timeline.map((event: any) => (
                       <div key={event.id || `${event.timestamp}-${event.description}`} className="flex gap-2">
                         <div className="w-2 h-2 mt-2 rounded-full bg-orange-500" />
                         <div>
                           <p className="text-sm font-medium">{event.description || event.event || 'Event'}</p>
-                          <p className="text-xs text-white/60">
+                          <p className="text-xs text-[var(--text-secondary)]">
                             {event.timestamp || event.date || '—'} {event.user_name ? `• ${event.user_name}` : ''}
                           </p>
                         </div>
@@ -492,13 +492,13 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
               <CardContent>
                 <div className="space-y-2">
                   {documents.length === 0 ? (
-                    <div className="text-sm text-white/60">No documents available.</div>
+                    <div className="text-sm text-[var(--text-secondary)]">No documents available.</div>
                   ) : (
                     documents.map((doc: any) => (
                       <div key={doc.id} className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                         <div>
                           <p className="font-medium">{doc.file_name || doc.name || 'Document'}</p>
-                          <p className="text-xs text-white/60">{doc.document_type || doc.type || 'file'}</p>
+                          <p className="text-xs text-[var(--text-secondary)]">{doc.document_type || doc.type || 'file'}</p>
                         </div>
                         {doc.file_url && (
                           <Button variant="outline" size="sm" asChild>
@@ -523,7 +523,7 @@ function CategoryBadge({ category }: { category: string }) {
     preventive: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     corrective: 'bg-orange-100 text-orange-800 border-orange-200',
     inspection: 'bg-amber-100 text-amber-800 border-amber-200',
-    body_work: 'bg-white/[0.06] text-white/80 border-white/[0.04]',
+    body_work: 'bg-white/[0.06] text-[var(--text-primary)] border-[var(--border-subtle)]',
     electrical: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     tire_service: 'bg-green-100 text-green-800 border-green-200',
   }

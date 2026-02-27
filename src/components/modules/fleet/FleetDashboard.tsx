@@ -131,20 +131,20 @@ export const FleetDashboard: React.FC = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <p className="text-sm text-white/40">Total Tracked</p>
+            <p className="text-sm text-[var(--text-tertiary)]">Total Tracked</p>
             <p className="text-2xl font-bold" style={{ color: brandColors.cta.charcoal }}>
               {metrics?.total || 150}
             </p>
           </div>
           <div>
-            <p className="text-sm text-white/40">Real-time Updates</p>
+            <p className="text-sm text-[var(--text-tertiary)]">Real-time Updates</p>
             <p className="text-2xl font-bold text-green-600">
               ✓ Active
             </p>
           </div>
           <div>
-            <p className="text-sm text-white/40">Data Source</p>
-            <p className="text-sm font-mono text-white/40">
+            <p className="text-sm text-[var(--text-tertiary)]">Data Source</p>
+            <p className="text-sm font-mono text-[var(--text-tertiary)]">
               GPS Emulator Stream
             </p>
           </div>

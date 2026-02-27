@@ -546,7 +546,7 @@ export function VehicleReservationModal({
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}
-                className="border-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.06]"
+                className="border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white hover:bg-white/[0.06]"
               >
                 Cancel
               </Button>
@@ -561,7 +561,7 @@ export function VehicleReservationModal({
                 label="Email Confirmation"
                 size="sm"
                 variant="outline"
-                className="border-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.06]"
+                className="border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white hover:bg-white/[0.06]"
               />
               <Button
                 type="submit"

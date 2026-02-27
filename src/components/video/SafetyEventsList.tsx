@@ -263,7 +263,7 @@ export default function SafetyEventsList({
                       />
                     ) : (
                       <div className="w-40 h-24 bg-white/[0.06] rounded border flex items-center justify-center">
-                        <Play className="h-8 w-8 text-white/40" />
+                        <Play className="h-8 w-8 text-[var(--text-tertiary)]" />
                       </div>
                     )}
                   </div>

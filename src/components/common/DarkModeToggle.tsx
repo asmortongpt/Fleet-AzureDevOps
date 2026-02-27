@@ -57,14 +57,14 @@ export function DarkModeToggle() {
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="relative text-white/70 hover:text-white hover:bg-white/5 rounded-full"
+                    className="relative text-[var(--text-primary)] hover:text-white hover:bg-[var(--surface-glass-hover)] rounded-full"
                     aria-label="Toggle theme"
                 >
                     <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                     <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-[#111] border-white/10">
+            <DropdownMenuContent align="end" className="bg-[var(--surface-2)] border-[var(--border-default)]">
                 <DropdownMenuItem
                     onClick={() => handleThemeChange('light')}
                     className="focus:bg-white/10 cursor-pointer"

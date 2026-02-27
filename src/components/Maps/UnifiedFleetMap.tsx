@@ -296,11 +296,11 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
       {/* Floating Layer Controls (Top Left, below Tabs) */}
       <div className="absolute top-14 left-2 z-10">
         {showControls ? (
-        <div className="p-3 border border-white/[0.04] rounded-lg bg-[#111111] w-[600px] animate-in slide-in-from-top-2 duration-200">
+        <div className="p-3 border border-[var(--border-subtle)] rounded-lg bg-[var(--surface-2)] w-[600px] animate-in slide-in-from-top-2 duration-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-2">
-                  <Layers className="w-3 h-3 text-white/60" />
+                  <Layers className="w-3 h-3 text-[var(--text-secondary)]" />
                   <span className="font-medium text-white">Map Layers</span>
                 </div>
 
@@ -315,7 +315,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
                       />
                       <Label
                         htmlFor={layer.id}
-                        className={`flex items-center gap-1 cursor-pointer text-sm ${layer.enabled ? layer.color : 'text-white/35'
+                        className={`flex items-center gap-1 cursor-pointer text-sm ${layer.enabled ? layer.color : 'text-[var(--text-tertiary)]'
                           }`}
                       >
                         {layer.icon}
@@ -366,7 +366,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
             size="sm"
             variant="secondary"
             onClick={() => setShowControls(true)}
-            className="bg-[#111111] border border-white/[0.04]"
+            className="bg-[var(--surface-2)] border border-[var(--border-subtle)]"
           >
             <Layers className="w-4 h-4 mr-2" />
             Show Layers
@@ -377,7 +377,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
       {/* Main Content Area */}
       <div className="flex-1 relative">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-          <TabsList className="absolute top-2 left-2 z-10 bg-[#111111] border border-white/[0.04] rounded-lg h-9">
+          <TabsList className="absolute top-2 left-2 z-10 bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg h-9">
             <TabsTrigger value="map" className="text-xs px-3">Map View</TabsTrigger>
             <TabsTrigger value="geofencing" className="text-xs px-3">
               Geofencing

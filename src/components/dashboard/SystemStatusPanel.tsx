@@ -52,7 +52,7 @@ export function SystemStatusPanel({
       case 'error':
         return 'text-red-600 dark:text-red-400'
       default:
-        return 'text-white/40 dark:text-white/40'
+        return 'text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]'
     }
   }
 
@@ -156,7 +156,7 @@ export function SystemStatusPanel({
                           className={`w-1.5 h-1.5 flex-shrink-0 ${
                             emulator.status === 'connected'
                               ? 'fill-green-500 text-green-500 animate-pulse'
-                              : 'fill-white/30 text-white/40'
+                              : 'fill-white/30 text-[var(--text-tertiary)]'
                           }`}
                          
                         />

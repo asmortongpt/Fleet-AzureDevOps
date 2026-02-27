@@ -133,7 +133,7 @@ function DamageMarker({ point, isSelected, onSelect, onRemove, isEditMode }: Dam
                     style={{ pointerEvents: isSelected ? 'auto' : 'none' }}
                 >
                     <div
-                        className="bg-[#0e0e0e]/95 backdrop-blur-sm rounded-lg p-3 border border-white/[0.04] min-w-[200px]"
+                        className="bg-[var(--surface-1)]/95 backdrop-blur-sm rounded-lg p-3 border border-[var(--border-subtle)] min-w-[200px]"
                         style={{ transform: 'translateY(-50%)' }}
                     >
                         <div className="flex items-center justify-between mb-2">
@@ -160,10 +160,10 @@ function DamageMarker({ point, isSelected, onSelect, onRemove, isEditMode }: Dam
                             {formatCurrency(point.estimatedCost)}
                         </p>
                         {point.zone && (
-                            <p className="text-white/40 text-xs mt-1">Zone: {point.zone}</p>
+                            <p className="text-[var(--text-tertiary)] text-xs mt-1">Zone: {point.zone}</p>
                         )}
                         {point.photos.length > 0 && (
-                            <p className="text-white/40 text-xs mt-1">📷 {point.photos.length} photo(s)</p>
+                            <p className="text-[var(--text-tertiary)] text-xs mt-1">📷 {point.photos.length} photo(s)</p>
                         )}
                     </div>
                 </Html>
@@ -257,7 +257,7 @@ export function DamageSummaryPanel({
 
     if (damagePoints.length === 0) {
         return (
-            <div className="p-2 text-center text-white/40">
+            <div className="p-2 text-center text-[var(--text-tertiary)]">
                 <p className="text-sm">No damage recorded</p>
                 <p className="text-xs mt-1">Click on vehicle to add damage points</p>
             </div>
@@ -270,11 +270,11 @@ export function DamageSummaryPanel({
             <div className="grid grid-cols-2 gap-2">
                 <div className="bg-white/[0.03] rounded-lg p-3 text-center">
                     <p className="text-sm font-bold text-white">{damagePoints.length}</p>
-                    <p className="text-xs text-white/40">Damage Points</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">Damage Points</p>
                 </div>
                 <div className="bg-white/[0.03] rounded-lg p-3 text-center">
                     <p className="text-sm font-bold text-green-400">{formatCurrency(totalCost)}</p>
-                    <p className="text-xs text-white/40">Est. Total Cost</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">Est. Total Cost</p>
                 </div>
             </div>
 
@@ -290,7 +290,7 @@ export function DamageSummaryPanel({
                                 className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: SEVERITY_COLORS[severity as DamageSeverity] }}
                             />
-                            <span className="text-white/60 capitalize">{severity}</span>
+                            <span className="text-[var(--text-secondary)] capitalize">{severity}</span>
                         </div>
                         <span className="text-white font-medium">{count}</span>
                     </div>
@@ -299,14 +299,14 @@ export function DamageSummaryPanel({
 
             {/* Damage Point List */}
             <div className="space-y-2 max-h-64 overflow-y-auto" tabIndex={0} role="region" aria-label="Damage points list">
-                <p className="text-xs text-white/40 uppercase tracking-wider">Damage Points</p>
+                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Damage Points</p>
                 {damagePoints.map((point) => (
                     <button
                         key={point.id}
                         onClick={() => onSelectDamage(point)}
                         className={`w-full text-left p-2 rounded-lg border transition-colors ${selectedDamageId === point.id
                                 ? 'bg-white/[0.08] border-emerald-500'
-                                : 'bg-white/[0.02] border-white/[0.04] hover:bg-white/[0.05]'
+                                : 'bg-white/[0.02] border-[var(--border-subtle)] hover:bg-white/[0.05]'
                             }`}
                     >
                         <div className="flex items-center justify-between">
@@ -320,7 +320,7 @@ export function DamageSummaryPanel({
                             <span className="text-xs text-green-400">{formatCurrency(point.estimatedCost)}</span>
                         </div>
                         {point.zone && (
-                            <p className="text-xs text-white/40 mt-0.5 ml-2">{point.zone}</p>
+                            <p className="text-xs text-[var(--text-tertiary)] mt-0.5 ml-2">{point.zone}</p>
                         )}
                     </button>
                 ))}

@@ -49,28 +49,28 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
       hover:bg-emerald-700 
       active:bg-emerald-800 active:scale-98
       focus:ring-emerald-500
-      disabled:bg-white/[0.08] disabled:text-white/40 disabled:cursor-not-allowed disabled:hover:shadow-none
+      disabled:bg-white/[0.08] disabled:text-[var(--text-tertiary)] disabled:cursor-not-allowed disabled:hover:shadow-none
     `,
     secondary: `
-      bg-white/[0.05] text-white/80 border border-white/[0.08]
-      hover:bg-white/[0.06] hover:border-white/[0.08] 
+      bg-white/[0.05] text-[var(--text-primary)] border border-[var(--border-default)]
+      hover:bg-white/[0.06] hover:border-[var(--border-default)] 
       active:bg-white/[0.08] active:scale-98
       focus:ring-gray-500
-      disabled:bg-white/[0.03] disabled:text-white/40 disabled:border-white/[0.08] disabled:cursor-not-allowed
+      disabled:bg-white/[0.03] disabled:text-[var(--text-tertiary)] disabled:border-[var(--border-default)] disabled:cursor-not-allowed
     `,
     danger: `
       bg-red-600 text-white
       hover:bg-red-700 
       active:bg-red-800 active:scale-98
       focus:ring-red-500
-      disabled:bg-white/[0.08] disabled:text-white/40 disabled:cursor-not-allowed disabled:hover:shadow-none
+      disabled:bg-white/[0.08] disabled:text-[var(--text-tertiary)] disabled:cursor-not-allowed disabled:hover:shadow-none
     `,
     ghost: `
-      bg-transparent text-white/40
-      hover:bg-white/[0.05] hover:text-white/80
+      bg-transparent text-[var(--text-tertiary)]
+      hover:bg-white/[0.05] hover:text-[var(--text-primary)]
       active:bg-white/[0.06] active:scale-98
       focus:ring-gray-500
-      disabled:text-white/40 disabled:cursor-not-allowed disabled:hover:bg-transparent
+      disabled:text-[var(--text-tertiary)] disabled:cursor-not-allowed disabled:hover:bg-transparent
     `,
   };
 

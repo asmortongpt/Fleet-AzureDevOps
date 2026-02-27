@@ -104,15 +104,26 @@ export function CommandPalette() {
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/70"
+        className="absolute inset-0"
+        style={{ backgroundColor: 'var(--overlay-backdrop)' }}
         onClick={close}
       />
 
       {/* Palette */}
-      <div className="relative w-full max-w-lg mx-4 bg-[#111111] border border-white/[0.04] rounded-2xl overflow-hidden">
+      <div
+        className="relative w-full max-w-lg mx-4 rounded-[var(--radius-xl)] overflow-hidden"
+        style={{
+          backgroundColor: 'var(--surface-2)',
+          border: '1px solid var(--border-default)',
+          boxShadow: 'var(--shadow-xl)',
+        }}
+      >
         {/* Search input */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.04]">
-          <Search className="w-4 h-4 text-white/35 shrink-0" />
+        <div
+          className="flex items-center gap-3 px-4 py-3.5"
+          style={{ borderBottom: '1px solid var(--border-subtle)' }}
+        >
+          <Search className="w-4 h-4 shrink-0" style={{ color: 'var(--text-muted)' }} />
           <input
             ref={inputRef}
             value={query}
@@ -122,11 +133,15 @@ export function CommandPalette() {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search modules, vehicles, drivers..."
-            className="flex-1 bg-transparent text-white text-sm placeholder:text-white/35 outline-none"
+            className="flex-1 bg-transparent text-[var(--text-sm)] outline-none"
+            style={{ color: 'var(--text-primary)', caretColor: 'var(--accent-primary)' }}
           />
           <button
             onClick={close}
-            className="text-white/35 hover:text-white transition-colors"
+            className="transition-colors duration-[var(--duration-fast)]"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)' }}
             aria-label="Close command palette"
           >
             <X className="w-4 h-4" />
@@ -136,13 +151,13 @@ export function CommandPalette() {
         {/* Results */}
         <div className="max-h-[360px] overflow-y-auto py-2">
           {query && results.length === 0 && (
-            <p className="text-xs text-white/35 text-center py-8">
+            <p className="text-[var(--text-xs)] text-center py-8" style={{ color: 'var(--text-muted)' }}>
               No results for &ldquo;{query}&rdquo;
             </p>
           )}
 
           {!query && (
-            <p className="text-xs text-white/35 text-center py-8">
+            <p className="text-[var(--text-xs)] text-center py-8" style={{ color: 'var(--text-muted)' }}>
               Type to search across all modules and records
             </p>
           )}
@@ -150,7 +165,7 @@ export function CommandPalette() {
           {Object.entries(grouped).map(([cat, mods]) => (
             <div key={cat}>
               <div className="px-4 py-1.5">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/40">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--text-tertiary)' }}>
                   {categoryLabels[cat as ModuleCategory] ?? cat}
                 </span>
               </div>
@@ -164,11 +179,12 @@ export function CommandPalette() {
                     onClick={() => handleSelect(mod)}
                     onMouseEnter={() => setSelectedIndex(idx)}
                     className={cn(
-                      'w-full flex items-center justify-between px-4 py-2.5 text-sm transition-all',
-                      isSelected
-                        ? 'bg-white/[0.08] text-white'
-                        : 'text-white/60 hover:bg-white/[0.04] hover:text-white'
+                      'w-full flex items-center justify-between px-4 py-2.5 text-[var(--text-sm)] transition-all duration-[var(--duration-fast)]',
                     )}
+                    style={{
+                      backgroundColor: isSelected ? 'var(--surface-glass-active)' : 'transparent',
+                      color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    }}
                   >
                     <span>{mod.label}</span>
                     <ArrowRight className={cn('w-3 h-3 transition-opacity', isSelected ? 'opacity-60' : 'opacity-0')} />
@@ -180,10 +196,13 @@ export function CommandPalette() {
         </div>
 
         {/* Footer hints */}
-        <div className="flex items-center gap-4 px-4 py-2 border-t border-white/[0.04] text-[10px] text-white/30">
-          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.04]">&uarr;&darr;</kbd> Navigate</span>
-          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.04]">Enter</kbd> Open</span>
-          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.04]">Esc</kbd> Close</span>
+        <div
+          className="flex items-center gap-4 px-4 py-2 text-[10px]"
+          style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--text-muted)' }}
+        >
+          <span><kbd className="px-1 py-0.5 rounded text-[10px]" style={{ backgroundColor: 'var(--surface-glass)', border: '1px solid var(--border-subtle)' }}>&uarr;&darr;</kbd> Navigate</span>
+          <span><kbd className="px-1 py-0.5 rounded text-[10px]" style={{ backgroundColor: 'var(--surface-glass)', border: '1px solid var(--border-subtle)' }}>Enter</kbd> Open</span>
+          <span><kbd className="px-1 py-0.5 rounded text-[10px]" style={{ backgroundColor: 'var(--surface-glass)', border: '1px solid var(--border-subtle)' }}>Esc</kbd> Close</span>
         </div>
       </div>
     </div>

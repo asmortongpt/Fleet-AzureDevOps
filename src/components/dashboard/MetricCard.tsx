@@ -32,7 +32,7 @@ export function MetricCard({
   onClick,
   loading = false,
 }: MetricCardProps) {
-  const trendColor = trend === "up" ? "text-emerald-400" : trend === "down" ? "text-rose-400" : "text-white/30"
+  const trendColor = trend === "up" ? "text-emerald-400" : trend === "down" ? "text-rose-400" : "text-[var(--text-muted)]"
   const TrendIcon = trend === "up" ? ArrowUp : trend === "down" ? ArrowDown : Minus
 
   const Wrapper = onClick ? "button" : "div"
@@ -41,7 +41,7 @@ export function MetricCard({
     <Wrapper
       onClick={onClick}
       className={cn(
-        "text-left w-full rounded-2xl border border-white/[0.04] bg-[#111111] p-4",
+        "text-left w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4",
         onClick && "cursor-pointer hover:bg-[#161616] transition-colors duration-150",
         loading && "animate-pulse"
       )}
@@ -49,11 +49,11 @@ export function MetricCard({
     >
       {/* Label + Icon */}
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-medium text-white/35 uppercase tracking-wider">
+        <span className="text-[11px] font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
           {label}
         </span>
         {icon && (
-          <span className="text-white/20">{icon}</span>
+          <span className="text-[var(--text-muted)]">{icon}</span>
         )}
       </div>
 
@@ -70,7 +70,7 @@ export function MetricCard({
               {value}
             </span>
             {unit && (
-              <span className="text-[12px] text-white/30 font-medium">{unit}</span>
+              <span className="text-[12px] text-[var(--text-muted)] font-medium">{unit}</span>
             )}
           </div>
 
@@ -82,7 +82,7 @@ export function MetricCard({
                   {formatNumber(Math.abs(change), 1)}%
                 </span>
               </div>
-              <span className="text-[11px] text-white/20">vs last period</span>
+              <span className="text-[11px] text-[var(--text-muted)]">vs last period</span>
             </div>
           )}
         </>
@@ -93,7 +93,7 @@ export function MetricCard({
 
 export function MetricCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-white/[0.04] bg-[#111111] p-4 animate-pulse">
+    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4 animate-pulse">
       <div className="h-3 w-20 bg-white/[0.04] rounded mb-3" />
       <div className="h-7 w-24 bg-white/[0.04] rounded-lg mb-2" />
       <div className="h-3 w-16 bg-white/[0.03] rounded" />

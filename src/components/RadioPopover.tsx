@@ -111,7 +111,7 @@ export function RadioPopover({ className }: RadioPopoverProps) {
           <div className="space-y-2">
             <label className="text-xs font-medium text-muted-foreground">Channel</label>
             <div className="flex items-center gap-2 text-sm">
-              <Circle className={`w-2 h-2 ${dispatch.isConnected ? 'fill-green-500 text-green-500' : 'fill-gray-400 text-white/40'}`} />
+              <Circle className={`w-2 h-2 ${dispatch.isConnected ? 'fill-green-500 text-green-500' : 'fill-gray-400 text-[var(--text-tertiary)]'}`} />
               <span>{dispatch.currentChannel?.name || 'No channel connected'}</span>
             </div>
           </div>

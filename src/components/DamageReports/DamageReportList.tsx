@@ -234,7 +234,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
           filteredReports.map((report) => (
             <Card
               key={report.id}
-              className="cursor-pointer hover:border-white/[0.12] transition-colors"
+              className="cursor-pointer hover:border-[var(--border-strong)] transition-colors"
               onClick={() => handleViewDetails(report.id)}
               role="button"
               tabIndex={0}

@@ -129,8 +129,8 @@ function DamageMarker3D({
         <Html distanceFactor={10} position={[0, 0.2, 0]}>
           <div className="bg-black/90 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap">
             <div className="font-semibold">{type}</div>
-            <div className="text-xs text-white/60 capitalize">{severity}</div>
-            {description && <div className="text-xs mt-1 text-white/35">{description}</div>}
+            <div className="text-xs text-[var(--text-secondary)] capitalize">{severity}</div>
+            {description && <div className="text-xs mt-1 text-[var(--text-tertiary)]">{description}</div>}
           </div>
         </Html>
       )}
@@ -425,23 +425,23 @@ class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundary
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-[#111111] rounded-lg">
+        <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-[var(--surface-2)] rounded-lg">
           <div className="text-center p-6 max-w-md">
             <AlertTriangle className="w-12 h-12 text-amber-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-white mb-2">3D View Unavailable</h3>
-            <p className="text-sm text-white/60 mb-4">
+            <p className="text-sm text-[var(--text-secondary)] mb-4">
               The 3D vehicle viewer could not be loaded. This may be due to browser compatibility
               or graphics driver limitations.
             </p>
             {this.props.vehicleLabel && (
-              <p className="text-xs text-white/50 mb-4">Vehicle: {this.props.vehicleLabel}</p>
+              <p className="text-xs text-[var(--text-secondary)] mb-4">Vehicle: {this.props.vehicleLabel}</p>
             )}
             {import.meta.env.DEV && this.state.error && (
               <details className="text-left mt-4">
-                <summary className="text-xs text-white/40 cursor-pointer hover:text-white/60">
+                <summary className="text-xs text-[var(--text-tertiary)] cursor-pointer hover:text-[var(--text-secondary)]">
                   Error details (dev only)
                 </summary>
-                <pre className="text-xs text-red-400 mt-2 p-3 bg-[#0a0a0a] rounded overflow-auto max-h-40">
+                <pre className="text-xs text-red-400 mt-2 p-3 bg-[var(--surface-0)] rounded overflow-auto max-h-40">
                   {this.state.error.message}
                   {'\n\n'}
                   {this.state.error.stack}
@@ -555,12 +555,12 @@ export default function VehicleViewer3D({
       {showControls && (
         <div className="absolute top-4 left-4 right-4 flex justify-between items-start gap-2 pointer-events-none">
           {/* Info Panel */}
-          <div className="bg-[#0e0e0e]/90 backdrop-blur-sm text-white px-2 py-3 rounded-lg pointer-events-auto space-y-1">
+          <div className="bg-[var(--surface-1)]/90 backdrop-blur-sm text-white px-2 py-3 rounded-lg pointer-events-auto space-y-1">
             <h3 className="font-semibold text-sm">
               {vehicleData ? formatVehicleName(vehicleData) : ''}
             </h3>
             {vehicleData?.trim && (
-              <p className="text-sm text-white/60">{vehicleData.trim}</p>
+              <p className="text-sm text-[var(--text-secondary)]">{vehicleData.trim}</p>
             )}
             <div className="flex gap-2 mt-2">
               <Badge variant="secondary" className="text-xs">
@@ -578,7 +578,7 @@ export default function VehicleViewer3D({
               size="sm"
               variant="secondary"
               onClick={() => setAutoRotateEnabled(!autoRotateEnabled)}
-              className="bg-[#0e0e0e]/90 backdrop-blur-sm hover:bg-[#0e0e0e]"
+              className="bg-[var(--surface-1)]/90 backdrop-blur-sm hover:bg-[var(--surface-1)]"
             >
               <RotateCw className={`w-4 h-4 ${autoRotateEnabled ? 'animate-spin' : ''}`} />
             </Button>
@@ -586,7 +586,7 @@ export default function VehicleViewer3D({
               size="sm"
               variant="secondary"
               onClick={() => setShowDamage(!showDamage)}
-              className="bg-[#0e0e0e]/90 backdrop-blur-sm hover:bg-[#0e0e0e]"
+              className="bg-[var(--surface-1)]/90 backdrop-blur-sm hover:bg-[var(--surface-1)]"
             >
               {showDamage ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </Button>
@@ -595,7 +595,7 @@ export default function VehicleViewer3D({
                 size="sm"
                 variant="secondary"
                 onClick={handleARView}
-                className="bg-[#0e0e0e]/90 backdrop-blur-sm hover:bg-[#0e0e0e]"
+                className="bg-[var(--surface-1)]/90 backdrop-blur-sm hover:bg-[var(--surface-1)]"
               >
                 <Camera className="w-4 h-4 mr-2" />
                 AR View
@@ -605,7 +605,7 @@ export default function VehicleViewer3D({
               size="sm"
               variant="secondary"
               onClick={handleFullscreen}
-              className="bg-[#0e0e0e]/90 backdrop-blur-sm hover:bg-[#0e0e0e]"
+              className="bg-[var(--surface-1)]/90 backdrop-blur-sm hover:bg-[var(--surface-1)]"
             >
               {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </Button>
@@ -616,7 +616,7 @@ export default function VehicleViewer3D({
       {/* Camera Presets */}
       {showControls && (
         <div className="absolute bottom-4 left-4 flex gap-2 pointer-events-none">
-          <div className="bg-[#0e0e0e]/90 backdrop-blur-sm rounded-lg p-2 pointer-events-auto">
+          <div className="bg-[var(--surface-1)]/90 backdrop-blur-sm rounded-lg p-2 pointer-events-auto">
             <div className="flex gap-2">
               <Button size="sm" variant="ghost" onClick={() => setCameraPreset(cameraPresets.front)} className="text-white hover:bg-white/20">
                 Front
@@ -637,7 +637,7 @@ export default function VehicleViewer3D({
 
       {/* Loading Indicator */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-        <Loader2 className="w-12 h-9 text-white/50 animate-spin" />
+        <Loader2 className="w-12 h-9 text-[var(--text-secondary)] animate-spin" />
       </div>
     </div>
   );

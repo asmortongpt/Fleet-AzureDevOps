@@ -189,7 +189,7 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
               onClick={() => setSelectedSlot(i)}
               className={cn(
                 'relative w-10 h-10 rounded-lg border flex-shrink-0 overflow-hidden transition-all',
-                'border-white/[0.04] bg-white/[0.03]',
+                'border-[var(--border-subtle)] bg-white/[0.03]',
                 isSelected && 'ring-2 ring-emerald-500',
                 !isCaptured && !isSelected && 'hover:bg-white/[0.06]'
               )}
@@ -215,7 +215,7 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
                   </button>
                 </>
               ) : (
-                <span className="text-[10px] font-medium text-white/30">{i + 1}</span>
+                <span className="text-[10px] font-medium text-[var(--text-muted)]">{i + 1}</span>
               )}
             </button>
           )
@@ -225,10 +225,10 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
       {/* ---- Angle guide ---- */}
       <div className="text-center px-4">
         <div className="text-2xl mb-1">{currentAngle.icon}</div>
-        <h3 className="text-sm font-semibold text-white/90">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">
           {currentAngle.label}
         </h3>
-        <p className="text-xs text-white/60 mt-0.5 leading-relaxed">
+        <p className="text-xs text-[var(--text-secondary)] mt-0.5 leading-relaxed">
           {currentAngle.instruction}
         </p>
       </div>
@@ -240,12 +240,12 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
             <img
               src={previews[selectedSlot]!}
               alt={`${currentAngle.label} capture`}
-              className="w-full h-auto rounded-xl border border-white/[0.04] max-h-[220px] object-contain bg-[#0a0a0a]"
+              className="w-full h-auto rounded-xl border border-[var(--border-subtle)] max-h-[220px] object-contain bg-[var(--surface-0)]"
             />
             <button
               type="button"
               onClick={handleRetake}
-              className="absolute top-2 right-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#111]/90 text-xs text-white/70 hover:text-white hover:bg-white/[0.12] transition-colors border border-white/[0.04]"
+              className="absolute top-2 right-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--surface-2)]/90 text-xs text-[var(--text-primary)] hover:text-white hover:bg-white/[0.12] transition-colors border border-[var(--border-subtle)]"
             >
               <RotateCcw className="w-3 h-3" />
               Retake
@@ -255,15 +255,15 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
           <label
             className={cn(
               'flex flex-col items-center gap-3 cursor-pointer px-8 py-8 rounded-xl w-full max-w-sm transition-colors',
-              'border-2 border-dashed border-white/[0.12] hover:border-emerald-500/40 bg-white/[0.02]'
+              'border-2 border-dashed border-[var(--border-strong)] hover:border-emerald-500/40 bg-white/[0.02]'
             )}
           >
-            <Camera className="w-10 h-10 text-white/30" />
+            <Camera className="w-10 h-10 text-[var(--text-muted)]" />
             <div className="text-center">
-              <span className="text-sm text-white/60 block">
+              <span className="text-sm text-[var(--text-secondary)] block">
                 Tap to capture {currentAngle.label}
               </span>
-              <span className="text-[10px] text-white/30 block mt-1">
+              <span className="text-[10px] text-[var(--text-muted)] block mt-1">
                 Use your device camera or select a photo
               </span>
             </div>
@@ -285,7 +285,7 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
           <button
             type="button"
             onClick={() => setSelectedSlot((s) => Math.max(0, s - 1))}
-            className="px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white/80 hover:bg-white/[0.06] transition-colors"
+            className="px-3 py-1.5 rounded-lg text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.06] transition-colors"
           >
             Previous
           </button>
@@ -301,7 +301,7 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
                 setSelectedSlot((s) => s + 1)
               }
             }}
-            className="px-3 py-1.5 rounded-lg text-xs text-white/40 hover:text-white/60 hover:bg-white/[0.06] transition-colors"
+            className="px-3 py-1.5 rounded-lg text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-white/[0.06] transition-colors"
           >
             Skip this angle
           </button>
@@ -310,7 +310,7 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
           <button
             type="button"
             onClick={() => setSelectedSlot((s) => Math.min(angleCount - 1, s + 1))}
-            className="px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white/80 hover:bg-white/[0.06] transition-colors"
+            className="px-3 py-1.5 rounded-lg text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.06] transition-colors"
           >
             Next
           </button>
@@ -320,12 +320,12 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
       {/* ---- Summary footer ---- */}
       <div className="space-y-2 px-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-white/40 tabular-nums flex items-center gap-1.5">
+          <span className="text-xs text-[var(--text-tertiary)] tabular-nums flex items-center gap-1.5">
             <ImagePlus className="w-3.5 h-3.5" />
             {capturedCount}/{angleCount} photos captured
           </span>
           {capturedCount > 0 && capturedCount < angleCount && (
-            <span className="text-[10px] text-white/30">
+            <span className="text-[10px] text-[var(--text-muted)]">
               {angleCount - capturedCount} remaining (optional)
             </span>
           )}
@@ -339,7 +339,7 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
             'w-full py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2',
             capturedCount > 0
               ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
-              : 'bg-white/[0.04] text-white/20 cursor-not-allowed'
+              : 'bg-white/[0.04] text-[var(--text-muted)] cursor-not-allowed'
           )}
         >
           <Check className="w-4 h-4" />

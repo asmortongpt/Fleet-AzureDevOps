@@ -111,7 +111,7 @@ export function VirtualGarage() {
               {vehicles.map((vehicle) => (
                 <div
                   key={vehicle.id}
-                  className="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  className="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-[var(--surface-glass-hover)] transition-colors"
                   onClick={() => push({
                     type: 'vehicle-details',
                     label: formatVehicleName(vehicle),
@@ -145,7 +145,7 @@ export function VirtualGarage() {
                         ? "bg-emerald-500/20 text-emerald-400"
                         : vehicle.status === "service"
                         ? "bg-amber-500/20 text-amber-400"
-                        : "bg-white/[0.06] text-white/50"
+                        : "bg-white/[0.06] text-[var(--text-secondary)]"
                     }`}>
                       {formatEnum(vehicle.status)}
                     </span>

@@ -107,7 +107,7 @@ const MessagePanel = ({ messages, onMessageSelect, onNewMessage }: { messages: M
     switch(priority) {
       case 'high': return 'text-red-600'
       case 'low': return 'text-emerald-400'
-      default: return 'text-white/40'
+      default: return 'text-[var(--text-tertiary)]'
     }
   }
 
@@ -349,7 +349,7 @@ const MessageThreadPanel = ({ message, onViewOnMap }: { message: Message | null;
             <Badge variant="outline" className={
               message.priority === 'high' ? 'text-red-600' :
               message.priority === 'low' ? 'text-emerald-400' :
-              'text-white/40'
+              'text-[var(--text-tertiary)]'
             }>
               {formatEnum(message.priority)}
             </Badge>

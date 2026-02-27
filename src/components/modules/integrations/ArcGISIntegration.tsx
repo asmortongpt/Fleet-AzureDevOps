@@ -751,14 +751,14 @@ export function ArcGISIntegration() {
             {layer.enabled ? (
               <Eye className="h-4 w-4 text-green-500" />
             ) : (
-              <EyeOff className="h-4 w-4 text-white/40" />
+              <EyeOff className="h-4 w-4 text-[var(--text-tertiary)]" />
             )}
             <span className="font-medium truncate">{layer.name}</span>
             <Badge variant={layer.health === 'healthy' ? 'default' : 'destructive'}>
               {layer.health}
             </Badge>
           </div>
-          <div className="text-sm text-white/40 truncate">{layer.description}</div>
+          <div className="text-sm text-[var(--text-tertiary)] truncate">{layer.description}</div>
           {operationError && (
             <div className="text-xs text-red-500 mt-1">{operationError}</div>
           )}
@@ -827,7 +827,7 @@ export function ArcGISIntegration() {
         <AlertTitle>{connectionResult.success ? 'Success' : 'Error'}</AlertTitle>
         <AlertDescription>{connectionResult.message}</AlertDescription>
         {connectionResult.details && (
-          <div className="mt-2 text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>
+          <div className="mt-2 text-sm text-[var(--text-primary)]" style={{ color: brandColors.archon.mediumGray }}>
             <div>Type: {connectionResult.details.layerType ?? '—'}</div>
             <div>Capabilities: {connectionResult.details.capabilities?.join(', ') ?? '—'}</div>
           </div>
@@ -1046,8 +1046,8 @@ export function ArcGISIntegration() {
           </CardHeader>
           <CardContent>
             {layers.length === 0 ? (
-              <div className="text-center py-3 text-white/40">
-                <Globe className="h-9 w-12 mx-auto mb-2 text-white/40" />
+              <div className="text-center py-3 text-[var(--text-tertiary)]">
+                <Globe className="h-9 w-12 mx-auto mb-2 text-[var(--text-tertiary)]" />
                 <p>No ArcGIS layers added yet. Click "Add Layer" to get started.</p>
               </div>
             ) : (

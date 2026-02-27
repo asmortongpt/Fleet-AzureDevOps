@@ -54,7 +54,7 @@ export function GeofenceIntelligencePanel({
                             <h2 className="text-base font-bold text-foreground">{geofence.name}</h2>
                             <p className="text-sm text-muted-foreground">{geofence.description || "No description provided"}</p>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-white/10" aria-label="Close geofence intelligence panel">
+                        <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-[var(--surface-glass-hover)]" aria-label="Close geofence intelligence panel">
                             <X className="w-3 h-3 text-muted-foreground" />
                         </Button>
                     </div>

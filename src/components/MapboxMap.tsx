@@ -531,7 +531,7 @@ export function MapboxMap({
     >
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/[0.06] bg-opacity-75 z-50">
-          <div className="text-sm font-medium text-white/40">Loading map...</div>
+          <div className="text-sm font-medium text-[var(--text-tertiary)]">Loading map...</div>
         </div>
       )}
       {mapError && (

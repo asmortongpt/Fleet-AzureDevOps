@@ -55,11 +55,11 @@ export const MaintenancePanel: React.FC<MaintenancePanelProps> = ({ open, onOpen
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent
-                className="w-[400px] sm:w-[540px] flex flex-col p-0 text-foreground glass-panel border-white/10"
+                className="w-[400px] sm:w-[540px] flex flex-col p-0 text-foreground glass-panel border-[var(--border-default)]"
                 side="right"
                 style={{ backgroundColor: 'transparent' }}
             >
-                <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
+                <SheetHeader className="p-3 border-b border-[var(--border-default)] bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
                             <Wrench className="w-4 h-4 text-orange-500" />

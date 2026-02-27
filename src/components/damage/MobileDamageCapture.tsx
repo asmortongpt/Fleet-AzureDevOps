@@ -205,16 +205,16 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
           <div className="space-y-1">
             <p className="font-medium">Device Capabilities Detected:</p>
             <ul className="list-disc list-inside text-sm space-y-1">
-              <li className={deviceCapabilities.hasCamera ? 'text-green-600' : 'text-white/40'}>
+              <li className={deviceCapabilities.hasCamera ? 'text-green-600' : 'text-[var(--text-tertiary)]'}>
                 {deviceCapabilities.hasCamera ? '✓' : '✗'} Camera
               </li>
-              <li className={deviceCapabilities.hasVideo ? 'text-green-600' : 'text-white/40'}>
+              <li className={deviceCapabilities.hasVideo ? 'text-green-600' : 'text-[var(--text-tertiary)]'}>
                 {deviceCapabilities.hasVideo ? '✓' : '✗'} Video Recording
               </li>
-              <li className={deviceCapabilities.hasDepth ? 'text-green-600' : 'text-white/40'}>
+              <li className={deviceCapabilities.hasDepth ? 'text-green-600' : 'text-[var(--text-tertiary)]'}>
                 {deviceCapabilities.hasDepth ? '✓' : '✗'} Depth Sensing
               </li>
-              <li className={deviceCapabilities.hasLiDAR ? 'text-green-600' : 'text-white/40'}>
+              <li className={deviceCapabilities.hasLiDAR ? 'text-green-600' : 'text-[var(--text-tertiary)]'}>
                 {deviceCapabilities.hasLiDAR ? '✓' : '✗'} LiDAR Scanner
               </li>
             </ul>
@@ -237,7 +237,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="text-sm space-y-1 text-white/70">
+              <ul className="text-sm space-y-1 text-[var(--text-primary)]">
                 <li>• 5-10 photos recommended</li>
                 <li>• Front, rear, sides, and closeups</li>
                 {deviceCapabilities.hasDepth && <li>• Includes depth data</li>}
@@ -257,7 +257,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="text-sm space-y-1 text-white/70">
+              <ul className="text-sm space-y-1 text-[var(--text-primary)]">
                 <li>• 30-60 seconds recommended</li>
                 <li>• Walk around entire vehicle</li>
                 <li>• Hold steady for best results</li>
@@ -282,7 +282,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
             </CardHeader>
             <CardContent>
               {deviceCapabilities.hasLiDAR ? (
-                <ul className="text-sm space-y-1 text-white/70">
+                <ul className="text-sm space-y-1 text-[var(--text-primary)]">
                   <li>• Millimeter-level accuracy</li>
                   <li>• 3D depth map included</li>
                   <li>• Best for insurance claims</li>

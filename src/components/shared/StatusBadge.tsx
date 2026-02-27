@@ -34,7 +34,7 @@ const statusConfig: Record<string, {
     label: "In Transit"
   },
   parked: {
-    color: "bg-white/[0.1]/10 text-white/40 border-white/[0.12]/20",
+    color: "bg-white/[0.1]/10 text-[var(--text-tertiary)] border-[var(--border-strong)]/20",
     icon: <Clock className="w-3 h-3" aria-hidden="true" />,
     label: "Parked"
   },

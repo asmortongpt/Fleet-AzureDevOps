@@ -251,7 +251,7 @@ export function AnimatedCard({
       }
       transition={{ duration: 0.3 }}
       className={`
-        p-6 border border-white/[0.04] rounded-xl bg-[#111111]
+        p-6 border border-[var(--border-subtle)] rounded-xl bg-[var(--surface-2)]
         transition-all duration-300
         ${hoverable ? 'cursor-pointer' : ''}
         ${className}
@@ -305,7 +305,7 @@ export function AnimatedModal({
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-[#111111] border border-white/[0.04] rounded-xl p-6 max-w-md w-full mx-4 pointer-events-auto"
+              className="bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl p-6 max-w-md w-full mx-4 pointer-events-auto"
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
@@ -463,7 +463,7 @@ export function StatusBadge({ status, label }: StatusBadgeProps) {
       dotColor: 'bg-emerald-500',
     },
     offline: {
-      color: 'text-white/35',
+      color: 'text-[var(--text-tertiary)]',
       bgColor: 'bg-white/[0.06]',
       dotColor: 'bg-white/35',
     },

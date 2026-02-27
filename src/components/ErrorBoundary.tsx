@@ -283,8 +283,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
       const canRetry = retryCount < MAX_RETRIES
 
       return (
-        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-2">
-          <Card className="max-w-2xl w-full border-white/[0.04] bg-[#111111]">
+        <div className="min-h-screen bg-[var(--surface-0)] flex items-center justify-center p-2">
+          <Card className="max-w-2xl w-full border-[var(--border-subtle)] bg-[var(--surface-2)]">
             <CardHeader className="text-center">
               <div className="mx-auto mb-2 w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center">
                 <AlertTriangle className="w-4 h-4 text-red-400" />

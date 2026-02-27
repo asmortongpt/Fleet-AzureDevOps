@@ -338,11 +338,11 @@ function DamageMarker({ point, isSelected, onClick }: DamageMarkerProps) {
       {/* Tooltip on hover/select */}
       {isSelected && (
         <Html center distanceFactor={10}>
-          <div className="bg-[#111111]/95 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap border border-white/[0.04]">
+          <div className="bg-[var(--surface-2)]/95 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap border border-[var(--border-subtle)]">
             <div className="font-semibold">{point.zone}</div>
-            <div className="text-white/60 capitalize">{point.severity} damage</div>
+            <div className="text-[var(--text-secondary)] capitalize">{point.severity} damage</div>
             {point.description && (
-              <div className="text-white/40 mt-1">{point.description}</div>
+              <div className="text-[var(--text-tertiary)] mt-1">{point.description}</div>
             )}
           </div>
         </Html>
@@ -384,16 +384,16 @@ function HotspotMarker({ hotspot }: { hotspot: VehicleHotspot }) {
           onMouseLeave={() => setHovered(false)}
           className="select-none"
         >
-          <div className="bg-[#111]/85 backdrop-blur-sm rounded-full px-2 py-0.5 border border-white/[0.04] flex items-center gap-1.5 whitespace-nowrap cursor-default transition-transform hover:scale-105">
+          <div className="bg-[var(--surface-2)]/85 backdrop-blur-sm rounded-full px-2 py-0.5 border border-[var(--border-subtle)] flex items-center gap-1.5 whitespace-nowrap cursor-default transition-transform hover:scale-105">
             <div className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
-            <span className="text-[10px] text-white/70 font-medium">{hotspot.label}</span>
+            <span className="text-[10px] text-[var(--text-primary)] font-medium">{hotspot.label}</span>
             <span className={`text-[10px] font-bold ${statusClass}`}>
               {hotspot.value}{hotspot.unit || ''}
             </span>
           </div>
           {hovered && hotspot.detail && (
-            <div className="mt-1 bg-[#111]/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 border border-white/[0.04] whitespace-nowrap">
-              <p className="text-[10px] text-white/50">{hotspot.detail}</p>
+            <div className="mt-1 bg-[var(--surface-2)]/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 border border-[var(--border-subtle)] whitespace-nowrap">
+              <p className="text-[10px] text-[var(--text-secondary)]">{hotspot.detail}</p>
             </div>
           )}
         </div>
@@ -666,25 +666,25 @@ class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundary
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-[#111] rounded-lg">
+        <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-[var(--surface-2)] rounded-lg">
           <div className="text-center p-6 max-w-md">
             <div className="w-12 h-12 text-amber-400 mx-auto mb-4 flex items-center justify-center text-3xl">
               &#9888;
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">3D View Unavailable</h3>
-            <p className="text-sm text-white/60 mb-4">
+            <p className="text-sm text-[var(--text-secondary)] mb-4">
               The 3D asset viewer could not be loaded. This may be due to browser compatibility
               or graphics driver limitations.
             </p>
             {this.props.vehicleLabel && (
-              <p className="text-xs text-white/40 mb-4">Asset: {this.props.vehicleLabel}</p>
+              <p className="text-xs text-[var(--text-tertiary)] mb-4">Asset: {this.props.vehicleLabel}</p>
             )}
             {import.meta.env.DEV && this.state.error && (
               <details className="text-left mt-4">
-                <summary className="text-xs text-white/40 cursor-pointer hover:text-white/60">
+                <summary className="text-xs text-[var(--text-tertiary)] cursor-pointer hover:text-[var(--text-secondary)]">
                   Error details (dev only)
                 </summary>
-                <pre className="text-xs text-red-400 mt-2 p-3 bg-[#0a0a0a] rounded overflow-auto max-h-40">
+                <pre className="text-xs text-red-400 mt-2 p-3 bg-[var(--surface-0)] rounded overflow-auto max-h-40">
                   {this.state.error.message}
                   {'\n\n'}
                   {this.state.error.stack}
@@ -805,7 +805,7 @@ export function Asset3DViewer({
   const vehicleLabel = [year, make, model].filter(Boolean).join(' ') || undefined;
 
   return (
-    <div className="relative w-full h-full bg-[#111]" style={{ opacity, transition: 'opacity 0.4s ease-in-out' }}>
+    <div className="relative w-full h-full bg-[var(--surface-2)]" style={{ opacity, transition: 'opacity 0.4s ease-in-out' }}>
       {/* 3D Canvas wrapped in error boundary for React 19 / R3F v8 compatibility */}
       <R3FErrorBoundary vehicleLabel={vehicleLabel}>
         <Canvas
@@ -906,28 +906,28 @@ export function Asset3DViewer({
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#111111]/80">
+        <div className="absolute inset-0 flex items-center justify-center bg-[var(--surface-2)]/80">
           <div className="text-center text-white">
-            <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-sm text-white/60">Loading 3D model...</p>
+            <div className="w-12 h-12 border-4 border-[var(--border-strong)] border-t-white rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-sm text-[var(--text-secondary)]">Loading 3D model...</p>
           </div>
         </div>
       )}
 
       {/* Error Display */}
       {loadError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#111]/90">
+        <div className="absolute inset-0 flex items-center justify-center bg-[var(--surface-2)]/90">
           <div className="text-center text-white p-3">
             <div className="text-red-400 text-sm mb-3">&#9888;</div>
             <p className="text-sm font-semibold mb-2">Failed to load 3D model</p>
-            <p className="text-sm text-white/40">{loadError.message}</p>
+            <p className="text-sm text-[var(--text-tertiary)]">{loadError.message}</p>
           </div>
         </div>
       )}
 
       {/* Camera Preset Controls */}
       {showControls && !loadError && (
-        <div className="absolute top-4 right-4 bg-[#0e0e0e]/90 backdrop-blur-sm rounded-lg border border-white/[0.04] p-2 space-y-2">
+        <div className="absolute top-4 right-4 bg-[var(--surface-1)]/90 backdrop-blur-sm rounded-lg border border-[var(--border-subtle)] p-2 space-y-2">
           <h3 className="font-semibold text-sm text-white mb-2">Camera Views</h3>
           <div className="grid grid-cols-2 gap-2">
             {cameraPresetList.map(preset => (
@@ -937,7 +937,7 @@ export function Asset3DViewer({
                 className={`px-3 py-1.5 text-xs rounded transition-colors ${
                   internalCamera === preset
                     ? 'bg-emerald-500/20 text-emerald-400'
-                    : 'bg-white/[0.06] text-white/60 hover:bg-white/[0.1]'
+                    : 'bg-white/[0.06] text-[var(--text-secondary)] hover:bg-white/[0.1]'
                 }`}
               >
                 {preset.replace(/([A-Z])/g, ' $1').trim()}
@@ -949,18 +949,18 @@ export function Asset3DViewer({
 
       {/* Device Info Badge — hidden in immersive mode (showControls=false) */}
       {showControls && deviceCapabilities && (
-        <div className="absolute bottom-4 left-4 bg-[#111]/80 text-white text-xs px-3 py-2 rounded-lg border border-white/[0.04] flex items-center gap-2">
+        <div className="absolute bottom-4 left-4 bg-[var(--surface-2)]/80 text-white text-xs px-3 py-2 rounded-lg border border-[var(--border-subtle)] flex items-center gap-2">
           <span className={deviceCapabilities.webgl2 ? 'text-emerald-400' : 'text-amber-400'}>&#9679;</span>
-          <span className="text-white/60">WebGL {deviceCapabilities.webgl2 ? '2.0' : '1.0'}</span>
+          <span className="text-[var(--text-secondary)]">WebGL {deviceCapabilities.webgl2 ? '2.0' : '1.0'}</span>
           {deviceCapabilities.maxTextureSize && (
-            <span className="text-white/30">| {deviceCapabilities.maxTextureSize}px max</span>
+            <span className="text-[var(--text-muted)]">| {deviceCapabilities.maxTextureSize}px max</span>
           )}
         </div>
       )}
 
       {/* Vehicle Info Badge — hidden in immersive mode */}
       {showControls && (make || model) && (
-        <div className="absolute bottom-4 right-4 bg-[#111]/80 text-white/60 text-xs px-3 py-2 rounded-lg border border-white/[0.04]">
+        <div className="absolute bottom-4 right-4 bg-[var(--surface-2)]/80 text-[var(--text-secondary)] text-xs px-3 py-2 rounded-lg border border-[var(--border-subtle)]">
           {year && <span>{year} </span>}
           {make && <span>{make} </span>}
           {model && <span>{model}</span>}

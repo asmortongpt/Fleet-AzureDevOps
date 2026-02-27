@@ -104,10 +104,10 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
     <div className="p-2 min-w-[300px]">
       <div className="flex items-start justify-between mb-2">
         <div>
-          <h3 className="font-semibold text-white/80 dark:text-white">
+          <h3 className="font-semibold text-[var(--text-primary)] dark:text-white">
             {camera.name}
           </h3>
-          <p className="text-sm text-white/70 dark:text-white/40">
+          <p className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
             {camera.road} {camera.direction}
           </p>
         </div>
@@ -115,7 +115,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
       </div>
 
       {camera.description && (
-        <p className="text-sm text-white/40 dark:text-white/60 mb-2">
+        <p className="text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] mb-2">
           {camera.description}
         </p>
       )}
@@ -135,7 +135,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2 text-xs text-white/70 dark:text-white/40 mb-2">
+      <div className="grid grid-cols-2 gap-2 text-xs text-[var(--text-primary)] dark:text-[var(--text-tertiary)] mb-2">
         <div>
           <span className="font-medium">County:</span> {camera.county}
         </div>
@@ -150,7 +150,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
         )}
       </div>
 
-      <div className="flex items-center justify-between text-xs text-white/40 dark:text-white/40">
+      <div className="flex items-center justify-between text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
         <span>Updated: {formatTime(camera.lastUpdated)}</span>
         <span
           className={`px-2 py-1 rounded ${
@@ -184,22 +184,22 @@ function CameraFeedModal({
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-[#18181b] rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col"
+        className="bg-white dark:bg-[var(--surface-3)] rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b border-white/[0.08] dark:border-white/[0.08]">
+        <div className="flex items-center justify-between p-2 border-b border-[var(--border-default)] dark:border-[var(--border-default)]">
           <div>
-            <h2 className="text-base font-bold text-white/80 dark:text-white">
+            <h2 className="text-base font-bold text-[var(--text-primary)] dark:text-white">
               {camera.name}
             </h2>
-            <p className="text-sm text-white/70 dark:text-white/40">
+            <p className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
               {camera.road} {camera.direction} - {camera.county} County
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-white/40 hover:text-white/70 dark:hover:text-white/60 transition-colors"
+            className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] dark:hover:text-[var(--text-secondary)] transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -234,9 +234,9 @@ function CameraFeedModal({
         </div>
 
         {/* Footer */}
-        <div className="p-2 border-t border-white/[0.08] dark:border-white/[0.08] bg-white/[0.03] dark:bg-[#111113]">
+        <div className="p-2 border-t border-[var(--border-default)] dark:border-[var(--border-default)] bg-white/[0.03] dark:bg-[#111113]">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-white/70 dark:text-white/40">
+            <div className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
               <p>{camera.description}</p>
               {camera.metadata?.mileMarker && (
                 <p className="mt-1">Mile Marker: {camera.metadata.mileMarker}</p>

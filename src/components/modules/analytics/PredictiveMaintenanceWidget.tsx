@@ -102,7 +102,7 @@ export function PredictiveMaintenanceWidget() {
     }
 
     return (
-        <Card className="h-full border-white/[0.12] dark:border-white/[0.04]">
+        <Card className="h-full border-[var(--border-strong)] dark:border-[var(--border-subtle)]">
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                     <div>
@@ -121,11 +121,11 @@ export function PredictiveMaintenanceWidget() {
                 <div className="space-y-2">
                     {/* Summary Stats */}
                     <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-white/[0.03] dark:bg-white/[0.03] p-3 rounded-lg border border-white/[0.04] dark:border-white/[0.04]">
+                        <div className="bg-white/[0.03] dark:bg-white/[0.03] p-3 rounded-lg border border-[var(--border-subtle)] dark:border-[var(--border-subtle)]">
                             <div className="text-xs text-muted-foreground">High Risk Vehicles</div>
                             <div className="text-sm font-bold text-red-600">{highRiskCount}</div>
                         </div>
-                        <div className="bg-white/[0.03] dark:bg-white/[0.03] p-3 rounded-lg border border-white/[0.04] dark:border-white/[0.04]">
+                        <div className="bg-white/[0.03] dark:bg-white/[0.03] p-3 rounded-lg border border-[var(--border-subtle)] dark:border-[var(--border-subtle)]">
                         <div className="text-xs text-muted-foreground">Next 7 Days</div>
                             <div className="text-sm font-bold text-emerald-400">{next7Days}</div>
                         </div>
@@ -138,7 +138,7 @@ export function PredictiveMaintenanceWidget() {
                             <div className="text-sm text-muted-foreground text-center py-2">No high risk vehicles detected</div>
                         ) : (
                             risks.map(risk => (
-                                <div key={risk.vehicleId} className="flex items-center justify-between p-2 rounded-md hover:bg-white/[0.03] dark:hover:bg-white/[0.03] transition-colors border border-transparent hover:border-white/[0.04] dark:hover:border-white/[0.04]">
+                                <div key={risk.vehicleId} className="flex items-center justify-between p-2 rounded-md hover:bg-white/[0.03] dark:hover:bg-white/[0.03] transition-colors border border-transparent hover:border-[var(--border-subtle)] dark:hover:border-[var(--border-subtle)]">
                                     <div className="flex items-center gap-3">
                                         {risk.riskLevel === 'critical' ? (
                                             <AlertTriangle className="text-red-500 h-4 w-4" />

@@ -38,7 +38,7 @@ export function VirtualGarageControls({
 
   return (
     <div className="fixed top-20 right-4 z-50">
-      <div className="bg-[#0e0e0e] rounded-lg border border-white/[0.04] overflow-hidden">
+      <div className="bg-[var(--surface-1)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
         {/* Header */}
         <div
           className="bg-emerald-600 px-2 py-3 flex items-center justify-between cursor-pointer"
@@ -69,7 +69,7 @@ export function VirtualGarageControls({
                     className={`px-3 py-2 rounded-lg text-sm transition-all ${
                       currentCamera === preset.id
                         ? 'bg-emerald-600 text-white'
-                        : 'bg-white/[0.04] hover:bg-white/[0.08] text-white/60'
+                        : 'bg-white/[0.04] hover:bg-[var(--surface-glass-hover)] text-[var(--text-secondary)]'
                     }`}
                   >
                     <div className="text-sm mb-1">{preset.icon}</div>
@@ -93,7 +93,7 @@ export function VirtualGarageControls({
                     className={`w-full px-3 py-2 rounded-lg text-left transition-all ${
                       currentQuality === level.id
                         ? 'bg-emerald-600 text-white'
-                        : 'bg-white/[0.04] hover:bg-white/[0.08] text-white/60'
+                        : 'bg-white/[0.04] hover:bg-[var(--surface-glass-hover)] text-[var(--text-secondary)]'
                     }`}
                   >
                     <div className="font-medium text-sm">{level.label}</div>

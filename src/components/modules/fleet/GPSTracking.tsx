@@ -77,9 +77,9 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
           ) : (
             <div className="flex items-center justify-center h-full bg-white/[0.03]">
               <div className="text-center">
-                <AlertCircle className="w-12 h-12 mx-auto mb-4 text-white/40" />
-                <p className="text-lg font-medium text-white/40">No Vehicles Available</p>
-                <p className="text-sm mt-2 text-white/40">
+                <AlertCircle className="w-12 h-12 mx-auto mb-4 text-[var(--text-tertiary)]" />
+                <p className="text-lg font-medium text-[var(--text-tertiary)]">No Vehicles Available</p>
+                <p className="text-sm mt-2 text-[var(--text-tertiary)]">
                   Load vehicles to display on map
                 </p>
               </div>

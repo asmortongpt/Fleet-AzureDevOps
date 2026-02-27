@@ -205,7 +205,7 @@ export function ReceiptProcessing() {
       service: "bg-green-100 text-green-700",
       toll: "bg-emerald-100 text-emerald-700",
       parking: "bg-pink-100 text-pink-700",
-      other: "bg-white/[0.05] text-white/40"
+      other: "bg-white/[0.05] text-[var(--text-tertiary)]"
     }
     return colors[category]
   }

@@ -234,7 +234,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
                 {teamRows.map((dept: any) => (
                   <div
                     key={dept.id}
-                    className="flex items-center justify-between rounded border border-white/[0.04] bg-[#111111] p-2.5"
+                    className="flex items-center justify-between rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5"
                     title="Team details coming soon"
                   >
                     <div className="flex items-center gap-2">
@@ -272,7 +272,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
                   {recentUsers.map((user, index) => (
                     <div
                       key={index}
-                      className="flex items-start gap-2 rounded border border-white/[0.04] bg-[#111111] p-2.5"
+                      className="flex items-start gap-2 rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5"
                       title="User details coming soon"
                     >
                       {/* P1-6: UserPlus for active, UserX for inactive */}
@@ -309,7 +309,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
                     // P1-7: Conditional progress bar colors
                     const completionPct = training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0
                     return (
-                      <div key={training.program} className="rounded border border-white/[0.04] bg-[#111111] p-2.5">
+                      <div key={training.program} className="rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5">
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-medium text-foreground">{training.program}</p>
                           <p className="text-xs text-muted-foreground">
@@ -461,7 +461,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
                 {messages.slice(0, 8).map((msg: any) => (
                   <div
                     key={msg.id}
-                    className="flex items-start gap-2 rounded border border-white/[0.04] bg-[#111111] p-2.5"
+                    className="flex items-start gap-2 rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5"
                     title="Message details coming soon"
                   >
                     <User className="h-4 w-4 text-muted-foreground mt-0.5" />
@@ -498,7 +498,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
               ) : (
                 <div className="space-y-1.5">
                   {announcementRows.slice(0, 5).map((announcement: any) => (
-                    <div key={announcement.id} className="rounded border border-white/[0.04] bg-[#111111] p-2.5">
+                    <div key={announcement.id} className="rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5">
                       <div className="flex items-center justify-between mb-1">
                         <Badge variant="secondary">{formatEnum(announcement.type) || 'Announcement'}</Badge>
                         <p className="text-xs text-muted-foreground">
@@ -526,7 +526,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
                   {channelRows.map((channel: any) => (
                     <div
                       key={channel.id}
-                      className="flex items-center justify-between rounded border border-white/[0.04] bg-[#111111] p-2.5"
+                      className="flex items-center justify-between rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5"
                       title="Channel details coming soon"
                     >
                       <div className="flex items-center gap-2">
@@ -761,7 +761,7 @@ const WorkTabContent = memo(function WorkTabContent() {
                         return (
                           <div
                             key={task.id}
-                            className="rounded border border-white/[0.04] bg-[#111111] p-2 cursor-pointer hover:bg-white/[0.04]"
+                            className="rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 cursor-pointer hover:bg-[var(--surface-glass-hover)]"
                             onClick={() => push({
                               id: task.id,
                               type: 'task',
@@ -836,7 +836,7 @@ const WorkTabContent = memo(function WorkTabContent() {
               ) : (
                 <div className="space-y-1.5">
                   {upcomingDeadlines.slice(0, 5).map((item: any) => (
-                    <div key={item.id} className="flex items-center justify-between rounded border border-white/[0.04] bg-[#111111] p-2.5">
+                    <div key={item.id} className="flex items-center justify-between rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <div>
@@ -866,7 +866,7 @@ const WorkTabContent = memo(function WorkTabContent() {
               ) : (
                 <div className="space-y-1.5">
                   {meetings.map((meeting: any) => (
-                    <div key={meeting.id} className="flex items-center justify-between rounded border border-white/[0.04] bg-[#111111] p-2.5">
+                    <div key={meeting.id} className="flex items-center justify-between rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5">
                       <div className="flex items-center gap-2">
                         <Video className="h-4 w-4 text-muted-foreground" />
                         <div>
@@ -894,7 +894,7 @@ const WorkTabContent = memo(function WorkTabContent() {
 
       {/* Meeting Details Dialog */}
       <Dialog open={!!selectedMeeting} onOpenChange={(open) => { if (!open) setSelectedMeeting(null); }}>
-        <DialogContent className="bg-[#111111] border-white/[0.04]">
+        <DialogContent className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
           <DialogHeader>
             <DialogTitle>{selectedMeeting?.subject || selectedMeeting?.title || 'Meeting Details'}</DialogTitle>
           </DialogHeader>
@@ -935,7 +935,7 @@ const WorkTabContent = memo(function WorkTabContent() {
 
       {/* P0-4: Add Task Dialog */}
       <Dialog open={showAddTask} onOpenChange={setShowAddTask}>
-        <DialogContent className="bg-[#111111] border-white/[0.04]">
+        <DialogContent className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
           <DialogHeader>
             <DialogTitle>Create Task</DialogTitle>
           </DialogHeader>
@@ -944,16 +944,16 @@ const WorkTabContent = memo(function WorkTabContent() {
               placeholder="Task title"
               value={newTask.title}
               onChange={e => setNewTask(p => ({...p, title: e.target.value}))}
-              className="bg-[#1a1a1a] border-white/[0.04]"
+              className="bg-[var(--surface-3)] border-[var(--border-subtle)]"
             />
             <Input
               placeholder="Description"
               value={newTask.description}
               onChange={e => setNewTask(p => ({...p, description: e.target.value}))}
-              className="bg-[#1a1a1a] border-white/[0.04]"
+              className="bg-[var(--surface-3)] border-[var(--border-subtle)]"
             />
             <select
-              className="w-full rounded-md bg-[#1a1a1a] border border-white/[0.04] text-white/80 p-2 text-sm"
+              className="w-full rounded-md bg-[var(--surface-3)] border border-[var(--border-subtle)] text-[var(--text-primary)] p-2 text-sm"
               value={newTask.priority}
               onChange={e => setNewTask(p => ({...p, priority: e.target.value}))}
             >

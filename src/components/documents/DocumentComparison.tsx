@@ -207,10 +207,10 @@ export function DocumentComparison({
           <div className="flex items-center justify-between mb-2">
             <div>
               <h3 className="font-semibold text-sm">Version {oldVersion.version}</h3>
-              <p className="text-sm text-white/35">
+              <p className="text-sm text-[var(--text-tertiary)]">
                 {formatDateTime(oldVersion.created_at)}
               </p>
-              <p className="text-xs text-white/35">by {oldVersion.created_by}</p>
+              <p className="text-xs text-[var(--text-tertiary)]">by {oldVersion.created_by}</p>
             </div>
             <Badge variant="secondary">Old</Badge>
           </div>
@@ -230,7 +230,7 @@ export function DocumentComparison({
                       !isRemoved && !isModified && !showUnchanged && "opacity-30"
                     )}
                   >
-                    <span className="text-xs text-white/35 mr-2">{idx + 1}</span>
+                    <span className="text-xs text-[var(--text-tertiary)] mr-2">{idx + 1}</span>
                     {line || ' '}
                   </div>
                 );
@@ -244,10 +244,10 @@ export function DocumentComparison({
           <div className="flex items-center justify-between mb-2">
             <div>
               <h3 className="font-semibold text-sm">Version {newVersion.version}</h3>
-              <p className="text-sm text-white/35">
+              <p className="text-sm text-[var(--text-tertiary)]">
                 {formatDateTime(newVersion.created_at)}
               </p>
-              <p className="text-xs text-white/35">by {newVersion.created_by}</p>
+              <p className="text-xs text-[var(--text-tertiary)]">by {newVersion.created_by}</p>
             </div>
             <Badge variant="default">New</Badge>
           </div>
@@ -267,7 +267,7 @@ export function DocumentComparison({
                       !isAdded && !isModified && !showUnchanged && "opacity-30"
                     )}
                   >
-                    <span className="text-xs text-white/35 mr-2">{idx + 1}</span>
+                    <span className="text-xs text-[var(--text-tertiary)] mr-2">{idx + 1}</span>
                     {line || ' '}
                   </div>
                 );
@@ -328,7 +328,7 @@ export function DocumentComparison({
             <Zap className="w-3 h-3 text-amber-400" />
             <h3 className="font-semibold text-sm text-white">AI-Powered Change Summary</h3>
           </div>
-          <p className="text-white/60 leading-relaxed">
+          <p className="text-[var(--text-secondary)] leading-relaxed">
             {comparisonResult.aiSummary}
           </p>
         </div>
@@ -365,10 +365,10 @@ export function DocumentComparison({
             </div>
           </div>
 
-          <div className="bg-white/[0.03] p-2 rounded-lg border border-white/[0.04]">
+          <div className="bg-white/[0.03] p-2 rounded-lg border border-[var(--border-subtle)]">
             <div className="flex items-center gap-2 mb-2">
-              <FileText className="w-4 h-4 text-white/60" />
-              <span className="text-sm font-medium text-white/60">Change %</span>
+              <FileText className="w-4 h-4 text-[var(--text-secondary)]" />
+              <span className="text-sm font-medium text-[var(--text-secondary)]">Change %</span>
             </div>
             <div className="text-sm font-bold text-white">
               {comparisonResult.changePercentage.toFixed(1)}%
@@ -385,7 +385,7 @@ export function DocumentComparison({
               <CheckCircle2 className="w-3 h-3 text-green-400 mt-0.5" />
               <div>
                 <Badge variant="outline" className="mb-2">Added</Badge>
-                <p className="text-sm text-white/60 font-mono">{line}</p>
+                <p className="text-sm text-[var(--text-secondary)] font-mono">{line}</p>
               </div>
             </div>
           ))}
@@ -395,7 +395,7 @@ export function DocumentComparison({
               <XCircle className="w-3 h-3 text-red-400 mt-0.5" />
               <div>
                 <Badge variant="outline" className="mb-2">Removed</Badge>
-                <p className="text-sm text-white/60 font-mono">{line}</p>
+                <p className="text-sm text-[var(--text-secondary)] font-mono">{line}</p>
               </div>
             </div>
           ))}
@@ -406,14 +406,14 @@ export function DocumentComparison({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl h-[90vh] bg-[#0a0a0a] border-white/[0.04]">
+      <DialogContent className="max-w-7xl h-[90vh] bg-[var(--surface-0)] border-[var(--border-subtle)]">
         <DialogHeader className="border-b pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <GitCompare className="h-6 w-6 text-emerald-400" />
               <div>
                 <DialogTitle className="text-base">Document Comparison</DialogTitle>
-                <p className="text-sm text-white/35 mt-1">
+                <p className="text-sm text-[var(--text-tertiary)] mt-1">
                   Comparing {oldVersion.file_name} (v{oldVersion.version} → v{newVersion.version})
                 </p>
               </div>
@@ -467,7 +467,7 @@ export function DocumentComparison({
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-500 mx-auto mb-2"></div>
-                <p className="text-white/35">Analyzing changes...</p>
+                <p className="text-[var(--text-tertiary)]">Analyzing changes...</p>
               </div>
             </div>
           ) : (

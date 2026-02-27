@@ -262,15 +262,15 @@ export function VideoPlayer({
         <div className="absolute inset-0 flex items-center justify-center bg-black/80">
           <div className="text-center">
             <AlertTriangle className="w-4 h-4 text-red-400 mx-auto mb-2" />
-            <p className="text-sm text-white/80">{error}</p>
+            <p className="text-sm text-[var(--text-primary)]">{error}</p>
           </div>
         </div>
       )}
 
       {/* No Source - Demo Mode */}
       {!src && status !== 'offline' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#111111]">
-          <Camera className="w-12 h-9 text-white/50" />
+        <div className="absolute inset-0 flex items-center justify-center bg-[var(--surface-2)]">
+          <Camera className="w-12 h-9 text-[var(--text-secondary)]" />
         </div>
       )}
 
@@ -356,7 +356,7 @@ export function VideoPlayer({
                   </Button>
 
                   {!live && duration > 0 && (
-                    <span className="text-xs text-white/80">
+                    <span className="text-xs text-[var(--text-primary)]">
                       {formatTime(currentTime)} / {formatTime(duration)}
                     </span>
                   )}
@@ -386,7 +386,7 @@ export function VideoPlayer({
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-2 z-10">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-white">{label}</span>
-            {assetId && <span className="text-[10px] text-white/60">{assetId}</span>}
+            {assetId && <span className="text-[10px] text-[var(--text-secondary)]">{assetId}</span>}
           </div>
         </div>
       )}

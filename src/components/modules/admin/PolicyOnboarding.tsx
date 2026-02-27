@@ -248,12 +248,12 @@ export function PolicyOnboarding() {
       case 'high': return 'text-orange-400 bg-orange-400/10 border-orange-400/20'
       case 'medium': return 'text-amber-400 bg-amber-400/10 border-amber-400/20'
       case 'low': return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20'
-      default: return 'text-white/40 bg-white/[0.04] border-white/[0.04]'
+      default: return 'text-[var(--text-tertiary)] bg-white/[0.04] border-[var(--border-subtle)]'
     }
   }
 
   return (
-    <div className="h-full overflow-auto bg-[#0e0e0e] p-3">
+    <div className="h-full overflow-auto bg-[var(--surface-1)] p-3">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-3">
@@ -285,7 +285,7 @@ export function PolicyOnboarding() {
                         ? "bg-emerald-500 border-emerald-500 text-white"
                         : arr.indexOf(currentStep) > idx
                         ? "bg-green-500 border-green-500 text-white"
-                        : "bg-[#1a1a1a] border-white/10 text-white/60"
+                        : "bg-[var(--surface-3)] border-[var(--border-default)] text-[var(--text-secondary)]"
                     )}
                   >
                     {arr.indexOf(currentStep) > idx ? (
@@ -313,8 +313,8 @@ export function PolicyOnboarding() {
 
         {/* Content */}
         {currentStep === 'profile' && (
-          <Card className="border border-white/[0.04] bg-[#111111]">
-            <CardHeader className="bg-[#1a1a1a] border-b border-white/[0.04]">
+          <Card className="border border-[var(--border-subtle)] bg-[var(--surface-2)]">
+            <CardHeader className="bg-[var(--surface-3)] border-b border-[var(--border-subtle)]">
               <CardTitle className="flex items-center gap-2 text-white">
                 <Building className="w-3 h-3" />
                 Organization Profile
@@ -340,7 +340,7 @@ export function PolicyOnboarding() {
                       placeholder="Number of vehicles"
                       value={profile.fleetSize || ''}
                       onChange={(e) => updateProfile({ fleetSize: parseInt(e.target.value) || 0 })}
-                      className="border-white/10 bg-[#1a1a1a] text-white"
+                      className="border-[var(--border-default)] bg-[var(--surface-3)] text-white"
                     />
                   </div>
 
@@ -348,7 +348,7 @@ export function PolicyOnboarding() {
                     <Label htmlFor="industryVertical">Industry *</Label>
                     <select
                       id="industryVertical"
-                      className="w-full h-8 px-3 border border-white/10 rounded-md bg-[#1a1a1a] text-white"
+                      className="w-full h-8 px-3 border border-[var(--border-default)] rounded-md bg-[var(--surface-3)] text-white"
                       value={profile.industryVertical || ''}
                       onChange={(e) => updateProfile({ industryVertical: e.target.value })}
                     >
@@ -363,7 +363,7 @@ export function PolicyOnboarding() {
                     <Label htmlFor="geographicScope">Geographic Scope *</Label>
                     <select
                       id="geographicScope"
-                      className="w-full h-8 px-3 border border-white/10 rounded-md bg-[#1a1a1a] text-white"
+                      className="w-full h-8 px-3 border border-[var(--border-default)] rounded-md bg-[var(--surface-3)] text-white"
                       value={profile.geographicScope || ''}
                       onChange={(e) => updateProfile({ geographicScope: e.target.value })}
                     >
@@ -492,7 +492,7 @@ export function PolicyOnboarding() {
                       onChange={(e) => updateProfile({
                         staffing: { ...profile.staffing!, drivers: parseInt(e.target.value) || 0 }
                       })}
-                      className="border-white/10 bg-[#1a1a1a] text-white"
+                      className="border-[var(--border-default)] bg-[var(--surface-3)] text-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -506,7 +506,7 @@ export function PolicyOnboarding() {
                       onChange={(e) => updateProfile({
                         staffing: { ...profile.staffing!, mechanics: parseInt(e.target.value) || 0 }
                       })}
-                      className="border-white/10 bg-[#1a1a1a] text-white"
+                      className="border-[var(--border-default)] bg-[var(--surface-3)] text-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -520,7 +520,7 @@ export function PolicyOnboarding() {
                       onChange={(e) => updateProfile({
                         staffing: { ...profile.staffing!, dispatchers: parseInt(e.target.value) || 0 }
                       })}
-                      className="border-white/10 bg-[#1a1a1a] text-white"
+                      className="border-[var(--border-default)] bg-[var(--surface-3)] text-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -534,7 +534,7 @@ export function PolicyOnboarding() {
                       onChange={(e) => updateProfile({
                         staffing: { ...profile.staffing!, supervisors: parseInt(e.target.value) || 0 }
                       })}
-                      className="border-white/10 bg-[#1a1a1a] text-white"
+                      className="border-[var(--border-default)] bg-[var(--surface-3)] text-white"
                     />
                   </div>
                 </div>
@@ -579,8 +579,8 @@ export function PolicyOnboarding() {
         {currentStep === 'analysis' && (
           <div className="space-y-2">
             {/* AI Analysis Overview */}
-            <Card className="border border-white/[0.04] bg-[#111111]">
-              <CardHeader className="bg-[#1a1a1a] border-b border-white/[0.04]">
+            <Card className="border border-[var(--border-subtle)] bg-[var(--surface-2)]">
+              <CardHeader className="bg-[var(--surface-3)] border-b border-[var(--border-subtle)]">
                 <CardTitle className="flex items-center gap-2">
                   <Brain className="w-3 h-3" />
                   AI Analysis Results
@@ -590,7 +590,7 @@ export function PolicyOnboarding() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-3">
-                <pre className="whitespace-pre-wrap font-mono text-sm bg-[#1a1a1a] text-white/60 p-2 rounded-lg border border-white/[0.04]">
+                <pre className="whitespace-pre-wrap font-mono text-sm bg-[var(--surface-3)] text-[var(--text-secondary)] p-2 rounded-lg border border-[var(--border-subtle)]">
                   {analysisText}
                 </pre>
               </CardContent>
@@ -598,7 +598,7 @@ export function PolicyOnboarding() {
 
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-              <Card className="border border-white/[0.04] bg-[#111111]">
+              <Card className="border border-[var(--border-subtle)] bg-[var(--surface-2)]">
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -609,7 +609,7 @@ export function PolicyOnboarding() {
                   </div>
                 </CardContent>
               </Card>
-              <Card className="border border-white/[0.04] bg-[#111111]">
+              <Card className="border border-[var(--border-subtle)] bg-[var(--surface-2)]">
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -620,7 +620,7 @@ export function PolicyOnboarding() {
                   </div>
                 </CardContent>
               </Card>
-              <Card className="border border-white/[0.04] bg-[#111111]">
+              <Card className="border border-[var(--border-subtle)] bg-[var(--surface-2)]">
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -631,7 +631,7 @@ export function PolicyOnboarding() {
                   </div>
                 </CardContent>
               </Card>
-              <Card className="border border-white/[0.04] bg-[#111111]">
+              <Card className="border border-[var(--border-subtle)] bg-[var(--surface-2)]">
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -661,7 +661,7 @@ export function PolicyOnboarding() {
 
               <TabsContent value="gaps" className="space-y-2 mt-3">
                 {gaps.map((gap) => (
-                  <Card key={gap.category} className={cn("border bg-[#111111]", getSeverityColor(gap.severity))}>
+                  <Card key={gap.category} className={cn("border bg-[var(--surface-2)]", getSeverityColor(gap.severity))}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
@@ -678,20 +678,20 @@ export function PolicyOnboarding() {
                     <CardContent className="space-y-3">
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="text-sm font-medium text-white/60 mb-1">Current State</p>
-                          <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{gap.currentState}</p>
+                          <p className="text-sm font-medium text-[var(--text-secondary)] mb-1">Current State</p>
+                          <p className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>{gap.currentState}</p>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-white/60 mb-1">Desired State</p>
-                          <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{gap.desiredState}</p>
+                          <p className="text-sm font-medium text-[var(--text-secondary)] mb-1">Desired State</p>
+                          <p className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>{gap.desiredState}</p>
                         </div>
                       </div>
                       <Separator />
                       <div>
-                        <p className="text-sm font-medium text-white/60 mb-2">Recommendations:</p>
+                        <p className="text-sm font-medium text-[var(--text-secondary)] mb-2">Recommendations:</p>
                         <ul className="space-y-1">
                           {gap.recommendations.map((rec, recIdx) => (
-                            <li key={recIdx} className="flex items-start gap-2 text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+                            <li key={recIdx} className="flex items-start gap-2 text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
                               <CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
                               {rec}
                             </li>
@@ -724,19 +724,19 @@ export function PolicyOnboarding() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div>
-                        <p className="text-sm font-medium text-white/60 mb-1">Impact</p>
-                        <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{bottleneck.impact}</p>
+                        <p className="text-sm font-medium text-[var(--text-secondary)] mb-1">Impact</p>
+                        <p className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>{bottleneck.impact}</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white/60 mb-1">Root Cause</p>
-                        <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{bottleneck.rootCause}</p>
+                        <p className="text-sm font-medium text-[var(--text-secondary)] mb-1">Root Cause</p>
+                        <p className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>{bottleneck.rootCause}</p>
                       </div>
                       <Separator />
                       <div>
-                        <p className="text-sm font-medium text-white/60 mb-2">Solutions:</p>
+                        <p className="text-sm font-medium text-[var(--text-secondary)] mb-2">Solutions:</p>
                         <ul className="space-y-1">
                           {bottleneck.solutions.map((solution, solIdx) => (
-                            <li key={solIdx} className="flex items-start gap-2 text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+                            <li key={solIdx} className="flex items-start gap-2 text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
                               <Lightbulb className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                               {solution}
                             </li>
@@ -765,8 +765,8 @@ export function PolicyOnboarding() {
 
         {currentStep === 'recommendations' && (
           <div className="space-y-2">
-            <Card className="border border-white/[0.04] bg-[#111111]">
-              <CardHeader className="bg-[#1a1a1a] border-b border-white/[0.04]">
+            <Card className="border border-[var(--border-subtle)] bg-[var(--surface-2)]">
+              <CardHeader className="bg-[var(--surface-3)] border-b border-[var(--border-subtle)]">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
@@ -793,7 +793,7 @@ export function PolicyOnboarding() {
                     "border transition-all cursor-pointer",
                     selectedRecommendations.has(idx)
                       ? "border-emerald-500 bg-emerald-500/10"
-                      : "border-white/[0.04] bg-[#111111] hover:border-white/10"
+                      : "border-[var(--border-subtle)] bg-[var(--surface-2)] hover:border-[var(--border-default)]"
                   )}
                   onClick={() => {
                     const newSelected = new Set(selectedRecommendations)
@@ -811,7 +811,7 @@ export function PolicyOnboarding() {
                         "w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1",
                         selectedRecommendations.has(idx)
                           ? "bg-emerald-500 border-emerald-500"
-                          : "bg-[#1a1a1a] border-white/10"
+                          : "bg-[var(--surface-3)] border-[var(--border-default)]"
                       )}>
                         {selectedRecommendations.has(idx) && (
                           <CheckCircle className="w-3 h-3 text-white" />
@@ -832,12 +832,12 @@ export function PolicyOnboarding() {
                   </CardHeader>
                   <CardContent className="space-y-2">
                     {/* Rationale */}
-                    <div className="bg-[#1a1a1a] p-2 rounded-lg border border-white/[0.04]">
-                      <p className="text-sm font-medium text-white/60 mb-1 flex items-center gap-2">
+                    <div className="bg-[var(--surface-3)] p-2 rounded-lg border border-[var(--border-subtle)]">
+                      <p className="text-sm font-medium text-[var(--text-secondary)] mb-1 flex items-center gap-2">
                         <Lightbulb className="w-4 h-4 text-yellow-500" />
                         Rationale
                       </p>
-                      <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{rec.rationale}</p>
+                      <p className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>{rec.rationale}</p>
                     </div>
 
                     {/* Estimated Impact */}
@@ -879,14 +879,14 @@ export function PolicyOnboarding() {
 
                     {/* Implementation Steps */}
                     <div>
-                      <p className="text-sm font-medium text-white/60 mb-2 flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-white/40" style={{ color: brandColors.archon.mediumGray }} />
+                      <p className="text-sm font-medium text-[var(--text-secondary)] mb-2 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }} />
                         Implementation Steps
                       </p>
                       <ol className="space-y-1">
                         {rec.implementationSteps.map((step, stepIdx) => (
-                          <li key={stepIdx} className="flex items-start gap-2 text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
-                            <span className="font-medium text-white/60 flex-shrink-0">
+                          <li key={stepIdx} className="flex items-start gap-2 text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
+                            <span className="font-medium text-[var(--text-secondary)] flex-shrink-0">
                               {stepIdx + 1}.
                             </span>
                             {step}
@@ -896,8 +896,8 @@ export function PolicyOnboarding() {
                     </div>
 
                     {/* Best Practice Source */}
-                    <div className="bg-[#1a1a1a] p-3 rounded-lg border border-white/[0.04]">
-                      <p className="text-xs text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+                    <div className="bg-[var(--surface-3)] p-3 rounded-lg border border-[var(--border-subtle)]">
+                      <p className="text-xs text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
                         <span className="font-medium">Source:</span> {rec.bestPracticeSource}
                       </p>
                     </div>
@@ -938,8 +938,8 @@ export function PolicyOnboarding() {
         )}
 
         {currentStep === 'implementation' && (
-          <Card className="border border-white/[0.04] bg-[#111111]">
-            <CardHeader className="bg-[#1a1a1a] border-b border-white/[0.04]">
+          <Card className="border border-[var(--border-subtle)] bg-[var(--surface-2)]">
+            <CardHeader className="bg-[var(--surface-3)] border-b border-[var(--border-subtle)]">
               <CardTitle className="flex items-center gap-2 text-white">
                 <CheckCircle className="w-4 h-4 text-emerald-400" />
                 Implementation Complete!
@@ -964,7 +964,7 @@ export function PolicyOnboarding() {
 
               <div className="grid grid-cols-3 gap-2 max-w-2xl mx-auto">
                 <div className="p-2 bg-emerald-400/10 rounded-lg border border-emerald-400/20">
-                  <p className="text-sm text-white/40 mb-1">Total Est. Savings</p>
+                  <p className="text-sm text-[var(--text-tertiary)] mb-1">Total Est. Savings</p>
                   <p className="text-sm font-bold text-emerald-400">
                     {formatCurrency(recommendations
                       .filter((_, idx) => selectedRecommendations.has(idx))
@@ -972,7 +972,7 @@ export function PolicyOnboarding() {
                   </p>
                 </div>
                 <div className="p-2 bg-emerald-400/10 rounded-lg border border-emerald-400/20">
-                  <p className="text-sm text-white/40 mb-1">Avg Safety Improvement</p>
+                  <p className="text-sm text-[var(--text-tertiary)] mb-1">Avg Safety Improvement</p>
                   <p className="text-sm font-bold text-emerald-400">
                     +{Math.round(
                       recommendations
@@ -983,7 +983,7 @@ export function PolicyOnboarding() {
                   </p>
                 </div>
                 <div className="p-2 bg-amber-400/10 rounded-lg border border-amber-400/20">
-                  <p className="text-sm text-white/40 mb-1">Avg Efficiency Gain</p>
+                  <p className="text-sm text-[var(--text-tertiary)] mb-1">Avg Efficiency Gain</p>
                   <p className="text-sm font-bold text-amber-400">
                     +{Math.round(
                       recommendations
@@ -1003,25 +1003,25 @@ export function PolicyOnboarding() {
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Monitor Policy Performance</p>
-                      <p className="text-xs text-white/40" style={{ color: brandColors.archon.mediumGray }}>View real-time execution metrics</p>
+                      <p className="text-xs text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>View real-time execution metrics</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Configure Notifications</p>
-                      <p className="text-xs text-white/40" style={{ color: brandColors.archon.mediumGray }}>Set up alerts and approvals</p>
+                      <p className="text-xs text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>Set up alerts and approvals</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Train Your Team</p>
-                      <p className="text-xs text-white/40" style={{ color: brandColors.archon.mediumGray }}>Share policy documentation</p>
+                      <p className="text-xs text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>Share policy documentation</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Review & Refine</p>
-                      <p className="text-xs text-white/40" style={{ color: brandColors.archon.mediumGray }}>Adjust based on results</p>
+                      <p className="text-xs text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>Adjust based on results</p>
                     </div>
                   </Button>
                 </div>

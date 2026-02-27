@@ -463,7 +463,7 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
                   </Card>
                   <Card>
                     <CardContent className="p-3 text-center">
-                      <div className="text-2xl font-bold text-white/40">{stats.offline}</div>
+                      <div className="text-2xl font-bold text-[var(--text-tertiary)]">{stats.offline}</div>
                       <div className="text-xs text-muted-foreground">Offline</div>
                     </CardContent>
                   </Card>

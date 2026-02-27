@@ -123,7 +123,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
     return (
       <div className="flex items-center justify-center p-3">
         <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
-        <span className="ml-2 text-white/40">Loading alert data...</span>
+        <span className="ml-2 text-[var(--text-tertiary)]">Loading alert data...</span>
       </div>
     );
   }
@@ -141,7 +141,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
 
   if (!alert) {
     return (
-      <div className="p-3 text-white/40">
+      <div className="p-3 text-[var(--text-tertiary)]">
         No alert data available
       </div>
     );
@@ -157,10 +157,10 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
           <div className="flex items-center gap-3">
             <SeverityIcon className={`h-8 w-8 text-${severityConfig[alert.severity].color}-600`} />
             <div>
-              <h2 className="text-sm font-bold text-white/80 dark:text-white">
+              <h2 className="text-sm font-bold text-[var(--text-primary)] dark:text-white">
                 {alert.type}
               </h2>
-              <p className="text-sm text-white/40 dark:text-white/40">
+              <p className="text-sm text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
                 {formatDateTime(alert.timestamp)}
               </p>
             </div>
@@ -191,28 +191,28 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
               <h3 className="text-sm font-semibold mb-2">Alert Information</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-white/40">Message</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Message</p>
                   <p className="font-medium text-sm">{alert.message}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-white/40">Description</p>
-                  <p className="text-white/60 dark:text-white/80">{alert.description}</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Description</p>
+                  <p className="text-[var(--text-secondary)] dark:text-[var(--text-primary)]">{alert.description}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2 pt-2">
                   <div>
-                    <p className="text-sm text-white/40">Alert Type</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">Alert Type</p>
                     <p className="font-medium">{alert.type}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-white/40">Severity</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">Severity</p>
                     <p className="font-medium capitalize">{alert.severity}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-white/40">Status</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">Status</p>
                     <p className="font-medium capitalize">{alert.status}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-white/40">Time</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">Time</p>
                     <p className="font-medium">{formatDateTime(alert.timestamp)}</p>
                   </div>
                 </div>
@@ -225,17 +225,17 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-white/40">Latitude</p>
+                      <p className="text-sm text-[var(--text-tertiary)]">Latitude</p>
                       <p className="font-mono">{(alert.location?.latitude ?? 0).toFixed(6)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-white/40">Longitude</p>
+                      <p className="text-sm text-[var(--text-tertiary)]">Longitude</p>
                       <p className="font-mono">{(alert.location?.longitude ?? 0).toFixed(6)}</p>
                     </div>
                   </div>
                   {alert.location.address && (
                     <div>
-                      <p className="text-sm text-white/40">Address</p>
+                      <p className="text-sm text-[var(--text-tertiary)]">Address</p>
                       <p className="font-medium">{alert.location.address}</p>
                     </div>
                   )}
@@ -251,10 +251,10 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
             {alert.vehicle && (
               <Card className="p-2">
                 <h3 className="text-sm font-semibold mb-2">Associated Vehicle</h3>
-                <div className="flex items-center justify-between p-3 bg-white/[0.03] dark:bg-[#18181b] rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-white/[0.03] dark:bg-[var(--surface-3)] rounded-lg">
                   <div>
                     <p className="font-medium">{alert.vehicle.name}</p>
-                    <p className="text-sm text-white/40">Vehicle ID: {alert.vehicle.id}</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">Vehicle ID: {alert.vehicle.id}</p>
                   </div>
                   <Button variant="outline" size="sm">View Vehicle</Button>
                 </div>
@@ -264,10 +264,10 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
             {alert.driver && (
               <Card className="p-2">
                 <h3 className="text-sm font-semibold mb-2">Associated Driver</h3>
-                <div className="flex items-center justify-between p-3 bg-white/[0.03] dark:bg-[#18181b] rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-white/[0.03] dark:bg-[var(--surface-3)] rounded-lg">
                   <div>
                     <p className="font-medium">{alert.driver.name}</p>
-                    <p className="text-sm text-white/40">Driver ID: {alert.driver.id}</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">Driver ID: {alert.driver.id}</p>
                   </div>
                   <Button variant="outline" size="sm">View Driver</Button>
                 </div>
@@ -280,14 +280,14 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                 <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <div>
                     <p className="font-medium">Speeding Alert</p>
-                    <p className="text-sm text-white/40">2 hours ago</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">2 hours ago</p>
                   </div>
                   <Badge variant="outline">Medium</Badge>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-emerald-500/10 dark:bg-white/[0.04] rounded-lg">
                   <div>
                     <p className="font-medium">Route Deviation</p>
-                    <p className="text-sm text-white/40">4 hours ago</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">4 hours ago</p>
                   </div>
                   <Badge variant="outline">Low</Badge>
                 </div>
@@ -347,8 +347,8 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                   </div>
                   <div className="flex-1 pb-2">
                     <p className="font-medium">Alert Created</p>
-                    <p className="text-sm text-white/40">{formatDateTime(alert.timestamp)}</p>
-                    <p className="text-sm text-white/40">System detected {alert.type.toLowerCase()}</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">{formatDateTime(alert.timestamp)}</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">System detected {alert.type.toLowerCase()}</p>
                   </div>
                 </div>
                 {alert.status !== 'active' && (
@@ -359,7 +359,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                     </div>
                     <div className="flex-1 pb-2">
                       <p className="font-medium">{alert.status === 'acknowledged' ? 'Acknowledged' : 'Status Updated'}</p>
-                      <p className="text-sm text-white/40">Status changed to {alert.status}</p>
+                      <p className="text-sm text-[var(--text-tertiary)]">Status changed to {alert.status}</p>
                     </div>
                   </div>
                 )}

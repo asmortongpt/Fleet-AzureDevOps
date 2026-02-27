@@ -163,7 +163,7 @@ export const ProtectedRoute = ({
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600 mx-auto mb-2"></div>
-          <p className="text-white/70">Verifying authentication...</p>
+          <p className="text-[var(--text-primary)]">Verifying authentication...</p>
         </div>
       </div>
     )
@@ -193,17 +193,17 @@ export const ProtectedRoute = ({
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
             />
           </svg>
-          <h2 className="text-sm font-bold text-white/80 mb-2">Access Denied</h2>
-          <p className="text-white/70 mb-3">
+          <h2 className="text-sm font-bold text-[var(--text-primary)] mb-2">Access Denied</h2>
+          <p className="text-[var(--text-primary)] mb-3">
             You don't have permission to access this page.
           </p>
           {requiredRole && (
-            <p className="text-sm text-white/40 mb-2">
+            <p className="text-sm text-[var(--text-tertiary)] mb-2">
               Required role: {Array.isArray(requiredRole) ? requiredRole.join(', ') : requiredRole}
             </p>
           )}
           {requiredPermission && (
-            <p className="text-sm text-white/40 mb-3">
+            <p className="text-sm text-[var(--text-tertiary)] mb-3">
               Required permission: {Array.isArray(requiredPermission) ? requiredPermission.join(', ') : requiredPermission}
             </p>
           )}

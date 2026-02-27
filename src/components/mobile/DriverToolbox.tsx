@@ -237,13 +237,13 @@ export const DriverToolbox: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pb-20">
+    <div className="min-h-screen bg-[var(--surface-0)] pb-20">
       {/* Header */}
-      <div className="bg-[#111111] text-white p-3 rounded-b-3xl border-b border-white/[0.04]">
+      <div className="bg-[var(--surface-2)] text-white p-3 rounded-b-3xl border-b border-[var(--border-subtle)]">
         <div className="flex items-center justify-between mb-2">
           <div>
             <h1 className="text-sm font-bold text-white">Driver Toolbox</h1>
-            <p className="text-white/60 text-sm">
+            <p className="text-[var(--text-secondary)] text-sm">
               {isOffline ? 'Working Offline' : 'Connected'}
             </p>
           </div>
@@ -253,20 +253,20 @@ export const DriverToolbox: React.FC = () => {
             disabled={isOffline}
             aria-label="Sync now"
           >
-            <CheckCircle className={isOffline ? 'text-white/35' : 'text-white'} size={24} />
+            <CheckCircle className={isOffline ? 'text-[var(--text-tertiary)]' : 'text-white'} size={24} />
           </button>
         </div>
 
         {/* Active Vehicle Card */}
         {activeVehicle ? (
-          <div className="bg-white/[0.05] rounded-md p-2 mt-2 border border-white/[0.04]">
+          <div className="bg-white/[0.05] rounded-md p-2 mt-2 border border-[var(--border-subtle)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-white/60">Active Vehicle</p>
+                <p className="text-sm text-[var(--text-secondary)]">Active Vehicle</p>
                 <p className="text-sm font-semibold text-white">
                   {activeVehicle.vehicleNumber} - {formatVehicleShortName(activeVehicle)}
                 </p>
-                <p className="text-sm text-white/60">{activeVehicle.licensePlate}</p>
+                <p className="text-sm text-[var(--text-secondary)]">{activeVehicle.licensePlate}</p>
               </div>
               <div className="text-right">
                 {activeVehicle.mileage && (
@@ -279,8 +279,8 @@ export const DriverToolbox: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-white/[0.05] rounded-md p-2 mt-2 text-center border border-white/[0.04]">
-            <p className="text-white/60">No vehicle assigned</p>
+          <div className="bg-white/[0.05] rounded-md p-2 mt-2 text-center border border-[var(--border-subtle)]">
+            <p className="text-[var(--text-secondary)]">No vehicle assigned</p>
             <button className="mt-2 bg-white/[0.06] hover:bg-white/[0.1] px-2 py-2 rounded-lg text-sm transition-colors text-white">
               Select Vehicle
             </button>
@@ -291,20 +291,20 @@ export const DriverToolbox: React.FC = () => {
       {/* Stats Overview */}
       <div className="px-3 py-3">
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-[#111111] rounded-md p-2 border border-white/[0.04]">
-            <p className="text-white/60 text-sm">Assigned Vehicles</p>
+          <div className="bg-[var(--surface-2)] rounded-md p-2 border border-[var(--border-subtle)]">
+            <p className="text-[var(--text-secondary)] text-sm">Assigned Vehicles</p>
             <p className="text-sm font-bold text-white">{stats.assignedVehicles}</p>
           </div>
-          <div className="bg-[#111111] rounded-md p-2 border border-white/[0.04]">
-            <p className="text-white/60 text-sm">Active Work Orders</p>
+          <div className="bg-[var(--surface-2)] rounded-md p-2 border border-[var(--border-subtle)]">
+            <p className="text-[var(--text-secondary)] text-sm">Active Work Orders</p>
             <p className="text-sm font-bold text-orange-500">{stats.activeWorkOrders}</p>
           </div>
-          <div className="bg-[#111111] rounded-md p-2 border border-white/[0.04]">
-            <p className="text-white/60 text-sm">Pending Inspections</p>
+          <div className="bg-[var(--surface-2)] rounded-md p-2 border border-[var(--border-subtle)]">
+            <p className="text-[var(--text-secondary)] text-sm">Pending Inspections</p>
             <p className="text-sm font-bold text-emerald-500">{stats.pendingInspections}</p>
           </div>
-          <div className="bg-[#111111] rounded-md p-2 border border-white/[0.04]">
-            <p className="text-white/60 text-sm">Pending Sync</p>
+          <div className="bg-[var(--surface-2)] rounded-md p-2 border border-[var(--border-subtle)]">
+            <p className="text-[var(--text-secondary)] text-sm">Pending Sync</p>
             <p className="text-sm font-bold text-amber-500">{stats.pendingSyncCount}</p>
           </div>
         </div>
@@ -312,7 +312,7 @@ export const DriverToolbox: React.FC = () => {
 
       {/* Quick Actions */}
       <div className="px-3">
-        <h2 className="text-sm font-semibold text-white/80 mb-2">Quick Actions</h2>
+        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Quick Actions</h2>
         <div className="grid grid-cols-2 gap-2">
           {quickActions.map((action) => {
             const Icon = action.icon;
@@ -320,12 +320,12 @@ export const DriverToolbox: React.FC = () => {
               <button
                 key={action.id}
                 onClick={action.action}
-                className="relative bg-[#111111] rounded-lg p-3 border border-white/[0.04] hover:bg-[#161616] transition-all active:scale-95"
+                className="relative bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)] hover:bg-[#161616] transition-all active:scale-95"
               >
                 <div className={`${action.color} w-12 h-9 rounded-md flex items-center justify-center mb-3`}>
                   <Icon className="text-white" size={24} />
                 </div>
-                <p className="text-white/80 font-medium text-left">{action.title}</p>
+                <p className="text-[var(--text-primary)] font-medium text-left">{action.title}</p>
                 {action.badge !== undefined && action.badge > 0 && (
                   <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
                     {action.badge}
@@ -354,7 +354,7 @@ export const DriverToolbox: React.FC = () => {
         <div className="px-3 py-2">
           <button
             onClick={handleTestNotification}
-            className="w-full bg-white/[0.06] hover:bg-white/[0.1] text-white/80 py-3 rounded-lg text-sm font-medium transition-colors"
+            className="w-full bg-white/[0.06] hover:bg-white/[0.1] text-[var(--text-primary)] py-3 rounded-lg text-sm font-medium transition-colors"
           >
             Test Notification
           </button>

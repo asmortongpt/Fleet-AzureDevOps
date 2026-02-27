@@ -150,7 +150,7 @@ export function AuthDebugPanel() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 max-w-md">
-      <Card className="border-2 border-yellow-500 bg-[#111] text-white">
+      <Card className="border-2 border-yellow-500 bg-[var(--surface-2)] text-white">
         {/* Header */}
         <div
           className="flex items-center justify-between border-b border-yellow-500/30 bg-yellow-500/10 p-3 cursor-pointer"
@@ -172,7 +172,7 @@ export function AuthDebugPanel() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 p-0 text-white hover:bg-white/10"
+            className="h-6 w-6 p-0 text-white hover:bg-[var(--surface-glass-hover)]"
           >
             {isExpanded ? (
               <ChevronDown className="h-4 w-4" />
@@ -193,9 +193,9 @@ export function AuthDebugPanel() {
                   <h3 className="font-semibold text-sm">User Information</h3>
                 </div>
 
-                <div className="bg-[#1a1a1a] rounded p-3 space-y-1 text-xs font-mono">
+                <div className="bg-[var(--surface-3)] rounded p-3 space-y-1 text-xs font-mono">
                   <div className="flex justify-between">
-                    <span className="text-white/50">ID:</span>
+                    <span className="text-[var(--text-secondary)]">ID:</span>
                     <div className="flex items-center gap-2">
                       <span className="text-green-400">{user.id}</span>
                       <Button
@@ -214,31 +214,31 @@ export function AuthDebugPanel() {
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-white/50">Email:</span>
+                    <span className="text-[var(--text-secondary)]">Email:</span>
                     <span className="text-green-400">{user.email}</span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-white/50">Name:</span>
+                    <span className="text-[var(--text-secondary)]">Name:</span>
                     <span className="text-green-400">
                       {user.firstName} {user.lastName}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-white/50">Role:</span>
+                    <span className="text-[var(--text-secondary)]">Role:</span>
                     <Badge className="text-xs">{user.role}</Badge>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-white/50">Tenant:</span>
+                    <span className="text-[var(--text-secondary)]">Tenant:</span>
                     <span className="text-green-400">
                       {user.tenantName || user.tenantId}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-white/50">Permissions:</span>
+                    <span className="text-[var(--text-secondary)]">Permissions:</span>
                     <span className="text-green-400">
                       {user.permissions.join(', ')}
                     </span>
@@ -256,7 +256,7 @@ export function AuthDebugPanel() {
                 </div>
 
                 {/* Token Expiry */}
-                <div className="bg-[#1a1a1a] rounded p-3 space-y-2">
+                <div className="bg-[var(--surface-3)] rounded p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-yellow-400" />
@@ -274,7 +274,7 @@ export function AuthDebugPanel() {
                   </div>
 
                   {tokenInfo.payload.exp && (
-                    <div className="text-xs text-white/50">
+                    <div className="text-xs text-[var(--text-secondary)]">
                       Expires:{' '}
                       {formatDateTime(new Date(tokenInfo.payload.exp * 1000))}
                     </div>
@@ -282,31 +282,31 @@ export function AuthDebugPanel() {
                 </div>
 
                 {/* Token Header */}
-                <details className="bg-[#1a1a1a] rounded p-3">
+                <details className="bg-[var(--surface-3)] rounded p-3">
                   <summary className="cursor-pointer text-xs font-semibold text-emerald-400">
                     Token Header
                   </summary>
-                  <pre className="mt-2 text-xs text-white/60 overflow-x-auto">
+                  <pre className="mt-2 text-xs text-[var(--text-secondary)] overflow-x-auto">
                     {JSON.stringify(tokenInfo.header, null, 2)}
                   </pre>
                 </details>
 
                 {/* Token Payload */}
-                <details className="bg-[#1a1a1a] rounded p-3">
+                <details className="bg-[var(--surface-3)] rounded p-3">
                   <summary className="cursor-pointer text-xs font-semibold text-amber-400">
                     Token Payload
                   </summary>
-                  <pre className="mt-2 text-xs text-white/60 overflow-x-auto">
+                  <pre className="mt-2 text-xs text-[var(--text-secondary)] overflow-x-auto">
                     {JSON.stringify(tokenInfo.payload, null, 2)}
                   </pre>
                 </details>
 
                 {/* Signature */}
-                <div className="bg-[#1a1a1a] rounded p-3">
+                <div className="bg-[var(--surface-3)] rounded p-3">
                   <div className="text-xs font-semibold text-orange-400 mb-2">
                     Signature (truncated)
                   </div>
-                  <div className="text-xs font-mono text-white/50 break-all">
+                  <div className="text-xs font-mono text-[var(--text-secondary)] break-all">
                     {tokenInfo.signature.substring(0, 50)}...
                   </div>
                 </div>
@@ -318,26 +318,26 @@ export function AuthDebugPanel() {
               <div className="space-y-2">
                 <h3 className="font-semibold text-sm">MSAL Account</h3>
 
-                <div className="bg-[#1a1a1a] rounded p-3 space-y-1 text-xs font-mono">
+                <div className="bg-[var(--surface-3)] rounded p-3 space-y-1 text-xs font-mono">
                   <div className="flex justify-between">
-                    <span className="text-white/50">Username:</span>
+                    <span className="text-[var(--text-secondary)]">Username:</span>
                     <span className="text-green-400">{accounts[0].username}</span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-white/50">Name:</span>
+                    <span className="text-[var(--text-secondary)]">Name:</span>
                     <span className="text-green-400">{accounts[0].name}</span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-white/50">Environment:</span>
+                    <span className="text-[var(--text-secondary)]">Environment:</span>
                     <span className="text-green-400">
                       {accounts[0].environment}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-white/50">Tenant ID:</span>
+                    <span className="text-[var(--text-secondary)]">Tenant ID:</span>
                     <span className="text-green-400">{accounts[0].tenantId}</span>
                   </div>
                 </div>
@@ -345,11 +345,11 @@ export function AuthDebugPanel() {
             )}
 
             {/* Session Storage Info */}
-            <details className="bg-[#1a1a1a] rounded p-3">
+            <details className="bg-[var(--surface-3)] rounded p-3">
               <summary className="cursor-pointer text-xs font-semibold text-emerald-400">
                 Session Storage Keys
               </summary>
-              <div className="mt-2 space-y-1 text-xs text-white/60">
+              <div className="mt-2 space-y-1 text-xs text-[var(--text-secondary)]">
                 {Object.keys(sessionStorage)
                   .filter(k => k.includes('msal'))
                   .map(key => (
@@ -361,7 +361,7 @@ export function AuthDebugPanel() {
             </details>
 
             {/* Actions */}
-            <div className="flex gap-2 pt-2 border-t border-white/[0.15]">
+            <div className="flex gap-2 pt-2 border-t border-[var(--border-strong)]">
               <Button
                 onClick={handleRefresh}
                 size="sm"
@@ -384,7 +384,7 @@ export function AuthDebugPanel() {
             </div>
 
             {/* Environment Info */}
-            <div className="pt-2 border-t border-white/[0.15] text-xs text-white/50">
+            <div className="pt-2 border-t border-[var(--border-strong)] text-xs text-[var(--text-secondary)]">
               <div className="flex justify-between">
                 <span>Environment:</span>
                 <span className="font-mono">{import.meta.env.MODE}</span>

@@ -368,21 +368,21 @@ export function PolicyWorkbench() {
   const currentStep = workbenchSteps[currentStepIndex]
 
   return (
-    <div className="h-screen flex flex-col bg-[#0a0a0a]">
+    <div className="h-screen flex flex-col bg-[var(--surface-0)]">
       {/* Header */}
-      <div className="bg-[#0e0e0e] border-b border-white/[0.04] px-3 py-3">
+      <div className="bg-[var(--surface-1)] border-b border-[var(--border-subtle)] px-3 py-3">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-base font-bold text-white flex items-center gap-3">
               <Brain className="w-4 h-4 text-emerald-400" />
               Policy Implementation Workbench
             </h1>
-            <p className="text-white/50 mt-1">
+            <p className="text-[var(--text-secondary)] mt-1">
               AI-guided comprehensive policy system implementation
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-2 py-2 text-white/60 hover:bg-white/[0.05] rounded-lg transition-colors">
+            <button className="flex items-center gap-2 px-2 py-2 text-[var(--text-secondary)] hover:bg-white/[0.05] rounded-lg transition-colors">
               <Download className="w-4 h-4" />
               Export Progress
             </button>
@@ -396,8 +396,8 @@ export function PolicyWorkbench() {
         {/* Progress Bar */}
         <div className="mt-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-white/60">Overall Progress</span>
-            <span className="text-sm font-medium text-white/60">
+            <span className="text-sm font-medium text-[var(--text-secondary)]">Overall Progress</span>
+            <span className="text-sm font-medium text-[var(--text-secondary)]">
               {Math.round((workbenchSteps.filter((s) => s.status === 'completed').length / workbenchSteps.length) * 100)}%
             </span>
           </div>
@@ -414,9 +414,9 @@ export function PolicyWorkbench() {
 
       <div className="flex-1 flex overflow-hidden">
         {/* Step Navigation Sidebar */}
-        <div className="w-80 bg-[#0e0e0e] border-r border-white/[0.04] overflow-y-auto">
+        <div className="w-80 bg-[var(--surface-1)] border-r border-[var(--border-subtle)] overflow-y-auto">
           <div className="p-3">
-            <h2 className="text-sm font-semibold text-white/40 uppercase tracking-wide mb-2">
+            <h2 className="text-sm font-semibold text-[var(--text-tertiary)] uppercase tracking-wide mb-2">
               Implementation Steps
             </h2>
             <div className="space-y-2">
@@ -427,7 +427,7 @@ export function PolicyWorkbench() {
                   className={`w-full text-left p-2 rounded-lg transition-all ${
                     currentStepIndex === index
                       ? 'bg-emerald-500/10 border border-emerald-500/30'
-                      : 'bg-[#111111] border border-white/[0.04] hover:border-emerald-500/20'
+                      : 'bg-[var(--surface-2)] border border-[var(--border-subtle)] hover:border-emerald-500/20'
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -437,25 +437,25 @@ export function PolicyWorkbench() {
                       ) : step.status === 'in-progress' ? (
                         <Circle className="w-4 h-4 text-emerald-400 animate-pulse" />
                       ) : (
-                        <Circle className="w-4 h-4 text-white/60" />
+                        <Circle className="w-4 h-4 text-[var(--text-secondary)]" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <step.icon className="w-4 h-4 text-white/50" />
+                        <step.icon className="w-4 h-4 text-[var(--text-secondary)]" />
                         <h3
                           className={`text-sm font-semibold ${
-                            currentStepIndex === index ? 'text-emerald-400' : 'text-white/60'
+                            currentStepIndex === index ? 'text-emerald-400' : 'text-[var(--text-secondary)]'
                           }`}
                         >
                           {step.title}
                         </h3>
                       </div>
-                      <p className="text-xs text-white/50 mt-1">{step.description}</p>
+                      <p className="text-xs text-[var(--text-secondary)] mt-1">{step.description}</p>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs text-white/40">{step.estimatedTime}</span>
+                        <span className="text-xs text-[var(--text-tertiary)]">{step.estimatedTime}</span>
                         {step.substeps && (
-                          <span className="text-xs text-white/40">
+                          <span className="text-xs text-[var(--text-tertiary)]">
                             • {step.substeps.filter((s) => s.status === 'completed').length}/
                             {step.substeps.length} completed
                           </span>
@@ -481,20 +481,20 @@ export function PolicyWorkbench() {
                   </div>
                   <div>
                     <h2 className="text-sm font-bold text-white">{currentStep.title}</h2>
-                    <p className="text-white/50">{currentStep.description}</p>
+                    <p className="text-[var(--text-secondary)]">{currentStep.description}</p>
                   </div>
                 </div>
 
                 {/* Substeps */}
                 {currentStep.substeps && (
-                  <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3 space-y-2">
+                  <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3 space-y-2">
                     {currentStep.substeps.map((substep) => (
                       <div
                         key={substep.id}
                         className={`p-2 rounded-lg border transition-all ${
                           substep.status === 'completed'
                             ? 'bg-emerald-500/10 border-emerald-500/20'
-                            : 'bg-white/[0.03] border-white/[0.04] hover:border-emerald-500/20'
+                            : 'bg-white/[0.03] border-[var(--border-subtle)] hover:border-emerald-500/20'
                         }`}
                       >
                         <div className="flex items-start justify-between">
@@ -502,7 +502,7 @@ export function PolicyWorkbench() {
                             {substep.status === 'completed' ? (
                               <CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" />
                             ) : (
-                              <Circle className="w-3 h-3 text-white/60 flex-shrink-0 mt-0.5" />
+                              <Circle className="w-3 h-3 text-[var(--text-secondary)] flex-shrink-0 mt-0.5" />
                             )}
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
@@ -514,7 +514,7 @@ export function PolicyWorkbench() {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-sm text-white/50 mt-1">{substep.description}</p>
+                              <p className="text-sm text-[var(--text-secondary)] mt-1">{substep.description}</p>
                             </div>
                           </div>
                           {substep.status !== 'completed' && (
@@ -541,7 +541,7 @@ export function PolicyWorkbench() {
 
         {/* AI Insights Sidebar */}
         {showInsights && (
-          <div className="w-96 bg-[#0e0e0e] border-l border-white/[0.04] overflow-y-auto">
+          <div className="w-96 bg-[var(--surface-1)] border-l border-[var(--border-subtle)] overflow-y-auto">
             <div className="p-3">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
@@ -550,7 +550,7 @@ export function PolicyWorkbench() {
                 </h3>
                 <button
                   onClick={() => setShowInsights(false)}
-                  className="text-white/40 hover:text-white/60"
+                  className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
                 >
                   ×
                 </button>
@@ -587,18 +587,18 @@ export function PolicyWorkbench() {
       </div>
 
       {/* Footer Navigation */}
-      <div className="bg-[#0e0e0e] border-t border-white/[0.04] px-3 py-2">
+      <div className="bg-[var(--surface-1)] border-t border-[var(--border-subtle)] px-3 py-2">
         <div className="flex items-center justify-between">
           <button
             onClick={() => setCurrentStepIndex(Math.max(0, currentStepIndex - 1))}
             disabled={currentStepIndex === 0}
-            className="px-3 py-2 text-white/60 hover:bg-white/[0.05] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-[var(--text-secondary)] hover:bg-white/[0.05] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
 
           <div className="flex items-center gap-2">
-            <button className="px-3 py-2 text-white/60 hover:bg-white/[0.05] rounded-lg transition-colors">
+            <button className="px-3 py-2 text-[var(--text-secondary)] hover:bg-white/[0.05] rounded-lg transition-colors">
               Save Progress
             </button>
             <button
@@ -666,7 +666,7 @@ function AIInsightCard({
         <Icon className={`w-3 h-3 ${iconColor} flex-shrink-0 mt-0.5`} />
         <div>
           <h4 className="font-semibold text-white text-sm mb-1">{title}</h4>
-          <p className="text-xs text-white/60">{description}</p>
+          <p className="text-xs text-[var(--text-secondary)]">{description}</p>
         </div>
       </div>
     </div>
@@ -701,33 +701,33 @@ function renderStepContent(stepId: string | undefined) {
 
 // Placeholder components for each step (to be fully implemented)
 function OrganizationProfileForm() {
-  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Organization Profile Form</div>
+  return <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">Organization Profile Form</div>
 }
 
 function CurrentStateAssessment() {
-  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Current State Assessment</div>
+  return <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">Current State Assessment</div>
 }
 
 function PolicyFrameworkDesigner() {
-  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Policy Framework Designer</div>
+  return <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">Policy Framework Designer</div>
 }
 
 function AIPolicyGenerator() {
-  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">AI Policy Generator</div>
+  return <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">AI Policy Generator</div>
 }
 
 function PolicyReviewInterface() {
-  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Policy Review Interface</div>
+  return <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">Policy Review Interface</div>
 }
 
 function ImplementationPlanner() {
-  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Implementation Planner</div>
+  return <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">Implementation Planner</div>
 }
 
 function PolicyActivation() {
-  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Policy Activation</div>
+  return <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">Policy Activation</div>
 }
 
 function ContinuousMonitoring() {
-  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Continuous Monitoring</div>
+  return <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">Continuous Monitoring</div>
 }

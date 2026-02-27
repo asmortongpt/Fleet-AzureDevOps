@@ -52,7 +52,7 @@ export function AlertsFeed({
       critical: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
       warning: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
       maintenance: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:bg-emerald-950 dark:text-emerald-700 dark:border-emerald-900",
-      info: "bg-white/[0.04] text-white/60 border-white/[0.04] dark:bg-white/[0.04] dark:text-white/60 dark:border-white/[0.04]"
+      info: "bg-white/[0.04] text-[var(--text-secondary)] border-[var(--border-subtle)] dark:bg-white/[0.04] dark:text-[var(--text-secondary)] dark:border-[var(--border-subtle)]"
     }
     return styles[type]
   }

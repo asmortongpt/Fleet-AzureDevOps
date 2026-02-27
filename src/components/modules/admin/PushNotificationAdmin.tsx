@@ -358,7 +358,7 @@ const PushNotificationAdmin: React.FC = () => {
   ];
 
   return (
-    <div className="p-3 bg-[#0a0a0a] min-h-screen">
+    <div className="p-3 bg-[var(--surface-0)] min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-3">
@@ -368,7 +368,7 @@ const PushNotificationAdmin: React.FC = () => {
                 <Bell className="text-emerald-400" size={32} />
                 Push Notification Admin
               </h1>
-              <p className="text-white/70 mt-2" style={{ color: brandColors.archon.mediumGray }}>
+              <p className="text-[var(--text-primary)] mt-2" style={{ color: brandColors.archon.mediumGray }}>
                 Send and manage mobile push notifications for iOS and Android
               </p>
             </div>
@@ -386,37 +386,37 @@ const PushNotificationAdmin: React.FC = () => {
         {/* Stats Overview */}
         {statsQuery.data && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
-            <div className="bg-[#111111] p-2 rounded-lg border border-white/[0.04]">
+            <div className="bg-[var(--surface-2)] p-2 rounded-lg border border-[var(--border-subtle)]">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>Total Sent</p>
+                  <p className="text-sm text-[var(--text-primary)]" style={{ color: brandColors.archon.mediumGray }}>Total Sent</p>
                   <p className="text-sm font-bold text-white">{statsQuery.data?.totalSent}</p>
                 </div>
                 <Send className="text-emerald-400" size={32} />
               </div>
             </div>
-            <div className="bg-[#111111] p-2 rounded-lg border border-white/[0.04]">
+            <div className="bg-[var(--surface-2)] p-2 rounded-lg border border-[var(--border-subtle)]">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>Delivery Rate</p>
+                  <p className="text-sm text-[var(--text-primary)]" style={{ color: brandColors.archon.mediumGray }}>Delivery Rate</p>
                   <p className="text-sm font-bold text-emerald-400">{statsQuery.data?.deliveryRate.toFixed(1)}%</p>
                 </div>
                 <CheckCircle className="text-emerald-400" size={32} />
               </div>
             </div>
-            <div className="bg-[#111111] p-2 rounded-lg border border-white/[0.04]">
+            <div className="bg-[var(--surface-2)] p-2 rounded-lg border border-[var(--border-subtle)]">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>Open Rate</p>
+                  <p className="text-sm text-[var(--text-primary)]" style={{ color: brandColors.archon.mediumGray }}>Open Rate</p>
                   <p className="text-sm font-bold text-emerald-400">{statsQuery.data?.openRate.toFixed(1)}%</p>
                 </div>
                 <Eye className="text-emerald-400" size={32} />
               </div>
             </div>
-            <div className="bg-[#111111] p-2 rounded-lg border border-white/[0.04]">
+            <div className="bg-[var(--surface-2)] p-2 rounded-lg border border-[var(--border-subtle)]">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>Click Rate</p>
+                  <p className="text-sm text-[var(--text-primary)]" style={{ color: brandColors.archon.mediumGray }}>Click Rate</p>
                   <p className="text-sm font-bold text-amber-600">{statsQuery.data?.clickRate.toFixed(1)}%</p>
                 </div>
                 <TrendingUp className="text-amber-600" size={32} />
@@ -426,15 +426,15 @@ const PushNotificationAdmin: React.FC = () => {
         )}
 
         {/* Tabs */}
-        <div className="bg-[#111111] rounded-lg border border-white/[0.04] mb-3">
-          <div className="border-b border-white/[0.04]">
+        <div className="bg-[var(--surface-2)] rounded-lg border border-[var(--border-subtle)] mb-3">
+          <div className="border-b border-[var(--border-subtle)]">
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab('send')}
                 className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'send'
                     ? 'border-emerald-600 text-emerald-400'
-                    : 'border-transparent text-white/70 hover:text-white hover:border-white/[0.04]'
+                    : 'border-transparent text-[var(--text-primary)] hover:text-white hover:border-[var(--border-subtle)]'
                 }`}
               >
                 <Send size={18} />
@@ -445,7 +445,7 @@ const PushNotificationAdmin: React.FC = () => {
                 className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'templates'
                     ? 'border-emerald-600 text-emerald-400'
-                    : 'border-transparent text-white/70 hover:text-white hover:border-white/[0.04]'
+                    : 'border-transparent text-[var(--text-primary)] hover:text-white hover:border-[var(--border-subtle)]'
                 }`}
               >
                 <FileText size={18} />
@@ -456,7 +456,7 @@ const PushNotificationAdmin: React.FC = () => {
                 className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'history'
                     ? 'border-emerald-600 text-emerald-400'
-                    : 'border-transparent text-white/70 hover:text-white hover:border-white/[0.04]'
+                    : 'border-transparent text-[var(--text-primary)] hover:text-white hover:border-[var(--border-subtle)]'
                 }`}
               >
                 <Clock size={18} />
@@ -467,7 +467,7 @@ const PushNotificationAdmin: React.FC = () => {
                 className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'stats'
                     ? 'border-emerald-600 text-emerald-400'
-                    : 'border-transparent text-white/70 hover:text-white hover:border-white/[0.04]'
+                    : 'border-transparent text-[var(--text-primary)] hover:text-white hover:border-[var(--border-subtle)]'
                 }`}
               >
                 <BarChart3 size={18} />
@@ -495,13 +495,13 @@ const PushNotificationAdmin: React.FC = () => {
                 {notificationForm.useTemplate ? (
                   <div className="space-y-2">
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-2">
+                      <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                         Select Template
                       </label>
                       <select
                         value={notificationForm.selectedTemplate}
                         onChange={(e) => setNotificationForm({ ...notificationForm, selectedTemplate: e.target.value })}
-                        className="w-full p-2 border border-white/[0.04] rounded-lg focus:ring-2 focus:ring-emerald-500"
+                        className="w-full p-2 border border-[var(--border-subtle)] rounded-lg focus:ring-2 focus:ring-emerald-500"
                       >
                         <option value="">-- Select Template --</option>
                         {templatesQuery.data?.map(template => (
@@ -512,14 +512,14 @@ const PushNotificationAdmin: React.FC = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-2">
+                      <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                         Template Variables (JSON)
                       </label>
                       <textarea
                         value={notificationForm.templateVariables}
                         onChange={(e) => setNotificationForm({ ...notificationForm, templateVariables: e.target.value })}
                         rows={4}
-                        className="w-full p-3 border border-white/[0.04] rounded-lg focus:ring-2 focus:ring-emerald-500 font-mono text-sm"
+                        className="w-full p-3 border border-[var(--border-subtle)] rounded-lg focus:ring-2 focus:ring-emerald-500 font-mono text-sm"
                         placeholder='{"vehicleId": "V-001", "location": "Highway 101"}'
                       />
                     </div>
@@ -536,13 +536,13 @@ const PushNotificationAdmin: React.FC = () => {
                   <div className="space-y-2">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-sm font-medium text-white/60 mb-2">
+                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                           Category
                         </label>
                         <select
                           value={notificationForm.category}
                           onChange={(e) => setNotificationForm({ ...notificationForm, category: e.target.value })}
-                          className="w-full p-2 border border-white/[0.04] rounded-lg focus:ring-2 focus:ring-emerald-500"
+                          className="w-full p-2 border border-[var(--border-subtle)] rounded-lg focus:ring-2 focus:ring-emerald-500"
                         >
                           {categoryOptions.map(cat => (
                             <option key={cat.value} value={cat.value}>
@@ -552,13 +552,13 @@ const PushNotificationAdmin: React.FC = () => {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-white/60 mb-2">
+                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                           Priority
                         </label>
                         <select
                           value={notificationForm.priority}
                           onChange={(e) => setNotificationForm({ ...notificationForm, priority: e.target.value })}
-                          className="w-full p-2 border border-white/[0.04] rounded-lg focus:ring-2 focus:ring-emerald-500"
+                          className="w-full p-2 border border-[var(--border-subtle)] rounded-lg focus:ring-2 focus:ring-emerald-500"
                         >
                           {priorityOptions.map(pri => (
                             <option key={pri.value} value={pri.value}>
@@ -570,39 +570,39 @@ const PushNotificationAdmin: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-2">
+                      <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                         Title
                       </label>
                       <input
                         type="text"
                         value={notificationForm.title}
                         onChange={(e) => setNotificationForm({ ...notificationForm, title: e.target.value })}
-                        className="w-full p-3 border border-white/[0.04] rounded-lg focus:ring-2 focus:ring-emerald-500"
+                        className="w-full p-3 border border-[var(--border-subtle)] rounded-lg focus:ring-2 focus:ring-emerald-500"
                         placeholder="Notification title..."
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-2">
+                      <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                         Message
                       </label>
                       <textarea
                         value={notificationForm.message}
                         onChange={(e) => setNotificationForm({ ...notificationForm, message: e.target.value })}
                         rows={4}
-                        className="w-full p-3 border border-white/[0.04] rounded-lg focus:ring-2 focus:ring-emerald-500"
+                        className="w-full p-3 border border-[var(--border-subtle)] rounded-lg focus:ring-2 focus:ring-emerald-500"
                         placeholder="Notification message..."
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-2">
+                      <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                         Recipients
                       </label>
                       <select
                         value={notificationForm.recipientType}
                         onChange={(e) => setNotificationForm({ ...notificationForm, recipientType: e.target.value })}
-                        className="w-full p-2 border border-white/[0.04] rounded-lg focus:ring-2 focus:ring-emerald-500 mb-2"
+                        className="w-full p-2 border border-[var(--border-subtle)] rounded-lg focus:ring-2 focus:ring-emerald-500 mb-2"
                       >
                         <option value="all">All Users</option>
                         <option value="specific">Specific Users</option>
@@ -612,21 +612,21 @@ const PushNotificationAdmin: React.FC = () => {
                           type="text"
                           value={notificationForm.specificUsers}
                           onChange={(e) => setNotificationForm({ ...notificationForm, specificUsers: e.target.value })}
-                          className="w-full p-3 border border-white/[0.04] rounded-lg focus:ring-2 focus:ring-emerald-500"
+                          className="w-full p-3 border border-[var(--border-subtle)] rounded-lg focus:ring-2 focus:ring-emerald-500"
                           placeholder="User IDs (comma-separated)"
                         />
                       )}
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-2">
+                      <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                         Schedule (Optional)
                       </label>
                       <input
                         type="datetime-local"
                         value={notificationForm.scheduledFor}
                         onChange={(e) => setNotificationForm({ ...notificationForm, scheduledFor: e.target.value })}
-                        className="w-full p-3 border border-white/[0.04] rounded-lg focus:ring-2 focus:ring-emerald-500"
+                        className="w-full p-3 border border-[var(--border-subtle)] rounded-lg focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
 
@@ -648,27 +648,27 @@ const PushNotificationAdmin: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-semibold">Available Templates</h3>
-                  {templatesQuery.isRefetching && <span className="text-sm text-white/60">Refreshing...</span>}
+                  {templatesQuery.isRefetching && <span className="text-sm text-[var(--text-secondary)]">Refreshing...</span>}
                 </div>
                 {templatesQuery.isLoading ? (
-                  <div className="text-center py-3 text-white/60">Loading templates...</div>
+                  <div className="text-center py-3 text-[var(--text-secondary)]">Loading templates...</div>
                 ) : templatesQuery.error ? (
                   <div className="text-center py-3 text-rose-400">Error loading templates</div>
                 ) : (
                   <div className="grid gap-2">
                     {templatesQuery.data?.map(template => (
-                      <div key={template.id} className="border border-white/[0.04] rounded-lg p-2 hover:border-white/[0.08] transition-colors">
+                      <div key={template.id} className="border border-[var(--border-subtle)] rounded-lg p-2 hover:border-[var(--border-default)] transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <h4 className="font-semibold text-white">{template.template_name}</h4>
                             <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>
                               <span className="font-medium">Category:</span> {template.category}
                             </p>
-                            <p className="text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>
+                            <p className="text-sm text-[var(--text-primary)]" style={{ color: brandColors.archon.mediumGray }}>
                               <span className="font-medium">Priority:</span> {template.priority}
                             </p>
-                            <div className="mt-3 p-3 bg-white/[0.03] rounded border border-white/[0.04]">
-                              <p className="text-sm font-medium text-white/60">{template.title_template}</p>
+                            <div className="mt-3 p-3 bg-white/[0.03] rounded border border-[var(--border-subtle)]">
+                              <p className="text-sm font-medium text-[var(--text-secondary)]">{template.title_template}</p>
                               <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>{template.message_template}</p>
                             </div>
                           </div>
@@ -688,19 +688,19 @@ const PushNotificationAdmin: React.FC = () => {
                   <button
                     onClick={() => historyQuery.refetch()}
                     disabled={historyQuery.isRefetching}
-                    className="px-2 py-2 bg-white/[0.06] text-white/60 rounded-lg hover:bg-white/[0.08] disabled:opacity-50"
+                    className="px-2 py-2 bg-white/[0.06] text-[var(--text-secondary)] rounded-lg hover:bg-[var(--surface-glass-hover)] disabled:opacity-50"
                   >
                     {historyQuery.isRefetching ? 'Refreshing...' : 'Refresh'}
                   </button>
                 </div>
                 {historyQuery.isLoading ? (
-                  <div className="text-center py-3 text-white/60">Loading history...</div>
+                  <div className="text-center py-3 text-[var(--text-secondary)]">Loading history...</div>
                 ) : historyQuery.error ? (
                   <div className="text-center py-3 text-rose-400">Error loading history</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full">
-                      <thead className="bg-white/[0.03] border-b border-white/[0.04]">
+                      <thead className="bg-white/[0.03] border-b border-[var(--border-subtle)]">
                         <tr>
                           <th className="px-2 py-3 text-left text-xs font-medium  uppercase" style={{ color: brandColors.archon.mediumGray }}>Title</th>
                           <th className="px-2 py-3 text-left text-xs font-medium  uppercase" style={{ color: brandColors.archon.mediumGray }}>Category</th>
@@ -717,7 +717,7 @@ const PushNotificationAdmin: React.FC = () => {
                           <tr key={notification.id} className="hover:bg-white/[0.03]">
                             <td className="px-2 py-3 text-sm">
                               <div className="font-medium text-white">{notification.title}</div>
-                              <div className="text-white/70 text-xs mt-1" style={{ color: brandColors.archon.mediumGray }}>{notification.message.substring(0, 50)}...</div>
+                              <div className="text-[var(--text-primary)] text-xs mt-1" style={{ color: brandColors.archon.mediumGray }}>{notification.message.substring(0, 50)}...</div>
                             </td>
                             <td className="px-2 py-3 text-sm">{notification.category}</td>
                             <td className="px-2 py-3 text-sm">
@@ -725,7 +725,7 @@ const PushNotificationAdmin: React.FC = () => {
                                 notification.priority === 'critical' ? 'bg-rose-400/10 text-rose-800' :
                                 notification.priority === 'high' ? 'bg-amber-400/10 text-amber-800' :
                                 notification.priority === 'normal' ? 'bg-emerald-500/10 text-emerald-400' :
-                                'bg-white/[0.06] text-white/80'
+                                'bg-white/[0.06] text-[var(--text-primary)]'
                               }`}>
                                 {notification.priority}
                               </span>
@@ -738,12 +738,12 @@ const PushNotificationAdmin: React.FC = () => {
                                 notification.delivery_status === 'sent' ? 'bg-green-100 text-emerald-400' :
                                 notification.delivery_status === 'sending' ? 'bg-amber-400/10 text-amber-800' :
                                 notification.delivery_status === 'failed' ? 'bg-rose-400/10 text-rose-800' :
-                                'bg-white/[0.06] text-white/80'
+                                'bg-white/[0.06] text-[var(--text-primary)]'
                               }`}>
                                 {notification.delivery_status}
                               </span>
                             </td>
-                            <td className="px-2 py-3 text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>
+                            <td className="px-2 py-3 text-sm text-[var(--text-primary)]" style={{ color: brandColors.archon.mediumGray }}>
                               {formatDateTime(notification.created_at)}
                             </td>
                           </tr>
@@ -759,7 +759,7 @@ const PushNotificationAdmin: React.FC = () => {
             {activeTab === 'stats' && (
               <div>
                 {statsQuery.isLoading ? (
-                  <div className="text-center py-3 text-white/60">Loading statistics...</div>
+                  <div className="text-center py-3 text-[var(--text-secondary)]">Loading statistics...</div>
                 ) : statsQuery.error ? (
                   <div className="text-center py-3 text-rose-400">Error loading statistics</div>
                 ) : statsQuery.data ? (
@@ -767,7 +767,7 @@ const PushNotificationAdmin: React.FC = () => {
                     <h3 className="text-sm font-semibold mb-2">Delivery Statistics</h3>
 
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="border border-white/[0.04] rounded-lg p-3">
+                      <div className="border border-[var(--border-subtle)] rounded-lg p-3">
                         <h4 className="text-sm font-medium  mb-2" style={{ color: brandColors.archon.mediumGray }}>Delivery Performance</h4>
                         <div className="space-y-3">
                           <div>
@@ -797,7 +797,7 @@ const PushNotificationAdmin: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="border border-white/[0.04] rounded-lg p-3">
+                      <div className="border border-[var(--border-subtle)] rounded-lg p-3">
                         <h4 className="text-sm font-medium  mb-2" style={{ color: brandColors.archon.mediumGray }}>Engagement Metrics</h4>
                         <div className="space-y-3">
                           <div>
@@ -829,7 +829,7 @@ const PushNotificationAdmin: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-3 gap-2">
-                      <div className="bg-[#111111] p-3 rounded-lg border border-white/[0.04]">
+                      <div className="bg-[var(--surface-2)] p-3 rounded-lg border border-[var(--border-subtle)]">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-emerald-400 font-medium">Total Notifications</p>
@@ -838,7 +838,7 @@ const PushNotificationAdmin: React.FC = () => {
                           <Bell className="text-emerald-400" size={40} />
                         </div>
                       </div>
-                      <div className="bg-[#111111] p-3 rounded-lg border border-white/[0.04]">
+                      <div className="bg-[var(--surface-2)] p-3 rounded-lg border border-[var(--border-subtle)]">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-emerald-400 font-medium">Successfully Delivered</p>
@@ -847,7 +847,7 @@ const PushNotificationAdmin: React.FC = () => {
                           <CheckCircle className="text-emerald-400" size={40} />
                         </div>
                       </div>
-                      <div className="bg-[#111111] p-3 rounded-lg border border-white/[0.04]">
+                      <div className="bg-[var(--surface-2)] p-3 rounded-lg border border-[var(--border-subtle)]">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-amber-400 font-medium">User Interactions</p>

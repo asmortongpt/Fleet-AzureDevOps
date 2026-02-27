@@ -91,7 +91,7 @@ const SEARCH_CATEGORIES: SearchCategory[] = [
   { type: 'part', label: 'Parts', icon: Package, color: 'text-emerald-500' },
   { type: 'vendor', label: 'Vendors', icon: Truck, color: 'text-emerald-500' },
   { type: 'route', label: 'Routes', icon: MapPin, color: 'text-amber-500' },
-  { type: 'document', label: 'Documents', icon: FileText, color: 'text-white/40' }
+  { type: 'document', label: 'Documents', icon: FileText, color: 'text-[var(--text-tertiary)]' }
 ]
 
 // ============================================================================

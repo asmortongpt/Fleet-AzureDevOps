@@ -179,7 +179,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
   const sidePanel = (
     <div className="space-y-2" data-testid="analytics-filter-sidebar">
       <div>
-        <h2 className="text-sm font-bold text-white/90">Analytics Filters</h2>
+        <h2 className="text-sm font-bold text-[var(--text-primary)]">Analytics Filters</h2>
         <p className="text-sm text-muted-foreground mt-1">{getAnalyticsDescription()}</p>
       </div>
 
@@ -221,7 +221,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
 
       {/* Metrics Summary */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-white/70">Key Metrics</h3>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Key Metrics</h3>
 
         <Card>
           <CardContent className="p-3">
@@ -281,7 +281,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
       {/* Selected Vehicle Info */}
       {selectedVehicle && (
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-white/70">Selected Vehicle</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Selected Vehicle</h3>
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center justify-between">

@@ -57,10 +57,10 @@ export function TrafficCameraControlPanel({
     if (!isVisible) return null;
 
     return (
-        <Card className="fixed top-24 right-2 sm:right-6 w-[calc(100%-1rem)] sm:w-80 z-40 border border-white/[0.04] bg-[#0e0e0e] animate-in slide-in-from-right-10 rounded-lg overflow-hidden">
-            <CardHeader className="pb-2 border-b border-white/[0.04] flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/[0.03]">
+        <Card className="fixed top-24 right-2 sm:right-6 w-[calc(100%-1rem)] sm:w-80 z-40 border border-[var(--border-subtle)] bg-[var(--surface-1)] animate-in slide-in-from-right-10 rounded-lg overflow-hidden">
+            <CardHeader className="pb-2 border-b border-[var(--border-subtle)] flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/[0.03]">
                 <div>
-                    <CardTitle className="text-base font-bold flex items-center gap-2 text-white/80">
+                    <CardTitle className="text-base font-bold flex items-center gap-2 text-[var(--text-primary)]">
                         <div className="p-1.5 bg-emerald-500/10 rounded-md border border-emerald-500/20">
                             <Video className="text-emerald-400 w-4 h-4" />
                         </div>
@@ -71,17 +71,17 @@ export function TrafficCameraControlPanel({
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                         </div>
-                        <span className="text-[10px] uppercase tracking-wider text-white/35 font-semibold">Live Monitoring</span>
+                        <span className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)] font-semibold">Live Monitoring</span>
                     </div>
                 </div>
                 <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/[0.06] rounded-full" onClick={onClose} aria-label="Close traffic camera panel">
-                    <X className="w-4 h-4 text-white/40" />
+                    <X className="w-4 h-4 text-[var(--text-tertiary)]" />
                 </Button>
             </CardHeader>
             <CardContent className="pt-2 space-y-2">
 
                 {/* Sync Controls */}
-                <div className="flex items-center justify-between text-xs text-white/60">
+                <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
                     <span>{sources.length} Sources Active</span>
                     <Button
                         variant="ghost"
@@ -98,7 +98,7 @@ export function TrafficCameraControlPanel({
                 {/* Filters */}
                 <div className="space-y-3">
                     <div className="relative">
-                        <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-white/60" />
+                        <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-[var(--text-secondary)]" />
                         <Input
                             placeholder="Search cameras..."
                             value={filters.search}
@@ -141,11 +141,11 @@ export function TrafficCameraControlPanel({
                 <div className="pt-2 border-t flex gap-2 justify-center">
                     <div className="flex items-center gap-1.5">
                         <div className="w-2 h-2 rounded-full bg-green-500" />
-                        <span className="text-xs text-white/60">Active</span>
+                        <span className="text-xs text-[var(--text-secondary)]">Active</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <div className="w-2 h-2 rounded-full bg-red-500" />
-                        <span className="text-xs text-white/60">Offline</span>
+                        <span className="text-xs text-[var(--text-secondary)]">Offline</span>
                     </div>
                 </div>
 

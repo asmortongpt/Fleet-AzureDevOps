@@ -84,11 +84,11 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
       case "active":
         return <Activity className="h-3 w-3 text-green-500" />
       case "off-duty":
-        return <Clock className="h-3 w-3 text-white/35" />
+        return <Clock className="h-3 w-3 text-[var(--text-tertiary)]" />
       case "on-leave":
         return <Moon className="h-3 w-3 text-emerald-500" />
       default:
-        return <User className="h-3 w-3 text-white/35" />
+        return <User className="h-3 w-3 text-[var(--text-tertiary)]" />
     }
   }
 
@@ -130,7 +130,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
       />
 
       {/* Stats Overlay */}
-      <div className="absolute top-4 left-4 bg-[#111111] border border-white/[0.04] rounded-lg p-3 z-10">
+      <div className="absolute top-4 left-4 bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-3 z-10">
         <div className="grid grid-cols-2 gap-3">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />

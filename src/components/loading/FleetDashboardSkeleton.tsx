@@ -163,7 +163,7 @@ export function FleetMapSkeleton() {
       </div>
 
       {/* Legend - Bottom Left */}
-      <div className="absolute bottom-4 left-4 bg-[#111111] border border-white/[0.04] rounded-lg p-2 space-y-2">
+      <div className="absolute bottom-4 left-4 bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-2 space-y-2">
         <Skeleton className="h-4 w-32 mb-3" />
         {[...Array(4)].map((_, i) => (
           <div key={i} className="flex items-center gap-2">
@@ -174,7 +174,7 @@ export function FleetMapSkeleton() {
       </div>
 
       {/* Vehicle Count Badge - Top Left */}
-      <div className="absolute top-4 left-4 bg-[#111111] border border-white/[0.04] rounded-lg px-3 py-2">
+      <div className="absolute top-4 left-4 bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg px-3 py-2">
         <Skeleton className="h-6 w-32" />
       </div>
     </div>

@@ -335,7 +335,7 @@ const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any
       case 'minor': return 'text-yellow-600'
       case 'moderate': return 'text-orange-600'
       case 'major': return 'text-red-600'
-      default: return 'text-white/40'
+      default: return 'text-[var(--text-tertiary)]'
     }
   }
 

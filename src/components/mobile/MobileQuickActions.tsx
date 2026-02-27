@@ -61,7 +61,7 @@ export function MobileQuickActions({
     return (
       <div className={cn('space-y-3', className)} data-testid="mobile-quick-actions-grid">
         {title && (
-          <h3 className="text-sm font-semibold text-white/70 px-1">{title}</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] px-1">{title}</h3>
         )}
         <div
           className={cn(
@@ -85,7 +85,7 @@ export function MobileQuickActions({
               data-testid={`quick-action-${action.id}`}
               aria-label={action.badge ? `${action.label} (${action.badge} notifications)` : action.label}
             >
-              <div className="text-white/50" aria-hidden="true">{action.icon}</div>
+              <div className="text-[var(--text-secondary)]" aria-hidden="true">{action.icon}</div>
               <span className="text-xs font-medium leading-tight text-center" aria-hidden="true">
                 {action.label}
               </span>
@@ -104,7 +104,7 @@ export function MobileQuickActions({
   return (
     <div className={cn('relative space-y-2', className)} data-testid="mobile-quick-actions-scroll">
       {title && (
-        <h3 className="text-sm font-semibold text-white/70 px-1">{title}</h3>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] px-1">{title}</h3>
       )}
 
       <div className="relative">
@@ -112,11 +112,11 @@ export function MobileQuickActions({
         {showLeftArrow && (
           <button
             onClick={() => handleScroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#1a1a1a] border border-white/[0.04] rounded-full p-2"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[var(--surface-3)] border border-[var(--border-subtle)] rounded-full p-2"
             aria-label="Scroll left"
             data-testid="scroll-left"
           >
-            <ChevronLeft className="h-5 w-5 text-white/70" aria-hidden="true" />
+            <ChevronLeft className="h-5 w-5 text-[var(--text-primary)]" aria-hidden="true" />
           </button>
         )}
 
@@ -148,7 +148,7 @@ export function MobileQuickActions({
                   data-testid={`quick-action-${action.id}`}
                   aria-label={action.badge ? `${action.label} (${action.badge} notifications)` : action.label}
                 >
-                  <div className="text-white/50" aria-hidden="true">{action.icon}</div>
+                  <div className="text-[var(--text-secondary)]" aria-hidden="true">{action.icon}</div>
                   <span className="text-xs font-medium text-center leading-tight" aria-hidden="true">
                     {action.label}
                   </span>
@@ -167,11 +167,11 @@ export function MobileQuickActions({
         {showRightArrow && (
           <button
             onClick={() => handleScroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#1a1a1a] border border-white/[0.04] rounded-full p-2"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[var(--surface-3)] border border-[var(--border-subtle)] rounded-full p-2"
             aria-label="Scroll right"
             data-testid="scroll-right"
           >
-            <ChevronRight className="h-5 w-5 text-white/70" aria-hidden="true" />
+            <ChevronRight className="h-5 w-5 text-[var(--text-primary)]" aria-hidden="true" />
           </button>
         )}
       </div>
@@ -268,7 +268,7 @@ export function SwipeableActionCard({
 
       {/* Swipeable content */}
       <div
-        className="bg-[#111111] transition-transform duration-200 ease-out touch-none"
+        className="bg-[var(--surface-2)] transition-transform duration-200 ease-out touch-none"
         style={{
           transform: `translateX(${offset}px)`
         }}

@@ -540,11 +540,11 @@ function HOSSummaryReport({ data }: { data: HOSSummaryData }): React.ReactElemen
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-white/[0.03]">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Date/Time</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Driver</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Duty Status</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Location</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Vehicle</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Date/Time</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Driver</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Duty Status</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Location</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Vehicle</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -586,11 +586,11 @@ function DVIRSummaryReport({ data }: { data: DVIRSummaryData }): React.ReactElem
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-white/[0.03]">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Date</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Type</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Vehicle</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Defects</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Safe?</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Date</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Type</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Vehicle</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Defects</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Safe?</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -636,11 +636,11 @@ function ViolationSummaryReport({ data }: { data: ViolationSummaryData }): React
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-white/[0.03]">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Date</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Type</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Severity</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Status</th>
-              <th className="px-3 py-2 text-left font-medium text-white/40">Description</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Date</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Type</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Severity</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Status</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Description</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -706,7 +706,7 @@ function StatCard({
   variant?: 'default' | 'success' | 'warning' | 'danger'
 }): React.ReactElement {
   const colorClasses: Record<'default' | 'success' | 'warning' | 'danger', string> = {
-    default: 'bg-white/[0.03] border-white/[0.08]',
+    default: 'bg-white/[0.03] border-[var(--border-default)]',
     success: 'bg-green-50 border-green-200',
     warning: 'bg-yellow-50 border-yellow-200',
     danger: 'bg-red-50 border-red-200'

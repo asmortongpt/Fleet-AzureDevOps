@@ -291,7 +291,7 @@ flowchart LR
       case "error":
         return <AlertTriangle className="w-4 h-4 text-red-500" />
       default:
-        return <div className="w-4 h-4 rounded-full border-2 border-white/[0.08]" />
+        return <div className="w-4 h-4 rounded-full border-2 border-[var(--border-default)]" />
     }
   }
 
@@ -399,7 +399,7 @@ flowchart LR
                     <span className={`text-sm font-medium ${
                       step.status === "processing" ? "text-emerald-800" :
                       step.status === "complete" ? "text-green-600" :
-                      "text-white/70"
+                      "text-[var(--text-primary)]"
                     }`}>
                       {step.label}
                     </span>
@@ -492,7 +492,7 @@ flowchart LR
               <span className="text-sm">Execution</span>
             </div>
             <div className="flex items-center gap-2">
-              <Database className="w-4 h-4 text-white/40" />
+              <Database className="w-4 h-4 text-[var(--text-tertiary)]" />
               <span className="text-sm">Data Store</span>
             </div>
           </div>

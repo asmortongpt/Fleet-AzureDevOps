@@ -77,7 +77,7 @@ export function UltraLuxuryDashboard() {
   }))
 
   return (
-    <div className="min-h-screen bg-[#111111] text-white overflow-hidden relative">
+    <div className="min-h-screen bg-[var(--surface-2)] text-white overflow-hidden relative">
       {/* Ultra-premium ambient background with multi-layered particles and glows */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Dynamic gradient glows */}
@@ -147,7 +147,7 @@ export function UltraLuxuryDashboard() {
 
       {/* Premium Header */}
       <motion.header
-        className="relative z-50 border-b border-white/10"
+        className="relative z-50 border-b border-[var(--border-default)]"
         style={{
           background: '#111111'
         }}

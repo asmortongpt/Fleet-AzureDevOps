@@ -66,9 +66,9 @@ export function ThreeDViewer({ document }: ThreeDViewerProps) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#111]">
+    <div className="flex flex-col h-full bg-[var(--surface-2)]">
       {/* Controls toolbar */}
-      <div className="flex items-center justify-between p-3 border-b border-white/[0.15] bg-[#1a1a1a]">
+      <div className="flex items-center justify-between p-3 border-b border-[var(--border-strong)] bg-[var(--surface-3)]">
         <div className="flex items-center gap-2">
           <Button
             variant={showGrid ? "default" : "outline"}
@@ -164,7 +164,7 @@ export function ThreeDViewer({ document }: ThreeDViewerProps) {
       </div>
 
       {/* Instructions */}
-      <div className="p-2 bg-[#1a1a1a] border-t border-white/[0.15] text-xs text-white/70 text-center">
+      <div className="p-2 bg-[var(--surface-3)] border-t border-[var(--border-strong)] text-xs text-[var(--text-primary)] text-center">
         Left-click drag to rotate • Scroll to zoom • Right-click drag to pan
       </div>
     </div>

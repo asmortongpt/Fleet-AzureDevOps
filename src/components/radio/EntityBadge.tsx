@@ -42,7 +42,7 @@ const ENTITY_CONFIG = {
     label: 'Time'
   },
   OTHER: {
-    color: 'bg-white/[0.05] text-white/60 hover:bg-white/[0.06] dark:bg-[#18181b] dark:text-white/60',
+    color: 'bg-white/[0.05] text-[var(--text-secondary)] hover:bg-white/[0.06] dark:bg-[var(--surface-3)] dark:text-[var(--text-secondary)]',
     icon: Hash,
     label: 'Other'
   }

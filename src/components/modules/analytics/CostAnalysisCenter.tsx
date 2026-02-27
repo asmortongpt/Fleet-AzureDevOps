@@ -206,7 +206,7 @@ export function CostAnalysisCenter() {
   const getTrendIcon = (trend: string) => {
     if (trend === 'increasing') return <TrendingUp className="h-4 w-4 text-red-500" />
     if (trend === 'decreasing') return <TrendingDown className="h-4 w-4 text-green-500" />
-    return <TrendingDown className="h-4 w-4 text-white/40" />
+    return <TrendingDown className="h-4 w-4 text-[var(--text-tertiary)]" />
   }
 
   const getCategoryColor = (category: string) => {
@@ -256,7 +256,7 @@ export function CostAnalysisCenter() {
             <DollarSign className="h-8 w-8 text-green-600" />
             Cost Analysis Command Center
           </h1>
-          <p className="text-white/40 mt-2">
+          <p className="text-[var(--text-tertiary)] mt-2">
             Real-time cost tracking, forecasting, and anomaly detection
           </p>
         </div>
@@ -363,7 +363,7 @@ export function CostAnalysisCenter() {
                           </div>
                           <div className="text-right">
                             <div className="font-bold">{formatCurrency(category.amount)}</div>
-                            <div className="text-sm text-white/40">{category.percentage.toFixed(1)}%</div>
+                            <div className="text-sm text-[var(--text-tertiary)]">{category.percentage.toFixed(1)}%</div>
                           </div>
                         </div>
                         <div className="w-full bg-white/[0.06] rounded-full h-2">
@@ -586,7 +586,7 @@ export function CostAnalysisCenter() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <div className="text-center py-3 text-white/40">
+                  <div className="text-center py-3 text-[var(--text-tertiary)]">
                     No anomalies detected for this period.
                   </div>
                 )}

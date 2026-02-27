@@ -58,10 +58,10 @@ export class MapErrorBoundary extends Component<
                 />
               </svg>
             </div>
-            <h2 className="text-base font-semibold text-white/80 dark:text-white/80 mb-2">
+            <h2 className="text-base font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary)] mb-2">
               Map Failed to Load
             </h2>
-            <p className="text-white/70 dark:text-white/40 mb-2">
+            <p className="text-[var(--text-primary)] dark:text-[var(--text-tertiary)] mb-2">
               {this.state.error?.message || "An unexpected error occurred while loading the map."}
             </p>
             <button

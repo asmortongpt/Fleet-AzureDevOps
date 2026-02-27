@@ -52,7 +52,7 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
   return (
     <div
       className={cn(
-        'rounded-2xl border border-white/[0.04] bg-[#111111] overflow-hidden',
+        'rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-2)] overflow-hidden',
         onClick && 'cursor-pointer hover:bg-[#161616] transition-colors duration-150',
         className
       )}
@@ -61,14 +61,14 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
       {/* Header */}
       <div className="p-4 flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-[11px] font-medium text-white/35 uppercase tracking-wider">
+          <p className="text-[11px] font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
             {title}
           </p>
 
           {isLoading ? (
             <div className="flex items-center gap-2 mt-2">
-              <Loader size={16} className="animate-spin text-white/30" />
-              <span className="text-[12px] text-white/20">Loading...</span>
+              <Loader size={16} className="animate-spin text-[var(--text-muted)]" />
+              <span className="text-[12px] text-[var(--text-muted)]">Loading...</span>
             </div>
           ) : (
             <>
@@ -78,7 +78,7 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
                     {value}
                   </h3>
                   {unit && (
-                    <span className="text-[12px] text-white/30 font-medium">{unit}</span>
+                    <span className="text-[12px] text-[var(--text-muted)] font-medium">{unit}</span>
                   )}
                 </div>
               )}
@@ -89,7 +89,7 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
                   {trend === 'down' && <TrendingDown size={14} className="text-rose-400" />}
                   <span className={cn(
                     'text-[11px] font-medium',
-                    trend === 'up' ? 'text-emerald-400' : trend === 'down' ? 'text-rose-400' : 'text-white/30'
+                    trend === 'up' ? 'text-emerald-400' : trend === 'down' ? 'text-rose-400' : 'text-[var(--text-muted)]'
                   )}>
                     {trendValue}
                   </span>
@@ -104,7 +104,7 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
             <div className={cn('w-2 h-2 rounded-full', statusDotColors[status])} />
           )}
           {icon && (
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/[0.04] text-white/30">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/[0.04] text-[var(--text-muted)]">
               {icon}
             </div>
           )}
@@ -113,7 +113,7 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
 
       {/* Content */}
       {children && (
-        <div className="px-4 pb-4 border-t border-white/[0.04]">
+        <div className="px-4 pb-4 border-t border-[var(--border-subtle)]">
           {children}
         </div>
       )}

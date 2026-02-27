@@ -257,10 +257,10 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
       <div
         className={`
           ${level === 'page' ? 'min-h-screen' : level === 'section' ? 'min-h-[400px]' : 'min-h-[200px]'}
-          flex items-center justify-center p-2 bg-[#0a0a0a]
+          flex items-center justify-center p-2 bg-[var(--surface-0)]
         `}
       >
-        <Card className="w-full max-w-2xl border-white/[0.04] bg-[#111111]">
+        <Card className="w-full max-w-2xl border-[var(--border-subtle)] bg-[var(--surface-2)]">
           <CardHeader className="text-center">
             <div
               className="inline-flex mx-auto mb-2"
@@ -299,29 +299,29 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
             {showDetails && error && (
               <details className="mt-2">
-                <summary className="cursor-pointer text-sm font-medium text-white/60 hover:text-white/80">
+                <summary className="cursor-pointer text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                   Technical Details
                 </summary>
-                <div className="mt-2 p-3 bg-[#0e0e0e] rounded-lg">
+                <div className="mt-2 p-3 bg-[var(--surface-1)] rounded-lg">
                   <div className="space-y-2 text-xs font-mono">
                     <div>
-                      <span className="text-white/35">Error ID:</span>{' '}
-                      <span className="text-white/60">{errorId}</span>
+                      <span className="text-[var(--text-tertiary)]">Error ID:</span>{' '}
+                      <span className="text-[var(--text-secondary)]">{errorId}</span>
                     </div>
                     <div>
-                      <span className="text-white/35">Timestamp:</span>{' '}
-                      <span className="text-white/60">
+                      <span className="text-[var(--text-tertiary)]">Timestamp:</span>{' '}
+                      <span className="text-[var(--text-secondary)]">
                         {errorTimestamp.toISOString()}
                       </span>
                     </div>
                     <div>
-                      <span className="text-white/35">Message:</span>{' '}
+                      <span className="text-[var(--text-tertiary)]">Message:</span>{' '}
                       <span className="text-red-400">{error.message}</span>
                     </div>
                     {error.stack && (
                       <div className="mt-2">
-                        <span className="text-white/40">Stack Trace:</span>
-                        <pre className="mt-1 text-[10px] text-white/60 overflow-auto max-h-32">
+                        <span className="text-[var(--text-tertiary)]">Stack Trace:</span>
+                        <pre className="mt-1 text-[10px] text-[var(--text-secondary)] overflow-auto max-h-32">
                           {error.stack}
                         </pre>
                       </div>
@@ -332,10 +332,10 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
             )}
 
             <div className="pt-2">
-              <h3 className="text-sm font-medium text-white/60 mb-2">
+              <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-2">
                 What you can try:
               </h3>
-              <ul className="space-y-1 text-sm text-white/60">
+              <ul className="space-y-1 text-sm text-[var(--text-secondary)]">
                 {errorType === 'network' && (
                   <>
                     <li>• Check your internet connection</li>
@@ -401,7 +401,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
           {errorId && (
             <div className="px-3 pb-2">
-              <p className="text-xs text-center text-white/35">
+              <p className="text-xs text-center text-[var(--text-tertiary)]">
                 Reference this ID when contacting support: <code className="font-mono">{errorId}</code>
               </p>
             </div>

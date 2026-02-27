@@ -30,9 +30,9 @@ export const MobileCameraCapture: React.FC<MobileCameraCaptureProps> = ({
 }) => {
     return (
         <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center text-white">
-            <div className="bg-[#111] p-3 rounded-lg max-w-sm w-full">
+            <div className="bg-[var(--surface-2)] p-3 rounded-lg max-w-sm w-full">
                 <h2 className="text-base font-bold mb-2">Camera Capture</h2>
-                <p className="mb-3 text-white/60">
+                <p className="mb-3 text-[var(--text-secondary)]">
                     Camera component was missing from the import. This is a placeholder.
                 </p>
                 <div className="flex gap-3">

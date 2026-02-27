@@ -250,12 +250,12 @@ export function PolicyEngineWorkbench() {
 
   const getStatusColor = (status: PolicyStatus) => {
     const colors = {
-      draft: "bg-white/[0.05] text-white/40",
+      draft: "bg-white/[0.05] text-[var(--text-tertiary)]",
       testing: "bg-emerald-500/10 text-emerald-700",
       approved: "bg-green-100 text-green-700",
       active: "bg-green-500 text-white",
       deprecated: "bg-orange-100 text-orange-700",
-      archived: "bg-white/[0.05] text-white/40"
+      archived: "bg-white/[0.05] text-[var(--text-tertiary)]"
     }
     return colors[status]
   }

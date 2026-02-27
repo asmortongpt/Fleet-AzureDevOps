@@ -48,8 +48,8 @@ function RankBadge({ rank }: { rank: number }) {
     }
     if (rank === 2) {
         return (
-            <div className="w-4 h-4 rounded-full bg-[#1a1a1a] border border-white/[0.04] flex items-center justify-center">
-                <Medal className="w-4 h-4 text-white/70" />
+            <div className="w-4 h-4 rounded-full bg-[var(--surface-3)] border border-[var(--border-subtle)] flex items-center justify-center">
+                <Medal className="w-4 h-4 text-[var(--text-primary)]" />
             </div>
         )
     }
@@ -61,7 +61,7 @@ function RankBadge({ rank }: { rank: number }) {
         )
     }
     return (
-        <div className="w-4 h-4 rounded-full bg-[#1a1a1a] flex items-center justify-center text-sm font-bold text-white/70">
+        <div className="w-4 h-4 rounded-full bg-[var(--surface-3)] flex items-center justify-center text-sm font-bold text-[var(--text-primary)]">
             {rank}
         </div>
     )
@@ -86,7 +86,7 @@ function RankChange({ previous, current }: { previous: number; current: number }
         )
     }
     return (
-        <div className="flex items-center gap-1 text-white/40">
+        <div className="flex items-center gap-1 text-[var(--text-tertiary)]">
             <Minus className="w-3 h-3" />
             <span className="text-xs">—</span>
         </div>
@@ -144,7 +144,7 @@ export function DriverLeaderboard({
     }
 
     return (
-        <Card className={cn("bg-[#111111] border-white/[0.04]", className)}>
+        <Card className={cn("bg-[var(--surface-2)] border-[var(--border-subtle)]", className)}>
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -152,7 +152,7 @@ export function DriverLeaderboard({
                         <CardTitle className="text-sm">Driver Leaderboard</CardTitle>
                     </div>
                     <Tabs value={selectedPeriod} onValueChange={handlePeriodChange}>
-                        <TabsList className="h-8 bg-[#1a1a1a]">
+                        <TabsList className="h-8 bg-[var(--surface-3)]">
                             <TabsTrigger value="week" className="text-xs px-2 h-6">Week</TabsTrigger>
                             <TabsTrigger value="month" className="text-xs px-2 h-6">Month</TabsTrigger>
                             <TabsTrigger value="quarter" className="text-xs px-2 h-6">Quarter</TabsTrigger>
@@ -180,15 +180,15 @@ export function DriverLeaderboard({
 
                                 {/* Avatar & Name */}
                                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                                    <Avatar className="h-8 w-10 border-2 border-white/[0.04]">
+                                    <Avatar className="h-8 w-10 border-2 border-[var(--border-subtle)]">
                                         <AvatarImage src={driver.avatarUrl} />
-                                        <AvatarFallback className="bg-[#1a1a1a] text-white/60">
+                                        <AvatarFallback className="bg-[var(--surface-3)] text-[var(--text-secondary)]">
                                             {driver.name.split(' ').map(n => n[0]).join('')}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="min-w-0">
                                         <p className="font-medium text-white truncate">{driver.name}</p>
-                                        <div className="flex items-center gap-2 text-xs text-white/70">
+                                        <div className="flex items-center gap-2 text-xs text-[var(--text-primary)]">
                                             <span>{driver.tripsCompleted} trips</span>
                                             {driver.streak && driver.streak > 0 && (
                                                 <Badge variant="secondary" className="h-4 px-1.5 text-[10px] bg-emerald-500/20 text-emerald-400">
@@ -214,7 +214,7 @@ export function DriverLeaderboard({
                                     )}>
                                         {driver.score}
                                     </p>
-                                    <p className="text-[10px] text-white/35 uppercase">Score</p>
+                                    <p className="text-[10px] text-[var(--text-tertiary)] uppercase">Score</p>
                                 </div>
                             </button>
                         ))}
@@ -222,7 +222,7 @@ export function DriverLeaderboard({
                 </ScrollArea>
 
                 {/* Legend */}
-                <div className="mt-2 pt-2 border-t border-white/[0.04] flex justify-center gap-2 text-xs text-white/35">
+                <div className="mt-2 pt-2 border-t border-[var(--border-subtle)] flex justify-center gap-2 text-xs text-[var(--text-tertiary)]">
                     <div className="flex items-center gap-1.5">
                         <Shield className="w-3.5 h-3.5" />
                         <span>Safety</span>

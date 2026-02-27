@@ -198,7 +198,7 @@ export function ErrorDashboard() {
       case 'low':
         return 'text-emerald-800 bg-emerald-500/10 border-emerald-500/30';
       default:
-        return 'text-white/70 bg-white/[0.05] border-white/[0.08]';
+        return 'text-[var(--text-primary)] bg-white/[0.05] border-[var(--border-default)]';
     }
   }
 

@@ -72,7 +72,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
     return (
       <div className="flex items-center justify-center p-3">
         <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
-        <span className="ml-2 text-white/40">Loading driver data...</span>
+        <span className="ml-2 text-[var(--text-tertiary)]">Loading driver data...</span>
       </div>
     );
   }
@@ -90,7 +90,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
 
   if (!driver) {
     return (
-      <div className="p-3 text-white/40">
+      <div className="p-3 text-[var(--text-tertiary)]">
         No driver data available
       </div>
     );
@@ -114,10 +114,10 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               </div>
             )}
             <div>
-              <h2 className="text-sm font-bold text-white/80 dark:text-white">
+              <h2 className="text-sm font-bold text-[var(--text-primary)] dark:text-white">
                 {driver.name}
               </h2>
-              <p className="text-sm text-white/40 dark:text-white/40">
+              <p className="text-sm text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
                 {driver.email} • {driver.phone}
               </p>
             </div>
@@ -144,19 +144,19 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <h3 className="text-sm font-semibold mb-2">Driver Information</h3>
               <dl className="space-y-2">
                 <div className="flex justify-between">
-                  <dt className="text-white/40">License Number</dt>
+                  <dt className="text-[var(--text-tertiary)]">License Number</dt>
                   <dd className="font-mono text-sm">{driver.licenseNumber}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">License Expiry</dt>
+                  <dt className="text-[var(--text-tertiary)]">License Expiry</dt>
                   <dd className="font-medium">{formatDate(driver.licenseExpiry)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Email</dt>
+                  <dt className="text-[var(--text-tertiary)]">Email</dt>
                   <dd className="text-sm">{driver.email}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Phone</dt>
+                  <dt className="text-[var(--text-tertiary)]">Phone</dt>
                   <dd className="font-medium">{driver.phone}</dd>
                 </div>
               </dl>
@@ -166,22 +166,22 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <h3 className="text-sm font-semibold mb-2">Statistics</h3>
               <dl className="space-y-2">
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Total Trips</dt>
+                  <dt className="text-[var(--text-tertiary)]">Total Trips</dt>
                   <dd className="font-medium">{formatNumber(driver.totalTrips)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Total Miles</dt>
+                  <dt className="text-[var(--text-tertiary)]">Total Miles</dt>
                   <dd className="font-medium">{formatNumber(driver.totalMiles)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Rating</dt>
+                  <dt className="text-[var(--text-tertiary)]">Rating</dt>
                   <dd className="font-medium flex items-center gap-1">
                     {(driver.rating ?? 0).toFixed(1)} ⭐
                   </dd>
                 </div>
                 {driver.currentVehicle && (
                   <div className="flex justify-between">
-                    <dt className="text-white/40">Current Vehicle</dt>
+                    <dt className="text-[var(--text-tertiary)]">Current Vehicle</dt>
                     <dd className="font-medium">{driver.currentVehicle.name}</dd>
                   </div>
                 )}
@@ -198,7 +198,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <p className="text-base font-bold text-green-600">{driver.safetyScore}</p>
-                  <p className="text-sm text-white/40">Safety Score</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Safety Score</p>
                   <div className="flex items-center justify-center mt-2 text-green-600">
                     <TrendingUp className="w-4 h-4 mr-1" />
                     <span className="text-xs">+5 this month</span>
@@ -206,7 +206,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                 </div>
                 <div className="text-center p-2 bg-emerald-500/10 dark:bg-white/[0.04] rounded-lg">
                   <p className="text-base font-bold text-emerald-400">98%</p>
-                  <p className="text-sm text-white/40">On-Time Delivery</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">On-Time Delivery</p>
                   <div className="flex items-center justify-center mt-2 text-emerald-400">
                     <TrendingUp className="w-4 h-4 mr-1" />
                     <span className="text-xs">+2% this month</span>
@@ -214,8 +214,8 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                 </div>
                 <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <p className="text-base font-bold text-yellow-600">24.5</p>
-                  <p className="text-sm text-white/40">Avg MPG</p>
-                  <div className="flex items-center justify-center mt-2 text-white/40">
+                  <p className="text-sm text-[var(--text-tertiary)]">Avg MPG</p>
+                  <div className="flex items-center justify-center mt-2 text-[var(--text-tertiary)]">
                     <TrendingDown className="w-4 h-4 mr-1" />
                     <span className="text-xs">-0.5 this month</span>
                   </div>
@@ -227,19 +227,19 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <h3 className="text-sm font-semibold mb-2">Recent Metrics</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-white/40">Hard Braking Events</span>
+                  <span className="text-[var(--text-tertiary)]">Hard Braking Events</span>
                   <Badge variant="outline">2 this week</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-white/40">Speeding Incidents</span>
+                  <span className="text-[var(--text-tertiary)]">Speeding Incidents</span>
                   <Badge variant="outline">0 this week</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-white/40">Idle Time</span>
+                  <span className="text-[var(--text-tertiary)]">Idle Time</span>
                   <Badge variant="outline">3.2 hrs/week</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-white/40">Average Trip Distance</span>
+                  <span className="text-[var(--text-tertiary)]">Average Trip Distance</span>
                   <Badge variant="outline">45.3 miles</Badge>
                 </div>
               </div>
@@ -255,7 +255,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-white/40">Driving Hours Today</span>
+                    <span className="text-sm text-[var(--text-tertiary)]">Driving Hours Today</span>
                     <span className="text-sm font-medium">6.5 / 11 hrs</span>
                   </div>
                   <div className="w-full bg-white/[0.06] rounded-full h-2">
@@ -264,7 +264,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                 </div>
                 <div>
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-white/40">On-Duty Hours</span>
+                    <span className="text-sm text-[var(--text-tertiary)]">On-Duty Hours</span>
                     <span className="text-sm font-medium">8.2 / 14 hrs</span>
                   </div>
                   <div className="w-full bg-white/[0.06] rounded-full h-2">
@@ -273,7 +273,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                 </div>
                 <div>
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-white/40">Cycle Hours</span>
+                    <span className="text-sm text-[var(--text-tertiary)]">Cycle Hours</span>
                     <span className="text-sm font-medium">45 / 60 hrs</span>
                   </div>
                   <div className="w-full bg-white/[0.06] rounded-full h-2">
@@ -303,7 +303,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
 
             <Card className="p-2">
               <h3 className="text-sm font-semibold mb-2">Violation History</h3>
-              <div className="text-center py-2 text-white/40">
+              <div className="text-center py-2 text-[var(--text-tertiary)]">
                 <p className="text-green-600 font-medium">Clean Record</p>
                 <p className="text-sm">No violations in the past 12 months</p>
               </div>
@@ -318,24 +318,24 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
             <div className="space-y-2">
               <div className="border-l-4 border-emerald-500 pl-2 py-2">
                 <p className="font-medium">Morning Route</p>
-                <p className="text-sm text-white/40">7:00 AM - 11:30 AM</p>
-                <p className="text-sm text-white/40">Route: Downtown Deliveries</p>
+                <p className="text-sm text-[var(--text-tertiary)]">7:00 AM - 11:30 AM</p>
+                <p className="text-sm text-[var(--text-tertiary)]">Route: Downtown Deliveries</p>
                 {driver.currentVehicle && (
-                  <p className="text-sm text-white/40">Vehicle: {driver.currentVehicle.name}</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Vehicle: {driver.currentVehicle.name}</p>
                 )}
               </div>
               <div className="border-l-4 border-green-500 pl-2 py-2">
                 <p className="font-medium">Lunch Break</p>
-                <p className="text-sm text-white/40">11:30 AM - 12:30 PM</p>
+                <p className="text-sm text-[var(--text-tertiary)]">11:30 AM - 12:30 PM</p>
               </div>
               <div className="border-l-4 border-emerald-500 pl-2 py-2">
                 <p className="font-medium">Afternoon Route</p>
-                <p className="text-sm text-white/40">12:30 PM - 5:00 PM</p>
-                <p className="text-sm text-white/40">Route: Suburban Deliveries</p>
+                <p className="text-sm text-[var(--text-tertiary)]">12:30 PM - 5:00 PM</p>
+                <p className="text-sm text-[var(--text-tertiary)]">Route: Suburban Deliveries</p>
               </div>
-              <div className="border-l-4 border-white/[0.08] pl-2 py-2">
-                <p className="font-medium text-white/40">Off-Duty</p>
-                <p className="text-sm text-white/40">After 5:00 PM</p>
+              <div className="border-l-4 border-[var(--border-default)] pl-2 py-2">
+                <p className="font-medium text-[var(--text-tertiary)]">Off-Duty</p>
+                <p className="text-sm text-[var(--text-tertiary)]">After 5:00 PM</p>
               </div>
             </div>
           </Card>

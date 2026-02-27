@@ -33,13 +33,13 @@ export function CompactMetricCard({
   testId,
   valueTestId
 }: CompactMetricCardProps) {
-  const trendColor = trend === "up" ? "text-emerald-400" : trend === "down" ? "text-rose-400" : "text-white/30"
+  const trendColor = trend === "up" ? "text-emerald-400" : trend === "down" ? "text-rose-400" : "text-[var(--text-muted)]"
   const TrendIcon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus
 
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-xl border border-white/[0.04] bg-[#111111] p-3",
+        "flex items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3",
         onClick && "cursor-pointer hover:bg-[#161616] transition-colors duration-150",
         className
       )}
@@ -50,13 +50,13 @@ export function CompactMetricCard({
       data-testid={testId}
     >
       {icon && (
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.04] text-white/30 shrink-0">
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.04] text-[var(--text-muted)] shrink-0">
           {icon}
         </div>
       )}
 
       <div className="min-w-0 flex-1">
-        <div className="text-[10px] font-medium text-white/35 uppercase tracking-wider truncate" title={title}>
+        <div className="text-[10px] font-medium text-[var(--text-tertiary)] uppercase tracking-wider truncate" title={title}>
           {title}
         </div>
         <div className="flex items-baseline gap-2">
@@ -75,7 +75,7 @@ export function CompactMetricCard({
           )}
         </div>
         {subtitle && (
-          <div className="text-[10px] text-white/20 truncate mt-0.5" title={subtitle}>{subtitle}</div>
+          <div className="text-[10px] text-[var(--text-muted)] truncate mt-0.5" title={subtitle}>{subtitle}</div>
         )}
       </div>
     </div>

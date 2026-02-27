@@ -56,11 +56,11 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent
-                className="w-[400px] sm:w-[540px] flex flex-col p-0 text-foreground glass-panel border-white/10"
+                className="w-[400px] sm:w-[540px] flex flex-col p-0 text-foreground glass-panel border-[var(--border-default)]"
                 side="left" // Changed to Left to balance UI (or keep right? Fleet/Team usually left, Ops right)
                 style={{ backgroundColor: 'transparent' }}
             >
-                <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
+                <SheetHeader className="p-3 border-b border-[var(--border-default)] bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold text-white">Team Roster</SheetTitle>
                     </div>
@@ -129,7 +129,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                                 <Badge variant="outline" className="h-5 px-1.5">
                                                     {driver.licenseType || '—'}
                                                 </Badge>
-                                                <span className={`flex items-center gap-1 ${driver.status === 'active' ? 'text-green-500' : 'text-white/40'
+                                                <span className={`flex items-center gap-1 ${driver.status === 'active' ? 'text-green-500' : 'text-[var(--text-tertiary)]'
                                                     }`}>
                                                     • {formatEnum(driver.status)}
                                                 </span>

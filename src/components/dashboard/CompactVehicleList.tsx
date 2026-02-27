@@ -26,18 +26,18 @@ export function CompactVehicleList({
   const getStatusColor = (status: Vehicle["status"]) => {
     const colors: Record<string, string> = {
       active: "bg-green-100 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900",
-      idle: "bg-white/[0.05] text-white/40 border-white/[0.08] dark:bg-[#18181b] dark:text-white/40 dark:border-white/[0.08]",
+      idle: "bg-white/[0.05] text-[var(--text-tertiary)] border-[var(--border-default)] dark:bg-[var(--surface-3)] dark:text-[var(--text-tertiary)] dark:border-[var(--border-default)]",
       charging: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:bg-emerald-950 dark:text-emerald-700 dark:border-emerald-900",
       service: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
       emergency: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
-      offline: "bg-white/[0.05] text-white/40 border-white/[0.08] dark:bg-[#18181b] dark:text-white/40 dark:border-white/[0.08]",
+      offline: "bg-white/[0.05] text-[var(--text-tertiary)] border-[var(--border-default)] dark:bg-[var(--surface-3)] dark:text-[var(--text-tertiary)] dark:border-[var(--border-default)]",
       assigned: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-900",
       dispatched: "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-400 dark:border-orange-900",
       en_route: "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-950 dark:text-teal-400 dark:border-teal-900",
       on_site: "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-400 dark:border-yellow-900",
       completed: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-900",
       maintenance: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
-      retired: "bg-white/[0.05] text-white/40 border-white/[0.08] dark:bg-[#18181b] dark:text-white/40 dark:border-white/[0.08]",
+      retired: "bg-white/[0.05] text-[var(--text-tertiary)] border-[var(--border-default)] dark:bg-[var(--surface-3)] dark:text-[var(--text-tertiary)] dark:border-[var(--border-default)]",
     }
     return colors[status] || colors.offline
   }
@@ -191,18 +191,18 @@ export function CompactVehicleListMini({
   const getStatusColor = (status: Vehicle["status"]) => {
     const colors: Record<string, string> = {
       active: "text-green-600 dark:text-green-400",
-      idle: "text-white/40 dark:text-white/40",
+      idle: "text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]",
       charging: "text-emerald-800 dark:text-emerald-700",
       service: "text-amber-600 dark:text-amber-400",
       emergency: "text-red-600 dark:text-red-400",
-      offline: "text-white/40 dark:text-white/40",
+      offline: "text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]",
       assigned: "text-emerald-600 dark:text-emerald-400",
       dispatched: "text-orange-600 dark:text-orange-400",
       en_route: "text-teal-600 dark:text-teal-400",
       on_site: "text-yellow-600 dark:text-yellow-400",
       completed: "text-emerald-600 dark:text-emerald-400",
       maintenance: "text-amber-600 dark:text-amber-400",
-      retired: "text-white/40 dark:text-white/40",
+      retired: "text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]",
     }
     return colors[status] || colors.offline
   }

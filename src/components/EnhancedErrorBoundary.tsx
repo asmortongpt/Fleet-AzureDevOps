@@ -194,8 +194,8 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
       const showDetails = this.props.showDetails ?? import.meta.env.DEV;
 
       return (
-        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-2">
-          <Card className="max-w-2xl w-full border-white/[0.04] bg-[#111111]">
+        <div className="min-h-screen bg-[var(--surface-0)] flex items-center justify-center p-2">
+          <Card className="max-w-2xl w-full border-[var(--border-subtle)] bg-[var(--surface-2)]">
             <CardHeader className="text-center">
               <div className="mx-auto mb-2 w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center">
                 <AlertTriangle className="w-4 h-4 text-red-400" />
@@ -233,7 +233,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
               {/* Technical Details (Dev Mode) */}
               {showDetails && error && (
-                <details className="bg-[#0e0e0e] p-2 rounded-lg">
+                <details className="bg-[var(--surface-1)] p-2 rounded-lg">
                   <summary className="cursor-pointer font-semibold mb-2 flex items-center gap-2">
                     <Bug className="w-4 h-4" />
                     Technical Details
@@ -241,7 +241,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   <div className="space-y-3 mt-3">
                     <div>
                       <div className="text-sm font-semibold mb-1">Stack Trace:</div>
-                      <pre className="text-xs bg-[#0e0e0e] p-3 rounded overflow-x-auto">
+                      <pre className="text-xs bg-[var(--surface-1)] p-3 rounded overflow-x-auto">
                         {error.stack}
                       </pre>
                     </div>
@@ -250,7 +250,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                         <div className="text-sm font-semibold mb-1">
                           Component Stack:
                         </div>
-                        <pre className="text-xs bg-[#0e0e0e] p-3 rounded overflow-x-auto">
+                        <pre className="text-xs bg-[var(--surface-1)] p-3 rounded overflow-x-auto">
                           {errorInfo.componentStack}
                         </pre>
                       </div>
@@ -306,7 +306,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   If this problem persists, please contact support with the error
                   code:
                 </p>
-                <code className="mt-1 inline-block bg-[#0e0e0e] px-3 py-1 rounded font-mono">
+                <code className="mt-1 inline-block bg-[var(--surface-1)] px-3 py-1 rounded font-mono">
                   {Date.now().toString(36).toUpperCase()}
                 </code>
               </div>

@@ -223,7 +223,7 @@ export function AuthCallback() {
         </div>
 
         {/* LOADING CORE */}
-        <div className="flex flex-col items-center gap-8 bg-[#111111] p-10 rounded-[32px] border border-white/[0.04]">
+        <div className="flex flex-col items-center gap-8 bg-[var(--surface-2)] p-10 rounded-[32px] border border-[var(--border-subtle)]">
           <div className="relative">
             <div
               className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[hsl(var(--primary))] border-b-2 border-l-2 border-border/50 animate-spin"

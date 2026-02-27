@@ -128,13 +128,13 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
 
     return (
         <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-2">
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-white">
                         <AlertTriangle className="w-3 h-3 text-red-400" />
                         Report Safety Incident
                     </CardTitle>
-                    <CardDescription className="text-white/60">
+                    <CardDescription className="text-[var(--text-secondary)]">
                         All fields marked with * are required for OSHA compliance
                     </CardDescription>
                 </CardHeader>
@@ -142,11 +142,11 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                     {/* Basic Information */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div className="space-y-2">
-                            <Label htmlFor="incident_type" className="text-white/60">
+                            <Label htmlFor="incident_type" className="text-[var(--text-secondary)]">
                                 Incident Type *
                             </Label>
                             <Select onValueChange={(value) => setValue('incident_type', value)}>
-                                <SelectTrigger className="bg-[#0e0e0e] border-white/[0.04] text-white">
+                                <SelectTrigger className="bg-[var(--surface-1)] border-[var(--border-subtle)] text-white">
                                     <SelectValue placeholder="Select incident type" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -163,11 +163,11 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="severity" className="text-white/60">
+                            <Label htmlFor="severity" className="text-[var(--text-secondary)]">
                                 Severity Level *
                             </Label>
                             <Select onValueChange={(value: any) => setValue('severity', value)}>
-                                <SelectTrigger className="bg-[#0e0e0e] border-white/[0.04] text-white">
+                                <SelectTrigger className="bg-[var(--surface-1)] border-[var(--border-subtle)] text-white">
                                     <SelectValue placeholder="Select severity" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -187,7 +187,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                     {/* Date and Location */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div className="space-y-2">
-                            <Label htmlFor="incident_date" className="text-white/60 flex items-center gap-2">
+                            <Label htmlFor="incident_date" className="text-[var(--text-secondary)] flex items-center gap-2">
                                 <Calendar className="w-4 h-4" />
                                 Date & Time *
                             </Label>
@@ -195,7 +195,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 id="incident_date"
                                 type="datetime-local"
                                 {...register('incident_date', { required: 'Date is required' })}
-                                className="bg-[#0e0e0e] border-white/[0.04] text-white"
+                                className="bg-[var(--surface-1)] border-[var(--border-subtle)] text-white"
                             />
                             {errors.incident_date && (
                                 <p className="text-red-400 text-sm">{errors.incident_date.message}</p>
@@ -203,7 +203,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="location" className="text-white/60 flex items-center gap-2">
+                            <Label htmlFor="location" className="text-[var(--text-secondary)] flex items-center gap-2">
                                 <MapPin className="w-4 h-4" />
                                 Location *
                             </Label>
@@ -211,7 +211,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 id="location"
                                 {...register('location', { required: 'Location is required' })}
                                 placeholder="Enter location or address"
-                                className="bg-[#0e0e0e] border-white/[0.04] text-white"
+                                className="bg-[var(--surface-1)] border-[var(--border-subtle)] text-white"
                             />
                             {errors.location && (
                                 <p className="text-red-400 text-sm">{errors.location.message}</p>
@@ -221,7 +221,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
 
                     {/* Description */}
                     <div className="space-y-2">
-                        <Label htmlFor="description" className="text-white/60">
+                        <Label htmlFor="description" className="text-[var(--text-secondary)]">
                             Incident Description *
                         </Label>
                         <Textarea
@@ -231,7 +231,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 minLength: { value: 20, message: 'Description must be at least 20 characters' }
                             })}
                             placeholder="Provide detailed description of what happened..."
-                            className="bg-[#0e0e0e] border-white/[0.04] text-white min-h-[120px]"
+                            className="bg-[var(--surface-1)] border-[var(--border-subtle)] text-white min-h-[120px]"
                         />
                         {errors.description && (
                             <p className="text-red-400 text-sm">{errors.description.message}</p>
@@ -240,37 +240,37 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
 
                     {/* Impact Checkboxes */}
                     <div className="space-y-3">
-                        <Label className="text-white/60">Incident Impact</Label>
+                        <Label className="text-[var(--text-secondary)]">Incident Impact</Label>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <label className="flex items-center gap-2 text-white/60 cursor-pointer">
+                            <label className="flex items-center gap-2 text-[var(--text-secondary)] cursor-pointer">
                                 <input
                                     type="checkbox"
                                     {...register('injuries')}
-                                    className="w-4 h-4 rounded border-white/[0.04] bg-[#1a1a1a]"
+                                    className="w-4 h-4 rounded border-[var(--border-subtle)] bg-[var(--surface-3)]"
                                 />
                                 <span className="text-sm">Injuries</span>
                             </label>
-                            <label className="flex items-center gap-2 text-white/60 cursor-pointer">
+                            <label className="flex items-center gap-2 text-[var(--text-secondary)] cursor-pointer">
                                 <input
                                     type="checkbox"
                                     {...register('property_damage')}
-                                    className="w-4 h-4 rounded border-white/[0.04] bg-[#1a1a1a]"
+                                    className="w-4 h-4 rounded border-[var(--border-subtle)] bg-[var(--surface-3)]"
                                 />
                                 <span className="text-sm">Property Damage</span>
                             </label>
-                            <label className="flex items-center gap-2 text-white/60 cursor-pointer">
+                            <label className="flex items-center gap-2 text-[var(--text-secondary)] cursor-pointer">
                                 <input
                                     type="checkbox"
                                     {...register('environmental_impact')}
-                                    className="w-4 h-4 rounded border-white/[0.04] bg-[#1a1a1a]"
+                                    className="w-4 h-4 rounded border-[var(--border-subtle)] bg-[var(--surface-3)]"
                                 />
                                 <span className="text-sm">Environmental</span>
                             </label>
-                            <label className="flex items-center gap-2 text-white/60 cursor-pointer">
+                            <label className="flex items-center gap-2 text-[var(--text-secondary)] cursor-pointer">
                                 <input
                                     type="checkbox"
                                     {...register('osha_recordable')}
-                                    className="w-4 h-4 rounded border-white/[0.04] bg-[#1a1a1a]"
+                                    className="w-4 h-4 rounded border-[var(--border-subtle)] bg-[var(--surface-3)]"
                                 />
                                 <span className="text-sm">OSHA Recordable</span>
                             </label>
@@ -279,7 +279,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
 
                     {/* Witnesses */}
                     <div className="space-y-3">
-                        <Label className="text-white/60 flex items-center gap-2">
+                        <Label className="text-[var(--text-secondary)] flex items-center gap-2">
                             <User className="w-4 h-4" />
                             Witnesses
                         </Label>
@@ -289,7 +289,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 onChange={(e) => setWitnessInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addWitness())}
                                 placeholder="Enter witness name or ID"
-                                className="bg-[#0e0e0e] border-white/[0.04] text-white flex-1"
+                                className="bg-[var(--surface-1)] border-[var(--border-subtle)] text-white flex-1"
                             />
                             <Button type="button" onClick={addWitness} variant="outline" size="sm">
                                 <Check className="w-4 h-4" />
@@ -315,7 +315,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
 
                     {/* Photo Upload */}
                     <div className="space-y-3">
-                        <Label className="text-white/60 flex items-center gap-2">
+                        <Label className="text-[var(--text-secondary)] flex items-center gap-2">
                             <Camera className="w-4 h-4" />
                             Photos / Evidence
                         </Label>
@@ -324,7 +324,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                             accept="image/*"
                             multiple
                             onChange={handlePhotoUpload}
-                            className="bg-[#0e0e0e] border-white/[0.04] text-white"
+                            className="bg-[var(--surface-1)] border-[var(--border-subtle)] text-white"
                         />
                         {photos.length > 0 && (
                             <div className="grid grid-cols-4 gap-2">
@@ -333,7 +333,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                         <img
                                             src={URL.createObjectURL(photo)}
                                             alt={`Evidence ${index + 1}`}
-                                            className="w-full h-20 object-cover rounded border border-white/[0.04]"
+                                            className="w-full h-20 object-cover rounded border border-[var(--border-subtle)]"
                                         />
                                         <button
                                             type="button"
@@ -350,7 +350,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
 
                     {/* Corrective Actions */}
                     <div className="space-y-2">
-                        <Label htmlFor="corrective_actions" className="text-white/60 flex items-center gap-2">
+                        <Label htmlFor="corrective_actions" className="text-[var(--text-secondary)] flex items-center gap-2">
                             <FileText className="w-4 h-4" />
                             Corrective Actions Taken
                         </Label>
@@ -358,7 +358,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                             id="corrective_actions"
                             {...register('corrective_actions')}
                             placeholder="Describe immediate actions taken and preventive measures..."
-                            className="bg-[#0e0e0e] border-white/[0.04] text-white min-h-[100px]"
+                            className="bg-[var(--surface-1)] border-[var(--border-subtle)] text-white min-h-[100px]"
                         />
                     </div>
 
@@ -369,7 +369,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 <AlertTriangle className="w-3 h-3 text-yellow-400 mt-0.5" />
                                 <div className="space-y-1">
                                     <p className="text-yellow-400 font-medium">OSHA Reporting Required</p>
-                                    <p className="text-sm text-white/60">
+                                    <p className="text-sm text-[var(--text-secondary)]">
                                         This incident involves injuries and may require OSHA 300 log entry.
                                         Ensure all required documentation is completed within 7 calendar days.
                                     </p>

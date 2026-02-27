@@ -178,7 +178,7 @@ export function Notifications() {
         return 'text-amber-600 bg-amber-100'
       case 'pending':
       default:
-        return 'text-white/70 bg-white/[0.05]'
+        return 'text-[var(--text-primary)] bg-white/[0.05]'
     }
   }
 

@@ -29,7 +29,7 @@ export function MobileCard({
   const content = (
     <Card
       className={cn(
-        "md:hidden hover:border-white/[0.12] transition-colors touch-target",
+        "md:hidden hover:border-[var(--border-strong)] transition-colors touch-target",
         onClick && "cursor-pointer",
         className
       )}

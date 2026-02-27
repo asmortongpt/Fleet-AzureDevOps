@@ -10,13 +10,8 @@
    ========================================================================== */
 
 .cta-hub {
-  /* Surface scale — pure charcoal, no blue/purple undertones */
-  --surface-0: #0a0a0a;
-  --surface-1: #111111;
-  --surface-2: #161616;
-  --surface-3: #1c1c1c;
-  --surface-4: #222222;
-  --surface-5: #2a2a2a;
+  /* Surface scale — inherits from design-tokens.css custom properties */
+  /* No overrides needed; design-tokens.css defines --surface-0 through --surface-5 */
 
   /* Text scale */
   --text-primary: #ffffff;
@@ -51,7 +46,7 @@
   --accent-foreground: var(--surface-0);
   --destructive: var(--status-bad);
   --destructive-foreground: var(--text-primary);
-  --border: rgba(255, 255, 255, 0.06);
+  --border: var(--border-subtle);
   --input: var(--surface-3);
   --ring: rgba(255, 255, 255, 0.2);
 
@@ -72,7 +67,7 @@
   --color-accent-foreground: var(--surface-0);
   --color-destructive: var(--status-bad);
   --color-destructive-foreground: var(--text-primary);
-  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border: var(--border-subtle);
   --color-input: var(--surface-3);
   --color-ring: rgba(255, 255, 255, 0.2);
 
@@ -96,7 +91,7 @@
    ========================================================================== */
 .cta-hub [data-testid="hub-header"] {
   background: var(--surface-0);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 /* ==========================================================================
@@ -104,7 +99,7 @@
    ========================================================================== */
 .cta-hub .cta-card {
   background: var(--surface-2);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
   border-radius: 16px;
   padding: 20px 24px;
   transition: background 0.2s ease;
@@ -116,7 +111,7 @@
 
 .cta-hub .cta-stat {
   background: var(--surface-2);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
   border-radius: 16px;
   padding: 20px 24px;
   transition: background 0.2s ease;
@@ -128,7 +123,7 @@
 
 .cta-hub .cta-hero {
   background: var(--surface-2);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
   border-radius: 20px;
   padding: 28px 32px;
 }
@@ -138,7 +133,7 @@
    ========================================================================== */
 .cta-hub [data-slot="tabs-list"] {
   background: transparent;
-  border-color: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-subtle);
 }
 
 .cta-hub [data-slot="tabs-trigger"] {
@@ -181,7 +176,7 @@
 
 .cta-hub .cta-tab:hover {
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--border-subtle);
 }
 
 .cta-hub .cta-tab--active,
@@ -200,7 +195,7 @@
   align-items: center;
   justify-content: center;
   padding: 48px 24px;
-  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border: 1px dashed var(--border-default);
   border-radius: 16px;
   color: var(--text-tertiary);
   text-align: center;

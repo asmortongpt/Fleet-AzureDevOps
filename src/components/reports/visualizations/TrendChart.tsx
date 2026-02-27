@@ -74,16 +74,16 @@ export function TrendChart({
     if (!active || !payload || !payload.length) return null;
 
     return (
-      <div className="bg-white border border-white/[0.08] rounded-lg p-3">
-        <p className="font-medium text-white/80 mb-2">{label}</p>
+      <div className="bg-white border border-[var(--border-default)] rounded-lg p-3">
+        <p className="font-medium text-[var(--text-primary)] mb-2">{label}</p>
         {payload.map((entry: any) => (
           <div key={entry.name} className="flex items-center gap-2 text-sm">
             <div
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-white/70">{entry.name}:</span>
-            <span className="font-medium text-white/80">
+            <span className="text-[var(--text-primary)]">{entry.name}:</span>
+            <span className="font-medium text-[var(--text-primary)]">
               {typeof entry.value === 'number'
                 ? new Intl.NumberFormat('en-US', {
                     style: 'currency',
@@ -106,7 +106,7 @@ export function TrendChart({
 
   return (
     <Card className={`p-3 ${className}`}>
-      <h3 className="text-sm font-semibold text-white/80 mb-2">{title}</h3>
+      <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">{title}</h3>
 
       <ResponsiveContainer width="100%" height={400}>
         <LineChart
@@ -154,7 +154,7 @@ export function TrendChart({
       </ResponsiveContainer>
 
       {onDrillDown && (
-        <p className="text-xs text-white/40 mt-2 text-center">
+        <p className="text-xs text-[var(--text-tertiary)] mt-2 text-center">
           Click on any data point to drill down
         </p>
       )}

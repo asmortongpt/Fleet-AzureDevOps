@@ -91,9 +91,9 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
   }, [generatedReport, onReportCreated]);
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a]">
+    <div className="flex flex-col h-full bg-[var(--surface-0)]">
       {/* Header */}
-      <div className="bg-[#111111] border-b border-white/[0.04] text-white px-3 py-3">
+      <div className="bg-[var(--surface-2)] border-b border-[var(--border-subtle)] text-white px-3 py-3">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-2">
             <Button
@@ -118,12 +118,12 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 bg-[#0a0a0a]">
+      <div className="flex-1 overflow-y-auto px-3 py-3 bg-[var(--surface-0)]">
         <div className="max-w-6xl mx-auto space-y-2">
           {/* Input section */}
           {!showPreview && (
             <>
-              <Card className="p-3 bg-[#111111] border-white/[0.04]">
+              <Card className="p-3 bg-[var(--surface-2)] border-[var(--border-subtle)]">
                 <h2 className="text-sm font-semibold text-white mb-2">
                   What report would you like to create?
                 </h2>
@@ -139,7 +139,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   }}
                 />
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-[var(--text-tertiary)]">
                     Press Ctrl+Enter to generate
                   </p>
                   <Button
@@ -162,8 +162,8 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
               </Card>
 
               {/* Example prompts */}
-              <Card className="p-3 bg-[#111111] border-white/[0.04]">
-                <h3 className="text-sm font-semibold text-white/40 mb-3">
+              <Card className="p-3 bg-[var(--surface-2)] border-[var(--border-subtle)]">
+                <h3 className="text-sm font-semibold text-[var(--text-tertiary)] mb-3">
                   Example Prompts
                 </h3>
                 <div className="space-y-2">
@@ -171,7 +171,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                     <button
                       key={example}
                       onClick={() => setPrompt(example)}
-                      className="w-full text-left px-2 py-3 bg-white/[0.03] hover:bg-white/[0.06] rounded-lg transition-colors text-sm text-white/40"
+                      className="w-full text-left px-2 py-3 bg-white/[0.03] hover:bg-white/[0.06] rounded-lg transition-colors text-sm text-[var(--text-tertiary)]"
                     >
                       {example}
                     </button>
@@ -180,12 +180,12 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
               </Card>
 
               {/* How it works */}
-              <Card className="p-3 bg-[#111111] border-white/[0.04]">
+              <Card className="p-3 bg-[var(--surface-2)] border-[var(--border-subtle)]">
                 <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
                   How it works
                 </h3>
-                <ul className="space-y-2 text-sm text-white/40">
+                <ul className="space-y-2 text-sm text-[var(--text-tertiary)]">
                   <li className="flex items-start gap-2">
                     <span className="font-semibold">1.</span>
                     <span>Describe your report using natural language</span>
@@ -233,12 +233,12 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                 </div>
               </div>
 
-              <Card className="p-3 bg-[#111111] border-white/[0.04]">
+              <Card className="p-3 bg-[var(--surface-2)] border-[var(--border-subtle)]">
                 <div className="mb-2">
                   <h3 className="text-sm font-semibold text-white">
                     {generatedReport.title}
                   </h3>
-                  <p className="text-sm text-white/40 mt-1">
+                  <p className="text-sm text-[var(--text-tertiary)] mt-1">
                     {generatedReport.description}
                   </p>
                 </div>
@@ -247,12 +247,12 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   {generatedReport.visuals?.map((visual: any) => (
                     <div
                       key={visual.title}
-                      className="p-2 bg-white/[0.03] rounded-lg border-2 border-dashed border-white/[0.04]"
+                      className="p-2 bg-white/[0.03] rounded-lg border-2 border-dashed border-[var(--border-subtle)]"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <div className="font-medium text-white">{visual.title}</div>
-                          <div className="text-xs text-white/40">Type: {visual.type}</div>
+                          <div className="text-xs text-[var(--text-tertiary)]">Type: {visual.type}</div>
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => {
                           setPreviewVisual(visual)
@@ -263,7 +263,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                         </Button>
                       </div>
                       {visual.measures && (
-                        <div className="text-xs text-white/40">
+                        <div className="text-xs text-[var(--text-tertiary)]">
                           {visual.measures.length} measures configured
                         </div>
                       )}
@@ -306,7 +306,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="h-[60vh]">
-            <pre className="text-xs font-mono bg-[#0e0e0e]p-4 rounded-lg overflow-x-auto whitespace-pre-wrap">
+            <pre className="text-xs font-mono bg-[var(--surface-1)]p-4 rounded-lg overflow-x-auto whitespace-pre-wrap">
               {generatedReport ? JSON.stringify(generatedReport, null, 2) : 'No report generated'}
             </pre>
           </ScrollArea>
@@ -326,11 +326,11 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
             <div className="space-y-3 py-2">
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="text-white/40">Type:</span>{' '}
+                  <span className="text-[var(--text-tertiary)]">Type:</span>{' '}
                   <span className="font-medium">{previewVisual.type}</span>
                 </div>
                 <div>
-                  <span className="text-white/40">Measures:</span>{' '}
+                  <span className="text-[var(--text-tertiary)]">Measures:</span>{' '}
                   <span className="font-medium">{previewVisual.measures?.length || 0}</span>
                 </div>
               </div>
@@ -339,15 +339,15 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   <h4 className="text-sm font-medium mb-2">Configured Measures</h4>
                   <div className="space-y-1">
                     {previewVisual.measures.map((m: any, i: number) => (
-                      <div key={i} className="flex items-center justify-between p-2 bg-[#0e0e0e]rounded text-sm">
+                      <div key={i} className="flex items-center justify-between p-2 bg-[var(--surface-1)]rounded text-sm">
                         <span>{m.label || m.id}</span>
-                        <span className="text-white/40 text-xs">{m.format || m.aggregation || 'value'}</span>
+                        <span className="text-[var(--text-tertiary)] text-xs">{m.format || m.aggregation || 'value'}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-              <div className="p-4 border-2 border-dashed rounded-lg text-center text-white/40">
+              <div className="p-4 border-2 border-dashed rounded-lg text-center text-[var(--text-tertiary)]">
                 <div className="text-3xl mb-2">
                   {previewVisual.type === 'line' ? '📈' : previewVisual.type === 'bar' ? '📊' : previewVisual.type === 'table' ? '📋' : '📊'}
                 </div>
@@ -356,7 +356,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
               </div>
               <div className="mt-2">
                 <h4 className="text-sm font-medium mb-1">Raw Configuration</h4>
-                <pre className="text-xs font-mono bg-[#0e0e0e]p-2 rounded overflow-x-auto max-h-32">
+                <pre className="text-xs font-mono bg-[var(--surface-1)]p-2 rounded overflow-x-auto max-h-32">
                   {JSON.stringify(previewVisual, null, 2)}
                 </pre>
               </div>

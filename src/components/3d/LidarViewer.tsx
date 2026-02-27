@@ -305,7 +305,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
             <div className="relative">
               <canvas
                 ref={canvasRef}
-                className="w-full h-[600px] bg-[#0a0a0a]"
+                className="w-full h-[600px] bg-[var(--surface-0)]"
                 style={{ display: 'block' }}
               />
 

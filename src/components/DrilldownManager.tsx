@@ -111,7 +111,7 @@ function ComplianceItemDrilldown() {
       <div className="grid grid-cols-2 gap-2">
         <div className="bg-white/[0.03] rounded-lg p-3">
           <div className="text-2xl font-bold text-emerald-400">{rate}%</div>
-          <div className="text-xs text-white/60 mt-1">Compliance Rate</div>
+          <div className="text-xs text-[var(--text-secondary)] mt-1">Compliance Rate</div>
         </div>
         <div className="bg-white/[0.03] rounded-lg p-3">
           <div className={`text-sm font-semibold px-2 py-1 rounded-full inline-block ${
@@ -119,13 +119,13 @@ function ComplianceItemDrilldown() {
             status === 'Warning' ? 'bg-yellow-500/20 text-yellow-400' :
             'bg-red-500/20 text-red-400'
           }`}>{status}</div>
-          <div className="text-xs text-white/60 mt-1">Status</div>
+          <div className="text-xs text-[var(--text-secondary)] mt-1">Status</div>
         </div>
       </div>
       {data.details && (
         <div className="bg-white/[0.03] rounded-lg p-3">
           <div className="text-sm font-medium mb-1">Details</div>
-          <p className="text-sm text-white/60">{data.details}</p>
+          <p className="text-sm text-[var(--text-secondary)]">{data.details}</p>
         </div>
       )}
     </div>
@@ -143,8 +143,8 @@ function PolicyCategoryDrilldown() {
         <p className="text-sm text-muted-foreground mt-1">Policy category overview</p>
       </div>
       <div className="bg-white/[0.03] rounded-lg p-3">
-        <div className="text-sm text-white/60">
-          View all policies in the <span className="font-medium text-white/80">{data.category}</span> category.
+        <div className="text-sm text-[var(--text-secondary)]">
+          View all policies in the <span className="font-medium text-[var(--text-primary)]">{data.category}</span> category.
           Use the Policies tab to manage individual policy templates and enforcement rules.
         </div>
       </div>
@@ -164,24 +164,24 @@ function SecurityEventDrilldown() {
       </div>
       <div className="grid grid-cols-2 gap-2">
         <div className="bg-white/[0.03] rounded-lg p-3">
-          <div className="text-xs text-white/40 mb-1">Event Type</div>
+          <div className="text-xs text-[var(--text-tertiary)] mb-1">Event Type</div>
           <div className="text-sm font-medium">{data.eventType || '\u2014'}</div>
         </div>
         <div className="bg-white/[0.03] rounded-lg p-3">
-          <div className="text-xs text-white/40 mb-1">Status</div>
+          <div className="text-xs text-[var(--text-tertiary)] mb-1">Status</div>
           <div className="text-sm font-semibold px-2 py-0.5 rounded-full inline-block bg-red-500/20 text-red-400">Review</div>
         </div>
       </div>
       {data.message && (
         <div className="bg-white/[0.03] rounded-lg p-3">
-          <div className="text-xs text-white/40 mb-1">Details</div>
-          <p className="text-sm text-white/60">{data.message}</p>
+          <div className="text-xs text-[var(--text-tertiary)] mb-1">Details</div>
+          <p className="text-sm text-[var(--text-secondary)]">{data.message}</p>
         </div>
       )}
       {data.timestamp && (
         <div className="bg-white/[0.03] rounded-lg p-3">
-          <div className="text-xs text-white/40 mb-1">Occurred</div>
-          <p className="text-sm text-white/60">{formatDateTime(data.timestamp)}</p>
+          <div className="text-xs text-[var(--text-tertiary)] mb-1">Occurred</div>
+          <p className="text-sm text-[var(--text-secondary)]">{formatDateTime(data.timestamp)}</p>
         </div>
       )}
     </div>
@@ -386,7 +386,7 @@ function MaintenanceRequestsDrilldown() {
                 <span className={`px-2 py-1 text-xs rounded ${
                   req.priority === 'high' ? 'bg-red-100 text-red-800' :
                   req.priority === 'normal' ? 'bg-emerald-500/20 text-emerald-400' :
-                  'bg-white/[0.05] text-white/60'
+                  'bg-white/[0.05] text-[var(--text-secondary)]'
                 }`}>{req.priority}</span>
                 <span className="text-xs text-muted-foreground">→</span>
               </div>
@@ -488,7 +488,7 @@ function OperationsCalendarDrilldown() {
                 </div>
               </div>
               <span className={`px-2 py-1 text-xs rounded ${
-                evt.status === 'in-progress' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/[0.05] text-white/60'
+                evt.status === 'in-progress' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/[0.05] text-[var(--text-secondary)]'
               }`}>{evt.status}</span>
             </div>
           </div>
@@ -535,7 +535,7 @@ function DriverShiftsDrilldown() {
                 </div>
               </div>
               <span className={`px-2 py-1 text-xs rounded ${
-                shift.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-white/[0.05] text-white/60'
+                shift.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-white/[0.05] text-[var(--text-secondary)]'
               }`}>{shift.status}</span>
             </div>
           </div>

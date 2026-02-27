@@ -13,7 +13,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
       <div className="bg-white rounded-lg p-3">
         <LoadingSpinner size="lg" />
-        <p className="mt-2 text-white/40 font-medium">{message}</p>
+        <p className="mt-2 text-[var(--text-tertiary)] font-medium">{message}</p>
       </div>
     </div>
   );

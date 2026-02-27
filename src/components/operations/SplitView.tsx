@@ -37,25 +37,25 @@ export function SplitView({ theme = 'default', listPanel, detailPanel }: SplitVi
   const isOperationsTheme = theme === 'operations';
 
   return (
-    <div className="flex h-full bg-[#111]">
+    <div className="flex h-full bg-[var(--surface-2)]">
       {/* List Panel */}
       <div
         className={cn(
-          'flex flex-col border-r border-white/[0.04] transition-all duration-300',
+          'flex flex-col border-r border-[var(--border-subtle)] transition-all duration-300',
           detailPanel ? 'w-1/2 lg:w-2/5' : 'w-full'
         )}
       >
         {/* List Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/[0.04] bg-[#0e0e0e]">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--border-subtle)] bg-[var(--surface-1)]">
           <div className="flex items-center gap-3">
             {listPanel.icon && (
               <div className={cn(
                 'w-10 h-10 rounded-lg flex items-center justify-center',
                 isOperationsTheme
-                  ? 'bg-white/[0.06] border border-white/[0.04]'
+                  ? 'bg-white/[0.06] border border-[var(--border-subtle)]'
                   : 'bg-white/[0.15]'
               )}>
-                <span className={isOperationsTheme ? 'text-white/60' : 'text-white/60'}>
+                <span className={isOperationsTheme ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}>
                   {listPanel.icon}
                 </span>
               </div>
@@ -63,7 +63,7 @@ export function SplitView({ theme = 'default', listPanel, detailPanel }: SplitVi
             <div>
               <h2 className="text-lg font-bold text-white">{listPanel.title}</h2>
               {listPanel.description && (
-                <p className="text-sm text-white/70">{listPanel.description}</p>
+                <p className="text-sm text-[var(--text-primary)]">{listPanel.description}</p>
               )}
             </div>
           </div>
@@ -83,21 +83,21 @@ export function SplitView({ theme = 'default', listPanel, detailPanel }: SplitVi
       {/* Detail Panel */}
         {detailPanel && (
           <div
-            className="flex-1 flex flex-col bg-[#0e0e0e]"
+            className="flex-1 flex flex-col bg-[var(--surface-1)]"
           >
             {/* Detail Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/[0.04] bg-[#111111]">
+            <div className="flex items-center justify-between p-4 border-b border-[var(--border-subtle)] bg-[var(--surface-2)]">
               <div className="min-w-0 flex-1">
                 <h3 className="text-lg font-bold text-white truncate">{detailPanel.title}</h3>
                 {detailPanel.subtitle && (
-                  <p className="text-sm text-white/70 truncate">{detailPanel.subtitle}</p>
+                  <p className="text-sm text-[var(--text-primary)] truncate">{detailPanel.subtitle}</p>
                 )}
               </div>
               <div className="flex items-center gap-2 ml-4">
                 {detailPanel.actions}
                 <button
                   onClick={detailPanel.onClose}
-                  className="p-2 rounded-lg hover:bg-white/[0.08] text-white/70 hover:text-white transition-colors"
+                  className="p-2 rounded-lg hover:bg-[var(--surface-glass-hover)] text-[var(--text-primary)] hover:text-white transition-colors"
                   aria-label="Close detail panel"
                 >
                   <X className="w-5 h-5" weight="bold" />

@@ -98,7 +98,7 @@ function PremiumMetricCard({ metric, index }: { metric: MetricData; index: numbe
 
   return (
     <motion.div
-      className="group relative overflow-hidden rounded-2xl transition-all duration-500 cursor-pointer bg-[#111111]"
+      className="group relative overflow-hidden rounded-2xl transition-all duration-500 cursor-pointer bg-[var(--surface-2)]"
       style={{
         border: `1px solid ${metric.color}20`,
       }}

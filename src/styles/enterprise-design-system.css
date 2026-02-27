@@ -197,11 +197,11 @@
 
 .dark,
 [data-theme="dark"] {
-  /* Dark Mode Semantic Tokens */
-  --bg-primary: #111111;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #242424;
-  --bg-hover: #2a2a2a;
+  /* Dark Mode Semantic Tokens — reference design-tokens.css surfaces */
+  --bg-primary: var(--surface-2);
+  --bg-secondary: var(--surface-3);
+  --bg-tertiary: var(--surface-4);
+  --bg-hover: var(--surface-5);
   --bg-active: #333333;
 
   --text-primary: #FAFAFA;
@@ -213,9 +213,9 @@
   --border-strong: rgba(82, 82, 82, 0.5);
   --border-subtle: rgba(82, 82, 82, 0.15);
 
-  --surface-card: #1a1a1a;
-  --surface-overlay: #242424;
-  --surface-hover: #2a2a2a;
+  --surface-card: var(--surface-3);
+  --surface-overlay: var(--surface-4);
+  --surface-hover: var(--surface-5);
 
   /* Adjust shadows for dark mode */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);

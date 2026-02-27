@@ -268,7 +268,7 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
                               {issue.affectedSystems.map((system) => (
                                 <span
                                   key={system}
-                                  className="px-1.5 py-0.5 rounded bg-white/[0.04] dark:bg-white/[0.04] text-white/60 dark:text-white/60"
+                                  className="px-1.5 py-0.5 rounded bg-white/[0.04] dark:bg-white/[0.04] text-[var(--text-secondary)] dark:text-[var(--text-secondary)]"
                                 >
                                   {system}
                                 </span>

@@ -49,7 +49,7 @@ export function PasswordReset() {
 
   return (
     <div
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0a0a0a]"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--surface-0)]"
     >
       {/* Minimal background */}
 
@@ -60,7 +60,7 @@ export function PasswordReset() {
             <div className="text-4xl font-bold tracking-wider mb-1 text-white">
               CTA FLEET
             </div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
               FLEET COMMAND
             </div>
           </div>
@@ -73,7 +73,7 @@ export function PasswordReset() {
         </div>
 
         {/* Premium Password Reset Card */}
-        <Card className="border-white/[0.04] bg-[#111111] text-white">
+        <Card className="border-[var(--border-subtle)] bg-[var(--surface-2)] text-white">
           <div className="p-5">
             {/* Card Title Section */}
             <div className="mb-3.5 text-center">

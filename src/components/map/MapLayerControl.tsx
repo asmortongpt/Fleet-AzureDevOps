@@ -28,9 +28,9 @@ export function MapLayerControl({ layers }: MapLayerControlProps) {
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
             {isOpen && (
                 <div
-                    className="mb-2 bg-[#111111] border border-white/[0.04] rounded-lg p-2 w-64"
+                    className="mb-2 bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-2 w-64"
                 >
-                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/[0.04]">
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--border-subtle)]">
                         <span className="text-sm font-semibold text-white">Map Layers</span>
                         <Badge variant="secondary" className="text-[10px] h-5 px-1.5">{activeCount} Active</Badge>
                     </div>
@@ -38,13 +38,13 @@ export function MapLayerControl({ layers }: MapLayerControlProps) {
                         {layers.map((layer) => (
                             <div key={layer.id} className="flex items-center justify-between group">
                                 <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-lg transition-colors ${layer.active ? 'bg-emerald-500/15 text-emerald-200' : 'bg-white/[0.04] text-white/35 group-hover:bg-white/[0.08]'}`}>
+                                    <div className={`p-2 rounded-lg transition-colors ${layer.active ? 'bg-emerald-500/15 text-emerald-200' : 'bg-white/[0.04] text-[var(--text-tertiary)] group-hover:bg-[var(--surface-glass-hover)]'}`}>
                                         {layer.icon}
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className={`text-sm font-medium ${layer.active ? 'text-white' : 'text-white/60'}`}>{layer.label}</span>
+                                        <span className={`text-sm font-medium ${layer.active ? 'text-white' : 'text-[var(--text-secondary)]'}`}>{layer.label}</span>
                                         {layer.count !== undefined && (
-                                            <span className="text-[10px] text-white/35">{layer.count} items</span>
+                                            <span className="text-[10px] text-[var(--text-tertiary)]">{layer.count} items</span>
                                         )}
                                     </div>
                                 </div>
@@ -62,7 +62,7 @@ export function MapLayerControl({ layers }: MapLayerControlProps) {
             <Button
                 size="icon"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`h-9 w-12 rounded-full transition-all duration-300 ${isOpen ? 'bg-white rotate-90' : 'bg-[#111111] hover:bg-[#161616] text-white/60'
+                className={`h-9 w-12 rounded-full transition-all duration-300 ${isOpen ? 'bg-white rotate-90' : 'bg-[var(--surface-2)] hover:bg-[#161616] text-[var(--text-secondary)]'
                     }`}
                 aria-label={isOpen ? 'Close map layers menu' : 'Open map layers menu'}
                 aria-expanded={isOpen}

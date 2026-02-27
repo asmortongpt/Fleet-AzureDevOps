@@ -86,7 +86,7 @@ export function SSOLogin() {
 
   return (
     <main
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0a0a0a]"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--surface-0)]"
     >
       {/* Minimal background */}
 
@@ -122,7 +122,7 @@ export function SSOLogin() {
         </div>
 
         {/* Login Card */}
-        <Card className="border-white/[0.04] bg-[#111111] text-white">
+        <Card className="border-[var(--border-subtle)] bg-[var(--surface-2)] text-white">
           <div className="p-6">
             {/* Welcome Header */}
             <div className="mb-6 text-center">

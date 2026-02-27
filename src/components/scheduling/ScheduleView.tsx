@@ -53,7 +53,7 @@ const STATUS_COLORS = {
   pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
   confirmed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   active: 'bg-green-100 text-green-800 border-green-300',
-  completed: 'bg-white/[0.05] text-white/70 border-white/[0.08]',
+  completed: 'bg-white/[0.05] text-[var(--text-primary)] border-[var(--border-default)]',
   cancelled: 'bg-red-100 text-red-800 border-red-300',
   // Maintenance
   scheduled: 'bg-amber-100 text-amber-800 border-amber-300',
@@ -225,7 +225,7 @@ export function ScheduleView({
   }
 
   const renderReservationCard = (reservation: VehicleReservation) => (
-    <Card key={reservation.id} className="hover:border-white/[0.12] transition-colors">
+    <Card key={reservation.id} className="hover:border-[var(--border-strong)] transition-colors">
       <CardContent className="p-2">
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -352,7 +352,7 @@ export function ScheduleView({
   )
 
   const renderMaintenanceCard = (appointment: MaintenanceAppointment) => (
-    <Card key={appointment.id} className="hover:border-white/[0.12] transition-colors">
+    <Card key={appointment.id} className="hover:border-[var(--border-strong)] transition-colors">
       <CardContent className="p-2">
         <div className="flex items-start justify-between">
           <div className="flex-1">

@@ -21,7 +21,6 @@ interface CommandCenterSidebarProps {
 export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNavigate }: CommandCenterSidebarProps) {
     const { activeModule, navigateTo, visibleNavItems } = useNavigation();
 
-    // Group items by section for better organization
     const groupedItems = useMemo(() => ({
         hubs: visibleNavItems.filter(item => item.section === 'hubs'),
         main: visibleNavItems.filter(item => item.section === 'main'),
@@ -29,7 +28,6 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
         tools: visibleNavItems.filter(item => item.section === 'tools')
     }), [visibleNavItems]);
 
-    // Helper for rendering nav button with tooltip
     const NavButton = ({ item, index }: { item: any; index: number }) => {
         const isActive = activeModule === item.id;
 
@@ -43,48 +41,47 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 variant="ghost"
                 onClick={handleClick}
                 className={cn(
-                    "w-full justify-start h-11 rounded-lg transition-all duration-200 group/navbtn relative overflow-hidden font-semibold",
+                    "w-full justify-start h-9 rounded-[var(--radius-md)] transition-all duration-[var(--duration-fast)] group/navbtn relative overflow-hidden",
                     isSidebarOpen ? "px-3 gap-3" : "px-0 justify-center",
                     isActive
-                        ? "bg-white/10 text-white border-l-4 border-l-white"
-                        : "text-white/40 hover:text-white hover:bg-white/[0.04]"
+                        ? "bg-[var(--surface-glass-active)] text-[var(--text-primary)]"
+                        : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-glass-hover)]"
                 )}
                 style={{ animationDelay: `${index * 30}ms` }}
                 aria-label={item.label}
                 aria-current={isActive ? "page" : undefined}
             >
-                {/* Active indicator with gradient */}
+                {/* Emerald active indicator bar */}
                 <div className={cn(
-                    "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full transition-all duration-200",
+                    "absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full transition-all duration-[var(--duration-normal)]",
                     isActive ? "opacity-100" : "opacity-0"
                 )}
                 style={{
-                    background: isActive ? '#ffffff' : 'transparent',
+                    backgroundColor: 'var(--accent-primary)',
                 }}
                 />
 
                 <div className={cn(
-                    "w-5 h-5 flex items-center justify-center shrink-0 transition-all duration-200 nav-icon"
+                    "w-[18px] h-[18px] flex items-center justify-center shrink-0 transition-colors duration-[var(--duration-fast)]",
                 )}
                 style={{
-                    color: isActive ? '#ffffff' : 'inherit',
+                    color: isActive ? 'var(--accent-primary)' : 'inherit',
                 }}>
                     {item.icon}
                 </div>
                 {isSidebarOpen && (
                     <>
-                        <span className="font-semibold text-sm truncate flex-1 text-left">{item.label}</span>
+                        <span className="font-medium text-[var(--text-sm)] truncate flex-1 text-left">{item.label}</span>
                         <ChevronRight className={cn(
-                            "w-4 h-4 opacity-0 -translate-x-1 transition-all duration-200",
-                            "group-hover/navbtn:opacity-50 group-hover/navbtn:translate-x-0",
-                            isActive && "opacity-50"
+                            "w-3.5 h-3.5 opacity-0 -translate-x-1 transition-all duration-[var(--duration-fast)]",
+                            "group-hover/navbtn:opacity-40 group-hover/navbtn:translate-x-0",
+                            isActive && "opacity-40"
                         )} />
                     </>
                 )}
             </Button>
         );
 
-        // Show tooltip only when sidebar is collapsed
         if (!isSidebarOpen) {
             return (
                 <li key={item.id}>
@@ -103,21 +100,18 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
         return <li key={item.id}>{buttonContent}</li>;
     };
 
-    // Section component
-    const NavSection = ({ title, items, accentColor = "muted-foreground" }: { title: string; items: any[]; accentColor?: string }) => {
+    const NavSection = ({ title, items }: { title: string; items: any[]; accentColor?: string }) => {
         if (items.length === 0) return null;
 
         return (
-            <div className="space-y-1">
+            <div className="space-y-0.5">
                 {isSidebarOpen && (
-                    <h3 className={cn(
-                        "px-3 py-1.5 text-xs font-bold uppercase tracking-wider",
-                        accentColor === "primary" ? "text-white/60" : "text-white/35"
-                    )}>
+                    <h3 className="px-3 py-1.5 text-[var(--text-xs)] font-semibold uppercase tracking-wider"
+                        style={{ color: 'var(--text-muted)' }}>
                         {title}
                     </h3>
                 )}
-                <ul className="space-y-1">
+                <ul className="space-y-0.5">
                     {items.map((item, index) => <NavButton key={item.id} item={item} index={index} />)}
                 </ul>
             </div>
@@ -129,12 +123,20 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             <div
                 aria-label="Application sidebar"
                 className={cn(
-                    "z-20 flex flex-col h-full bg-[#0e0e0e] border-r border-white/[0.04] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                    isSidebarOpen ? "w-56" : "w-16"
+                    "z-20 flex flex-col h-full transition-all duration-[var(--duration-normal)]",
+                    isSidebarOpen ? "w-[var(--sidebar-width)]" : "w-[var(--sidebar-collapsed)]"
                 )}
+                style={{
+                    backgroundColor: 'var(--surface-1)',
+                    borderRight: '1px solid var(--border-subtle)',
+                }}
             >
                 {/* Logo Area */}
-                <div className="h-14 flex items-center justify-between px-4 border-b border-white/[0.04] shrink-0">
+                <div className="flex items-center justify-between px-4 shrink-0"
+                    style={{
+                        height: 'var(--header-height)',
+                        borderBottom: '1px solid var(--border-subtle)',
+                    }}>
                     {isSidebarOpen ? (
                         <CTAFleetLogo variant="full" showAnimation />
                     ) : (
@@ -145,52 +147,43 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 </div>
 
                 {/* Nav Links */}
-                <nav className="flex-1 py-3 px-2 space-y-3 overflow-y-auto no-scrollbar" aria-label="Primary sidebar navigation">
-                    <NavSection title="Hubs" items={groupedItems.hubs} accentColor="primary" />
+                <nav className="flex-1 py-3 px-2 space-y-4 overflow-y-auto no-scrollbar" aria-label="Primary sidebar navigation">
+                    <NavSection title="Hubs" items={groupedItems.hubs} />
                     <NavSection title="Command Center" items={groupedItems.main} />
                     <NavSection title="Management" items={groupedItems.management} />
                     <NavSection title="Tools" items={groupedItems.tools} />
                 </nav>
 
                 {/* Bottom Actions */}
-                <div className="p-2 border-t border-white/[0.04] shrink-0 space-y-2">
-                    {/* Settings Button */}
+                <div className="p-2 shrink-0 space-y-1"
+                    style={{ borderTop: '1px solid var(--border-subtle)' }}>
                     {!isSidebarOpen ? (
                         <Tooltip delayDuration={0}>
                             <TooltipTrigger asChild>
                                 <Button
                                     variant="ghost"
-                                    onClick={() => {
-                                        navigateTo('settings');
-                                        onNavigate?.();
-                                    }}
-                                    className="w-full justify-center h-10 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.04]"
+                                    onClick={() => { navigateTo('settings'); onNavigate?.(); }}
+                                    className="w-full justify-center h-9 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-glass-hover)]"
                                     aria-label="Settings"
                                 >
                                     <Settings className="w-4 h-4" />
                                 </Button>
                             </TooltipTrigger>
-                            <TooltipContent side="right" sideOffset={8}>
-                                Settings
-                            </TooltipContent>
+                            <TooltipContent side="right" sideOffset={8}>Settings</TooltipContent>
                         </Tooltip>
                     ) : (
                         <Button
                             variant="ghost"
-                            onClick={() => {
-                                navigateTo('settings');
-                                onNavigate?.();
-                            }}
-                            className="w-full justify-start h-10 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.04] px-3 gap-3"
+                            onClick={() => { navigateTo('settings'); onNavigate?.(); }}
+                            className="w-full justify-start h-9 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-glass-hover)] px-3 gap-3"
                             aria-label="Settings"
                         >
                             <Settings className="w-4 h-4 shrink-0" />
-                            <span className="font-medium text-sm">Settings</span>
+                            <span className="font-medium text-[var(--text-sm)]">Settings</span>
                         </Button>
                     )}
 
-                    {/* Collapse/Expand Toggle - Hidden on mobile */}
-                    <div className="hidden lg:block pt-1">
+                    <div className="hidden lg:block">
                         <Tooltip delayDuration={0}>
                             <TooltipTrigger asChild>
                                 <Button
@@ -198,7 +191,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                     size="sm"
                                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                                     className={cn(
-                                        "w-full h-9 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.04] transition-all duration-200",
+                                        "w-full h-8 rounded-[var(--radius-md)] text-[var(--text-muted)] hover:text-[var(--text-tertiary)] hover:bg-[var(--surface-glass-hover)] transition-all duration-[var(--duration-fast)]",
                                         isSidebarOpen ? "justify-start px-3 gap-2" : "justify-center"
                                     )}
                                     aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
@@ -206,7 +199,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                     {isSidebarOpen ? (
                                         <>
                                             <PanelLeftClose className="w-3.5 h-3.5 shrink-0" />
-                                            <span className="text-sm">Collapse</span>
+                                            <span className="text-[var(--text-xs)]">Collapse</span>
                                         </>
                                     ) : (
                                         <PanelLeft className="w-3.5 h-3.5" />
@@ -214,9 +207,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                 </Button>
                             </TooltipTrigger>
                             {!isSidebarOpen && (
-                                <TooltipContent side="right" sideOffset={8}>
-                                    Expand sidebar
-                                </TooltipContent>
+                                <TooltipContent side="right" sideOffset={8}>Expand sidebar</TooltipContent>
                             )}
                         </Tooltip>
                     </div>

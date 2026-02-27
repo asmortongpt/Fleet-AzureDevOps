@@ -35,11 +35,11 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent
-                className="w-[400px] sm:w-[540px] flex flex-col p-0 text-foreground glass-panel border-white/10"
+                className="w-[400px] sm:w-[540px] flex flex-col p-0 text-foreground glass-panel border-[var(--border-default)]"
                 side="right"
                 style={{ backgroundColor: 'transparent' }}
             >
-                <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
+                <SheetHeader className="p-3 border-b border-[var(--border-default)] bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
                             <Fuel className="w-4 h-4 text-emerald-700" />
@@ -107,7 +107,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                                             <div className="font-semibold text-sm flex items-center gap-2">
                                                 {tx.vehicleNumber}
                                                 {isFullFill != null && (
-                                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isFullFill ? 'bg-green-500/10 text-green-500' : 'bg-white/[0.03]0/10 text-white/40'}`}>
+                                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isFullFill ? 'bg-green-500/10 text-green-500' : 'bg-white/[0.03]0/10 text-[var(--text-tertiary)]'}`}>
                                                         {isFullFill ? 'Full' : 'Partial'}
                                                     </span>
                                                 )}

@@ -79,7 +79,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
         return 'text-red-600 bg-red-50';
       case 'flat':
       default:
-        return 'text-white/70 bg-white/[0.03]';
+        return 'text-[var(--text-primary)] bg-white/[0.03]';
     }
   };
 
@@ -102,13 +102,13 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
         return (
           <Card
             key={measure.id}
-            className="p-3 hover:border-white/[0.12] transition-colors"
+            className="p-3 hover:border-[var(--border-strong)] transition-colors"
             role="article"
             aria-label={`${measure.label} KPI: ${formatValue(measure.value, measure.format)}`}
           >
             {/* Label and trend */}
             <div className="flex items-start justify-between mb-3">
-              <h3 className="text-sm font-medium text-white/70 uppercase tracking-wide">
+              <h3 className="text-sm font-medium text-[var(--text-primary)] uppercase tracking-wide">
                 {measure.label}
               </h3>
               {measure.trend && (
@@ -124,11 +124,11 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
 
             {/* Value */}
             <div className="mb-3">
-              <div className="text-base font-bold text-white/80">
+              <div className="text-base font-bold text-[var(--text-primary)]">
                 {formatValue(measure.value, measure.format)}
               </div>
               {measure.trend && (
-                <div className="text-xs text-white/40 mt-1">
+                <div className="text-xs text-[var(--text-tertiary)] mt-1">
                   {measure.trend.label}
                 </div>
               )}
@@ -137,7 +137,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
             {/* Target progress */}
             {measure.target && progress !== null && (
               <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs text-white/70">
+                <div className="flex items-center justify-between text-xs text-[var(--text-primary)]">
                   <span>Target: {formatValue(measure.target, measure.format)}</span>
                   <span className="font-medium">{progress.toFixed(0)}%</span>
                 </div>

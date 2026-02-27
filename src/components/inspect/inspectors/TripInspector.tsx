@@ -87,7 +87,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
     return (
       <div className="flex items-center justify-center p-3">
         <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
-        <span className="ml-2 text-white/40">Loading trip data...</span>
+        <span className="ml-2 text-[var(--text-tertiary)]">Loading trip data...</span>
       </div>
     );
   }
@@ -105,7 +105,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
 
   if (!trip) {
     return (
-      <div className="p-3 text-white/40">
+      <div className="p-3 text-[var(--text-tertiary)]">
         No trip data available
       </div>
     );
@@ -117,10 +117,10 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
       <div className="border-b p-2">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-white/80 dark:text-white">
+            <h2 className="text-sm font-bold text-[var(--text-primary)] dark:text-white">
               Trip #{String(trip.id).slice(0, 8)}
             </h2>
-            <p className="text-sm text-white/40 dark:text-white/40">
+            <p className="text-sm text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
               {trip.vehicleName} • {trip.driverName}
             </p>
           </div>
@@ -148,22 +148,22 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                 <div className="text-center p-2 bg-emerald-500/10 dark:bg-white/[0.04] rounded-lg">
                   <MapPin className="w-4 h-4 mx-auto mb-2 text-emerald-400" />
                   <p className="text-sm font-bold text-emerald-400">{(trip.distance ?? 0).toFixed(1)}</p>
-                  <p className="text-sm text-white/40">Miles</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Miles</p>
                 </div>
                 <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <Clock className="w-4 h-4 mx-auto mb-2 text-green-600" />
                   <p className="text-sm font-bold text-green-600">{formatDuration(trip.duration)}</p>
-                  <p className="text-sm text-white/40">Duration</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Duration</p>
                 </div>
                 <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <Fuel className="w-4 h-4 mx-auto mb-2 text-yellow-600" />
                   <p className="text-sm font-bold text-yellow-600">{(trip.fuelConsumed ?? 0).toFixed(1)}</p>
-                  <p className="text-sm text-white/40">Gallons</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Gallons</p>
                 </div>
                 <div className="text-center p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
                   <DollarSign className="w-4 h-4 mx-auto mb-2 text-amber-600" />
                   <p className="text-sm font-bold text-amber-600">${(trip.fuelCost ?? 0).toFixed(2)}</p>
-                  <p className="text-sm text-white/40">Fuel Cost</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Fuel Cost</p>
                 </div>
               </div>
             </Card>
@@ -172,24 +172,24 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
               <h3 className="text-sm font-semibold mb-2">Trip Details</h3>
               <dl className="space-y-3">
                 <div>
-                  <dt className="text-sm text-white/40">Start Time</dt>
+                  <dt className="text-sm text-[var(--text-tertiary)]">Start Time</dt>
                   <dd className="font-medium">{formatDateTime(trip.startTime)}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-white/40">End Time</dt>
+                  <dt className="text-sm text-[var(--text-tertiary)]">End Time</dt>
                   <dd className="font-medium">{formatDateTime(trip.endTime)}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-white/40">Average Speed</dt>
+                  <dt className="text-sm text-[var(--text-tertiary)]">Average Speed</dt>
                   <dd className="font-medium">{(trip.averageSpeed ?? 0).toFixed(1)} mph</dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-white/40">Max Speed</dt>
+                  <dt className="text-sm text-[var(--text-tertiary)]">Max Speed</dt>
                   <dd className="font-medium">{(trip.maxSpeed ?? 0).toFixed(1)} mph</dd>
                 </div>
                 {trip.purpose && (
                   <div>
-                    <dt className="text-sm text-white/40">Purpose</dt>
+                    <dt className="text-sm text-[var(--text-tertiary)]">Purpose</dt>
                     <dd className="font-medium">{trip.purpose}</dd>
                   </div>
                 )}
@@ -204,7 +204,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                   {trip.startLocation.address && (
                     <p className="text-sm mb-2">{trip.startLocation.address}</p>
                   )}
-                  <p className="text-xs text-white/40 font-mono">
+                  <p className="text-xs text-[var(--text-tertiary)] font-mono">
                     {(trip.startLocation?.latitude ?? 0).toFixed(6)}, {(trip.startLocation?.longitude ?? 0).toFixed(6)}
                   </p>
                 </div>
@@ -213,7 +213,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                   {trip.endLocation.address && (
                     <p className="text-sm mb-2">{trip.endLocation.address}</p>
                   )}
-                  <p className="text-xs text-white/40 font-mono">
+                  <p className="text-xs text-[var(--text-tertiary)] font-mono">
                     {(trip.endLocation?.latitude ?? 0).toFixed(6)}, {(trip.endLocation?.longitude ?? 0).toFixed(6)}
                   </p>
                 </div>
@@ -226,20 +226,20 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
         <TabsContent value="route" className="p-2">
           <Card className="p-2">
             <h3 className="text-sm font-semibold mb-2">Trip Route</h3>
-            <div className="bg-white/[0.05] dark:bg-[#18181b] rounded-lg h-96 flex items-center justify-center">
-              <p className="text-white/40">Map visualization would appear here</p>
+            <div className="bg-white/[0.05] dark:bg-[var(--surface-3)] rounded-lg h-96 flex items-center justify-center">
+              <p className="text-[var(--text-tertiary)]">Map visualization would appear here</p>
             </div>
             <div className="mt-2 grid grid-cols-3 gap-2 text-center">
               <div>
-                <p className="text-sm text-white/40">Total Distance</p>
+                <p className="text-sm text-[var(--text-tertiary)]">Total Distance</p>
                 <p className="text-base font-bold">{(trip.distance ?? 0).toFixed(1)} mi</p>
               </div>
               <div>
-                <p className="text-sm text-white/40">Avg Speed</p>
+                <p className="text-sm text-[var(--text-tertiary)]">Avg Speed</p>
                 <p className="text-base font-bold">{(trip.averageSpeed ?? 0).toFixed(1)} mph</p>
               </div>
               <div>
-                <p className="text-sm text-white/40">Stops</p>
+                <p className="text-sm text-[var(--text-tertiary)]">Stops</p>
                 <p className="text-base font-bold">3</p>
               </div>
             </div>
@@ -258,9 +258,9 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                 </div>
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Trip Started</p>
-                  <p className="text-sm text-white/40">{formatDateTime(trip.startTime)}</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">{formatDateTime(trip.startTime)}</p>
                   {trip.startLocation.address && (
-                    <p className="text-sm text-white/40">{trip.startLocation.address}</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">{trip.startLocation.address}</p>
                   )}
                 </div>
               </div>
@@ -271,10 +271,10 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                 </div>
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Rest Stop</p>
-                  <p className="text-sm text-white/40">
+                  <p className="text-sm text-[var(--text-tertiary)]">
                     {formatDateTime(new Date(new Date(trip.startTime).getTime() + (trip.duration * 60000 * 0.3)))}
                   </p>
-                  <p className="text-sm text-white/40">Duration: 15 minutes</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Duration: 15 minutes</p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -284,10 +284,10 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                 </div>
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Refueling Stop</p>
-                  <p className="text-sm text-white/40">
+                  <p className="text-sm text-[var(--text-tertiary)]">
                     {formatDateTime(new Date(new Date(trip.startTime).getTime() + (trip.duration * 60000 * 0.6)))}
                   </p>
-                  <p className="text-sm text-white/40">Duration: 10 minutes</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Duration: 10 minutes</p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -296,9 +296,9 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                 </div>
                 <div className="flex-1">
                   <p className="font-medium">Trip Ended</p>
-                  <p className="text-sm text-white/40">{formatDateTime(trip.endTime)}</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">{formatDateTime(trip.endTime)}</p>
                   {trip.endLocation.address && (
-                    <p className="text-sm text-white/40">{trip.endLocation.address}</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">{trip.endLocation.address}</p>
                   )}
                 </div>
               </div>
@@ -313,19 +313,19 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
               <h3 className="text-sm font-semibold mb-2">Performance Metrics</h3>
               <dl className="space-y-3">
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Average Speed</dt>
+                  <dt className="text-[var(--text-tertiary)]">Average Speed</dt>
                   <dd className="font-medium">{(trip.averageSpeed ?? 0).toFixed(1)} mph</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Max Speed</dt>
+                  <dt className="text-[var(--text-tertiary)]">Max Speed</dt>
                   <dd className="font-medium">{(trip.maxSpeed ?? 0).toFixed(1)} mph</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Idle Time</dt>
+                  <dt className="text-[var(--text-tertiary)]">Idle Time</dt>
                   <dd className="font-medium">{trip.idleTime} minutes</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Fuel Efficiency</dt>
+                  <dt className="text-[var(--text-tertiary)]">Fuel Efficiency</dt>
                   <dd className="font-medium">{(trip.distance / trip.fuelConsumed).toFixed(1)} mpg</dd>
                 </div>
               </dl>
@@ -335,19 +335,19 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
               <h3 className="text-sm font-semibold mb-2">Cost Analysis</h3>
               <dl className="space-y-3">
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Fuel Cost</dt>
+                  <dt className="text-[var(--text-tertiary)]">Fuel Cost</dt>
                   <dd className="font-medium">${(trip.fuelCost ?? 0).toFixed(2)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Cost per Mile</dt>
+                  <dt className="text-[var(--text-tertiary)]">Cost per Mile</dt>
                   <dd className="font-medium">${(trip.fuelCost / trip.distance).toFixed(2)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Estimated Maintenance</dt>
+                  <dt className="text-[var(--text-tertiary)]">Estimated Maintenance</dt>
                   <dd className="font-medium">${(trip.distance * 0.15).toFixed(2)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Total Trip Cost</dt>
+                  <dt className="text-[var(--text-tertiary)]">Total Trip Cost</dt>
                   <dd className="font-bold text-sm">${(trip.fuelCost + trip.distance * 0.15).toFixed(2)}</dd>
                 </div>
               </dl>

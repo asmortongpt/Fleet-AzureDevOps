@@ -402,7 +402,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       under_review: 'bg-emerald-100 text-emerald-800',
       approved_override: 'bg-amber-100 text-amber-800',
       resolved: 'bg-green-100 text-green-800',
-      dismissed: 'bg-white/[0.05] text-white/60',
+      dismissed: 'bg-white/[0.05] text-[var(--text-secondary)]',
       escalated: 'bg-red-100 text-red-800',
     };
     return <Badge className={variants[status]}>{status.replace('_', ' ').toUpperCase()}</Badge>;
@@ -413,10 +413,10 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-base font-bold text-white/90 dark:text-white">
+          <h1 className="text-base font-bold text-[var(--text-primary)] dark:text-white">
             Policy Violations
           </h1>
-          <p className="text-white/60 dark:text-white/40 mt-1" style={{ color: brandColors.archon.mediumGray }}>
+          <p className="text-[var(--text-secondary)] dark:text-[var(--text-tertiary)] mt-1" style={{ color: brandColors.archon.mediumGray }}>
             Monitor and manage policy violations across your fleet
           </p>
         </div>
@@ -455,11 +455,11 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Violations</CardTitle>
-                <AlertTriangle className="h-4 w-4 text-white/40" />
+                <AlertTriangle className="h-4 w-4 text-[var(--text-tertiary)]" />
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">{statistics?.totalViolations || 0}</div>
-                <p className="text-xs text-white/40 dark:text-white/40 mt-1" style={{ color: brandColors.archon.mediumGray }}>
+                <p className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mt-1" style={{ color: brandColors.archon.mediumGray }}>
                   Last 30 days
                 </p>
               </CardContent>
@@ -474,7 +474,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div className="text-sm font-bold text-red-600">
                   {statistics?.openViolations || 0}
                 </div>
-                <p className="text-xs text-white/40 dark:text-white/40 mt-1" style={{ color: brandColors.archon.mediumGray }}>
+                <p className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mt-1" style={{ color: brandColors.archon.mediumGray }}>
                   Requires attention
                 </p>
               </CardContent>
@@ -489,7 +489,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div className="text-sm font-bold text-red-700">
                   {statistics?.criticalViolations || 0}
                 </div>
-                <p className="text-xs text-white/40 dark:text-white/40 mt-1" style={{ color: brandColors.archon.mediumGray }}>
+                <p className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mt-1" style={{ color: brandColors.archon.mediumGray }}>
                   High priority
                 </p>
               </CardContent>
@@ -504,7 +504,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div className="text-sm font-bold">
                   {statistics?.avgResolutionHours.toFixed(1) || '0'}h
                 </div>
-                <p className="text-xs text-white/40 dark:text-white/40 mt-1" style={{ color: brandColors.archon.mediumGray }}>
+                <p className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mt-1" style={{ color: brandColors.archon.mediumGray }}>
                   Time to resolve
                 </p>
               </CardContent>
@@ -592,21 +592,21 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                     <>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Car className="w-4 h-4 text-white/40" />
+                          <Car className="w-4 h-4 text-[var(--text-tertiary)]" />
                           <span className="text-sm font-medium">Vehicle</span>
                         </div>
                         <Badge variant="outline">{statistics.topViolatingVehicle || '—'}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-white/40" />
+                          <User className="w-4 h-4 text-[var(--text-tertiary)]" />
                           <span className="text-sm font-medium">Driver</span>
                         </div>
                         <Badge variant="outline">{statistics.topViolatingDriver || '—'}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <AlertTriangle className="w-4 h-4 text-white/40" />
+                          <AlertTriangle className="w-4 h-4 text-[var(--text-tertiary)]" />
                           <span className="text-sm font-medium">Type</span>
                         </div>
                         <Badge variant="outline">
@@ -635,7 +635,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div>
                   <label className="text-sm font-medium mb-1 block">Search</label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" style={{ color: brandColors.archon.mediumGray }} />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }} />
                     <Input
                       placeholder="Search violations..."
                       value={filters.search || ''}
@@ -747,7 +747,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                       </TableRow>
                     ) : filteredViolations.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center py-3 text-white/40">
+                        <TableCell colSpan={8} className="text-center py-3 text-[var(--text-tertiary)]">
                           No active violations — fleet is in compliance.
                         </TableCell>
                       </TableRow>
@@ -795,7 +795,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
               <CardTitle>Compliance Reporting</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p className="text-white/60 dark:text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+              <p className="text-[var(--text-secondary)] dark:text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
                 Generate comprehensive compliance reports for audit and regulatory purposes.
               </p>
 
@@ -816,7 +816,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
 
               <div className="border-t pt-2 mt-2">
                 <h3 className="font-semibold mb-2">Policy Recommendations</h3>
-                <ul className="space-y-2 text-sm text-white/60 dark:text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+                <ul className="space-y-2 text-sm text-[var(--text-secondary)] dark:text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                     <span>Personal use policy is effective - only 5% violation rate</span>
@@ -851,29 +851,29 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
               {/* Summary */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-sm font-medium text-white/40">Severity</label>
+                  <label className="text-sm font-medium text-[var(--text-tertiary)]">Severity</label>
                   <div className="mt-1">{getSeverityBadge(selectedViolation.severity)}</div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-white/40">Status</label>
+                  <label className="text-sm font-medium text-[var(--text-tertiary)]">Status</label>
                   <div className="mt-1">{getStatusBadge(selectedViolation.status)}</div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-white/40">Vehicle</label>
+                  <label className="text-sm font-medium text-[var(--text-tertiary)]">Vehicle</label>
                   <div className="mt-1 font-mono">{selectedViolation.vehicleNumber || '—'}</div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-white/40">Driver</label>
+                  <label className="text-sm font-medium text-[var(--text-tertiary)]">Driver</label>
                   <div className="mt-1">{selectedViolation.driverName || '—'}</div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-white/40">Occurred At</label>
+                  <label className="text-sm font-medium text-[var(--text-tertiary)]">Occurred At</label>
                   <div className="mt-1">
                     {format(parseISO(selectedViolation.occurredAt), 'PPpp')}
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-white/40">Detected At</label>
+                  <label className="text-sm font-medium text-[var(--text-tertiary)]">Detected At</label>
                   <div className="mt-1">
                     {format(parseISO(selectedViolation.detectedAt), 'PPpp')}
                   </div>
@@ -882,13 +882,13 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
 
               {/* Description */}
               <div>
-                <label className="text-sm font-medium text-white/40">Description</label>
+                <label className="text-sm font-medium text-[var(--text-tertiary)]">Description</label>
                 <p className="mt-1 text-sm">{selectedViolation.description}</p>
               </div>
 
               {/* Metrics */}
               {selectedViolation.thresholdValue && selectedViolation.actualValue && (
-                <div className="bg-white/[0.03] dark:bg-[#1a1a1a] p-2 rounded-lg">
+                <div className="bg-white/[0.03] dark:bg-[var(--surface-3)] p-2 rounded-lg">
                   <h4 className="font-semibold mb-2">Violation Metrics</h4>
                   <div className="grid grid-cols-3 gap-2 text-sm">
                     <div>
@@ -916,7 +916,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
               {/* Location */}
               {selectedViolation.locationAddress && (
                 <div>
-                  <label className="text-sm font-medium text-white/40 flex items-center gap-2">
+                  <label className="text-sm font-medium text-[var(--text-tertiary)] flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
                     Location
                   </label>
@@ -926,20 +926,20 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
 
               {/* Comments */}
               <div>
-                <label className="text-sm font-medium text-white/40 flex items-center gap-2 mb-2">
+                <label className="text-sm font-medium text-[var(--text-tertiary)] flex items-center gap-2 mb-2">
                   <MessageSquare className="w-4 h-4" />
                   Comments ({comments.length})
                 </label>
                 <div className="space-y-2 max-h-40 overflow-y-auto mb-2">
                   {comments.map((comment) => (
-                    <div key={comment.id} className="bg-white/[0.03] dark:bg-[#1a1a1a] p-3 rounded text-sm">
+                    <div key={comment.id} className="bg-white/[0.03] dark:bg-[var(--surface-3)] p-3 rounded text-sm">
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-medium">{comment.userName || 'User'}</span>
-                        <span className="text-xs text-white/40">
+                        <span className="text-xs text-[var(--text-tertiary)]">
                           {format(parseISO(comment.createdAt), 'PPp')}
                         </span>
                       </div>
-                      <p className="text-white/40 dark:text-white/80" style={{ color: brandColors.archon.mediumGray }}>{comment.commentText}</p>
+                      <p className="text-[var(--text-tertiary)] dark:text-[var(--text-primary)]" style={{ color: brandColors.archon.mediumGray }}>{comment.commentText}</p>
                     </div>
                   ))}
                 </div>

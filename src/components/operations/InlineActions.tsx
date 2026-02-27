@@ -81,8 +81,8 @@ export function StatusBadge({ status, size = 'md', label }: StatusBadgeProps) {
     },
     inactive: {
       bg: 'bg-white/[0.05]',
-      border: 'border-white/[0.12]/50',
-      text: 'text-white/70',
+      border: 'border-[var(--border-strong)]/50',
+      text: 'text-[var(--text-primary)]',
       dot: 'bg-white/[0.15]',
       label: label || 'Inactive',
     },
@@ -170,7 +170,7 @@ export function InlineEditPanel({
         onClick={onEdit}
         variant="outline"
         size="sm"
-        className="w-full border-white/[0.12] text-white/60 hover:bg-white/[0.08]"
+        className="w-full border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-[var(--surface-glass-hover)]"
       >
         <PencilSimple className="w-4 h-4" weight="bold" />
         <span className="ml-2">{title}</span>
@@ -184,7 +184,7 @@ export function InlineEditPanel({
 
   return (
     <div
-      className="bg-[#0e0e0e] rounded-lg border border-white/[0.04] p-4"
+      className="bg-[var(--surface-1)] rounded-lg border border-[var(--border-subtle)] p-4"
     >
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-sm font-bold text-white">{title}</h4>
@@ -193,7 +193,7 @@ export function InlineEditPanel({
             onClick={onCancel}
             variant="ghost"
             size="sm"
-            className="text-white/70 hover:text-white"
+            className="text-[var(--text-primary)] hover:text-white"
             disabled={isSaving}
           >
             <X className="w-4 h-4" weight="bold" />
@@ -203,12 +203,12 @@ export function InlineEditPanel({
 
       {children}
 
-      <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
+      <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-[var(--border-subtle)]">
         <Button
           onClick={onCancel}
           variant="outline"
           size="sm"
-          className="border-white/[0.12] text-white/60"
+          className="border-[var(--border-strong)] text-[var(--text-secondary)]"
           disabled={isSaving}
         >
           Cancel
@@ -282,15 +282,15 @@ export function ConfirmDialog({
           <div
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
           >
-            <div className="bg-[#111111] border border-white/[0.04] rounded-lg p-6">
+            <div className="bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-6">
               <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-              <p className="text-white/60 text-sm mb-6">{message}</p>
+              <p className="text-[var(--text-secondary)] text-sm mb-6">{message}</p>
 
               <div className="flex justify-end gap-3">
                 <Button
                   onClick={onClose}
                   variant="outline"
-                  className="border-white/[0.12] text-white/60"
+                  className="border-[var(--border-strong)] text-[var(--text-secondary)]"
                   disabled={isLoading}
                 >
                   {cancelLabel}

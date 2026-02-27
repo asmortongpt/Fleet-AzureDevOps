@@ -160,7 +160,7 @@ export function PremiumFleetDashboard() {
   }, [vehicles])
 
   return (
-    <div className="min-h-screen bg-[#111111] text-white overflow-hidden relative">
+    <div className="min-h-screen bg-[var(--surface-2)] text-white overflow-hidden relative">
       {/* Premium Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Multiple layered glows for depth */}
@@ -183,7 +183,7 @@ export function PremiumFleetDashboard() {
 
       {/* Premium Header */}
       <motion.header
-        className="relative z-50 border-b border-white/10 bg-[#111111]/95"
+        className="relative z-50 border-b border-[var(--border-default)] bg-[var(--surface-2)]/95"
         style={{
           boxShadow: '0 8px 32px rgba(16, 185, 129, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
         }}
@@ -410,7 +410,7 @@ export function PremiumFleetDashboard() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.35, duration: 0.6, ease: 'easeOut' }}
           >
-            <div className="bg-[#111111] p-6 border-b border-emerald-500/10">
+            <div className="bg-[var(--surface-2)] p-6 border-b border-emerald-500/10">
               <div className="flex items-center gap-3">
                 <motion.div
                   animate={{ scale: [1, 1.1, 1] }}
@@ -425,7 +425,7 @@ export function PremiumFleetDashboard() {
             </div>
 
             {/* Live Fleet Map */}
-            <div className="relative w-full h-96 bg-[#111111] overflow-hidden">
+            <div className="relative w-full h-96 bg-[var(--surface-2)] overflow-hidden">
               <LiveFleetMap className="w-full h-full" />
               <AdvancedMapController />
             </div>
@@ -449,7 +449,7 @@ export function PremiumFleetDashboard() {
                 borderColor: `rgba(16, 185, 129, 0.4)`
               }}
             >
-              <div className="bg-[#111111] p-6 border-b border-green-500/10">
+              <div className="bg-[var(--surface-2)] p-6 border-b border-green-500/10">
                 <motion.h3
                   className="text-lg font-bold flex items-center gap-2"
                   animate={{ letterSpacing: '0.02em' }}

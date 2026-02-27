@@ -270,7 +270,7 @@ export function TopSignals({ className }: TopSignalsProps) {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-neutral-100 dark:bg-[#1a1a1a] text-white/40 dark:text-white/80">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-neutral-100 dark:bg-[var(--surface-3)] text-[var(--text-tertiary)] dark:text-[var(--text-primary)]">
                           #{index + 1}
                         </span>
                       </div>

@@ -145,10 +145,10 @@ export function AIChatbot() {
       className={`fixed ${isExpanded
         ? 'bottom-4 right-4 top-4 left-4 md:left-auto md:w-[600px]'
         : 'bottom-20 right-4 w-96 h-[500px]'
-        } flex flex-col z-50 transition-all duration-200 border border-white/[0.04]`}
+        } flex flex-col z-50 transition-all duration-200 border border-[var(--border-subtle)]`}
     >
       {/* Header */}
-      <div className="bg-[#111111] text-white px-2 py-3 rounded-t-lg flex items-center justify-between border-b border-white/[0.04]">
+      <div className="bg-[var(--surface-2)] text-white px-2 py-3 rounded-t-lg flex items-center justify-between border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
           <span className="font-semibold">Fleet AI Assistant</span>
@@ -174,7 +174,7 @@ export function AIChatbot() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-[#0e0e0e]">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-[var(--surface-1)]">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -183,12 +183,12 @@ export function AIChatbot() {
             <div
               className={`max-w-[80%] rounded-lg px-2 py-2 ${message.role === 'user'
                 ? 'bg-emerald-600 text-white'
-                : 'bg-[#111111] text-white border border-white/[0.04]'
+                : 'bg-[var(--surface-2)] text-white border border-[var(--border-subtle)]'
                 }`}
             >
               <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               {message.reportData && (
-                <div className="mt-2 pt-2 border-t border-white/[0.04]">
+                <div className="mt-2 pt-2 border-t border-[var(--border-subtle)]">
                   <Button variant="outline" size="sm" className="text-xs">
                     <Download className="h-3 w-3 mr-1" />
                     Export as Report
@@ -203,7 +203,7 @@ export function AIChatbot() {
         ))}
         {sending && (
           <div className="flex justify-start">
-            <div className="bg-[#111111] border border-white/[0.04] rounded-lg px-2 py-2">
+            <div className="bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg px-2 py-2">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" />
                 <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
@@ -217,14 +217,14 @@ export function AIChatbot() {
 
       {/* Example queries (show when no user messages) */}
       {messages.filter((m) => m.role === 'user').length === 0 && (
-        <div className="px-2 py-2 bg-[#111111] border-t border-white/[0.04]">
-          <p className="text-xs text-white/40 mb-2">Try asking:</p>
+        <div className="px-2 py-2 bg-[var(--surface-2)] border-t border-[var(--border-subtle)]">
+          <p className="text-xs text-[var(--text-tertiary)] mb-2">Try asking:</p>
           <div className="space-y-1">
             {exampleQueries.slice(0, 3).map((query) => (
               <button
                 key={query}
                 onClick={() => handleExampleClick(query)}
-                className="w-full text-left text-xs px-2 py-1 bg-[#0e0e0e] hover:bg-white/[0.06] rounded transition-colors text-white/40"
+                className="w-full text-left text-xs px-2 py-1 bg-[var(--surface-1)] hover:bg-white/[0.06] rounded transition-colors text-[var(--text-tertiary)]"
               >
                 {query}
               </button>
@@ -234,7 +234,7 @@ export function AIChatbot() {
       )}
 
       {/* Input */}
-      <div className="border-t border-white/[0.04] p-2 bg-[#111111] rounded-b-lg">
+      <div className="border-t border-[var(--border-subtle)] p-2 bg-[var(--surface-2)] rounded-b-lg">
         <div className="flex gap-2">
           <Input
             value={input}
@@ -254,7 +254,7 @@ export function AIChatbot() {
           </Button>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <p className="text-xs text-white/40">
+          <p className="text-xs text-[var(--text-tertiary)]">
             Press Enter to send
           </p>
           <Button

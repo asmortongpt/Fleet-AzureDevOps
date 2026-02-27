@@ -381,7 +381,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
               ) : (
                 <div className="flex flex-col gap-1">
                   {recentTransactions.map((transaction, index) => (
-                    <div key={index} className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2">
+                    <div key={index} className="flex items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2">
                       <div>
                         <p className="text-sm font-medium text-foreground">{transaction.description}</p>
                         <p className="text-xs text-muted-foreground">
@@ -403,16 +403,16 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             className="flex-none"
           >
             <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-md border border-white/[0.04] bg-[#111111] p-2 text-center">
-                <p className="text-xs text-white/60">Parts</p>
+              <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 text-center">
+                <p className="text-xs text-[var(--text-secondary)]">Parts</p>
                 <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalPartsCost)}</p>
               </div>
-              <div className="rounded-md border border-white/[0.04] bg-[#111111] p-2 text-center">
-                <p className="text-xs text-white/60">Labor</p>
+              <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 text-center">
+                <p className="text-xs text-[var(--text-secondary)]">Labor</p>
                 <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalLaborCost)}</p>
               </div>
-              <div className="rounded-md border border-white/[0.04] bg-[#111111] p-2 text-center">
-                <p className="text-xs text-white/60">Total</p>
+              <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 text-center">
+                <p className="text-xs text-[var(--text-secondary)]">Total</p>
                 <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalWoCost)}</p>
               </div>
             </div>
@@ -431,15 +431,15 @@ const FinancialTabContent = memo(function FinancialTabContent() {
                 <div className="flex flex-col gap-3">
                   {departmentCosts.map((dept) => (
                     <div key={dept.department} className="flex items-center gap-2">
-                      <span className="text-xs text-white/80 w-24 truncate" title={dept.department}>{dept.department}</span>
+                      <span className="text-xs text-[var(--text-primary)] w-24 truncate" title={dept.department}>{dept.department}</span>
                       <div className="flex-1 h-1.5 rounded-full bg-white/[0.06]">
                         <div
                           className="h-full rounded-full bg-emerald-500/60"
                           style={{ width: `${totalDeptCost > 0 ? (dept.cost / totalDeptCost * 100) : 0}%` }}
                         />
                       </div>
-                      <span className="text-xs text-white/60 w-16 text-right">{formatCurrency(dept.cost)}</span>
-                      <span className="text-[10px] text-white/40 w-8 text-right">
+                      <span className="text-xs text-[var(--text-secondary)] w-16 text-right">{formatCurrency(dept.cost)}</span>
+                      <span className="text-[10px] text-[var(--text-tertiary)] w-8 text-right">
                         {totalDeptCost > 0 ? `${Math.round(dept.cost / totalDeptCost * 100)}%` : '0%'}
                       </span>
                     </div>
@@ -635,7 +635,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                 {displayedVendors.map((vendor) => (
                   <div
                     key={vendor.id}
-                    className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2 cursor-pointer"
+                    className="flex items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 cursor-pointer"
                     onClick={() => push({
                       id: vendor.id,
                       type: 'vendor',
@@ -658,10 +658,10 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                     aria-label={`View details for vendor ${vendor.name}`}
                   >
                     <div className="flex items-center gap-2">
-                      <Building className="h-4 w-4 text-white/40" />
+                      <Building className="h-4 w-4 text-[var(--text-tertiary)]" />
                       <div>
                         <p className="text-sm font-medium text-foreground">{vendor.name}</p>
-                        <p className="text-xs text-white/60">
+                        <p className="text-xs text-[var(--text-secondary)]">
                           {formatEnum(vendor.category)} · {vendor.orders} {vendor.orders === 1 ? 'order' : 'orders'}
                           {vendor.woCost > 0 && (
                             <span className="ml-1">· WO: {formatCurrency(vendor.woCost)}</span>
@@ -673,7 +673,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                       className="flex items-center gap-1"
                       title="Based on delivery performance"
                     >
-                      <Award className="h-4 w-4 text-white/40" />
+                      <Award className="h-4 w-4 text-[var(--text-tertiary)]" />
                       <span className="text-sm font-medium text-foreground">{vendor.rating ? `${vendor.rating}/5` : '--'}</span>
                     </div>
                   </div>
@@ -720,7 +720,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                 {recentPurchaseOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2 cursor-pointer"
+                    className="flex items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 cursor-pointer"
                     onClick={() => push({
                       id: order.id,
                       type: 'purchase-order',
@@ -744,7 +744,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                   >
                     <div>
                       <p className="text-sm font-medium text-foreground">{order.number || String(order.id).slice(0, 8)}</p>
-                      <p className="text-xs text-white/60">{order.vendor}</p>
+                      <p className="text-xs text-[var(--text-secondary)]">{order.vendor}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       {/* P1-9: Use comprehensive status badge mapping */}
@@ -998,7 +998,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-32 text-white/40 text-sm">No cost trend data available</div>
+            <div className="flex items-center justify-center h-32 text-[var(--text-tertiary)] text-sm">No cost trend data available</div>
           )}
         </Section>
 
@@ -1018,7 +1018,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-32 text-white/40 text-sm">No performance data available</div>
+            <div className="flex items-center justify-center h-32 text-[var(--text-tertiary)] text-sm">No performance data available</div>
           )}
         </Section>
       </div>
@@ -1035,7 +1035,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
             {actionItems.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {actionItems.map((item, index) => (
-                  <div key={index} className="flex items-start gap-2 rounded-md border border-white/[0.04] bg-[#111111] p-2">
+                  <div key={index} className="flex items-start gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2">
                     <div className={`mt-0.5 h-2 w-2 rounded-full shrink-0 ${
                       item.severity === 'high' ? 'bg-rose-500' :
                       item.severity === 'medium' ? 'bg-amber-500' :
@@ -1043,13 +1043,13 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
                     }`} />
                     <div>
                       <p className="text-sm font-medium text-foreground">{item.label}</p>
-                      <p className="text-xs text-white/40">{item.detail}</p>
+                      <p className="text-xs text-[var(--text-tertiary)]">{item.detail}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-white/40 text-sm">
+              <div className="flex items-center justify-center h-32 text-[var(--text-tertiary)] text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-emerald-500" />
                   <span>No action items -- fleet is in good shape</span>
@@ -1072,22 +1072,22 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
                   const maxCost = topCostDrivers[0]?.cost || 1
                   return (
                     <div key={index} className="flex items-center gap-2">
-                      <span className="text-xs text-white/60 w-6 text-right">{index + 1}.</span>
-                      <span className="text-xs text-white/80 w-32 truncate" title={vehicle.name}>{vehicle.name}</span>
+                      <span className="text-xs text-[var(--text-secondary)] w-6 text-right">{index + 1}.</span>
+                      <span className="text-xs text-[var(--text-primary)] w-32 truncate" title={vehicle.name}>{vehicle.name}</span>
                       <div className="flex-1 h-1.5 rounded-full bg-white/[0.06]">
                         <div
                           className="h-full rounded-full bg-emerald-500/60"
                           style={{ width: `${(vehicle.cost / maxCost * 100)}%` }}
                         />
                       </div>
-                      <span className="text-xs text-white/60 w-16 text-right">{formatCurrency(vehicle.cost)}</span>
-                      <span className="text-[10px] text-white/40 w-12 text-right">{vehicle.woCount} WOs</span>
+                      <span className="text-xs text-[var(--text-secondary)] w-16 text-right">{formatCurrency(vehicle.cost)}</span>
+                      <span className="text-[10px] text-[var(--text-tertiary)] w-12 text-right">{vehicle.woCount} WOs</span>
                     </div>
                   )
                 })}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-white/40 text-sm">No cost data available</div>
+              <div className="flex items-center justify-center h-32 text-[var(--text-tertiary)] text-sm">No cost data available</div>
             )}
           </div>
         </Section>
@@ -1243,12 +1243,12 @@ const ReportsTabContent = memo(function ReportsTabContent() {
             ) : (
               <div className="flex flex-col gap-1">
                 {templates.map((report: any) => (
-                  <div key={report.id} className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2">
+                  <div key={report.id} className="flex items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2">
                     <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-white/40" />
+                      <FileText className="h-4 w-4 text-[var(--text-tertiary)]" />
                       <div>
                         <p className="text-sm font-medium text-foreground">{report.title}</p>
-                        <p className="text-xs text-white/60">
+                        <p className="text-xs text-[var(--text-secondary)]">
                           {formatEnum(report.category || report.domain) || 'General'} · {report.isCore ? 'Core' : 'Custom'}
                         </p>
                       </div>
@@ -1282,10 +1282,10 @@ const ReportsTabContent = memo(function ReportsTabContent() {
             ) : (
               <div className="flex flex-col gap-1">
                 {history.map((item: any) => (
-                  <div key={item.id} className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2">
+                  <div key={item.id} className="flex items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2">
                     <div>
                       <p className="text-sm font-medium text-foreground">{item.title}</p>
-                      <p className="text-xs text-white/60">
+                      <p className="text-xs text-[var(--text-secondary)]">
                         Generated by {item.generatedBy || 'System'} · {formatDate(item.generatedAt)}
                       </p>
                     </div>

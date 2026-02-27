@@ -61,7 +61,7 @@ const lockerTypeLabels: Record<string, string> = {
 const statusColors = {
   open: 'bg-emerald-500/10 text-emerald-800',
   under_review: 'bg-yellow-100 text-yellow-800',
-  closed: 'bg-white/[0.05] text-white/60',
+  closed: 'bg-white/[0.05] text-[var(--text-secondary)]',
   archived: 'bg-amber-100 text-amber-800'
 };
 
@@ -329,7 +329,7 @@ export default function EvidenceLocker() {
           </Card>
         ) : (
           filteredLockers.map((locker) => (
-            <Card key={locker.id} className="hover:border-white/[0.12] transition-colors cursor-pointer">
+            <Card key={locker.id} className="hover:border-[var(--border-strong)] transition-colors cursor-pointer">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-grow">

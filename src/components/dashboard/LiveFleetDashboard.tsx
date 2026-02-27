@@ -417,9 +417,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-sm font-bold text-white/95">Fleet Dashboard</h1>
-          <p className="text-[10px] text-white/40 mt-0.5">Real-time vehicle monitoring</p>
+          <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">Real-time vehicle monitoring</p>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] text-white/30">
+        <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)]">
           <Activity className="h-3 w-3 text-emerald-400 animate-pulse" />
           <span>Live</span>
         </div>
@@ -444,7 +444,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         ];
         const total = vehicles.length;
         return (
-          <div className="rounded-lg bg-[#1a1a1a] px-2.5 py-2 border border-white/[0.06]">
+          <div className="rounded-lg bg-[var(--surface-3)] px-2.5 py-2 border border-white/[0.06]">
             {/* Stacked bar */}
             <div className="flex h-2 rounded-full overflow-hidden bg-white/[0.04]">
               {statusConfig.map(({ key, color }) => {
@@ -472,11 +472,11 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                       if (next.has(key)) next.delete(key); else { next.clear(); next.add(key); }
                       setVehicleFilters(prev => ({ ...prev, visibleStatuses: next }));
                     }}
-                    className="flex items-center gap-1 text-[10px] text-white/50 hover:text-white/80 transition-colors"
+                    className="flex items-center gap-1 text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                   >
                     <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
                     <span>{label}</span>
-                    <span className="font-semibold text-white/70">{count}</span>
+                    <span className="font-semibold text-[var(--text-primary)]">{count}</span>
                   </button>
                 );
               })}
@@ -492,29 +492,29 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             className="rounded-md bg-white/[0.03] border border-white/[0.06] px-2 py-1.5 text-center cursor-pointer hover:border-emerald-500/30 transition-colors"
             onClick={() => openDrilldown({ type: 'fleet-overview', label: 'Fleet Overview' })}
           >
-            <div className="text-sm font-bold text-white/90 tabular-nums">{totalVehicles}</div>
-            <div className="text-[9px] text-white/35 uppercase tracking-wide">Fleet</div>
+            <div className="text-sm font-bold text-[var(--text-primary)] tabular-nums">{totalVehicles}</div>
+            <div className="text-[9px] text-[var(--text-tertiary)] uppercase tracking-wide">Fleet</div>
           </div>
           <div
             className="rounded-md bg-white/[0.03] border border-white/[0.06] px-2 py-1.5 text-center cursor-pointer hover:border-emerald-500/30 transition-colors"
             onClick={() => openDrilldown({ type: 'active-vehicles', label: 'Active Vehicles' })}
           >
             <div className="text-sm font-bold text-emerald-400 tabular-nums">{fleetMetrics.utilization}%</div>
-            <div className="text-[9px] text-white/35 uppercase tracking-wide">Util.</div>
+            <div className="text-[9px] text-[var(--text-tertiary)] uppercase tracking-wide">Util.</div>
           </div>
           <div className="rounded-md bg-white/[0.03] border border-white/[0.06] px-2 py-1.5 text-center">
             <div className={`text-sm font-bold tabular-nums ${
               (fleetMetrics.avgHealth ?? 0) >= 80 ? 'text-emerald-400' :
               (fleetMetrics.avgHealth ?? 0) >= 50 ? 'text-amber-400' : 'text-red-400'
             }`}>{fleetMetrics.avgHealth ?? '—'}</div>
-            <div className="text-[9px] text-white/35 uppercase tracking-wide">Health</div>
+            <div className="text-[9px] text-[var(--text-tertiary)] uppercase tracking-wide">Health</div>
           </div>
           <div className="rounded-md bg-white/[0.03] border border-white/[0.06] px-2 py-1.5 text-center">
             <div className={`text-sm font-bold tabular-nums ${
               (fleetMetrics.avgFuel ?? 0) >= 50 ? 'text-emerald-400' :
               (fleetMetrics.avgFuel ?? 0) >= 25 ? 'text-amber-400' : 'text-red-400'
             }`}>{fleetMetrics.avgFuel != null ? `${fleetMetrics.avgFuel}%` : '—'}</div>
-            <div className="text-[9px] text-white/35 uppercase tracking-wide">Fuel</div>
+            <div className="text-[9px] text-[var(--text-tertiary)] uppercase tracking-wide">Fuel</div>
           </div>
         </div>
       )}
@@ -541,8 +541,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 }}
                 className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors border ${
                   vehicleFilters.visibleTypes.size === 0 || vehicleFilters.visibleTypes.has(type)
-                    ? 'bg-white/[0.05] text-white/70 border-white/[0.1]'
-                    : 'bg-transparent text-white/25 border-white/[0.04]'
+                    ? 'bg-white/[0.05] text-[var(--text-primary)] border-[var(--border-default)]'
+                    : 'bg-transparent text-[var(--text-muted)] border-[var(--border-subtle)]'
                 }`}
               >
                 <span>{formatEnum(type)}</span>
@@ -578,7 +578,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         const vEngineHours = selectedVehicle.engineHours || selectedVehicle.engine_hours;
 
         return (
-          <Card className="bg-white/[0.03] border-white/[0.04]">
+          <Card className="bg-white/[0.03] border-[var(--border-subtle)]">
             {/* Header */}
             <CardHeader className="pb-2 pt-3 px-3">
               <div className="flex items-center justify-between">
@@ -612,13 +612,13 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                   selectedVehicle.status === 'on_site' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
                   selectedVehicle.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
                   selectedVehicle.status === 'maintenance' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
-                  'bg-white/[0.06] text-white/50 border-white/[0.04]'
+                  'bg-white/[0.06] text-[var(--text-secondary)] border-[var(--border-subtle)]'
                 }`}>
                   {formatEnum(selectedVehicle.status)}
                 </Badge>
               </div>
               {/* Subtitle: fleet # · type · year · fuel type */}
-              <div className="flex items-center gap-1 mt-1 text-[10px] text-white/40">
+              <div className="flex items-center gap-1 mt-1 text-[10px] text-[var(--text-tertiary)]">
                 {(selectedVehicle.vehicleNumber || selectedVehicle.number) && (
                   <span className="font-mono">{selectedVehicle.vehicleNumber || selectedVehicle.number}</span>
                 )}
@@ -642,8 +642,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
               {(healthPct !== null || fuelPct !== null) && (
                 <div className="grid grid-cols-2 gap-1.5">
                   {healthPct !== null && (
-                    <div className="rounded-md bg-[#1a1a1a] px-2 py-1.5">
-                      <div className="flex items-center gap-1 text-[9px] text-white/35 uppercase tracking-wide font-medium mb-1">
+                    <div className="rounded-md bg-[var(--surface-3)] px-2 py-1.5">
+                      <div className="flex items-center gap-1 text-[9px] text-[var(--text-tertiary)] uppercase tracking-wide font-medium mb-1">
                         <HeartPulse className="h-2.5 w-2.5" />Health
                       </div>
                       <div className="flex items-center gap-1.5 mb-1">
@@ -665,8 +665,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                     </div>
                   )}
                   {fuelPct !== null && (
-                    <div className="rounded-md bg-[#1a1a1a] px-2 py-1.5">
-                      <div className="flex items-center gap-1 text-[9px] text-white/35 uppercase tracking-wide font-medium mb-1">
+                    <div className="rounded-md bg-[var(--surface-3)] px-2 py-1.5">
+                      <div className="flex items-center gap-1 text-[9px] text-[var(--text-tertiary)] uppercase tracking-wide font-medium mb-1">
                         <Fuel className="h-2.5 w-2.5" />{vFuelType === 'electric' ? 'Charge' : 'Fuel'}
                       </div>
                       <div className="flex items-center gap-1.5 mb-1">
@@ -688,26 +688,26 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
               {/* Detail Grid: 2 cols — key operational data */}
               <div className="grid grid-cols-2 gap-x-3 gap-y-1">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <Users className="h-3 w-3 text-white/25 shrink-0" />
-                  <span className={`text-[11px] truncate ${vDriver ? 'text-white/80' : 'text-white/30 italic'}`}>
+                  <Users className="h-3 w-3 text-[var(--text-muted)] shrink-0" />
+                  <span className={`text-[11px] truncate ${vDriver ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)] italic'}`}>
                     {vDriver || 'Unassigned'}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <Shield className="h-3 w-3 text-white/25 shrink-0" />
-                  <span className={`text-[11px] truncate ${vDept ? 'text-white/80' : 'text-white/30 italic'}`}>
+                  <Shield className="h-3 w-3 text-[var(--text-muted)] shrink-0" />
+                  <span className={`text-[11px] truncate ${vDept ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)] italic'}`}>
                     {vDept || 'No dept'}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <Gauge className="h-3 w-3 text-white/25 shrink-0" />
-                  <span className={`text-[11px] ${vMileage != null ? 'text-white/80' : 'text-white/30'}`}>
+                  <Gauge className="h-3 w-3 text-[var(--text-muted)] shrink-0" />
+                  <span className={`text-[11px] ${vMileage != null ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
                     {vMileage != null ? `${formatNumber(vMileage)} mi` : '—'}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <Navigation className="h-3 w-3 text-white/25 shrink-0" />
-                  <span className={`text-[11px] ${typeof vSpeed === 'number' ? (vSpeed > 0 ? 'text-white/80 font-medium' : 'text-white/50') : 'text-white/30'}`}>
+                  <Navigation className="h-3 w-3 text-[var(--text-muted)] shrink-0" />
+                  <span className={`text-[11px] ${typeof vSpeed === 'number' ? (vSpeed > 0 ? 'text-[var(--text-primary)] font-medium' : 'text-[var(--text-secondary)]') : 'text-[var(--text-muted)]'}`}>
                     {typeof vSpeed === 'number' ? `${Math.round(vSpeed)} mph` : '—'}
                   </span>
                 </div>
@@ -717,13 +717,13 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
               {(vVin || vPlate) && (
                 <div className="flex items-center gap-3 text-[10px] border-t border-white/[0.06] pt-1.5">
                   {vPlate && (
-                    <span className="font-mono text-white/50 bg-white/[0.04] px-1.5 py-0.5 rounded">{vPlate}</span>
+                    <span className="font-mono text-[var(--text-secondary)] bg-white/[0.04] px-1.5 py-0.5 rounded">{vPlate}</span>
                   )}
                   {vVin && (
-                    <span className="text-white/30 truncate font-mono">VIN: {vVin.slice(-8)}</span>
+                    <span className="text-[var(--text-muted)] truncate font-mono">VIN: {vVin.slice(-8)}</span>
                   )}
                   {vEngineHours != null && (
-                    <span className="text-white/30">{formatNumber(vEngineHours)}h</span>
+                    <span className="text-[var(--text-muted)]">{formatNumber(vEngineHours)}h</span>
                   )}
                 </div>
               )}
@@ -733,9 +733,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1 border-t border-white/[0.06] pt-1.5">
                   {vNextService && (
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <Calendar className="h-3 w-3 text-white/25 shrink-0" />
+                      <Calendar className="h-3 w-3 text-[var(--text-muted)] shrink-0" />
                       <span className={`text-[10px] truncate ${
-                        new Date(vNextService) < new Date() ? 'text-red-400 font-medium' : 'text-white/60'
+                        new Date(vNextService) < new Date() ? 'text-red-400 font-medium' : 'text-[var(--text-secondary)]'
                       }`}>
                         Svc: {formatDate(vNextService)}
                       </span>
@@ -743,18 +743,18 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                   )}
                   {vLastService && (
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <Clock className="h-3 w-3 text-white/25 shrink-0" />
-                      <span className="text-[10px] text-white/40 truncate">
+                      <Clock className="h-3 w-3 text-[var(--text-muted)] shrink-0" />
+                      <span className="text-[10px] text-[var(--text-tertiary)] truncate">
                         Last: {formatDate(vLastService)}
                       </span>
                     </div>
                   )}
                   {vInsExpiry && (
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <Shield className="h-3 w-3 text-white/25 shrink-0" />
+                      <Shield className="h-3 w-3 text-[var(--text-muted)] shrink-0" />
                       <span className={`text-[10px] truncate ${
                         new Date(vInsExpiry) < new Date() ? 'text-red-400' :
-                        new Date(vInsExpiry) < new Date(Date.now() + 30 * 86400000) ? 'text-amber-400' : 'text-white/50'
+                        new Date(vInsExpiry) < new Date(Date.now() + 30 * 86400000) ? 'text-amber-400' : 'text-[var(--text-secondary)]'
                       }`}>
                         Ins: {formatDate(vInsExpiry)}
                       </span>
@@ -762,9 +762,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                   )}
                   {vRegExpiry && (
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <Calendar className="h-3 w-3 text-white/25 shrink-0" />
+                      <Calendar className="h-3 w-3 text-[var(--text-muted)] shrink-0" />
                       <span className={`text-[10px] truncate ${
-                        new Date(vRegExpiry) < new Date() ? 'text-red-400' : 'text-white/50'
+                        new Date(vRegExpiry) < new Date() ? 'text-red-400' : 'text-[var(--text-secondary)]'
                       }`}>
                         Reg: {formatDate(vRegExpiry)}
                       </span>
@@ -776,8 +776,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
               {/* Location */}
               {vLocation && (
                 <div className="flex items-start gap-1.5 pt-1 border-t border-white/[0.06]">
-                  <MapPin className="h-3 w-3 text-white/25 shrink-0 mt-0.5" />
-                  <span className="text-[11px] text-white/60 leading-snug">{vLocation}</span>
+                  <MapPin className="h-3 w-3 text-[var(--text-muted)] shrink-0 mt-0.5" />
+                  <span className="text-[11px] text-[var(--text-secondary)] leading-snug">{vLocation}</span>
                 </div>
               )}
 
@@ -786,7 +786,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 h-7 text-[10px] border-white/[0.04] hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-400"
+                  className="flex-1 h-7 text-[10px] border-[var(--border-subtle)] hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-400"
                   onClick={() => openDrilldown({
                     type: 'vehicle',
                     label: selectedVehicle.vehicleNumber || selectedVehicle.number || 'Vehicle',
@@ -799,7 +799,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 h-7 text-[10px] border-white/[0.04] hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-400"
+                  className="flex-1 h-7 text-[10px] border-[var(--border-subtle)] hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-400"
                   onClick={() => navigateTo('fleet')}
                 >
                   Dispatch
@@ -807,7 +807,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 h-7 text-[10px] border-white/[0.04] hover:border-amber-500/40 hover:bg-amber-500/10 hover:text-amber-400"
+                  className="flex-1 h-7 text-[10px] border-[var(--border-subtle)] hover:border-amber-500/40 hover:bg-amber-500/10 hover:text-amber-400"
                   onClick={() => navigateTo('maintenance')}
                 >
                   Maint.
@@ -843,20 +843,20 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         {/* Search + Sort Bar */}
         <div className="flex items-center gap-1.5 mb-1.5">
           <div className="relative flex-1">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-white/25" />
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-[var(--text-muted)]" />
             <input
               type="text"
               placeholder="Search vehicles..."
               value={sideSearch}
               onChange={(e) => setSideSearch(e.target.value)}
-              className="w-full h-7 pl-7 pr-2 text-[11px] bg-white/[0.03] border border-white/[0.04] rounded-md text-white/80 placeholder:text-white/25 focus:outline-none focus:border-white/[0.15]"
+              className="w-full h-7 pl-7 pr-2 text-[11px] bg-white/[0.03] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--border-strong)]"
             />
           </div>
           <button
             onClick={() => setSideSort(prev =>
               prev === 'status' ? 'name' : prev === 'name' ? 'fuel' : prev === 'fuel' ? 'health' : 'status'
             )}
-            className="flex items-center gap-1 h-7 px-2 text-[10px] text-white/40 hover:text-white/70 bg-white/[0.03] border border-white/[0.04] rounded-md transition-colors"
+            className="flex items-center gap-1 h-7 px-2 text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] bg-white/[0.03] border border-[var(--border-subtle)] rounded-md transition-colors"
             title={`Sort by ${sideSort}`}
           >
             <ArrowUpDown className="h-3 w-3" />
@@ -865,14 +865,14 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         </div>
 
         {/* Count */}
-        <div className="text-[10px] text-white/30 mb-1">
+        <div className="text-[10px] text-[var(--text-muted)] mb-1">
           {sortedVehicles.length === vehicles.length
             ? `${vehicles.length} vehicles`
             : `${sortedVehicles.length} of ${vehicles.length} vehicles`}
         </div>
 
         {/* Mobile: List variant */}
-        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-white/[0.04]">
+        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-[var(--border-subtle)]">
           {sortedVehicles.slice(0, 10).map((vehicle: any) => (
             <MobileVehicleCard
               key={vehicle.id}
@@ -900,7 +900,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 key={vehicle.id}
                 className={`px-2 py-1.5 rounded-md border cursor-pointer transition-all ${isSelected
                   ? 'border-emerald-500/40 bg-emerald-500/[0.06]'
-                  : 'border-transparent hover:border-white/[0.04] hover:bg-white/[0.02]'
+                  : 'border-transparent hover:border-[var(--border-subtle)] hover:bg-white/[0.02]'
                 }`}
                 onClick={() => {
                   setSelectedVehicleId(vehicle.id);
@@ -929,10 +929,10 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                       vehicle.status === 'maintenance' ? 'bg-amber-400' :
                       'bg-white/30'
                     }`} />
-                    <span className="font-medium text-[11px] text-white/90 truncate">
+                    <span className="font-medium text-[11px] text-[var(--text-primary)] truncate">
                       {vehicle.vehicleNumber || vehicle.number || '—'}
                     </span>
-                    <span className="text-[10px] text-white/30 truncate">
+                    <span className="text-[10px] text-[var(--text-muted)] truncate">
                       {vehicle.name || formatVehicleName(vehicle)}
                     </span>
                   </div>
@@ -962,7 +962,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             );
           })}
           {sortedVehicles.length === 0 && sideSearch && (
-            <div className="text-center py-4 text-[11px] text-white/30">
+            <div className="text-center py-4 text-[11px] text-[var(--text-muted)]">
               No vehicles match "{sideSearch}"
             </div>
           )}
@@ -1001,7 +1001,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       <div className="flex items-center justify-center h-full min-h-[200px]">
         <div className="text-center">
           <Gauge className="h-9 w-12 animate-spin mx-auto text-emerald-400" />
-          <p className="mt-2 text-white/40">Loading fleet data...</p>
+          <p className="mt-2 text-[var(--text-tertiary)]">Loading fleet data...</p>
         </div>
       </div>
     );

@@ -103,7 +103,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
         </div>
 
         {/* Image info overlay */}
-        <div className="absolute bottom-4 left-4 bg-[#0a0a0a]/95 backdrop-blur-sm border border-white/[0.04] rounded-lg px-2 py-2">
+        <div className="absolute bottom-4 left-4 bg-[var(--surface-0)]/95 backdrop-blur-sm border border-[var(--border-subtle)] rounded-lg px-2 py-2">
           <div className="text-sm text-white">
             {document.dimensions && (
               <span className="font-medium text-white">
@@ -130,8 +130,8 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
 
       {/* EXIF sidebar */}
       {showExif && (
-        <div className="w-80 border-l border-white/[0.04] bg-[#0e0e0e] flex flex-col">
-          <div className="p-2 border-b border-white/[0.04]">
+        <div className="w-80 border-l border-[var(--border-subtle)] bg-[var(--surface-1)] flex flex-col">
+          <div className="p-2 border-b border-[var(--border-subtle)]">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-white">Image Details</h3>
               <Button
@@ -175,7 +175,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
                     <h4 className="text-sm font-semibold mb-3">Location</h4>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="h-4 w-4 text-white/35" />
+                        <MapPin className="h-4 w-4 text-[var(--text-tertiary)]" />
                         <span>
                           {document.location?.lat.toFixed(6)}, {document.location?.lng.toFixed(6)}
                         </span>
@@ -210,7 +210,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
                   <Separator />
                   <div>
                     <h4 className="text-sm font-semibold mb-3">AI Analysis</h4>
-                    <p className="text-sm text-white/35">
+                    <p className="text-sm text-[var(--text-tertiary)]">
                       {document.aiSummary}
                     </p>
                   </div>
@@ -258,7 +258,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-2">
-      <span className="text-white/35">{label}</span>
+      <span className="text-[var(--text-tertiary)]">{label}</span>
       <span className="font-medium text-white text-right break-all">{value}</span>
     </div>
   );

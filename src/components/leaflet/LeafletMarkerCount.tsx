@@ -25,7 +25,7 @@ export function LeafletMarkerCount({
   return (
     <div
       id="map-marker-count"
-      className="absolute top-4 right-4 bg-[#111111] px-2 py-2.5 rounded-lg border border-white/[0.04] z-[1000] transition-all"
+      className="absolute top-4 right-4 bg-[var(--surface-2)] px-2 py-2.5 rounded-lg border border-[var(--border-subtle)] z-[1000] transition-all"
       role="status"
       aria-live="polite"
       aria-atomic="true"

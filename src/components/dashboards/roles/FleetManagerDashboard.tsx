@@ -227,7 +227,7 @@ export function FleetManagerDashboard() {
             <Button
               size="sm"
               variant="outline"
-              className="w-full text-emerald-400 border-white/[0.04] hover:bg-emerald-500/10"
+              className="w-full text-emerald-400 border-[var(--border-subtle)] hover:bg-emerald-500/10"
               onClick={(e) => {
                 e.stopPropagation();
                 handleCreateWorkOrder();
