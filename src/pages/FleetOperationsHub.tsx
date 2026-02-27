@@ -263,7 +263,15 @@ const OverviewTabContent = memo(function OverviewTabContent() {
       status: (v.status || 'unknown').toLowerCase(),
       mileage: v.mileage ?? v.odometer ?? 0,
       fuel: v.fuel_level ?? v.fuelLevel ?? v.battery_percent ?? v.batteryPercent ?? null,
-      location: v.location ?? v.current_location ?? v.lastKnownLocation ?? '--',
+      location: (() => {
+        const loc = v.location ?? v.current_location ?? v.lastKnownLocation
+        if (!loc) return '--'
+        if (typeof loc === 'string') return loc
+        if (typeof loc === 'object' && loc !== null) {
+          return loc.address ?? loc.name ?? loc.city ?? loc.formatted_address ?? JSON.stringify(loc)
+        }
+        return String(loc)
+      })(),
       raw: v,
     }))
     rows.sort((a, b) => {
