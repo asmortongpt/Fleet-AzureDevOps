@@ -52,7 +52,7 @@ export function AlertsFeed({
       critical: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
       warning: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
       maintenance: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:bg-emerald-950 dark:text-emerald-700 dark:border-emerald-900",
-      info: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700"
+      info: "bg-white/[0.04] text-white/60 border-white/[0.04] dark:bg-white/[0.04] dark:text-white/60 dark:border-white/[0.04]"
     }
     return styles[type]
   }
@@ -111,7 +111,7 @@ export function AlertsFeed({
               <div
                 key={alert.id}
                 className={cn(
-                  "p-2 rounded-md border cursor-pointer transition-all duration-200 hover:shadow-sm",
+                  "p-2 rounded-md border cursor-pointer transition-all duration-200",
                   !alert.isRead && "bg-emerald-500/5 dark:bg-emerald-950/10",
                   alert.isRead && "opacity-80 hover:opacity-100"
                 )}

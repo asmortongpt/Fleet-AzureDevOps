@@ -142,10 +142,10 @@ export function DriverControlPanel({
         <>
             {isVisible && (
                 <div
-                    className="absolute left-4 top-20 bottom-8 w-[400px] bg-white/95 backdrop-blur-md border border-white/[0.08] shadow-sm rounded-lg overflow-hidden flex flex-col z-40"
+                    className="absolute left-4 top-20 bottom-8 w-[400px] bg-[#0e0e0e] border border-white/[0.04] rounded-lg overflow-hidden flex flex-col z-40"
                 >
                     {/* Header */}
-                    <div className="p-2 border-b border-white/[0.06] flex justify-between items-start bg-white/[0.03]">
+                    <div className="p-2 border-b border-white/[0.04] flex justify-between items-start bg-white/[0.03]">
                         <div>
                             <h2 className="text-sm font-bold flex items-center gap-2 text-white/80">
                                 <Users className="w-3 h-3 text-emerald-400" />
@@ -161,19 +161,19 @@ export function DriverControlPanel({
                     </div>
 
                     {/* KPI Cards (Mini) */}
-                    <div className="grid grid-cols-2 gap-2 p-3 bg-white/[0.03] border-b border-white/[0.06]">
-                        <div className="bg-white p-2 rounded-lg border border-white/[0.06] shadow-sm flex items-center justify-between">
+                    <div className="grid grid-cols-2 gap-2 p-3 bg-white/[0.03] border-b border-white/[0.04]">
+                        <div className="bg-[#111111] p-2 rounded-lg border border-white/[0.04] flex items-center justify-between">
                             <div>
-                                <div className="text-[10px] text-gray-800 uppercase font-semibold">Avg Safety</div>
+                                <div className="text-[10px] text-white/35 uppercase font-semibold">Avg Safety</div>
                                 <div className={`text-sm font-bold ${stats.avgScore >= 90 ? 'text-green-600' : stats.avgScore >= 75 ? 'text-amber-600' : 'text-red-600'}`}>
                                     {stats.avgScore}
                                 </div>
                             </div>
                             <Shield className="w-4 h-4 text-white/80" />
                         </div>
-                        <div className="bg-white p-2 rounded-lg border border-white/[0.06] shadow-sm flex items-center justify-between">
+                        <div className="bg-[#111111] p-2 rounded-lg border border-white/[0.04] flex items-center justify-between">
                             <div>
-                                <div className="text-[10px] text-gray-800 uppercase font-semibold">Attention</div>
+                                <div className="text-[10px] text-white/35 uppercase font-semibold">Attention</div>
                                 <div className="text-sm font-bold text-white/40">{stats.actionRequired}</div>
                             </div>
                             <AlertTriangle className="w-4 h-4 text-amber-500" />
@@ -266,21 +266,21 @@ export function DriverControlPanel({
                                 <div
                                     key={driver.id}
                                     onClick={() => onDriverSelect(driver)}
-                                    className="group flex items-center justify-between p-3 rounded-md hover:bg-white/[0.04] border border-transparent hover:border-white/[0.08] cursor-pointer transition-all"
+                                    className="group flex items-center justify-between p-3 rounded-md hover:bg-white/[0.04] border border-transparent hover:border-white/[0.04] cursor-pointer transition-all"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="relative">
-                                            <div className="w-10 h-8 rounded-full bg-white/[0.06] flex items-center justify-center text-white/50 font-semibold text-sm border-2 border-white shadow-sm">
+                                            <div className="w-10 h-8 rounded-full bg-white/[0.06] flex items-center justify-center text-white/50 font-semibold text-sm border-2 border-white/[0.04]">
                                                 {driver.name.charAt(0)}
                                             </div>
-                                            <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white ${driver.status === 'active' ? 'bg-green-500' :
+                                            <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#0e0e0e] ${driver.status === 'active' ? 'bg-green-500' :
                                                     (driver.status as string) === 'suspended' ? 'bg-red-500' : 'bg-white/[0.2]'
                                                 }`} />
                                         </div>
                                         <div>
                                             <div className="font-medium text-sm text-white/90 leading-none">{driver.name}</div>
-                                            <div className="text-[11px] text-gray-800 mt-1 flex items-center gap-1">
-                                                <Badge variant="outline" className="h-4 px-1 text-[9px] font-normal border-white/[0.08] text-white/40">
+                                            <div className="text-[11px] text-white/35 mt-1 flex items-center gap-1">
+                                                <Badge variant="outline" className="h-4 px-1 text-[9px] font-normal border-white/[0.04] text-white/40">
                                                     {driver.department || 'General'}
                                                 </Badge>
                                                 {driver.safetyScore >= 90 && (

@@ -39,7 +39,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
     return (
         <header className="relative shrink-0">
             <div className={cn(
-                "h-16 border-b transition-all duration-200 shadow-md flex items-center justify-between",
+                "h-16 border-b transition-all duration-200 flex items-center justify-between",
                 isMobile ? "px-4" : "px-6"
             )}
             style={{
@@ -52,7 +52,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                         src={isMobile ? "/logos/cta-approved-logo-icon.svg" : "/logos/cta-approved-logo-horizontal.svg"}
                         alt="CTA Fleet - Capital Technology Alliance"
                         className={cn(
-                            "transition-all duration-200 drop-shadow-lg",
+                            "transition-all duration-200 drop-",
                             isMobile ? "h-12 w-12" : "h-14"
                         )}
                         style={{ objectFit: 'contain' }}
@@ -73,12 +73,11 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                             ariaLabel="Search fleet, drivers, or assets"
                             className={cn(
                                 "search-input-enhanced input-premium elevation-interactive",
-                                "[&_input]:rounded-xl [&_input]:bg-white/90 [&_input]:backdrop-blur-sm",
-                                "[&_input]:dark:from-gray-900/90 [&_input]:dark:to-gray-900/80",
-                                "[&_input]:border border-white/20 [&_input]:dark:border-white/10",
-                                "[&_input]:h-11 [&_input]:text-sm [&_input]:px-4 [&_input]:text-gray-900 [&_input]:dark:text-white",
+                                "[&_input]:rounded-xl [&_input]:bg-white/[0.06]",
+                                "[&_input]:border border-white/[0.04]",
+                                "[&_input]:h-11 [&_input]:text-sm [&_input]:px-4 [&_input]:text-white",
                                 "[&_input]:transition-all [&_input]:duration-300 [&_input]:ease-out",
-                                "[&_input:focus]:border-white/60 [&_input:focus]:ring-2 [&_input:focus]:ring-white/30 [&_input:focus]:shadow-lg [&_input:focus]:shadow-white/10"
+                                "[&_input:focus]:border-white/20 [&_input:focus]:ring-2 [&_input:focus]:ring-white/[0.08]"
                             )}
                             onFocus={() => setIsSearchFocused(true)}
                             onBlur={() => setIsSearchFocused(false)}
@@ -130,7 +129,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-56 bg-[#111] border-white/20 shadow-lg rounded-lg p-1"
+                            className="w-56 bg-[#111111] border-white/[0.04] rounded-lg p-1"
                             sideOffset={8}
                         >
                             <DropdownMenuLabel className="px-3 py-2">
@@ -175,7 +174,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
             </div>
             {/* Gold/Orange Accent Bar - Approved Branding */}
             {/* Full Skyline Gradient Bar — ADELE Feb 2026 brand guide */}
-            <div className="h-1 shadow-sm" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)' }} aria-hidden="true" />
+            <div className="h-1" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)' }} aria-hidden="true" />
         </header>
     );
 }

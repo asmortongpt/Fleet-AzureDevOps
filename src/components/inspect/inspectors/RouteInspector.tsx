@@ -99,8 +99,8 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
     switch (status) {
       case 'completed': return 'bg-green-500';
       case 'pending': return 'bg-emerald-500';
-      case 'skipped': return 'bg-gray-400';
-      default: return 'bg-gray-300';
+      case 'skipped': return 'bg-white/[0.10]';
+      default: return 'bg-white/[0.08]';
     }
   };
 
@@ -126,7 +126,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
 
   if (!route) {
     return (
-      <div className="p-3 text-gray-700">
+      <div className="p-3 text-white/40">
         No route data available
       </div>
     );
@@ -138,10 +138,10 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
       <div className="border-b p-2">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-gray-900 dark:text-white">
+            <h2 className="text-sm font-bold text-white/80 dark:text-white">
               {route.name}
             </h2>
-            <p className="text-sm text-white/40 dark:text-gray-700">
+            <p className="text-sm text-white/40 dark:text-white/40">
               {route.description}
             </p>
           </div>
@@ -175,9 +175,9 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                   <p className="text-sm font-bold text-green-600">{route.stops.length}</p>
                   <p className="text-sm text-white/40">Stops</p>
                 </div>
-                <div className="text-center p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                  <Loader2 className="w-4 h-4 mx-auto mb-2 text-purple-600" />
-                  <p className="text-sm font-bold text-purple-600">{formatDuration(route.estimatedDuration)}</p>
+                <div className="text-center p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                  <Loader2 className="w-4 h-4 mx-auto mb-2 text-amber-600" />
+                  <p className="text-sm font-bold text-amber-600">{formatDuration(route.estimatedDuration)}</p>
                   <p className="text-sm text-white/40">Est. Time</p>
                 </div>
                 <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
@@ -216,8 +216,8 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
 
             <Card className="p-2 md:col-span-2">
               <h3 className="text-sm font-semibold mb-2">Route Map</h3>
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg h-96 flex items-center justify-center">
-                <p className="text-gray-700">Map visualization would appear here</p>
+              <div className="bg-white/[0.05] dark:bg-[#18181b] rounded-lg h-96 flex items-center justify-center">
+                <p className="text-white/40">Map visualization would appear here</p>
               </div>
             </Card>
           </div>
@@ -231,14 +231,14 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
               {route.stops.map((stop, index) => (
                 <div
                   key={stop.id}
-                  className="flex items-start gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-start gap-2 p-2 bg-white/[0.03] dark:bg-[#18181b] rounded-lg hover:bg-white/[0.05] dark:hover:bg-white/[0.08] transition-colors"
                 >
                   <div className="flex flex-col items-center">
                     <div className={`w-4 h-4 rounded-full ${getStatusColor(stop.status)} flex items-center justify-center text-white font-bold text-sm`}>
                       {stop.sequence}
                     </div>
                     {index < route.stops.length - 1 && (
-                      <div className="w-px h-9 bg-gray-300 dark:bg-gray-600 mt-2"></div>
+                      <div className="w-px h-9 bg-white/[0.08] dark:bg-white/[0.15] mt-2"></div>
                     )}
                   </div>
                   <div className="flex-1">
@@ -250,10 +250,10 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                       </Badge>
                     </div>
                     <p className="text-sm text-white/40 mb-1">{stop.location.address}</p>
-                    <p className="text-xs text-gray-700 font-mono">
+                    <p className="text-xs text-white/40 font-mono">
                       {(stop.location?.latitude ?? 0).toFixed(6)}, {(stop.location?.longitude ?? 0).toFixed(6)}
                     </p>
-                    <p className="text-xs text-gray-700 mt-2">
+                    <p className="text-xs text-white/40 mt-2">
                       Est. Arrival: {formatTime(stop.estimatedArrival)}
                     </p>
                   </div>
@@ -274,7 +274,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                     <span className="text-sm text-white/40">Overall Efficiency</span>
                     <span className="text-sm font-medium">{route.optimizationScore}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="w-full bg-white/[0.06] rounded-full h-3">
                     <div
                       className="bg-green-600 h-3 rounded-full transition-all"
                       style={{ width: `${route.optimizationScore}%` }}
@@ -285,17 +285,17 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                   <div className="text-center p-3 bg-emerald-500/10 dark:bg-white/[0.04] rounded-lg">
                     <p className="text-sm text-white/40">Distance Savings</p>
                     <p className="text-base font-bold text-emerald-400">12.3 mi</p>
-                    <p className="text-xs text-gray-700">vs. unoptimized</p>
+                    <p className="text-xs text-white/40">vs. unoptimized</p>
                   </div>
                   <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                     <p className="text-sm text-white/40">Time Savings</p>
                     <p className="text-base font-bold text-green-600">45 min</p>
-                    <p className="text-xs text-gray-700">vs. unoptimized</p>
+                    <p className="text-xs text-white/40">vs. unoptimized</p>
                   </div>
-                  <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                  <div className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
                     <p className="text-sm text-white/40">Fuel Savings</p>
-                    <p className="text-base font-bold text-purple-600">$18.50</p>
-                    <p className="text-xs text-gray-700">estimated</p>
+                    <p className="text-base font-bold text-amber-600">$18.50</p>
+                    <p className="text-xs text-white/40">estimated</p>
                   </div>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 /**
- * Module Registry - Declarative module definitions for the ArchonY SPA
+ * Module Registry - Declarative module definitions for the CTA Fleet SPA
  *
  * Replaces the 120+ case switch statement in App.tsx with a data-driven registry.
  * Each module defines its id, label, category, lazy component, panel width, and search keywords.

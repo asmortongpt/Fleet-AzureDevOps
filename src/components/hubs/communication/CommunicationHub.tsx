@@ -113,7 +113,7 @@ const MessagePanel = ({ messages, onMessageSelect, onNewMessage }: { messages: M
 
   const getTypeIcon = (type: string) => {
     switch(type) {
-      case 'broadcast': return <Radio className="h-4 w-4 text-purple-500" />
+      case 'broadcast': return <Radio className="h-4 w-4 text-amber-500" />
       case 'notification': return <Bell className="h-4 w-4 text-yellow-500" />
       default: return <MessageSquare className="h-4 w-4 text-emerald-400" />
     }
@@ -185,7 +185,7 @@ const ChatPanel = ({ threads, onThreadSelect }: { threads: ChatThread[]; onThrea
                   {thread.active ? (
                     <div className="h-2 w-2 bg-green-500 rounded-full" />
                   ) : (
-                    <div className="h-2 w-2 bg-gray-300 rounded-full" />
+                    <div className="h-2 w-2 bg-white/30 rounded-full" />
                   )}
                   <span className="font-medium">{thread.participant}</span>
                 </div>
@@ -450,7 +450,7 @@ const ChatThreadDetail = ({ thread, logs, userMap, currentUserId }: {
     <ScrollArea className="h-full">
       <div className="p-4 space-y-4">
         <div className="flex items-center gap-2 border-b pb-3">
-          <div className={`h-2 w-2 rounded-full ${thread.active ? 'bg-green-500' : 'bg-gray-300'}`} />
+          <div className={`h-2 w-2 rounded-full ${thread.active ? 'bg-green-500' : 'bg-white/30'}`} />
           <h3 className="font-semibold">{thread.participant}</h3>
           {thread.unread > 0 && (
             <Badge variant="destructive">{thread.unread} unread</Badge>

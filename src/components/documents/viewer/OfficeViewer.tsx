@@ -52,7 +52,7 @@ export function OfficeViewer({ document }: OfficeViewerProps) {
         return {
           icon: 'Document',
           color: 'text-white/70',
-          bgColor: 'bg-gray-100',
+          bgColor: 'bg-white/[0.05]',
           description: 'Office Document'
         };
     }

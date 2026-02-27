@@ -89,8 +89,8 @@ const SEVERITY_COLORS = {
 const STATUS_COLORS = {
   open: '#EF4444',
   acknowledged: '#F59E0B',
-  under_review: '#3B82F6',
-  approved_override: '#8B5CF6',
+  under_review: '#10b981',
+  approved_override: '#D97706',
   resolved: '#10B981',
   dismissed: '#6B7280',
   escalated: '#DC2626',
@@ -400,9 +400,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       open: 'bg-red-100 text-red-800',
       acknowledged: 'bg-yellow-100 text-yellow-800',
       under_review: 'bg-emerald-100 text-emerald-800',
-      approved_override: 'bg-purple-100 text-purple-800',
+      approved_override: 'bg-amber-100 text-amber-800',
       resolved: 'bg-green-100 text-green-800',
-      dismissed: 'bg-gray-100 text-gray-800',
+      dismissed: 'bg-white/[0.05] text-white/60',
       escalated: 'bg-red-100 text-red-800',
     };
     return <Badge className={variants[status]}>{status.replace('_', ' ').toUpperCase()}</Badge>;
@@ -550,7 +550,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                       labelLine={false}
                       label={({ name, value }) => `${name}: ${value}`}
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill="#10b981"
                       dataKey="value"
                     >
                       {severityData.map((entry, index) => (
@@ -575,7 +575,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                     <XAxis dataKey="type" angle={-45} textAnchor="end" height={100} />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="count" fill="#3B82F6" />
+                    <Bar dataKey="count" fill="#10b981" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>

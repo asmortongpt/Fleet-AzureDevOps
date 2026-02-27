@@ -10,19 +10,19 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-white/90 text-[#1a1a1a] shadow-sm font-bold",
+          "border-transparent bg-white/90 text-[#1a1a1a] font-bold",
         secondary:
-          "border-transparent bg-white/10 text-white/90 shadow-sm font-bold",
+          "border-transparent bg-white/10 text-white/90 font-bold",
         destructive:
-          "border-transparent bg-rose-600 text-white shadow-sm font-bold",
+          "border-transparent bg-rose-600 text-white font-bold",
         success:
-          "border-transparent bg-emerald-600 text-white shadow-sm font-bold",
+          "border-transparent bg-emerald-600 text-white font-bold",
         warning:
-          "border-transparent bg-amber-500 text-white shadow-sm font-bold",
+          "border-transparent bg-amber-500 text-white font-bold",
         info:
-          "border-transparent bg-sky-600 text-white shadow-sm font-bold",
+          "border-transparent bg-teal-600 text-white font-bold",
         outline:
-          "text-white/80 border-white/20 bg-transparent hover:bg-white/5 backdrop-blur-sm",
+          "text-white/80 border-white/[0.04] bg-transparent hover:bg-white/[0.04]",
         ghost:
           "border-transparent text-muted-foreground bg-muted/50 hover:bg-muted",
         // Subtle variants with lighter backgrounds
@@ -36,13 +36,13 @@ const badgeVariants = cva(
           "border-transparent bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 font-bold ring-1 ring-amber-500/20",
         // Status variants for real-time indicators
         online:
-          "border-transparent bg-emerald-600 text-white shadow-sm animate-pulse font-bold",
+          "border-transparent bg-emerald-600 text-white animate-pulse font-bold",
         offline:
           "border-transparent bg-muted text-muted-foreground font-bold",
         pending:
-          "border-transparent bg-amber-500 text-white shadow-sm font-bold",
+          "border-transparent bg-amber-500 text-white font-bold",
         error:
-          "border-transparent bg-rose-600 text-white shadow-sm font-bold",
+          "border-transparent bg-rose-600 text-white font-bold",
       },
       size: {
         default: "h-7 text-xs px-3",
@@ -106,7 +106,7 @@ function DotBadge({
       data-slot="dot-badge"
       className={cn(
         "inline-flex items-center justify-center min-w-3 h-3 px-1.5 rounded-full text-[10px] font-bold",
-        "shadow-sm animate-scale-in",
+        "animate-scale-in",
         variants[variant],
         className
       )}

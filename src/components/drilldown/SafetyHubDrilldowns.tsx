@@ -145,7 +145,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-emerald-700">
+            <div className="text-sm font-bold text-emerald-400">
               {filteredIncidents.reduce((sum, i) => sum + i.workDaysLost, 0)}
             </div>
             <div className="text-xs text-white/40">Total Days Lost</div>
@@ -154,7 +154,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
       </div>
 
       {/* Incident Table */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <AlertTriangle className="w-3 h-3 text-amber-400" />
@@ -257,7 +257,7 @@ export function LostTimeIncidentsView() {
       </Card>
 
       {/* Table */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Calendar className="w-3 h-3 text-red-400" />
@@ -289,15 +289,15 @@ export function OSHAComplianceView() {
       {/* Overall Score */}
       <Card className="bg-emerald-900/30 border-emerald-700/50">
         <CardContent className="p-3 text-center">
-          <ShieldCheck className="w-10 h-8 text-emerald-700 mx-auto mb-2" />
+          <ShieldCheck className="w-10 h-8 text-emerald-400 mx-auto mb-2" />
           <div className="text-sm font-bold text-white">87%</div>
           <div className="text-sm text-white/40">OSHA Compliance Score</div>
-          <div className="text-xs text-emerald-700 mt-1">+3% from last month</div>
+          <div className="text-xs text-emerald-400 mt-1">+3% from last month</div>
         </CardContent>
       </Card>
 
       {/* Component Breakdown */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Compliance Components</CardTitle>
         </CardHeader>
@@ -326,7 +326,7 @@ export function OSHAComplianceView() {
       </Card>
 
       {/* Recent Activity */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Recent OSHA Activity</CardTitle>
         </CardHeader>
@@ -363,9 +363,9 @@ export function DaysIncidentFreeView() {
   return (
     <div className="space-y-2">
       {/* Current Streak */}
-      <Card className="bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 border-emerald-700/50">
+      <Card className="bg-emerald-900/30 border-emerald-700/50">
         <CardContent className="p-3 text-center">
-          <ShieldCheck className="w-12 h-9 text-emerald-700 mx-auto mb-2" />
+          <ShieldCheck className="w-12 h-9 text-emerald-400 mx-auto mb-2" />
           <div className="text-6xl font-bold text-white mb-2">{currentStreak}</div>
           <div className="text-sm text-white/80 mb-2">Days Without Incident</div>
           <div className="flex justify-center gap-2 text-sm">
@@ -375,13 +375,13 @@ export function DaysIncidentFreeView() {
             </div>
             <div>
               <div className="text-white/40">Record</div>
-              <div className="text-base font-bold text-emerald-700">{longestStreak}</div>
+              <div className="text-base font-bold text-emerald-400">{longestStreak}</div>
             </div>
           </div>
           {/* Progress Bar */}
           <div className="mt-3 h-3 bg-white/[0.1] rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all"
+              className="h-full bg-emerald-500 transition-all"
               style={{ width: `${Math.min((currentStreak / target) * 100, 100)}%` }}
             />
           </div>
@@ -392,7 +392,7 @@ export function DaysIncidentFreeView() {
       </Card>
 
       {/* Historical Data */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Historical Streaks</CardTitle>
         </CardHeader>

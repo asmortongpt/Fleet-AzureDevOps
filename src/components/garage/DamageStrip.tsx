@@ -271,7 +271,7 @@ export function DamageStrip({
       className={cn(
         'fixed bottom-0 left-0 right-0 z-40',
         'bg-[#1a1a1a]',
-        'border-t border-white/[0.08]',
+        'border-t border-white/[0.04]',
         'transition-all duration-300',
         isExpanded ? 'h-64' : 'h-16',
         className
@@ -339,7 +339,7 @@ export function DamageStrip({
       {isExpanded && (
         <div className="px-2 pb-2 grid grid-cols-[1fr,300px] gap-2 h-48">
           {/* Vehicle Silhouette with Damage Pins */}
-          <div className="relative bg-white/[0.03] rounded-lg p-2 border border-white/[0.08]">
+          <div className="relative bg-white/[0.03] rounded-lg p-2 border border-white/[0.04]">
             <VehicleSilhouette className="opacity-60" />
 
             {/* Damage pins */}
@@ -359,7 +359,7 @@ export function DamageStrip({
           </div>
 
           {/* Damage List */}
-          <div className="bg-white/[0.03] rounded-lg border border-white/[0.08] overflow-hidden">
+          <div className="bg-white/[0.03] rounded-lg border border-white/[0.04] overflow-hidden">
             <div className="p-2 border-b border-white/[0.06]">
               <h4 className="text-xs font-medium text-white/50 uppercase">Damage Points</h4>
             </div>

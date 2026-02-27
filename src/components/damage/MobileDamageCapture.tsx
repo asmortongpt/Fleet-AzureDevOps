@@ -205,16 +205,16 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
           <div className="space-y-1">
             <p className="font-medium">Device Capabilities Detected:</p>
             <ul className="list-disc list-inside text-sm space-y-1">
-              <li className={deviceCapabilities.hasCamera ? 'text-green-600' : 'text-gray-700'}>
+              <li className={deviceCapabilities.hasCamera ? 'text-green-600' : 'text-white/40'}>
                 {deviceCapabilities.hasCamera ? '✓' : '✗'} Camera
               </li>
-              <li className={deviceCapabilities.hasVideo ? 'text-green-600' : 'text-gray-700'}>
+              <li className={deviceCapabilities.hasVideo ? 'text-green-600' : 'text-white/40'}>
                 {deviceCapabilities.hasVideo ? '✓' : '✗'} Video Recording
               </li>
-              <li className={deviceCapabilities.hasDepth ? 'text-green-600' : 'text-gray-700'}>
+              <li className={deviceCapabilities.hasDepth ? 'text-green-600' : 'text-white/40'}>
                 {deviceCapabilities.hasDepth ? '✓' : '✗'} Depth Sensing
               </li>
-              <li className={deviceCapabilities.hasLiDAR ? 'text-green-600' : 'text-gray-700'}>
+              <li className={deviceCapabilities.hasLiDAR ? 'text-green-600' : 'text-white/40'}>
                 {deviceCapabilities.hasLiDAR ? '✓' : '✗'} LiDAR Scanner
               </li>
             </ul>
@@ -266,13 +266,13 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
           </Card>
 
           <Card
-            className={`cursor-pointer hover:border-purple-500 transition-colors ${
+            className={`cursor-pointer hover:border-amber-500 transition-colors ${
               !deviceCapabilities.hasLiDAR ? 'opacity-50' : ''
             }`}
             onClick={() => deviceCapabilities.hasLiDAR && setCaptureMode('lidar')}
           >
             <CardHeader>
-              <Scan className="h-8 w-8 mb-2 text-purple-500" />
+              <Scan className="h-8 w-8 mb-2 text-amber-500" />
               <CardTitle>LiDAR Scan</CardTitle>
               <CardDescription>
                 {deviceCapabilities.hasLiDAR

@@ -51,7 +51,7 @@ export function ReferencePhotoCard({
     return (
       <button
         onClick={() => setCollapsed(false)}
-        className="absolute bottom-20 right-4 z-20 px-3 py-1.5 rounded-lg bg-[#111]/80 backdrop-blur-sm border border-white/[0.08] text-[10px] text-white/60 hover:text-white/80 transition-colors"
+        className="absolute bottom-20 right-4 z-20 px-3 py-1.5 rounded-lg bg-[#111]/80 backdrop-blur-sm border border-white/[0.04] text-[10px] text-white/60 hover:text-white/80 transition-colors"
       >
         Show Reference
       </button>
@@ -59,9 +59,9 @@ export function ReferencePhotoCard({
   }
 
   return (
-    <div className="absolute bottom-20 right-4 z-20 w-72 bg-[#111]/80 backdrop-blur-md rounded-xl border border-white/[0.08] shadow-2xl overflow-hidden">
+    <div className="absolute bottom-20 right-4 z-20 w-72 bg-[#0e0e0e]/90 backdrop-blur-sm rounded-xl border border-white/[0.04] overflow-hidden">
       {/* Header: accuracy badge + controls */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.08]">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.04]">
         <div className="flex items-center gap-1.5">
           {isExactMatch ? (
             <>
@@ -115,14 +115,14 @@ export function ReferencePhotoCard({
             crossOrigin="anonymous"
           />
         )}
-        <div className="absolute bottom-1.5 left-2 text-[10px] font-medium text-white/70 drop-shadow-lg">
+        <div className="absolute bottom-1.5 left-2 text-[10px] font-medium text-white/70">
           {year} {make} {model}
         </div>
       </div>
 
       {/* Angle selector */}
       {!imgError && (
-        <div className="flex items-center justify-center gap-1 px-2 py-1.5 border-t border-white/[0.08]">
+        <div className="flex items-center justify-center gap-1 px-2 py-1.5 border-t border-white/[0.04]">
           {IMAGIN_ANGLES.map((a) => (
             <button
               key={a.id}

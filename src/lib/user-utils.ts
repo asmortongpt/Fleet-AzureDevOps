@@ -111,7 +111,7 @@ export function getUserStatusColor(status: User['status']): string {
     case 'inactive':
       return 'gray'
     case 'invited':
-      return 'blue'
+      return 'teal'
     case 'suspended':
       return 'red'
     default:

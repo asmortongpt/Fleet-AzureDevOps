@@ -61,8 +61,8 @@ const lockerTypeLabels: Record<string, string> = {
 const statusColors = {
   open: 'bg-emerald-500/10 text-emerald-800',
   under_review: 'bg-yellow-100 text-yellow-800',
-  closed: 'bg-gray-100 text-gray-800',
-  archived: 'bg-purple-100 text-purple-800'
+  closed: 'bg-white/[0.05] text-white/60',
+  archived: 'bg-amber-100 text-amber-800'
 };
 
 export default function EvidenceLocker() {
@@ -254,7 +254,7 @@ export default function EvidenceLocker() {
                 <p className="text-sm text-muted-foreground">Total Videos</p>
                 <p className="text-sm font-bold">{stats.totalVideos}</p>
               </div>
-              <Video className="h-8 w-8 text-purple-500" />
+              <Video className="h-8 w-8 text-amber-500" />
             </div>
           </CardContent>
         </Card>
@@ -329,7 +329,7 @@ export default function EvidenceLocker() {
           </Card>
         ) : (
           filteredLockers.map((locker) => (
-            <Card key={locker.id} className="hover:shadow-sm transition-shadow cursor-pointer">
+            <Card key={locker.id} className="hover:border-white/[0.12] transition-colors cursor-pointer">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-grow">

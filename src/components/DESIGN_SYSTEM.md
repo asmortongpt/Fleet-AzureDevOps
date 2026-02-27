@@ -18,10 +18,10 @@ The Fleet Management Platform uses a **minimalist design philosophy** that prior
 
 ### Background Colors
 ```css
---minimalist-bg-primary: #0f1419    /* Deep slate - main background */
---minimalist-bg-secondary: #1a1f29  /* Slightly lighter - cards */
---minimalist-bg-tertiary: #252b37   /* Hover states */
---minimalist-bg-elevated: #2d3340   /* Modals, dropdowns */
+--minimalist-bg-primary: #0a0a0a    /* Deep slate - main background */
+--minimalist-bg-secondary: #1a1a1a  /* Slightly lighter - cards */
+--minimalist-bg-tertiary: #242424   /* Hover states */
+--minimalist-bg-elevated: #2a2a2a   /* Modals, dropdowns */
 ```
 
 **Usage:**
@@ -44,7 +44,7 @@ The Fleet Management Platform uses a **minimalist design philosophy** that prior
 
 ### Border Colors
 ```css
---minimalist-border-subtle: #2d3340   /* Very subtle borders */
+--minimalist-border-subtle: #2a2a2a   /* Very subtle borders */
 --minimalist-border-medium: #374151   /* Standard borders */
 --minimalist-border-strong: #4b5563   /* Emphasized borders */
 ```
@@ -56,7 +56,7 @@ The Fleet Management Platform uses a **minimalist design philosophy** that prior
 
 ### Accent Colors
 ```css
---minimalist-accent-blue: #3b82f6    /* Blue - primary actions */
+--minimalist-accent-emerald: #10b981  /* Emerald - primary actions */
 --minimalist-accent-green: #10b981   /* Green - success states */
 --minimalist-accent-amber: #f59e0b   /* Amber - warnings */
 --minimalist-accent-red: #ef4444     /* Red - critical actions */
@@ -198,7 +198,7 @@ The Fleet Management Platform uses a **minimalist design philosophy** that prior
 
 **Primary Button:**
 ```tsx
-<Button size="sm" className="bg-[var(--minimalist-accent-blue)] hover:bg-blue-600">
+<Button size="sm" className="bg-[var(--minimalist-accent-emerald)] hover:bg-emerald-600">
   <Icon className="w-4 h-4" />
   Action
 </Button>
@@ -242,7 +242,7 @@ The Fleet Management Platform uses a **minimalist design philosophy** that prior
 - **Green** (`bg-green-500`): Active, success, operational
 - **Amber** (`bg-amber-500`): Warning, maintenance, upcoming
 - **Red** (`bg-red-500`): Error, critical, out of service
-- **Blue** (`bg-blue-500`): Info, in progress, scheduled
+- **Emerald** (`bg-emerald-500`): Info, in progress, scheduled
 - **Gray** (`bg-[var(--minimalist-border-strong)]`): Inactive, idle, neutral
 
 ### Page Layout

@@ -68,7 +68,7 @@ export function WaterfallChart({
     const data = payload[0].payload
     return (
       <div
-        className="rounded-lg border shadow-lg p-3"
+        className="rounded-lg border p-3"
         style={{
           backgroundColor: chartColors.tooltip.background,
           borderColor: chartColors.tooltip.border,
@@ -102,7 +102,7 @@ export function WaterfallChart({
 
   return (
     <div>
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}

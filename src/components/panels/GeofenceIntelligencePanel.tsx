@@ -36,7 +36,7 @@ export function GeofenceIntelligencePanel({
         <>
             {geofence && (
                 <div
-                    className="fixed inset-y-0 right-0 z-50 w-full sm:w-[400px] bg-card/95 border-l border-border/50 shadow-lg overflow-hidden flex flex-col"
+                    className="fixed inset-y-0 right-0 z-50 w-full sm:w-[400px] bg-card/95 border-l border-border/50 overflow-hidden flex flex-col"
                 >
                     {/* Header */}
                     <div className="bg-muted/40 border-b border-border/50 p-2 flex items-start justify-between">
@@ -62,7 +62,7 @@ export function GeofenceIntelligencePanel({
                     <ScrollArea className="flex-1 p-2 bg-muted/20">
                         <div className="space-y-2">
                             {/* Live Status Card */}
-                            <Card className="border-l-4 border-l-emerald-500/60 shadow-sm relative overflow-hidden bg-card/90 border-border/50">
+                            <Card className="border-l-4 border-l-emerald-500/60 relative overflow-hidden bg-card/90 border-border/50">
                                 <div className="absolute top-0 right-0 p-2 opacity-5">
                                     <Activity className="w-24 h-24" />
                                 </div>
@@ -80,7 +80,7 @@ export function GeofenceIntelligencePanel({
                                     {breachedVehicles.length > 0 && (
                                         <div className="mt-2 space-y-2">
                                             {breachedVehicles.map(v => (
-                                                <div key={v.id} className="flex items-center justify-between p-2 bg-card/90 rounded border border-border/50 shadow-sm">
+                                                <div key={v.id} className="flex items-center justify-between p-2 bg-card/90 rounded border border-border/50">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                                                         <div>

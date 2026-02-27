@@ -29,9 +29,9 @@ import { formatCurrencyCompact } from '@/utils/format-helpers'
 const COST_DATA = {
   level1: [
     { name: 'Fuel', value: 124200, color: '#D97706', percentage: 43.6 },
-    { name: 'Maintenance', value: 89300, color: '#2563EB', percentage: 31.4 },
-    { name: 'Insurance', value: 43200, color: '#9333EA', percentage: 15.2 },
-    { name: 'Other', value: 27800, color: '#475569', percentage: 9.8 }
+    { name: 'Maintenance', value: 89300, color: '#10b981', percentage: 31.4 },
+    { name: 'Insurance', value: 43200, color: '#B45309', percentage: 15.2 },
+    { name: 'Other', value: 27800, color: '#6B7280', percentage: 9.8 }
   ],
   level2: {
     'Fuel': [
@@ -40,19 +40,19 @@ const COST_DATA = {
       { name: 'Electric Charging', value: 20000, color: '#F59E0B', detail: 'EV Fleet' }
     ],
     'Maintenance': [
-      { name: 'Scheduled Service', value: 42000, color: '#1D4ED8', detail: 'Regular maintenance' },
-      { name: 'Repairs', value: 28300, color: '#3B82F6', detail: 'Unscheduled fixes' },
-      { name: 'Parts', value: 19000, color: '#60A5FA', detail: 'Replacement parts' }
+      { name: 'Scheduled Service', value: 42000, color: '#059669', detail: 'Regular maintenance' },
+      { name: 'Repairs', value: 28300, color: '#10b981', detail: 'Unscheduled fixes' },
+      { name: 'Parts', value: 19000, color: '#34d399', detail: 'Replacement parts' }
     ],
     'Insurance': [
-      { name: 'Liability', value: 24000, color: '#7C3AED', detail: 'Liability coverage' },
-      { name: 'Collision', value: 12600, color: '#A78BFA', detail: 'Collision coverage' },
-      { name: 'Comprehensive', value: 6600, color: '#C4B5FD', detail: 'Full coverage' }
+      { name: 'Liability', value: 24000, color: '#D97706', detail: 'Liability coverage' },
+      { name: 'Collision', value: 12600, color: '#F59E0B', detail: 'Collision coverage' },
+      { name: 'Comprehensive', value: 6600, color: '#FBBF24', detail: 'Full coverage' }
     ],
     'Other': [
-      { name: 'Registration', value: 12400, color: '#64748B', detail: 'Vehicle registration' },
-      { name: 'Permits', value: 8900, color: '#94A3B8', detail: 'Operating permits' },
-      { name: 'Miscellaneous', value: 6500, color: '#CBD5E1', detail: 'Other expenses' }
+      { name: 'Registration', value: 12400, color: '#6B7280', detail: 'Vehicle registration' },
+      { name: 'Permits', value: 8900, color: '#9CA3AF', detail: 'Operating permits' },
+      { name: 'Miscellaneous', value: 6500, color: '#D1D5DB', detail: 'Other expenses' }
     ]
   },
   level3: {
@@ -152,7 +152,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
-        <div className="bg-white dark:bg-[#1a1a1a] border border-white/[0.08] dark:border-white/[0.15] rounded-lg p-2 shadow-sm">
+        <div className="bg-white dark:bg-[#1a1a1a] border border-white/[0.04] dark:border-white/[0.15] rounded-lg p-2">
           <p className="text-base font-semibold text-white/90 dark:text-white/80 mb-2">{data.name}</p>
           <p className="text-sm font-bold text-emerald-800 mb-1">
             {formatCurrencyCompact(data.value)}
@@ -184,7 +184,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
   }
 
   return (
-    <div className={cn("bg-white dark:bg-[#1a1a1a] rounded-lg border border-white/[0.08] dark:border-white/[0.15] p-3", className)}>
+    <div className={cn("bg-white dark:bg-[#1a1a1a] rounded-lg border border-white/[0.04] dark:border-white/[0.15] p-3", className)}>
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div>
@@ -229,29 +229,29 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
               }
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" className="dark:stroke-white/[0.15]" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" className="dark:stroke-white/[0.15]" />
             <XAxis
               dataKey="name"
               angle={-15}
               textAnchor="end"
               height={80}
-              tick={{ fill: '#475569', fontSize: 14, fontWeight: 500 }}
+              tick={{ fill: '#6B7280', fontSize: 14, fontWeight: 500 }}
               className="dark:fill-white/50"
             />
             <YAxis
-              tick={{ fill: '#475569', fontSize: 14, fontWeight: 500 }}
+              tick={{ fill: '#6B7280', fontSize: 14, fontWeight: 500 }}
               className="dark:fill-white/50"
               label={{
                 value: 'Cost ($K)',
                 angle: -90,
                 position: 'insideLeft',
-                fill: '#475569',
+                fill: '#6B7280',
                 fontSize: 14,
                 fontWeight: 600
               }}
               tickFormatter={(value) => formatCurrencyCompact(value)}
             />
-            <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }} />
+            <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }} />
             <Bar
               dataKey="value"
               radius={[4, 4, 0, 0]}
@@ -262,7 +262,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
               {currentData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={'color' in entry && typeof entry.color === 'string' ? entry.color : '#2563EB'}
+                  fill={'color' in entry && typeof entry.color === 'string' ? entry.color : '#10b981'}
                   opacity={hoveredBar === null || hoveredBar === entry.name ? 1 : 0.5}
                   className="transition-opacity duration-200"
                 />

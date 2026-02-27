@@ -162,7 +162,7 @@ export function FleetMapDemo() {
             {vehicles.map((vehicle) => (
               <div
                 key={vehicle.id}
-                className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
+                className="flex items-center justify-between p-3 border rounded-lg hover:bg-white/[0.05]"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
@@ -175,7 +175,7 @@ export function FleetMapDemo() {
                 </div>
                 <div className="text-right">
                   <div className="text-sm text-white/70">{vehicle.location}</div>
-                  <div className="text-xs text-gray-700">
+                  <div className="text-xs text-white/40">
                     {vehicle.latitude.toFixed(4)}, {vehicle.longitude.toFixed(4)}
                   </div>
                 </div>

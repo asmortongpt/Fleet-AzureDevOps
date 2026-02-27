@@ -283,13 +283,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
       const canRetry = retryCount < MAX_RETRIES
 
       return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-2">
-          <Card className="max-w-2xl w-full shadow-sm">
+        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-2">
+          <Card className="max-w-2xl w-full border-white/[0.04] bg-[#111111]">
             <CardHeader className="text-center">
-              <div className="mx-auto mb-2 w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
+              <div className="mx-auto mb-2 w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-red-400" />
               </div>
-              <CardTitle className="text-sm font-bold text-red-600 dark:text-red-400">
+              <CardTitle className="text-sm font-bold text-red-400">
                 Something Went Wrong
               </CardTitle>
               <CardDescription className="text-base mt-2">

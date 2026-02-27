@@ -127,20 +127,20 @@ export function DetailTable({
   // Get sort icon
   const getSortIcon = (field: string) => {
     if (sortField !== field) {
-      return <ChevronsUpDown className="h-4 w-4 text-gray-700" />;
+      return <ChevronsUpDown className="h-4 w-4 text-white/40" />;
     }
     return sortDirection === 'asc' ? (
-      <ChevronUp className="h-4 w-4 text-indigo-600" />
+      <ChevronUp className="h-4 w-4 text-emerald-600" />
     ) : (
-      <ChevronDown className="h-4 w-4 text-indigo-600" />
+      <ChevronDown className="h-4 w-4 text-emerald-600" />
     );
   };
 
   return (
     <Card className={`overflow-hidden ${className}`}>
       {/* Header */}
-      <div className="p-2 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+      <div className="p-2 bg-white/[0.03] border-b border-white/[0.08] flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-white/80">{title}</h3>
         {onExport && (
           <div className="flex gap-2">
             <Button
@@ -166,13 +166,13 @@ export function DetailTable({
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full" role="table">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-white/[0.03] border-b border-white/[0.08]">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.field}
                   scope="col"
-                  className={`px-2 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider ${column.sortable !== false ? 'cursor-pointer hover:bg-gray-100' : ''}`}
+                  className={`px-2 py-3 text-left text-xs font-medium text-white/40 uppercase tracking-wider ${column.sortable !== false ? 'cursor-pointer hover:bg-white/[0.05]' : ''}`}
                   style={{ width: column.width }}
                   onClick={() => column.sortable !== false && handleSort(column.field)}
                 >
@@ -188,12 +188,12 @@ export function DetailTable({
             {paginatedData.map((row, index) => (
               <tr
                 key={index}
-                className="hover:bg-gray-50 transition-colors"
+                className="hover:bg-white/[0.03] transition-colors"
               >
                 {columns.map((column) => (
                   <td
                     key={column.field}
-                    className="px-2 py-3 text-sm text-gray-900 whitespace-nowrap"
+                    className="px-2 py-3 text-sm text-white/80 whitespace-nowrap"
                   >
                     {formatValue(row[column.field], column.format)}
                   </td>
@@ -205,15 +205,15 @@ export function DetailTable({
       </div>
 
       {/* Pagination */}
-      <div className="p-2 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+      <div className="p-2 bg-white/[0.03] border-t border-white/[0.08] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-white/40">
             Showing {(currentPage - 1) * rowsPerPage + 1} to{' '}
             {Math.min(currentPage * rowsPerPage, sortedData.length)} of{' '}
             {sortedData.length} results
           </div>
           <div className="flex items-center gap-2">
-            <label htmlFor="rows-per-page" className="text-sm text-gray-700">
+            <label htmlFor="rows-per-page" className="text-sm text-white/40">
               Rows per page:
             </label>
             <select
@@ -223,7 +223,7 @@ export function DetailTable({
                 setRowsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-2 py-1 border border-gray-300 rounded-md text-sm"
+              className="px-2 py-1 border border-white/[0.08] rounded-md text-sm"
             >
               <option value={25}>25</option>
               <option value={50}>50</option>

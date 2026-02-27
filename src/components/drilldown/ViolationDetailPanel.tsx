@@ -271,7 +271,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                   {violation.status.replace('_', ' ')}
                 </Badge>
                 {violation.override_requested && (
-                  <Badge variant="outline" className="border-purple-500 text-purple-700">
+                  <Badge variant="outline" className="border-amber-500 text-amber-700">
                     Override Requested
                   </Badge>
                 )}
@@ -461,10 +461,10 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
 
               {/* Override Request */}
               {violation.override_requested && (
-                <Card className="border-purple-500">
+                <Card className="border-amber-500">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <AlertOctagon className="h-5 w-5 text-purple-600" />
+                      <AlertOctagon className="h-5 w-5 text-amber-600" />
                       Override Request
                     </CardTitle>
                   </CardHeader>
@@ -560,7 +560,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
             <TabsContent value="related" className="space-y-2">
               {violation.vehicle_id && (
                 <Card
-                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  className="cursor-pointer hover:border-white/[0.12] transition-colors"
                   onClick={handleViewVehicle}
                 >
                   <CardContent className="p-2 flex items-center justify-between">
@@ -582,7 +582,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
 
               {violation.driver_id && (
                 <Card
-                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  className="cursor-pointer hover:border-white/[0.12] transition-colors"
                   onClick={handleViewDriver}
                 >
                   <CardContent className="p-2 flex items-center justify-between">
@@ -603,7 +603,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               )}
 
               <Card
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="cursor-pointer hover:border-white/[0.12] transition-colors"
                 onClick={handleViewPolicy}
               >
                 <CardContent className="p-2 flex items-center justify-between">

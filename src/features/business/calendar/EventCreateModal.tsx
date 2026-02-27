@@ -111,7 +111,7 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
 
   return (
     <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50">
-      <div className="bg-card rounded-lg shadow-sm w-full max-w-md p-3 max-h-[90vh] overflow-y-auto border border-border/50">
+      <div className="bg-card rounded-lg w-full max-w-md p-3 max-h-[90vh] overflow-y-auto border border-border/50">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground flex items-center gap-2">

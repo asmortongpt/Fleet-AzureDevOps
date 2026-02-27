@@ -239,7 +239,7 @@ export function VehiclesOperations() {
         key={vehicle.id}
         onClick={() => handleSelectVehicle(vehicle.id)}
         className={cn(
-          'border-b border-white/[0.08] cursor-pointer transition-all duration-200 hover:bg-muted-foreground/5',
+          'border-b border-white/[0.04] cursor-pointer transition-all duration-200 hover:bg-muted-foreground/5',
           isSelected && 'bg-muted-foreground/10 border-l-4 border-l-muted-foreground'
         )}
       >
@@ -301,7 +301,7 @@ export function VehiclesOperations() {
             value={formData.vehicle_number || ''}
             onChange={(e) => handleFormChange('vehicle_number', e.target.value)}
             placeholder="V-12345"
-            className="bg-muted border-white/[0.08] text-foreground"
+            className="bg-muted border-white/[0.04] text-foreground"
           />
         </div>
 
@@ -314,7 +314,7 @@ export function VehiclesOperations() {
             value={formData.licensePlate || ''}
             onChange={(e) => handleFormChange('licensePlate', e.target.value.toUpperCase())}
             placeholder="ABC-1234"
-            className="bg-muted border-white/[0.08] text-foreground font-mono"
+            className="bg-muted border-white/[0.04] text-foreground font-mono"
           />
         </div>
 
@@ -327,7 +327,7 @@ export function VehiclesOperations() {
             value={formData.make || ''}
             onChange={(e) => handleFormChange('make', e.target.value)}
             placeholder="Toyota, Ford, etc."
-            className="bg-muted border-white/[0.08] text-foreground"
+            className="bg-muted border-white/[0.04] text-foreground"
           />
         </div>
 
@@ -340,7 +340,7 @@ export function VehiclesOperations() {
             value={formData.model || ''}
             onChange={(e) => handleFormChange('model', e.target.value)}
             placeholder="Camry, F-150, etc."
-            className="bg-muted border-white/[0.08] text-foreground"
+            className="bg-muted border-white/[0.04] text-foreground"
           />
         </div>
 
@@ -354,7 +354,7 @@ export function VehiclesOperations() {
             value={formData.year || ''}
             onChange={(e) => handleFormChange('year', parseInt(e.target.value))}
             placeholder="2024"
-            className="bg-muted border-white/[0.08] text-foreground"
+            className="bg-muted border-white/[0.04] text-foreground"
           />
         </div>
 
@@ -368,7 +368,7 @@ export function VehiclesOperations() {
             onChange={(e) => handleFormChange('vin', e.target.value.toUpperCase())}
             placeholder="17-character VIN"
             maxLength={17}
-            className="bg-muted border-white/[0.08] text-foreground font-mono text-sm"
+            className="bg-muted border-white/[0.04] text-foreground font-mono text-sm"
           />
         </div>
 
@@ -380,7 +380,7 @@ export function VehiclesOperations() {
           <select
             value={formData.fuelType || 'Gasoline'}
             onChange={(e) => handleFormChange('fuelType', e.target.value)}
-            className="w-full px-3 py-2 bg-muted border border-white/[0.08] rounded-md text-foreground text-sm"
+            className="w-full px-3 py-2 bg-muted border border-white/[0.04] rounded-md text-foreground text-sm"
           >
             {FUEL_TYPES.map(type => (
               <option key={type} value={type}>{type}</option>
@@ -396,7 +396,7 @@ export function VehiclesOperations() {
           <select
             value={formData.status || 'active'}
             onChange={(e) => handleFormChange('status', e.target.value)}
-            className="w-full px-3 py-2 bg-muted border border-white/[0.08] rounded-md text-foreground text-sm"
+            className="w-full px-3 py-2 bg-muted border border-white/[0.04] rounded-md text-foreground text-sm"
           >
             {STATUS_OPTIONS.map(opt => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -414,7 +414,7 @@ export function VehiclesOperations() {
             value={formData.mileage || 0}
             onChange={(e) => handleFormChange('mileage', parseInt(e.target.value) || 0)}
             placeholder="0"
-            className="bg-muted border-white/[0.08] text-foreground"
+            className="bg-muted border-white/[0.04] text-foreground"
           />
         </div>
       </div>
@@ -426,7 +426,7 @@ export function VehiclesOperations() {
     if (isCreating) {
       return (
         <div className="space-y-4">
-          <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+          <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
             <h4 className="text-sm font-bold text-foreground mb-4">New Vehicle Registration</h4>
             {renderVehicleForm()}
           </div>
@@ -441,7 +441,7 @@ export function VehiclesOperations() {
     return (
       <div className="space-y-4">
         {/* Vehicle Overview */}
-        <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-sm font-bold text-foreground">Fleet Information</h4>
             <StatusBadge status={getStatusBadgeType(selectedVehicle.status)} />
@@ -450,7 +450,7 @@ export function VehiclesOperations() {
           {!isEditing ? (
             <div className="space-y-3 text-sm">
               {/* Header Row */}
-              <div className="grid grid-cols-2 gap-4 pb-3 border-b border-white/[0.08]">
+              <div className="grid grid-cols-2 gap-4 pb-3 border-b border-white/[0.04]">
                 <div>
                   <span className="text-muted-foreground text-xs">Vehicle Number</span>
                   <p className="text-foreground font-mono font-semibold mt-1">{selectedVehicle.vehicle_number || '—'}</p>
@@ -490,7 +490,7 @@ export function VehiclesOperations() {
               </div>
 
               {/* Operational Data */}
-              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-white/[0.08]">
+              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-white/[0.04]">
                 <div>
                   <span className="text-muted-foreground text-xs flex items-center gap-1">
                     <Gauge className="w-3 h-3" />
@@ -514,9 +514,9 @@ export function VehiclesOperations() {
                   Fuel Level
                 </span>
                 <div className="mt-2 flex items-center gap-3">
-                  <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden border border-white/[0.08]">
+                  <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden border border-white/[0.04]">
                     <div
-                      className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500/50 transition-all"
+                      className="h-full bg-emerald-400 transition-all"
                       style={{ width: `${Math.min(selectedVehicle.fuelLevel || 0, 100)}%` }}
                     />
                   </div>
@@ -530,17 +530,17 @@ export function VehiclesOperations() {
         {/* Quick Stats */}
         {!isEditing && (
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-3 text-center">
+            <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-3 text-center">
               <Wrench className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
               <p className="text-xs text-muted-foreground">Maintenance Due</p>
               <p className="text-foreground font-semibold text-sm mt-1">Soon</p>
             </div>
-            <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-3 text-center">
+            <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-3 text-center">
               <Clock className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
               <p className="text-xs text-muted-foreground">Last Service</p>
               <p className="text-foreground font-semibold text-sm mt-1">30 days ago</p>
             </div>
-            <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-3 text-center">
+            <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-3 text-center">
               <Fuel className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
               <p className="text-xs text-muted-foreground">Efficiency</p>
               <p className="text-foreground font-semibold text-sm mt-1">18 MPG</p>
@@ -586,7 +586,7 @@ export function VehiclesOperations() {
   const listPanel = (
     <div className="flex flex-col h-full">
       {/* Search and Filters */}
-      <div className="p-4 space-y-3 border-b border-white/[0.08]">
+      <div className="p-4 space-y-3 border-b border-white/[0.04]">
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -594,7 +594,7 @@ export function VehiclesOperations() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by vehicle #, make, model, or plate..."
-            className="pl-10 bg-muted border-white/[0.08] text-foreground placeholder:text-muted-foreground text-sm"
+            className="pl-10 bg-muted border-white/[0.04] text-foreground placeholder:text-muted-foreground text-sm"
           />
         </div>
 
@@ -604,7 +604,7 @@ export function VehiclesOperations() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="flex-1 px-3 py-2 bg-muted border border-white/[0.08] rounded-md text-foreground text-sm"
+            className="flex-1 px-3 py-2 bg-muted border border-white/[0.04] rounded-md text-foreground text-sm"
           >
             <option value="all">All Status</option>
             {STATUS_OPTIONS.map(opt => (
@@ -615,7 +615,7 @@ export function VehiclesOperations() {
       </div>
 
       {/* Table Header */}
-      <div className="hidden lg:grid grid-cols-12 gap-4 px-4 py-3 bg-[#242424] border-b border-white/[0.08] text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+      <div className="hidden lg:grid grid-cols-12 gap-4 px-4 py-3 bg-[#111111] border-b border-white/[0.04] text-xs font-semibold text-muted-foreground uppercase tracking-wider">
         <div className="col-span-2">Vehicle #</div>
         <div className="col-span-3">Make / Model</div>
         <div className="col-span-2">Status</div>

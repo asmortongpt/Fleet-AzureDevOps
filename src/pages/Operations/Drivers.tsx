@@ -129,14 +129,14 @@ export function DriversOperations() {
           setFormData({});
         }}
         className={cn(
-          'p-4 border-b border-white/[0.08] cursor-pointer hover:bg-cyan-400/5 transition-colors',
-          isSelected && 'bg-cyan-400/10 border-l-4 border-l-cyan-400'
+          'p-4 border-b border-white/[0.04] cursor-pointer hover:bg-emerald-400/5 transition-colors',
+          isSelected && 'bg-emerald-400/10 border-l-4 border-l-emerald-400'
         )}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1 min-w-0">
             {/* Avatar */}
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-400/20 to-teal-500/20 flex items-center justify-center border border-emerald-400/30 flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-white/[0.04] flex-shrink-0">
               <User className="w-6 h-6 text-emerald-700" />
             </div>
 
@@ -149,10 +149,10 @@ export function DriversOperations() {
                   <span
                     className={cn(
                       'w-2.5 h-2.5 rounded-full flex-shrink-0',
-                      driver.hosStatus === 'driving' && 'bg-green-400 shadow-[0_0_6px_hsl(var(--success) / 0.5)]',
-                      driver.hosStatus === 'on_duty' && 'bg-emerald-400 shadow-[0_0_6px_hsl(var(--primary) / 0.5)]',
+                      driver.hosStatus === 'driving' && 'bg-green-400',
+                      driver.hosStatus === 'on_duty' && 'bg-emerald-400',
                       driver.hosStatus === 'off_duty' && 'bg-white/[0.15]',
-                      driver.hosStatus === 'sleeper' && 'bg-purple-400 shadow-[0_0_6px_hsl(var(--accent) / 0.5)]'
+                      driver.hosStatus === 'sleeper' && 'bg-amber-400'
                     )}
                     title={`HOS: ${formatEnum(driver.hosStatus)}`}
                   />
@@ -174,7 +174,7 @@ export function DriversOperations() {
                     'text-[10px] px-1.5 py-0.5 rounded font-medium flex-shrink-0',
                     driver.employmentType === 'full-time' && 'bg-emerald-500/15 text-emerald-400',
                     driver.employmentType === 'part-time' && 'bg-amber-500/15 text-amber-400',
-                    driver.employmentType === 'contract' && 'bg-cyan-500/15 text-cyan-400',
+                    driver.employmentType === 'contract' && 'bg-emerald-500/15 text-emerald-400',
                     !['full-time', 'part-time', 'contract'].includes(driver.employmentType) && 'bg-white/[0.1]/15 text-white/50'
                   )}>
                     {formatEnum(driver.employmentType)}
@@ -305,7 +305,7 @@ export function DriversOperations() {
   const detailContent = () => {
     if (isCreating) {
       return (
-        <div className="bg-[#1a1a1a]/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-4">Create New Driver</h4>
           {renderDriverForm()}
         </div>
@@ -319,7 +319,7 @@ export function DriversOperations() {
     return (
       <div className="space-y-4">
         {/* Driver Details */}
-        <div className="bg-[#1a1a1a]/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-4">Driver Details</h4>
           {!isEditing ? (
             <div className="space-y-3 text-sm">
@@ -370,7 +370,7 @@ export function DriversOperations() {
                         'mt-0.5',
                         selectedDriver.employmentType === 'full-time' && 'border-emerald-500/40 text-emerald-400',
                         selectedDriver.employmentType === 'part-time' && 'border-amber-500/40 text-amber-400',
-                        selectedDriver.employmentType === 'contract' && 'border-cyan-500/40 text-cyan-400'
+                        selectedDriver.employmentType === 'contract' && 'border-emerald-500/40 text-emerald-400'
                       )}
                     >
                       {formatEnum(selectedDriver.employmentType)}
@@ -513,7 +513,7 @@ export function DriversOperations() {
         </InlineEditPanel>
 
         {/* Performance Metrics */}
-        <div className="bg-[#1a1a1a]/30 backdrop-blur-xl rounded-lg border border-emerald-400/30 p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
             <Trophy className="w-4 h-4 text-emerald-700" />
             Performance Metrics
@@ -529,7 +529,7 @@ export function DriversOperations() {
                   selectedDriver.hosStatus === 'driving' && 'bg-green-500/20 text-green-400 border border-green-500/30',
                   selectedDriver.hosStatus === 'on_duty' && 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
                   selectedDriver.hosStatus === 'off_duty' && 'bg-white/[0.05] text-white/50 border border-white/[0.12]/30',
-                  selectedDriver.hosStatus === 'sleeper' && 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                  selectedDriver.hosStatus === 'sleeper' && 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                 )}
               >
                 <span className={cn(
@@ -537,7 +537,7 @@ export function DriversOperations() {
                   selectedDriver.hosStatus === 'driving' && 'bg-green-400',
                   selectedDriver.hosStatus === 'on_duty' && 'bg-emerald-400',
                   selectedDriver.hosStatus === 'off_duty' && 'bg-white/[0.15]',
-                  selectedDriver.hosStatus === 'sleeper' && 'bg-purple-400'
+                  selectedDriver.hosStatus === 'sleeper' && 'bg-amber-400'
                 )} />
                 HOS: {formatEnum(selectedDriver.hosStatus)}
               </Badge>
@@ -578,12 +578,12 @@ export function DriversOperations() {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-white/70 text-[10px]">Hours Available</p>
-                    <p className="text-cyan-400 font-semibold text-xs">{selectedDriver.hoursAvailable}h</p>
+                    <p className="text-emerald-400 font-semibold text-xs">{selectedDriver.hoursAvailable}h</p>
                   </div>
                   <Progress
                     value={Math.min((selectedDriver.hoursAvailable / 11) * 100, 100)}
                     className="h-2 bg-white/[0.08]"
-                    indicatorClassName="bg-cyan-400"
+                    indicatorClassName="bg-emerald-400"
                   />
                   <p className="text-[10px] text-white/50 mt-0.5">of 11h daily limit</p>
                 </div>
@@ -612,7 +612,7 @@ export function DriversOperations() {
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-white/70 text-xs mb-1">Total Trips</p>
-              <p className="text-cyan-400 font-bold text-lg">
+              <p className="text-emerald-400 font-bold text-lg">
                 {selectedDriver.totalTrips || 0}
               </p>
             </div>
@@ -644,7 +644,7 @@ export function DriversOperations() {
   const listPanel = (
     <div className="flex flex-col h-full">
       {/* Search bar */}
-      <div className="p-4 border-b border-white/[0.08]">
+      <div className="p-4 border-b border-white/[0.04]">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
           <Input
@@ -662,7 +662,7 @@ export function DriversOperations() {
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
               <p className="text-sm text-white/70">Loading drivers...</p>
             </div>
           </div>

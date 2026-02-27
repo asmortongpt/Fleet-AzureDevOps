@@ -85,7 +85,7 @@ export function ComparisonSplitView({ referenceImageUrl, onClose }: ComparisonSp
       {/* Close button */}
       <button
         onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className="absolute top-4 right-4 z-30 p-1.5 rounded-lg bg-[#111]/80 border border-white/[0.08] text-white/40 hover:text-white/60 transition-colors pointer-events-auto"
+        className="absolute top-4 right-4 z-30 p-1.5 rounded-lg bg-[#111]/80 border border-white/[0.04] text-white/40 hover:text-white/60 transition-colors pointer-events-auto"
       >
         <X className="w-4 h-4" />
       </button>

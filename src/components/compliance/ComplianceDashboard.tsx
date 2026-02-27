@@ -201,7 +201,7 @@ const AlertPanel: React.FC<{ alerts: ComplianceAlert[] }> = ({ alerts }) => {
       case 'high': return 'bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-900'
       case 'medium': return 'bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-900'
       case 'low': return 'bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-900'
-      default: return 'bg-gray-50 dark:bg-gray-950'
+      default: return 'bg-white/[0.03] dark:bg-[#09090b]'
     }
   }
 

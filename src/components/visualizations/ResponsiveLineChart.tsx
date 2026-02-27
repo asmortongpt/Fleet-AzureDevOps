@@ -46,11 +46,11 @@ interface ResponsiveLineChartProps {
 }
 
 const GRADIENT_COLORS = [
-  { id: 'line-gradient-1', stroke: '#3B82F6', fill: '#3B82F6' },
+  { id: 'line-gradient-1', stroke: '#10b981', fill: '#10b981' },
   { id: 'line-gradient-2', stroke: '#10B981', fill: '#10B981' },
   { id: 'line-gradient-3', stroke: '#F59E0B', fill: '#F59E0B' },
   { id: 'line-gradient-4', stroke: '#EF4444', fill: '#EF4444' },
-  { id: 'line-gradient-5', stroke: '#8B5CF6', fill: '#8B5CF6' },
+  { id: 'line-gradient-5', stroke: '#D97706', fill: '#D97706' },
   { id: 'line-gradient-6', stroke: '#F97316', fill: '#F97316' },
 ]
 
@@ -105,7 +105,7 @@ export function ResponsiveLineChart({
     if (active && payload && payload.length) {
       return (
         <div
-          className="bg-background border-2 border-border rounded-xl shadow-xl p-4"
+          className="bg-background border-2 border-border rounded-xl p-4"
         >
           <p className="font-semibold text-sm mb-2">{label}</p>
           {payload.map((entry: any) => (
@@ -140,7 +140,7 @@ export function ResponsiveLineChart({
           fill={stroke}
           stroke="var(--background)"
           strokeWidth={2}
-          className="drop-shadow-lg"
+          className="drop-"
         />
       )
     }
@@ -158,7 +158,7 @@ export function ResponsiveLineChart({
 
   const lineChartContent = loading ? (
     <div
-      className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
+      className="w-full bg-white/[0.04] animate-pulse rounded-lg"
       style={{ height: compact ? '100%' : height }}
     />
   ) : (
@@ -252,7 +252,7 @@ export function ResponsiveLineChart({
 
   return (
     <div>
-      <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>

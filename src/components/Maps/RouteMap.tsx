@@ -82,7 +82,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
           onClick={() => setShowRoutes(!showRoutes)}
           variant={showRoutes ? 'default' : 'outline'}
           size="sm"
-          className="bg-white/90 backdrop-blur hover:bg-white"
+          className="bg-[#111111] border-white/[0.04] hover:bg-[#161616] text-white/60"
         >
           <Route className="w-4 h-4 mr-2" />
           {showRoutes ? 'Hide Routes' : 'Show Routes'}
@@ -90,16 +90,16 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
       </div>
 
       {/* Route Info Overlay */}
-      <div className="absolute bottom-4 left-4 z-10 bg-white/90 backdrop-blur rounded-lg shadow-sm p-2 max-w-xs">
+      <div className="absolute bottom-4 left-4 z-10 bg-[#111111] rounded-lg p-2 max-w-xs border border-white/[0.04]">
         <div className="flex items-center gap-2 mb-2">
-          <MapPin className="w-3 h-3 text-emerald-800" />
-          <h3 className="font-semibold text-gray-900">Active Routes</h3>
+          <MapPin className="w-3 h-3 text-emerald-400" />
+          <h3 className="font-semibold text-white">Active Routes</h3>
         </div>
-        <div className="space-y-1 text-sm text-white/70">
+        <div className="space-y-1 text-sm text-white/60">
           <div>Active Vehicles: {activeVehicles.length}</div>
           <div>Total Routes: {showRoutes ? routeCoordinates.length : 0}</div>
-          <div className="mt-2 pt-2 border-t border-gray-200">
-            <p className="text-xs text-gray-700">
+          <div className="mt-2 pt-2 border-t border-white/[0.04]">
+            <p className="text-xs text-white/35">
               Routes shown are optimized paths calculated by the dispatch system.
             </p>
           </div>

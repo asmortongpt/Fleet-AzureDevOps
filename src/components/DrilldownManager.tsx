@@ -386,7 +386,7 @@ function MaintenanceRequestsDrilldown() {
                 <span className={`px-2 py-1 text-xs rounded ${
                   req.priority === 'high' ? 'bg-red-100 text-red-800' :
                   req.priority === 'normal' ? 'bg-emerald-500/20 text-emerald-400' :
-                  'bg-gray-100 text-gray-800'
+                  'bg-white/[0.05] text-white/60'
                 }`}>{req.priority}</span>
                 <span className="text-xs text-muted-foreground">→</span>
               </div>
@@ -488,7 +488,7 @@ function OperationsCalendarDrilldown() {
                 </div>
               </div>
               <span className={`px-2 py-1 text-xs rounded ${
-                evt.status === 'in-progress' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-100 text-gray-800'
+                evt.status === 'in-progress' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/[0.05] text-white/60'
               }`}>{evt.status}</span>
             </div>
           </div>
@@ -535,7 +535,7 @@ function DriverShiftsDrilldown() {
                 </div>
               </div>
               <span className={`px-2 py-1 text-xs rounded ${
-                shift.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                shift.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-white/[0.05] text-white/60'
               }`}>{shift.status}</span>
             </div>
           </div>

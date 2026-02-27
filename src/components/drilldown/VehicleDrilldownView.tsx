@@ -85,9 +85,9 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
           inactive: 'bg-white/[0.05] text-white/40 border-white/[0.12]/30',
           maintenance: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
           retired: 'bg-red-500/20 text-red-400 border-red-500/30',
-          assigned: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30',
+          assigned: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
           dispatched: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-          en_route: 'bg-sky-500/20 text-sky-400 border-sky-500/30',
+          en_route: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
           on_site: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
           completed: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
         };
@@ -125,7 +125,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
           diesel: 'bg-orange-500/20 text-orange-400',
           gasoline: 'bg-emerald-500/20 text-emerald-400',
           electric: 'bg-green-500/20 text-green-400',
-          hybrid: 'bg-purple-500/20 text-purple-400',
+          hybrid: 'bg-amber-500/20 text-amber-400',
         };
         return (
           <span className={`px-2 py-0.5 rounded text-xs ${fuelColors[fuel?.toLowerCase()] || 'bg-white/[0.05] text-white/40'}`}>

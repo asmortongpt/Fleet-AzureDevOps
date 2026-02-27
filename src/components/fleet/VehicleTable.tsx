@@ -149,11 +149,11 @@ export function VehicleTable({ vehicles, onRowClick, onRecordOpen }: VehicleTabl
         }
         const opMap: Record<string, { color: string; label: string }> = {
           AVAILABLE: { color: '#10b981', label: 'Available' },
-          IN_USE: { color: '#3b82f6', label: 'In Use' },
+          IN_USE: { color: '#10b981', label: 'In Use' },
           MAINTENANCE: { color: '#f59e0b', label: 'Maintenance' },
           RESERVED: { color: '#fbbf24', label: 'Reserved' },
         }
-        const cfg = opMap[row.operationalStatus] || { color: '#94a3b8', label: row.operationalStatus }
+        const cfg = opMap[row.operationalStatus] || { color: '#9CA3AF', label: row.operationalStatus }
         return (
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -180,7 +180,7 @@ export function VehicleTable({ vehicles, onRowClick, onRecordOpen }: VehicleTabl
         return (
           <span style={{
             fontSize: 12,
-            color: isEV ? '#3b82f6' : 'var(--text)',
+            color: isEV ? '#10b981' : 'var(--text)',
             fontWeight: isEV ? 600 : 400
           }}>
             {isEV ? '\u26A1 ' : ''}{row.engineType}

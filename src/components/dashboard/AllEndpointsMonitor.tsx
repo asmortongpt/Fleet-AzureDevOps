@@ -92,7 +92,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       case 'error':
         return <XCircle className="w-3 h-3 text-red-600" />
       default:
-        return <HelpCircle className="w-3 h-3 text-gray-700" />
+        return <HelpCircle className="w-3 h-3 text-white/40" />
     }
   }
 
@@ -110,7 +110,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       case 'DELETE':
         return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
       default:
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300'
+        return 'bg-white/[0.05] text-white/40 dark:bg-[#111113] dark:text-white/60'
     }
   }
 
@@ -130,11 +130,11 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       case 'connecting':
         return 'text-yellow-600'
       case 'disconnected':
-        return 'text-gray-700'
+        return 'text-white/40'
       case 'error':
         return 'text-red-600'
       default:
-        return 'text-gray-700'
+        return 'text-white/40'
     }
   }
 
@@ -211,11 +211,11 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
             <p className="text-sm font-semibold text-red-700 dark:text-red-400">{summary.errorCount}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-950/20 border border-gray-200 dark:border-gray-900">
-          <HelpCircle className="w-3 h-3 text-gray-700" />
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.03] dark:bg-[#09090b]/20 border border-white/[0.08] dark:border-white/[0.06]">
+          <HelpCircle className="w-3 h-3 text-white/40" />
           <div>
             <p className="text-[10px] text-muted-foreground">Unknown</p>
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-700">{summary.unknownCount}</p>
+            <p className="text-sm font-semibold text-white/40 dark:text-white/40">{summary.unknownCount}</p>
           </div>
         </div>
       </div>

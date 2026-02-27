@@ -104,7 +104,7 @@ export function GaugeChart({
 
   return (
     <div>
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="text-center">
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}

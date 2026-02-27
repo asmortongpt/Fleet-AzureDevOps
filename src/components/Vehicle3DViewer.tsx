@@ -89,7 +89,7 @@ function createChromeMaterial(quality: 'low' | 'medium' | 'high'): THREE.MeshSta
 // Glass Material for windows
 function createGlassMaterial(quality: 'low' | 'medium' | 'high'): THREE.MeshPhysicalMaterial {
   return new THREE.MeshPhysicalMaterial({
-    color: 0x88ccff,
+    color: 0xffffff,
     metalness: 0,
     roughness: quality === 'high' ? 0 : 0.05,
     transmission: quality === 'high' ? 0.95 : quality === 'medium' ? 0.8 : 0.5,  // Transparency
@@ -260,7 +260,7 @@ function DamageMarker({
         <Html distanceFactor={10}>
           <div className="bg-black/90 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap">
             <div className="font-semibold">{type}</div>
-            <div className="text-xs text-gray-300">{severity}</div>
+            <div className="text-xs text-white/60">{severity}</div>
             {description && <div className="text-xs mt-1">{description}</div>}
           </div>
         </Html>
@@ -369,7 +369,7 @@ function Scene({
       />
 
       {/* Rim Light */}
-      <pointLight position={[0, 5, -10]} intensity={0.8} color="#88ccff" />
+      <pointLight position={[0, 5, -10]} intensity={0.8} color="#ffffff" />
 
       {/* Ground Bounce Light */}
       <hemisphereLight

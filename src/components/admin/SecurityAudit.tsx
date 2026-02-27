@@ -422,7 +422,7 @@ export function SecurityAudit() {
             checks.map((check) => (
               <div
                 key={check.name}
-                className="flex items-start justify-between p-2 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-start justify-between p-2 border rounded-lg hover:bg-white/[0.03] transition-colors"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">

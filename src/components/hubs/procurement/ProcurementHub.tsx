@@ -129,7 +129,7 @@ const PurchaseOrdersPanel = ({ orders, onOrderSelect }: { orders: any[]; onOrder
       case 'delivered': return <CheckCircle2 className="h-4 w-4 text-green-500" />
       case 'in_transit': return <Truck className="h-4 w-4 text-emerald-400" />
       case 'processing': return <Clock className="h-4 w-4 text-yellow-500" />
-      default: return <AlertCircle className="h-4 w-4 text-gray-700" />
+      default: return <AlertCircle className="h-4 w-4 text-white/35" />
     }
   }
 
@@ -556,7 +556,7 @@ export function ProcurementHub() {
         />
 
         {/* Map Controls Overlay */}
-        <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg shadow-sm z-10">
+        <div className="absolute top-4 left-4 bg-[#111111] border border-white/[0.04] rounded-lg z-10">
           <div className="p-3 space-y-2">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-48" data-testid="procurement-category-filter">

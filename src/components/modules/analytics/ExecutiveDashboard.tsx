@@ -73,15 +73,15 @@ interface TrendData {
 }
 
 const COLORS = {
-  primary: '#3b82f6',
+  primary: '#10b981',
   success: '#10b981',
   warning: '#f59e0b',
   danger: '#ef4444',
-  purple: '#8b5cf6',
-  cyan: '#06b6d4'
+  amber: '#d97706',
+  cyan: '#10b981'
 }
 
-const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
+const PIE_COLORS = ['#10b981', '#10b981', '#f59e0b', '#ef4444', '#d97706', '#14b8a6']
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
@@ -298,7 +298,7 @@ export function ExecutiveDashboard() {
             {fleetHealth.breakdown.map((item) => (
               <Card
                 key={item.category}
-                className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+                className="cursor-pointer hover:border-primary/50  transition-all"
                 onClick={() => push({
                   id: `health-${item.category.toLowerCase()}`,
                   type: item.category === 'Safety' ? 'safety-score' :
@@ -332,7 +332,7 @@ export function ExecutiveDashboard() {
       {/* Key Performance Indicators - All clickable with deep drilldown */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+          className="cursor-pointer hover:border-primary/50  transition-all"
           onClick={() => push({
             id: 'total-vehicles',
             type: 'fleet-overview',
@@ -355,7 +355,7 @@ export function ExecutiveDashboard() {
         </Card>
 
         <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+          className="cursor-pointer hover:border-primary/50  transition-all"
           onClick={() => push({
             id: 'fleet-utilization',
             type: 'utilization',
@@ -378,7 +378,7 @@ export function ExecutiveDashboard() {
         </Card>
 
         <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+          className="cursor-pointer hover:border-primary/50  transition-all"
           onClick={() => push({
             id: 'mileage-stats',
             type: 'performance-metrics',
@@ -408,7 +408,7 @@ export function ExecutiveDashboard() {
         </Card>
 
         <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+          className="cursor-pointer hover:border-primary/50  transition-all"
           onClick={() => push({
             id: 'fuel-efficiency',
             type: 'fuel-stats',

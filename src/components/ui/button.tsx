@@ -55,23 +55,23 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-white text-[#1a1a1a] hover:bg-white/90 shadow-sm rounded-lg font-semibold",
+          "bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg font-semibold",
         destructive:
-          "bg-rose-600 hover:bg-rose-700 text-white shadow-sm rounded-lg font-semibold",
+          "bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-semibold",
         outline:
-          "border-2 border-white/20 bg-transparent hover:bg-white/5 text-white/90 rounded-lg transition-colors duration-200 font-semibold hover:border-white/40",
+          "border border-[var(--border-default)] bg-transparent hover:bg-[var(--surface-glass)] text-[var(--text-primary)] rounded-lg font-semibold hover:border-[var(--border-strong)]",
         secondary:
-          "bg-white/10 hover:bg-white/15 text-white/90 shadow-sm rounded-lg font-semibold border border-white/[0.08]",
+          "bg-[var(--surface-3)] hover:bg-[var(--surface-4)] text-[var(--text-primary)] rounded-lg font-semibold border border-[var(--border-subtle)]",
         ghost:
-          "hover:bg-white/10 text-foreground rounded-lg transition-colors duration-200",
+          "hover:bg-[var(--surface-glass-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg",
         link:
-          "text-white/80 underline-offset-4 hover:underline hover:text-white font-semibold",
+          "text-[var(--text-secondary)] underline-offset-4 hover:underline hover:text-[var(--text-primary)] font-semibold",
         success:
-          "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm rounded-lg font-semibold",
+          "bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold",
         warning:
-          "bg-amber-500 hover:bg-amber-600 text-white shadow-sm rounded-lg font-semibold",
+          "bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold",
         professional:
-          "bg-[#333] hover:bg-[#444] text-white shadow-sm rounded-lg font-semibold border border-white/[0.06]",
+          "bg-[var(--surface-3)] hover:bg-[var(--surface-4)] text-[var(--text-primary)] rounded-lg font-semibold border border-[var(--border-subtle)]",
       },
       size: {
         default: "h-10 px-4 py-2 has-[>svg]:px-4 rounded-lg",

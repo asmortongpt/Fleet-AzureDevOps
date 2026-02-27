@@ -52,7 +52,7 @@ const safeArray = <T,>(value: unknown): T[] => {
 const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[]; onFacilitySelect: (facility: Facility) => void }) => {
   if (!facilities || facilities.length === 0) {
     return (
-      <div className="p-2 text-center text-muted-foreground">
+      <div className="p-2 text-center text-white/60">
         No facilities available
       </div>
     )
@@ -65,7 +65,7 @@ const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[
         {facilities.map(facility => (
           <Card
             key={facility.id}
-            className="cursor-pointer hover:bg-accent transition-colors"
+            className="cursor-pointer hover:bg-white/[0.04] transition-colors"
             onClick={() => onFacilitySelect(facility)}
             data-testid={`facility-card-${facility.id}`}
           >
@@ -73,15 +73,15 @@ const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <Building2 className="h-4 w-4 text-white/60" />
                     <span className="font-medium">{facility.name}</span>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">{facility.address}</p>
+                  <p className="text-sm text-white/60 mt-1">{facility.address}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge variant={facility.status === 'operational' ? 'default' : 'destructive'}>
                       {facility.status}
                     </Badge>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-white/60">
                       Capacity: {facility.capacity} vehicles
                     </span>
                   </div>
@@ -101,7 +101,7 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
   const [scheduleType, setScheduleType] = useState<'preventive' | 'corrective'>('preventive')
   if (!vehicle) {
     return (
-      <div className="p-2 text-center text-muted-foreground">
+      <div className="p-2 text-center text-white/60">
         Select a vehicle on the map to view maintenance details
       </div>
     )
@@ -119,7 +119,7 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
           <h3 className="text-sm font-semibold">
             {formatVehicleName(vehicle)}
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white/60">
             {vehicle.licensePlate} • {vehicle.vin}
           </p>
         </div>
@@ -203,7 +203,7 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
               <DialogTitle>{scheduleType === 'preventive' ? 'Schedule Service' : 'Request Maintenance'}</DialogTitle>
             </DialogHeader>
             <div className="py-2 space-y-3">
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-white/60">
                 Vehicle: <strong>{vehicle ? formatVehicleName(vehicle) : '-'}</strong>
               </div>
               <div>
@@ -246,7 +246,7 @@ const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { wo
       case 'pending':
         return <AlertCircle className="h-4 w-4 text-yellow-500" />
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-700" />
+        return <AlertCircle className="h-4 w-4 text-white/40" />
     }
   }
 
@@ -271,7 +271,7 @@ const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { wo
           workOrders.map((order: WorkOrder) => (
             <Card
               key={order.id}
-              className="cursor-pointer hover:bg-accent transition-colors"
+              className="cursor-pointer hover:bg-white/[0.04] transition-colors"
               onClick={() => onWorkOrderSelect(order)}
               data-testid={`work-order-${order.id}`}
             >
@@ -282,7 +282,7 @@ const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { wo
                       {getStatusIcon(order.status)}
                       <span className="font-medium">{order.title || order.description}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-sm text-white/60 mt-1">
                       {order.vehicleId && `Vehicle: ${order.vehicleId}`}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
@@ -299,7 +299,7 @@ const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { wo
             </Card>
           ))
         ) : (
-          <div className="text-center text-muted-foreground py-3">
+          <div className="text-center text-white/60 py-3">
             No work orders available
           </div>
         )}
@@ -410,7 +410,7 @@ const PartsPanel = ({ parts: partsProp, technicians: techniciansProp }: { parts:
       case 'available': return 'bg-green-500'
       case 'busy': return 'bg-yellow-500'
       case 'break': return 'bg-orange-500'
-      case 'off': return 'bg-gray-500'
+      case 'off': return 'bg-white/[0.2]'
     }
   }
 
@@ -430,25 +430,25 @@ const PartsPanel = ({ parts: partsProp, technicians: techniciansProp }: { parts:
         <div className="grid grid-cols-2 gap-2">
           <Card>
             <CardContent className="p-2">
-              <div className="text-xs text-muted-foreground">Low Stock</div>
+              <div className="text-xs text-white/60">Low Stock</div>
               <div className="text-lg font-semibold text-yellow-600">{lowStockItems}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2">
-              <div className="text-xs text-muted-foreground">On Order</div>
+              <div className="text-xs text-white/60">On Order</div>
               <div className="text-lg font-semibold text-emerald-400">{partsOnOrder}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2">
-              <div className="text-xs text-muted-foreground">Total Parts</div>
+              <div className="text-xs text-white/60">Total Parts</div>
               <div className="text-lg font-semibold">{parts.length}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2">
-              <div className="text-xs text-muted-foreground">Techs Available</div>
+              <div className="text-xs text-white/60">Techs Available</div>
               <div className="text-lg font-semibold text-emerald-700">{availableTechs}</div>
             </CardContent>
           </Card>
@@ -458,7 +458,7 @@ const PartsPanel = ({ parts: partsProp, technicians: techniciansProp }: { parts:
           <h4 className="text-sm font-medium mb-2">Low Stock Parts</h4>
           <div className="space-y-2">
             {lowStockParts.length === 0 && (
-              <div className="text-xs text-muted-foreground">No low stock parts</div>
+              <div className="text-xs text-white/60">No low stock parts</div>
             )}
             {lowStockParts.map(part => (
               <Card key={part.id}>
@@ -466,7 +466,7 @@ const PartsPanel = ({ parts: partsProp, technicians: techniciansProp }: { parts:
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium text-sm">{part.name}</div>
-                      <div className="text-xs text-muted-foreground">{part.partNumber}</div>
+                      <div className="text-xs text-white/60">{part.partNumber}</div>
                     </div>
                     <Badge variant="outline" className="text-xs">
                       {part.quantity} on hand
@@ -482,14 +482,14 @@ const PartsPanel = ({ parts: partsProp, technicians: techniciansProp }: { parts:
           <h4 className="text-sm font-medium mb-2">Technicians</h4>
           <div className="space-y-2">
             {technicians.length === 0 && (
-              <div className="text-xs text-muted-foreground">No technicians found</div>
+              <div className="text-xs text-white/60">No technicians found</div>
             )}
             {technicians.map(tech => (
               <Card key={tech.id}>
                 <CardContent className="p-2 flex items-center justify-between">
                   <div>
                     <div className="text-sm font-medium">{tech.name}</div>
-                    <div className="text-xs text-muted-foreground">{tech.currentTask || 'No active task'}</div>
+                    <div className="text-xs text-white/60">{tech.currentTask || 'No active task'}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${getTechStatusColor(tech.status)}`} />
@@ -644,9 +644,9 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
         />
 
         {/* Maintenance Status Overlay */}
-        <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg shadow-sm z-10 flex gap-2">
+        <div className="absolute top-4 left-4 bg-[#0e0e0e] border border-white/[0.04] rounded-lg z-10 flex gap-2">
           {/* View Mode Toggle */}
-          <div className="p-1 bg-muted rounded-md flex">
+          <div className="p-1 bg-white/[0.04] rounded-md flex">
             <Button
               variant={viewMode === 'map' ? 'secondary' : 'ghost'}
               size="sm"
@@ -682,11 +682,11 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
         </div>
 
         {/* Stats Bar */}
-        <div className="absolute bottom-4 left-4 right-[420px] bg-background/95 backdrop-blur rounded-lg shadow-sm p-3 z-10">
+        <div className="absolute bottom-4 left-4 right-[420px] bg-[#0e0e0e] border border-white/[0.04] rounded-lg p-3 z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
-                <Truck className="h-4 w-4 text-muted-foreground" />
+                <Truck className="h-4 w-4 text-white/60" />
                 <span className="text-sm">In Service: {stats.inService}</span>
               </div>
               <div className="flex items-center gap-2">
@@ -698,7 +698,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
                 <span className="text-sm">Due Soon: {stats.serviceDue}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Wrench className="h-4 w-4 text-muted-foreground" />
+                <Wrench className="h-4 w-4 text-white/60" />
                 <span className="text-sm">Work Orders: {stats.workOrdersPending}</span>
               </div>
             </div>

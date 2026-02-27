@@ -33,14 +33,14 @@ interface DynamicReportRendererProps {
 }
 
 const CHART_COLORS = [
-  'hsl(var(--primary))', // blue-500
-  'hsl(var(--success))', // green-500
-  'hsl(var(--warning))', // amber-500
-  'hsl(var(--destructive))', // red-500
-  'hsl(var(--accent))', // violet-500
-  'hsl(var(--accent))', // pink-500
-  'hsl(var(--primary))', // cyan-500
-  'hsl(var(--warning))', // orange-500
+  'hsl(var(--primary))', // primary
+  'hsl(var(--success))', // success/emerald
+  'hsl(var(--warning))', // warning/amber
+  'hsl(var(--destructive))', // destructive/red
+  'hsl(var(--accent))', // accent
+  'hsl(var(--accent))', // accent alt
+  'hsl(var(--primary))', // primary alt
+  'hsl(var(--warning))', // warning alt
 ];
 
 /**
@@ -60,13 +60,13 @@ const TableRenderer: React.FC<TableRendererProps> = ({ visual, data, formatValue
   const totalPages = Math.ceil(data.length / pageSize);
 
   return (
-    <div className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 mb-3">
+    <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] mb-3">
       <h3 className="text-base font-semibold text-white mb-3">{visual.title}</h3>
 
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-white/10">
+            <tr className="border-b border-white/[0.04]">
               {visual.columns!.map((col) => (
                 <th key={col.field} className="px-2 py-3 text-left text-sm font-semibold text-white/80">
                   {col.label}
@@ -76,7 +76,7 @@ const TableRenderer: React.FC<TableRendererProps> = ({ visual, data, formatValue
           </thead>
           <tbody>
             {paginatedData.map((row, idx) => (
-              <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+              <tr key={idx} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors">
                 {visual.columns!.map((col) => (
                   <td key={col.field} className="px-2 py-3 text-sm text-white/90">
                     {formatValue(row[col.field], col.format)}
@@ -89,7 +89,7 @@ const TableRenderer: React.FC<TableRendererProps> = ({ visual, data, formatValue
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/10">
+        <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/[0.04]">
           <div className="text-sm text-white/60">
             Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, data.length)} of {data.length}
           </div>
@@ -97,14 +97,14 @@ const TableRenderer: React.FC<TableRendererProps> = ({ visual, data, formatValue
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-2 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
+              className="px-2 py-2 bg-white/[0.06] hover:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
             >
               Previous
             </button>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-2 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
+              className="px-2 py-2 bg-white/[0.06] hover:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
             >
               Next
             </button>
@@ -238,7 +238,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
           return (
             <div
               key={measure.id}
-              className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 hover:border-white/20 transition-all"
+              className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] hover:border-white/20 transition-all"
             >
               <div className="text-sm text-white/60 mb-2">{measure.label}</div>
               <div className="text-base font-bold text-white">{formattedValue}</div>
@@ -259,7 +259,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
     if (!x || !y) return null;
 
     return (
-      <div className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 mb-3">
+      <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] mb-3">
         <h3 className="text-base font-semibold text-white mb-3">{visual.title}</h3>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={data}>
@@ -315,7 +315,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
     if (!x || !y) return null;
 
     return (
-      <div className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 mb-3">
+      <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] mb-3">
         <h3 className="text-base font-semibold text-white mb-3">{visual.title}</h3>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data}>
@@ -364,7 +364,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
     }, [] as any[]);
 
     return (
-      <div className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 mb-3">
+      <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] mb-3">
         <h3 className="text-base font-semibold text-white mb-3">{visual.title}</h3>
         <ResponsiveContainer width="100%" height={400}>
           <PieChart>
@@ -427,7 +427,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
 
       default:
         return (
-          <div className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 mb-3">
+          <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] mb-3">
             <div className="text-white/60">Unsupported visual type: {visual.type}</div>
           </div>
         );
@@ -446,7 +446,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
           <button
             key={exp.format}
             onClick={() => onExport(exp.format)}
-            className="flex items-center gap-2 px-2 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+            className="flex items-center gap-2 px-2 py-2 bg-white/[0.06] hover:bg-white/[0.08] rounded-lg text-white transition-colors"
           >
             {exp.format === 'pdf' ? (
               <FileText className="w-4 h-4" />
@@ -482,7 +482,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
 
       {/* No Data State */}
       {data.length === 0 && (
-        <div className="bg-white/5 backdrop-blur-xl rounded-lg p-12 border border-white/10 text-center">
+        <div className="bg-[#111111] rounded-lg p-12 border border-white/[0.04] text-center">
           <div className="text-white/60 text-sm">No data available for the selected filters</div>
         </div>
       )}

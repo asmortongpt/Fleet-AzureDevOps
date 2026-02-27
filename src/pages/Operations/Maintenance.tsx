@@ -6,7 +6,7 @@
  * FEATURES:
  * - Real-time maintenance schedule display from /api/maintenance
  * - Filter views: Upcoming, Overdue, Completed
- * - Color-coded status: Blue (upcoming), Red (overdue), Green (completed)
+ * - Color-coded status: Emerald (upcoming), Red (overdue), Green (completed)
  * - Cost tracking with aggregations
  * - Professional inline scheduling and completion workflows
  *
@@ -338,7 +338,7 @@ export function MaintenanceOperations() {
         key={task.id}
         onClick={() => handleSelectTask(task.id)}
         className={cn(
-          'p-4 border-b border-white/[0.08] cursor-pointer transition-all duration-200',
+          'p-4 border-b border-white/[0.04] cursor-pointer transition-all duration-200',
           'hover:bg-muted',
           isSelected && 'bg-muted border-l-4 border-l-foreground'
         )}
@@ -415,7 +415,7 @@ export function MaintenanceOperations() {
           value={formData.service_type || ''}
           onChange={(e) => setFormData({ ...formData, service_type: e.target.value })}
           placeholder="Oil change, tire rotation, inspection, etc."
-          className="bg-muted border-white/[0.08] text-foreground"
+          className="bg-muted border-white/[0.04] text-foreground"
         />
       </div>
 
@@ -425,7 +425,7 @@ export function MaintenanceOperations() {
           type="date"
           value={formData.scheduled_date || ''}
           onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
-          className="bg-muted border-white/[0.08] text-foreground"
+          className="bg-muted border-white/[0.04] text-foreground"
         />
       </div>
 
@@ -437,7 +437,7 @@ export function MaintenanceOperations() {
             value={formData.labor_cost || ''}
             onChange={(e) => setFormData({ ...formData, labor_cost: parseFloat(e.target.value) || 0 })}
             placeholder="0.00"
-            className="bg-muted border-white/[0.08] text-foreground"
+            className="bg-muted border-white/[0.04] text-foreground"
           />
         </div>
         <div className="space-y-2">
@@ -447,7 +447,7 @@ export function MaintenanceOperations() {
             value={formData.parts_cost || ''}
             onChange={(e) => setFormData({ ...formData, parts_cost: parseFloat(e.target.value) || 0 })}
             placeholder="0.00"
-            className="bg-muted border-white/[0.08] text-foreground"
+            className="bg-muted border-white/[0.04] text-foreground"
           />
         </div>
       </div>
@@ -458,7 +458,7 @@ export function MaintenanceOperations() {
           value={formData.assigned_technician || ''}
           onChange={(e) => setFormData({ ...formData, assigned_technician: e.target.value })}
           placeholder="Assigned technician name"
-          className="bg-muted border-white/[0.08] text-foreground"
+          className="bg-muted border-white/[0.04] text-foreground"
         />
       </div>
 
@@ -469,7 +469,7 @@ export function MaintenanceOperations() {
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Service details and notes..."
           rows={3}
-          className="w-full px-3 py-2 bg-muted border border-white/[0.08] rounded-md text-foreground text-sm"
+          className="w-full px-3 py-2 bg-muted border border-white/[0.04] rounded-md text-foreground text-sm"
         />
       </div>
     </div>
@@ -479,7 +479,7 @@ export function MaintenanceOperations() {
   const detailContent = () => {
     if (isCreating) {
       return (
-        <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-foreground mb-4">Schedule New Maintenance</h4>
           {renderTaskForm()}
         </div>
@@ -493,7 +493,7 @@ export function MaintenanceOperations() {
     return (
       <div className="space-y-4">
         {/* Task Overview */}
-        <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-foreground mb-4">Task Overview</h4>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
@@ -538,7 +538,7 @@ export function MaintenanceOperations() {
 
         {/* Cost Tracking */}
         {(selectedTask.total_cost || selectedTask.labor_cost || selectedTask.parts_cost) && (
-          <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+          <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
             <div className="flex items-center gap-2 mb-3">
               <DollarSign className="w-4 h-4 text-muted-foreground" />
               <h4 className="text-sm font-bold text-foreground">Cost Tracking</h4>
@@ -557,7 +557,7 @@ export function MaintenanceOperations() {
                 </div>
               )}
               {selectedTask.total_cost && (
-                <div className="flex justify-between border-t border-white/[0.08] pt-2 mt-2">
+                <div className="flex justify-between border-t border-white/[0.04] pt-2 mt-2">
                   <span className="text-muted-foreground font-semibold">Total:</span>
                   <span className="text-muted-foreground font-bold">{formatCurrency(selectedTask.total_cost)}</span>
                 </div>
@@ -588,7 +588,7 @@ export function MaintenanceOperations() {
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     placeholder="Work completed, findings, etc."
                     rows={3}
-                    className="w-full px-3 py-2 bg-muted border border-white/[0.08] rounded-md text-foreground text-sm"
+                    className="w-full px-3 py-2 bg-muted border border-white/[0.04] rounded-md text-foreground text-sm"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -599,7 +599,7 @@ export function MaintenanceOperations() {
                       value={formData.labor_cost || ''}
                       onChange={(e) => setFormData({ ...formData, labor_cost: parseFloat(e.target.value) || 0 })}
                       placeholder="0.00"
-                      className="bg-muted border-white/[0.08] text-foreground"
+                      className="bg-muted border-white/[0.04] text-foreground"
                     />
                   </div>
                   <div className="space-y-2">
@@ -609,7 +609,7 @@ export function MaintenanceOperations() {
                       value={formData.parts_cost || ''}
                       onChange={(e) => setFormData({ ...formData, parts_cost: parseFloat(e.target.value) || 0 })}
                       placeholder="0.00"
-                      className="bg-muted border-white/[0.08] text-foreground"
+                      className="bg-muted border-white/[0.04] text-foreground"
                     />
                   </div>
                 </div>
@@ -621,7 +621,7 @@ export function MaintenanceOperations() {
                   type="date"
                   value={formData.scheduled_date || ''}
                   onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
-                  className="bg-muted border-white/[0.08] text-foreground"
+                  className="bg-muted border-white/[0.04] text-foreground"
                 />
               </div>
             )}
@@ -630,7 +630,7 @@ export function MaintenanceOperations() {
 
         {/* Description */}
         {selectedTask.description && (
-          <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+          <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
             <h4 className="text-sm font-bold text-foreground mb-3">Description</h4>
             <p className="text-sm text-muted-foreground leading-relaxed">{selectedTask.description}</p>
           </div>
@@ -642,14 +642,14 @@ export function MaintenanceOperations() {
   // List panel content
   const listPanel = (
     <div className="flex flex-col h-full">
-      <div className="p-4 space-y-3 border-b border-white/[0.08]">
+      <div className="p-4 space-y-3 border-b border-white/[0.04]">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search service, vehicle..."
-            className="pl-10 bg-muted border-white/[0.08] text-foreground"
+            className="pl-10 bg-muted border-white/[0.04] text-foreground"
             disabled={loading}
           />
         </div>
@@ -657,7 +657,7 @@ export function MaintenanceOperations() {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="w-full px-3 py-2 bg-muted border border-white/[0.08] rounded-md text-foreground text-sm disabled:opacity-50"
+          className="w-full px-3 py-2 bg-muted border border-white/[0.04] rounded-md text-foreground text-sm disabled:opacity-50"
           disabled={loading}
         >
           <option value="all">All Status</option>
@@ -669,7 +669,7 @@ export function MaintenanceOperations() {
 
         {/* Statistics Summary */}
         {stats && (
-          <div className="grid grid-cols-2 gap-2 text-xs bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+          <div className="grid grid-cols-2 gap-2 text-xs bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
             <div>
               <span className="text-muted-foreground block">Upcoming</span>
               <span className="text-muted-foreground font-bold">{stats.upcoming}</span>

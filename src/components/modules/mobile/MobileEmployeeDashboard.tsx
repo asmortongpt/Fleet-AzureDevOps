@@ -202,7 +202,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
+      <div className="flex items-center justify-center h-screen bg-white/[0.05]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-600 mx-auto"></div>
           <p className="mt-2 text-white/40" style={{ color: brandColors.archon.mediumGray }}>Loading your dashboard...</p>
@@ -213,7 +213,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
   if (!dashboardData) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
+      <div className="flex items-center justify-center h-screen bg-white/[0.05]">
         <div className="text-center p-3">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-2" />
           <p className="" style={{ color: brandColors.archon.mediumGray }}>Unable to load dashboard. Please check your connection.</p>
@@ -226,7 +226,7 @@ const MobileEmployeeDashboard: React.FC = () => {
     <div className="space-y-2">
       {dashboardData.assignments.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
-          <Car className="w-16 h-16 text-gray-700 mx-auto mb-2" />
+          <Car className="w-16 h-16 text-white/40 mx-auto mb-2" />
           <p className="" style={{ color: brandColors.archon.mediumGray }}>No vehicle assignments</p>
         </div>
       ) : (
@@ -234,7 +234,7 @@ const MobileEmployeeDashboard: React.FC = () => {
           <div key={assignment.id} className="bg-white rounded-lg shadow p-2">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="font-semibold text-sm text-gray-900">
+                <h3 className="font-semibold text-sm text-white/80">
                   {assignment.unit_number}
                 </h3>
                 <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
@@ -269,12 +269,12 @@ const MobileEmployeeDashboard: React.FC = () => {
               )}
 
               {assignment.secured_parking_name && (
-                <div className="mt-3 pt-3 border-t border-gray-200">
-                  <div className="flex items-start gap-2 text-gray-700">
+                <div className="mt-3 pt-3 border-t border-white/[0.08]">
+                  <div className="flex items-start gap-2 text-white/40">
                     <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
                     <div>
                       <p className="font-medium">{assignment.secured_parking_name}</p>
-                      <p className="text-xs text-gray-700">{assignment.secured_parking_address}</p>
+                      <p className="text-xs text-white/40">{assignment.secured_parking_address}</p>
                     </div>
                   </div>
                   {assignment.parking_latitude && (
@@ -310,7 +310,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
       {dashboardData.on_call_periods.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
-          <Clock className="w-16 h-16 text-gray-700 mx-auto mb-2" />
+          <Clock className="w-16 h-16 text-white/40 mx-auto mb-2" />
           <p className="" style={{ color: brandColors.archon.mediumGray }}>No upcoming on-call periods</p>
         </div>
       ) : (
@@ -325,7 +325,7 @@ const MobileEmployeeDashboard: React.FC = () => {
             }`}>
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-white/80">
                     {isActive ? '🔴 Active Now' : 'Upcoming'}
                   </h3>
                   <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>
@@ -405,7 +405,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
       {dashboardData.recent_callback_trips.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
-          <Navigation className="w-16 h-16 text-gray-700 mx-auto mb-2" />
+          <Navigation className="w-16 h-16 text-white/40 mx-auto mb-2" />
           <p className="" style={{ color: brandColors.archon.mediumGray }}>No recent callback trips</p>
         </div>
       ) : (
@@ -413,7 +413,7 @@ const MobileEmployeeDashboard: React.FC = () => {
           <div key={trip.id} className="bg-white rounded-lg shadow p-2">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <h3 className="font-semibold text-gray-900">
+                <h3 className="font-semibold text-white/80">
                   {formatDate(trip.trip_date)}
                 </h3>
                 <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{trip.purpose}</p>
@@ -462,7 +462,7 @@ const MobileEmployeeDashboard: React.FC = () => {
               <h2 className="text-base font-bold">Log Callback Trip</h2>
               <button
                 onClick={() => setShowCallbackForm(false)}
-                className="text-gray-700 text-sm"
+                className="text-white/40 text-sm"
               >
                 ×
               </button>
@@ -470,19 +470,19 @@ const MobileEmployeeDashboard: React.FC = () => {
 
             <div className="space-y-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-white/40 mb-1">
                   Trip Date
                 </label>
                 <input
                   type="date"
                   value={callbackForm.trip_date}
                   onChange={(e) => setCallbackForm({ ...callbackForm, trip_date: e.target.value })}
-                  className="w-full px-2 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-2 py-2 border border-white/[0.08] rounded-lg"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-white/40 mb-1">
                   Miles Driven
                 </label>
                 <input
@@ -491,12 +491,12 @@ const MobileEmployeeDashboard: React.FC = () => {
                   value={callbackForm.miles_driven}
                   onChange={(e) => setCallbackForm({ ...callbackForm, miles_driven: e.target.value })}
                   placeholder="15.5"
-                  className="w-full px-2 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-2 py-2 border border-white/[0.08] rounded-lg"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-white/40 mb-1">
                   Purpose
                 </label>
                 <input
@@ -504,19 +504,19 @@ const MobileEmployeeDashboard: React.FC = () => {
                   value={callbackForm.purpose}
                   onChange={(e) => setCallbackForm({ ...callbackForm, purpose: e.target.value })}
                   placeholder="Emergency response to incident"
-                  className="w-full px-2 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-2 py-2 border border-white/[0.08] rounded-lg"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-white/40 mb-1">
                   Notes (optional)
                 </label>
                 <textarea
                   value={callbackForm.notes}
                   onChange={(e) => setCallbackForm({ ...callbackForm, notes: e.target.value })}
                   rows={3}
-                  className="w-full px-2 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-2 py-2 border border-white/[0.08] rounded-lg"
                 />
               </div>
 
@@ -528,7 +528,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                   onChange={(e) => setCallbackForm({ ...callbackForm, used_private_vehicle: e.target.checked })}
                   className="w-4 h-4 text-emerald-400"
                 />
-                <label htmlFor="private-vehicle" className="text-sm text-gray-700">
+                <label htmlFor="private-vehicle" className="text-sm text-white/40">
                   Used private vehicle (eligible for reimbursement)
                 </label>
               </div>
@@ -536,7 +536,7 @@ const MobileEmployeeDashboard: React.FC = () => {
               <button
                 onClick={submitCallbackTrip}
                 disabled={!callbackForm.miles_driven || !callbackForm.purpose}
-                className="w-full px-2 py-3 bg-emerald-600 text-white rounded-lg font-medium disabled:bg-gray-400"
+                className="w-full px-2 py-3 bg-emerald-600 text-white rounded-lg font-medium disabled:bg-white/[0.10]"
               >
                 Submit Callback Trip
               </button>
@@ -548,7 +548,7 @@ const MobileEmployeeDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-20">
+    <div className="min-h-screen bg-white/[0.05] pb-20">
       {/* Header */}
       <div className="bg-emerald-600 text-white p-3 pb-3">
         <h1 className="text-sm font-bold">My Fleet Dashboard</h1>
@@ -571,7 +571,7 @@ const MobileEmployeeDashboard: React.FC = () => {
               ● Online
             </div>
           ) : (
-            <div className="bg-gray-500 px-3 py-1 rounded-full text-xs">
+            <div className="bg-white/[0.03]0 px-3 py-1 rounded-full text-xs">
               ● Offline
             </div>
           )}
@@ -579,7 +579,7 @@ const MobileEmployeeDashboard: React.FC = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div className="bg-white border-b border-gray-200 flex">
+      <div className="bg-white border-b border-white/[0.08] flex">
         <button
           onClick={() => setActiveTab('assignments')}
           className={`flex-1 py-2 text-center font-medium ${

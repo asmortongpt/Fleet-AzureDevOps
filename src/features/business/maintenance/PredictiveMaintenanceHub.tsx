@@ -102,7 +102,7 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
     switch (severity) {
       case 'critical': return '#ef4444';
       case 'high': return '#f59e0b';
-      case 'medium': return '#3b82f6';
+      case 'medium': return '#10b981';
       default: return '#10b981';
     }
   };
@@ -116,20 +116,20 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
 
   const labelStyle: React.CSSProperties = {
     fontSize: 12,
-    color: 'var(--muted, #94a3b8)',
+    color: 'var(--muted, #9CA3AF)',
     textTransform: 'uppercase' as const,
     letterSpacing: '.12em',
     marginBottom: 8,
   };
 
   return (
-    <div style={{ padding: 32, maxWidth: 1600, margin: '0 auto', background: 'var(--bg, #0a0f1a)', color: 'var(--text, #e2e8f0)', minHeight: '100vh' }}>
+    <div style={{ padding: 32, maxWidth: 1600, margin: '0 auto', background: 'var(--bg, #0a0a0a)', color: 'var(--text, #e5e5e5)', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
-        <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--text, #e2e8f0)', marginBottom: 8 }}>
+        <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--text, #e5e5e5)', marginBottom: 8 }}>
           Predictive Maintenance Hub
         </div>
-        <div style={{ fontSize: 14, color: 'var(--muted, #94a3b8)' }}>
+        <div style={{ fontSize: 14, color: 'var(--muted, #9CA3AF)' }}>
           AI-driven failure predictions, recommended maintenance actions, and cost savings analysis
         </div>
       </div>
@@ -139,22 +139,22 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
         <div style={{ ...cardStyle, background: 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.08))' }}>
           <div style={labelStyle}>Critical / High Priority</div>
           <div style={{ fontSize: 32, fontWeight: 900, color: '#ef4444' }}>{criticalCount}</div>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4 }}>Require immediate attention</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', marginTop: 4 }}>Require immediate attention</div>
         </div>
-        <div style={{ ...cardStyle, background: 'linear-gradient(135deg, rgba(96,165,250,0.15), rgba(59,130,246,0.08))' }}>
+        <div style={{ ...cardStyle, background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.08))' }}>
           <div style={labelStyle}>Total Predictions</div>
-          <div style={{ fontSize: 32, fontWeight: 900, color: '#60a5fa' }}>{predictedFailures.length}</div>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4 }}>Next 30 days</div>
+          <div style={{ fontSize: 32, fontWeight: 900, color: '#10b981' }}>{predictedFailures.length}</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', marginTop: 4 }}>Next 30 days</div>
         </div>
         <div style={{ ...cardStyle, background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.08))' }}>
           <div style={labelStyle}>Est. Repair Cost (Reactive)</div>
           <div style={{ fontSize: 32, fontWeight: 900, color: '#f59e0b' }}>{formatCurrency(totalRepairCost)}</div>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4 }}>If failures are not prevented</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', marginTop: 4 }}>If failures are not prevented</div>
         </div>
         <div style={{ ...cardStyle, background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.08))' }}>
           <div style={labelStyle}>Potential Savings</div>
           <div style={{ fontSize: 32, fontWeight: 900, color: '#10b981' }}>{formatCurrency(totalSavings)}</div>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4 }}>By acting on preventive maintenance</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', marginTop: 4 }}>By acting on preventive maintenance</div>
         </div>
       </div>
 
@@ -163,8 +163,8 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
         <div style={{ display: 'flex', gap: 32 }}>
           {(['predictions', 'actions', 'savings'] as const).map(tab => (
             <button key={tab} onClick={() => setActiveView(tab)} style={{
-              padding: '12px 0', borderBottom: activeView === tab ? '2px solid #60a5fa' : '2px solid transparent',
-              color: activeView === tab ? '#60a5fa' : 'var(--muted, #94a3b8)',
+              padding: '12px 0', borderBottom: activeView === tab ? '2px solid #10b981' : '2px solid transparent',
+              color: activeView === tab ? '#10b981' : 'var(--muted, #9CA3AF)',
               background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600,
               textTransform: 'capitalize', transition: 'all 0.2s'
             }}>
@@ -175,7 +175,7 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
       </div>
 
       {loading && (
-        <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted, #94a3b8)' }}>
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted, #9CA3AF)' }}>
           Loading maintenance data...
         </div>
       )}
@@ -192,19 +192,19 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
           <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
             <thead>
               <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
-                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Component</th>
-                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Vehicle</th>
-                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Severity</th>
-                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Failure Probability</th>
-                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Predicted Date</th>
-                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Repair Cost</th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Component</th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Vehicle</th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Severity</th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Failure Probability</th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Predicted Date</th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Repair Cost</th>
               </tr>
             </thead>
             <tbody>
               {predictedFailures.map((f, idx) => (
                 <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: 'var(--text, #e2e8f0)' }}>{f.component}</td>
-                  <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #e2e8f0)' }}>{f.vehicleLabel}</td>
+                  <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: 'var(--text, #e5e5e5)' }}>{f.component}</td>
+                  <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #e5e5e5)' }}>{f.vehicleLabel}</td>
                   <td style={{ padding: 16 }}>
                     <span style={{
                       display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -221,10 +221,10 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
                       <div style={{ width: 60, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
                         <div style={{ width: `${f.probability * 100}%`, height: '100%', borderRadius: 3, background: getSeverityColor(f.severity) }} />
                       </div>
-                      <span style={{ fontSize: 13, color: 'var(--text, #e2e8f0)', minWidth: 40, textAlign: 'right' }}>{Math.round(f.probability * 100)}%</span>
+                      <span style={{ fontSize: 13, color: 'var(--text, #e5e5e5)', minWidth: 40, textAlign: 'right' }}>{Math.round(f.probability * 100)}%</span>
                     </div>
                   </td>
-                  <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #e2e8f0)' }}>{formatDate(f.estimatedDate)}</td>
+                  <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #e5e5e5)' }}>{formatDate(f.estimatedDate)}</td>
                   <td style={{ padding: 16, fontSize: 14, color: '#f59e0b', textAlign: 'right', fontWeight: 600 }}>{formatCurrency(f.estimatedRepairCost)}</td>
                 </tr>
               ))}
@@ -245,10 +245,10 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
               borderLeft: `4px solid ${getSeverityColor(f.severity)}`,
             }}>
               <div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text, #e2e8f0)', marginBottom: 4 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text, #e5e5e5)', marginBottom: 4 }}>
                   {f.component} -- {f.vehicleLabel}
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--muted, #94a3b8)' }}>
+                <div style={{ fontSize: 13, color: 'var(--muted, #9CA3AF)' }}>
                   {f.severity === 'critical'
                     ? `Schedule immediate replacement. Failure probability ${Math.round(f.probability * 100)}% within ${Math.ceil((new Date(f.estimatedDate).getTime() - Date.now()) / 86400000)} days.`
                     : f.severity === 'high'
@@ -258,10 +258,10 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginBottom: 4 }}>Preventive Cost vs. Reactive Cost</div>
+                <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', marginBottom: 4 }}>Preventive Cost vs. Reactive Cost</div>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'baseline' }}>
                   <span style={{ fontSize: 18, fontWeight: 800, color: '#10b981' }}>{formatCurrency(f.preventiveCost)}</span>
-                  <span style={{ fontSize: 13, color: 'var(--muted, #94a3b8)' }}>vs</span>
+                  <span style={{ fontSize: 13, color: 'var(--muted, #9CA3AF)' }}>vs</span>
                   <span style={{ fontSize: 16, fontWeight: 600, color: '#ef4444', textDecoration: 'line-through' }}>{formatCurrency(f.estimatedRepairCost)}</span>
                 </div>
               </div>
@@ -287,17 +287,17 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
             <div style={{ ...cardStyle }}>
               <div style={labelStyle}>Total Reactive Repair Cost</div>
               <div style={{ fontSize: 28, fontWeight: 900, color: '#ef4444' }}>{formatCurrency(totalRepairCost)}</div>
-              <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4 }}>Cost if all predicted failures occur without intervention</div>
+              <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', marginTop: 4 }}>Cost if all predicted failures occur without intervention</div>
             </div>
             <div style={{ ...cardStyle }}>
               <div style={labelStyle}>Total Preventive Cost</div>
-              <div style={{ fontSize: 28, fontWeight: 900, color: '#3b82f6' }}>{formatCurrency(totalPreventiveCost)}</div>
-              <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4 }}>Cost to address all items proactively</div>
+              <div style={{ fontSize: 28, fontWeight: 900, color: '#10b981' }}>{formatCurrency(totalPreventiveCost)}</div>
+              <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', marginTop: 4 }}>Cost to address all items proactively</div>
             </div>
             <div style={{ ...cardStyle, background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05))' }}>
               <div style={labelStyle}>Net Savings</div>
               <div style={{ fontSize: 28, fontWeight: 900, color: '#10b981' }}>{formatCurrency(totalSavings)}</div>
-              <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', marginTop: 4 }}>
                 {totalRepairCost > 0 ? `${Math.round((totalSavings / totalRepairCost) * 100)}% reduction` : '---'} in maintenance spend
               </div>
             </div>
@@ -308,12 +308,12 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
             <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
               <thead>
                 <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
-                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Component</th>
-                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Vehicle</th>
-                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Reactive Cost</th>
-                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Preventive Cost</th>
-                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Savings</th>
-                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Savings %</th>
+                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Component</th>
+                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Vehicle</th>
+                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Reactive Cost</th>
+                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Preventive Cost</th>
+                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Savings</th>
+                  <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #9CA3AF)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '.12em' }}>Savings %</th>
                 </tr>
               </thead>
               <tbody>
@@ -322,10 +322,10 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
                   const savingsPercent = f.estimatedRepairCost > 0 ? Math.round((itemSavings / f.estimatedRepairCost) * 100) : 0;
                   return (
                     <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: 'var(--text, #e2e8f0)' }}>{f.component}</td>
-                      <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #e2e8f0)' }}>{f.vehicleLabel}</td>
+                      <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: 'var(--text, #e5e5e5)' }}>{f.component}</td>
+                      <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #e5e5e5)' }}>{f.vehicleLabel}</td>
                       <td style={{ padding: 16, fontSize: 14, color: '#ef4444', textAlign: 'right' }}>{formatCurrency(f.estimatedRepairCost)}</td>
-                      <td style={{ padding: 16, fontSize: 14, color: '#3b82f6', textAlign: 'right' }}>{formatCurrency(f.preventiveCost)}</td>
+                      <td style={{ padding: 16, fontSize: 14, color: '#10b981', textAlign: 'right' }}>{formatCurrency(f.preventiveCost)}</td>
                       <td style={{ padding: 16, fontSize: 14, color: '#10b981', textAlign: 'right', fontWeight: 600 }}>{formatCurrency(itemSavings)}</td>
                       <td style={{ padding: 16, textAlign: 'right' }}>
                         <span style={{
@@ -339,9 +339,9 @@ const PredictiveMaintenanceHub: React.FC<{ currentTheme?: any }> = ({ currentThe
                   );
                 })}
                 <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
-                  <td colSpan={2} style={{ padding: 16, fontSize: 14, fontWeight: 800, color: 'var(--text, #e2e8f0)' }}>TOTALS</td>
+                  <td colSpan={2} style={{ padding: 16, fontSize: 14, fontWeight: 800, color: 'var(--text, #e5e5e5)' }}>TOTALS</td>
                   <td style={{ padding: 16, fontSize: 14, fontWeight: 800, color: '#ef4444', textAlign: 'right' }}>{formatCurrency(totalRepairCost)}</td>
-                  <td style={{ padding: 16, fontSize: 14, fontWeight: 800, color: '#3b82f6', textAlign: 'right' }}>{formatCurrency(totalPreventiveCost)}</td>
+                  <td style={{ padding: 16, fontSize: 14, fontWeight: 800, color: '#10b981', textAlign: 'right' }}>{formatCurrency(totalPreventiveCost)}</td>
                   <td style={{ padding: 16, fontSize: 14, fontWeight: 800, color: '#10b981', textAlign: 'right' }}>{formatCurrency(totalSavings)}</td>
                   <td style={{ padding: 16, textAlign: 'right' }}>
                     <span style={{

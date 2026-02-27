@@ -85,22 +85,22 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-2">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm max-w-7xl w-full max-h-[90vh] flex flex-col">
+      <div className="bg-[#111111] rounded-lg max-w-7xl w-full max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-3 border-b border-white/[0.04]">
           <div>
-            <h2 className="text-sm font-bold text-gray-900 dark:text-white">
+            <h2 className="text-sm font-bold text-white">
               {config.title}
             </h2>
             {config.description && (
-              <p className="text-sm text-white/70 dark:text-gray-700 mt-1">
+              <p className="text-sm text-white/60 mt-1">
                 {config.description}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-gray-700 hover:text-white/70 dark:hover:text-gray-300 transition-colors"
+            className="text-white/40 hover:text-white/80 transition-colors"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -108,7 +108,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
         </div>
 
         {/* Toolbar */}
-        <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <div className="flex items-center justify-between p-2 border-b border-white/[0.04] bg-white/[0.02]">
           <div className="flex items-center gap-2">
             {config.enableFilters !== false && (
               <button
@@ -116,7 +116,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
                 className={`px-2 py-2 rounded-lg flex items-center gap-2 transition-colors ${
                   showFilters
                     ? 'bg-emerald-600 text-white'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
+                    : 'bg-white/[0.04] text-white/60 border border-white/[0.04]'
                 }`}
               >
                 <Filter className="w-4 h-4" />
@@ -126,7 +126,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
             <button
               onClick={() => refetch()}
               disabled={isLoading}
-              className="px-2 py-2 rounded-lg flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+              className="px-2 py-2 rounded-lg flex items-center gap-2 bg-white/[0.04] text-white/60 border border-white/[0.04] hover:bg-white/[0.06] transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
@@ -135,7 +135,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
 
           {config.enableExport !== false && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-white/70 dark:text-gray-700">Export:</span>
+              <span className="text-sm text-white/60">Export:</span>
               <button
                 onClick={() => handleExport('csv')}
                 disabled={isExporting || !data?.data?.length}
@@ -163,14 +163,14 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
 
         {/* Summary Stats */}
         {data?.summary && (
-          <div className="p-2 bg-emerald-500/5 dark:bg-emerald-900/20 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-2 bg-emerald-500/5 border-b border-white/[0.04]">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {Object.entries(data.summary).map(([key, value]) => (
                 <div key={key}>
-                  <p className="text-xs text-white/70 dark:text-gray-700 uppercase tracking-wide">
+                  <p className="text-xs text-white/40 uppercase tracking-wide">
                     {key.replace(/_/g, ' ')}
                   </p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                  <p className="text-sm font-semibold text-white">
                     {typeof value === 'number' ? formatNumber(value) : value}
                   </p>
                 </div>
@@ -196,7 +196,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
           )}
 
           {!isLoading && !error && sortedData.length === 0 && (
-            <div className="text-center py-12 text-gray-700 dark:text-gray-700">
+            <div className="text-center py-12 text-white/40">
               No records found matching the selected filters.
             </div>
           )}
@@ -205,12 +205,12 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-gray-100 dark:bg-gray-700">
+                  <tr className="bg-white/[0.04]">
                     {config.columns.map((column) => (
                       <th
                         key={column.key}
-                        className={`px-2 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-600 ${
-                          column.sortable !== false ? 'cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600' : ''
+                        className={`px-2 py-3 text-left text-sm font-semibold text-white border-b border-white/[0.04] ${
+                          column.sortable !== false ? 'cursor-pointer hover:bg-white/[0.06]' : ''
                         }`}
                         style={{ width: column.width }}
                         onClick={() =>
@@ -233,12 +233,12 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
                   {sortedData.map((row, index) => (
                     <tr
                       key={row.id || index}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                      className="hover:bg-white/[0.04] transition-colors"
                     >
                       {config.columns.map((column) => (
                         <td
                           key={column.key}
-                          className="px-2 py-3 text-sm text-gray-900 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+                          className="px-2 py-3 text-sm text-white/80 border-b border-white/[0.04]"
                         >
                           {column.render
                             ? column.render(row[column.key], row)
@@ -255,8 +255,8 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
 
         {/* Pagination */}
         {data && data.totalPages > 1 && (
-          <div className="flex items-center justify-between p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <p className="text-sm text-white/70 dark:text-gray-700">
+          <div className="flex items-center justify-between p-2 border-t border-white/[0.04] bg-white/[0.02]">
+            <p className="text-sm text-white/60">
               Showing {((page - 1) * (data.pageSize ?? 0)) + 1} to{' '}
               {Math.min(page * (data.pageSize ?? 0), data.totalCount ?? 0)} of{' '}
               {formatNumber(data.totalCount ?? 0)} records
@@ -265,18 +265,18 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
               <button
                 onClick={previousPage}
                 disabled={page === 1}
-                className="px-3 py-2 rounded bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-2 rounded bg-white/[0.04] text-white/60 border border-white/[0.04] hover:bg-white/[0.06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Previous page"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              <span className="text-sm text-white/60">
                 Page {page} of {data.totalPages}
               </span>
               <button
                 onClick={nextPage}
                 disabled={page === data.totalPages}
-                className="px-3 py-2 rounded bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-2 rounded bg-white/[0.04] text-white/60 border border-white/[0.04] hover:bg-white/[0.06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Next page"
               >
                 <ChevronRight className="w-4 h-4" />

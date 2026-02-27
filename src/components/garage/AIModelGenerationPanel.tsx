@@ -114,9 +114,9 @@ export function AIModelGenerationPanel({
   const stageIndex = STAGES.indexOf(stage);
 
   return (
-    <div className="absolute right-4 top-16 z-30 w-80 bg-[#111]/90 backdrop-blur-md rounded-xl border border-white/[0.08] shadow-2xl overflow-hidden">
+    <div className="absolute right-4 top-16 z-30 w-80 bg-[#0e0e0e]/95 backdrop-blur-sm rounded-xl border border-white/[0.04] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.04]">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-emerald-400" />
           <span className="text-xs font-semibold text-white/80">AI Model Generation</span>
@@ -138,7 +138,7 @@ export function AIModelGenerationPanel({
             className="w-full h-full object-contain"
             crossOrigin="anonymous"
           />
-          <div className="absolute bottom-1.5 left-2 text-[10px] font-medium text-white/60 drop-shadow-lg">
+          <div className="absolute bottom-1.5 left-2 text-[10px] font-medium text-white/60">
             {vehicleName}
           </div>
         </div>

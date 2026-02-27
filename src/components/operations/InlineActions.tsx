@@ -184,7 +184,7 @@ export function InlineEditPanel({
 
   return (
     <div
-      className="bg-[#1a1a1a]/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4"
+      className="bg-[#0e0e0e] rounded-lg border border-white/[0.04] p-4"
     >
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-sm font-bold text-white">{title}</h4>
@@ -203,7 +203,7 @@ export function InlineEditPanel({
 
       {children}
 
-      <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.08]">
+      <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
         <Button
           onClick={onCancel}
           variant="outline"
@@ -216,7 +216,7 @@ export function InlineEditPanel({
         <Button
           onClick={onSave}
           size="sm"
-          className="bg-cyan-500 hover:bg-cyan-400 text-white"
+          className="bg-emerald-500 hover:bg-emerald-400 text-white"
           disabled={isSaving}
         >
           {isSaving ? (
@@ -264,7 +264,7 @@ export function ConfirmDialog({
   isLoading = false,
 }: ConfirmDialogProps) {
   const confirmStyles = {
-    default: 'bg-cyan-500 hover:bg-cyan-400 text-white',
+    default: 'bg-emerald-500 hover:bg-emerald-400 text-white',
     danger: 'bg-red-500 hover:bg-red-400 text-white',
   };
 
@@ -282,7 +282,7 @@ export function ConfirmDialog({
           <div
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
           >
-            <div className="bg-[#1a1a1a] border border-white/[0.15] rounded-lg shadow-xl p-6">
+            <div className="bg-[#111111] border border-white/[0.04] rounded-lg p-6">
               <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
               <p className="text-white/60 text-sm mb-6">{message}</p>
 

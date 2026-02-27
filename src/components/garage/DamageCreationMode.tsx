@@ -140,9 +140,9 @@ export function DamageCreationPanel({
     const estimatedCost = calculateCost(config.damageType, config.severity)
 
     return (
-        <div className="absolute top-4 right-4 w-80 bg-[#111]/95 backdrop-blur-sm rounded-md border border-white/[0.08] shadow-sm z-50">
+        <div className="absolute top-4 right-4 w-80 bg-[#0e0e0e]/95 backdrop-blur-sm rounded-md border border-white/[0.04] z-50">
             {/* Header */}
-            <div className="p-2 border-b border-white/[0.08]">
+            <div className="p-2 border-b border-white/[0.04]">
                 <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-white">Add Damage Point</h3>
                     <button
@@ -173,7 +173,7 @@ export function DamageCreationPanel({
                                     onClick={() => onChange({ ...config, damageType: type })}
                                     className={`p-2 rounded-lg border text-center transition-all ${config.damageType === type
                                             ? 'bg-emerald-600 border-emerald-500 text-white'
-                                            : 'bg-[#242424] border-white/[0.08] text-white/60 hover:bg-white/[0.06]'
+                                            : 'bg-[#111111] border-white/[0.04] text-white/60 hover:bg-white/[0.06]'
                                         }`}
                                 >
                                     <span className="text-sm">{cfg.icon}</span>
@@ -220,7 +220,7 @@ export function DamageCreationPanel({
                     <select
                         value={config.zone}
                         onChange={(e) => onChange({ ...config, zone: e.target.value })}
-                        className="w-full bg-[#242424] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500"
+                        className="w-full bg-[#111111] border border-white/[0.04] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500"
                     >
                         {VEHICLE_ZONES.map((zone) => (
                             <option key={zone} value={zone}>{zone}</option>
@@ -237,13 +237,13 @@ export function DamageCreationPanel({
                         value={config.description}
                         onChange={(e) => onChange({ ...config, description: e.target.value })}
                         placeholder="Describe the damage..."
-                        className="w-full bg-[#242424] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500 resize-none"
+                        className="w-full bg-[#111111] border border-white/[0.04] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500 resize-none"
                         rows={2}
                     />
                 </div>
 
                 {/* Cost Estimate */}
-                <div className="bg-[#242424]/50 rounded-lg p-3 border border-white/[0.08]">
+                <div className="bg-[#111111]/50 rounded-lg p-3 border border-white/[0.04]">
                     <div className="flex items-center justify-between">
                         <span className="text-white/40 text-sm">Estimated Repair Cost</span>
                         <span className="text-sm font-bold text-green-400">
@@ -256,7 +256,7 @@ export function DamageCreationPanel({
                 <div className="flex gap-2">
                     <button
                         onClick={onCancel}
-                        className="flex-1 px-2 py-2 rounded-lg border border-white/[0.12] text-white/60 hover:bg-[#242424] transition-colors"
+                        className="flex-1 px-2 py-2 rounded-lg border border-white/[0.04] text-white/60 hover:bg-[#111111] transition-colors"
                     >
                         Cancel
                     </button>

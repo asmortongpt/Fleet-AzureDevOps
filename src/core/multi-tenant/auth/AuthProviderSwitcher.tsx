@@ -42,11 +42,11 @@ export const useUniversalAuth = (): UniversalAuthContext => {
 };
 
 export const UniversalAuthLoading: React.FC = () => (
-  <div className="text-sm text-gray-400">Authenticating...</div>
+  <div className="text-sm text-white/40">Authenticating...</div>
 );
 
 export const UniversalLoginPrompt: React.FC = () => (
-  <div className="text-sm text-gray-400">Please sign in to continue.</div>
+  <div className="text-sm text-white/40">Please sign in to continue.</div>
 );
 
 export const AuthStatus: React.FC = () => {

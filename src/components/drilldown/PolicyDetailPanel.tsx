@@ -211,7 +211,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
       case 'warning':
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />
       default:
-        return <AlertTriangle className="h-5 w-5 text-gray-700" />
+        return <AlertTriangle className="h-5 w-5 text-white/40" />
     }
   }
 
@@ -497,7 +497,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                   {violationsArr.map((violation) => (
                     <Card
                       key={violation.id}
-                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      className="cursor-pointer hover:border-white/[0.12] transition-colors"
                       onClick={() => handleViewViolation(violation)}
                     >
                       <CardContent className="p-2">
@@ -646,7 +646,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                   {entitiesArr.map((entity) => (
                     <Card
                       key={entity.id}
-                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      className="cursor-pointer hover:border-white/[0.12] transition-colors"
                       onClick={() => handleViewEntity(entity.type, entity.id, entity.name)}
                     >
                       <CardContent className="p-2">

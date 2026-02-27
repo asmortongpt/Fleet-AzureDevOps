@@ -87,7 +87,7 @@ export function SwipeableCard({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         style={{ transform: `translateX(${offsetX}px)` }}
-        className={`bg-white dark:bg-gray-800 transition-transform ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`bg-white dark:bg-[#18181b] transition-transform ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       >
         {children}
       </div>
@@ -300,12 +300,12 @@ export function BottomSheet({
 
       {/* Sheet */}
       <div
-        className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-gray-900 rounded-t-3xl shadow-sm overflow-hidden transition-transform duration-300"
+        className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-[#111113] rounded-t-3xl overflow-hidden transition-transform duration-300"
         style={{ transform: `translateY(${100 - currentSnapPoint}%)` }}
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2">
-          <div className="w-12 h-1 bg-gray-300 dark:bg-gray-700 rounded-full" />
+          <div className="w-12 h-1 bg-white/[0.08] dark:bg-white/[0.08] rounded-full" />
         </div>
 
         {/* Content */}
@@ -355,11 +355,11 @@ export function ActionSheet({
 
       {/* Action Sheet */}
       <div
-        className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-gray-900 rounded-t-3xl shadow-sm p-2 safe-bottom transition-transform duration-300"
+        className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-[#111113] rounded-t-3xl p-2 safe-bottom transition-transform duration-300"
       >
         {title && (
           <div className="text-center mb-2">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="text-sm font-semibold text-white/80 dark:text-white/80">
               {title}
             </h3>
           </div>
@@ -379,7 +379,7 @@ export function ActionSheet({
                 ${
                   option.destructive
                     ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
-                    : 'text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    : 'text-white/80 dark:text-white/80 bg-white/[0.05] dark:bg-[#18181b] hover:bg-white/[0.06] dark:hover:bg-white/[0.08]'
                 }
               `}
             >
@@ -391,7 +391,7 @@ export function ActionSheet({
           {/* Cancel button */}
           <button
             onClick={onClose}
-            className="w-full px-2 py-3 rounded-lg touch-target bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-[0.98]"
+            className="w-full px-2 py-3 rounded-lg touch-target bg-white dark:bg-[#18181b] border-2 border-white/[0.08] dark:border-white/[0.08] text-white/80 dark:text-white/80 font-semibold hover:bg-white/[0.03] dark:hover:bg-white/[0.08] active:scale-[0.98]"
           >
             {cancelLabel}
           </button>

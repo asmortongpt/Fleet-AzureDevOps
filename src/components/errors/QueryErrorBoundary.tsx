@@ -97,10 +97,10 @@ export const QueryErrorFallback: React.FC<QueryErrorFallbackProps> = ({
 
         {import.meta.env.DEV && (
           <details className="mt-2">
-            <summary className="cursor-pointer text-sm font-semibold text-white/70 dark:text-gray-700">
+            <summary className="cursor-pointer text-sm font-semibold text-white/70 dark:text-white/40">
               Technical Details
             </summary>
-            <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-3 rounded overflow-x-auto">
+            <pre className="mt-2 text-xs bg-white/[0.05] dark:bg-[#18181b] p-3 rounded overflow-x-auto">
               {error.stack}
             </pre>
           </details>

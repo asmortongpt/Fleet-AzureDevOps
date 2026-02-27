@@ -4,7 +4,7 @@
  * Theme-aware design using Tailwind CSS semantic classes:
  * - Supports both light and dark modes via CSS variables
  * - Uses bg-background, bg-card, text-foreground, etc.
- * - Semantic status colors via Tailwind named palette (emerald, amber, red, blue)
+ * - Semantic status colors via Tailwind named palette (emerald, amber, red, teal)
  * - Professional typography with accessible spacing
  */
 
@@ -527,7 +527,7 @@ function DeptStatCard({ uniqueDepts, deptCounts }: DeptStatCardProps) {
 
       {/* Breakdown Popover */}
       {showBreakdown && sortedDepts.length > 0 && (
-        <div className="absolute top-full left-0 mt-1 z-50 bg-muted border border-border rounded-md p-2 min-w-[140px] shadow-xl">
+        <div className="absolute top-full left-0 mt-1 z-50 bg-muted border border-border rounded-md p-2 min-w-[140px]">
           <div className="text-[10px] text-muted-foreground/60 uppercase tracking-wide mb-1.5">Breakdown</div>
           {sortedDepts.slice(0, 8).map(([dept, count]) => (
             <div key={dept} className="flex items-center justify-between gap-3 py-0.5">

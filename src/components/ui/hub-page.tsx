@@ -1,8 +1,9 @@
 /**
- * HubPage Component
+ * HubPage — Standardized hub layout
  *
- * Standardized layout wrapper for all hub pages.
- * Provides consistent header, tab navigation, and content area.
+ * Tesla/Rivian minimal: spacious header, clean tab bar, dark content area.
+ * Large title, description as subtle secondary text.
+ * Tabs use a minimal underline-style active indicator.
  */
 
 import React, { ReactNode, useState } from 'react'
@@ -36,7 +37,7 @@ export function HubTabItem({ children }: HubTabItemProps) {
 }
 
 export interface HubPageProps {
-    title: string
+    title: ReactNode
     icon?: ReactNode | React.ComponentType<{ className?: string }>
     description?: string
     tabs?: HubTab[]
@@ -91,33 +92,29 @@ export function HubPage({
     return (
         <div
             className={cn(
-                'flex flex-col bg-background',
+                'flex flex-col bg-[#0a0a0a]',
                 fullHeight && 'h-full',
                 className
             )}
             data-testid="hub-page"
         >
-            {/* Hub Header */}
+            {/* Hub Header — spacious, minimal */}
             <header
-                className="relative flex items-center justify-between px-3 py-1.5 border-b bg-card/70 backdrop-blur-xl animate-fade-in"
+                className="flex items-center justify-between px-6 py-4 bg-[#0a0a0a]"
                 data-testid="hub-header"
-                style={{
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-                }}
             >
-                {/* Skyline gradient accent bar at top */}
-                <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1))' }} />
-                <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center gap-3 min-w-0">
                     {icon && (
-                        <div
-                            className="flex items-center justify-center w-6 h-6 rounded-lg text-white shadow-sm"
-                            style={{ background: '#333' }}
-                        >
+                        <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-white/[0.04] text-white/50">
                             {React.isValidElement(icon) ? icon : React.createElement(icon as React.ComponentType<{ className: string }>, { className: 'h-4 w-4' })}
                         </div>
                     )}
-                    <h1 className="text-sm font-bold text-foreground">{title}</h1>
+                    <div className="min-w-0">
+                        <h1 className="text-lg font-semibold text-white tracking-tight">{title}</h1>
+                        {description && (
+                            <p className="text-[13px] text-white/30 mt-0.5">{description}</p>
+                        )}
+                    </div>
                 </div>
                 {headerActions && (
                     <div className="flex items-center gap-2" data-testid="hub-actions">
@@ -126,7 +123,7 @@ export function HubPage({
                 )}
             </header>
 
-            {/* Breadcrumb Navigation */}
+            {/* Breadcrumbs */}
             <DrilldownBreadcrumbs />
 
             {/* Tab Navigation or Direct Children */}
@@ -137,7 +134,7 @@ export function HubPage({
                     className="flex flex-col flex-1 min-h-0"
                 >
                     <TabsList
-                        className="w-full justify-start rounded-none border-b px-4 h-8 bg-card/30"
+                        className="w-full justify-start rounded-none border-b border-white/[0.04] px-6 h-10 bg-transparent"
                         data-testid="hub-tabs"
                     >
                         {allTabs.map((tab) => (
@@ -146,7 +143,7 @@ export function HubPage({
                                 value={tab.id}
                                 disabled={tab.disabled}
                                 aria-label={tab.ariaLabel || tab.label}
-                                className="gap-2 rounded-none px-3 text-xs data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:text-white transition-all duration-150"
+                                className="gap-2 rounded-none border-b-2 border-transparent px-4 text-[13px] font-medium text-white/30 data-[state=active]:border-white data-[state=active]:text-white transition-colors duration-150"
                                 data-testid={`hub-tab-${tab.id}`}
                             >
                                 {tab.icon && (React.isValidElement(tab.icon) ? tab.icon : typeof tab.icon === 'function' ? React.createElement(tab.icon as React.ComponentType<{ className: string }>, { className: 'h-4 w-4' }) : null)}
@@ -159,7 +156,7 @@ export function HubPage({
                         <TabsContent
                             key={tab.id}
                             value={tab.id}
-                            className="flex-1 min-h-0 m-0 outline-none overflow-y-auto"
+                            className="flex-1 min-h-0 m-0 outline-none overflow-y-auto bg-[#0a0a0a]"
                             data-testid={`hub-content-${tab.id}`}
                         >
                             {tab.content}
@@ -167,7 +164,7 @@ export function HubPage({
                     ))}
                 </Tabs>
             ) : (
-                <div className="flex flex-col flex-1 min-h-0 p-2 overflow-y-auto">
+                <div className="flex flex-col flex-1 min-h-0 p-6 overflow-y-auto bg-[#0a0a0a]">
                     {children}
                 </div>
             )}
@@ -192,25 +189,24 @@ export function HubSection({
     children,
     className,
     padding = true,
-    animate = true,
 }: HubSectionProps) {
     return (
         <section
             className={cn(
                 'flex flex-col',
-                padding && 'p-2',
+                padding && 'p-4',
                 className
             )}
             data-testid="hub-section"
         >
             {(title || actions) && (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-1 gap-1">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                     <div className="min-w-0">
                         {title && (
-                            <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+                            <h2 className="text-[15px] font-semibold text-white">{title}</h2>
                         )}
                         {description && (
-                            <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+                            <p className="text-[13px] text-white/30 mt-0.5">{description}</p>
                         )}
                     </div>
                     {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}

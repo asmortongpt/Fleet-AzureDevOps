@@ -237,9 +237,9 @@ export function OSHAComplianceDashboard() {
 
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 border-emerald-500/30">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80 flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-white/60 flex items-center gap-2">
                             <Clipboard className="w-4 h-4" />
                             TRIR
                         </CardTitle>
@@ -264,9 +264,9 @@ export function OSHAComplianceDashboard() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border-yellow-500/30">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80 flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-white/60 flex items-center gap-2">
                             <FirstAid className="w-4 h-4" />
                             DART Rate
                         </CardTitle>
@@ -288,9 +288,9 @@ export function OSHAComplianceDashboard() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-green-500/10 to-green-600/10 border-green-500/30">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80 flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-white/60 flex items-center gap-2">
                             <ShieldCheck className="w-4 h-4" />
                             Compliance Score
                         </CardTitle>
@@ -312,9 +312,9 @@ export function OSHAComplianceDashboard() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-red-500/10 to-red-600/10 border-red-500/30">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80 flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-white/60 flex items-center gap-2">
                             <AlertTriangle className="w-4 h-4" />
                             Recordable Incidents
                         </CardTitle>
@@ -335,7 +335,7 @@ export function OSHAComplianceDashboard() {
             </div>
 
             {/* OSHA 300 Log Table */}
-            <Card className="bg-gradient-to-br from-[#1a1a1a]/60 to-[#111]/60 backdrop-blur-xl border-white/[0.06]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
@@ -357,7 +357,7 @@ export function OSHAComplianceDashboard() {
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-white/[0.08] hover:bg-[#242424]">
+                                <TableRow className="border-white/[0.04] hover:bg-[#111111]">
                                     <TableHead className="text-white/80">Case #</TableHead>
                                     <TableHead className="text-white/80">Employee</TableHead>
                                     <TableHead className="text-white/80">Job Title</TableHead>
@@ -372,7 +372,7 @@ export function OSHAComplianceDashboard() {
                             </TableHeader>
                             <TableBody>
                                 {entries.map((entry) => (
-                                    <TableRow key={entry.id} className="border-white/[0.08] hover:bg-[#1a1a1a]/30">
+                                    <TableRow key={entry.id} className="border-white/[0.04] hover:bg-[#1a1a1a]/30">
                                         <TableCell className="font-medium text-white">
                                             {entry.case_number}
                                         </TableCell>
@@ -415,7 +415,7 @@ export function OSHAComplianceDashboard() {
 
             {/* Compliance Requirements */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-                <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 border-emerald-500/30">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader>
                         <CardTitle className="text-white text-sm">OSHA Recordkeeping Requirements</CardTitle>
                     </CardHeader>
@@ -443,7 +443,7 @@ export function OSHAComplianceDashboard() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border-yellow-500/30">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader>
                         <CardTitle className="text-white text-sm">Upcoming Deadlines</CardTitle>
                     </CardHeader>

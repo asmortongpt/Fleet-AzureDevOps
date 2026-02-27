@@ -89,7 +89,7 @@ export function KeyboardShortcutsDialog() {
         role="dialog"
         aria-labelledby="keyboard-shortcuts-title"
         aria-modal="true"
-        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-card rounded-lg shadow-sm border animate-in fade-in zoom-in-95"
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-card rounded-lg border animate-in fade-in zoom-in-95"
       >
         {/* Header */}
         <div className="sticky top-0 bg-card border-b px-3 py-2 flex items-center justify-between">
@@ -130,7 +130,7 @@ export function KeyboardShortcutsDialog() {
                           key={keyIndex}
                           className={cn(
                             "inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded border bg-muted text-xs font-mono font-medium",
-                            "shadow-sm"
+                            ""
                           )}
                         >
                           {key}

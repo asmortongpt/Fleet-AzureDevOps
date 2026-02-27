@@ -85,7 +85,7 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
             <Paperclip className="w-3 h-3 text-white/40" />
           )}
           {email.labels?.slice(0, 2).map(label => (
-            <Badge key={label} variant="outline" className="text-[10px] border-white/[0.08]">
+            <Badge key={label} variant="outline" className="text-[10px] border-white/[0.04]">
               {label}
             </Badge>
           ))}
@@ -146,7 +146,7 @@ function ConversationListItem({ conversation, onClick }: ConversationListItemPro
       onClick={onClick}
     >
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-10 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-purple-600 flex items-center justify-center text-white font-bold">
+        <div className="w-10 h-8 rounded-full bg-emerald-900/40 flex items-center justify-center text-white font-bold">
           {conversation.user.split(' ').map(n => n[0]).join('')}
         </div>
         <div className="min-w-0">
@@ -190,13 +190,13 @@ function MessageListItem({ message, onClick }: MessageListItemProps) {
       className="flex items-start gap-3 p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-white/[0.06] transition-colors"
       onClick={onClick}
     >
-      <div className="w-4 h-4 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+      <div className="w-4 h-4 rounded-full bg-emerald-900/40 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
         {message.author.split(' ').map(n => n[0]).join('')}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-medium text-white">{message.author}</span>
-          <Badge variant="outline" className="text-[10px] border-white/[0.08]">{message.channel}</Badge>
+          <Badge variant="outline" className="text-[10px] border-white/[0.04]">{message.channel}</Badge>
         </div>
         <div className="text-sm text-white/80 mt-1">{message.content}</div>
         <div className="flex items-center gap-3 text-xs text-white/40 mt-2">
@@ -253,21 +253,21 @@ export function AiAgentDrilldown() {
             <div className="text-xs text-white/40">Avg Response</div>
           </CardContent>
         </Card>
-        <Card className="bg-purple-900/30 border-purple-700/50">
+        <Card className="bg-amber-900/30 border-amber-700/50">
           <CardContent className="p-2 text-center">
-            <MessageCircle className="w-4 h-4 text-purple-400 mx-auto mb-2" />
-            <div className="text-sm font-bold text-purple-400">{filteredConversations.length}</div>
+            <MessageCircle className="w-4 h-4 text-amber-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-amber-400">{filteredConversations.length}</div>
             <div className="text-xs text-white/40">Conversations</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Conversation List */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-3 h-3 text-purple-400" />
+              <Sparkles className="w-3 h-3 text-amber-400" />
               AI Conversations
             </div>
             <Badge variant="outline" className="text-xs">
@@ -304,7 +304,7 @@ export function AiAgentDrilldown() {
       </Card>
 
       {/* Usage Breakdown */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Query Categories</CardTitle>
         </CardHeader>
@@ -312,7 +312,7 @@ export function AiAgentDrilldown() {
           {[
             { name: 'Fleet Status', value: 45, color: 'bg-emerald-500' },
             { name: 'Maintenance', value: 28, color: 'bg-emerald-500' },
-            { name: 'Compliance', value: 18, color: 'bg-purple-500' },
+            { name: 'Compliance', value: 18, color: 'bg-amber-500' },
             { name: 'Other', value: 9, color: 'bg-white/[0.1]' },
           ].map(cat => (
             <div key={cat.name} className="space-y-2">
@@ -369,7 +369,7 @@ export function MessagesDrilldown() {
             <div className="text-xs text-white/40">Messages Today</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[#111111] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <Hash className="w-4 h-4 text-white/40 mx-auto mb-2" />
             <div className="text-sm font-bold text-white/80">12</div>
@@ -386,7 +386,7 @@ export function MessagesDrilldown() {
       </div>
 
       {/* Channel Activity */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Channel Activity</CardTitle>
         </CardHeader>
@@ -419,7 +419,7 @@ export function MessagesDrilldown() {
       </Card>
 
       {/* Recent Messages */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             Recent Messages
@@ -531,7 +531,7 @@ export function EmailDrilldown() {
           </CardContent>
         </Card>
         <Card
-          className="bg-[#242424] border-white/[0.08] cursor-pointer hover:border-white/[0.12]/50 transition-colors"
+          className="bg-[#111111] border-white/[0.04] cursor-pointer hover:border-white/[0.12]/50 transition-colors"
           onClick={() => push({ type: 'email-templates', data: { filter: 'templates', title: 'Templates' } } as any)}
         >
           <CardContent className="p-2 text-center">
@@ -560,7 +560,7 @@ export function EmailDrilldown() {
       </div>
 
       {/* Email List */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -615,7 +615,7 @@ export function EmailDrilldown() {
       </Card>
 
       {/* Email Templates */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Email Templates</CardTitle>
         </CardHeader>
@@ -645,7 +645,7 @@ export function EmailDrilldown() {
       </Card>
 
       {/* Campaign Performance */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <TrendingUp className="w-3 h-3 text-emerald-700" />
@@ -763,7 +763,7 @@ export function HistoryDrilldown() {
           </CardContent>
         </Card>
         <Card
-          className="bg-[#242424] border-white/[0.08] cursor-pointer hover:border-white/[0.12]/50 transition-colors"
+          className="bg-[#111111] border-white/[0.04] cursor-pointer hover:border-white/[0.12]/50 transition-colors"
           onClick={() => push({ type: 'archived', data: { filter: 'archived', title: 'Archived' } } as any)}
         >
           <CardContent className="p-2 text-center">
@@ -775,7 +775,7 @@ export function HistoryDrilldown() {
       </div>
 
       {/* Communication History */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -814,7 +814,7 @@ export function HistoryDrilldown() {
                     ) : item.type === 'sms' ? (
                       <MessageCircle className="w-3 h-3 text-emerald-700 flex-shrink-0" />
                     ) : (
-                      <Bell className="w-3 h-3 text-purple-400 flex-shrink-0" />
+                      <Bell className="w-3 h-3 text-amber-400 flex-shrink-0" />
                     )}
                     <div className="min-w-0">
                       <div className="font-medium text-white truncate">{item.subject}</div>

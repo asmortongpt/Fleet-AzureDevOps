@@ -59,7 +59,7 @@ const EVENT_CONFIG: Record<EventType, { icon: any; color: string; bgColor: strin
   damage: { icon: AlertTriangle, color: 'text-red-400', bgColor: 'bg-red-950/50' },
   inspection: { icon: ShieldCheck, color: 'text-green-400', bgColor: 'bg-green-950/50' },
   service: { icon: Fuel, color: 'text-amber-400', bgColor: 'bg-amber-950/50' },
-  milestone: { icon: CheckCircle, color: 'text-purple-400', bgColor: 'bg-purple-950/50' },
+  milestone: { icon: CheckCircle, color: 'text-amber-400', bgColor: 'bg-amber-950/50' },
   recall: { icon: AlertTriangle, color: 'text-orange-400', bgColor: 'bg-orange-950/50' }
 }
 
@@ -83,7 +83,7 @@ function TimelineEventCard({
       className={cn(
         'relative pl-3 pb-2',
         'before:absolute before:left-3 before:top-6 before:h-full before:w-px',
-        'before:bg-gradient-to-b before:from-white/20 before:to-transparent'
+        'before:bg-white/[0.08]'
       )}
     >
       {/* Timeline dot */}
@@ -91,7 +91,7 @@ function TimelineEventCard({
         className={cn(
           'absolute left-0 top-1 w-4 h-4 rounded-full flex items-center justify-center',
           config.bgColor,
-          'border border-white/[0.12]'
+          'border border-white/[0.04]'
         )}
       >
         <Icon className={cn('w-3 h-3', config.color)} />
@@ -100,9 +100,9 @@ function TimelineEventCard({
       {/* Event card */}
       <div
         className={cn(
-          'rounded-lg border border-white/[0.08] overflow-hidden',
+          'rounded-lg border border-white/[0.04] overflow-hidden',
           'bg-white/[0.03]',
-          'hover:border-white/[0.12] transition-colors cursor-pointer'
+          'hover:border-white/[0.04] transition-colors cursor-pointer'
         )}
         onClick={onClick}
       >
@@ -175,7 +175,7 @@ function TimelineEventCard({
 
         {/* Expanded content */}
         {isExpanded && (
-          <div className="px-3 pb-3 pt-0 border-t border-white/[0.06] mt-2">
+          <div className="px-3 pb-3 pt-0 border-t border-white/[0.04] mt-2">
             {event.description && (
               <p className="text-xs text-white/60 mt-2">{event.description}</p>
             )}
@@ -212,7 +212,7 @@ function QuickStats({ events }: { events: TimelineEvent[] }) {
   const totalCost = events.reduce((sum, e) => sum + (e.cost || 0), 0)
 
   return (
-    <div className="grid grid-cols-4 gap-2 p-3 bg-white/[0.03] rounded-lg border border-white/[0.08]">
+    <div className="grid grid-cols-4 gap-2 p-3 bg-white/[0.03] rounded-lg border border-white/[0.04]">
       <div className="text-center">
         <p className="text-sm font-bold text-emerald-400">{maintenanceCount}</p>
         <p className="text-[10px] text-white/40 uppercase">Service</p>
@@ -260,14 +260,14 @@ export function TimelineDrawer({
       className={cn(
         'fixed right-0 top-0 h-full w-80 z-50',
         'bg-[#1a1a1a]',
-        'border-l border-white/[0.08] shadow-sm',
+        'border-l border-white/[0.04]',
         'transform transition-transform duration-300',
         isOpen ? 'translate-x-0' : 'translate-x-full',
         className
       )}
     >
       {/* Header */}
-      <div className="p-2 border-b border-white/[0.08]">
+      <div className="p-2 border-b border-white/[0.04]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock className="w-3 h-3 text-emerald-400" />
@@ -322,7 +322,7 @@ export function TimelineDrawer({
       </ScrollArea>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 border-t border-white/[0.08] bg-[#1a1a1a]">
+      <div className="absolute bottom-0 left-0 right-0 p-2 border-t border-white/[0.04] bg-[#1a1a1a]">
         <Button variant="outline" size="sm" className="w-full">
           <CaretDoubleRight className="w-4 h-4 mr-2" />
           View Full History

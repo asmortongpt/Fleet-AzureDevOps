@@ -167,7 +167,7 @@ export function PolicyExecutionView({
       case 'error':
         return <XCircle className="h-4 w-4 text-red-500" />
       default:
-        return <AlertTriangle className="h-4 w-4 text-gray-700" />
+        return <AlertTriangle className="h-4 w-4 text-white/40" />
     }
   }
 

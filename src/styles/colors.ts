@@ -56,12 +56,12 @@ const createColorFormat = (hex: string): ColorFormat => ({
 });
 
 const primaryBrandColors: { [key: string]: ColorShades } = {
-  corporateBlue: {
-    100: createColorFormat('#E6F2FF'),
-    200: createColorFormat('#99CCFF'),
-    300: createColorFormat('#3399FF'),
-    400: createColorFormat('#0073E6'),
-    500: createColorFormat('#0066CC'),
+  corporateTeal: {
+    100: createColorFormat('#ecfdf5'),
+    200: createColorFormat('#a7f3d0'),
+    300: createColorFormat('#34d399'),
+    400: createColorFormat('#059669'),
+    500: createColorFormat('#047857'),
   },
   professionalDark: {
     100: createColorFormat('#F2F2F2'),
@@ -83,7 +83,7 @@ const functionalColors: ColorPalette = {
   success: createColorFormat('#00A651'),
   warning: createColorFormat('#FFA000'),
   error: createColorFormat('#D32F2F'),
-  info: createColorFormat('#1976D2'),
+  info: createColorFormat('#10b981'),
 };
 
 const neutralGrays: ColorShades = {

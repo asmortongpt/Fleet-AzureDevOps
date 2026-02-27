@@ -116,7 +116,7 @@ const UtilizationDashboard: React.FC = () => {
           <YAxis />
           <Tooltip />
           <Legend />
-          <Line type="monotone" dataKey="utilizationRate" stroke="#8884d8" />
+          <Line type="monotone" dataKey="utilizationRate" stroke="#10b981" />
         </LineChart>
       </div>
       <div>

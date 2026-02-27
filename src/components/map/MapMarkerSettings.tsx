@@ -33,10 +33,10 @@ export const MapMarkerSettings = memo(function MapMarkerSettings() {
       {/* Toggle button */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`flex items-center gap-1 h-7 px-2 rounded-md backdrop-blur-sm border transition-all shadow-lg text-[10px] font-medium ${
+        className={`flex items-center gap-1 h-7 px-2 rounded-md border transition-all text-[10px] font-medium ${
           open
             ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400'
-            : 'bg-[#242424]/90 border-white/[0.08] text-white/60 hover:text-white hover:border-white/[0.15]'
+            : 'bg-[#111111] border-white/[0.04] text-white/60 hover:text-white hover:border-white/[0.08]'
         }`}
         title="Marker settings"
       >
@@ -46,9 +46,9 @@ export const MapMarkerSettings = memo(function MapMarkerSettings() {
 
       {/* Settings panel */}
       {open && (
-        <div className="absolute top-9 right-0 w-[240px] rounded-lg border border-white/[0.08] bg-[#242424]/95 backdrop-blur-sm shadow-xl">
+        <div className="absolute top-9 right-0 w-[240px] rounded-lg border border-white/[0.04] bg-[#111111]">
           {/* Header */}
-          <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.08]">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.04]">
             <span className="text-[11px] font-semibold text-white/80">Marker Settings</span>
             <button
               onClick={() => setOpen(false)}

@@ -28,7 +28,7 @@ function StatRow({ label, value, trend, icon: Icon }: {
     icon?: any;
 }) {
     return (
-        <div className="flex items-center justify-between py-2 border-b border-white/[0.08] last:border-0">
+        <div className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
             <div className="flex items-center gap-2">
                 {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
                 <span className="text-sm text-muted-foreground">{label}</span>
@@ -67,13 +67,13 @@ export function FleetOverviewDrilldown() {
     return (
         <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
-                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+                <Card className="bg-emerald-900/20 border-emerald-800/50">
                     <CardContent className="pt-2">
                         <div className="text-base font-bold text-emerald-400">{vehicles.length}</div>
                         <div className="text-sm text-emerald-400">Total Fleet Size</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+                <Card className="bg-emerald-900/20 border-emerald-800/50">
                     <CardContent className="pt-2">
                         <div className="text-base font-bold text-emerald-600">
                             {Math.round((byStatus.active.length / vehicles.length) * 100)}%
@@ -178,7 +178,7 @@ export function ActiveVehiclesDrilldown() {
                 {vehicles.slice(0, 20).map(vehicle => (
                     <Card
                         key={vehicle.id}
-                        className="cursor-pointer bg-[#242424] hover:bg-white/[0.08] border-white/[0.08] transition-colors"
+                        className="cursor-pointer bg-[#111111] hover:bg-white/[0.08] border-white/[0.04] transition-colors"
                         onClick={() => push({
                             id: vehicle.id,
                             type: 'vehicle',
@@ -359,7 +359,7 @@ export function FuelManagementDrilldown() {
         <div className="space-y-2">
             {/* Summary Cards */}
             <div className="grid grid-cols-3 gap-3">
-                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+                <Card className="bg-emerald-900/20 border-emerald-800/50">
                     <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <Fuel className="h-5 w-5 text-emerald-400" />
@@ -370,7 +370,7 @@ export function FuelManagementDrilldown() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+                <Card className="bg-emerald-900/20 border-emerald-800/50">
                     <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <Fuel className="h-5 w-5 text-emerald-600" />
@@ -381,7 +381,7 @@ export function FuelManagementDrilldown() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-amber-900/20 to-amber-800/10 border-amber-800/50 backdrop-blur-sm">
+                <Card className="bg-amber-900/20 border-amber-800/50">
                     <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <Fuel className="h-5 w-5 text-amber-500" />
@@ -481,13 +481,13 @@ export function FuelStatsDrilldown() {
         <div className="space-y-2">
             {/* Summary Cards */}
             <div className="grid grid-cols-2 gap-3">
-                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+                <Card className="bg-emerald-900/20 border-emerald-800/50">
                     <CardContent className="pt-2 pb-3">
                         <div className="text-base font-bold text-emerald-400">{formatCurrency(totalCost)}</div>
                         <div className="text-xs text-emerald-400">Total Fuel Cost</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+                <Card className="bg-emerald-900/20 border-emerald-800/50">
                     <CardContent className="pt-2 pb-3">
                         <div className="text-base font-bold text-emerald-600">{formatNumber(Math.round(totalGallons))} gal</div>
                         <div className="text-xs text-emerald-700">Total Gallons</div>
@@ -538,7 +538,7 @@ export function FuelStatsDrilldown() {
                         {topConsumers.map((item, idx) => {
                             const v = vehicleMap.get(item.vehicleId) as any
                             return (
-                                <div key={item.vehicleId} className="flex items-center justify-between py-2 border-b border-white/[0.08] last:border-0">
+                                <div key={item.vehicleId} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
                                     <div className="flex items-center gap-2">
                                         <span className="text-xs font-bold text-muted-foreground w-5">#{idx + 1}</span>
                                         <span className="text-sm font-medium">{v?.number || v?.name || item.vehicleId}</span>
@@ -599,13 +599,13 @@ export function PerformanceMetricsDrilldown() {
         <div className="space-y-2">
             {/* Key Metrics Grid */}
             <div className="grid grid-cols-2 gap-3">
-                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+                <Card className="bg-emerald-900/20 border-emerald-800/50">
                     <CardContent className="pt-2 pb-3">
                         <div className="text-base font-bold text-emerald-400">{utilizationRate}%</div>
                         <div className="text-xs text-emerald-400">Fleet Utilization</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+                <Card className="bg-emerald-900/20 border-emerald-800/50">
                     <CardContent className="pt-2 pb-3">
                         <div className="text-base font-bold text-emerald-600">{uptimeRate}%</div>
                         <div className="text-xs text-emerald-700">Vehicle Uptime</div>
@@ -710,13 +710,13 @@ export function DriverStatsDrilldown() {
         <div className="space-y-2">
             {/* Summary Cards */}
             <div className="grid grid-cols-2 gap-3">
-                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+                <Card className="bg-emerald-900/20 border-emerald-800/50">
                     <CardContent className="pt-2 pb-3">
                         <div className="text-base font-bold text-emerald-400">{drivers.length}</div>
                         <div className="text-xs text-emerald-400">Total Drivers</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+                <Card className="bg-emerald-900/20 border-emerald-800/50">
                     <CardContent className="pt-2 pb-3">
                         <div className="text-base font-bold text-emerald-600">{avgSafetyScore}</div>
                         <div className="text-xs text-emerald-700">Avg. Safety Score</div>
@@ -763,7 +763,7 @@ export function DriverStatsDrilldown() {
                         { label: 'Fair (60-74)', count: scoreFair, variant: 'default' as const, className: 'bg-amber-500 hover:bg-amber-600' },
                         { label: 'Needs Improvement (<60)', count: scorePoor, variant: 'destructive' as const, className: '' },
                     ].map(({ label, count, variant, className }) => (
-                        <div key={label} className="flex items-center justify-between py-2 border-b border-white/[0.08] last:border-0">
+                        <div key={label} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
                             <span className="text-sm text-muted-foreground">{label}</span>
                             <Badge variant={variant} className={className}>{count}</Badge>
                         </div>
@@ -792,7 +792,7 @@ export function DriverStatsDrilldown() {
                             return (
                                 <div
                                     key={driver.id}
-                                    className="flex items-center justify-between py-2 border-b border-white/[0.08] last:border-0 cursor-pointer hover:bg-white/[0.04] rounded px-1 -mx-1 transition-colors"
+                                    className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/[0.04] rounded px-1 -mx-1 transition-colors"
                                     onClick={() => push({
                                         id: `driver-${driver.id}`,
                                         type: 'driver',
@@ -845,15 +845,15 @@ export function UtilizationDrilldown() {
         { label: 'Active', vehicles: activeVehicles, color: 'bg-emerald-500', textColor: 'text-emerald-400' },
         { label: 'Idle', vehicles: idleVehicles, color: 'bg-amber-500', textColor: 'text-amber-400' },
         { label: 'In Service', vehicles: serviceVehicles, color: 'bg-red-500', textColor: 'text-red-400' },
-        { label: 'Offline', vehicles: offlineVehicles, color: 'bg-gray-500', textColor: 'text-gray-400' },
+        { label: 'Offline', vehicles: offlineVehicles, color: 'bg-white/[0.2]', textColor: 'text-white/40' },
         { label: 'Charging', vehicles: chargingVehicles, color: 'bg-emerald-500/50', textColor: 'text-emerald-400' },
-        { label: 'Emergency', vehicles: emergencyVehicles, color: 'bg-purple-500', textColor: 'text-purple-400' },
+        { label: 'Emergency', vehicles: emergencyVehicles, color: 'bg-amber-500', textColor: 'text-amber-400' },
     ].filter(s => s.vehicles.length > 0)
 
     return (
         <div className="space-y-2">
             {/* Utilization Rate Hero */}
-            <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+            <Card className="bg-emerald-900/20 border-emerald-800/50">
                 <CardContent className="pt-4 pb-4">
                     <div className="flex items-center justify-between mb-2">
                         <div>
@@ -911,7 +911,7 @@ export function UtilizationDrilldown() {
                             {idleVehicles.slice(0, 8).map((vehicle: any) => (
                                 <div
                                     key={vehicle.id}
-                                    className="flex items-center justify-between py-2 border-b border-white/[0.08] last:border-0 cursor-pointer hover:bg-white/[0.04] rounded px-1 -mx-1 transition-colors"
+                                    className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/[0.04] rounded px-1 -mx-1 transition-colors"
                                     onClick={() => push({
                                         id: `vehicle-${vehicle.id}`,
                                         type: 'vehicle',
@@ -986,7 +986,7 @@ export function SafetyScoreDrilldown() {
     return (
         <div className="space-y-2">
             {/* Safety Score Hero */}
-            <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
+            <Card className="bg-emerald-900/20 border-emerald-800/50">
                 <CardContent className="pt-4 pb-4">
                     <div className="flex items-center justify-between mb-2">
                         <div>
@@ -1021,7 +1021,7 @@ export function SafetyScoreDrilldown() {
                         { label: 'Moderate', count: moderateIncidents, variant: 'default' as const, className: 'bg-amber-500 hover:bg-amber-600' },
                         { label: 'Minor', count: minorIncidents, variant: 'secondary' as const, className: '' },
                     ].map(({ label, count, variant, className }) => (
-                        <div key={label} className="flex items-center justify-between py-2 border-b border-white/[0.08] last:border-0">
+                        <div key={label} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
                             <span className="text-sm text-muted-foreground">{label}</span>
                             <Badge variant={variant} className={className}>{count}</Badge>
                         </div>
@@ -1135,9 +1135,9 @@ export function VehicleListDrilldown() {
                     className={
                         vehicle.status === 'active' ? 'bg-emerald-600 hover:bg-emerald-700' :
                             vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-500 hover:bg-amber-600' :
-                            vehicle.status === 'assigned' ? 'bg-indigo-500 hover:bg-indigo-600' :
+                            vehicle.status === 'assigned' ? 'bg-emerald-500 hover:bg-emerald-600' :
                             vehicle.status === 'dispatched' ? 'bg-orange-500 hover:bg-orange-600' :
-                            vehicle.status === 'en_route' ? 'bg-sky-500 hover:bg-sky-600' :
+                            vehicle.status === 'en_route' ? 'bg-teal-500 hover:bg-teal-600' :
                             vehicle.status === 'on_site' ? 'bg-yellow-500 hover:bg-yellow-600' :
                             vehicle.status === 'completed' ? 'bg-emerald-500 hover:bg-emerald-600' :
                                 ''
@@ -1164,7 +1164,7 @@ export function VehicleListDrilldown() {
             sortable: true,
             render: (vehicle: any) => (
                 <div className="flex items-center gap-2">
-                    <div className="w-16 h-2 bg-white/[0.1] dark:bg-white/[0.1] rounded-full overflow-hidden">
+                    <div className="w-16 h-2 bg-white/[0.1] rounded-full overflow-hidden">
                         <div
                             className={`h-full transition-all ${vehicle.fuelLevel > 50 ? 'bg-emerald-500' :
                                 vehicle.fuelLevel > 25 ? 'bg-amber-500' :
@@ -1273,22 +1273,22 @@ export function VehicleListDrilldown() {
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3 flex-1">
-                                        <div className={`w-10 h-8 rounded-full flex items-center justify-center ${vehicle.status === 'active' ? 'bg-emerald-100 dark:bg-emerald-900/30' :
-                                            vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-100 dark:bg-amber-900/30' :
-                                            vehicle.status === 'assigned' ? 'bg-indigo-100 dark:bg-indigo-900/30' :
-                                            vehicle.status === 'dispatched' ? 'bg-orange-100 dark:bg-orange-900/30' :
-                                            vehicle.status === 'en_route' ? 'bg-sky-100 dark:bg-sky-900/30' :
-                                            vehicle.status === 'on_site' ? 'bg-yellow-100 dark:bg-yellow-900/30' :
-                                            vehicle.status === 'completed' ? 'bg-emerald-100 dark:bg-emerald-900/30' :
-                                                'bg-white/[0.06] dark:bg-[#1a1a1a]'
+                                        <div className={`w-10 h-8 rounded-full flex items-center justify-center ${vehicle.status === 'active' ? 'bg-emerald-900/30' :
+                                            vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-900/30' :
+                                            vehicle.status === 'assigned' ? 'bg-emerald-900/30' :
+                                            vehicle.status === 'dispatched' ? 'bg-orange-900/30' :
+                                            vehicle.status === 'en_route' ? 'bg-white/[0.06]' :
+                                            vehicle.status === 'on_site' ? 'bg-amber-900/30' :
+                                            vehicle.status === 'completed' ? 'bg-emerald-900/30' :
+                                                'bg-[#1a1a1a]'
                                             }`}>
-                                            <Truck className={`h-5 w-5 ${vehicle.status === 'active' ? 'text-emerald-600 dark:text-emerald-700' :
-                                                vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'text-amber-600 dark:text-amber-400' :
-                                                vehicle.status === 'assigned' ? 'text-indigo-600 dark:text-indigo-400' :
-                                                vehicle.status === 'dispatched' ? 'text-orange-600 dark:text-orange-400' :
-                                                vehicle.status === 'en_route' ? 'text-sky-600 dark:text-sky-400' :
-                                                vehicle.status === 'on_site' ? 'text-yellow-600 dark:text-yellow-400' :
-                                                vehicle.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
+                                            <Truck className={`h-5 w-5 ${vehicle.status === 'active' ? 'text-emerald-400' :
+                                                vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'text-amber-400' :
+                                                vehicle.status === 'assigned' ? 'text-emerald-400' :
+                                                vehicle.status === 'dispatched' ? 'text-orange-400' :
+                                                vehicle.status === 'en_route' ? 'text-white/60' :
+                                                vehicle.status === 'on_site' ? 'text-amber-400' :
+                                                vehicle.status === 'completed' ? 'text-emerald-400' :
                                                     'text-white/40'
                                                 }`} />
                                         </div>

@@ -113,11 +113,11 @@ const getStatusColor = (status: OperationalStatus | string): string => {
       return "#22c55e"
     case "in_use":
     case "active":
-      return "#3b82f6"
+      return "#10b981"
     case "maintenance":
       return "#f59e0b"
     case "reserved":
-      return "#8b5cf6"
+      return "#6b7280"
     case "inactive":
     case "retired":
     case "disposed":

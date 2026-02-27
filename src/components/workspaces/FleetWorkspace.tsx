@@ -266,7 +266,7 @@ const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }: { vehicles: FleetV
       case 'active': return 'bg-green-500'
       case 'idle': return 'bg-yellow-500'
       case 'maintenance': return 'bg-red-500'
-      default: return 'bg-gray-500'
+      default: return 'bg-white/[0.03]0'
     }
   }
 
@@ -463,7 +463,7 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
                   </Card>
                   <Card>
                     <CardContent className="p-3 text-center">
-                      <div className="text-2xl font-bold text-gray-400">{stats.offline}</div>
+                      <div className="text-2xl font-bold text-white/40">{stats.offline}</div>
                       <div className="text-xs text-muted-foreground">Offline</div>
                     </CardContent>
                   </Card>
@@ -486,7 +486,7 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
                             vehicle.status === 'active' ? 'bg-green-500' :
                             vehicle.status === 'idle' ? 'bg-yellow-500' :
                             vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-red-500' :
-                            'bg-gray-400'
+                            'bg-white/[0.10]'
                           )} />
                           <span className="text-sm font-medium truncate">
                             {formatVehicleName(vehicle)}

@@ -78,7 +78,7 @@ export function RegulationsDrilldown() {
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Compliance Status</CardTitle>
                 </CardHeader>
@@ -145,7 +145,7 @@ export function GeofenceComplianceDrilldown() {
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Zone Status</CardTitle>
                 </CardHeader>
@@ -271,7 +271,7 @@ export function InspectionsDrilldown() {
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Upcoming Inspections</CardTitle>
                 </CardHeader>
@@ -361,7 +361,7 @@ export function IFTADrilldown() {
                         <div className="text-xs text-white/40">Miles Tracked</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">{formatCurrency(stats.totalFuelCost)}</div>
                         <div className="text-xs text-white/40">Fuel Cost</div>
@@ -369,7 +369,7 @@ export function IFTADrilldown() {
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Cost by Jurisdiction</CardTitle>
                 </CardHeader>
@@ -493,7 +493,7 @@ export function CSADrilldown() {
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">CSA BASIC Scores</CardTitle>
                 </CardHeader>

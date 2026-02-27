@@ -167,7 +167,7 @@ export function MaintenanceManagerDashboard() {
         <Button size="sm"
           onClick={handleViewCalendar}
           variant="outline"
-          className="border-violet-400 text-violet-400 hover:bg-violet-400/10"
+          className="border-amber-400 text-amber-400 hover:bg-amber-400/10"
         >
           <Calendar className="w-4 h-4 mr-2" />
           Schedule Calendar
@@ -175,7 +175,7 @@ export function MaintenanceManagerDashboard() {
       </div>
 
       {/* Work Queue Summary */}
-      <Card className="bg-[#242424] backdrop-blur-xl border-amber-500/30 p-2 mb-3">
+      <Card className="bg-[#111111] border-amber-500/30 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <Wrench className="w-4 h-4 text-amber-400" />
           <h2 className="text-sm font-bold text-white">Work Queue</h2>
@@ -206,7 +206,7 @@ export function MaintenanceManagerDashboard() {
 
           {/* In Progress */}
           <div
-            className="bg-white/[0.04] rounded-md p-2 border border-white/[0.08] hover:border-white/[0.12] transition-all"
+            className="bg-white/[0.04] rounded-md p-2 border border-white/[0.04] hover:border-white/[0.12] transition-all"
           >
             <div className="flex items-start justify-between mb-2">
               <Wrench className="w-4 h-4 text-emerald-400" />
@@ -229,14 +229,14 @@ export function MaintenanceManagerDashboard() {
 
           {/* Avg Repair Time */}
           <div
-            className="bg-violet-950/30 rounded-md p-2 border border-violet-500/30 hover:border-violet-400/50 transition-all"
+            className="bg-amber-950/30 rounded-md p-2 border border-amber-500/30 hover:border-amber-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Clock className="w-4 h-4 text-violet-400" />
+              <Clock className="w-4 h-4 text-amber-400" />
               <span className="text-sm font-black text-white">{workOrderStats.avg_repair_time_hours}</span>
             </div>
-            <p className="text-violet-300 font-semibold">Avg Hours</p>
-            <p className="text-xs text-violet-400/70 mt-1">Per Repair</p>
+            <p className="text-amber-300 font-semibold">Avg Hours</p>
+            <p className="text-xs text-amber-400/70 mt-1">Per Repair</p>
           </div>
         </div>
       </Card>
@@ -245,14 +245,14 @@ export function MaintenanceManagerDashboard() {
       <div className="mb-3 flex flex-wrap gap-3">
         <Button size="sm"
           onClick={() => handleCreateWorkOrder()}
-          className="bg-cyan-600 hover:bg-cyan-700 text-white"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <Wrench className="w-4 h-4 mr-2" />
           Create Work Order
         </Button>
         <Button size="sm"
           onClick={handleSchedulePM}
-          className="bg-violet-600 hover:bg-violet-700 text-white"
+          className="bg-amber-600 hover:bg-amber-700 text-white"
         >
           <Calendar className="w-4 h-4 mr-2" />
           Schedule PM
@@ -268,7 +268,7 @@ export function MaintenanceManagerDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Overdue Maintenance */}
-        <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
+        <Card className="bg-[#111111] border-white/[0.04] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-red-400" />
@@ -315,9 +315,9 @@ export function MaintenanceManagerDashboard() {
         {/* Upcoming Maintenance & Parts Inventory */}
         <div className="space-y-2">
           {/* Upcoming Maintenance */}
-          <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
+          <Card className="bg-[#111111] border-white/[0.04] p-2">
             <div className="flex items-center gap-2 mb-3">
-              <Calendar className="w-4 h-4 text-cyan-400" />
+              <Calendar className="w-4 h-4 text-emerald-400" />
               <h2 className="text-sm font-bold text-white">Upcoming Maintenance (Next 7 Days)</h2>
             </div>
 
@@ -325,11 +325,11 @@ export function MaintenanceManagerDashboard() {
               {upcomingSchedule.map((schedule) => (
                 <div
                   key={schedule.date}
-                  className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.08]"
+                  className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-9 bg-cyan-950/50 rounded-lg flex items-center justify-center border border-cyan-500/30">
-                      <Calendar className="w-4 h-4 text-cyan-400" />
+                    <div className="w-12 h-9 bg-emerald-950/50 rounded-lg flex items-center justify-center border border-emerald-500/30">
+                      <Calendar className="w-4 h-4 text-emerald-400" />
                     </div>
                     <div>
                       <p className="font-bold text-white">{schedule.date}</p>
@@ -338,7 +338,7 @@ export function MaintenanceManagerDashboard() {
                   </div>
                   <Button size="sm"
                     variant="outline"
-                    className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
+                    className="border-emerald-400 text-emerald-400 hover:bg-emerald-400/10"
                   >
                     View
                   </Button>
@@ -349,16 +349,16 @@ export function MaintenanceManagerDashboard() {
             <Button size="sm"
               onClick={handleViewCalendar}
               variant="outline"
-              className="w-full mt-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
+              className="w-full mt-2 border-emerald-400 text-emerald-400 hover:bg-emerald-400/10"
             >
               View Full Calendar
             </Button>
           </Card>
 
           {/* Parts Inventory Status */}
-          <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
+          <Card className="bg-[#111111] border-white/[0.04] p-2">
             <div className="flex items-center gap-2 mb-3">
-              <Package className="w-4 h-4 text-violet-400" />
+              <Package className="w-4 h-4 text-amber-400" />
               <h2 className="text-sm font-bold text-white">Parts Inventory Status</h2>
             </div>
 
@@ -369,7 +369,7 @@ export function MaintenanceManagerDashboard() {
                   "rounded-lg p-2 border transition-all cursor-pointer",
                   partsInventory.below_reorder > 0
                     ? "bg-amber-950/30 border-amber-500/30 hover:border-amber-400/50"
-                    : "bg-white/[0.03] border-white/[0.08]"
+                    : "bg-white/[0.03] border-white/[0.04]"
                 )}
                 onClick={handleReorderParts}
               >
@@ -409,7 +409,7 @@ export function MaintenanceManagerDashboard() {
               </div>
 
               {/* Total Items */}
-              <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.08]">
+              <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
                 <div className="flex items-center justify-between">
                   <span className="text-white/40 text-sm">Total Inventory Items</span>
                   <span className="text-sm font-bold text-white">
@@ -422,7 +422,7 @@ export function MaintenanceManagerDashboard() {
             <Button size="sm"
               onClick={handleSearchParts}
               variant="outline"
-              className="w-full mt-2 border-violet-400 text-violet-400 hover:bg-violet-400/10"
+              className="w-full mt-2 border-amber-400 text-amber-400 hover:bg-amber-400/10"
             >
               <Package className="w-4 h-4 mr-2" />
               Search Parts Inventory

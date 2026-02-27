@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="160" viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background -->
+  <rect width="600" height="160" fill="#1a1a1a" rx="8"/>
+
+  <!-- CTA Letters - White -->
+  <text x="40" y="108" font-family="'Inter', 'Arial Black', sans-serif" font-size="96" font-weight="900" fill="white" letter-spacing="-2">CTA</text>
+
+  <!-- Company Name -->
+  <text x="280" y="60" font-family="'Inter', 'Helvetica Neue', sans-serif" font-size="18" font-weight="600" fill="rgba(255,255,255,0.85)" letter-spacing="3">CAPITAL TECHNOLOGY</text>
+  <text x="280" y="88" font-family="'Inter', 'Helvetica Neue', sans-serif" font-size="18" font-weight="600" fill="rgba(255,255,255,0.85)" letter-spacing="3">ALLIANCE</text>
+
+  <!-- Subtle accent bar - white gradient -->
+  <rect x="40" y="128" width="520" height="3" rx="1.5" fill="url(#accentGrad)"/>
+  <defs>
+    <linearGradient id="accentGrad" x1="40" y1="129" x2="560" y2="129" gradientUnits="userSpaceOnUse">
+      <stop stop-color="rgba(255,255,255,0.5)"/>
+      <stop offset="0.6" stop-color="rgba(255,255,255,0.2)"/>
+      <stop offset="1" stop-color="rgba(255,255,255,0.05)"/>
+    </linearGradient>
+  </defs>
+</svg>

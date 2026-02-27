@@ -27,11 +27,11 @@ interface TreemapChartProps {
 }
 
 const COLORS = [
-  '#3B82F6',
+  '#10b981',
   '#10B981',
-  '#8B5CF6',
+  '#D97706',
   '#F59E0B',
-  '#EC4899',
+  '#14b8a6',
   '#F97316',
 ]
 
@@ -100,7 +100,7 @@ export function TreemapChart({
     const data = payload[0].payload
     return (
       <div
-        className="rounded-lg border shadow-lg p-3"
+        className="rounded-lg border p-3"
         style={{
           backgroundColor: chartColors.tooltip.background,
           borderColor: chartColors.tooltip.border,
@@ -131,7 +131,7 @@ export function TreemapChart({
 
   return (
     <div>
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}

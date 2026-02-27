@@ -16,7 +16,7 @@ export const MapLegend = memo(function MapLegend() {
   return (
     <div className="absolute top-4 left-4 z-20">
       <div
-        className="rounded-lg border border-white/[0.08] bg-[#242424]/95 backdrop-blur-sm shadow-lg"
+        className="rounded-lg border border-white/[0.04] bg-[#111111]"
         style={{ minWidth: expanded ? 280 : undefined }}
       >
         {/* Toggle header */}
@@ -50,7 +50,7 @@ export const MapLegend = memo(function MapLegend() {
 
         {/* Expanded content */}
         {expanded && (
-          <div className="px-2.5 pb-2.5 pt-0.5 border-t border-white/[0.08]">
+          <div className="px-2.5 pb-2.5 pt-0.5 border-t border-white/[0.04]">
             {/* Status colours — primary section */}
             <div className="mb-2">
               <span className="text-[9px] font-semibold uppercase tracking-wider text-white/40 leading-none block mb-1.5">

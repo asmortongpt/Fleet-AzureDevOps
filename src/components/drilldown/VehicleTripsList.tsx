@@ -85,7 +85,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
               {tripsArr.map((trip) => (
                 <Card
                   key={trip.id}
-                  className="hover:shadow-md transition-shadow cursor-pointer group"
+                  className="hover:border-white/[0.12] transition-colors cursor-pointer group"
                   onClick={() => handleViewTelemetry(trip)}
                 >
                   <CardContent className="p-2">

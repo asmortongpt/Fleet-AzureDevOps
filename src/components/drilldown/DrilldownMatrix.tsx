@@ -565,7 +565,7 @@ export function VehicleMatrix({ vehicles, loading, className }: VehicleMatrixPro
             row.status === 'active' && 'bg-green-100 text-green-700',
             row.status === 'idle' && 'bg-yellow-100 text-yellow-700',
             row.status === 'service' && 'bg-orange-100 text-orange-700',
-            row.status === 'offline' && 'bg-gray-100 text-gray-700'
+            row.status === 'offline' && 'bg-white/[0.05] text-white/40'
           )}
         >
           {row.status || '-'}
@@ -784,7 +784,7 @@ export function DriverMatrix({ drivers, loading, className }: DriverMatrixProps)
             'px-2 py-0.5 text-xs rounded',
             row.status === 'on-duty' && 'bg-green-100 text-green-700',
             row.status === 'driving' && 'bg-emerald-500/10 text-emerald-700',
-            row.status === 'off-duty' && 'bg-gray-100 text-gray-700'
+            row.status === 'off-duty' && 'bg-white/[0.05] text-white/40'
           )}
         >
           {row.status || '-'}

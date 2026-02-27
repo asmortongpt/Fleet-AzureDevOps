@@ -235,7 +235,7 @@ export function JobListView({ filter }: { filter?: string }) {
       </div>
 
       {/* Job Table */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Package className="w-3 h-3 text-emerald-400" />
@@ -364,7 +364,7 @@ export function RouteListView({ filter }: { filter?: string }) {
             <div className="text-xs text-white/40">Optimized</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[#111111] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <MapPin className="w-4 h-4 text-white/40 mx-auto mb-1" />
             <div className="text-sm font-bold text-white">
@@ -376,7 +376,7 @@ export function RouteListView({ filter }: { filter?: string }) {
       </div>
 
       {/* Route Table */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Navigation className="w-3 h-3 text-emerald-400" />
@@ -535,7 +535,7 @@ export function TaskListView({ filter }: { filter?: string }) {
       </div>
 
       {/* Task Table */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <ListChecks className="w-3 h-3 text-emerald-400" />

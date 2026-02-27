@@ -158,7 +158,7 @@ export function SafetyTrainingTracker() {
             current: { variant: 'default' as const, icon: <CheckCircle className="w-3 h-3" />, label: 'Current', color: 'bg-green-500' },
             expiring_soon: { variant: 'secondary' as const, icon: <AlertTriangle className="w-3 h-3" />, label: 'Expiring Soon', color: 'bg-yellow-500' },
             expired: { variant: 'destructive' as const, icon: <AlertTriangle className="w-3 h-3" />, label: 'Expired', color: 'bg-red-500' },
-            pending: { variant: 'outline' as const, icon: <Clock className="w-3 h-3" />, label: 'Pending', color: 'bg-gray-500' }
+            pending: { variant: 'outline' as const, icon: <Clock className="w-3 h-3" />, label: 'Pending', color: 'bg-white/30' }
         }
 
         const config = variants[status]
@@ -271,9 +271,9 @@ export function SafetyTrainingTracker() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-                <Card className="bg-gradient-to-br from-green-500/10 to-green-600/10 border-green-500/30">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80">Compliance Rate</CardTitle>
+                        <CardTitle className="text-sm font-medium text-white/60">Compliance Rate</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-baseline gap-2">
@@ -284,9 +284,9 @@ export function SafetyTrainingTracker() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 border-emerald-500/30">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80">Compliant Employees</CardTitle>
+                        <CardTitle className="text-sm font-medium text-white/60">Compliant Employees</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
@@ -298,9 +298,9 @@ export function SafetyTrainingTracker() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border-yellow-500/30">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80">Expiring Soon</CardTitle>
+                        <CardTitle className="text-sm font-medium text-white/60">Expiring Soon</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
@@ -311,9 +311,9 @@ export function SafetyTrainingTracker() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-red-500/10 to-red-600/10 border-red-500/30">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80">Expired</CardTitle>
+                        <CardTitle className="text-sm font-medium text-white/60">Expired</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
@@ -324,9 +324,9 @@ export function SafetyTrainingTracker() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-neutral-500/10 to-neutral-600/10 border-neutral-500/30">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80">Pending Training</CardTitle>
+                        <CardTitle className="text-sm font-medium text-white/60">Pending Training</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
@@ -339,7 +339,7 @@ export function SafetyTrainingTracker() {
             </div>
 
             {/* Filters and Table */}
-            <Card className="bg-gradient-to-br from-[#1a1a1a]/60 to-[#111]/60 backdrop-blur-xl border-white/[0.06]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-white flex items-center gap-2">
@@ -347,7 +347,7 @@ export function SafetyTrainingTracker() {
                             Training Records
                         </CardTitle>
                         <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-                            <SelectTrigger className="w-[180px] bg-[#242424] border-white/[0.12] text-white">
+                            <SelectTrigger className="w-[180px] bg-[#111111] border-white/[0.04] text-white">
                                 <SelectValue placeholder="Filter by status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -363,7 +363,7 @@ export function SafetyTrainingTracker() {
                 <CardContent>
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-white/[0.08] hover:bg-[#242424]">
+                            <TableRow className="border-white/[0.04] hover:bg-[#111111]">
                                 <TableHead className="text-white/80">Employee</TableHead>
                                 <TableHead className="text-white/80">Training Type</TableHead>
                                 <TableHead className="text-white/80">Completion Date</TableHead>
@@ -379,7 +379,7 @@ export function SafetyTrainingTracker() {
                                 const daysUntilExpiration = getDaysUntilExpiration(record.expiration_date)
 
                                 return (
-                                    <TableRow key={record.id} className="border-white/[0.08] hover:bg-[#1a1a1a]/30">
+                                    <TableRow key={record.id} className="border-white/[0.04] hover:bg-[#1a1a1a]/30">
                                         <TableCell className="font-medium text-white">
                                             <div>
                                                 <div>{record.employee_name}</div>
@@ -459,7 +459,7 @@ export function SafetyTrainingTracker() {
             </Card>
 
             {/* OSHA Required Training Reference */}
-            <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 border-emerald-500/30">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader>
                     <CardTitle className="text-white text-sm">OSHA Required Training Reference</CardTitle>
                 </CardHeader>

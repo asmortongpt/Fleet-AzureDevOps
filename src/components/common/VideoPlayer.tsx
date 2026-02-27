@@ -223,8 +223,8 @@ export function VideoPlayer({
 
   const statusColors = {
     recording: 'bg-red-500',
-    standby: 'bg-yellow-500',
-    offline: 'bg-gray-500',
+    standby: 'bg-amber-500',
+    offline: 'bg-white/40',
     error: 'bg-red-700'
   }
 
@@ -269,7 +269,7 @@ export function VideoPlayer({
 
       {/* No Source - Demo Mode */}
       {!src && status !== 'offline' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] to-[#111]">
+        <div className="absolute inset-0 flex items-center justify-center bg-[#111111]">
           <Camera className="w-12 h-9 text-white/50" />
         </div>
       )}

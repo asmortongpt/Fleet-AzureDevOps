@@ -52,7 +52,7 @@ export function MetricCard({
     <Card
       className={cn(
         'relative transition-all',
-        isPrimary && 'border-primary border-2 shadow-md',
+        isPrimary && 'border-primary border-2',
         className
       )}
     >
@@ -119,7 +119,7 @@ export function MetricCardWithProgress({
     <Card
       className={cn(
         'relative transition-all',
-        isPrimary && 'border-primary border-2 shadow-md',
+        isPrimary && 'border-primary border-2',
         isCritical && 'border-destructive',
         isWarning && 'border-yellow-500',
         className

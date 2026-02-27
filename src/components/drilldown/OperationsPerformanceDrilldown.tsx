@@ -399,7 +399,7 @@ export function OperationsPerformanceDrilldown() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white/[0.04] border-white/[0.08]">
+        <Card className="bg-white/[0.04] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <Navigation className="w-4 h-4 text-white/60 mx-auto mb-1" />
             <div className="text-sm font-bold text-white/80">{summary.totalMiles}</div>
@@ -417,7 +417,7 @@ export function OperationsPerformanceDrilldown() {
       </div>
 
       {/* Key Performance Metrics */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Target className="w-3 h-3 text-emerald-400" />
@@ -460,7 +460,7 @@ export function OperationsPerformanceDrilldown() {
       </Card>
 
       {/* Vehicle Performance */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <TrendingUp className="w-3 h-3 text-emerald-400" />
@@ -482,7 +482,7 @@ export function OperationsPerformanceDrilldown() {
       </Card>
 
       {/* Route Efficiency */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <RouteIcon className="w-3 h-3 text-emerald-400" />

@@ -4,7 +4,7 @@
  *
  * Features:
  * - Official CTA logo with text
- * - Navy blue background with white text + gold accent bar
+ * - Dark charcoal background with white text + gold accent bar
  * - Responsive design with multiple variants
  * - Accessible and SEO-friendly
  */
@@ -28,7 +28,7 @@ export function CTALogo({
 }: CTALogoProps) {
   // Official CTA color palette
   const colors = {
-    navy: '#242424',        // Charcoal
+    charcoal: '#242424',    // Charcoal
     gold: '#ffffff',        // White
     white: '#FFFFFF',       // Text color
     darkGold: '#e0e0e0',   // Light gray hover state
@@ -67,22 +67,22 @@ export function CTALogo({
           "flex items-center gap-4 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer",
           className
         )}
-        style={{ backgroundColor: colors.navy }}
+        style={{ backgroundColor: colors.charcoal }}
         initial="hidden"
         animate="visible"
         variants={containerVariants}
         whileHover={{ boxShadow: `0 8px 24px ${colors.gold}40` }}
       >
-        {/* CTA Icon with Navy background */}
+        {/* CTA Icon with charcoal background */}
         <motion.div
           className="relative w-10 h-10 flex items-center justify-center flex-shrink-0"
           whileHover={{ scale: 1.08 }}
         >
-          {/* Navy circle background */}
+          {/* Charcoal circle background */}
           <div
             className="absolute inset-0 rounded"
             style={{
-              background: `linear-gradient(135deg, ${colors.navy} 0%, ${colors.navy}ee 100%)`,
+              background: `linear-gradient(135deg, ${colors.charcoal} 0%, ${colors.charcoal}ee 100%)`,
               border: `2px solid ${colors.gold}`,
             }}
           />
@@ -152,7 +152,7 @@ export function CTALogo({
           className
         )}
         style={{
-          background: `linear-gradient(135deg, ${colors.navy} 0%, ${colors.navy}ee 100%)`,
+          background: `linear-gradient(135deg, ${colors.charcoal} 0%, ${colors.charcoal}ee 100%)`,
           border: `2px solid ${colors.gold}`,
           boxShadow: `0 4px 12px ${colors.gold}20`
         }}
@@ -185,7 +185,7 @@ export function CTALogo({
           className
         )}
         style={{
-          background: `linear-gradient(135deg, ${colors.navy} 0%, ${colors.navy}dd 100%)`,
+          background: `linear-gradient(135deg, ${colors.charcoal} 0%, ${colors.charcoal}dd 100%)`,
           border: `1.5px solid ${colors.gold}`,
         }}
         whileHover={{ scale: 1.12 }}

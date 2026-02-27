@@ -262,8 +262,8 @@ export default function SafetyEventsList({
                         onClick={() => onPlayVideo?.(event)}
                       />
                     ) : (
-                      <div className="w-40 h-24 bg-gray-200 rounded border flex items-center justify-center">
-                        <Play className="h-8 w-8 text-gray-700" />
+                      <div className="w-40 h-24 bg-white/[0.06] rounded border flex items-center justify-center">
+                        <Play className="h-8 w-8 text-white/40" />
                       </div>
                     )}
                   </div>

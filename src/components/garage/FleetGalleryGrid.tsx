@@ -30,7 +30,7 @@ interface FleetGalleryGridProps {
 function statusColor(status: string): string {
   switch (status) {
     case 'active': case 'available': return 'text-emerald-400 bg-emerald-500/20';
-    case 'in_service': case 'in_use': return 'text-sky-400 bg-sky-500/20';
+    case 'in_service': case 'in_use': return 'text-teal-400 bg-teal-500/20';
     case 'pending': case 'scheduled': return 'text-amber-400 bg-amber-500/20';
     case 'inactive': case 'out_of_service': return 'text-rose-400 bg-rose-500/20';
     default: return 'text-white/50 bg-white/[0.08]';
@@ -140,9 +140,9 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
   }, [filtered]);
 
   return (
-    <div className="absolute inset-0 z-15 top-12 bottom-14 bg-[#111]/95 backdrop-blur-sm overflow-y-auto">
+    <div className="absolute inset-0 z-15 top-12 bottom-14 bg-[#0e0e0e]/95 overflow-y-auto">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-[#111]/90 backdrop-blur-md border-b border-white/[0.08] px-4 py-3">
+      <div className="sticky top-0 z-10 bg-[#0e0e0e] border-b border-white/[0.04] px-4 py-3">
         <div className="flex items-center gap-3">
           <h2 className="text-sm font-semibold text-white/80">Fleet Gallery</h2>
           <span className="text-[10px] text-white/40">{filtered.length} vehicles</span>
@@ -154,7 +154,7 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search make, model..."
-              className="h-8 pl-8 pr-3 w-56 text-xs bg-white/[0.05] border border-white/[0.08] rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-500/40"
+              className="h-8 pl-8 pr-3 w-56 text-xs bg-white/[0.05] border border-white/[0.04] rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-500/40"
             />
           </div>
           <button
@@ -179,7 +179,7 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
             <button
               key={v.id}
               onClick={() => onSelectVehicle(v.id)}
-              className="group text-left bg-[#1a1a1a] rounded-xl border border-white/[0.08] hover:border-emerald-500/30 hover:bg-white/[0.03] transition-all overflow-hidden"
+              className="group text-left bg-[#111111] rounded-xl border border-white/[0.04] hover:border-emerald-500/30 hover:bg-white/[0.03] transition-all overflow-hidden"
             >
               {/* Thumbnail */}
               <div className="relative aspect-[16/9] bg-[#0a0a0a] overflow-hidden">

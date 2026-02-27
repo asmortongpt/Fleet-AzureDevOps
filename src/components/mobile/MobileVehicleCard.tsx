@@ -42,11 +42,11 @@ export function MobileVehicleCard({
     active: { color: 'bg-green-500', label: 'Active', icon: CheckCircle },
     maintenance: { color: 'bg-amber-500', label: 'Maintenance', icon: AlertTriangle }, // Mapped from legacy
     service: { color: 'bg-amber-500', label: 'Service', icon: Calendar },
-    inactive: { color: 'bg-gray-500', label: 'Inactive', icon: Clock },
+    inactive: { color: 'bg-white/[0.03]0', label: 'Inactive', icon: Clock },
     idle: { color: 'bg-emerald-400', label: 'Idle', icon: Clock },
     charging: { color: 'bg-green-400', label: 'Charging', icon: Zap },
     emergency: { color: 'bg-red-600', label: 'Emergency', icon: AlertTriangle },
-    offline: { color: 'bg-gray-400', label: 'Offline', icon: Power },
+    offline: { color: 'bg-white/[0.10]', label: 'Offline', icon: Power },
     'out-of-service': { color: 'bg-red-500', label: 'Out of Service', icon: AlertTriangle }
   };
 
@@ -58,7 +58,7 @@ export function MobileVehicleCard({
       <div
         onClick={() => onClick?.(vehicle)}
         className={cn(
-          'flex items-center gap-3 p-3 border-b border-white/[0.08]',
+          'flex items-center gap-3 p-3 border-b border-white/[0.04]',
           'active:bg-white/[0.03] transition-colors touch-manipulation cursor-pointer',
           className
         )}
@@ -157,7 +157,7 @@ export function MobileVehicleCard({
           </div>
 
           {/* Status Badge */}
-          <div className="mt-3 pt-3 border-t border-white/[0.08]">
+          <div className="mt-3 pt-3 border-t border-white/[0.04]">
             <Badge
               variant={vehicle.status === 'active' ? 'default' : 'secondary'}
               className="w-full justify-center text-xs py-1"
@@ -260,7 +260,7 @@ export function MobileVehicleCard({
 
         {/* Quick Actions */}
         {showQuickActions && onQuickAction && (
-          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/[0.08]">
+          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/[0.04]">
             <Button
               variant="outline"
               size="sm"
@@ -308,7 +308,7 @@ export function MobileVehicleCard({
 export function MobileVehicleCardSkeleton({ variant = 'compact' }: { variant?: 'compact' | 'detailed' | 'list' }) {
   if (variant === 'list') {
     return (
-      <div className="flex items-center gap-3 p-3 border-b border-white/[0.08] animate-pulse">
+      <div className="flex items-center gap-3 p-3 border-b border-white/[0.04] animate-pulse">
         <div className="w-1 h-14 bg-white/[0.08] rounded-full" />
         <div className="flex-1 space-y-2">
           <div className="h-4 bg-white/[0.08] rounded w-24" />

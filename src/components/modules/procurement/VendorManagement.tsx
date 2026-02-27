@@ -133,10 +133,10 @@ export function VendorManagement() {
       parts: "bg-emerald-500/10 text-emerald-700",
       service: "bg-green-100 text-green-700",
       fuel: "bg-orange-100 text-orange-700",
-      insurance: "bg-purple-100 text-purple-700",
+      insurance: "bg-amber-100 text-amber-700",
       leasing: "bg-pink-100 text-pink-700",
       towing: "bg-yellow-100 text-yellow-700",
-      other: "bg-gray-100 text-gray-700"
+      other: "bg-white/[0.05] text-white/40"
     }
     return colors[type]
   }
@@ -144,7 +144,7 @@ export function VendorManagement() {
   const getStatusColor = (status: Vendor["status"]) => {
     const colors: Record<Vendor["status"], string> = {
       active: "bg-green-100 text-green-700",
-      inactive: "bg-gray-100 text-gray-700",
+      inactive: "bg-white/[0.05] text-white/40",
       suspended: "bg-red-100 text-red-700"
     }
     return colors[status]

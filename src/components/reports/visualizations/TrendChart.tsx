@@ -52,12 +52,12 @@ export function TrendChart({
     });
 
     const colors = [
-      'hsl(var(--primary))', // indigo
-      'hsl(var(--accent))', // purple
+      'hsl(var(--primary))', // emerald
+      'hsl(var(--accent))', // accent
       'hsl(var(--accent))', // pink
       'hsl(var(--warning))', // amber
       'hsl(var(--success))', // emerald
-      'hsl(var(--primary))', // blue
+      'hsl(var(--primary))', // emerald
       'hsl(var(--destructive))', // red
       'hsl(var(--success))', // teal
     ];
@@ -74,8 +74,8 @@ export function TrendChart({
     if (!active || !payload || !payload.length) return null;
 
     return (
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-3">
-        <p className="font-medium text-gray-900 mb-2">{label}</p>
+      <div className="bg-white border border-white/[0.08] rounded-lg p-3">
+        <p className="font-medium text-white/80 mb-2">{label}</p>
         {payload.map((entry: any) => (
           <div key={entry.name} className="flex items-center gap-2 text-sm">
             <div
@@ -83,7 +83,7 @@ export function TrendChart({
               style={{ backgroundColor: entry.color }}
             />
             <span className="text-white/70">{entry.name}:</span>
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-white/80">
               {typeof entry.value === 'number'
                 ? new Intl.NumberFormat('en-US', {
                     style: 'currency',
@@ -106,7 +106,7 @@ export function TrendChart({
 
   return (
     <Card className={`p-3 ${className}`}>
-      <h3 className="text-sm font-semibold text-gray-900 mb-2">{title}</h3>
+      <h3 className="text-sm font-semibold text-white/80 mb-2">{title}</h3>
 
       <ResponsiveContainer width="100%" height={400}>
         <LineChart
@@ -154,7 +154,7 @@ export function TrendChart({
       </ResponsiveContainer>
 
       {onDrillDown && (
-        <p className="text-xs text-gray-700 mt-2 text-center">
+        <p className="text-xs text-white/40 mt-2 text-center">
           Click on any data point to drill down
         </p>
       )}

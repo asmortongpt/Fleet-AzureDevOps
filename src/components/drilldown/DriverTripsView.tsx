@@ -88,7 +88,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
               {tripsArr.map((trip: Trip) => {
                 const scoreBadge = getScoreBadge(trip.performance_score || 0)
                 return (
-                  <Card key={trip.id} className="hover:shadow-md transition-shadow">
+                  <Card key={trip.id} className="hover:border-white/[0.12] transition-colors">
                     <CardContent className="p-2">
                       <div className="space-y-2">
                         {/* Trip Header */}

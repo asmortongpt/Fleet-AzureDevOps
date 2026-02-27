@@ -66,8 +66,8 @@ const TREND_STYLES = {
   },
   neutral: {
     icon: Minus,
-    color: 'text-slate-700 dark:text-gray-600',
-    bgColor: 'bg-gray-50 dark:bg-gray-950',
+    color: 'text-neutral-700 dark:text-white/40',
+    bgColor: 'bg-white/[0.03] dark:bg-[#09090b]',
   },
 }
 
@@ -133,7 +133,7 @@ export function InteractiveMetric({
     <Card
       className={cn(
         'relative transition-all duration-200',
-        isClickable && 'cursor-pointer hover:shadow-sm hover:scale-[1.02]',
+        isClickable && 'cursor-pointer hover:scale-[1.02]',
         statusStyle.borderColor,
         className
       )}

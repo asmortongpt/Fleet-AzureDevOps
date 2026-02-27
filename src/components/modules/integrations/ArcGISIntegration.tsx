@@ -751,14 +751,14 @@ export function ArcGISIntegration() {
             {layer.enabled ? (
               <Eye className="h-4 w-4 text-green-500" />
             ) : (
-              <EyeOff className="h-4 w-4 text-gray-700" />
+              <EyeOff className="h-4 w-4 text-white/40" />
             )}
             <span className="font-medium truncate">{layer.name}</span>
             <Badge variant={layer.health === 'healthy' ? 'default' : 'destructive'}>
               {layer.health}
             </Badge>
           </div>
-          <div className="text-sm text-gray-700 truncate">{layer.description}</div>
+          <div className="text-sm text-white/40 truncate">{layer.description}</div>
           {operationError && (
             <div className="text-xs text-red-500 mt-1">{operationError}</div>
           )}
@@ -1046,8 +1046,8 @@ export function ArcGISIntegration() {
           </CardHeader>
           <CardContent>
             {layers.length === 0 ? (
-              <div className="text-center py-3 text-gray-700">
-                <Globe className="h-9 w-12 mx-auto mb-2 text-gray-700" />
+              <div className="text-center py-3 text-white/40">
+                <Globe className="h-9 w-12 mx-auto mb-2 text-white/40" />
                 <p>No ArcGIS layers added yet. Click "Add Layer" to get started.</p>
               </div>
             ) : (

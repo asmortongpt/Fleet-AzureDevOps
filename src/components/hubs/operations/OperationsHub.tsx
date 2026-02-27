@@ -243,14 +243,14 @@ export function OperationsHub() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-purple-500">
+        <Card className="border-l-4 border-l-amber-500">
           <CardContent className="pt-2 pb-3 px-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-bold text-purple-600">{metrics.completed}</div>
+                <div className="text-sm font-bold text-amber-600">{metrics.completed}</div>
                 <div className="text-xs text-white/60 mt-1">Completed Today</div>
               </div>
-              <CheckCircle className="h-8 w-8 text-purple-500 opacity-20" />
+              <CheckCircle className="h-8 w-8 text-amber-500 opacity-20" />
             </div>
           </CardContent>
         </Card>

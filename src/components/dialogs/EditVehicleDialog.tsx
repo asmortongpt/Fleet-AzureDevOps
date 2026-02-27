@@ -878,7 +878,7 @@ export function EditVehicleDialog({
         )}
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 pt-2 border-t border-white/[0.08]">
+        <div className="flex justify-end gap-3 pt-2 border-t border-white/[0.04]">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
             <X className="h-3.5 w-3.5 mr-1.5" />
             Cancel

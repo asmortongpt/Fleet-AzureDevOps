@@ -49,128 +49,31 @@ export function PasswordReset() {
 
   return (
     <div
-      className="relative flex min-h-screen items-center justify-center overflow-hidden"
-      style={{
-        background: 'linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 50%, hsl(var(--background)) 100%)',
-        minHeight: '100vh'
-      }}
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0a0a0a]"
     >
-      {/* Premium animated background with CTA brand colors */}
-      <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
-        {/* Animated gradient orbs - BLUE SKIES and NOON */}
-        <div
-          className="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--chart-5) / 0.25) 0%, transparent 70%)',
-            filter: 'blur(60px)'
-          }}
-        />
-        <div
-          className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-pulse rounded-full"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--chart-6) / 0.2) 0%, transparent 70%)',
-            filter: 'blur(60px)',
-            animationDelay: '2s'
-          }}
-        />
-
-        {/* Grid overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: 'linear-gradient(90deg, hsl(var(--border) / 0.08) 1px, transparent 1px), linear-gradient(hsl(var(--border) / 0.08) 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
-          }}
-        />
-      </div>
+      {/* Minimal background */}
 
       <div className="relative z-10 w-full max-w-[460px] px-4">
-        {/* Premium Header - Official CTA ArchonY Branding */}
+        {/* Premium Header - Official CTA Fleet Branding */}
         <div className="mb-5 text-center">
-          {/* ArchonY Logo with Swoosh */}
-          <div className="mx-auto mb-4 relative h-24 flex flex-col items-center justify-center">
-            {/* Curved Swoosh Element - CTA Official Gradient */}
-            <svg
-              width="80"
-              height="80"
-              viewBox="0 0 80 80"
-              className="absolute top-0 left-1/2 -translate-x-1/2"
-              style={{ filter: 'drop-shadow(0 4px 8px hsl(var(--chart-3) / 0.5))' }}
-            >
-              <defs>
-                <linearGradient id="ctaGradientPasswordReset" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: 'hsl(var(--chart-3))' }} />
-                  <stop offset="100%" style={{ stopColor: 'hsl(var(--chart-6))' }} />
-                </linearGradient>
-              </defs>
-              <path
-                d="M 10 50 Q 25 20, 40 40 T 70 30"
-                stroke="url(#ctaGradientPasswordReset)"
-                strokeWidth="6"
-                strokeLinecap="round"
-                fill="none"
-                style={{
-                  strokeDasharray: '1000',
-                  strokeDashoffset: '0',
-                  animation: 'dashAnimation 2s ease-in-out infinite'
-                }}
-              />
-            </svg>
-
-            {/* ArchonY Typography */}
-            <div className="relative z-10 mt-12">
-              <div
-                className="text-4xl font-bold tracking-wider mb-1"
-                style={{
-                  fontFamily: '"Inter", -apple-system, sans-serif',
-                  fontWeight: 700,
-                  letterSpacing: '0.15em',
-                  color: 'hsl(var(--foreground))',
-                  textShadow: '0 2px 8px hsl(var(--chart-5) / 0.6), 0 4px 12px hsl(var(--chart-3) / 0.4)',
-                  background: 'linear-gradient(90deg, hsl(var(--foreground)) 0%, hsl(var(--chart-1)) 50%, hsl(var(--foreground)) 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}
-              >
-                ARCHON·Y
-              </div>
-              <div
-                className="text-[10px] font-semibold uppercase tracking-[0.2em]"
-                style={{
-                  color: 'hsl(var(--chart-1))',
-                  textShadow: '0 0 10px hsl(var(--chart-5) / 0.8)',
-                  fontWeight: 600
-                }}
-              >
-                INTELLIGENT PERFORMANCE
-              </div>
+          <div className="mx-auto mb-4 flex flex-col items-center justify-center">
+            <div className="text-4xl font-bold tracking-wider mb-1 text-white">
+              CTA FLEET
+            </div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">
+              FLEET COMMAND
             </div>
           </div>
 
-          {/* Capital Tech Alliance - Company Name */}
-        <h1
-          className="mb-2 text-2xl font-semibold tracking-tight"
-          style={{
-              color: 'hsl(var(--foreground))',
-              textShadow: '0 2px 4px hsl(var(--foreground) / 0.5)'
-          }}
-        >
-          Capital Tech Alliance
-        </h1>
+          <h1 className="mb-2 text-2xl font-semibold tracking-tight text-white">
+            Capital Tech Alliance
+          </h1>
 
-          {/* Official CTA Gradient Bar */}
-          <div
-            className="mx-auto w-24 h-1 rounded-full mb-3"
-            style={{
-              background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
-              boxShadow: '0 2px 8px hsl(var(--chart-3) / 0.6)'
-            }}
-          />
+          <div className="mx-auto w-24 h-1 rounded-full mb-3 bg-emerald-500" />
         </div>
 
         {/* Premium Password Reset Card */}
-        <Card className="border-border/50 bg-card/90 shadow-2xl shadow-black/20 backdrop-blur-xl text-card-foreground">
+        <Card className="border-white/[0.04] bg-[#111111] text-white">
           <div className="p-5">
             {/* Card Title Section */}
             <div className="mb-3.5 text-center">
@@ -221,21 +124,10 @@ export function PasswordReset() {
                   <Button
                     type="submit"
                     size="lg"
-                    style={{
-                      background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
-                      boxShadow: '0 10px 20px hsl(var(--chart-3) / 0.4)'
-                    }}
-                    className="group relative mb-3.5 h-11 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+                    className="group relative mb-3.5 h-11 w-full overflow-hidden font-semibold bg-emerald-500 hover:bg-emerald-400 text-white transition-all duration-200 disabled:opacity-50"
                     disabled={isLoading}
                   >
-                    <div
-                      className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                      style={{ background: 'linear-gradient(90deg, hsl(var(--chart-6)) 0%, hsl(var(--chart-3)) 100%)' }}
-                    />
-                    <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-20">
-                      <div className="h-full w-full bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer" />
-                    </div>
-                    <span className="relative flex items-center justify-center gap-2.5">
+                    <span className="flex items-center justify-center gap-2.5">
                       {isLoading ? (
                         <>
                           <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />

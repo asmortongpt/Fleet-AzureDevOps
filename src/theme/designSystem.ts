@@ -17,7 +17,7 @@
 
 // Official Brand Colors (from Fleet-CTA Branding Guidelines)
 export const brandColors = {
-  // Archon-Y Brand (Primary Product)
+  // CTA Fleet Brand (Primary Product)
   archon: {
     black: '#000000',      // Primary text, logos
     white: '#FFFFFF',      // Backgrounds, reverse text
@@ -27,7 +27,7 @@ export const brandColors = {
 
   // CTA Brand (Supporting/Accents)
   cta: {
-    navy: '#1A1446',     // Headers, CTA backgrounds
+    charcoal: '#242424', // Headers, CTA backgrounds
     yellow: '#e0e0e0',   // Gradient start (neutral gray)
     orange: '#e0e0e0',   // Links, buttons, accents (neutral gray)
     red: '#c0c0c0',      // Gradient end (medium gray)
@@ -42,19 +42,19 @@ export const brandColors = {
 }
 
 export const colors = {
-  // Primary Brand Colors (Fleet Blue)
+  // Primary Brand Colors (Fleet Emerald)
   primary: {
-    50: '#EFF6FF',
-    100: '#DBEAFE',
-    200: '#BFDBFE',
-    300: '#93C5FD',
-    400: '#60A5FA',
-    500: '#3B82F6', // Primary
-    600: '#2563EB',
-    700: '#1D4ED8',
-    800: '#1E40AF',
-    900: '#1E3A8A',
-    950: '#0C2340',
+    50: '#ecfdf5',
+    100: '#d1fae5',
+    200: '#a7f3d0',
+    300: '#6ee7b7',
+    400: '#34d399',
+    500: '#10b981', // Primary
+    600: '#059669',
+    700: '#047857',
+    800: '#065f46',
+    900: '#064e3b',
+    950: '#022c22',
   },
 
   // Secondary Colors (Fleet Teal)
@@ -125,37 +125,37 @@ export const colors = {
     900: '#424242',
   },
 
-  // CTA Navy (Secondary Brand Color)
+  // CTA Dark (Secondary Brand Color)
   ctaNavy: {
-    50: '#F3F1F9',
-    100: '#E8E4F2',
-    200: '#D6CACE',
-    300: '#B8ACBE',
-    400: '#6D5F92',
-    500: '#1A1446', // CTA Navy - Headers & important elements
-    600: '#1A1446',
-    700: '#0F0A25',
-    800: '#0A061A',
-    900: '#05030E',
+    50: '#FAFAFA',
+    100: '#F5F5F5',
+    200: '#E5E5E5',
+    300: '#D4D4D4',
+    400: '#A3A3A3',
+    500: '#242424', // CTA Dark - Headers & important elements
+    600: '#1A1A1A',
+    700: '#171717',
+    800: '#111111',
+    900: '#0A0A0A',
   },
 
   neutral: {
-    50: '#F9FAFB',
-    100: '#F3F4F6',
-    200: '#E5E7EB',
-    300: '#D1D5DB',
-    400: '#9CA3AF',
-    500: '#6B7280',
-    600: '#4B5563',
-    700: '#374151',
-    800: '#1F2937',
-    900: '#111827',
-    950: '#030712',
+    50: '#FAFAFA',
+    100: '#F5F5F5',
+    200: '#E5E5E5',
+    300: '#D4D4D4',
+    400: '#A3A3A3',
+    500: '#737373',
+    600: '#525252',
+    700: '#404040',
+    800: '#262626',
+    900: '#1a1a1a',
+    950: '#0A0A0A',
   },
 
   // Status Colors
-  info: '#0EA5E9',
-  offline: '#9CA3AF',
+  info: '#10b981',
+  offline: '#A3A3A3',
   maintenance: '#F59E0B',
   active: '#22C55E',
   inactive: '#EF4444',

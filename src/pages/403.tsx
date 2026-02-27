@@ -20,7 +20,7 @@ export function Forbidden403Page() {
   return (
     <div className="min-h-screen cta-hub flex items-center justify-center px-2">
       <div className="max-w-md w-full">
-        <div className="bg-card/90 text-card-foreground rounded-lg shadow-sm p-3 text-center border border-border/50">
+        <div className="bg-card/90 text-card-foreground rounded-lg p-3 text-center border border-border/50">
           {/* Icon */}
           <div className="flex justify-center mb-3">
             <div className="rounded-full bg-destructive/20 p-2">

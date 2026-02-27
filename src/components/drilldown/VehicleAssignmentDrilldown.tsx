@@ -250,7 +250,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card className="bg-white/[0.04] border-white/[0.08]">
+        <Card className="bg-white/[0.04] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <Truck className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-emerald-400">{metrics.activeVehicles}</div>
@@ -284,7 +284,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
       </div>
 
       {/* Current Assignments */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Activity className="w-3 h-3 text-emerald-400" />
@@ -306,7 +306,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
       </Card>
 
       {/* Vehicle Utilization */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Zap className="w-3 h-3 text-green-400" />

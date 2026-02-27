@@ -216,9 +216,9 @@ export function CommunicationLog() {
   const getTypeColor = (type: CommunicationLogType["type"]) => {
     const colors = {
       email: "bg-emerald-100 text-emerald-700",
-      teams: "bg-purple-100 text-purple-700",
+      teams: "bg-amber-100 text-amber-700",
       phone: "bg-green-100 text-green-700",
-      sms: "bg-cyan-100 text-cyan-700",
+      sms: "bg-emerald-100 text-emerald-700",
       "in-person": "bg-orange-100 text-orange-700"
     }
     return colors[type]

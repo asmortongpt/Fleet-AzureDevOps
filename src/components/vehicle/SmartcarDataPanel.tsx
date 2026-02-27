@@ -128,7 +128,7 @@ export function SmartcarDataPanel({ vehicleId, className }: SmartcarDataPanelPro
 
   if (isLoadingSignals) {
     return (
-      <div className={cn('rounded-lg bg-[#242424] border border-white/[0.08] p-3', className)}>
+      <div className={cn('rounded-lg bg-[#111111] border border-white/[0.04] p-3', className)}>
         <div className="flex items-center gap-2 text-xs text-white/40">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
           Loading Smartcar signals...
@@ -150,7 +150,7 @@ export function SmartcarDataPanel({ vehicleId, className }: SmartcarDataPanelPro
   const hasTires = flPsi != null || frPsi != null || blPsi != null || brPsi != null
 
   return (
-    <div className={cn('rounded-lg bg-[#242424] border border-white/[0.08]', className)}>
+    <div className={cn('rounded-lg bg-[#111111] border border-white/[0.04]', className)}>
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}

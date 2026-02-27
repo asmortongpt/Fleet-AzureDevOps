@@ -122,8 +122,8 @@ const PROVIDER_INFO = {
   samsara: {
     name: 'Samsara',
     icon: Cpu,
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-500/10',
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
     description: 'Connect to Samsara fleet management platform'
   },
   teltonika: {
@@ -173,7 +173,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
   const Icon = info.icon
 
   return (
-    <Card className="transition-all duration-200 hover:shadow-sm">
+    <Card className="transition-all duration-200 ">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">

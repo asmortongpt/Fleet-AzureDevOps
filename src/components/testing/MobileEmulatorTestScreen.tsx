@@ -115,11 +115,11 @@ export function MobileEmulatorTestScreen() {
   const dimensions = getDeviceDimensions()
 
   return (
-    <div className="min-h-screen bg-gray-50 p-3">
+    <div className="min-h-screen bg-white/[0.03] p-3">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-3">
-          <h1 className="text-base font-bold text-gray-900 mb-2">Mobile Emulator Test Screen</h1>
+          <h1 className="text-base font-bold text-white/80 mb-2">Mobile Emulator Test Screen</h1>
           <p className="text-white/70">Test the Fleet Management app with various mobile devices and emulators</p>
         </div>
 
@@ -127,7 +127,7 @@ export function MobileEmulatorTestScreen() {
           {/* Left Panel - Controls */}
           <div className="space-y-2">
             {/* Device Selection */}
-            <div className="bg-white rounded-lg shadow-sm p-2">
+            <div className="bg-white rounded-lg p-2">
               <h2 className="text-sm font-semibold mb-2 flex items-center gap-2">
                 <DeviceMobile size={20} />
                 Select Device
@@ -140,11 +140,11 @@ export function MobileEmulatorTestScreen() {
                     className={`w-full text-left p-3 rounded-lg border transition-colors ${
                       selectedDevice.id === device.id
                         ? 'border-emerald-500 bg-emerald-500/5'
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-white/[0.08] hover:border-white/[0.08]'
                     }`}
                   >
                     <div className="font-medium">{device.name}</div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-white/40">
                       {device.width} × {device.height} • {device.platform.toUpperCase()}
                     </div>
                   </button>
@@ -153,7 +153,7 @@ export function MobileEmulatorTestScreen() {
             </div>
 
             {/* Orientation Toggle */}
-            <div className="bg-white rounded-lg shadow-sm p-2">
+            <div className="bg-white rounded-lg p-2">
               <h3 className="font-semibold mb-3">Orientation</h3>
               <div className="flex gap-2">
                 <button
@@ -161,7 +161,7 @@ export function MobileEmulatorTestScreen() {
                   className={`flex-1 py-2 px-2 rounded-lg border transition-colors ${
                     orientation === 'portrait'
                       ? 'border-emerald-500 bg-emerald-500/5 text-emerald-700'
-                      : 'border-gray-200 hover:border-gray-300'
+                      : 'border-white/[0.08] hover:border-white/[0.08]'
                   }`}
                 >
                   Portrait
@@ -171,7 +171,7 @@ export function MobileEmulatorTestScreen() {
                   className={`flex-1 py-2 px-2 rounded-lg border transition-colors ${
                     orientation === 'landscape'
                       ? 'border-emerald-500 bg-emerald-500/5 text-emerald-700'
-                      : 'border-gray-200 hover:border-gray-300'
+                      : 'border-white/[0.08] hover:border-white/[0.08]'
                   }`}
                 >
                   Landscape
@@ -180,7 +180,7 @@ export function MobileEmulatorTestScreen() {
             </div>
 
             {/* API Testing */}
-            <div className="bg-white rounded-lg shadow-sm p-2">
+            <div className="bg-white rounded-lg p-2">
               <h2 className="text-sm font-semibold mb-2 flex items-center gap-2">
                 <Database size={20} />
                 API Endpoints
@@ -188,7 +188,7 @@ export function MobileEmulatorTestScreen() {
               <button
                 onClick={testAllAPIs}
                 disabled={isTestingAPI}
-                className="w-full mb-2 py-2 px-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
+                className="w-full mb-2 py-2 px-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-white/[0.08] text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
               >
                 <Play size={16} />
                 {isTestingAPI ? 'Testing...' : 'Test All APIs'}
@@ -197,11 +197,11 @@ export function MobileEmulatorTestScreen() {
                 {apiResults.map((endpoint, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-2 rounded border border-gray-200"
+                    className="flex items-center justify-between p-2 rounded border border-white/[0.08]"
                   >
                     <div>
                       <div className="font-medium text-sm">{endpoint.name}</div>
-                      <div className="text-xs text-gray-500">{endpoint.url}</div>
+                      <div className="text-xs text-white/40">{endpoint.url}</div>
                     </div>
                     {endpoint.status === 'success' && (
                       <CheckCircle size={20} className="text-green-600" />
@@ -210,7 +210,7 @@ export function MobileEmulatorTestScreen() {
                       <XCircle size={20} className="text-red-600" />
                     )}
                     {endpoint.status === 'pending' && (
-                      <div className="w-3 h-3 border-2 border-gray-300 border-t-emerald-600 rounded-full animate-spin" />
+                      <div className="w-3 h-3 border-2 border-white/[0.08] border-t-emerald-600 rounded-full animate-spin" />
                     )}
                   </div>
                 ))}
@@ -218,7 +218,7 @@ export function MobileEmulatorTestScreen() {
             </div>
 
             {/* URL Control */}
-            <div className="bg-white rounded-lg shadow-sm p-2">
+            <div className="bg-white rounded-lg p-2">
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Globe size={20} />
                 URL
@@ -227,7 +227,7 @@ export function MobileEmulatorTestScreen() {
                 type="text"
                 value={iframeUrl}
                 onChange={(e) => setIframeUrl(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-white/[0.08] rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="http://localhost:5000"
               />
               <button
@@ -235,7 +235,7 @@ export function MobileEmulatorTestScreen() {
                   const iframe = document.getElementById('mobile-emulator-frame') as HTMLIFrameElement | null
                   if (iframe) iframe.src = iframeUrl
                 }}
-                className="w-full mt-2 py-2 px-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                className="w-full mt-2 py-2 px-2 bg-white/[0.15] hover:bg-white/[0.08] text-white rounded-lg transition-colors"
               >
                 Reload
               </button>
@@ -244,11 +244,11 @@ export function MobileEmulatorTestScreen() {
 
           {/* Center/Right - Device Preview */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-3">
+            <div className="bg-white rounded-lg p-3">
               <div className="mb-2 flex items-center justify-between">
                 <div>
                   <h2 className="text-sm font-semibold">{selectedDevice.name}</h2>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-white/40">
                     {dimensions.width} × {dimensions.height} • {orientation}
                   </p>
                 </div>
@@ -261,7 +261,7 @@ export function MobileEmulatorTestScreen() {
               {/* Device Frame */}
               <div className="flex justify-center">
                 <div
-                  className="bg-gray-900 rounded-3xl p-2 shadow-sm"
+                  className="bg-[#111113] rounded-3xl p-2"
                   style={{
                     width: dimensions.width + 32,
                     height: dimensions.height + 32
@@ -286,7 +286,7 @@ export function MobileEmulatorTestScreen() {
               </div>
 
               {/* Device Info */}
-              <div className="mt-2 p-2 bg-gray-50 rounded-lg">
+              <div className="mt-2 p-2 bg-white/[0.03] rounded-lg">
                 <h3 className="font-semibold mb-2 text-sm">Device Information</h3>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
@@ -299,7 +299,7 @@ export function MobileEmulatorTestScreen() {
                   </div>
                   <div className="col-span-2">
                     <span className="text-white/70">User Agent:</span>
-                    <div className="mt-1 text-xs text-gray-500 break-all">
+                    <div className="mt-1 text-xs text-white/40 break-all">
                       {selectedDevice.userAgent}
                     </div>
                   </div>

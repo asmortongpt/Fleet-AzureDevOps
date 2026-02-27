@@ -82,7 +82,7 @@ const normalizeGeofence = (row: any): Geofence => {
       : undefined,
     radius: row.radius != null ? Number(row.radius) : row.radius_meters != null ? Number(row.radius_meters) : undefined,
     coordinates: Array.isArray(polygon) ? polygon : polygon?.coordinates,
-    color: row.color || '#3B82F6',
+    color: row.color || '#10b981',
     active: row.isActive ?? row.is_active ?? true,
     triggers: {
       onEnter: !!triggers.onEnter,
@@ -430,13 +430,13 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         const statusConfig = [
           { key: 'active', label: 'Active', color: '#10b981' },
           { key: 'idle', label: 'Idle', color: '#6b7280' },
-          { key: 'charging', label: 'Charging', color: '#06b6d4' },
+          { key: 'charging', label: 'Charging', color: '#10b981' },
           { key: 'service', label: 'Service', color: '#f59e0b' },
           { key: 'emergency', label: 'Emergency', color: '#ef4444' },
           { key: 'offline', label: 'Offline', color: '#374151' },
-          { key: 'assigned', label: 'Assigned', color: '#818cf8' },
+          { key: 'assigned', label: 'Assigned', color: '#a3a3a3' },
           { key: 'dispatched', label: 'Dispatched', color: '#fb923c' },
-          { key: 'en_route', label: 'En Route', color: '#38bdf8' },
+          { key: 'en_route', label: 'En Route', color: '#14b8a6' },
           { key: 'on_site', label: 'On Site', color: '#facc15' },
           { key: 'completed', label: 'Completed', color: '#34d399' },
           { key: 'maintenance', label: 'Maintenance', color: '#f59e0b' },
@@ -578,24 +578,24 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         const vEngineHours = selectedVehicle.engineHours || selectedVehicle.engine_hours;
 
         return (
-          <Card className="bg-white/[0.03] backdrop-blur-lg border-white/[0.08] shadow-sm">
+          <Card className="bg-white/[0.03] border-white/[0.04]">
             {/* Header */}
             <CardHeader className="pb-2 pt-3 px-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
                     selectedVehicle.status === 'active' ? 'bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.5)]' :
-                    selectedVehicle.status === 'idle' ? 'bg-gray-400' :
-                    selectedVehicle.status === 'charging' ? 'bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.5)]' :
+                    selectedVehicle.status === 'idle' ? 'bg-white/30' :
+                    selectedVehicle.status === 'charging' ? 'bg-emerald-400 shadow-[0_0_6px_rgba(6,182,212,0.5)]' :
                     selectedVehicle.status === 'service' ? 'bg-amber-400' :
                     selectedVehicle.status === 'emergency' ? 'bg-red-400 shadow-[0_0_6px_rgba(239,68,68,0.5)]' :
-                    selectedVehicle.status === 'assigned' ? 'bg-indigo-400 shadow-[0_0_6px_rgba(129,140,248,0.5)]' :
+                    selectedVehicle.status === 'assigned' ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]' :
                     selectedVehicle.status === 'dispatched' ? 'bg-orange-400 shadow-[0_0_6px_rgba(251,146,60,0.5)]' :
-                    selectedVehicle.status === 'en_route' ? 'bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.5)]' :
+                    selectedVehicle.status === 'en_route' ? 'bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.5)]' :
                     selectedVehicle.status === 'on_site' ? 'bg-yellow-400 shadow-[0_0_6px_rgba(250,204,21,0.5)]' :
                     selectedVehicle.status === 'completed' ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]' :
                     selectedVehicle.status === 'maintenance' ? 'bg-amber-400' :
-                    'bg-gray-500'
+                    'bg-white/30'
                   }`} />
                   <span className="font-semibold text-sm text-white/95 truncate">
                     {selectedVehicle.name || formatVehicleName(selectedVehicle)}
@@ -605,14 +605,14 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                   selectedVehicle.status === 'active' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
                   selectedVehicle.status === 'service' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
                   selectedVehicle.status === 'emergency' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                  selectedVehicle.status === 'charging' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' :
-                  selectedVehicle.status === 'assigned' ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' :
+                  selectedVehicle.status === 'charging' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                  selectedVehicle.status === 'assigned' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
                   selectedVehicle.status === 'dispatched' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' :
-                  selectedVehicle.status === 'en_route' ? 'bg-sky-500/20 text-sky-400 border-sky-500/30' :
+                  selectedVehicle.status === 'en_route' ? 'bg-teal-500/20 text-teal-400 border-teal-500/30' :
                   selectedVehicle.status === 'on_site' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
                   selectedVehicle.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
                   selectedVehicle.status === 'maintenance' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
-                  'bg-white/[0.06] text-white/50 border-white/[0.08]'
+                  'bg-white/[0.06] text-white/50 border-white/[0.04]'
                 }`}>
                   {formatEnum(selectedVehicle.status)}
                 </Badge>
@@ -786,7 +786,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 h-7 text-[10px] border-white/[0.08] hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-400"
+                  className="flex-1 h-7 text-[10px] border-white/[0.04] hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-400"
                   onClick={() => openDrilldown({
                     type: 'vehicle',
                     label: selectedVehicle.vehicleNumber || selectedVehicle.number || 'Vehicle',
@@ -799,7 +799,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 h-7 text-[10px] border-white/[0.08] hover:border-cyan-500/40 hover:bg-cyan-500/10 hover:text-cyan-400"
+                  className="flex-1 h-7 text-[10px] border-white/[0.04] hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-400"
                   onClick={() => navigateTo('fleet')}
                 >
                   Dispatch
@@ -807,7 +807,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 h-7 text-[10px] border-white/[0.08] hover:border-amber-500/40 hover:bg-amber-500/10 hover:text-amber-400"
+                  className="flex-1 h-7 text-[10px] border-white/[0.04] hover:border-amber-500/40 hover:bg-amber-500/10 hover:text-amber-400"
                   onClick={() => navigateTo('maintenance')}
                 >
                   Maint.
@@ -849,14 +849,14 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
               placeholder="Search vehicles..."
               value={sideSearch}
               onChange={(e) => setSideSearch(e.target.value)}
-              className="w-full h-7 pl-7 pr-2 text-[11px] bg-white/[0.03] border border-white/[0.08] rounded-md text-white/80 placeholder:text-white/25 focus:outline-none focus:border-white/[0.15]"
+              className="w-full h-7 pl-7 pr-2 text-[11px] bg-white/[0.03] border border-white/[0.04] rounded-md text-white/80 placeholder:text-white/25 focus:outline-none focus:border-white/[0.15]"
             />
           </div>
           <button
             onClick={() => setSideSort(prev =>
               prev === 'status' ? 'name' : prev === 'name' ? 'fuel' : prev === 'fuel' ? 'health' : 'status'
             )}
-            className="flex items-center gap-1 h-7 px-2 text-[10px] text-white/40 hover:text-white/70 bg-white/[0.03] border border-white/[0.08] rounded-md transition-colors"
+            className="flex items-center gap-1 h-7 px-2 text-[10px] text-white/40 hover:text-white/70 bg-white/[0.03] border border-white/[0.04] rounded-md transition-colors"
             title={`Sort by ${sideSort}`}
           >
             <ArrowUpDown className="h-3 w-3" />
@@ -872,7 +872,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         </div>
 
         {/* Mobile: List variant */}
-        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-white/[0.08]">
+        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-white/[0.04]">
           {sortedVehicles.slice(0, 10).map((vehicle: any) => (
             <MobileVehicleCard
               key={vehicle.id}
@@ -900,7 +900,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 key={vehicle.id}
                 className={`px-2 py-1.5 rounded-md border cursor-pointer transition-all ${isSelected
                   ? 'border-emerald-500/40 bg-emerald-500/[0.06]'
-                  : 'border-transparent hover:border-white/[0.08] hover:bg-white/[0.02]'
+                  : 'border-transparent hover:border-white/[0.04] hover:bg-white/[0.02]'
                 }`}
                 onClick={() => {
                   setSelectedVehicleId(vehicle.id);
@@ -920,14 +920,14 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                       vehicle.status === 'active' ? 'bg-emerald-400' :
                       vehicle.status === 'service' ? 'bg-amber-400' :
                       vehicle.status === 'emergency' ? 'bg-red-400' :
-                      vehicle.status === 'charging' ? 'bg-cyan-400' :
-                      vehicle.status === 'assigned' ? 'bg-indigo-400' :
+                      vehicle.status === 'charging' ? 'bg-emerald-400' :
+                      vehicle.status === 'assigned' ? 'bg-emerald-400' :
                       vehicle.status === 'dispatched' ? 'bg-orange-400' :
-                      vehicle.status === 'en_route' ? 'bg-sky-400' :
+                      vehicle.status === 'en_route' ? 'bg-teal-400' :
                       vehicle.status === 'on_site' ? 'bg-yellow-400' :
                       vehicle.status === 'completed' ? 'bg-emerald-400' :
                       vehicle.status === 'maintenance' ? 'bg-amber-400' :
-                      'bg-gray-500'
+                      'bg-white/30'
                     }`} />
                     <span className="font-medium text-[11px] text-white/90 truncate">
                       {vehicle.vehicleNumber || vehicle.number || '—'}

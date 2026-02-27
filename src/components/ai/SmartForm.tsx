@@ -166,7 +166,7 @@ export function SmartForm({
       warning: 'bg-yellow-50 border-yellow-200',
       error: 'bg-red-50 border-red-200'
     }
-    return colors[severity as keyof typeof colors] || 'bg-gray-50'
+    return colors[severity as keyof typeof colors] || 'bg-white/[0.03]'
   }
 
   return (

@@ -133,7 +133,7 @@ function DamageMarker({ point, isSelected, onSelect, onRemove, isEditMode }: Dam
                     style={{ pointerEvents: isSelected ? 'auto' : 'none' }}
                 >
                     <div
-                        className="bg-[#111]/95 backdrop-blur-sm rounded-lg p-3 border border-white/[0.08] shadow-sm min-w-[200px]"
+                        className="bg-[#0e0e0e]/95 backdrop-blur-sm rounded-lg p-3 border border-white/[0.04] min-w-[200px]"
                         style={{ transform: 'translateY(-50%)' }}
                     >
                         <div className="flex items-center justify-between mb-2">
@@ -306,7 +306,7 @@ export function DamageSummaryPanel({
                         onClick={() => onSelectDamage(point)}
                         className={`w-full text-left p-2 rounded-lg border transition-colors ${selectedDamageId === point.id
                                 ? 'bg-white/[0.08] border-emerald-500'
-                                : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.05]'
+                                : 'bg-white/[0.02] border-white/[0.04] hover:bg-white/[0.05]'
                             }`}
                     >
                         <div className="flex items-center justify-between">

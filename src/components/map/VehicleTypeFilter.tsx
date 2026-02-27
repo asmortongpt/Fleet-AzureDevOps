@@ -140,7 +140,7 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
       {!expanded ? (
         <button
           onClick={() => setExpanded(true)}
-          className="flex items-center gap-2 bg-[#242424]/95 backdrop-blur-md text-white/90 rounded-lg px-3 py-2 text-xs font-medium border border-white/[0.12] shadow-lg hover:bg-[#2a2a2a] transition-colors"
+          className="flex items-center gap-2 bg-[#111111] text-white/90 rounded-lg px-3 py-2 text-xs font-medium border border-white/[0.04] hover:bg-[#161616] transition-colors"
         >
           <Filter className="h-3.5 w-3.5" />
           <span>Filter Vehicles</span>
@@ -152,9 +152,9 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
           <span className="text-white/40 ml-1">{visibleCount}/{vehicles.length}</span>
         </button>
       ) : (
-        <div className="bg-[#242424]/95 backdrop-blur-md rounded-lg border border-white/[0.12] shadow-xl overflow-hidden">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.08]">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.04]">
             <div className="flex items-center gap-2">
               <Filter className="h-3.5 w-3.5 text-white/60" />
               <span className="text-xs font-semibold text-white/90">Vehicle Filters</span>
@@ -179,7 +179,7 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
           </div>
 
           {/* Search */}
-          <div className="px-3 py-2 border-b border-white/[0.08]">
+          <div className="px-3 py-2 border-b border-white/[0.04]">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-white/30" />
               <input
@@ -187,13 +187,13 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
                 value={filters.search}
                 onChange={(e) => onFiltersChange({ ...filters, search: e.target.value })}
                 placeholder="Search name, number..."
-                className="w-full bg-white/[0.05] border border-white/[0.08] rounded text-xs text-white/90 placeholder:text-white/30 pl-7 pr-2 py-1.5 focus:outline-none focus:border-emerald-500/50"
+                className="w-full bg-white/[0.05] border border-white/[0.04] rounded text-xs text-white/90 placeholder:text-white/30 pl-7 pr-2 py-1.5 focus:outline-none focus:border-emerald-500/50"
               />
             </div>
           </div>
 
           {/* Vehicle Types */}
-          <div className="px-3 py-2 border-b border-white/[0.08]">
+          <div className="px-3 py-2 border-b border-white/[0.04]">
             <div className="text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-1.5">Vehicle Type</div>
             <div className="flex flex-wrap gap-1">
               {availableTypes.map((type) => {

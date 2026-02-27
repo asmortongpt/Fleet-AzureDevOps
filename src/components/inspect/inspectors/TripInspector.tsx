@@ -105,7 +105,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
 
   if (!trip) {
     return (
-      <div className="p-3 text-gray-700">
+      <div className="p-3 text-white/40">
         No trip data available
       </div>
     );
@@ -117,10 +117,10 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
       <div className="border-b p-2">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-gray-900 dark:text-white">
+            <h2 className="text-sm font-bold text-white/80 dark:text-white">
               Trip #{String(trip.id).slice(0, 8)}
             </h2>
-            <p className="text-sm text-white/40 dark:text-gray-700">
+            <p className="text-sm text-white/40 dark:text-white/40">
               {trip.vehicleName} • {trip.driverName}
             </p>
           </div>
@@ -160,9 +160,9 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                   <p className="text-sm font-bold text-yellow-600">{(trip.fuelConsumed ?? 0).toFixed(1)}</p>
                   <p className="text-sm text-white/40">Gallons</p>
                 </div>
-                <div className="text-center p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                  <DollarSign className="w-4 h-4 mx-auto mb-2 text-purple-600" />
-                  <p className="text-sm font-bold text-purple-600">${(trip.fuelCost ?? 0).toFixed(2)}</p>
+                <div className="text-center p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                  <DollarSign className="w-4 h-4 mx-auto mb-2 text-amber-600" />
+                  <p className="text-sm font-bold text-amber-600">${(trip.fuelCost ?? 0).toFixed(2)}</p>
                   <p className="text-sm text-white/40">Fuel Cost</p>
                 </div>
               </div>
@@ -226,8 +226,8 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
         <TabsContent value="route" className="p-2">
           <Card className="p-2">
             <h3 className="text-sm font-semibold mb-2">Trip Route</h3>
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg h-96 flex items-center justify-center">
-              <p className="text-gray-700">Map visualization would appear here</p>
+            <div className="bg-white/[0.05] dark:bg-[#18181b] rounded-lg h-96 flex items-center justify-center">
+              <p className="text-white/40">Map visualization would appear here</p>
             </div>
             <div className="mt-2 grid grid-cols-3 gap-2 text-center">
               <div>
@@ -254,40 +254,40 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
               <div className="flex gap-2">
                 <div className="flex flex-col items-center">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <div className="w-px h-full bg-gray-300"></div>
+                  <div className="w-px h-full bg-white/[0.08]"></div>
                 </div>
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Trip Started</p>
                   <p className="text-sm text-white/40">{formatDateTime(trip.startTime)}</p>
                   {trip.startLocation.address && (
-                    <p className="text-sm text-gray-700">{trip.startLocation.address}</p>
+                    <p className="text-sm text-white/40">{trip.startLocation.address}</p>
                   )}
                 </div>
               </div>
               <div className="flex gap-2">
                 <div className="flex flex-col items-center">
                   <div className="w-3 h-3 bg-emerald-500/100 rounded-full"></div>
-                  <div className="w-px h-full bg-gray-300"></div>
+                  <div className="w-px h-full bg-white/[0.08]"></div>
                 </div>
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Rest Stop</p>
                   <p className="text-sm text-white/40">
                     {formatDateTime(new Date(new Date(trip.startTime).getTime() + (trip.duration * 60000 * 0.3)))}
                   </p>
-                  <p className="text-sm text-gray-700">Duration: 15 minutes</p>
+                  <p className="text-sm text-white/40">Duration: 15 minutes</p>
                 </div>
               </div>
               <div className="flex gap-2">
                 <div className="flex flex-col items-center">
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-px h-full bg-gray-300"></div>
+                  <div className="w-px h-full bg-white/[0.08]"></div>
                 </div>
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Refueling Stop</p>
                   <p className="text-sm text-white/40">
                     {formatDateTime(new Date(new Date(trip.startTime).getTime() + (trip.duration * 60000 * 0.6)))}
                   </p>
-                  <p className="text-sm text-gray-700">Duration: 10 minutes</p>
+                  <p className="text-sm text-white/40">Duration: 10 minutes</p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -298,7 +298,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                   <p className="font-medium">Trip Ended</p>
                   <p className="text-sm text-white/40">{formatDateTime(trip.endTime)}</p>
                   {trip.endLocation.address && (
-                    <p className="text-sm text-gray-700">{trip.endLocation.address}</p>
+                    <p className="text-sm text-white/40">{trip.endLocation.address}</p>
                   )}
                 </div>
               </div>

@@ -156,7 +156,7 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
         <div className="p-2 space-y-2">
           {/* Preset ranges */}
           <div>
-            <h4 className="text-sm font-medium mb-2 text-gray-700">Quick Select</h4>
+            <h4 className="text-sm font-medium mb-2 text-white/40">Quick Select</h4>
             <div className="grid grid-cols-2 gap-2">
               {PRESETS.map((preset) => (
                 <Button
@@ -164,7 +164,7 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
                   variant="outline"
                   size="sm"
                   onClick={() => handlePresetClick(preset)}
-                  className={`justify-start ${value.label === preset.label ? 'bg-indigo-50 border-indigo-300 text-indigo-700' : ''}`}
+                  className={`justify-start ${value.label === preset.label ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : ''}`}
                 >
                   {preset.label}
                 </Button>
@@ -174,7 +174,7 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
 
           {/* Custom range */}
           <div className="border-t pt-2">
-            <h4 className="text-sm font-medium mb-2 text-gray-700">Custom Range</h4>
+            <h4 className="text-sm font-medium mb-2 text-white/40">Custom Range</h4>
             <div className="space-y-2">
               <div>
                 <label htmlFor="custom-start" className="block text-xs text-white/70 mb-1">
@@ -185,7 +185,7 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
                   type="date"
                   value={customStart}
                   onChange={(e) => setCustomStart(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-full px-3 py-2 border border-white/[0.08] rounded-md text-sm"
                 />
               </div>
               <div>
@@ -198,7 +198,7 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
                   value={customEnd}
                   onChange={(e) => setCustomEnd(e.target.value)}
                   min={customStart}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-full px-3 py-2 border border-white/[0.08] rounded-md text-sm"
                 />
               </div>
               <Button

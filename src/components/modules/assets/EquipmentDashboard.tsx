@@ -144,9 +144,9 @@ export function EquipmentDashboard() {
       in_use: "bg-emerald-500/10 text-emerald-700",
       maintenance: "bg-yellow-100 text-yellow-700",
       down: "bg-red-100 text-red-700",
-      rental: "bg-purple-100 text-purple-700"
+      rental: "bg-amber-100 text-amber-700"
     }
-    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-700"
+    return colors[status as keyof typeof colors] || "bg-white/[0.05] text-white/40"
   }
 
   const getPriorityColor = (priority: string) => {
@@ -156,7 +156,7 @@ export function EquipmentDashboard() {
       medium: "bg-yellow-100 text-yellow-700",
       low: "bg-emerald-500/10 text-emerald-700"
     }
-    return colors[priority as keyof typeof colors] || "bg-gray-100 text-gray-700"
+    return colors[priority as keyof typeof colors] || "bg-white/[0.05] text-white/40"
   }
 
   return (
@@ -270,7 +270,7 @@ export function EquipmentDashboard() {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-amber-500"></div>
                     <span className="text-sm">Rental</span>
                   </div>
                   <span className="font-semibold">{rentalEquipment}</span>

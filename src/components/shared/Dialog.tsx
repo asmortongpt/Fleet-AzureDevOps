@@ -62,7 +62,7 @@ export const Dialog: React.FC<DialogProps> = ({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/50 z-40"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -70,7 +70,7 @@ export const Dialog: React.FC<DialogProps> = ({
       {/* Dialog */}
       <div
         className={cn(
-          'bg-card border-l border-border shadow-sm z-50',
+          'bg-[#111111] border-l border-white/[0.04] z-50',
           variantClasses[variant]
         )}
         role="dialog"
@@ -78,11 +78,11 @@ export const Dialog: React.FC<DialogProps> = ({
         aria-labelledby="dialog-title"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-3 border-b border-border">
-          <h2 id="dialog-title" className="text-sm font-semibold">{title}</h2>
+        <div className="flex items-center justify-between p-3 border-b border-white/[0.04]">
+          <h2 id="dialog-title" className="text-sm font-semibold text-white">{title}</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
+            className="p-2 hover:bg-white/[0.04] rounded-lg transition-colors text-white/40 hover:text-white"
             aria-label="Close dialog"
           >
             <X className="w-3 h-3" />
@@ -113,16 +113,16 @@ export const DrilldownDialog: React.FC<{
         <input
           type="text"
           placeholder="Search..."
-          className="w-full px-2 py-2 border border-border rounded-lg"
+          className="w-full px-2 py-2 border border-white/[0.04] rounded-lg bg-[#0e0e0e] text-white placeholder:text-white/35"
         />
 
         {/* Data Table */}
-        <div className="border border-border rounded-lg overflow-hidden">
+        <div className="border border-white/[0.04] rounded-lg overflow-hidden">
           <table className="w-full">
-            <thead className="bg-muted">
+            <thead className="bg-[#1a1a1a]">
               <tr>
                 {columns.map(col => (
-                  <th key={col.key} className="px-2 py-3 text-left font-semibold">
+                  <th key={col.key} className="px-2 py-3 text-left font-semibold text-white/60">
                     {col.label}
                   </th>
                 ))}
@@ -130,9 +130,9 @@ export const DrilldownDialog: React.FC<{
             </thead>
             <tbody>
               {data.map((row, idx) => (
-                <tr key={idx} className="border-t border-border hover:bg-muted/50">
+                <tr key={idx} className="border-t border-white/[0.04] hover:bg-white/[0.04]">
                   {columns.map(col => (
-                    <td key={col.key} className="px-2 py-3">
+                    <td key={col.key} className="px-2 py-3 text-white/60">
                       {row[col.key]}
                     </td>
                   ))}

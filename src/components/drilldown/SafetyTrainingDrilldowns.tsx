@@ -262,7 +262,7 @@ export function TrainingRecordsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[#111111] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalRecords}</div>
             <div className="text-xs text-white/40">Total Records</div>
@@ -286,7 +286,7 @@ export function TrainingRecordsMatrixView() {
             <div className="text-xs text-white/40">Expiring Soon</div>
           </CardContent>
         </Card>
-        <Card className="bg-white/[0.04] border-white/[0.08]">
+        <Card className="bg-white/[0.04] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-emerald-400">{avgScore.toFixed(1)}%</div>
             <div className="text-xs text-white/40">Average Score</div>
@@ -295,7 +295,7 @@ export function TrainingRecordsMatrixView() {
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3">
             <div className="flex-1">
@@ -338,7 +338,7 @@ export function TrainingRecordsMatrixView() {
       </Card>
 
       {/* Excel-Style Training Records Matrix */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <GraduationCap className="w-3 h-3 text-emerald-400" />
@@ -551,7 +551,7 @@ export function CertificationsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[#111111] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalCerts}</div>
             <div className="text-xs text-white/40">Total Certifications</div>
@@ -575,7 +575,7 @@ export function CertificationsMatrixView() {
             <div className="text-xs text-white/40">Expiring Soon</div>
           </CardContent>
         </Card>
-        <Card className="bg-white/[0.04] border-white/[0.08]">
+        <Card className="bg-white/[0.04] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-emerald-400">{formatCurrency(renewalCost)}</div>
             <div className="text-xs text-white/40">Renewal Cost</div>
@@ -584,7 +584,7 @@ export function CertificationsMatrixView() {
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3">
             <div className="flex-1">
@@ -628,7 +628,7 @@ export function CertificationsMatrixView() {
       </Card>
 
       {/* Excel-Style Certifications Matrix */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Medal className="w-3 h-3 text-amber-400" />

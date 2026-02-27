@@ -223,9 +223,9 @@ function PhotoUploadModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-[#1a1a1a] rounded-xl border border-white/[0.08] shadow-2xl">
+      <div className="w-full max-w-lg bg-[#0e0e0e] rounded-xl border border-white/[0.04]">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.04]">
           <h3 className="text-sm font-semibold text-white">Vehicle Photos & Wraps</h3>
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose} aria-label="Close gallery">
             <X className="w-4 h-4 text-white/60" />
@@ -253,7 +253,7 @@ function PhotoUploadModal({
         {/* Upload zones */}
         <div className="p-4 space-y-3">
           {/* Image upload */}
-          <label className="block border-2 border-dashed border-white/[0.12] rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/40 transition-colors">
+          <label className="block border-2 border-dashed border-white/[0.04] rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/40 transition-colors">
             <input type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
             <Upload className="mx-auto h-6 w-6 text-white/30 mb-1" />
             <p className="text-xs text-white/50">
@@ -262,7 +262,7 @@ function PhotoUploadModal({
           </label>
 
           {/* Video upload for wrap extraction */}
-          <label className="block border-2 border-dashed border-white/[0.12] rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/40 transition-colors">
+          <label className="block border-2 border-dashed border-white/[0.04] rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/40 transition-colors">
             <input type="file" accept="video/*" className="hidden" onChange={handleVideoFile} />
             <Video className="mx-auto h-6 w-6 text-white/30 mb-1" />
             <p className="text-xs text-white/50">
@@ -1031,12 +1031,12 @@ export default function VehicleShowroom3D() {
       {/* Interior photos overlay (when in interior mode) */}
       {/* ========================================== */}
       {viewMode === 'interior' && vehiclePhotos.filter(p => p.category === 'interior').length > 0 && (
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10 flex gap-2 p-2 bg-[#111]/70 backdrop-blur-sm rounded-xl border border-white/[0.08]">
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10 flex gap-2 p-2 bg-[#111]/70 backdrop-blur-sm rounded-xl border border-white/[0.04]">
           {vehiclePhotos
             .filter(p => p.category === 'interior')
             .slice(0, 6)
             .map((photo) => (
-              <div key={photo.id} className="w-20 h-14 rounded-lg overflow-hidden border border-white/[0.08] cursor-pointer hover:border-emerald-500/50 transition-colors">
+              <div key={photo.id} className="w-20 h-14 rounded-lg overflow-hidden border border-white/[0.04] cursor-pointer hover:border-emerald-500/50 transition-colors">
                 <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
               </div>
             ))}
@@ -1046,7 +1046,7 @@ export default function VehicleShowroom3D() {
       {/* ========================================== */}
       {/* Layer 1: Top bar (glassmorphism, h-12)      */}
       {/* ========================================== */}
-      <div className="absolute top-0 left-0 right-0 z-20 h-12 bg-[#111]/80 backdrop-blur-md border-b border-white/[0.08] flex items-center px-4 gap-3">
+      <div className="absolute top-0 left-0 right-0 z-20 h-12 bg-[#111]/80 backdrop-blur-md border-b border-white/[0.04] flex items-center px-4 gap-3">
         {/* Back button */}
         <Button
           variant="ghost"
@@ -1060,7 +1060,7 @@ export default function VehicleShowroom3D() {
 
         {/* Vehicle dropdown selector */}
         <Select value={selectedVehicle.id} onValueChange={handleVehicleSelect}>
-          <SelectTrigger className="w-52 h-8 text-xs bg-white/[0.05] border-white/[0.08] text-white">
+          <SelectTrigger className="w-52 h-8 text-xs bg-white/[0.05] border-white/[0.04] text-white">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="max-h-80">
@@ -1128,7 +1128,7 @@ export default function VehicleShowroom3D() {
         <div className="flex-1" />
 
         {/* Interior / Exterior segmented control */}
-        <div className="flex h-8 rounded-lg border border-white/[0.08] overflow-hidden bg-white/[0.03]">
+        <div className="flex h-8 rounded-lg border border-white/[0.04] overflow-hidden bg-white/[0.03]">
           <button
             onClick={() => setViewMode('exterior')}
             className={cn(
@@ -1194,14 +1194,14 @@ export default function VehicleShowroom3D() {
       {/* ========================================== */}
       {/* Layer 2: Left HUD (glassmorphism overlay)   */}
       {/* ========================================== */}
-      <div className="absolute left-4 top-16 w-56 z-10 bg-[#111]/70 backdrop-blur-sm rounded-xl border border-white/[0.08] p-3 max-h-[calc(100vh-140px)] overflow-y-auto">
+      <div className="absolute left-4 top-16 w-56 z-10 bg-[#111]/70 backdrop-blur-sm rounded-xl border border-white/[0.04] p-3 max-h-[calc(100vh-140px)] overflow-y-auto">
         <VehicleHUD stats={vehicleStats} compact />
       </div>
 
       {/* ========================================== */}
       {/* Layer 3: Bottom action bar (h-14)           */}
       {/* ========================================== */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 h-14 bg-[#111]/80 backdrop-blur-md border-t border-white/[0.08] flex items-center justify-center gap-1 px-4">
+      <div className="absolute bottom-0 left-0 right-0 z-20 h-14 bg-[#111]/80 backdrop-blur-md border-t border-white/[0.04] flex items-center justify-center gap-1 px-4">
         {/* Camera preset buttons */}
         {CAMERA_PRESETS.map((preset) => {
           const Icon = preset.icon;
@@ -1228,7 +1228,7 @@ export default function VehicleShowroom3D() {
         })}
 
         {/* Separator */}
-        <div className="w-px h-8 bg-white/[0.08] mx-2" />
+        <div className="w-px h-8 bg-white/[0.04] mx-2" />
 
         {/* Action buttons */}
         <button
@@ -1358,12 +1358,12 @@ export default function VehicleShowroom3D() {
       {/* ========================================== */}
       <div
         className={cn(
-          'absolute right-0 top-12 bottom-14 w-96 z-30 bg-[#1a1a1a] border-l border-white/[0.08] transition-transform duration-300 overflow-hidden flex flex-col',
+          'absolute right-0 top-12 bottom-14 w-96 z-30 bg-[#0e0e0e] border-l border-white/[0.04] transition-transform duration-300 overflow-hidden flex flex-col',
           isDataPanelOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
         {/* Panel header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.08] shrink-0">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.04] shrink-0">
           <span className="text-xs font-semibold text-white/80">Vehicle Data</span>
           <Button
             variant="ghost"
@@ -1379,7 +1379,7 @@ export default function VehicleShowroom3D() {
         {/* Scrollable tab content */}
         <div className="flex-1 overflow-y-auto">
           <Tabs value={dataPanelTab} onValueChange={setDataPanelTab} className="w-full">
-            <TabsList className="sticky top-0 z-10 bg-[#1a1a1a] w-full flex flex-wrap h-auto gap-0.5 p-1 rounded-none border-b border-white/[0.08]">
+            <TabsList className="sticky top-0 z-10 bg-[#0e0e0e] w-full flex flex-wrap h-auto gap-0.5 p-1 rounded-none border-b border-white/[0.04]">
               <TabsTrigger value="overview" className="text-[10px] h-7 flex-1 min-w-[60px]">Overview</TabsTrigger>
               <TabsTrigger value="maintenance" className="text-[10px] h-7 flex-1 min-w-[60px]">Maint.</TabsTrigger>
               <TabsTrigger value="driver" className="text-[10px] h-7 flex-1 min-w-[60px]">Driver</TabsTrigger>
@@ -1396,7 +1396,7 @@ export default function VehicleShowroom3D() {
             <TabsContent value="overview" className="p-3 space-y-3 mt-0">
               {/* 4 stat cards */}
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                   <div className="text-[10px] text-white/50 mb-1">Health Score</div>
                   <div className="text-lg font-bold text-emerald-400">
                     {vehicleDetail?.health_score || 85}%
@@ -1408,7 +1408,7 @@ export default function VehicleShowroom3D() {
                     />
                   </div>
                 </div>
-                <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                   <div className="text-[10px] text-white/50 mb-1">Fuel Level</div>
                   <div className="text-lg font-bold text-white">
                     {selectedVehicle.fuel_level_percent != null
@@ -1416,7 +1416,7 @@ export default function VehicleShowroom3D() {
                       : '\u2014'}
                   </div>
                 </div>
-                <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                   <div className="text-[10px] text-white/50 mb-1">Odometer</div>
                   <div className="text-lg font-bold text-white">
                     {selectedVehicle.current_odometer_miles
@@ -1425,7 +1425,7 @@ export default function VehicleShowroom3D() {
                   </div>
                   <div className="text-[9px] text-white/40">miles</div>
                 </div>
-                <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                   <div className="text-[10px] text-white/50 mb-1">Status</div>
                   <div className="mt-1">
                     {selectedVehicle.status ? (
@@ -1440,7 +1440,7 @@ export default function VehicleShowroom3D() {
               </div>
 
               {/* Vehicle Info */}
-              <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+              <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                 <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2">
                   Vehicle Info
                 </h4>
@@ -1471,7 +1471,7 @@ export default function VehicleShowroom3D() {
               </div>
 
               {/* Upcoming */}
-              <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+              <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                 <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2">
                   Upcoming
                 </h4>
@@ -1509,7 +1509,7 @@ export default function VehicleShowroom3D() {
 
               {/* Feature 5: Condition History chart */}
               {scanHistory.length > 1 && (
-                <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide">
                       Condition History
@@ -1593,11 +1593,11 @@ export default function VehicleShowroom3D() {
                       )}
                     </span>
                   </div>
-                  <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
+                  <div className="bg-[#111111] rounded-lg border border-white/[0.04] overflow-hidden">
                     <div className="max-h-[500px] overflow-y-auto">
                       <table className="w-full text-xs">
-                        <thead className="sticky top-0 bg-[#242424] z-10">
-                          <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                        <thead className="sticky top-0 bg-[#111111] z-10">
+                          <tr className="text-[10px] text-white/40 border-b border-white/[0.04]">
                             <th className="text-left px-2 py-1.5">Date</th>
                             <th className="text-left px-2 py-1.5">WO #</th>
                             <th className="text-left px-2 py-1.5">Type</th>
@@ -1666,7 +1666,7 @@ export default function VehicleShowroom3D() {
                       (a: any) => a.lifecycle_state === 'active' || a.status === 'active'
                     );
                     return current ? (
-                      <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                      <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                         <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2">
                           Current Driver
                         </h4>
@@ -1699,7 +1699,7 @@ export default function VehicleShowroom3D() {
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                      <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                         <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2">
                           Current Driver
                         </h4>
@@ -1712,16 +1712,16 @@ export default function VehicleShowroom3D() {
                   {(() => {
                     const assignArr = Array.isArray(assignments) ? assignments : [];
                     return assignArr.length > 0 ? (
-                      <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
-                        <div className="p-2 border-b border-white/[0.06]">
+                      <div className="bg-[#111111] rounded-lg border border-white/[0.04] overflow-hidden">
+                        <div className="p-2 border-b border-white/[0.04]">
                           <span className="text-[10px] font-semibold text-white/60">
                             Assignment History ({assignArr.length})
                           </span>
                         </div>
                         <div className="max-h-[300px] overflow-y-auto">
                           <table className="w-full text-xs">
-                            <thead className="sticky top-0 bg-[#242424]">
-                              <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                            <thead className="sticky top-0 bg-[#111111]">
+                              <tr className="text-[10px] text-white/40 border-b border-white/[0.04]">
                                 <th className="text-left px-2 py-1.5">Driver</th>
                                 <th className="text-left px-2 py-1.5">Type</th>
                                 <th className="text-left px-2 py-1.5">Start</th>
@@ -1775,8 +1775,8 @@ export default function VehicleShowroom3D() {
               ) : inspectionsArr.length === 0 ? (
                 <EmptyState icon={FileText} message="No inspection records" />
               ) : (
-                <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
-                  <div className="p-2 border-b border-white/[0.06]">
+                <div className="bg-[#111111] rounded-lg border border-white/[0.04] overflow-hidden">
+                  <div className="p-2 border-b border-white/[0.04]">
                     <span className="text-[10px] font-semibold text-white/60">
                       {inspectionsArr.length} Inspections &bull;{' '}
                       {
@@ -1789,8 +1789,8 @@ export default function VehicleShowroom3D() {
                   </div>
                   <div className="max-h-[400px] overflow-y-auto">
                     <table className="w-full text-xs">
-                      <thead className="sticky top-0 bg-[#242424]">
-                        <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                      <thead className="sticky top-0 bg-[#111111]">
+                        <tr className="text-[10px] text-white/40 border-b border-white/[0.04]">
                           <th className="text-left px-2 py-1.5">Date</th>
                           <th className="text-left px-2 py-1.5">Type</th>
                           <th className="text-left px-2 py-1.5">Result</th>
@@ -1859,7 +1859,7 @@ export default function VehicleShowroom3D() {
                 <div className="space-y-2">
                   {/* Fuel summary */}
                   <div className="grid grid-cols-3 gap-1.5">
-                    <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                    <div className="bg-[#111111] rounded-lg p-2 border border-white/[0.04]">
                       <div className="text-[9px] text-white/50 mb-0.5">Total Gal</div>
                       <div className="text-sm font-bold text-white">
                         {formatNumber(
@@ -1871,7 +1871,7 @@ export default function VehicleShowroom3D() {
                         )}
                       </div>
                     </div>
-                    <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                    <div className="bg-[#111111] rounded-lg p-2 border border-white/[0.04]">
                       <div className="text-[9px] text-white/50 mb-0.5">Total Cost</div>
                       <div className="text-sm font-bold text-white">
                         {formatCurrency(
@@ -1882,7 +1882,7 @@ export default function VehicleShowroom3D() {
                         )}
                       </div>
                     </div>
-                    <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                    <div className="bg-[#111111] rounded-lg p-2 border border-white/[0.04]">
                       <div className="text-[9px] text-white/50 mb-0.5">Avg $/Gal</div>
                       <div className="text-sm font-bold text-white">
                         {(() => {
@@ -1901,11 +1901,11 @@ export default function VehicleShowroom3D() {
                   </div>
 
                   {/* Fuel table */}
-                  <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
+                  <div className="bg-[#111111] rounded-lg border border-white/[0.04] overflow-hidden">
                     <div className="max-h-[350px] overflow-y-auto">
                       <table className="w-full text-xs">
-                        <thead className="sticky top-0 bg-[#242424]">
-                          <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                        <thead className="sticky top-0 bg-[#111111]">
+                          <tr className="text-[10px] text-white/40 border-b border-white/[0.04]">
                             <th className="text-left px-2 py-1.5">Date</th>
                             <th className="text-right px-2 py-1.5">Gal</th>
                             <th className="text-right px-2 py-1.5">Cost</th>
@@ -1960,11 +1960,11 @@ export default function VehicleShowroom3D() {
                       )
                     )}
                   </div>
-                  <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
+                  <div className="bg-[#111111] rounded-lg border border-white/[0.04] overflow-hidden">
                     <div className="max-h-[400px] overflow-y-auto">
                       <table className="w-full text-xs">
-                        <thead className="sticky top-0 bg-[#242424]">
-                          <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                        <thead className="sticky top-0 bg-[#111111]">
+                          <tr className="text-[10px] text-white/40 border-b border-white/[0.04]">
                             <th className="text-left px-2 py-1.5">Date</th>
                             <th className="text-left px-2 py-1.5">Type</th>
                             <th className="text-left px-2 py-1.5">Severity</th>
@@ -2031,7 +2031,7 @@ export default function VehicleShowroom3D() {
                 ) : (
                   <div className="space-y-3">
                     {/* Tire position diagram */}
-                    <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                    <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                       <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2">
                         Tire Positions
                       </h4>
@@ -2048,7 +2048,7 @@ export default function VehicleShowroom3D() {
                               className={cn(
                                 'rounded-lg p-2.5 border',
                                 tire
-                                  ? 'bg-white/[0.03] border-white/[0.08]'
+                                  ? 'bg-white/[0.03] border-white/[0.04]'
                                   : 'bg-white/[0.01] border-white/[0.04] border-dashed'
                               )}
                             >
@@ -2077,11 +2077,11 @@ export default function VehicleShowroom3D() {
                     </div>
 
                     {/* Full tire list */}
-                    <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
+                    <div className="bg-[#111111] rounded-lg border border-white/[0.04] overflow-hidden">
                       <div className="max-h-[200px] overflow-y-auto">
                         <table className="w-full text-xs">
-                          <thead className="sticky top-0 bg-[#242424]">
-                            <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                          <thead className="sticky top-0 bg-[#111111]">
+                            <tr className="text-[10px] text-white/40 border-b border-white/[0.04]">
                               <th className="text-left px-2 py-1.5">Pos</th>
                               <th className="text-left px-2 py-1.5">Tire</th>
                               <th className="text-left px-2 py-1.5">Size</th>
@@ -2141,25 +2141,25 @@ export default function VehicleShowroom3D() {
                 return (
                   <div className="space-y-2">
                     <div className="grid grid-cols-2 gap-1.5">
-                      <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                      <div className="bg-[#111111] rounded-lg p-2 border border-white/[0.04]">
                         <div className="text-[9px] text-white/50 mb-0.5">Total Costs</div>
                         <div className="text-sm font-bold text-white">
                           {formatCurrency(totalCost || maintCost + fuelCost + incidentCost)}
                         </div>
                       </div>
-                      <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                      <div className="bg-[#111111] rounded-lg p-2 border border-white/[0.04]">
                         <div className="text-[9px] text-white/50 mb-0.5">Maintenance</div>
                         <div className="text-sm font-bold text-white">
                           {formatCurrency(maintCost)}
                         </div>
                       </div>
-                      <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                      <div className="bg-[#111111] rounded-lg p-2 border border-white/[0.04]">
                         <div className="text-[9px] text-white/50 mb-0.5">Fuel</div>
                         <div className="text-sm font-bold text-white">
                           {formatCurrency(fuelCost)}
                         </div>
                       </div>
-                      <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                      <div className="bg-[#111111] rounded-lg p-2 border border-white/[0.04]">
                         <div className="text-[9px] text-white/50 mb-0.5">Incidents</div>
                         <div className="text-sm font-bold text-white">
                           {formatCurrency(incidentCost)}
@@ -2168,11 +2168,11 @@ export default function VehicleShowroom3D() {
                     </div>
 
                     {costsArr.length > 0 ? (
-                      <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
+                      <div className="bg-[#111111] rounded-lg border border-white/[0.04] overflow-hidden">
                         <div className="max-h-[300px] overflow-y-auto">
                           <table className="w-full text-xs">
-                            <thead className="sticky top-0 bg-[#242424]">
-                              <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                            <thead className="sticky top-0 bg-[#111111]">
+                              <tr className="text-[10px] text-white/40 border-b border-white/[0.04]">
                                 <th className="text-left px-2 py-1.5">Date</th>
                                 <th className="text-left px-2 py-1.5">Category</th>
                                 <th className="text-left px-2 py-1.5">Desc</th>
@@ -2205,7 +2205,7 @@ export default function VehicleShowroom3D() {
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08] text-center text-[10px] text-white/40">
+                      <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] text-center text-[10px] text-white/40">
                         Cost breakdown from maintenance ({formatCurrency(maintCost)}) and fuel (
                         {formatCurrency(fuelCost)}) records
                       </div>
@@ -2224,7 +2224,7 @@ export default function VehicleShowroom3D() {
                 return (
                   <div className="space-y-3">
                     {/* Insurance */}
-                    <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                    <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                       <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2 flex items-center gap-1">
                         <Shield className="w-3 h-3" /> Insurance
                       </h4>
@@ -2261,7 +2261,7 @@ export default function VehicleShowroom3D() {
                     </div>
 
                     {/* Registration */}
-                    <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                    <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
                       <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2 flex items-center gap-1">
                         <FileText className="w-3 h-3" /> Registration
                       </h4>
@@ -2310,15 +2310,15 @@ export default function VehicleShowroom3D() {
               <div className="space-y-3">
                 {/* History Summary */}
                 <div className="grid grid-cols-3 gap-1.5">
-                  <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                  <div className="bg-[#111111] rounded-lg p-2 border border-white/[0.04]">
                     <div className="text-[9px] text-white/50 mb-0.5">Services</div>
                     <div className="text-sm font-bold text-white">{maintArr.length}</div>
                   </div>
-                  <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                  <div className="bg-[#111111] rounded-lg p-2 border border-white/[0.04]">
                     <div className="text-[9px] text-white/50 mb-0.5">Incidents</div>
                     <div className="text-sm font-bold text-white">{incidentsArr.length}</div>
                   </div>
-                  <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                  <div className="bg-[#111111] rounded-lg p-2 border border-white/[0.04]">
                     <div className="text-[9px] text-white/50 mb-0.5">Inspections</div>
                     <div className="text-sm font-bold text-white">{inspectionsArr.length}</div>
                   </div>
@@ -2336,7 +2336,7 @@ export default function VehicleShowroom3D() {
                       {timelineEvents.map((event) => (
                         <div
                           key={event.id}
-                          className="bg-[#242424] rounded-lg p-2.5 border border-white/[0.08] hover:bg-white/[0.04] transition-colors"
+                          className="bg-[#111111] rounded-lg p-2.5 border border-white/[0.04] hover:bg-white/[0.04] transition-colors"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-2">

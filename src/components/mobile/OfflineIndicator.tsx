@@ -167,11 +167,11 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     return (
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`flex items-center space-x-2 px-3 py-2 rounded-full ${getStatusColor()} border transition-all hover:shadow-sm`}
+        className={`flex items-center space-x-2 px-3 py-2 rounded-full ${getStatusColor()} border transition-all `}
       >
         {getStatusIcon()}
         {isExpanded && (
-          <span className="text-sm font-medium text-gray-700">{getStatusText()}</span>
+          <span className="text-sm font-medium text-white/40">{getStatusText()}</span>
         )}
       </button>
     );
@@ -190,7 +190,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           <div className="flex items-center space-x-3">
             {getStatusIcon()}
             <div>
-              <p className="text-sm font-medium text-gray-800">{getStatusText()}</p>
+              <p className="text-sm font-medium text-white/60">{getStatusText()}</p>
               {syncStatus?.message && (
                 <p className="text-xs text-white/70">{syncStatus.message}</p>
               )}
@@ -201,7 +201,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           <div className="flex items-center space-x-2">
             {showDetails && pendingCount > 0 && (
               <div className="bg-white px-3 py-1 rounded-full">
-                <p className="text-xs font-medium text-gray-700">
+                <p className="text-xs font-medium text-white/40">
                   {pendingCount} operation{pendingCount !== 1 ? 's' : ''}
                 </p>
               </div>
@@ -210,7 +210,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
             {isOnline && !syncStatus?.status.includes('syncing') && (
               <button
                 onClick={handleManualSync}
-                className="bg-white hover:bg-gray-50 p-2 rounded-full transition-colors"
+                className="bg-white hover:bg-white/[0.03] p-2 rounded-full transition-colors"
                 title="Sync now"
                 aria-label="Sync now"
               >
@@ -221,7 +221,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
             {!compact && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-xs font-medium text-white/70 hover:text-gray-800 transition-colors"
+                className="text-xs font-medium text-white/70 hover:text-white/60 transition-colors"
               >
                 {isExpanded ? 'Hide' : 'Details'}
               </button>
@@ -231,29 +231,29 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 
         {/* Expanded Details */}
         {showDetails && isExpanded && (
-          <div className="mt-3 pt-3 border-t border-gray-200">
+          <div className="mt-3 pt-3 border-t border-white/[0.08]">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <p className="text-gray-700">Network Status</p>
-                <p className="font-medium text-gray-800">
+                <p className="text-white/40">Network Status</p>
+                <p className="font-medium text-white/60">
                   {isOnline ? 'Connected' : 'Disconnected'}
                 </p>
               </div>
               <div>
-                <p className="text-gray-700">Pending Operations</p>
-                <p className="font-medium text-gray-800">{pendingCount}</p>
+                <p className="text-white/40">Pending Operations</p>
+                <p className="font-medium text-white/60">{pendingCount}</p>
               </div>
               {lastSyncTime && (
                 <div className="col-span-2">
-                  <p className="text-gray-700">Last Sync</p>
-                  <p className="font-medium text-gray-800">
+                  <p className="text-white/40">Last Sync</p>
+                  <p className="font-medium text-white/60">
                     {formatDateTime(lastSyncTime)}
                   </p>
                 </div>
               )}
               {syncStatus?.error && (
                 <div className="col-span-2">
-                  <p className="text-gray-700">Error</p>
+                  <p className="text-white/40">Error</p>
                   <p className="font-medium text-red-600 text-xs">
                     {typeof syncStatus.error === 'string'
                       ? syncStatus.error
@@ -268,7 +268,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
         {/* Sync Progress Bar */}
         {syncStatus?.status === 'syncing' && syncStatus.progress && (
           <div className="mt-3">
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-white/[0.06] rounded-full h-2">
               <div
                 className="bg-emerald-500/50 h-2 rounded-full transition-all duration-300"
                 style={{

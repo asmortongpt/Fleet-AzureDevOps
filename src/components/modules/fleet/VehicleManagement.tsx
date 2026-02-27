@@ -10,7 +10,7 @@ import { formatVehicleName, formatVehicleShortName } from "@/utils/vehicle-displ
 const StatusChip: React.FC<{status: 'active'|'inactive'|'maintenance'|'retired'; label?: string}> = ({status, label}) => {
   const colorMap = {
     active: '#10b981',
-    inactive: '#94a3b8',
+    inactive: '#9CA3AF',
     maintenance: '#f59e0b',
     retired: '#ef4444'
   }
@@ -103,18 +103,18 @@ export function VehicleManagement() {
   }
 
   return (
-    <div style={{ padding: 32, background: 'var(--bg, #0f172a)', minHeight: '100vh' }}>
+    <div style={{ padding: 32, background: 'var(--bg, #0a0a0a)', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <h2 style={{
           fontSize: 28,
           fontWeight: 700,
-          color: 'var(--text, #f1f5f9)',
+          color: 'var(--text, #f5f5f5)',
           marginBottom: 8
         }}>Vehicle Management</h2>
         <p style={{
           fontSize: 14,
-          color: 'var(--muted, #94a3b8)'
+          color: 'var(--muted, #9CA3AF)'
         }}>Comprehensive fleet vehicle tracking and management</p>
       </div>
 
@@ -130,11 +130,11 @@ export function VehicleManagement() {
           padding: 20,
           borderRadius: 16,
           border: '1px solid rgba(255,255,255,0.08)',
-          background: 'linear-gradient(135deg, rgba(96,165,250,0.15), rgba(255,255,255,0.03))'
+          background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(255,255,255,0.03))'
         }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Total Vehicles</div>
-          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>{metrics.totalVehicles}</div>
-          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'#60a5fa', marginTop:8 }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Total Vehicles</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f5f5f5)' }}>{metrics.totalVehicles}</div>
+          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'#10b981', marginTop:8 }}>
             <Car style={{width:14, height:14}} />
             Fleet
           </div>
@@ -147,7 +147,7 @@ export function VehicleManagement() {
           border: '1px solid rgba(255,255,255,0.08)',
           background: 'rgba(255,255,255,0.03)'
         }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Active</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Active</div>
           <div style={{ fontSize: 32, fontWeight: 700, color: '#10b981' }}>{metrics.activeVehicles}</div>
           <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'#10b981', marginTop:8 }}>
             <Engine style={{width:14, height:14}} />
@@ -162,7 +162,7 @@ export function VehicleManagement() {
           border: '1px solid rgba(255,255,255,0.08)',
           background: 'rgba(255,255,255,0.03)'
         }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Maintenance</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Maintenance</div>
           <div style={{ fontSize: 32, fontWeight: 700, color: '#f59e0b' }}>{metrics.maintenanceVehicles}</div>
           <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'#f59e0b', marginTop:8 }}>
             <Engine style={{width:14, height:14}} />
@@ -177,9 +177,9 @@ export function VehicleManagement() {
           border: '1px solid rgba(255,255,255,0.08)',
           background: 'rgba(255,255,255,0.03)'
         }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Avg Mileage</div>
-          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>{formatNumber(metrics.avgMileage)}</div>
-          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'var(--muted, #94a3b8)', marginTop:8 }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Avg Mileage</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f5f5f5)' }}>{formatNumber(metrics.avgMileage)}</div>
+          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'var(--muted, #9CA3AF)', marginTop:8 }}>
             <Speedometer style={{width:14, height:14}} />
             miles
           </div>
@@ -192,9 +192,9 @@ export function VehicleManagement() {
           border: '1px solid rgba(255,255,255,0.08)',
           background: 'rgba(255,255,255,0.03)'
         }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Locations</div>
-          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>{metrics.locations}</div>
-          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'var(--muted, #94a3b8)', marginTop:8 }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #9CA3AF)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Locations</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f5f5f5)' }}>{metrics.locations}</div>
+          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'var(--muted, #9CA3AF)', marginTop:8 }}>
             <MapPin style={{width:14, height:14}} />
             Sites
           </div>
@@ -224,7 +224,7 @@ export function VehicleManagement() {
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 12,
-            color: 'var(--text, #f1f5f9)',
+            color: 'var(--text, #f5f5f5)',
             fontSize: 14,
             outline: 'none'
           }}
@@ -236,10 +236,10 @@ export function VehicleManagement() {
             alignItems: 'center',
             gap: 8,
             padding: '10px 16px',
-            background: 'linear-gradient(135deg, rgba(96,165,250,0.20), rgba(96,165,250,0.10))',
-            border: '1px solid rgba(96,165,250,0.3)',
+            background: 'linear-gradient(135deg, rgba(16,185,129,0.20), rgba(16,185,129,0.10))',
+            border: '1px solid rgba(16,185,129,0.3)',
             borderRadius: 12,
-            color: '#60a5fa',
+            color: '#10b981',
             fontSize: 14,
             fontWeight: 600,
             cursor: 'pointer'
@@ -265,35 +265,35 @@ export function VehicleManagement() {
           <h3 style={{
             fontSize: 16,
             fontWeight: 600,
-            color: 'var(--text, #f1f5f9)'
+            color: 'var(--text, #f5f5f5)'
           }}>Fleet Vehicles ({filteredVehicles.length})</h3>
         </div>
 
         {isLoading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted, #94a3b8)' }}>
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted, #9CA3AF)' }}>
             Loading vehicles...
           </div>
         ) : filteredVehicles.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted, #94a3b8)' }}>
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted, #9CA3AF)' }}>
             {searchQuery ? 'No vehicles match your search' : 'No vehicles found'}
           </div>
         ) : (
           <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
             <thead>
               <tr style={{background:'rgba(255,255,255,0.02)'}}>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em', width:40}}></th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Vehicle #</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Make/Model</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>VIN</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>License Plate</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Health</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Department</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Op Status</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Engine</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Mileage</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Location</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Actions</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em', width:40}}></th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Vehicle #</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Make/Model</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>VIN</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>License Plate</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Health</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Department</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Op Status</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Engine</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Mileage</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Location</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -309,7 +309,7 @@ export function VehicleManagement() {
                         borderBottom:'1px solid rgba(255,255,255,0.06)',
                         transition: 'background 0.15s ease'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(96,165,250,0.05)'}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16,185,129,0.05)'}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
                       <td style={{padding:16}}>
@@ -317,22 +317,22 @@ export function VehicleManagement() {
                           width:6,
                           height:6,
                           borderRadius:'50%',
-                          background: isExpanded ? '#60a5fa' : 'rgba(255,255,255,0.3)'
+                          background: isExpanded ? '#10b981' : 'rgba(255,255,255,0.3)'
                         }} />
                       </td>
                       <td style={{padding:16}}>
                         <div style={{display:'flex', alignItems:'center', gap:8}}>
-                          <Car style={{width:16, height:16, color:'#60a5fa'}} />
-                          <span style={{fontSize:14, fontWeight:600, color:'var(--text, #f1f5f9)'}}>{vehicle.vehicleNumber}</span>
+                          <Car style={{width:16, height:16, color:'#10b981'}} />
+                          <span style={{fontSize:14, fontWeight:600, color:'var(--text, #f5f5f5)'}}>{vehicle.vehicleNumber}</span>
                         </div>
                       </td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)'}}>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #f5f5f5)'}}>
                         {formatVehicleName(vehicle)}
                       </td>
-                      <td style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', fontFamily:'monospace'}}>
+                      <td style={{padding:16, fontSize:12, color:'var(--muted, #9CA3AF)', fontFamily:'monospace'}}>
                         {vehicle.vin}
                       </td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)'}}>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #f5f5f5)'}}>
                         {vehicle.licensePlate}
                       </td>
                       <td style={{padding:16}}>
@@ -341,7 +341,7 @@ export function VehicleManagement() {
                       <td style={{padding:16}}>
                         {(() => {
                           const hs = (vehicle as any).health_score ?? (vehicle as any).healthScore ?? null
-                          if (hs == null) return <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>--</span>
+                          if (hs == null) return <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>--</span>
                           const hsColor = hs >= 80 ? '#10b981' : hs >= 60 ? '#f59e0b' : '#ef4444'
                           return (
                             <div style={{display:'flex', alignItems:'center', gap:6}}>
@@ -354,7 +354,7 @@ export function VehicleManagement() {
                           )
                         })()}
                       </td>
-                      <td style={{padding:16, fontSize:13, color:'var(--text, #f1f5f9)'}}>
+                      <td style={{padding:16, fontSize:13, color:'var(--text, #f5f5f5)'}}>
                         {(() => {
                           const dept = (vehicle as any).department ?? null
                           return dept ? (
@@ -362,25 +362,25 @@ export function VehicleManagement() {
                               display:'inline-flex', alignItems:'center', gap:4,
                               padding:'4px 8px', borderRadius:6,
                               border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.03)',
-                              fontSize:12, color:'var(--muted, #94a3b8)'
+                              fontSize:12, color:'var(--muted, #9CA3AF)'
                             }}>
                               <Buildings style={{width:12, height:12}} />
                               {dept}
                             </span>
-                          ) : <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>--</span>
+                          ) : <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>--</span>
                         })()}
                       </td>
                       <td style={{padding:16}}>
                         {(() => {
                           const opStatus = (vehicle as any).operational_status ?? (vehicle as any).operationalStatus ?? null
-                          if (!opStatus) return <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>--</span>
+                          if (!opStatus) return <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>--</span>
                           const opMap: Record<string, {color:string; label:string}> = {
                             AVAILABLE: { color:'#10b981', label:'Available' },
-                            IN_USE: { color:'#3b82f6', label:'In Use' },
+                            IN_USE: { color:'#10b981', label:'In Use' },
                             MAINTENANCE: { color:'#f59e0b', label:'Maintenance' },
                             RESERVED: { color:'#fbbf24', label:'Reserved' },
                           }
-                          const cfg = opMap[opStatus] || { color:'#94a3b8', label:opStatus }
+                          const cfg = opMap[opStatus] || { color:'#9CA3AF', label:opStatus }
                           return (
                             <span style={{
                               display:'inline-flex', alignItems:'center', gap:6,
@@ -396,25 +396,25 @@ export function VehicleManagement() {
                       <td style={{padding:16}}>
                         {(() => {
                           const engineType = (vehicle as any).engine_type ?? (vehicle as any).engineType ?? (vehicle as any).fuelType ?? null
-                          if (!engineType) return <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>--</span>
+                          if (!engineType) return <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>--</span>
                           const isEV = engineType.toLowerCase().includes('electric') || engineType.toLowerCase().includes('ev')
                           return (
                             <span style={{
                               display:'inline-flex', alignItems:'center', gap:4,
-                              fontSize:12, color: isEV ? '#3b82f6' : 'var(--text, #f1f5f9)'
+                              fontSize:12, color: isEV ? '#10b981' : 'var(--text, #f5f5f5)'
                             }}>
-                              {isEV ? <Lightning style={{width:12, height:12, color:'#3b82f6'}} /> : <Engine style={{width:12, height:12, color:'var(--muted, #94a3b8)'}} />}
+                              {isEV ? <Lightning style={{width:12, height:12, color:'#10b981'}} /> : <Engine style={{width:12, height:12, color:'var(--muted, #9CA3AF)'}} />}
                               {engineType}
                             </span>
                           )
                         })()}
                       </td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)'}}>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #f5f5f5)'}}>
                         {formatNumber(vehicle.mileage)} mi
                       </td>
                       <td style={{padding:16}}>
-                        <div style={{display:'flex', alignItems:'center', gap:6, fontSize:14, color:'var(--text, #f1f5f9)'}}>
-                          <MapPin style={{width:14, height:14, color:'#60a5fa'}} />
+                        <div style={{display:'flex', alignItems:'center', gap:6, fontSize:14, color:'var(--text, #f5f5f5)'}}>
+                          <MapPin style={{width:14, height:14, color:'#10b981'}} />
                           {vehicle.location}
                         </div>
                       </td>
@@ -424,10 +424,10 @@ export function VehicleManagement() {
                             onClick={() => handleEdit(vehicle)}
                             style={{
                               padding: 8,
-                              background: 'rgba(96,165,250,0.10)',
-                              border: '1px solid rgba(96,165,250,0.3)',
+                              background: 'rgba(16,185,129,0.10)',
+                              border: '1px solid rgba(16,185,129,0.3)',
                               borderRadius: 8,
-                              color: '#60a5fa',
+                              color: '#10b981',
                               cursor: 'pointer',
                               display:'flex',
                               alignItems:'center'
@@ -472,27 +472,27 @@ export function VehicleManagement() {
                               border:'1px solid rgba(255,255,255,0.08)',
                               background:'rgba(255,255,255,0.03)'
                             }}>
-                              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Vehicle Details</div>
+                              <div style={{fontSize:12, color:'var(--muted, #9CA3AF)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Vehicle Details</div>
                               <div style={{display:'flex', flexDirection:'column', gap:10}}>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                                  <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>Make/Model</span>
-                                  <span style={{fontSize:12, color:'var(--text, #f1f5f9)', fontWeight:600}}>{formatVehicleShortName(vehicle)}</span>
+                                  <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>Make/Model</span>
+                                  <span style={{fontSize:12, color:'var(--text, #f5f5f5)', fontWeight:600}}>{formatVehicleShortName(vehicle)}</span>
                                 </div>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                                  <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>Year</span>
-                                  <span style={{fontSize:12, color:'var(--text, #f1f5f9)', fontWeight:600}}>{vehicle.year}</span>
+                                  <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>Year</span>
+                                  <span style={{fontSize:12, color:'var(--text, #f5f5f5)', fontWeight:600}}>{vehicle.year}</span>
                                 </div>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                                  <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>VIN</span>
-                                  <span style={{fontSize:10, color:'var(--text, #f1f5f9)', fontWeight:600, fontFamily:'monospace'}}>{vehicle.vin}</span>
+                                  <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>VIN</span>
+                                  <span style={{fontSize:10, color:'var(--text, #f5f5f5)', fontWeight:600, fontFamily:'monospace'}}>{vehicle.vin}</span>
                                 </div>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                                  <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>License Plate</span>
-                                  <span style={{fontSize:12, color:'var(--text, #f1f5f9)', fontWeight:600}}>{vehicle.licensePlate}</span>
+                                  <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>License Plate</span>
+                                  <span style={{fontSize:12, color:'var(--text, #f5f5f5)', fontWeight:600}}>{vehicle.licensePlate}</span>
                                 </div>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                                  <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>Location</span>
-                                  <span style={{fontSize:12, color:'var(--text, #f1f5f9)', fontWeight:600}}>{vehicle.location}</span>
+                                  <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>Location</span>
+                                  <span style={{fontSize:12, color:'var(--text, #f5f5f5)', fontWeight:600}}>{vehicle.location}</span>
                                 </div>
                               </div>
                             </div>
@@ -504,24 +504,24 @@ export function VehicleManagement() {
                               border:'1px solid rgba(255,255,255,0.08)',
                               background:'rgba(255,255,255,0.03)'
                             }}>
-                              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Performance</div>
+                              <div style={{fontSize:12, color:'var(--muted, #9CA3AF)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Performance</div>
                               <div style={{display:'flex', flexDirection:'column', gap:10}}>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                                  <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>Current Mileage</span>
-                                  <span style={{fontSize:12, color:'var(--text, #f1f5f9)', fontWeight:600}}>{formatNumber(vehicle.mileage)} mi</span>
+                                  <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>Current Mileage</span>
+                                  <span style={{fontSize:12, color:'var(--text, #f5f5f5)', fontWeight:600}}>{formatNumber(vehicle.mileage)} mi</span>
                                 </div>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                                  <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>Status</span>
+                                  <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>Status</span>
                                   <StatusChip status={vehicle.status as 'active'|'inactive'|'maintenance'|'retired'} />
                                 </div>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                                  <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>Fuel Efficiency</span>
+                                  <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>Fuel Efficiency</span>
                                   <span style={{fontSize:12, color:'#10b981', fontWeight:600}}>
                                     {(vehicle as any).avg_mpg ?? (vehicle as any).avgMpg ?? '--'} mpg
                                   </span>
                                 </div>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                                  <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>Health Score</span>
+                                  <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>Health Score</span>
                                   <span style={{fontSize:12, color:
                                     ((vehicle as any).health_score ?? (vehicle as any).healthScore) >= 80 ? '#10b981' :
                                     ((vehicle as any).health_score ?? (vehicle as any).healthScore) >= 60 ? '#f59e0b' : '#ef4444',
@@ -531,14 +531,14 @@ export function VehicleManagement() {
                                   </span>
                                 </div>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                                  <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>Department</span>
-                                  <span style={{fontSize:12, color:'var(--text, #f1f5f9)', fontWeight:600}}>
+                                  <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>Department</span>
+                                  <span style={{fontSize:12, color:'var(--text, #f5f5f5)', fontWeight:600}}>
                                     {(vehicle as any).department ?? '--'}
                                   </span>
                                 </div>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                                  <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>Engine Type</span>
-                                  <span style={{fontSize:12, color:'var(--text, #f1f5f9)', fontWeight:600}}>
+                                  <span style={{fontSize:12, color:'var(--muted, #9CA3AF)'}}>Engine Type</span>
+                                  <span style={{fontSize:12, color:'var(--text, #f5f5f5)', fontWeight:600}}>
                                     {(vehicle as any).engine_type ?? (vehicle as any).engineType ?? (vehicle as any).fuelType ?? '--'}
                                   </span>
                                 </div>
@@ -552,14 +552,14 @@ export function VehicleManagement() {
                               border:'1px solid rgba(255,255,255,0.08)',
                               background:'rgba(255,255,255,0.03)'
                             }}>
-                              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Quick Actions</div>
+                              <div style={{fontSize:12, color:'var(--muted, #9CA3AF)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Quick Actions</div>
                               <div style={{display:'flex', flexDirection:'column', gap:8}}>
                                 <button style={{
                                   padding:'10px 14px',
                                   borderRadius:12,
-                                  border:'1px solid rgba(96,165,250,0.3)',
-                                  background:'rgba(96,165,250,0.10)',
-                                  color:'#60a5fa',
+                                  border:'1px solid rgba(16,185,129,0.3)',
+                                  background:'rgba(16,185,129,0.10)',
+                                  color:'#10b981',
                                   fontSize:13,
                                   fontWeight:600,
                                   cursor:'pointer',
@@ -570,7 +570,7 @@ export function VehicleManagement() {
                                   borderRadius:12,
                                   border:'1px solid rgba(255,255,255,0.08)',
                                   background:'rgba(255,255,255,0.03)',
-                                  color:'var(--text, #f1f5f9)',
+                                  color:'var(--text, #f5f5f5)',
                                   fontSize:13,
                                   fontWeight:600,
                                   cursor:'pointer',
@@ -581,7 +581,7 @@ export function VehicleManagement() {
                                   borderRadius:12,
                                   border:'1px solid rgba(255,255,255,0.08)',
                                   background:'rgba(255,255,255,0.03)',
-                                  color:'var(--text, #f1f5f9)',
+                                  color:'var(--text, #f5f5f5)',
                                   fontSize:13,
                                   fontWeight:600,
                                   cursor:'pointer',
@@ -592,7 +592,7 @@ export function VehicleManagement() {
                                   borderRadius:12,
                                   border:'1px solid rgba(255,255,255,0.08)',
                                   background:'rgba(255,255,255,0.03)',
-                                  color:'var(--text, #f1f5f9)',
+                                  color:'var(--text, #f5f5f5)',
                                   fontSize:13,
                                   fontWeight:600,
                                   cursor:'pointer',
@@ -636,7 +636,7 @@ export function VehicleManagement() {
               width:'100%',
               maxWidth:700,
               maxHeight:'90vh',
-              background:'var(--bg, #0f172a)',
+              background:'var(--bg, #0a0a0a)',
               borderRadius:16,
               overflow:'hidden',
               border:'1px solid rgba(255,255,255,0.08)'
@@ -647,10 +647,10 @@ export function VehicleManagement() {
               borderBottom:'1px solid rgba(255,255,255,0.08)',
               background:'rgba(255,255,255,0.02)'
             }}>
-              <h3 style={{fontSize:18, fontWeight:600, color:'var(--text, #f1f5f9)'}}>Add New Vehicle</h3>
+              <h3 style={{fontSize:18, fontWeight:600, color:'var(--text, #f5f5f5)'}}>Add New Vehicle</h3>
             </div>
             <div style={{padding:24}}>
-              <div style={{color:'var(--muted, #94a3b8)', fontSize:14, textAlign:'center', padding:40}}>
+              <div style={{color:'var(--muted, #9CA3AF)', fontSize:14, textAlign:'center', padding:40}}>
                 Add vehicle form will be implemented here
               </div>
             </div>
@@ -669,7 +669,7 @@ export function VehicleManagement() {
                   borderRadius:12,
                   border:'1px solid rgba(255,255,255,0.08)',
                   background:'rgba(255,255,255,0.03)',
-                  color:'var(--text, #f1f5f9)',
+                  color:'var(--text, #f5f5f5)',
                   fontSize:14,
                   fontWeight:600,
                   cursor:'pointer'
@@ -680,9 +680,9 @@ export function VehicleManagement() {
               <button style={{
                 padding:'10px 20px',
                 borderRadius:12,
-                border:'1px solid rgba(96,165,250,0.3)',
-                background:'linear-gradient(135deg, rgba(96,165,250,0.20), rgba(96,165,250,0.10))',
-                color:'#60a5fa',
+                border:'1px solid rgba(16,185,129,0.3)',
+                background:'linear-gradient(135deg, rgba(16,185,129,0.20), rgba(16,185,129,0.10))',
+                color:'#10b981',
                 fontSize:14,
                 fontWeight:600,
                 cursor:'pointer'
@@ -718,7 +718,7 @@ export function VehicleManagement() {
               width:'100%',
               maxWidth:700,
               maxHeight:'90vh',
-              background:'var(--bg, #0f172a)',
+              background:'var(--bg, #0a0a0a)',
               borderRadius:16,
               overflow:'hidden',
               border:'1px solid rgba(255,255,255,0.08)'
@@ -729,12 +729,12 @@ export function VehicleManagement() {
               borderBottom:'1px solid rgba(255,255,255,0.08)',
               background:'rgba(255,255,255,0.02)'
             }}>
-              <h3 style={{fontSize:18, fontWeight:600, color:'var(--text, #f1f5f9)'}}>
+              <h3 style={{fontSize:18, fontWeight:600, color:'var(--text, #f5f5f5)'}}>
                 Edit Vehicle - {editingVehicle.vehicleNumber}
               </h3>
             </div>
             <div style={{padding:24}}>
-              <div style={{color:'var(--muted, #94a3b8)', fontSize:14, textAlign:'center', padding:40}}>
+              <div style={{color:'var(--muted, #9CA3AF)', fontSize:14, textAlign:'center', padding:40}}>
                 Edit vehicle form will be implemented here
               </div>
             </div>
@@ -753,7 +753,7 @@ export function VehicleManagement() {
                   borderRadius:12,
                   border:'1px solid rgba(255,255,255,0.08)',
                   background:'rgba(255,255,255,0.03)',
-                  color:'var(--text, #f1f5f9)',
+                  color:'var(--text, #f5f5f5)',
                   fontSize:14,
                   fontWeight:600,
                   cursor:'pointer'
@@ -764,9 +764,9 @@ export function VehicleManagement() {
               <button style={{
                 padding:'10px 20px',
                 borderRadius:12,
-                border:'1px solid rgba(96,165,250,0.3)',
-                background:'linear-gradient(135deg, rgba(96,165,250,0.20), rgba(96,165,250,0.10))',
-                color:'#60a5fa',
+                border:'1px solid rgba(16,185,129,0.3)',
+                background:'linear-gradient(135deg, rgba(16,185,129,0.20), rgba(16,185,129,0.10))',
+                color:'#10b981',
                 fontSize:14,
                 fontWeight:600,
                 cursor:'pointer'
@@ -801,7 +801,7 @@ export function VehicleManagement() {
             style={{
               width:'100%',
               maxWidth:480,
-              background:'var(--bg, #0f172a)',
+              background:'var(--bg, #0a0a0a)',
               borderRadius:16,
               overflow:'hidden',
               border:'1px solid rgba(239,68,68,0.3)'
@@ -817,10 +817,10 @@ export function VehicleManagement() {
               </h3>
             </div>
             <div style={{padding:24}}>
-              <p style={{color:'var(--text, #f1f5f9)', fontSize:14, marginBottom:8}}>
+              <p style={{color:'var(--text, #f5f5f5)', fontSize:14, marginBottom:8}}>
                 Are you sure you want to delete vehicle <strong>{vehicleToDelete.vehicleNumber}</strong>?
               </p>
-              <p style={{color:'var(--muted, #94a3b8)', fontSize:13}}>
+              <p style={{color:'var(--muted, #9CA3AF)', fontSize:13}}>
                 {formatVehicleName(vehicleToDelete)} &mdash; VIN: {vehicleToDelete.vin}
               </p>
               <p style={{color:'#f59e0b', fontSize:12, marginTop:12}}>
@@ -843,7 +843,7 @@ export function VehicleManagement() {
                   borderRadius:12,
                   border:'1px solid rgba(255,255,255,0.08)',
                   background:'rgba(255,255,255,0.03)',
-                  color:'var(--text, #f1f5f9)',
+                  color:'var(--text, #f5f5f5)',
                   fontSize:14,
                   fontWeight:600,
                   cursor:'pointer',

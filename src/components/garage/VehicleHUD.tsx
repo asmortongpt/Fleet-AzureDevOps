@@ -86,7 +86,7 @@ function StatCard({
     <div
       className={cn(
         'flex flex-col gap-1 p-2.5 rounded-lg bg-white/[0.04]',
-        'border border-white/[0.06] backdrop-blur-sm',
+        'border border-white/[0.04]',
         warning && 'border-red-500/30 bg-red-950/20',
         className
       )}
@@ -294,7 +294,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
       )}
 
       {/* Real-time Gauges */}
-      <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+      <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-white/[0.03] border border-white/[0.04]">
         <CircularGauge
           value={stats.rpm || 0}
           max={8000}

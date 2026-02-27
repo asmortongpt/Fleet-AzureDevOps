@@ -30,14 +30,14 @@ interface ResponsivePieChartProps {
 }
 
 const DEFAULT_COLORS = [
-  '#3B82F6', // Blue
+  '#10b981', // Emerald
   '#10B981', // Green
   '#F59E0B', // Amber
   '#EF4444', // Red
-  '#8B5CF6', // Purple
-  '#06B6D4', // Cyan
-  '#EC4899', // Pink
-  '#94A3B8', // Slate
+  '#D97706', // Dark Amber
+  '#14b8a6', // Teal
+  '#34d399', // Light Emerald
+  '#9CA3AF', // Gray
 ]
 
 // Active shape renderer for hover effect
@@ -140,7 +140,7 @@ export function ResponsivePieChart({
     if (active && payload && payload.length) {
       return (
         <div
-          className="bg-background border-2 border-border rounded-xl shadow-xl p-4"
+          className="bg-background border-2 border-border rounded-xl p-4"
         >
           <p className="font-semibold text-sm mb-1">{payload[0].name}</p>
           <p className="text-xl font-bold text-primary">{payload[0].value}</p>
@@ -155,7 +155,7 @@ export function ResponsivePieChart({
 
   const pieChartContent = loading ? (
     <div
-      className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
+      className="w-full bg-white/[0.04] animate-pulse rounded-lg"
       style={{ height: compact ? '100%' : height }}
     />
   ) : (
@@ -187,7 +187,7 @@ export function ResponsivePieChart({
                 fill="white"
                 textAnchor={x > cx ? 'start' : 'end'}
                 dominantBaseline="central"
-                className="text-xs font-bold drop-shadow-md"
+                className="text-xs font-bold drop-"
               >
                 {`${((percent ?? 0) * 100).toFixed(0)}%`}
               </text>
@@ -195,7 +195,7 @@ export function ResponsivePieChart({
           } : undefined}
           outerRadius={innerRadius ? 100 : 110}
           innerRadius={innerRadius}
-          fill="#3B82F6"
+          fill="#10b981"
           dataKey="value"
           animationDuration={1200}
           animationBegin={0}
@@ -236,7 +236,7 @@ export function ResponsivePieChart({
 
   return (
     <div>
-      <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <CardTitle className="text-xl font-bold">{title}</CardTitle>
           {description && <CardDescription className="text-sm">{description}</CardDescription>}

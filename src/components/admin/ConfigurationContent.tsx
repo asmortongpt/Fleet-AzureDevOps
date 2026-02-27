@@ -305,7 +305,7 @@ export const ConfigurationContent = memo(() => {
                   title="Memory Usage"
                   value={systemStatus?.memory || 0}
                   icon={Database}
-                  iconColor="text-purple-500"
+                  iconColor="text-amber-500"
                   warningThreshold={75}
                   criticalThreshold={90}
                 />
@@ -313,7 +313,7 @@ export const ConfigurationContent = memo(() => {
                   title="Disk Space"
                   value={systemStatus?.diskSpace || 0}
                   icon={HardDrive}
-                  iconColor="text-cyan-500"
+                  iconColor="text-emerald-500"
                   warningThreshold={70}
                   criticalThreshold={85}
                 />
@@ -530,7 +530,7 @@ export const ConfigurationContent = memo(() => {
                     </div>
                     <div className="flex items-center justify-between p-4 rounded-lg border">
                       <div className="flex items-center gap-3">
-                        <Database className="h-5 w-5 text-purple-500" aria-hidden="true" />
+                        <Database className="h-5 w-5 text-amber-500" aria-hidden="true" />
                         <div>
                           <p className="text-sm font-medium">Cache Hit Rate</p>
                           <p className="text-xs text-muted-foreground">Redis performance</p>

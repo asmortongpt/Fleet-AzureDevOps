@@ -119,9 +119,9 @@ function statusColors(status: Reservation['status']) {
     case 'completed':
       return {
         bg: 'bg-white/[0.06]',
-        border: 'border-white/[0.08]',
+        border: 'border-white/[0.04]',
         text: 'text-white/40',
-        badge: 'bg-white/[0.06] text-white/40 border-white/[0.08]',
+        badge: 'bg-white/[0.06] text-white/40 border-white/[0.04]',
       }
     case 'rejected':
       return {
@@ -140,9 +140,9 @@ function statusColors(status: Reservation['status']) {
     default:
       return {
         bg: 'bg-white/[0.06]',
-        border: 'border-white/[0.08]',
+        border: 'border-white/[0.04]',
         text: 'text-white/40',
-        badge: 'bg-white/[0.06] text-white/40 border-white/[0.08]',
+        badge: 'bg-white/[0.06] text-white/40 border-white/[0.04]',
       }
   }
 }
@@ -430,7 +430,7 @@ export function ReservationCalendarView() {
       {/* ---- Header row ---- */}
       <div className="flex flex-wrap items-center gap-3">
         {/* View toggle */}
-        <div className="flex rounded-lg border border-white/[0.08] overflow-hidden">
+        <div className="flex rounded-lg border border-white/[0.04] overflow-hidden">
           <button
             type="button"
             onClick={() => setViewMode('week')}
@@ -447,7 +447,7 @@ export function ReservationCalendarView() {
             type="button"
             onClick={() => setViewMode('list')}
             className={cn(
-              'px-3 py-1.5 text-xs font-medium transition-colors border-l border-white/[0.08]',
+              'px-3 py-1.5 text-xs font-medium transition-colors border-l border-white/[0.04]',
               viewMode === 'list'
                 ? 'bg-white/[0.1] text-white/90'
                 : 'bg-white/[0.03] text-white/40 hover:text-white/60'
@@ -536,7 +536,7 @@ export function ReservationCalendarView() {
 
       {/* ---- Week view ---- */}
       {!reservationsLoading && !isEmpty && viewMode === 'week' && (
-        <div className="grid grid-cols-7 gap-px bg-white/[0.04] rounded-xl border border-white/[0.08] overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-white/[0.04] rounded-xl border border-white/[0.04] overflow-hidden">
           {/* Column headers */}
           {Array.from({ length: 7 }, (_, i) => {
             const d = new Date(currentWeekStart)
@@ -626,7 +626,7 @@ export function ReservationCalendarView() {
 
       {/* ---- Inline detail for selected reservation (week view) ---- */}
       {viewMode === 'week' && selectedReservation && (
-        <div className="rounded-xl border border-white/[0.08] bg-[#1a1a1a] p-4 space-y-3">
+        <div className="rounded-xl border border-white/[0.04] bg-[#1a1a1a] p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div>
               <h4 className="text-sm font-semibold text-white/90 flex items-center gap-2">
@@ -739,7 +739,7 @@ export function ReservationCalendarView() {
 
       {/* ---- List view ---- */}
       {!reservationsLoading && !isEmpty && viewMode === 'list' && (
-        <div className="rounded-xl border border-white/[0.08] overflow-hidden">
+        <div className="rounded-xl border border-white/[0.04] overflow-hidden">
           {/* Table header */}
           <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_0.8fr_0.7fr_1fr] gap-px bg-white/[0.02] px-4 py-2.5 border-b border-white/[0.06]">
             {['Vehicle', 'Driver', 'Start', 'End', 'Purpose', 'Status', 'Actions'].map(

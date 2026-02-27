@@ -81,9 +81,9 @@ export function ExcelDataTable<T>({
   };
 
   return (
-    <div className={`flex flex-col h-full backdrop-blur-xl bg-[#111]/95 border border-white/[0.15]/60 rounded-lg shadow-sm ${className}`}>
+    <div className={`flex flex-col h-full bg-[#111111] border border-white/[0.04] rounded-lg ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.15]/60">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.04]">
         <div>
           {title && <h3 className="text-sm font-semibold text-white/80">{title}</h3>}
           <p className="text-sm text-white/70 mt-0.5">
@@ -100,7 +100,7 @@ export function ExcelDataTable<T>({
               value={globalFilter}
               onChange={e => setGlobalFilter(e.target.value)}
               placeholder="Search all columns..."
-              className="pl-10 pr-2 py-2 bg-[#1a1a1a]/80 border border-white/[0.08] rounded-lg text-sm text-white/70 placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-64"
+              className="pl-10 pr-2 py-2 bg-[#1a1a1a]/80 border border-white/[0.04] rounded-lg text-sm text-white/70 placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-64"
             />
           </div>
 
@@ -111,7 +111,7 @@ export function ExcelDataTable<T>({
               className={`px-2 py-2 rounded-lg text-sm font-medium transition-all ${
                 showFilters
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-[#1a1a1a]/80 text-white/60 hover:bg-white/[0.15]/80'
+                  : 'bg-[#1a1a1a]/80 text-white/60 hover:bg-white/[0.08]'
               }`}
             >
               <Filter className="w-4 h-4 inline mr-2" />
@@ -134,7 +134,7 @@ export function ExcelDataTable<T>({
 
       {/* Column Filters */}
       {showFilters && (
-        <div className="px-3 py-2 border-b border-white/[0.15]/60 bg-[#1a1a1a]/40">
+        <div className="px-3 py-2 border-b border-white/[0.04] bg-[#1a1a1a]/40">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
             {table.getAllColumns().filter(col => col.getCanFilter()).map(column => (
               <div key={column.id} className="flex flex-col gap-2">
@@ -147,7 +147,7 @@ export function ExcelDataTable<T>({
                     value={(column.getFilterValue() as string) ?? ''}
                     onChange={e => column.setFilterValue(e.target.value)}
                     placeholder={`Filter ${column.id}...`}
-                    className="w-full px-3 py-2 bg-[#111]/80 border border-white/[0.08] rounded-lg text-sm text-white/70 placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    className="w-full px-3 py-2 bg-[#111]/80 border border-white/[0.04] rounded-lg text-sm text-white/70 placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   />
                   {column.getFilterValue() !== undefined && column.getFilterValue() !== '' && (
                     <button
@@ -176,9 +176,9 @@ export function ExcelDataTable<T>({
       {/* Table */}
       <div className="flex-1 overflow-auto">
         <table className="w-full">
-          <thead className="sticky top-0 bg-[#1a1a1a]/95 backdrop-blur-sm z-10">
+          <thead className="sticky top-0 bg-[#1a1a1a] z-10">
             {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id} className="border-b border-white/[0.15]/60">
+              <tr key={headerGroup.id} className="border-b border-white/[0.04]">
                 {headerGroup.headers.map(header => (
                   <th
                     key={header.id}
@@ -207,7 +207,7 @@ export function ExcelDataTable<T>({
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-white/[0.08]/40">
+          <tbody className="divide-y divide-white/[0.04]">
             {table.getRowModel().rows.map(row => (
               <tr
                 key={row.id}
@@ -228,12 +228,12 @@ export function ExcelDataTable<T>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-3 py-2 border-t border-white/[0.15]/60 bg-[#1a1a1a]/40">
+      <div className="flex items-center justify-between px-3 py-2 border-t border-white/[0.04] bg-[#1a1a1a]/40">
         <div className="flex items-center gap-2">
           <select
             value={table.getState().pagination.pageSize}
             onChange={e => table.setPageSize(Number(e.target.value))}
-            className="px-3 py-2 bg-[#111]/80 border border-white/[0.08] rounded-lg text-sm text-white/70 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+            className="px-3 py-2 bg-[#111]/80 border border-white/[0.04] rounded-lg text-sm text-white/70 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
           >
             {[25, 50, 100, 200].map(pageSize => (
               <option key={pageSize} value={pageSize}>
@@ -251,28 +251,28 @@ export function ExcelDataTable<T>({
           <button
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
-            className="px-3 py-2 bg-[#1a1a1a]/80 hover:bg-white/[0.15]/80 disabled:opacity-30 disabled:cursor-not-allowed text-white/60 rounded-lg text-sm font-medium transition-all"
+            className="px-3 py-2 bg-[#1a1a1a]/80 hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed text-white/60 rounded-lg text-sm font-medium transition-all"
           >
             First
           </button>
           <button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="px-3 py-2 bg-[#1a1a1a]/80 hover:bg-white/[0.15]/80 disabled:opacity-30 disabled:cursor-not-allowed text-white/60 rounded-lg text-sm font-medium transition-all"
+            className="px-3 py-2 bg-[#1a1a1a]/80 hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed text-white/60 rounded-lg text-sm font-medium transition-all"
           >
             Previous
           </button>
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="px-3 py-2 bg-[#1a1a1a]/80 hover:bg-white/[0.15]/80 disabled:opacity-30 disabled:cursor-not-allowed text-white/60 rounded-lg text-sm font-medium transition-all"
+            className="px-3 py-2 bg-[#1a1a1a]/80 hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed text-white/60 rounded-lg text-sm font-medium transition-all"
           >
             Next
           </button>
           <button
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
-            className="px-3 py-2 bg-[#1a1a1a]/80 hover:bg-white/[0.15]/80 disabled:opacity-30 disabled:cursor-not-allowed text-white/60 rounded-lg text-sm font-medium transition-all"
+            className="px-3 py-2 bg-[#1a1a1a]/80 hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed text-white/60 rounded-lg text-sm font-medium transition-all"
           >
             Last
           </button>

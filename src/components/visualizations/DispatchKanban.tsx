@@ -113,7 +113,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
     { id: 'pending' as const, title: 'Pending Dispatch', icon: Clock, color: 'text-amber-600' },
     { id: 'assigned' as const, title: 'Assigned', icon: User, color: 'text-emerald-600' },
     { id: 'in-progress' as const, title: 'In Progress', icon: Navigation, color: 'text-green-600' },
-    { id: 'completed' as const, title: 'Completed', icon: CheckCircle, color: 'text-purple-600' }
+    { id: 'completed' as const, title: 'Completed', icon: CheckCircle, color: 'text-amber-600' }
   ];
 
   return (
@@ -144,7 +144,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
                   key={task.id}
                   draggable
                   onDragStart={() => handleDragStart(task.id)}
-                  className={`p-3 rounded-lg border-l-4 cursor-move transition-all hover:shadow-md ${getPriorityColor(task.priority)} ${
+                  className={`p-3 rounded-lg border-l-4 cursor-move transition-all  ${getPriorityColor(task.priority)} ${
                     draggedTask === task.id ? 'opacity-50' : ''
                   }`}
                 >
@@ -193,7 +193,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
 
                   {/* Real-time update indicator */}
                   {getTaskUpdate(task.id) && (
-                    <div className="mt-2 pt-2 border-t border-white/[0.08]">
+                    <div className="mt-2 pt-2 border-t border-white/[0.04]">
                       <div className="flex items-center gap-1 text-xs text-green-600">
                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                         <span>Updated {formatTime(getTaskUpdate(task.id)!.timestamp)}</span>

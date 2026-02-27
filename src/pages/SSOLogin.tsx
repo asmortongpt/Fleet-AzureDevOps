@@ -1,17 +1,16 @@
 /**
- * SSO Login Page - Official ArchonY Fleet Management Solution
+ * SSO Login Page - Official CTA Fleet Management Solution
  * Based on ADELE Brand Guidelines - January 26, 2026
  *
- * Official ArchonY Product Logo Features:
+ * Official CTA Fleet Product Logo Features:
  * - Modern, technology-forward typography
  * - Flowing curve representing "intelligent pivot"
  * - "INTELLIGENT PERFORMANCE" tagline
- * - Greek "archon" meaning "presiding officer" or "ruler"
  *
  * CTA Official Color Palette:
- * - DAYTIME (Navy)
- * - BLUE SKIES (Cyan)
- * - MIDNIGHT (Deep Purple)
+ * - DAYTIME (Dark)
+ * - SILVER (Accent)
+ * - MIDNIGHT (Deep Dark)
  * - NOON (Orange)
  * - GOLDEN HOUR (Yellow)
  * - Gradient Bar (Golden Hour → Noon)
@@ -87,48 +86,18 @@ export function SSOLogin() {
 
   return (
     <main
-      className="relative flex min-h-screen items-center justify-center overflow-hidden"
-      style={{
-        background: 'linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 50%, hsl(var(--background)) 100%)'
-      }}
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0a0a0a]"
     >
-      {/* Premium background effects - MIDNIGHT to DAYTIME gradient */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Animated gradient orbs - BLUE SKIES and GOLDEN HOUR */}
-        <div
-          className="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--chart-5) / 0.15) 0%, transparent 70%)',
-            filter: 'blur(60px)'
-          }}
-        />
-        <div
-          className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-pulse rounded-full"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--chart-3) / 0.12) 0%, transparent 70%)',
-            filter: 'blur(60px)',
-            animationDelay: '2s'
-          }}
-        />
-
-        {/* Grid overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: 'linear-gradient(90deg, hsl(var(--border) / 0.08) 1px, transparent 1px), linear-gradient(hsl(var(--border) / 0.08) 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
-          }}
-        />
-      </div>
+      {/* Minimal background */}
 
       <div className="relative z-10 w-full max-w-md px-4">
-        {/* Official ArchonY Product Branding */}
+        {/* Official CTA Fleet Product Branding */}
         <div className="mb-8 text-center">
-          {/* ArchonY Logo - Official from ADELE Branding Package */}
+          {/* CTA Fleet Logo - Official from ADELE Branding Package */}
           <div className="flex justify-center mb-6">
             <img
-              src="/logos/png/archony-logo-reverse-600px.png"
-              alt="ArchonY - Intelligent Performance"
+              src="/logos/png/cta-logo-primary-lockup-reverse-600px.png"
+              alt="CTA Fleet - Intelligent Performance"
               className="h-24 w-auto"
               style={{ filter: 'drop-shadow(0 4px 8px hsl(var(--foreground) / 0.15))' }}
             />
@@ -145,14 +114,7 @@ export function SSOLogin() {
             Capital Tech Alliance
           </h1>
 
-          {/* Official Gradient Bar - GOLDEN HOUR to NOON */}
-          <div
-            className="mx-auto w-24 h-1 rounded-full mb-4"
-            style={{
-              background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
-              boxShadow: '0 2px 8px hsl(var(--chart-3) / 0.4)'
-            }}
-          />
+          <div className="mx-auto w-24 h-1 rounded-full mb-4 bg-emerald-500" />
 
           <p className="text-sm text-muted-foreground">
             Fleet Management Solution
@@ -160,7 +122,7 @@ export function SSOLogin() {
         </div>
 
         {/* Login Card */}
-        <Card className="border-border/50 bg-card/90 shadow-2xl backdrop-blur-xl text-card-foreground">
+        <Card className="border-white/[0.04] bg-[#111111] text-white">
           <div className="p-6">
             {/* Welcome Header */}
             <div className="mb-6 text-center">
@@ -185,16 +147,8 @@ export function SSOLogin() {
               onClick={handleSignIn}
               disabled={isLoading}
               size="lg"
-              style={{
-                background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
-                boxShadow: '0 4px 12px hsl(var(--chart-3) / 0.3)'
-              }}
-              className="group relative mb-4 h-12 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+              className="group relative mb-4 h-12 w-full overflow-hidden font-semibold bg-emerald-500 hover:bg-emerald-400 text-white transition-all duration-200 disabled:opacity-50"
             >
-              <div
-                className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                style={{ background: 'linear-gradient(90deg, hsl(var(--chart-6)) 0%, hsl(var(--chart-3)) 100%)' }}
-              />
               <span className="relative flex items-center justify-center gap-2.5">
                 {isLoading ? (
                   <>
@@ -232,7 +186,7 @@ export function SSOLogin() {
         {/* Footer */}
         <div className="mt-6 space-y-1 text-center">
           <p className="text-xs font-semibold text-muted-foreground">
-            ArchonY Enterprise Solutions v2.0
+            CTA Fleet Enterprise v2.0
           </p>
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Capital Tech Alliance. All rights reserved.

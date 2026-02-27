@@ -15,9 +15,9 @@ import { Switch } from '@/components/ui/switch'
 import { appearanceSettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
 
 const colorSchemes = [
-  { value: 'blue', label: 'Blue', color: 'bg-emerald-500/50' },
+  { value: 'teal', label: 'Emerald', color: 'bg-emerald-500/50' },
   { value: 'green', label: 'Green', color: 'bg-green-500' },
-  { value: 'purple', label: 'Purple', color: 'bg-purple-500' },
+  { value: 'amber', label: 'Amber', color: 'bg-amber-500' },
   { value: 'orange', label: 'Orange', color: 'bg-orange-500' },
 ]
 

@@ -142,7 +142,7 @@ export function ConversationalIntake({
       {/* Header */}
       <div className="p-2 border-b flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-3 h-3 text-purple-500" />
+          <Sparkles className="w-3 h-3 text-amber-500" />
           <h3 className="font-semibold">AI Data Entry</h3>
         </div>
         <div className="flex items-center gap-2">

@@ -368,13 +368,13 @@ export function PolicyWorkbench() {
   const currentStep = workbenchSteps[currentStepIndex]
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-[#888] to-emerald-500/5">
+    <div className="h-screen flex flex-col bg-[#0a0a0a]">
       {/* Header */}
-      <div className="bg-white border-b border-white/[0.08] px-3 py-3 shadow-sm">
+      <div className="bg-[#0e0e0e] border-b border-white/[0.04] px-3 py-3">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-base font-bold text-white/90 flex items-center gap-3">
-              <Brain className="w-4 h-4 text-emerald-800" />
+            <h1 className="text-base font-bold text-white flex items-center gap-3">
+              <Brain className="w-4 h-4 text-emerald-400" />
               Policy Implementation Workbench
             </h1>
             <p className="text-white/50 mt-1">
@@ -382,7 +382,7 @@ export function PolicyWorkbench() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-2 py-2 text-white/70 hover:bg-white/[0.05] rounded-lg transition-colors">
+            <button className="flex items-center gap-2 px-2 py-2 text-white/60 hover:bg-white/[0.05] rounded-lg transition-colors">
               <Download className="w-4 h-4" />
               Export Progress
             </button>
@@ -396,14 +396,14 @@ export function PolicyWorkbench() {
         {/* Progress Bar */}
         <div className="mt-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-white/70">Overall Progress</span>
-            <span className="text-sm font-medium text-white/70">
+            <span className="text-sm font-medium text-white/60">Overall Progress</span>
+            <span className="text-sm font-medium text-white/60">
               {Math.round((workbenchSteps.filter((s) => s.status === 'completed').length / workbenchSteps.length) * 100)}%
             </span>
           </div>
           <div className="w-full h-3 bg-white/[0.08] rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-emerald-500/50 to-green-500 transition-all duration-500"
+              className="h-full bg-emerald-500 transition-all duration-500"
               style={{
                 width: `${(workbenchSteps.filter((s) => s.status === 'completed').length / workbenchSteps.length) * 100}%`,
               }}
@@ -414,7 +414,7 @@ export function PolicyWorkbench() {
 
       <div className="flex-1 flex overflow-hidden">
         {/* Step Navigation Sidebar */}
-        <div className="w-80 bg-white border-r border-white/[0.08] overflow-y-auto">
+        <div className="w-80 bg-[#0e0e0e] border-r border-white/[0.04] overflow-y-auto">
           <div className="p-3">
             <h2 className="text-sm font-semibold text-white/40 uppercase tracking-wide mb-2">
               Implementation Steps
@@ -426,16 +426,16 @@ export function PolicyWorkbench() {
                   onClick={() => setCurrentStepIndex(index)}
                   className={`w-full text-left p-2 rounded-lg transition-all ${
                     currentStepIndex === index
-                      ? 'bg-emerald-500/5 border-2 border-emerald-500/30 shadow-sm'
-                      : 'bg-white border border-white/[0.08] hover:border-emerald-500/20'
+                      ? 'bg-emerald-500/10 border border-emerald-500/30'
+                      : 'bg-[#111111] border border-white/[0.04] hover:border-emerald-500/20'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                       {step.status === 'completed' ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       ) : step.status === 'in-progress' ? (
-                        <Circle className="w-4 h-4 text-emerald-800 animate-pulse" />
+                        <Circle className="w-4 h-4 text-emerald-400 animate-pulse" />
                       ) : (
                         <Circle className="w-4 h-4 text-white/60" />
                       )}
@@ -445,7 +445,7 @@ export function PolicyWorkbench() {
                         <step.icon className="w-4 h-4 text-white/50" />
                         <h3
                           className={`text-sm font-semibold ${
-                            currentStepIndex === index ? 'text-emerald-900' : 'text-white/70'
+                            currentStepIndex === index ? 'text-emerald-400' : 'text-white/60'
                           }`}
                         >
                           {step.title}
@@ -477,38 +477,38 @@ export function PolicyWorkbench() {
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="p-3 bg-emerald-500/10 rounded-md">
-                    <currentStep.icon className="w-4 h-4 text-emerald-800" />
+                    <currentStep.icon className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-white/90">{currentStep.title}</h2>
+                    <h2 className="text-sm font-bold text-white">{currentStep.title}</h2>
                     <p className="text-white/50">{currentStep.description}</p>
                   </div>
                 </div>
 
                 {/* Substeps */}
                 {currentStep.substeps && (
-                  <div className="bg-white rounded-md border border-white/[0.08] p-3 space-y-2">
+                  <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3 space-y-2">
                     {currentStep.substeps.map((substep) => (
                       <div
                         key={substep.id}
-                        className={`p-2 rounded-lg border-2 transition-all ${
+                        className={`p-2 rounded-lg border transition-all ${
                           substep.status === 'completed'
-                            ? 'bg-green-50 border-green-200'
-                            : 'bg-white/[0.03] border-white/[0.08] hover:border-emerald-500/20'
+                            ? 'bg-emerald-500/10 border-emerald-500/20'
+                            : 'bg-white/[0.03] border-white/[0.04] hover:border-emerald-500/20'
                         }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3 flex-1">
                             {substep.status === 'completed' ? (
-                              <CheckCircle2 className="w-3 h-3 text-green-600 flex-shrink-0 mt-0.5" />
+                              <CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" />
                             ) : (
-                              <Circle className="w-3 h-3 text-white/70 flex-shrink-0 mt-0.5" />
+                              <Circle className="w-3 h-3 text-white/60 flex-shrink-0 mt-0.5" />
                             )}
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-white/90">{substep.title}</h3>
+                                <h3 className="font-semibold text-white">{substep.title}</h3>
                                 {substep.aiAssisted && (
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-400/10 text-amber-400 text-xs font-medium rounded-full">
                                     <Sparkles className="w-3 h-3" />
                                     AI-Assisted
                                   </span>
@@ -541,16 +541,16 @@ export function PolicyWorkbench() {
 
         {/* AI Insights Sidebar */}
         {showInsights && (
-          <div className="w-96 bg-gradient-to-br from-purple-50 to-emerald-500/5 border-l border-purple-200 overflow-y-auto">
+          <div className="w-96 bg-[#0e0e0e] border-l border-white/[0.04] overflow-y-auto">
             <div className="p-3">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-bold text-white/90 flex items-center gap-2">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
                   <Lightbulb className="w-3 h-3 text-yellow-500" />
                   AI Insights
                 </h3>
                 <button
                   onClick={() => setShowInsights(false)}
-                  className="text-white/40 hover:text-white/70"
+                  className="text-white/40 hover:text-white/60"
                 >
                   ×
                 </button>
@@ -587,18 +587,18 @@ export function PolicyWorkbench() {
       </div>
 
       {/* Footer Navigation */}
-      <div className="bg-white border-t border-white/[0.08] px-3 py-2">
+      <div className="bg-[#0e0e0e] border-t border-white/[0.04] px-3 py-2">
         <div className="flex items-center justify-between">
           <button
             onClick={() => setCurrentStepIndex(Math.max(0, currentStepIndex - 1))}
             disabled={currentStepIndex === 0}
-            className="px-3 py-2 text-white/70 hover:bg-white/[0.05] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-white/60 hover:bg-white/[0.05] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
 
           <div className="flex items-center gap-2">
-            <button className="px-3 py-2 text-white/70 hover:bg-white/[0.05] rounded-lg transition-colors">
+            <button className="px-3 py-2 text-white/60 hover:bg-white/[0.05] rounded-lg transition-colors">
               Save Progress
             </button>
             <button
@@ -636,37 +636,37 @@ function AIInsightCard({
       bg: 'bg-emerald-500/10',
       border: 'border-emerald-500/30',
       icon: Info,
-      iconColor: 'text-emerald-800',
+      iconColor: 'text-emerald-400',
     },
     tip: {
-      bg: 'bg-purple-100',
-      border: 'border-purple-300',
+      bg: 'bg-amber-400/10',
+      border: 'border-amber-400/20',
       icon: Lightbulb,
-      iconColor: 'text-purple-600',
+      iconColor: 'text-amber-400',
     },
     warning: {
-      bg: 'bg-yellow-100',
-      border: 'border-yellow-300',
+      bg: 'bg-amber-400/10',
+      border: 'border-amber-400/20',
       icon: AlertTriangle,
-      iconColor: 'text-yellow-600',
+      iconColor: 'text-amber-400',
     },
     success: {
-      bg: 'bg-green-100',
-      border: 'border-green-300',
+      bg: 'bg-emerald-400/10',
+      border: 'border-emerald-400/20',
       icon: CheckCircle2,
-      iconColor: 'text-green-600',
+      iconColor: 'text-emerald-400',
     },
   }
 
   const { bg, border, icon: Icon, iconColor } = config[type]
 
   return (
-    <div className={`${bg} border-2 ${border} rounded-lg p-2`}>
+    <div className={`${bg} border ${border} rounded-lg p-2`}>
       <div className="flex items-start gap-3">
         <Icon className={`w-3 h-3 ${iconColor} flex-shrink-0 mt-0.5`} />
         <div>
-          <h4 className="font-semibold text-white/90 text-sm mb-1">{title}</h4>
-          <p className="text-xs text-white/70">{description}</p>
+          <h4 className="font-semibold text-white text-sm mb-1">{title}</h4>
+          <p className="text-xs text-white/60">{description}</p>
         </div>
       </div>
     </div>
@@ -701,33 +701,33 @@ function renderStepContent(stepId: string | undefined) {
 
 // Placeholder components for each step (to be fully implemented)
 function OrganizationProfileForm() {
-  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Organization Profile Form</div>
+  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Organization Profile Form</div>
 }
 
 function CurrentStateAssessment() {
-  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Current State Assessment</div>
+  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Current State Assessment</div>
 }
 
 function PolicyFrameworkDesigner() {
-  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Policy Framework Designer</div>
+  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Policy Framework Designer</div>
 }
 
 function AIPolicyGenerator() {
-  return <div className="bg-white rounded-md border border-white/[0.08] p-3">AI Policy Generator</div>
+  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">AI Policy Generator</div>
 }
 
 function PolicyReviewInterface() {
-  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Policy Review Interface</div>
+  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Policy Review Interface</div>
 }
 
 function ImplementationPlanner() {
-  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Implementation Planner</div>
+  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Implementation Planner</div>
 }
 
 function PolicyActivation() {
-  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Policy Activation</div>
+  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Policy Activation</div>
 }
 
 function ContinuousMonitoring() {
-  return <div className="bg-white rounded-md border border-white/[0.08] p-3">Continuous Monitoring</div>
+  return <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">Continuous Monitoring</div>
 }

@@ -255,7 +255,7 @@ export function SystemHealth({ className }: SystemHealthProps) {
               </div>
 
               {/* Visual score bar */}
-              <div className="mt-3 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="mt-3 h-1.5 bg-white/[0.06] dark:bg-white/[0.08] rounded-full overflow-hidden">
                 <div
                   className={cn(
                     'h-full transition-all duration-500',

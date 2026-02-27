@@ -18,7 +18,7 @@ export function PanelBreadcrumbs() {
     >
       <button
         onClick={closeAll}
-        className="flex items-center gap-1 text-[--cta-blue-skies] hover:text-white transition-colors shrink-0"
+        className="flex items-center gap-1 text-[--cta-silver] hover:text-white transition-colors shrink-0"
         aria-label="Return to map"
       >
         <Home className="w-3 h-3" />
@@ -39,7 +39,7 @@ export function PanelBreadcrumbs() {
                 'transition-colors truncate max-w-[160px]',
                 isLast
                   ? 'text-foreground font-medium cursor-default'
-                  : 'text-muted-foreground hover:text-[--cta-blue-skies] cursor-pointer'
+                  : 'text-muted-foreground hover:text-[--cta-silver] cursor-pointer'
               )}
             >
               {label}

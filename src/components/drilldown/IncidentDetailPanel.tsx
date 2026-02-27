@@ -231,7 +231,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
       case 'reported':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-700" />
+        return <AlertCircle className="h-5 w-5 text-white/40" />
     }
   }
 
@@ -434,7 +434,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               {/* Vehicle and Driver */}
               <div className="grid grid-cols-2 gap-2">
                 {incident.vehicle_id && (
-                  <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleViewVehicle}>
+                  <Card className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={handleViewVehicle}>
                     <CardHeader>
                       <CardTitle className="text-sm flex items-center gap-2">
                         <Car className="h-4 w-4" />
@@ -451,7 +451,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                 )}
 
                 {incident.driver_id && (
-                  <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleViewDriver}>
+                  <Card className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={handleViewDriver}>
                     <CardHeader>
                       <CardTitle className="text-sm flex items-center gap-2">
                         <User className="h-4 w-4" />

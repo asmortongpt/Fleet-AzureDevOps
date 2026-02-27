@@ -319,21 +319,21 @@ const RoutePolyline: React.FC<RoutePolylineProps> = ({ map, path, color = 'hsl(v
 // ============================================================================
 
 const LoadingComponent: React.FC = () => (
-  <div className="flex items-center justify-center w-full h-full bg-background">
+  <div className="flex items-center justify-center w-full h-full bg-[#0a0a0a]">
     <div className="text-center">
       <Spinner className="w-4 h-4 text-primary mb-2" />
-      <p className="text-muted-foreground">Loading Google Maps...</p>
+      <p className="text-white/60">Loading Google Maps...</p>
     </div>
   </div>
 )
 
 const ErrorComponent: React.FC<{ error: Error }> = ({ error }) => (
-  <div className="flex items-center justify-center w-full h-full bg-background">
-    <div className="text-center max-w-md p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
-      <AlertCircle className="w-12 h-9 text-destructive mx-auto mb-2" />
-      <h3 className="text-base font-bold text-foreground mb-2">Map Loading Error</h3>
-      <p className="text-sm text-muted-foreground mb-2">{error.message}</p>
-      <p className="text-xs text-muted-foreground">
+  <div className="flex items-center justify-center w-full h-full bg-[#0a0a0a]">
+    <div className="text-center max-w-md p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+      <AlertCircle className="w-12 h-9 text-red-500 mx-auto mb-2" />
+      <h3 className="text-base font-bold text-white mb-2">Map Loading Error</h3>
+      <p className="text-sm text-white/60 mb-2">{error.message}</p>
+      <p className="text-xs text-white/35">
         Please check your Google Maps API key configuration.
       </p>
     </div>
@@ -415,14 +415,14 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
       </Wrapper>
 
       {/* Map Controls Overlay */}
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-lg shadow-sm p-3 space-y-2">
+      <div className="absolute top-4 left-4 bg-[#111111] rounded-lg p-3 space-y-2 border border-white/[0.04]">
         <div className="flex items-center gap-2">
           <Navigation className="w-4 h-4 text-emerald-400" />
-          <span className="text-sm font-medium text-gray-900">
+          <span className="text-sm font-medium text-white">
             {vehicles.length} Vehicle{vehicles.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <div className="space-y-1 text-xs text-white/40">
+        <div className="space-y-1 text-xs text-white/60">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500" />
             <span>Active ({vehicles.filter(v => v.status === 'active').length})</span>

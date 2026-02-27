@@ -326,7 +326,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
 
       default:
         return (
-          <div key={visual.id} className="p-2 bg-gray-100 rounded-lg">
+          <div key={visual.id} className="p-2 bg-white/[0.05] rounded-lg">
             <p className="text-sm text-white/70">
               Unsupported visual type: {visual.type}
             </p>
@@ -340,7 +340,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-4 h-4 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-white/70">Loading report...</p>
         </div>
       </div>
@@ -362,9 +362,9 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
   }
 
   return (
-    <div ref={containerRef} className="flex flex-col h-full bg-gray-50">
+    <div ref={containerRef} className="flex flex-col h-full bg-white/[0.03]">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-3 py-2">
+      <div className="bg-white border-b border-white/[0.08] px-3 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={onBack} size="sm">
@@ -372,7 +372,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
               Back
             </Button>
             <div>
-              <h1 className="text-sm font-bold text-gray-900">{reportDef.title}</h1>
+              <h1 className="text-sm font-bold text-white/80">{reportDef.title}</h1>
               <p className="text-sm text-white/70">{reportDef.description}</p>
             </div>
           </div>
@@ -409,7 +409,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       </div>
 
       {/* Filters */}
-      <div className="px-3 py-2 bg-white border-b border-gray-200">
+      <div className="px-3 py-2 bg-white border-b border-white/[0.08]">
         <FilterBar
           filters={filters}
           onChange={setFilters}
@@ -422,7 +422,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
 
       {/* Drill-down breadcrumb */}
       {drilldownState.level > 0 && (
-        <div className="px-3 py-2 bg-indigo-50 border-b border-indigo-200">
+        <div className="px-3 py-2 bg-emerald-50 border-b border-emerald-200">
           <div className="flex items-center gap-2 text-sm">
             <Button variant="ghost" size="sm" onClick={handleDrillUp}>
               <ArrowLeft className="h-3 w-3 mr-1" />

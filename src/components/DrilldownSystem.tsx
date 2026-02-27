@@ -449,8 +449,8 @@ export function DrilldownSystem() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="flex items-center gap-3 bg-[#111]/95 border border-white/[0.15]/60 rounded-lg px-3 py-2">
+      <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
+        <div className="flex items-center gap-3 bg-[#111111] border border-white/[0.04] rounded-lg px-3 py-2">
           <Loader2 className="w-3 h-3 text-emerald-700 animate-spin" />
           <span className="text-white">Loading drilldown...</span>
         </div>
@@ -460,7 +460,7 @@ export function DrilldownSystem() {
 
   if (error) {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
         <div className="bg-[#111]/95 border border-red-500/60 rounded-lg px-3 py-2 max-w-md">
           <p className="text-red-400 font-semibold">Error loading drilldown</p>
           <p className="text-white/60 text-sm mt-2">{error}</p>

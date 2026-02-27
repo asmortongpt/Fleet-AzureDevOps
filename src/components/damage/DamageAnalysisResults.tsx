@@ -141,19 +141,19 @@ export function DamageAnalysisResults({
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
             <div>
-              <p className="text-gray-700">Make</p>
+              <p className="text-white/40">Make</p>
               <p className="font-medium">{analysis.vehicleInfo.make || '—'}</p>
             </div>
             <div>
-              <p className="text-gray-700">Model</p>
+              <p className="text-white/40">Model</p>
               <p className="font-medium">{analysis.vehicleInfo.model || '—'}</p>
             </div>
             <div>
-              <p className="text-gray-700">Year</p>
+              <p className="text-white/40">Year</p>
               <p className="font-medium">{analysis.vehicleInfo.year || '—'}</p>
             </div>
             <div>
-              <p className="text-gray-700">Color</p>
+              <p className="text-white/40">Color</p>
               <p className="font-medium">{analysis.vehicleInfo.color}</p>
             </div>
           </div>
@@ -164,7 +164,7 @@ export function DamageAnalysisResults({
       {(analysis.lidarEnhancement || analysis.depthEnhancement || analysis.videoEnhancement) && (
         <div className="flex flex-wrap gap-2">
           {analysis.lidarEnhancement && (
-            <Badge variant="secondary" className="text-purple-700 bg-purple-100">
+            <Badge variant="secondary" className="text-amber-700 bg-amber-100">
               <MapPin className="mr-1 h-3 w-3" />
               LiDAR Enhanced (+{analysis.lidarEnhancement.confidenceBoost}% confidence)
             </Badge>
@@ -190,7 +190,7 @@ export function DamageAnalysisResults({
           <CardTitle>Overall Assessment</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-700">{analysis.overallAssessment}</p>
+          <p className="text-white/40">{analysis.overallAssessment}</p>
         </CardContent>
       </Card>
 
@@ -213,10 +213,10 @@ export function DamageAnalysisResults({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-base font-bold text-gray-900">
+          <div className="text-base font-bold text-white/80">
             {formatCurrency(selectedCost)}
           </div>
-          <p className="text-sm text-gray-700 mt-1">
+          <p className="text-sm text-white/40 mt-1">
             Total: {formatCurrency(costEstimate.totalEstimate)}
           </p>
         </CardContent>
@@ -246,8 +246,8 @@ export function DamageAnalysisResults({
               key={`${damage.type}-${damage.part}`}
               className={`cursor-pointer transition-all ${
                 isSelected
-                  ? 'border-2 border-emerald-500 shadow-md'
-                  : 'border-gray-200 opacity-60 hover:opacity-100'
+                  ? 'border-2 border-emerald-500'
+                  : 'border-white/[0.08] opacity-60 hover:opacity-100'
               }`}
               onClick={() => toggleDamageSelection(index)}
             >
@@ -263,7 +263,7 @@ export function DamageAnalysisResults({
                         onClick={(e) => e.stopPropagation()}
                       />
                       <span className="capitalize">{damage.type.replace(/_/g, ' ')}</span>
-                      <span className="text-gray-700">•</span>
+                      <span className="text-white/40">•</span>
                       <span className="capitalize">{damage.part.replace(/_/g, ' ')}</span>
                     </CardTitle>
                     <CardDescription className="mt-1">
@@ -278,28 +278,28 @@ export function DamageAnalysisResults({
               <CardContent className="space-y-2">
                 {/* Description */}
                 <div>
-                  <p className="text-sm text-gray-700">{damage.description}</p>
+                  <p className="text-sm text-white/40">{damage.description}</p>
                 </div>
 
                 {/* Measurements */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                   <div>
-                    <p className="text-gray-700">Estimated Size</p>
+                    <p className="text-white/40">Estimated Size</p>
                     <p className="font-medium">{damage.estimatedSize}</p>
                   </div>
 
                   {lidarDimensions && (
                     <>
                       <div>
-                        <p className="text-gray-700">Actual Width</p>
+                        <p className="text-white/40">Actual Width</p>
                         <p className="font-medium">{(lidarDimensions.actualWidth * 100).toFixed(1)} cm</p>
                       </div>
                       <div>
-                        <p className="text-gray-700">Actual Depth</p>
+                        <p className="text-white/40">Actual Depth</p>
                         <p className="font-medium">{(lidarDimensions.actualDepth * 100).toFixed(1)} cm</p>
                       </div>
                       <div>
-                        <p className="text-gray-700">Surface Area</p>
+                        <p className="text-white/40">Surface Area</p>
                         <p className="font-medium">{(lidarDimensions.surfaceArea * 10000).toFixed(0)} cm²</p>
                       </div>
                     </>
@@ -307,7 +307,7 @@ export function DamageAnalysisResults({
 
                   {depthData && !lidarDimensions && (
                     <div>
-                      <p className="text-gray-700">Depth Measurement</p>
+                      <p className="text-white/40">Depth Measurement</p>
                       <p className="font-medium">{(depthData.depthMeasurement ?? 0).toFixed(1)} mm</p>
                     </div>
                   )}
@@ -319,20 +319,20 @@ export function DamageAnalysisResults({
                 {costBreakdown && (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
                     <div>
-                      <p className="text-gray-700">Labor</p>
+                      <p className="text-white/40">Labor</p>
                       <p className="font-medium">
                         ${(costBreakdown.laborCost ?? 0).toFixed(2)}
-                        <span className="text-xs text-gray-700 ml-1">
+                        <span className="text-xs text-white/40 ml-1">
                           ({costBreakdown.estimatedHours}h)
                         </span>
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-700">Parts</p>
+                      <p className="text-white/40">Parts</p>
                       <p className="font-medium">${(costBreakdown.partsCost ?? 0).toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-gray-700">Total</p>
+                      <p className="text-white/40">Total</p>
                       <p className="font-bold text-emerald-800">
                         ${(costBreakdown.laborCost + costBreakdown.partsCost).toFixed(2)}
                       </p>
@@ -346,7 +346,7 @@ export function DamageAnalysisResults({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 sticky bottom-4 bg-white p-2 rounded-lg shadow-sm border">
+      <div className="flex gap-2 sticky bottom-4 bg-white p-2 rounded-lg border">
         {onMap3D && (
           <Button variant="outline" onClick={onMap3D} className="flex-1">
             <MapPin className="mr-2 h-4 w-4" />

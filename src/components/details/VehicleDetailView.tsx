@@ -229,7 +229,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
       case 'maintenance':
         return <Badge className="bg-amber-500 text-white">{formatEnum(status)}</Badge>;
       case 'reserved':
-        return <Badge className="bg-purple-500 text-white">{formatEnum(status)}</Badge>;
+        return <Badge className="bg-amber-500 text-white">{formatEnum(status)}</Badge>;
       default:
         return <Badge variant="secondary">{formatEnum(status)}</Badge>;
     }
@@ -274,7 +274,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
     const hex = colorMap[colorName.toLowerCase()] || '#9CA3AF';
     return (
       <span
-        className="inline-block w-4 h-4 rounded-full border border-white/[0.08] mr-2 align-middle"
+        className="inline-block w-4 h-4 rounded-full border border-white/[0.04] mr-2 align-middle"
         style={{ backgroundColor: hex }}
         title={colorName}
       />
@@ -333,7 +333,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
     const pct = value != null ? Math.min(100, (Number(value) / max) * 100) : 0;
 
     return (
-      <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+      <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3">
         <div className="flex items-center gap-2 mb-2">
           <Icon className="w-4 h-4 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">{label}</span>
@@ -372,7 +372,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
   return (
     <div className="h-full overflow-y-auto">
       {/* Header Section */}
-      <div className="bg-[#242424] text-white p-4">
+      <div className="bg-[#111111] text-white p-4">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-3">
@@ -432,7 +432,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
           <TabsContent value="overview" className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {/* Vehicle Information Card */}
-              <Card className="bg-[#242424] border-white/[0.08]">
+              <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                     <Info className="w-4 h-4 text-muted-foreground" />
@@ -495,7 +495,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
               </Card>
 
               {/* Usage Statistics Card */}
-              <Card className="bg-[#242424] border-white/[0.08]">
+              <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                     <BarChart3 className="w-4 h-4 text-muted-foreground" />
@@ -504,7 +504,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                 </CardHeader>
                 <CardContent className="space-y-1">
                   {healthScore != null && (
-                    <div className="pb-2 mb-2 border-b border-white/[0.08]">
+                    <div className="pb-2 mb-2 border-b border-white/[0.04]">
                       <HealthScoreBar score={Number(healthScore)} />
                     </div>
                   )}
@@ -543,7 +543,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
               </Card>
 
               {/* Current Assignment Card */}
-              <Card className="bg-[#242424] border-white/[0.08]">
+              <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                     <Users className="w-4 h-4 text-muted-foreground" />
@@ -582,13 +582,13 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                     {getStatusBadge(vehicle.status)}
                   </div>
                   {tags.length > 0 && (
-                    <div className="pt-2 mt-1 border-t border-white/[0.08]">
+                    <div className="pt-2 mt-1 border-t border-white/[0.04]">
                       <span className="text-muted-foreground text-xs flex items-center gap-1 mb-1.5">
                         <Tag className="w-3 h-3" /> Tags
                       </span>
                       <div className="flex flex-wrap gap-1">
                         {tags.map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-[10px] px-1.5 py-0 border-white/[0.08]">
+                          <Badge key={tag} variant="outline" className="text-[10px] px-1.5 py-0 border-white/[0.04]">
                             {tag}
                           </Badge>
                         ))}
@@ -601,7 +601,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
             {/* Vehicle Specifications */}
             {(gvwr || seatingCapacity || fuelEfficiency || expectedLifeMiles || expectedLifeYears || exteriorColor) && (
-              <Card className="bg-[#242424] border-white/[0.08]">
+              <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                     <Settings className="w-4 h-4 text-muted-foreground" />
@@ -657,7 +657,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
           {/* Service History Tab */}
           <TabsContent value="service">
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                   <Wrench className="w-4 h-4 text-muted-foreground" />
@@ -671,10 +671,10 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                     No records found
                   </div>
                 ) : (
-                  <div className="max-h-[400px] overflow-y-auto border border-white/[0.08] rounded-lg">
+                  <div className="max-h-[400px] overflow-y-auto border border-white/[0.04] rounded-lg">
                     <table className="w-full text-sm">
-                      <thead className="sticky top-0 bg-[#242424] z-10">
-                        <tr className="border-b border-white/[0.08]">
+                      <thead className="sticky top-0 bg-[#111111] z-10">
+                        <tr className="border-b border-white/[0.04]">
                           <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Type</th>
                           <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Description</th>
                           <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Date</th>
@@ -688,7 +688,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                         {serviceHistory.map((service) => (
                           <tr
                             key={service.id}
-                            className="border-b border-white/[0.08] cursor-pointer"
+                            className="border-b border-white/[0.04] cursor-pointer"
                             onClick={() => push({
                               id: `work-order-${service.id}`,
                               type: 'work-order',
@@ -729,7 +729,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
           {/* Documents Tab */}
           <TabsContent value="documents">
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                   <FileText className="w-4 h-4 text-muted-foreground" />
@@ -747,7 +747,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                     {documents.map((doc) => (
                       <div
                         key={doc.id}
-                        className="flex items-center justify-between p-3 rounded-lg border border-white/[0.08]"
+                        className="flex items-center justify-between p-3 rounded-lg border border-white/[0.04]"
                       >
                         <div className="flex items-center gap-3">
                           <FileText className="w-4 h-4 text-muted-foreground" />
@@ -771,7 +771,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
           {/* Live Telemetry Tab */}
           <TabsContent value="telemetry">
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                   <Zap className="w-4 h-4 text-muted-foreground" />
@@ -853,7 +853,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
           {/* Maintenance Schedule Tab */}
           <TabsContent value="maintenance">
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                   <Shield className="w-4 h-4 text-muted-foreground" />
@@ -867,10 +867,10 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                     No records found
                   </div>
                 ) : (
-                  <div className="max-h-[400px] overflow-y-auto border border-white/[0.08] rounded-lg">
+                  <div className="max-h-[400px] overflow-y-auto border border-white/[0.04] rounded-lg">
                     <table className="w-full text-sm">
-                      <thead className="sticky top-0 bg-[#242424] z-10">
-                        <tr className="border-b border-white/[0.08]">
+                      <thead className="sticky top-0 bg-[#111111] z-10">
+                        <tr className="border-b border-white/[0.04]">
                           <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Service</th>
                           <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Status</th>
                           <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Next Due</th>
@@ -879,7 +879,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                       </thead>
                       <tbody>
                         {maintenanceSchedule.map((item, index) => (
-                          <tr key={item.id || index} className="border-b border-white/[0.08]">
+                          <tr key={item.id || index} className="border-b border-white/[0.04]">
                             <td className="px-3 py-2 font-medium text-foreground">
                               {item.service || item.name || 'Scheduled Service'}
                             </td>
@@ -904,7 +904,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
           {/* Cost Analysis Tab */}
           <TabsContent value="costs">
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                   <DollarSign className="w-4 h-4 text-muted-foreground" />
@@ -916,17 +916,17 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                 {costAnalysis ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Total Costs Section */}
-                    <div className="rounded-lg border border-white/[0.08] p-4">
+                    <div className="rounded-lg border border-white/[0.04] p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <DollarSign className="w-4 h-4 text-muted-foreground" />
                         <h3 className="text-sm font-semibold text-foreground">Total Costs</h3>
                       </div>
                       <div className="space-y-2">
-                        <div className="flex justify-between items-center py-1.5 border-b border-white/[0.08]">
+                        <div className="flex justify-between items-center py-1.5 border-b border-white/[0.04]">
                           <span className="text-sm text-muted-foreground">Maintenance</span>
                           <span className="text-sm font-mono font-semibold text-foreground">{formatCurrency(costAnalysis.totalMaintenance)}</span>
                         </div>
-                        <div className="flex justify-between items-center py-1.5 border-b border-white/[0.08]">
+                        <div className="flex justify-between items-center py-1.5 border-b border-white/[0.04]">
                           <span className="text-sm text-muted-foreground">Fuel</span>
                           <span className="text-sm font-mono font-semibold text-foreground">
                             {costAnalysis.totalFuel != null ? formatCurrency(costAnalysis.totalFuel) : '--'}
@@ -942,13 +942,13 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                     </div>
 
                     {/* Averages Section */}
-                    <div className="rounded-lg border border-white/[0.08] p-4">
+                    <div className="rounded-lg border border-white/[0.04] p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <TrendingUp className="w-4 h-4 text-muted-foreground" />
                         <h3 className="text-sm font-semibold text-foreground">Averages</h3>
                       </div>
                       <div className="space-y-2">
-                        <div className="flex justify-between items-center py-1.5 border-b border-white/[0.08]">
+                        <div className="flex justify-between items-center py-1.5 border-b border-white/[0.04]">
                           <span className="text-sm text-muted-foreground">Monthly Cost</span>
                           <span className="text-sm font-mono font-semibold text-foreground">
                             {costAnalysis.averageMonthly != null ? formatCurrency(costAnalysis.averageMonthly) : '--'}

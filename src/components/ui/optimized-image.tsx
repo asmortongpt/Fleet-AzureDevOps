@@ -54,7 +54,7 @@ export function OptimizedImage({
       style={{ width, height }}
     >
       {!isLoaded && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        <div className="absolute inset-0 bg-white/[0.06] animate-pulse" />
       )}
       {isInView && (
         <img

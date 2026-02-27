@@ -149,8 +149,8 @@ export function DocumentViewer({
               className="w-full flex-1 border-0"
               title={`Preview: ${document.name}`}
             />
-            <div className="p-3 border-t bg-background flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
+            <div className="p-3 border-t border-white/[0.04] bg-[#0e0e0e] flex items-center justify-between">
+              <span className="text-sm text-white/35">
                 Powered by Microsoft Office Online
               </span>
               <Button variant="outline" size="sm" onClick={handleDownload}>
@@ -165,7 +165,7 @@ export function DocumentViewer({
         return (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <p className="text-muted-foreground mb-2">
+              <p className="text-white/35 mb-2">
                 Preview not available for this file type
               </p>
               <Button onClick={handleDownload}>
@@ -181,10 +181,10 @@ export function DocumentViewer({
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent
-        className={`max-w-7xl h-[90vh] p-0 ${isFullscreen ? 'max-w-full h-screen' : ''}`}
+        className={`max-w-7xl h-[90vh] p-0 bg-[#0a0a0a] border-white/[0.04] ${isFullscreen ? 'max-w-full h-screen' : ''}`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b bg-background">
+        <div className="flex items-center justify-between p-2 border-b border-white/[0.04] bg-[#0e0e0e]">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             {/* Navigation */}
             {(onPrevious || onNext) && (
@@ -213,7 +213,7 @@ export function DocumentViewer({
             {/* Document info */}
             <div className="min-w-0 flex-1">
               <h2 className="font-semibold truncate">{document.name}</h2>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 text-xs text-white/35">
                 <Badge variant="outline">{document.type}</Badge>
                 <span>{formatFileSize(document.size)}</span>
                 <span>•</span>
@@ -325,14 +325,14 @@ export function DocumentViewer({
         </div>
 
         {/* Viewer content */}
-        <div className="flex-1 overflow-hidden bg-muted/30">
+        <div className="flex-1 overflow-hidden bg-white/[0.03]">
           {renderViewer()}
         </div>
 
         {/* Page indicator for PDFs */}
         {document.type === 'pdf' && document.pageCount && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/95 backdrop-blur-sm border rounded-full px-2 py-2 shadow-sm">
-            <span className="text-sm font-medium">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#0a0a0a]/95 backdrop-blur-sm border border-white/[0.04] rounded-full px-2 py-2">
+            <span className="text-sm font-medium text-white">
               Page {viewerState.currentPage} of {document.pageCount}
             </span>
           </div>

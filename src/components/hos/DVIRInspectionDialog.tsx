@@ -464,7 +464,7 @@ export function DVIRInspectionDialog({
 
                 {/* Standard Components */}
                 <div className="p-3">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                  <h4 className="text-sm font-semibold text-white/40 mb-2">
                     Standard Items
                   </h4>
                   {components
@@ -486,7 +486,7 @@ export function DVIRInspectionDialog({
             {/* Safe to Operate */}
             <div className="space-y-2">
               <Label className="text-base font-semibold">Vehicle Safety Status</Label>
-              <div className="flex items-center space-x-2 p-3 border rounded-lg bg-gray-50">
+              <div className="flex items-center space-x-2 p-3 border rounded-lg bg-white/[0.03]">
                 <Checkbox
                   id="vehicle_safe_to_operate"
                   checked={values.vehicle_safe_to_operate}

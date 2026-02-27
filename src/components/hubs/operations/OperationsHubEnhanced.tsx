@@ -284,7 +284,7 @@ export function OperationsHubEnhanced() {
             max={100}
             label="Completed"
             unit="%"
-            color="purple"
+            color="amber"
             size="sm"
           />
         </div>
@@ -313,9 +313,9 @@ export function OperationsHubEnhanced() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-purple-500">
+        <Card className="border-l-4 border-l-amber-500">
           <CardContent className="pt-3 pb-2 px-3">
-            <div className="text-lg font-bold text-purple-600">{metrics.completed}</div>
+            <div className="text-lg font-bold text-amber-600">{metrics.completed}</div>
             <div className="text-xs text-white/60">Completed</div>
           </CardContent>
         </Card>
@@ -384,7 +384,7 @@ export function OperationsHubEnhanced() {
                     handleAlertClick(alert);
                     acknowledgeAlert(alert.id);
                   }}
-                  className={`p-2 rounded-lg border text-xs cursor-pointer hover:shadow-sm transition-all ${
+                  className={`p-2 rounded-lg border text-xs cursor-pointer  transition-all ${
                     alert.severity === 'critical'
                       ? 'bg-red-50 border-red-200'
                       : alert.severity === 'high'

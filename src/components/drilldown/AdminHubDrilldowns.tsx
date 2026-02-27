@@ -75,14 +75,14 @@ export function SystemHealthDrilldown() {
                         <div className="text-xs text-white/40">Uptime</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-3 text-center">
                         <Cpu className="w-3 h-3 text-white/40 mx-auto mb-1" />
                         <div className="text-base font-bold text-white/80">{cpuPct}</div>
                         <div className="text-xs text-white/40">CPU</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-3 text-center">
                         <div className="text-base font-bold text-white/80">{memPct}</div>
                         <div className="text-xs text-white/40">Memory</div>
@@ -90,7 +90,7 @@ export function SystemHealthDrilldown() {
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Activity className="w-3 h-3 text-emerald-400" />
@@ -174,7 +174,7 @@ export function AlertsDrilldown() {
                         <div className="text-xs text-white/40">Resolved Today</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">{suppressedCount}</div>
                         <div className="text-xs text-white/40">Suppressed</div>
@@ -182,7 +182,7 @@ export function AlertsDrilldown() {
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Bell className="w-3 h-3 text-amber-400" />
@@ -281,7 +281,7 @@ export function FilesDrilldown() {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 4)
 
-    const colors = ['bg-emerald-500', 'bg-purple-500', 'bg-sky-500', 'bg-white/[0.1]']
+    const colors = ['bg-emerald-500', 'bg-amber-500', 'bg-teal-500', 'bg-white/[0.1]']
 
     return (
         <div className="space-y-2">
@@ -293,7 +293,7 @@ export function FilesDrilldown() {
                         <div className="text-xs text-white/40">Total Storage</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">{totalFiles}</div>
                         <div className="text-xs text-white/40">Total Files</div>
@@ -307,7 +307,7 @@ export function FilesDrilldown() {
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Storage by Type</CardTitle>
                 </CardHeader>

@@ -1607,7 +1607,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                     </div>
                   ) : (
                     <div className="text-center py-3">
-                      <XCircle className="w-12 h-9 text-gray-600 mx-auto mb-2" />
+                      <XCircle className="w-12 h-9 text-white/40 mx-auto mb-2" />
                       <p className="text-muted-foreground">No active warranty</p>
                     </div>
                   )}

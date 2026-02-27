@@ -22,7 +22,7 @@ export function FleetMetricsBar({
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
       <Card
-        className="p-2 cursor-pointer hover:shadow-md transition-shadow"
+        className="p-2 cursor-pointer hover:border-white/[0.12] transition-colors"
         onClick={() =>
           onMetricClick?.(
             "total",
@@ -43,7 +43,7 @@ export function FleetMetricsBar({
       </Card>
 
       <Card
-        className="p-2 cursor-pointer hover:shadow-md transition-shadow"
+        className="p-2 cursor-pointer hover:border-white/[0.12] transition-colors"
         onClick={() =>
           onMetricClick?.(
             "status",
@@ -64,7 +64,7 @@ export function FleetMetricsBar({
       </Card>
 
       <Card
-        className="p-2 cursor-pointer hover:shadow-md transition-shadow"
+        className="p-2 cursor-pointer hover:border-white/[0.12] transition-colors"
         onClick={() =>
           onMetricClick?.(
             "status",
@@ -85,7 +85,7 @@ export function FleetMetricsBar({
       </Card>
 
       <Card
-        className="p-2 cursor-pointer hover:shadow-md transition-shadow"
+        className="p-2 cursor-pointer hover:border-white/[0.12] transition-colors"
         onClick={() =>
           onMetricClick?.(
             "fuel",
@@ -106,7 +106,7 @@ export function FleetMetricsBar({
       </Card>
 
       <Card
-        className="p-2 cursor-pointer hover:shadow-md transition-shadow"
+        className="p-2 cursor-pointer hover:border-white/[0.12] transition-colors"
         onClick={() =>
           onMetricClick?.(
             "alerts",

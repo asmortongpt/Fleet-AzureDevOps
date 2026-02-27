@@ -72,7 +72,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                         <div className="flex bg-muted/50 p-1 rounded-lg">
                             <button
                                 className={`flex-1 text-sm font-medium py-1.5 px-3 rounded-md transition-all ${activeTab === "drivers"
-                                    ? "bg-background shadow-sm text-foreground"
+                                    ? "bg-background text-foreground"
                                     : "text-muted-foreground hover:text-foreground"
                                     }`}
                                 onClick={() => setActiveTab("drivers")}
@@ -81,7 +81,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                             </button>
                             <button
                                 className={`flex-1 text-sm font-medium py-1.5 px-3 rounded-md transition-all ${activeTab === "staff"
-                                    ? "bg-background shadow-sm text-foreground"
+                                    ? "bg-background text-foreground"
                                     : "text-muted-foreground hover:text-foreground"
                                     }`}
                                 onClick={() => setActiveTab("staff")}
@@ -129,7 +129,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                                 <Badge variant="outline" className="h-5 px-1.5">
                                                     {driver.licenseType || '—'}
                                                 </Badge>
-                                                <span className={`flex items-center gap-1 ${driver.status === 'active' ? 'text-green-500' : 'text-gray-700'
+                                                <span className={`flex items-center gap-1 ${driver.status === 'active' ? 'text-green-500' : 'text-white/40'
                                                     }`}>
                                                     • {formatEnum(driver.status)}
                                                 </span>

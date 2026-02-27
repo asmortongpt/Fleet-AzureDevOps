@@ -177,9 +177,9 @@ export function DispatcherDashboard() {
       case 'delayed':
         return 'text-red-400 bg-red-950/30 border-red-500/30';
       case 'en_route':
-        return 'text-emerald-400 bg-white/[0.04] border-white/[0.08]';
+        return 'text-emerald-400 bg-white/[0.04] border-white/[0.04]';
       default:
-        return 'text-white/40 bg-[#242424] border-white/[0.08]';
+        return 'text-white/40 bg-[#111111] border-white/[0.04]';
     }
   };
 
@@ -201,27 +201,27 @@ export function DispatcherDashboard() {
       </div>
 
       {/* Active Operations Summary */}
-      <Card className="bg-[#242424] backdrop-blur-xl border-cyan-500/30 p-2 mb-3">
+      <Card className="bg-[#111111] border-emerald-500/30 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
-          <Zap className="w-4 h-4 text-cyan-400" />
+          <Zap className="w-4 h-4 text-emerald-400" />
           <h2 className="text-sm font-bold text-white">Active Operations</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* Active Trips */}
           <div
-            className="bg-cyan-950/30 rounded-md p-2 border border-cyan-500/30 hover:border-cyan-400/50 transition-all"
+            className="bg-emerald-950/30 rounded-md p-2 border border-emerald-500/30 hover:border-emerald-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Car className="w-4 h-4 text-cyan-400" />
+              <Car className="w-4 h-4 text-emerald-400" />
               <span className="text-sm font-black text-white">{operationStats.active_trips}</span>
             </div>
-            <p className="text-cyan-300 font-semibold">Active Trips</p>
+            <p className="text-emerald-300 font-semibold">Active Trips</p>
           </div>
 
           {/* En Route */}
           <div
-            className="bg-white/[0.04] rounded-md p-2 border border-white/[0.08] hover:border-white/[0.12] transition-all"
+            className="bg-white/[0.04] rounded-md p-2 border border-white/[0.04] hover:border-white/[0.12] transition-all"
           >
             <div className="flex items-start justify-between mb-2">
               <MapTrifold className="w-4 h-4 text-emerald-400" />
@@ -258,7 +258,7 @@ export function DispatcherDashboard() {
       <div className="mb-3 flex flex-wrap gap-3">
         <Button size="sm"
           onClick={handleOpenRadio}
-          className="bg-violet-600 hover:bg-violet-700 text-white"
+          className="bg-amber-600 hover:bg-amber-700 text-white"
         >
           <Radio className="w-4 h-4 mr-2" />
           Open Radio
@@ -272,7 +272,7 @@ export function DispatcherDashboard() {
         </Button>
         <Button size="sm"
           onClick={handleCreateRoute}
-          className="bg-cyan-600 hover:bg-cyan-700 text-white"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <Route className="w-4 h-4 mr-2" />
           New Route
@@ -281,10 +281,10 @@ export function DispatcherDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Live Fleet Map */}
-        <Card className="lg:col-span-2 bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
+        <Card className="lg:col-span-2 bg-[#111111] border-white/[0.04] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <MapTrifold className="w-4 h-4 text-cyan-400" />
+              <MapTrifold className="w-4 h-4 text-emerald-400" />
               <h2 className="text-sm font-bold text-white">Live Fleet Map</h2>
             </div>
             <div className="flex gap-2">
@@ -313,7 +313,7 @@ export function DispatcherDashboard() {
           </div>
 
           {/* Map Placeholder */}
-          <div className="bg-white/[0.03] rounded-md border border-white/[0.08] aspect-video flex items-center justify-center mb-3">
+          <div className="bg-white/[0.03] rounded-md border border-white/[0.04] aspect-video flex items-center justify-center mb-3">
             <div className="text-center">
               <MapTrifold className="w-16 h-16 text-white/40 mx-auto mb-3" />
               <p className="text-white/40 mb-2">Interactive Fleet Map</p>
@@ -324,16 +324,16 @@ export function DispatcherDashboard() {
           <Button size="sm"
             onClick={handleViewOnMap}
             variant="outline"
-            className="w-full border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
+            className="w-full border-emerald-400 text-emerald-400 hover:bg-emerald-400/10"
           >
             View Full-Screen Map
           </Button>
         </Card>
 
         {/* Active Trips List */}
-        <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
+        <Card className="bg-[#111111] border-white/[0.04] p-2">
           <div className="flex items-center gap-2 mb-3">
-            <Route className="w-4 h-4 text-violet-400" />
+            <Route className="w-4 h-4 text-amber-400" />
             <h2 className="text-sm font-bold text-white">Active Trips</h2>
           </div>
 
@@ -380,9 +380,9 @@ export function DispatcherDashboard() {
       </div>
 
       {/* Dispatch Channels */}
-      <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2 mt-3">
+      <Card className="bg-[#111111] border-white/[0.04] p-2 mt-3">
         <div className="flex items-center gap-2 mb-3">
-          <Radio className="w-4 h-4 text-violet-400" />
+          <Radio className="w-4 h-4 text-amber-400" />
           <h2 className="text-sm font-bold text-white">Active Dispatch Channels</h2>
         </div>
 
@@ -396,7 +396,7 @@ export function DispatcherDashboard() {
                   ? channel.priority === 'high'
                     ? "bg-red-950/30 border-red-500/30"
                     : "bg-green-950/30 border-green-500/30"
-                  : "bg-white/[0.03] border-white/[0.08]"
+                  : "bg-white/[0.03] border-white/[0.04]"
               )}
             >
               <div className="flex items-center justify-between mb-2">

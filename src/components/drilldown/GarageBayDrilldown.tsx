@@ -225,7 +225,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
       case 'cancelled':
         return <XCircle className="h-5 w-5 text-red-500" />
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-700" />
+        return <AlertCircle className="h-5 w-5 text-white/40" />
     }
   }
 
@@ -317,7 +317,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                 </Card>
 
                 {/* Vehicle being worked on */}
-                <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewVehicle(currentWorkOrder.vehicle)}>
+                <Card className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={() => handleViewVehicle(currentWorkOrder.vehicle)}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
                       <Car className="h-4 w-4" />
@@ -549,7 +549,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                 {/* Parts Tab */}
                 <TabsContent value="parts" className="space-y-2">
                   {currentWorkOrder.parts.map((part) => (
-                    <Card key={part.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewPart(part)}>
+                    <Card key={part.id} className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={() => handleViewPart(part)}>
                       <CardContent className="p-2">
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">

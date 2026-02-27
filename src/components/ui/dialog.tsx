@@ -62,7 +62,7 @@ function DialogContent({
           "fixed top-[50%] left-[50%] z-50 translate-x-[-50%] translate-y-[-50%]",
           "w-full max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)] md:max-w-lg",
           // Visual styles
-          "bg-card/95 backdrop-blur-xl border border-border/50 rounded-lg shadow-sm",
+          "bg-[#111111] border border-white/[0.04] rounded-2xl",
           "grid gap-2 p-3",
           // Animations
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -80,8 +80,8 @@ function DialogContent({
           <DialogPrimitive.Close
             className={cn(
               "absolute top-4 right-4 rounded-lg p-1.5",
-              "text-muted-foreground hover:text-foreground",
-              "bg-transparent hover:bg-muted/50",
+              "text-white/30 hover:text-white/60",
+              "bg-transparent hover:bg-white/[0.04]",
               "transition-all duration-200",
               "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
               "disabled:pointer-events-none",
@@ -113,7 +113,7 @@ function DialogFooter({ className, ...props }: ComponentProps<"div">) {
       data-slot="dialog-footer"
       className={cn(
         "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        "pt-2 border-t border-border/50",
+        "pt-2 border-t border-white/[0.04]",
         className
       )}
       {...props}
@@ -165,8 +165,8 @@ function DialogContentFullscreen({
           "sm:translate-x-[-50%] sm:translate-y-[-50%]",
           "w-full sm:max-w-lg sm:max-h-[85vh]",
           // Visual styles
-          "bg-background sm:bg-card/95 sm:backdrop-blur-xl",
-          "sm:border sm:border-border/50 sm:rounded-lg sm:shadow-sm",
+          "bg-[#0a0a0a] sm:bg-[#111111]",
+          "sm:border sm:border-white/[0.04] sm:rounded-2xl",
           "flex flex-col overflow-hidden",
           // Animations
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -185,8 +185,8 @@ function DialogContentFullscreen({
           <DialogPrimitive.Close
             className={cn(
               "absolute top-4 right-4 rounded-lg p-2",
-              "text-muted-foreground hover:text-foreground",
-              "bg-muted/50 hover:bg-muted",
+              "text-white/30 hover:text-white/60",
+              "bg-white/[0.04] hover:bg-white/[0.08]",
               "transition-all duration-200",
               "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
               "disabled:pointer-events-none",

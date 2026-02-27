@@ -346,7 +346,7 @@ export function ResponsiveSidebarLayout({
   const sidebarContent = (
     <aside
       className={`
-        ${isMobile ? 'fixed inset-y-0 z-50 bg-background shadow-sm transition-transform' : `w-${sidebarWidth}`}
+        ${isMobile ? 'fixed inset-y-0 z-50 bg-background transition-transform' : `w-${sidebarWidth}`}
         ${isMobile && !isOpen ? '-translate-x-full' : 'translate-x-0'}
         ${sidebarPosition === 'right' ? 'right-0' : 'left-0'}
       `}

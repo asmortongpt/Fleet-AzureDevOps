@@ -198,7 +198,7 @@ export function ErrorDashboard() {
       case 'low':
         return 'text-emerald-800 bg-emerald-500/10 border-emerald-500/30';
       default:
-        return 'text-white/70 bg-gray-100 border-gray-300';
+        return 'text-white/70 bg-white/[0.05] border-white/[0.08]';
     }
   }
 
@@ -401,7 +401,7 @@ export function ErrorDashboard() {
             filteredErrors.map((error) => (
               <div
                 key={error.id}
-                className="flex items-start justify-between p-2 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-start justify-between p-2 border rounded-lg hover:bg-white/[0.03] transition-colors"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">

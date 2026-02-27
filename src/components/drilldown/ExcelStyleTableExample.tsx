@@ -119,7 +119,7 @@ export function VehicleFleetTableExample() {
           active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
           idle: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
           service: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-          offline: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+          offline: 'bg-white/[0.05] text-white/60 dark:bg-white/[0.03] dark:text-white/40',
         }
         return (
           <span className={`px-2 py-1 text-xs rounded-full ${statusColors[value as keyof typeof statusColors]}`}>
@@ -148,7 +148,7 @@ export function VehicleFleetTableExample() {
       filterable: true,
       render: (value) => (
         <div className="flex items-center gap-2">
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-white/[0.08] rounded-full h-2">
             <div
               className={`h-2 rounded-full ${value > 50 ? 'bg-green-500' : value > 25 ? 'bg-yellow-500' : 'bg-red-500'}`}
               style={{ width: `${value}%` }}
@@ -351,7 +351,7 @@ export function WorkOrderTableExample() {
           open: 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
           'in-progress': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
           completed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-          cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+          cancelled: 'bg-white/[0.05] text-white/60 dark:bg-white/[0.03] dark:text-white/40',
         }
         return (
           <span className={`px-2 py-1 text-xs rounded-full ${statusColors[value as keyof typeof statusColors]}`}>

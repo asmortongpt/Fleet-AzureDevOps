@@ -127,10 +127,10 @@ function DamageMarker3D({
 
       {hovered && (
         <Html distanceFactor={10} position={[0, 0.2, 0]}>
-          <div className="bg-black/90 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap shadow-sm">
+          <div className="bg-black/90 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap">
             <div className="font-semibold">{type}</div>
-            <div className="text-xs text-gray-300 capitalize">{severity}</div>
-            {description && <div className="text-xs mt-1 text-gray-700">{description}</div>}
+            <div className="text-xs text-white/60 capitalize">{severity}</div>
+            {description && <div className="text-xs mt-1 text-white/35">{description}</div>}
           </div>
         </Html>
       )}
@@ -327,15 +327,15 @@ function Scene({
         castShadow
         shadow-mapSize={[shadowMapSize / 2, shadowMapSize / 2]}
       />
-      <pointLight position={[0, 5, -10]} intensity={0.8} color="#88ccff" />
+      <pointLight position={[0, 5, -10]} intensity={0.8} color="#ffffff" />
       <hemisphereLight intensity={0.3} color="#ffffff" groundColor="#444444" />
 
       {/* Scene background + fog (replaces Environment presets that required external HDR files) */}
-      <color attach="background" args={['#1a1a2e']} />
-      <fog attach="fog" args={['#1a1a2e', 25, 50]} />
+      <color attach="background" args={['#1a1a1a']} />
+      <fog attach="fog" args={['#1a1a1a', 25, 50]} />
 
       {/* Fill light for reflections (replaces HDR environment map) */}
-      <directionalLight position={[5, 8, 5]} intensity={0.6} color="#e0e0ff" />
+      <directionalLight position={[5, 8, 5]} intensity={0.6} color="#ffffff" />
       <directionalLight position={[-5, 3, -5]} intensity={0.3} color="#ffe0d0" />
 
       {/* Ground */}
@@ -425,7 +425,7 @@ class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundary
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-gradient-to-br from-[#111] to-[#1a1a1a] rounded-lg">
+        <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-[#111111] rounded-lg">
           <div className="text-center p-6 max-w-md">
             <AlertTriangle className="w-12 h-12 text-amber-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-white mb-2">3D View Unavailable</h3>
@@ -450,7 +450,7 @@ class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundary
             )}
             <button
               onClick={() => this.setState({ hasError: false, error: null })}
-              className="mt-4 px-4 py-2 text-sm bg-white/[0.15] text-white rounded-lg hover:bg-white/[0.1] transition-colors"
+              className="mt-4 px-4 py-2 text-sm bg-white/[0.06] text-white rounded-lg hover:bg-white/[0.1] transition-colors"
             >
               Try Again
             </button>
@@ -533,7 +533,7 @@ export default function VehicleViewer3D({
             alpha: false,
             powerPreference: 'high-performance',
           }}
-          style={{ width: '100%', height: '100%', background: 'linear-gradient(to bottom, #1a1a1a, #2a2a2a)' }}
+          style={{ width: '100%', height: '100%', background: '#111111' }}
         >
           <Scene
             modelUrl={modelUrl}
@@ -555,12 +555,12 @@ export default function VehicleViewer3D({
       {showControls && (
         <div className="absolute top-4 left-4 right-4 flex justify-between items-start gap-2 pointer-events-none">
           {/* Info Panel */}
-          <div className="bg-black/80 backdrop-blur-sm text-white px-2 py-3 rounded-lg pointer-events-auto space-y-1">
+          <div className="bg-[#0e0e0e]/90 backdrop-blur-sm text-white px-2 py-3 rounded-lg pointer-events-auto space-y-1">
             <h3 className="font-semibold text-sm">
               {vehicleData ? formatVehicleName(vehicleData) : ''}
             </h3>
             {vehicleData?.trim && (
-              <p className="text-sm text-gray-300">{vehicleData.trim}</p>
+              <p className="text-sm text-white/60">{vehicleData.trim}</p>
             )}
             <div className="flex gap-2 mt-2">
               <Badge variant="secondary" className="text-xs">
@@ -578,7 +578,7 @@ export default function VehicleViewer3D({
               size="sm"
               variant="secondary"
               onClick={() => setAutoRotateEnabled(!autoRotateEnabled)}
-              className="bg-black/80 backdrop-blur-sm hover:bg-black/90"
+              className="bg-[#0e0e0e]/90 backdrop-blur-sm hover:bg-[#0e0e0e]"
             >
               <RotateCw className={`w-4 h-4 ${autoRotateEnabled ? 'animate-spin' : ''}`} />
             </Button>
@@ -586,7 +586,7 @@ export default function VehicleViewer3D({
               size="sm"
               variant="secondary"
               onClick={() => setShowDamage(!showDamage)}
-              className="bg-black/80 backdrop-blur-sm hover:bg-black/90"
+              className="bg-[#0e0e0e]/90 backdrop-blur-sm hover:bg-[#0e0e0e]"
             >
               {showDamage ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </Button>
@@ -595,7 +595,7 @@ export default function VehicleViewer3D({
                 size="sm"
                 variant="secondary"
                 onClick={handleARView}
-                className="bg-black/80 backdrop-blur-sm hover:bg-black/90"
+                className="bg-[#0e0e0e]/90 backdrop-blur-sm hover:bg-[#0e0e0e]"
               >
                 <Camera className="w-4 h-4 mr-2" />
                 AR View
@@ -605,7 +605,7 @@ export default function VehicleViewer3D({
               size="sm"
               variant="secondary"
               onClick={handleFullscreen}
-              className="bg-black/80 backdrop-blur-sm hover:bg-black/90"
+              className="bg-[#0e0e0e]/90 backdrop-blur-sm hover:bg-[#0e0e0e]"
             >
               {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </Button>
@@ -616,7 +616,7 @@ export default function VehicleViewer3D({
       {/* Camera Presets */}
       {showControls && (
         <div className="absolute bottom-4 left-4 flex gap-2 pointer-events-none">
-          <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 pointer-events-auto">
+          <div className="bg-[#0e0e0e]/90 backdrop-blur-sm rounded-lg p-2 pointer-events-auto">
             <div className="flex gap-2">
               <Button size="sm" variant="ghost" onClick={() => setCameraPreset(cameraPresets.front)} className="text-white hover:bg-white/20">
                 Front

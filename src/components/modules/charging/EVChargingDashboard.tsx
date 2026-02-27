@@ -206,9 +206,9 @@ const EVChargingDashboard: React.FC = () => {
       case 'Faulted':
         return 'bg-red-500';
       case 'Unavailable':
-        return 'bg-gray-500';
+        return 'bg-white/[0.03]0';
       default:
-        return 'bg-gray-400';
+        return 'bg-white/[0.10]';
     }
   };
 
@@ -309,7 +309,7 @@ const EVChargingDashboard: React.FC = () => {
     <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-base font-bold text-gray-900">EV Charging Dashboard</h1>
+          <h1 className="text-base font-bold text-white/80">EV Charging Dashboard</h1>
           <p className="text-white/40 mt-1" style={{ color: brandColors.archon.mediumGray }}>Manage charging stations and monitor active sessions</p>
         </div>
         <Button onClick={handleRefresh} variant="outline" disabled={isLoading}>
@@ -328,7 +328,7 @@ const EVChargingDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">{onlineStations}/{stations.length}</div>
-            <p className="text-xs text-gray-700 mt-1">
+            <p className="text-xs text-white/40 mt-1">
               {availableStations} available
             </p>
           </CardContent>
@@ -341,7 +341,7 @@ const EVChargingDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">{totalSessions}</div>
-            <p className="text-xs text-gray-700 mt-1">
+            <p className="text-xs text-white/40 mt-1">
               Currently charging
             </p>
           </CardContent>
@@ -354,7 +354,7 @@ const EVChargingDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">{formatEnergy(totalEnergyDelivered)}</div>
-            <p className="text-xs text-gray-700 mt-1">
+            <p className="text-xs text-white/40 mt-1">
               Today's total
             </p>
           </CardContent>
@@ -363,7 +363,7 @@ const EVChargingDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-white/40" style={{ color: brandColors.archon.mediumGray }}>Avg Utilization</CardTitle>
-            <ChartBar className="w-3 h-3 text-purple-500" />
+            <ChartBar className="w-3 h-3 text-amber-500" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">
@@ -371,7 +371,7 @@ const EVChargingDashboard: React.FC = () => {
                 ? Math.round(utilization.reduce((sum, u) => sum + (u.utilization_percent ?? 0), 0) / utilization.length)
                 : 0}%
             </div>
-            <p className="text-xs text-gray-700 mt-1">
+            <p className="text-xs text-white/40 mt-1">
               Station usage
             </p>
           </CardContent>
@@ -400,7 +400,7 @@ const EVChargingDashboard: React.FC = () => {
                         {getStatusIcon(station.status)}
                         <div>
                           <p className="font-medium">{station.name}</p>
-                          <p className="text-sm text-gray-700">{station.location_name}</p>
+                          <p className="text-sm text-white/40">{station.location_name}</p>
                         </div>
                       </div>
                       <div className="text-right">

@@ -8,7 +8,7 @@
  */
 
 export const colors = {
-  // Primary - Government Blue (Official U.S. Government color)
+  // Primary - Professional Emerald (CTA Fleet brand)
   primary: {
     base: 'var(--color-primary-600)',      // Primary actions, links
     dark: 'var(--color-primary-700)',      // Hover states

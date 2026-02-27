@@ -181,7 +181,6 @@ export function DrilldownList<T extends DrilldownListItem>({
                 ],
                 variant === 'cards' && [
                   'px-2 py-3 rounded-lg border bg-card hover:bg-muted/30',
-                  'shadow-sm hover:shadow-md',
                 ],
                 variant === 'striped' && [
                   'px-2 py-3 hover:bg-muted/50',
@@ -288,7 +287,7 @@ export function DrilldownVehicleList({
                 vehicle.status === 'active' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
                 vehicle.status === 'idle' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
                 vehicle.status === 'service' && 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-                vehicle.status === 'offline' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
+                vehicle.status === 'offline' && 'bg-white/[0.06] text-white/60'
               )}
             >
               {formatEnum(vehicle.status)}
@@ -355,7 +354,7 @@ export function DrilldownDriverList({
               className={cn(
                 'px-2 py-1 text-xs rounded-full',
                 driver.status === 'on-duty' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-                driver.status === 'off-duty' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600',
+                driver.status === 'off-duty' && 'bg-white/[0.06] text-white/60',
                 driver.status === 'driving' && 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700'
               )}
             >
@@ -440,7 +439,7 @@ export function DrilldownWorkOrderList({
                   workOrder.status === 'pending' && 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700',
                   workOrder.status === 'in-progress' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
                   workOrder.status === 'completed' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-                  workOrder.status === 'cancelled' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
+                  workOrder.status === 'cancelled' && 'bg-white/[0.06] text-white/60'
                 )}
               >
                 {workOrder.status}

@@ -22,7 +22,7 @@ export const MapToolbar = memo(function MapToolbar({
       {onFitAll && (
         <button
           onClick={onFitAll}
-          className="flex items-center gap-1 h-7 px-2 rounded-md bg-[#242424]/90 backdrop-blur-sm border border-white/[0.08] text-white/60 hover:text-white hover:border-white/[0.15] transition-all shadow-lg text-[10px] font-medium"
+          className="flex items-center gap-1 h-7 px-2 rounded-md bg-[#111111] border border-white/[0.04] text-white/60 hover:text-white hover:border-white/[0.08] transition-all text-[10px] font-medium"
           title="Fit all vehicles"
         >
           <Maximize2 className="h-3 w-3" />
@@ -35,9 +35,9 @@ export const MapToolbar = memo(function MapToolbar({
         <button
           onClick={onCenterSelected}
           disabled={!hasSelectedVehicle}
-          className={`flex items-center gap-1 h-7 px-2 rounded-md bg-[#242424]/90 backdrop-blur-sm border transition-all shadow-lg text-[10px] font-medium ${
+          className={`flex items-center gap-1 h-7 px-2 rounded-md bg-[#111111] border transition-all text-[10px] font-medium ${
             hasSelectedVehicle
-              ? 'border-white/[0.08] text-white/60 hover:text-emerald-400 hover:border-emerald-500/30'
+              ? 'border-white/[0.04] text-white/60 hover:text-emerald-400 hover:border-emerald-500/30'
               : 'border-white/[0.04] text-white/20 cursor-not-allowed'
           }`}
           title="Center on selected vehicle"

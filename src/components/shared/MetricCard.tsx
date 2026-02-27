@@ -36,7 +36,7 @@ export function MetricCard({
 }: MetricCardProps) {
   return (
     <Card
-      className={`p-2 ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''} ${className}`}
+      className={`p-2 ${onClick ? 'cursor-pointer hover:border-white/[0.12] transition-colors' : ''} ${className}`}
       onClick={onClick}
     >
       <div className="flex items-center gap-3">

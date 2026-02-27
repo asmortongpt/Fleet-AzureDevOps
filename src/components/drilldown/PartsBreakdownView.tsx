@@ -62,7 +62,7 @@ export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakd
               {parts.map((part: any) => (
                 <Card
                   key={part.id}
-                  className="hover:shadow-md transition-shadow cursor-pointer group"
+                  className="hover:border-white/[0.12] transition-colors cursor-pointer group"
                   onClick={() => handleViewItemHistory(part)}
                 >
                   <CardContent className="p-2">

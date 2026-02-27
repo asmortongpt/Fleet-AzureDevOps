@@ -168,7 +168,7 @@ export function HealthScoreBreakdown({
             Health Breakdown — {vehicleName}
           </p>
         )}
-        <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-6 text-center">
+        <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-6 text-center">
           <Activity className="h-8 w-8 mx-auto text-white/20 mb-3" />
           <p className="text-sm text-white/60 font-medium">No Telemetry Data</p>
           <p className="text-xs text-white/40 mt-1">
@@ -189,7 +189,7 @@ export function HealthScoreBreakdown({
       )}
 
       {/* Overall score ring */}
-      <div className="relative flex items-center justify-center rounded-lg bg-[#242424] border border-white/[0.08] p-4">
+      <div className="relative flex items-center justify-center rounded-lg bg-[#111111] border border-white/[0.04] p-4">
         <svg width="140" height="140" viewBox="0 0 140 140" className="-rotate-90">
           {/* Background track */}
           <circle
@@ -222,7 +222,7 @@ export function HealthScoreBreakdown({
       </div>
 
       {/* Metric bars */}
-      <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3 space-y-2.5">
+      <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3 space-y-2.5">
         <p className="text-[9px] font-semibold uppercase tracking-wider text-white/40 mb-1">Component Health</p>
 
         {metrics.map((m) => {
@@ -247,7 +247,7 @@ export function HealthScoreBreakdown({
 
       {/* Critical alerts */}
       {alerts.length > 0 && (
-        <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3 space-y-2">
+        <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3 space-y-2">
           <p className="text-[9px] font-semibold uppercase tracking-wider text-white/40">Critical Alerts</p>
 
           {alerts.map((a, i) => (

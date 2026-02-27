@@ -305,7 +305,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
             <div className="relative">
               <canvas
                 ref={canvasRef}
-                className="w-full h-[600px] bg-gray-900"
+                className="w-full h-[600px] bg-[#0a0a0a]"
                 style={{ display: 'block' }}
               />
 
@@ -342,7 +342,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
               </div>
 
               {/* Scan Quality Indicator */}
-              <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm rounded-lg p-3 text-white text-sm">
+              <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm rounded-lg p-3 text-white text-sm">
                 <div className="space-y-1">
                   <div>Resolution: {scan?.resolution.toFixed(3)} pts/m</div>
                   <div>Accuracy: ±{scan?.accuracy ? (scan.accuracy * 100).toFixed(1) : '—'} cm</div>

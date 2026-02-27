@@ -3,7 +3,7 @@
  *
  * Design Approach:
  * - Style: Glassmorphism + Bento Box Grid
- * - Color: Professional Tech (Blue-Gray palette)
+ * - Color: Professional Tech (Emerald-Gray palette)
  * - Typography: Inter + Manrope (Professional Modern)
  * - Effects: Soft shadows, smooth transitions (250ms)
  * - Accessibility: WCAG AA compliant, reduced motion support
@@ -56,7 +56,7 @@ export function FleetHubProMax() {
       change: 8.2,
       trend: 'up',
       icon: Truck,
-      color: 'from-emerald-500/50 to-cyan-500'
+      color: 'from-emerald-500/50 to-emerald-500'
     },
     {
       label: 'Safety Score',
@@ -80,19 +80,19 @@ export function FleetHubProMax() {
       change: 5.7,
       trend: 'up',
       icon: Zap,
-      color: 'from-violet-500 to-purple-500'
+      color: 'from-amber-500 to-amber-500'
     }
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#888] via-emerald-500/5 to-[#777] p-6">
+    <div className="min-h-screen bg-[#0a0a0a] p-6">
       {/* Header with Glassmorphism */}
       <header
-        className="mb-8 backdrop-blur-xl bg-white/70 rounded-3xl p-6 shadow-lg shadow-black/[0.1] border border-white/20"
+        className="mb-8 bg-[#0e0e0e] rounded-3xl p-6 border border-white/[0.04]"
       >
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-[#111] to-[#242424] bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-white">
               Fleet Command Center
             </h1>
             <p className="text-white/50 mt-2 font-medium">
@@ -100,12 +100,12 @@ export function FleetHubProMax() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-sm font-semibold text-emerald-700">Live</span>
+              <span className="text-sm font-semibold text-emerald-400">Live</span>
             </div>
             <button
-              className="px-5 py-2.5 rounded-full bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-250 hover:scale-105 cursor-pointer"
+              className="px-5 py-2.5 rounded-full bg-emerald-600 text-white font-semibold hover:bg-emerald-500 transition-all duration-250 cursor-pointer"
               aria-label="View detailed analytics"
             >
               Analytics
@@ -122,13 +122,11 @@ export function FleetHubProMax() {
             key={metric.label}
             className="col-span-12 md:col-span-6 lg:col-span-3"
           >
-            <div className="group relative backdrop-blur-xl bg-white/80 rounded-2xl p-6 shadow-lg shadow-black/[0.1] border border-white/20 hover:shadow-xl hover:shadow-black/[0.15] transition-all duration-250 cursor-pointer overflow-hidden">
-              {/* Gradient Background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-0 group-hover:opacity-5 transition-opacity duration-250`} />
+            <div className="group relative bg-[#111111] rounded-2xl p-6 border border-white/[0.04] hover:bg-[#161616] transition-all duration-250 cursor-pointer overflow-hidden">
 
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${metric.color} shadow-lg`}>
+                  <div className="p-3 rounded-xl bg-white/[0.06]">
                     <metric.icon className="w-5 h-5 text-white" />
                   </div>
                   <div className={`flex items-center gap-1 text-sm font-bold ${
@@ -143,7 +141,7 @@ export function FleetHubProMax() {
                   </div>
                 </div>
 
-                <h3 className="text-3xl font-bold text-white/90 mb-1">
+                <h3 className="text-3xl font-bold text-white mb-1">
                   {metric.value}
                 </h3>
                 <p className="text-sm text-white/50 font-medium">
@@ -158,14 +156,14 @@ export function FleetHubProMax() {
         <div
           className="col-span-12 lg:col-span-8"
         >
-          <div className="backdrop-blur-xl bg-white/80 rounded-3xl p-6 shadow-lg shadow-black/[0.1] border border-white/20 h-[500px]">
+          <div className="bg-[#0e0e0e] rounded-3xl p-6 border border-white/[0.04] h-[500px]">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500/50 to-cyan-500">
+                <div className="p-2 rounded-lg bg-white/[0.06]">
                   <MapPin className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white/90">Live Fleet Tracking</h2>
+                  <h2 className="text-xl font-bold text-white">Live Fleet Tracking</h2>
                   <p className="text-sm text-white/50">142 vehicles in service area</p>
                 </div>
               </div>
@@ -173,14 +171,14 @@ export function FleetHubProMax() {
                 <button className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.08] text-white/70 font-medium transition-colors duration-200 cursor-pointer">
                   3D View
                 </button>
-                <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-medium shadow-lg shadow-emerald-500/20 hover:shadow-xl transition-all duration-200 cursor-pointer">
+                <button className="px-4 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-500 transition-all duration-200 cursor-pointer">
                   Fullscreen
                 </button>
               </div>
             </div>
 
             {/* Map Placeholder with Glassmorphic Overlays */}
-            <div className="relative h-[400px] rounded-2xl bg-gradient-to-br from-[#777] to-emerald-500/5 overflow-hidden">
+            <div className="relative h-[400px] rounded-2xl bg-[#111111] overflow-hidden">
               {/* Simulated map with vehicle markers */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
@@ -191,17 +189,17 @@ export function FleetHubProMax() {
               </div>
 
               {/* Floating Status Cards */}
-              <div className="absolute top-4 left-4 backdrop-blur-xl bg-white/90 rounded-xl p-3 shadow-lg border border-white/20">
+              <div className="absolute top-4 left-4 bg-[#1a1a1a] rounded-xl p-3 border border-white/[0.04]">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-sm font-semibold text-white/70">Online: 142</span>
+                  <span className="text-sm font-semibold text-white/60">Online: 142</span>
                 </div>
               </div>
 
-              <div className="absolute top-4 right-4 backdrop-blur-xl bg-white/90 rounded-xl p-3 shadow-lg border border-white/20">
+              <div className="absolute top-4 right-4 bg-[#1a1a1a] rounded-xl p-3 border border-white/[0.04]">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-amber-500" />
-                  <span className="text-sm font-semibold text-white/70">Alerts: {alerts || 3}</span>
+                  <span className="text-sm font-semibold text-white/60">Alerts: {alerts || 3}</span>
                 </div>
               </div>
             </div>
@@ -212,31 +210,31 @@ export function FleetHubProMax() {
         <div
           className="col-span-12 lg:col-span-4"
         >
-          <div className="backdrop-blur-xl bg-white/80 rounded-3xl p-6 shadow-lg shadow-black/[0.1] border border-white/20 h-[500px] flex flex-col">
+          <div className="bg-[#0e0e0e] rounded-3xl p-6 border border-white/[0.04] h-[500px] flex flex-col">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500">
+              <div className="p-2 rounded-lg bg-white/[0.06]">
                 <Activity className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-xl font-bold text-white/90">Live Activity</h2>
+              <h2 className="text-xl font-bold text-white">Live Activity</h2>
             </div>
 
             <div className="flex-1 overflow-auto space-y-3">
               {[
                 { type: 'success', icon: CheckCircle2, text: 'Vehicle FL-2847 completed delivery', time: '2m ago', color: 'emerald' },
                 { type: 'warning', icon: AlertTriangle, text: 'Low fuel alert: FL-1923', time: '5m ago', color: 'amber' },
-                { type: 'info', icon: Truck, text: 'FL-3156 departed warehouse', time: '8m ago', color: 'blue' },
+                { type: 'info', icon: Truck, text: 'FL-3156 departed warehouse', time: '8m ago', color: 'emerald' },
                 { type: 'success', icon: Shield, text: 'Safety inspection passed: FL-2001', time: '12m ago', color: 'emerald' },
-                { type: 'info', icon: Calendar, text: 'Maintenance scheduled: 3 vehicles', time: '15m ago', color: 'violet' }
+                { type: 'info', icon: Calendar, text: 'Maintenance scheduled: 3 vehicles', time: '15m ago', color: 'amber' }
               ].map((activity) => (
                 <div
                   key={activity.text}
                   className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.05] transition-colors duration-200 cursor-pointer group"
                 >
-                  <div className={`p-2 rounded-lg bg-${activity.color}-100 text-${activity.color}-600 group-hover:scale-110 transition-transform duration-200`}>
+                  <div className="p-2 rounded-lg bg-white/[0.06] text-white/60 group-hover:scale-110 transition-transform duration-200">
                     <activity.icon className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white/90 leading-tight">
+                    <p className="text-sm font-medium text-white leading-tight">
                       {activity.text}
                     </p>
                     <p className="text-xs text-white/40 mt-1">{activity.time}</p>
@@ -251,34 +249,34 @@ export function FleetHubProMax() {
         <div
           className="col-span-12 lg:col-span-6"
         >
-          <div className="backdrop-blur-xl bg-white/80 rounded-3xl p-6 shadow-lg shadow-black/[0.1] border border-white/20">
+          <div className="bg-[#0e0e0e] rounded-3xl p-6 border border-white/[0.04]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500">
+              <div className="p-2 rounded-lg bg-white/[0.06]">
                 <TrendingUp className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white/90">Performance Trends</h2>
+                <h2 className="text-xl font-bold text-white">Performance Trends</h2>
                 <p className="text-sm text-white/50">Last 30 days</p>
               </div>
             </div>
 
             {/* Chart Placeholder */}
-            <div className="h-48 rounded-xl bg-gradient-to-br from-[#888] to-emerald-500/5 flex items-center justify-center">
+            <div className="h-48 rounded-xl bg-[#111111] flex items-center justify-center">
               <p className="text-white/40 font-medium">Interactive Performance Chart</p>
             </div>
 
             <div className="grid grid-cols-3 gap-4 mt-6">
-              <div className="text-center p-3 rounded-xl bg-gradient-to-br from-emerald-500/5 to-cyan-50">
-                <p className="text-2xl font-bold text-white/90">+12.5%</p>
-                <p className="text-xs text-white/50 mt-1">Efficiency</p>
+              <div className="text-center p-3 rounded-xl bg-white/[0.03]">
+                <p className="text-2xl font-bold text-white">+12.5%</p>
+                <p className="text-xs text-white/35 mt-1">Efficiency</p>
               </div>
-              <div className="text-center p-3 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50">
-                <p className="text-2xl font-bold text-white/90">-8.3%</p>
-                <p className="text-xs text-white/50 mt-1">Fuel Cost</p>
+              <div className="text-center p-3 rounded-xl bg-white/[0.03]">
+                <p className="text-2xl font-bold text-white">-8.3%</p>
+                <p className="text-xs text-white/35 mt-1">Fuel Cost</p>
               </div>
-              <div className="text-center p-3 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50">
-                <p className="text-2xl font-bold text-white/90">98.2%</p>
-                <p className="text-xs text-white/50 mt-1">Uptime</p>
+              <div className="text-center p-3 rounded-xl bg-white/[0.03]">
+                <p className="text-2xl font-bold text-white">98.2%</p>
+                <p className="text-xs text-white/35 mt-1">Uptime</p>
               </div>
             </div>
           </div>
@@ -288,13 +286,13 @@ export function FleetHubProMax() {
         <div
           className="col-span-12 lg:col-span-6"
         >
-          <div className="backdrop-blur-xl bg-white/80 rounded-3xl p-6 shadow-lg shadow-black/[0.1] border border-white/20">
+          <div className="bg-[#0e0e0e] rounded-3xl p-6 border border-white/[0.04]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500">
+              <div className="p-2 rounded-lg bg-white/[0.06]">
                 <Users className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white/90">Top Drivers</h2>
+                <h2 className="text-xl font-bold text-white">Top Drivers</h2>
                 <p className="text-sm text-white/50">By safety score</p>
               </div>
             </div>
@@ -307,19 +305,19 @@ export function FleetHubProMax() {
               ].map((driver) => (
                 <div
                   key={driver.name}
-                  className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-[#888] to-emerald-500/5 hover:from-[#777] hover:to-emerald-500/10 transition-all duration-200 cursor-pointer group"
+                  className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-200 cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500/50 to-cyan-500 flex items-center justify-center text-white font-bold shadow-lg">
+                    <div className="w-10 h-10 rounded-full bg-[#1a1a1a] flex items-center justify-center text-white/60 font-bold border border-white/[0.04]">
                       {driver.name.split(' ').map(n => n[0]).join('')}
                     </div>
                     <div>
-                      <p className="font-semibold text-white/90">{driver.name}</p>
+                      <p className="font-semibold text-white">{driver.name}</p>
                       <p className="text-xs text-white/50">{driver.deliveries} deliveries</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-bold text-white/90">{driver.score}</p>
+                    <p className="text-xl font-bold text-white">{driver.score}</p>
                     <p className="text-xs text-white/50">Safety Score</p>
                   </div>
                 </div>

@@ -84,11 +84,11 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
       case "active":
         return <Activity className="h-3 w-3 text-green-500" />
       case "off-duty":
-        return <Clock className="h-3 w-3 text-gray-700" />
+        return <Clock className="h-3 w-3 text-white/35" />
       case "on-leave":
         return <Moon className="h-3 w-3 text-emerald-500" />
       default:
-        return <User className="h-3 w-3 text-gray-700" />
+        return <User className="h-3 w-3 text-white/35" />
     }
   }
 
@@ -106,9 +106,9 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
   }
 
   const getSafetyScoreColor = (score: number) => {
-    if (score >= 90) return "text-green-600"
-    if (score >= 75) return "text-yellow-600"
-    return "text-red-600"
+    if (score >= 90) return "text-emerald-400"
+    if (score >= 75) return "text-yellow-400"
+    return "text-red-400"
   }
 
   // Map component with driver locations
@@ -130,7 +130,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
       />
 
       {/* Stats Overlay */}
-      <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg p-3 shadow-sm z-10">
+      <div className="absolute top-4 left-4 bg-[#111111] border border-white/[0.04] rounded-lg p-3 z-10">
         <div className="grid grid-cols-2 gap-3">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
@@ -139,7 +139,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 bg-gray-500 rounded-full" />
+            <div className="h-2 w-2 bg-white/35 rounded-full" />
             <span className="text-sm">
               <span className="font-semibold">{stats.offDuty}</span> Off-Duty
             </span>

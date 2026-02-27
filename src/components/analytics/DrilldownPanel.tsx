@@ -228,10 +228,10 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
         <>
             {isOpen && (
                 <div
-                    className="fixed right-0 top-0 bottom-0 w-full md:w-2/3 lg:w-1/2 xl:w-2/5 bg-[#111] border-l border-white/[0.15] shadow-sm z-50 flex flex-col"
+                    className="fixed right-0 top-0 bottom-0 w-full md:w-2/3 lg:w-1/2 xl:w-2/5 bg-[#111111] border-l border-white/[0.04] z-50 flex flex-col"
                 >
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-[#1a1a1a] to-[#111] border-b border-white/[0.15] p-3">
+                    <div className="bg-[#1a1a1a] border-b border-white/[0.04] p-3">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-3">
                                 {breadcrumbs.length > 1 && (
@@ -265,7 +265,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                                             className={`px-3 py-1 rounded-lg transition-colors ${
                                                 index === breadcrumbs.length - 1
                                                     ? 'bg-emerald-600 text-white'
-                                                    : 'bg-white/[0.15] text-white/60 hover:bg-white/[0.08]'
+                                                    : 'bg-white/[0.06] text-white/60 hover:bg-white/[0.08]'
                                             }`}
                                         >
                                             {crumb.title}
@@ -287,14 +287,14 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                         <div className="flex items-center gap-2 mt-2">
                             <button
                                 onClick={handleExport}
-                                className="flex items-center gap-2 px-2 py-2 bg-white/[0.15] hover:bg-white/[0.08] text-white rounded-lg transition-colors text-sm"
+                                className="flex items-center gap-2 px-2 py-2 bg-white/[0.06] hover:bg-white/[0.08] text-white rounded-lg transition-colors text-sm"
                             >
                                 <Download className="w-4 h-4" />
                                 Export
                             </button>
                             <button
                                 onClick={handleShare}
-                                className="flex items-center gap-2 px-2 py-2 bg-white/[0.15] hover:bg-white/[0.08] text-white rounded-lg transition-colors text-sm"
+                                className="flex items-center gap-2 px-2 py-2 bg-white/[0.06] hover:bg-white/[0.08] text-white rounded-lg transition-colors text-sm"
                             >
                                 <Share className="w-4 h-4" />
                                 Share
@@ -324,7 +324,7 @@ const CategoryCard = memo<{
 }>(({ title, value, change, trend, onClick }) => (
     <button
         onClick={onClick}
-        className="bg-[#1a1a1a]/60 hover:bg-white/[0.08]/60 border border-white/[0.15] rounded-lg p-3 text-left transition-colors group"
+        className="bg-[#1a1a1a]/60 hover:bg-white/[0.08]/60 border border-white/[0.04] rounded-lg p-3 text-left transition-colors group"
     >
         <h3 className="text-white/70 text-sm font-medium mb-2">{title}</h3>
         <p className="text-base font-bold text-white mb-1">{value}</p>
@@ -349,7 +349,7 @@ const VehicleList = memo<{ vehicles: any[]; onVehicleClick: (vehicle: any) => vo
                 <button
                     key={vehicle.id}
                     onClick={() => onVehicleClick(vehicle)}
-                    className="w-full bg-white/[0.15]/40 hover:bg-white/[0.08]/40 rounded-lg p-3 text-left transition-colors"
+                    className="w-full bg-white/[0.04] hover:bg-white/[0.06] rounded-lg p-3 text-left transition-colors"
                 >
                     <div className="flex items-center justify-between">
                         <div>

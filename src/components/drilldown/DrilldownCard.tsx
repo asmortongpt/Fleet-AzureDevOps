@@ -149,7 +149,7 @@ export function DrilldownCard({
       aria-disabled={!isDrilldownEnabled}
       className={cn(
         'group transition-all duration-200',
-        isDrilldownEnabled && 'cursor-pointer hover:shadow-md hover:border-primary/50',
+        isDrilldownEnabled && 'cursor-pointer hover:border-primary/50',
         isDrilldownEnabled && 'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
         colorClasses[color],
         variantClasses[variant],

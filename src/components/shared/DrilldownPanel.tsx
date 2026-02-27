@@ -22,15 +22,15 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
 
   return (
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2"
+        className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-2"
         onClick={onClose}
       >
         <div
-          className={`w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col backdrop-blur-2xl bg-[#111]/98 border-2 border-white/[0.08] rounded-lg shadow-sm ${className}`}
+          className={`w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col bg-[#111111] border-2 border-white/[0.04] rounded-lg ${className}`}
           onClick={e => e.stopPropagation()}
         >
           {/* Header with Breadcrumbs */}
-          <div className="flex-shrink-0 px-3 py-2 border-b border-white/[0.08] bg-[#1a1a1a]/60">
+          <div className="flex-shrink-0 px-3 py-2 border-b border-white/[0.04] bg-[#1a1a1a]/60">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 {showBreadcrumbs && (
@@ -87,7 +87,7 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
           </div>
 
           {/* Footer */}
-          <div className="flex-shrink-0 px-3 py-2 border-t border-white/[0.08] bg-[#1a1a1a]/40">
+          <div className="flex-shrink-0 px-3 py-2 border-t border-white/[0.04] bg-[#1a1a1a]/40">
             <div className="flex items-center justify-between text-sm text-white/40">
               <div>Level {levels.length} of drilldown</div>
               <div className="flex gap-2">

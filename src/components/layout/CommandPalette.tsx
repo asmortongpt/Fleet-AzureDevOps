@@ -3,7 +3,7 @@
  *
  * Searches module registry. Results grouped by category.
  * Selecting a result opens the appropriate panel.
- * Glass-morphism design consistent with ArchonY branding.
+ * Glass-morphism design consistent with CTA Fleet branding.
  */
 import { Search, X, ArrowRight } from 'lucide-react'
 import { useState, useCallback, useEffect, useRef } from 'react'
@@ -104,15 +104,15 @@ export function CommandPalette() {
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/70"
         onClick={close}
       />
 
       {/* Palette */}
-      <div className="relative w-full max-w-lg mx-4 bg-background/95 border border-border/50 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden">
+      <div className="relative w-full max-w-lg mx-4 bg-[#111111] border border-white/[0.04] rounded-2xl overflow-hidden">
         {/* Search input */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border/50">
-          <Search className="w-4 h-4 text-white/50 shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.04]">
+          <Search className="w-4 h-4 text-white/35 shrink-0" />
           <input
             ref={inputRef}
             value={query}
@@ -122,11 +122,11 @@ export function CommandPalette() {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search modules, vehicles, drivers..."
-            className="flex-1 bg-transparent text-foreground text-sm placeholder:text-muted-foreground outline-none"
+            className="flex-1 bg-transparent text-white text-sm placeholder:text-white/35 outline-none"
           />
           <button
             onClick={close}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-white/35 hover:text-white transition-colors"
             aria-label="Close command palette"
           >
             <X className="w-4 h-4" />
@@ -136,13 +136,13 @@ export function CommandPalette() {
         {/* Results */}
         <div className="max-h-[360px] overflow-y-auto py-2">
           {query && results.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-8">
+            <p className="text-xs text-white/35 text-center py-8">
               No results for &ldquo;{query}&rdquo;
             </p>
           )}
 
           {!query && (
-            <p className="text-xs text-muted-foreground text-center py-8">
+            <p className="text-xs text-white/35 text-center py-8">
               Type to search across all modules and records
             </p>
           )}
@@ -166,8 +166,8 @@ export function CommandPalette() {
                     className={cn(
                       'w-full flex items-center justify-between px-4 py-2.5 text-sm transition-all',
                       isSelected
-                        ? 'bg-white/[0.08] text-foreground'
-                        : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+                        ? 'bg-white/[0.08] text-white'
+                        : 'text-white/60 hover:bg-white/[0.04] hover:text-white'
                     )}
                   >
                     <span>{mod.label}</span>
@@ -180,10 +180,10 @@ export function CommandPalette() {
         </div>
 
         {/* Footer hints */}
-        <div className="flex items-center gap-4 px-4 py-2 border-t border-border/50 text-[10px] text-muted-foreground">
-          <span><kbd className="px-1 py-0.5 bg-muted/40 rounded text-[10px] border border-border/50">&uarr;&darr;</kbd> Navigate</span>
-          <span><kbd className="px-1 py-0.5 bg-muted/40 rounded text-[10px] border border-border/50">Enter</kbd> Open</span>
-          <span><kbd className="px-1 py-0.5 bg-muted/40 rounded text-[10px] border border-border/50">Esc</kbd> Close</span>
+        <div className="flex items-center gap-4 px-4 py-2 border-t border-white/[0.04] text-[10px] text-white/30">
+          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.04]">&uarr;&darr;</kbd> Navigate</span>
+          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.04]">Enter</kbd> Open</span>
+          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.04]">Esc</kbd> Close</span>
         </div>
       </div>
     </div>

@@ -157,8 +157,8 @@ export function VideoViewer({ document: docMetadata }: VideoViewerProps) {
         {/* Audio placeholder */}
         {isAudio && (
           <div className="flex flex-col items-center justify-center gap-2 text-white">
-            <div className="w-48 h-48 rounded-full bg-primary/20 flex items-center justify-center">
-              <Volume2 className="w-24 h-24 text-primary" />
+            <div className="w-48 h-48 rounded-full bg-white/[0.06] flex items-center justify-center">
+              <Volume2 className="w-24 h-24 text-emerald-400" />
             </div>
             <h3 className="text-base font-semibold">{docMetadata.name}</h3>
           </div>

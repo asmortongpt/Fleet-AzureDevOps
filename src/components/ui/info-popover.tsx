@@ -47,8 +47,8 @@ export function InfoPopover({
   }
 
   const iconColors = {
-    info: 'text-[#1e40af] dark:text-blue-700',
-    help: 'text-[#334155] dark:text-slate-700',
+    info: 'text-[#059669] dark:text-emerald-700',
+    help: 'text-neutral-700 dark:text-neutral-700',
     warning: 'text-[#b45309] dark:text-amber-400',
   }
 
@@ -69,7 +69,7 @@ export function InfoPopover({
       </PopoverTrigger>
       <PopoverContent
         side={placement}
-        className="w-80 p-2 shadow-sm"
+        className="w-80 p-2"
         sideOffset={5}
       >
         <div className="space-y-3">

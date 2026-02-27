@@ -297,7 +297,7 @@ export function VideoTelematics() {
 
   const getCoachingStatusColor = (status: VideoEvent["coaching"]["status"]) => {
     const colors = {
-      pending: "bg-gray-100 text-gray-700",
+      pending: "bg-white/[0.05] text-white/40",
       "in-progress": "bg-emerald-100 text-emerald-700",
       completed: "bg-green-100 text-green-700"
     }
@@ -557,8 +557,8 @@ export function VideoTelematics() {
           </DialogHeader>
           {selectedEvent && (
             <div className="space-y-2">
-              <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-700">
+              <div className="aspect-video bg-[#111113] rounded-lg flex items-center justify-center">
+                <div className="text-center text-white/40">
                   <Video className="w-16 h-16 mx-auto mb-2" />
                   <p>Video Player</p>
                   <p className="text-sm">

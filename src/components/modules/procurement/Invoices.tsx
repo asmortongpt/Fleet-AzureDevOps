@@ -59,12 +59,12 @@ export function Invoices() {
 
   const getStatusColor = (status: Invoice["status"]): string => {
     const colors: Record<Invoice["status"], string> = {
-      draft: "bg-gray-100 text-gray-700",
+      draft: "bg-white/[0.05] text-white/40",
       pending: "bg-yellow-100 text-yellow-700",
       paid: "bg-green-100 text-green-700",
       overdue: "bg-red-100 text-red-700",
       disputed: "bg-orange-100 text-orange-700",
-      cancelled: "bg-gray-100 text-gray-700"
+      cancelled: "bg-white/[0.05] text-white/40"
     }
     return colors[status]
   }

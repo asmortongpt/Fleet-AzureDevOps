@@ -213,13 +213,13 @@ const MAP_CONFIG = {
 const VEHICLE_STATUS_COLORS: Record<string, string> = {
   active: "#10b981", // emerald-500 - operational and moving
   idle: "#6b7280", // gray-500 - operational but stationary
-  charging: "#3b82f6", // blue-500 - electric vehicle charging
+  charging: "#10b981", // emerald-500 - electric vehicle charging
   service: "#f59e0b", // amber-500 - under maintenance
   emergency: "#ef4444", // red-500 - emergency/breakdown
   offline: "#374151", // gray-700 - no connection/inactive
-  assigned: "#818cf8", // indigo-400 - assigned, not yet moving
+  assigned: "#34d399", // emerald-400 - assigned, not yet moving
   dispatched: "#fb923c", // orange-400 - dispatched
-  en_route: "#38bdf8", // sky-400 - en route
+  en_route: "#34d399", // emerald-400 - en route
   on_site: "#facc15", // yellow-400 - on site
   completed: "#34d399", // emerald-400 - completed
   maintenance: "#f59e0b", // amber-500 - under maintenance
@@ -570,7 +570,7 @@ export function LeafletMap({
 
             const icon = Leaflet.divIcon({
               className: 'facility-marker',
-              html: `<div style="background-color: #2563eb; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 18px;">${emoji}</div>`,
+              html: `<div style="background-color: #059669; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 18px;">${emoji}</div>`,
               iconSize: [36, 36],
               iconAnchor: [18, 18],
             })
@@ -596,7 +596,7 @@ export function LeafletMap({
           if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
             const icon = Leaflet.divIcon({
               className: 'camera-marker',
-              html: `<div style="background-color: #7c3aed; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📹</div>`,
+              html: `<div style="background-color: #10b981; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📹</div>`,
               iconSize: [28, 28],
               iconAnchor: [14, 14],
             })

@@ -96,13 +96,13 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
             key={geofence.id}
             center={[geofence.latitude ?? 0, geofence.longitude ?? 0] as LatLngExpression}
             radius={geofence.radius ?? 1000}
-            pathOptions={{ color: 'blue' }}
+            pathOptions={{ color: '#10b981' }}
           />
         ) : (
           <Polygon
             key={geofence.id}
             positions={(geofence.coordinates ?? []).map((coord: { lat: number; lng: number; }) => [coord.lat, coord.lng] as LatLngExpression)}
-            pathOptions={{ color: 'blue' }}
+            pathOptions={{ color: '#10b981' }}
           />
         )
       ))}

@@ -233,7 +233,7 @@ export function PolicyTemplateDetailPanel({
       case 'rare':
         return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
+        return 'bg-white/[0.05] text-white/60 dark:bg-white/[0.03] dark:text-white/40'
     }
   }
 
@@ -317,7 +317,7 @@ export function PolicyTemplateDetailPanel({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-sm font-bold text-purple-600">
+              <div className="text-sm font-bold text-amber-600">
                 +{templateData.estimated_impact.efficiency_gain || 0}%
               </div>
               <p className="text-xs text-muted-foreground">Operational improvement</p>

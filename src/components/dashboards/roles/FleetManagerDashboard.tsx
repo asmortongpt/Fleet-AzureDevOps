@@ -206,7 +206,7 @@ export function FleetManagerDashboard() {
             </Button>
           </div>
 
-          {/* Open Work Orders - Minimal Blue Indicator */}
+          {/* Open Work Orders - Minimal Teal Indicator */}
           <div
             className={cn(
               "bg-muted rounded-lg p-3",
@@ -227,7 +227,7 @@ export function FleetManagerDashboard() {
             <Button
               size="sm"
               variant="outline"
-              className="w-full text-emerald-400 border-white/[0.08] hover:bg-emerald-500/10"
+              className="w-full text-emerald-400 border-white/[0.04] hover:bg-emerald-500/10"
               onClick={(e) => {
                 e.stopPropagation();
                 handleCreateWorkOrder();

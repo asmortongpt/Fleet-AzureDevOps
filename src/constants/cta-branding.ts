@@ -2,12 +2,12 @@
  * Official Capital Technology Alliance Brand Guidelines
  * Source: CTA - Branding Second Look - 012626 - ADELE.pdf
  *
- * ArchonY was selected as the preferred name and logo for
+ * CTA Fleet is the preferred name and logo for
  * the entire suite of CTA enterprise solutions, including fleet management.
  *
  * CTA Brand Palette (mapped to theme CSS variables)
  * - DAYTIME: primary
- * - BLUE SKIES: chart-1
+ * - SILVER: chart-1
  * - MIDNIGHT: background
  * - NOON: chart-6
  * - GOLDEN HOUR: chart-3
@@ -16,7 +16,7 @@
 export const CTA_BRAND_COLORS = {
   // Official CTA Color Palette - EXACT from ADELE PDF
   DAYTIME: 'hsl(var(--primary))',
-  BLUE_SKIES: 'hsl(var(--chart-1))',
+  SILVER: 'hsl(var(--chart-1))',
   MIDNIGHT: 'hsl(var(--background))',
   NOON: 'hsl(var(--chart-6))',
   GOLDEN_HOUR: 'hsl(var(--chart-3))',
@@ -26,7 +26,7 @@ export const CTA_GRADIENTS = {
   // Official CTA Gradient Bar - Skyline colors
   PRIMARY: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
 
-  // Full Skyline Gradient (blue to golden to orange)
+  // Full Skyline Gradient
   SKYLINE: 'linear-gradient(90deg, hsl(var(--chart-1)) 0%, hsl(var(--chart-1)) 25%, hsl(var(--chart-3)) 75%, hsl(var(--chart-6)) 100%)',
 
   // Background Gradients
@@ -36,15 +36,15 @@ export const CTA_GRADIENTS = {
   LOGO_TEXT: 'linear-gradient(90deg, hsl(var(--foreground)) 0%, hsl(var(--chart-1)) 50%, hsl(var(--foreground)) 100%)',
 
   // Accent Gradients
-  BLUE_SKIES_GLOW: 'radial-gradient(circle, hsl(var(--chart-1) / 0.25) 0%, transparent 70%)',
+  SILVER_GLOW: 'radial-gradient(circle, hsl(var(--chart-1) / 0.25) 0%, transparent 70%)',
   NOON_GLOW: 'radial-gradient(circle, hsl(var(--chart-6) / 0.2) 0%, transparent 70%)',
 } as const
 
 export const CTA_SHADOWS = {
   // Glow effects for brand elements - updated with exact colors
   GOLDEN_HOUR_GLOW: '0 20px 40px hsl(var(--chart-3) / 0.6), 0 0 0 2px hsl(var(--foreground) / 0.2)',
-  BLUE_SKIES_GLOW: '0 0 10px hsl(var(--chart-1) / 0.8)',
-  ARCHONY_TEXT: '0 2px 8px hsl(var(--chart-1) / 0.6), 0 4px 12px hsl(var(--chart-3) / 0.4)',
+  SILVER_GLOW: '0 0 10px hsl(var(--chart-1) / 0.8)',
+  CTA_TEXT: '0 2px 8px hsl(var(--chart-1) / 0.6), 0 4px 12px hsl(var(--chart-3) / 0.4)',
   GRADIENT_BAR: '0 2px 8px hsl(var(--chart-3) / 0.6)',
 } as const
 
@@ -57,7 +57,7 @@ export const CTA_TYPOGRAPHY = {
   BODY_FAMILY: '"Montserrat", -apple-system, sans-serif',
   BODY_WEIGHT: 400,
 
-  // ArchonY Logo
+  // CTA Fleet Logo
   LOGO_FAMILY: '"Cinzel", Georgia, serif',
   LOGO_WEIGHT: 700,
   LOGO_LETTER_SPACING: '0.15em',
@@ -70,8 +70,8 @@ export const CTA_TYPOGRAPHY = {
 } as const
 
 export const CTA_BRANDING = {
-  PRODUCT_NAME: 'ArchonY Fleet Command',
-  PRODUCT_SHORT: 'ArchonY',
+  PRODUCT_NAME: 'CTA Fleet Command',
+  PRODUCT_SHORT: 'CTA Fleet',
   COMPANY_NAME: 'Capital Technology Alliance',
   COMPANY_SHORT: 'CTA',
   TAGLINE: 'INTELLIGENT PERFORMANCE',
@@ -83,12 +83,12 @@ export const CTA_BRANDING = {
  * Helper function to apply CTA brand styling
  */
 export const ctaBrandStyle = {
-  archonyLogo: (size: 'sm' | 'md' | 'lg' = 'md') => ({
+  ctaFleetLogo: (size: 'sm' | 'md' | 'lg' = 'md') => ({
     fontFamily: CTA_TYPOGRAPHY.LOGO_FAMILY,
     fontWeight: CTA_TYPOGRAPHY.LOGO_WEIGHT,
     letterSpacing: CTA_TYPOGRAPHY.LOGO_LETTER_SPACING,
     color: 'hsl(var(--foreground))',
-    textShadow: CTA_SHADOWS.ARCHONY_TEXT,
+    textShadow: CTA_SHADOWS.CTA_TEXT,
     background: CTA_GRADIENTS.LOGO_TEXT,
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
@@ -101,8 +101,8 @@ export const ctaBrandStyle = {
   }),
 
   accentText: () => ({
-    color: CTA_BRAND_COLORS.BLUE_SKIES,
-    textShadow: CTA_SHADOWS.BLUE_SKIES_GLOW,
+    color: CTA_BRAND_COLORS.SILVER,
+    textShadow: CTA_SHADOWS.SILVER_GLOW,
   }),
 
   darkBackground: () => ({

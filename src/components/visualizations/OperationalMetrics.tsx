@@ -24,7 +24,7 @@ interface Metric {
   trend?: 'up' | 'down' | 'stable';
   trendValue?: number;
   icon: React.ComponentType<{ className?: string }>;
-  color: 'blue' | 'green' | 'amber' | 'purple' | 'red';
+  color: 'teal' | 'green' | 'amber' | 'red';
 }
 
 interface OperationalMetricsProps {
@@ -53,7 +53,7 @@ const defaultMetrics: Metric[] = [
     trend: 'down',
     trendValue: -1.2,
     icon: Zap,
-    color: 'blue'
+    color: 'teal'
   },
   {
     id: 'fuel-efficiency',
@@ -75,7 +75,7 @@ const defaultMetrics: Metric[] = [
     trend: 'stable',
     trendValue: 0,
     icon: Navigation,
-    color: 'purple'
+    color: 'amber'
   }
 ];
 
@@ -83,10 +83,9 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
   // Get color classes
   const getColorClasses = (color: Metric['color'], isAccent = false) => {
     const colors = {
-      blue: isAccent ? 'bg-emerald-500/50 text-emerald-700' : 'text-emerald-700 bg-emerald-500/5 border-emerald-500/20',
+      teal: isAccent ? 'bg-emerald-500/50 text-emerald-700' : 'text-emerald-700 bg-emerald-500/5 border-emerald-500/20',
       green: isAccent ? 'bg-green-500 text-green-700' : 'text-green-700 bg-green-50 border-green-200',
       amber: isAccent ? 'bg-amber-500 text-amber-700' : 'text-amber-700 bg-amber-50 border-amber-200',
-      purple: isAccent ? 'bg-purple-500 text-purple-700' : 'text-purple-700 bg-purple-50 border-purple-200',
       red: isAccent ? 'bg-red-500 text-red-700' : 'text-red-700 bg-red-50 border-red-200'
     };
     return colors[color];
@@ -95,10 +94,9 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
   // Get progress color
   const getProgressColor = (color: Metric['color']) => {
     const colors = {
-      blue: 'bg-emerald-500/50',
+      teal: 'bg-emerald-500/50',
       green: 'bg-green-500',
       amber: 'bg-amber-500',
-      purple: 'bg-purple-500',
       red: 'bg-red-500'
     };
     return colors[color];
@@ -190,7 +188,7 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
               </div>
 
               {/* Status indicator */}
-              <div className="mt-2 pt-2 border-t border-white/[0.08]">
+              <div className="mt-2 pt-2 border-t border-white/[0.04]">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-white/50">Status</span>
                   <span className={`font-medium ${isAboveTarget ? 'text-green-600' : 'text-amber-600'}`}>
@@ -227,7 +225,7 @@ export function CircularGauge({
   max,
   label,
   unit,
-  color = 'blue',
+  color = 'teal',
   size = 'md'
 }: GaugeProps) {
   const percentage = (value / max) * 100;
@@ -241,10 +239,9 @@ export function CircularGauge({
   };
 
   const colorMap = {
-    blue: 'stroke-emerald-500',
+    teal: 'stroke-emerald-500',
     green: 'stroke-green-500',
     amber: 'stroke-amber-500',
-    purple: 'stroke-purple-500',
     red: 'stroke-red-500'
   };
 

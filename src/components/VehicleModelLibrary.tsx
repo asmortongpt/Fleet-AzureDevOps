@@ -396,7 +396,7 @@ function ModelCard({
   if (viewMode === 'list') {
     return (
       <Card
-        className={`cursor-pointer hover:shadow-sm transition-shadow ${
+        className={`cursor-pointer hover:border-white/[0.12] transition-colors ${
           isSelected ? 'ring-2 ring-primary' : ''
         }`}
         onClick={onSelect}
@@ -470,7 +470,7 @@ function ModelCard({
   // Grid view
   return (
     <Card
-      className={`cursor-pointer hover:shadow-sm transition-shadow overflow-hidden ${
+      className={`cursor-pointer hover:border-white/[0.12] transition-colors overflow-hidden ${
         isSelected ? 'ring-2 ring-primary' : ''
       }`}
       onClick={onSelect}

@@ -98,7 +98,7 @@ export function TenantSwitcher() {
           <Button
             variant="default"
             size="lg"
-            className="shadow-sm rounded-full px-3 gap-3"
+            className=" rounded-full px-3 gap-3"
             disabled={isLoading}
           >
             {isLoading ? (

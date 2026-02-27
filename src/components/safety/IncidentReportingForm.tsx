@@ -128,13 +128,13 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
 
     return (
         <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-2">
-            <Card className="bg-gradient-to-br from-[#1a1a1a]/60 to-[#111]/60 backdrop-blur-xl border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-white">
                         <AlertTriangle className="w-3 h-3 text-red-400" />
                         Report Safety Incident
                     </CardTitle>
-                    <CardDescription className="text-white/70">
+                    <CardDescription className="text-white/60">
                         All fields marked with * are required for OSHA compliance
                     </CardDescription>
                 </CardHeader>
@@ -146,7 +146,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 Incident Type *
                             </Label>
                             <Select onValueChange={(value) => setValue('incident_type', value)}>
-                                <SelectTrigger className="bg-[#1a1a1a]/50 border-white/[0.12] text-white">
+                                <SelectTrigger className="bg-[#0e0e0e] border-white/[0.04] text-white">
                                     <SelectValue placeholder="Select incident type" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -167,7 +167,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 Severity Level *
                             </Label>
                             <Select onValueChange={(value: any) => setValue('severity', value)}>
-                                <SelectTrigger className="bg-[#1a1a1a]/50 border-white/[0.12] text-white">
+                                <SelectTrigger className="bg-[#0e0e0e] border-white/[0.04] text-white">
                                     <SelectValue placeholder="Select severity" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -195,7 +195,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 id="incident_date"
                                 type="datetime-local"
                                 {...register('incident_date', { required: 'Date is required' })}
-                                className="bg-[#1a1a1a]/50 border-white/[0.12] text-white"
+                                className="bg-[#0e0e0e] border-white/[0.04] text-white"
                             />
                             {errors.incident_date && (
                                 <p className="text-red-400 text-sm">{errors.incident_date.message}</p>
@@ -211,7 +211,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 id="location"
                                 {...register('location', { required: 'Location is required' })}
                                 placeholder="Enter location or address"
-                                className="bg-[#1a1a1a]/50 border-white/[0.12] text-white"
+                                className="bg-[#0e0e0e] border-white/[0.04] text-white"
                             />
                             {errors.location && (
                                 <p className="text-red-400 text-sm">{errors.location.message}</p>
@@ -231,7 +231,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 minLength: { value: 20, message: 'Description must be at least 20 characters' }
                             })}
                             placeholder="Provide detailed description of what happened..."
-                            className="bg-[#1a1a1a]/50 border-white/[0.12] text-white min-h-[120px]"
+                            className="bg-[#0e0e0e] border-white/[0.04] text-white min-h-[120px]"
                         />
                         {errors.description && (
                             <p className="text-red-400 text-sm">{errors.description.message}</p>
@@ -246,7 +246,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 <input
                                     type="checkbox"
                                     {...register('injuries')}
-                                    className="w-4 h-4 rounded border-white/[0.12] bg-[#1a1a1a]"
+                                    className="w-4 h-4 rounded border-white/[0.04] bg-[#1a1a1a]"
                                 />
                                 <span className="text-sm">Injuries</span>
                             </label>
@@ -254,7 +254,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 <input
                                     type="checkbox"
                                     {...register('property_damage')}
-                                    className="w-4 h-4 rounded border-white/[0.12] bg-[#1a1a1a]"
+                                    className="w-4 h-4 rounded border-white/[0.04] bg-[#1a1a1a]"
                                 />
                                 <span className="text-sm">Property Damage</span>
                             </label>
@@ -262,7 +262,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 <input
                                     type="checkbox"
                                     {...register('environmental_impact')}
-                                    className="w-4 h-4 rounded border-white/[0.12] bg-[#1a1a1a]"
+                                    className="w-4 h-4 rounded border-white/[0.04] bg-[#1a1a1a]"
                                 />
                                 <span className="text-sm">Environmental</span>
                             </label>
@@ -270,7 +270,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 <input
                                     type="checkbox"
                                     {...register('osha_recordable')}
-                                    className="w-4 h-4 rounded border-white/[0.12] bg-[#1a1a1a]"
+                                    className="w-4 h-4 rounded border-white/[0.04] bg-[#1a1a1a]"
                                 />
                                 <span className="text-sm">OSHA Recordable</span>
                             </label>
@@ -289,7 +289,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                 onChange={(e) => setWitnessInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addWitness())}
                                 placeholder="Enter witness name or ID"
-                                className="bg-[#1a1a1a]/50 border-white/[0.12] text-white flex-1"
+                                className="bg-[#0e0e0e] border-white/[0.04] text-white flex-1"
                             />
                             <Button type="button" onClick={addWitness} variant="outline" size="sm">
                                 <Check className="w-4 h-4" />
@@ -324,7 +324,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                             accept="image/*"
                             multiple
                             onChange={handlePhotoUpload}
-                            className="bg-[#1a1a1a]/50 border-white/[0.12] text-white"
+                            className="bg-[#0e0e0e] border-white/[0.04] text-white"
                         />
                         {photos.length > 0 && (
                             <div className="grid grid-cols-4 gap-2">
@@ -333,7 +333,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                                         <img
                                             src={URL.createObjectURL(photo)}
                                             alt={`Evidence ${index + 1}`}
-                                            className="w-full h-20 object-cover rounded border border-white/[0.12]"
+                                            className="w-full h-20 object-cover rounded border border-white/[0.04]"
                                         />
                                         <button
                                             type="button"
@@ -358,7 +358,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                             id="corrective_actions"
                             {...register('corrective_actions')}
                             placeholder="Describe immediate actions taken and preventive measures..."
-                            className="bg-[#1a1a1a]/50 border-white/[0.12] text-white min-h-[100px]"
+                            className="bg-[#0e0e0e] border-white/[0.04] text-white min-h-[100px]"
                         />
                     </div>
 

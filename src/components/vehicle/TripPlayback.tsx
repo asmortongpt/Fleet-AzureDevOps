@@ -235,7 +235,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
         // Create polyline trail
         const coordinates = breadcrumbs.map(b => [b.latitude, b.longitude] as [number, number]);
         const polyline = leaflet.polyline(coordinates, {
-          color: '#3b82f6',
+          color: '#10b981',
           weight: 4,
           opacity: 0.7
         });

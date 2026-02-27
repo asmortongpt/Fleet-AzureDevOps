@@ -47,7 +47,7 @@ export function RadialProgressChart({
   const getColor = () => {
     if (color) return color
     if (percentage >= 90) return '#10B981' // green
-    if (percentage >= 75) return '#3B82F6' // blue
+    if (percentage >= 75) return '#10b981' // emerald
     if (percentage >= 60) return '#F59E0B' // amber
     if (percentage >= 40) return '#F97316' // orange
     return '#EF4444' // red
@@ -65,7 +65,7 @@ export function RadialProgressChart({
 
   return (
     <div>
-      <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <CardTitle className="text-xl font-bold">{title}</CardTitle>
           {description && <CardDescription className="text-sm">{description}</CardDescription>}
@@ -73,7 +73,7 @@ export function RadialProgressChart({
         <CardContent className="flex items-center justify-center">
           {loading ? (
             <div
-              className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-full"
+              className="w-full bg-white/[0.04] animate-pulse rounded-full"
               style={{ height, aspectRatio: '1' }}
             />
           ) : (

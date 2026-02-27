@@ -21,9 +21,9 @@ export function GeofenceLayer({ visible, geofences, onGeofenceSelect, breachedGe
                     100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
                 }
                 @keyframes pulse-dot {
-                    0% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-                    70% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-                    100% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+                    0% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+                    70% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+                    100% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
                 }
                 `}
             </style>
@@ -65,7 +65,7 @@ export function GeofenceLayer({ visible, geofences, onGeofenceSelect, breachedGe
 
                             {/* Core Core */}
                             <div
-                                className="relative rounded-full border-2 cursor-pointer transition-all hover:scale-110 shadow-sm"
+                                className="relative rounded-full border-2 cursor-pointer transition-all hover:scale-110"
                                 style={{
                                     width: '40px',
                                     height: '40px',
@@ -77,9 +77,9 @@ export function GeofenceLayer({ visible, geofences, onGeofenceSelect, breachedGe
                             />
 
                             {/* Tooltip */}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-[#111] text-white text-xs py-1 px-2 rounded shadow-sm whitespace-nowrap z-30">
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-[#111] text-white text-xs py-1 px-2 rounded whitespace-nowrap z-30">
                                 <div className="font-semibold">{geofence.name}</div>
-                                <div className="text-[10px] text-gray-800">{geofence.type} • {geofence.radius}m</div>
+                                <div className="text-[10px] text-white/60">{geofence.type} • {geofence.radius}m</div>
                                 {isBreached && <div className="text-[10px] text-red-400 font-bold uppercase mt-1">⚠️ Breach Detected</div>}
                             </div>
                         </div>

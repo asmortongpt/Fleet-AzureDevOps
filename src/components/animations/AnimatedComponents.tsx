@@ -245,14 +245,13 @@ export function AnimatedCard({
       whileHover={
         hoverable
           ? {
-              y: -8,
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+              y: -4,
             }
           : {}
       }
       transition={{ duration: 0.3 }}
       className={`
-        p-6 border border-border rounded-xl bg-card
+        p-6 border border-white/[0.04] rounded-xl bg-[#111111]
         transition-all duration-300
         ${hoverable ? 'cursor-pointer' : ''}
         ${className}
@@ -306,7 +305,7 @@ export function AnimatedModal({
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-card border border-border rounded-xl p-6 max-w-md w-full mx-4 pointer-events-auto shadow-2xl"
+              className="bg-[#111111] border border-white/[0.04] rounded-xl p-6 max-w-md w-full mx-4 pointer-events-auto"
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
@@ -464,9 +463,9 @@ export function StatusBadge({ status, label }: StatusBadgeProps) {
       dotColor: 'bg-emerald-500',
     },
     offline: {
-      color: 'text-gray-400',
-      bgColor: 'bg-gray-400/20',
-      dotColor: 'bg-gray-400',
+      color: 'text-white/35',
+      bgColor: 'bg-white/[0.06]',
+      dotColor: 'bg-white/35',
     },
     warning: {
       color: 'text-warning',
@@ -594,11 +593,11 @@ export function FloatingActionButton({
   const [isHovered, setIsHovered] = useState(false);
 
   const variantClasses = {
-    primary: 'bg-primary text-primary-foreground shadow-lg shadow-primary/40',
+    primary: 'bg-primary text-primary-foreground',
     secondary:
-      'bg-secondary text-secondary-foreground shadow-lg shadow-secondary/40',
+      'bg-secondary text-secondary-foreground',
     danger:
-      'bg-destructive text-destructive-foreground shadow-lg shadow-destructive/40',
+      'bg-destructive text-destructive-foreground',
   };
 
   return (

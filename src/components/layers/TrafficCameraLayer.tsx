@@ -74,7 +74,7 @@ export function TrafficCameraLayer({ visible, filters, onCameraSelect, selectedC
                         >
                             <div
                                 className={`
-                                    p-1.5 rounded-full shadow-md border-2
+                                    p-1.5 rounded-full border-2
                                     ${camera.operational
                                         ? 'bg-white border-green-500 text-green-600'
                                         : 'bg-white border-red-500 text-red-600'

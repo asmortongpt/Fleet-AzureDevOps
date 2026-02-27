@@ -98,25 +98,25 @@ describe('Theme Generator', () => {
   describe('generateThemeFromColor', () => {
     it('should generate a light theme from colors', () => {
       const theme = generateThemeFromColor({
-        primaryColor: '#2563EB',
-        secondaryColor: '#7C3AED',
+        primaryColor: '#10b981',
+        secondaryColor: '#D97706',
         darkMode: false,
       })
 
       expect(theme.colors.background).toBe('#FFFFFF')
-      expect(theme.colors.foreground).toBe('#0F172A')
+      expect(theme.colors.foreground).toBe('#1a1a1a')
       expect(theme.id).toBeTruthy()
     })
 
     it('should generate a dark theme from colors', () => {
       const theme = generateThemeFromColor({
-        primaryColor: '#60A5FA',
-        secondaryColor: '#A78BFA',
+        primaryColor: '#34d399',
+        secondaryColor: '#FBBF24',
         darkMode: true,
       })
 
-      expect(theme.colors.background).toBe('#0F172A')
-      expect(theme.colors.foreground).toBe('#F8FAFC')
+      expect(theme.colors.background).toBe('#1a1a1a')
+      expect(theme.colors.foreground).toBe('#FAFAFA')
     })
 
     it('should apply high contrast mode', () => {
@@ -145,14 +145,14 @@ describe('Theme Generator', () => {
 
     it('should generate unique theme IDs', () => {
       const theme1 = generateThemeFromColor({
-        primaryColor: '#2563EB',
-        secondaryColor: '#7C3AED',
+        primaryColor: '#10b981',
+        secondaryColor: '#D97706',
         darkMode: false,
       })
 
       const theme2 = generateThemeFromColor({
-        primaryColor: '#2563EB',
-        secondaryColor: '#7C3AED',
+        primaryColor: '#10b981',
+        secondaryColor: '#D97706',
         darkMode: false,
       })
 
@@ -231,8 +231,8 @@ describe('Theme Generator', () => {
   describe('createCustomTheme', () => {
     it('should create a custom theme from config', () => {
       const config: CustomThemeConfig = {
-        primaryColor: '#2563EB',
-        secondaryColor: '#7C3AED',
+        primaryColor: '#10b981',
+        secondaryColor: '#D97706',
         accentColor: '#EC4899',
         darkMode: false,
         highContrast: false,
@@ -249,8 +249,8 @@ describe('Theme Generator', () => {
 
     it('should respect dark mode configuration', () => {
       const darkConfig: CustomThemeConfig = {
-        primaryColor: '#60A5FA',
-        secondaryColor: '#A78BFA',
+        primaryColor: '#34d399',
+        secondaryColor: '#FBBF24',
         accentColor: '#F472B6',
         darkMode: true,
         highContrast: false,
@@ -260,14 +260,14 @@ describe('Theme Generator', () => {
 
       const theme = createCustomTheme(darkConfig)
 
-      expect(theme.colors.background).toBe('#0F172A')
+      expect(theme.colors.background).toBe('#1a1a1a')
     })
 
     it('should apply high contrast when requested', () => {
       const config: CustomThemeConfig = {
         primaryColor: '#000000',
         secondaryColor: '#FFFFFF',
-        accentColor: '#0000FF',
+        accentColor: '#F59E0B',
         darkMode: false,
         highContrast: true,
         fontSize: 'medium',
@@ -301,8 +301,8 @@ describe('Theme Generator', () => {
   describe('Theme consistency', () => {
     it('should maintain color property consistency across generated themes', () => {
       const theme = generateThemeFromColor({
-        primaryColor: '#2563EB',
-        secondaryColor: '#7C3AED',
+        primaryColor: '#10b981',
+        secondaryColor: '#D97706',
         darkMode: false,
       })
 

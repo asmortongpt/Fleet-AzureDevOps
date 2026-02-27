@@ -284,7 +284,7 @@ export function FuelPurchasing() {
           </CardHeader>
           <CardContent>
             <div className="flex items-start gap-2">
-              <div className={`p-3 rounded-lg bg-gray-100 ${getRecommendationColor(purchaseRecommendation.recommendation)}`}>
+              <div className={`p-3 rounded-lg bg-white/[0.05] ${getRecommendationColor(purchaseRecommendation.recommendation)}`}>
                 {getRecommendationIcon(purchaseRecommendation.recommendation)}
               </div>
               <div className="flex-1">
@@ -299,21 +299,21 @@ export function FuelPurchasing() {
                 <p className="text-sm mb-3">{purchaseRecommendation.reasoning}</p>
                 <div className="grid grid-cols-4 gap-2">
                   <div>
-                    <div className="text-xs text-gray-700">Current Price</div>
+                    <div className="text-xs text-white/40">Current Price</div>
                     <div className="font-semibold">{formatPrice(purchaseRecommendation.currentPrice)}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-700">Forecasted Price</div>
+                    <div className="text-xs text-white/40">Forecasted Price</div>
                     <div className="font-semibold">{formatPrice(purchaseRecommendation.forecastedPrice)}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-700">Expected Savings</div>
+                    <div className="text-xs text-white/40">Expected Savings</div>
                     <div className="font-semibold text-green-600">
                       {formatCurrency(purchaseRecommendation.expectedSavings)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-700">Optimal Date</div>
+                    <div className="text-xs text-white/40">Optimal Date</div>
                     <div className="font-semibold">{purchaseRecommendation.optimalPurchaseDate}</div>
                   </div>
                 </div>

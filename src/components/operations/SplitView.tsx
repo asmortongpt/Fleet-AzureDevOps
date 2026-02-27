@@ -41,21 +41,21 @@ export function SplitView({ theme = 'default', listPanel, detailPanel }: SplitVi
       {/* List Panel */}
       <div
         className={cn(
-          'flex flex-col border-r border-white/[0.08] transition-all duration-300',
+          'flex flex-col border-r border-white/[0.04] transition-all duration-300',
           detailPanel ? 'w-1/2 lg:w-2/5' : 'w-full'
         )}
       >
         {/* List Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/[0.08] bg-[#1a1a1a]/50">
+        <div className="flex items-center justify-between p-4 border-b border-white/[0.04] bg-[#0e0e0e]">
           <div className="flex items-center gap-3">
             {listPanel.icon && (
               <div className={cn(
                 'w-10 h-10 rounded-lg flex items-center justify-center',
                 isOperationsTheme
-                  ? 'bg-gradient-to-br from-cyan-400/20 to-emerald-500/20 border border-cyan-400/30'
+                  ? 'bg-white/[0.06] border border-white/[0.04]'
                   : 'bg-white/[0.15]'
               )}>
-                <span className={isOperationsTheme ? 'text-cyan-400' : 'text-white/60'}>
+                <span className={isOperationsTheme ? 'text-white/60' : 'text-white/60'}>
                   {listPanel.icon}
                 </span>
               </div>
@@ -83,10 +83,10 @@ export function SplitView({ theme = 'default', listPanel, detailPanel }: SplitVi
       {/* Detail Panel */}
         {detailPanel && (
           <div
-            className="flex-1 flex flex-col bg-[#111]/50"
+            className="flex-1 flex flex-col bg-[#0e0e0e]"
           >
             {/* Detail Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/[0.08] bg-[#1a1a1a]/30">
+            <div className="flex items-center justify-between p-4 border-b border-white/[0.04] bg-[#111111]">
               <div className="min-w-0 flex-1">
                 <h3 className="text-lg font-bold text-white truncate">{detailPanel.title}</h3>
                 {detailPanel.subtitle && (

@@ -77,7 +77,7 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
     if (route.status === 'completed') return 'bg-green-500';
     if (route.status === 'delayed' || (progress && progress.delayMinutes > 5)) return 'bg-red-500';
     if (route.status === 'active') return 'bg-emerald-500/50';
-    return 'bg-gray-400';
+    return 'bg-white/[0.10]';
   };
 
   // Generate hour markers
@@ -119,11 +119,11 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
       </CardHeader>
       <CardContent>
         {/* Time axis */}
-        <div className="relative mb-4 h-8 border-b border-white/[0.08]">
+        <div className="relative mb-4 h-8 border-b border-white/[0.04]">
           {hourMarkers.map((marker) => (
             <div
               key={marker.time}
-              className="absolute top-0 h-full border-l border-white/[0.08]"
+              className="absolute top-0 h-full border-l border-white/[0.04]"
               style={{ left: `${marker.position}%` }}
             >
               <span className="absolute -left-4 top-0 text-xs text-white/40">

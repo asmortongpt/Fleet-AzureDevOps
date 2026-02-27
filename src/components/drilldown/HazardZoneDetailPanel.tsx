@@ -142,7 +142,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
       case 'environmental':
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />
       default:
-        return <AlertTriangle className="h-5 w-5 text-gray-700" />
+        return <AlertTriangle className="h-5 w-5 text-white/40" />
     }
   }
 
@@ -157,7 +157,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
       case 'update':
         return <Clock className="h-4 w-4 text-yellow-500" />
       default:
-        return <Clock className="h-4 w-4 text-gray-700" />
+        return <Clock className="h-4 w-4 text-white/40" />
     }
   }
 
@@ -363,7 +363,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                   {affectedVehicles.map((vehicle) => (
                     <Card
                       key={vehicle.id}
-                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      className="cursor-pointer hover:border-white/[0.12] transition-colors"
                       onClick={() => handleViewVehicle(vehicle.vehicle_id, vehicle.vehicle_name)}
                     >
                       <CardContent className="p-2">

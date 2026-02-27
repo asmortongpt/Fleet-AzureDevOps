@@ -214,10 +214,10 @@ export function PurchaseOrders() {
 
   const getStatusColor = (status: PurchaseOrder["status"]) => {
     const colors: Record<PurchaseOrder["status"], string> = {
-      draft: "bg-gray-100 text-gray-700",
+      draft: "bg-white/[0.05] text-white/40",
       "pending-approval": "bg-yellow-100 text-yellow-700",
       approved: "bg-emerald-500/10 text-emerald-700",
-      ordered: "bg-purple-100 text-purple-700",
+      ordered: "bg-amber-100 text-amber-700",
       received: "bg-green-100 text-green-700",
       cancelled: "bg-red-100 text-red-700"
     }

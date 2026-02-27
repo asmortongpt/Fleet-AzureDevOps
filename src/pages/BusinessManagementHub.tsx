@@ -78,10 +78,10 @@ const fetcher = apiFetcher
 function TabLoadingSkeleton() {
   return (
     <div className="space-y-1.5 p-2">
-      <div className="grid grid-cols-4 gap-1.5">
+      <div className="grid grid-cols-4 gap-3">
         {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
       </div>
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         <Skeleton className="h-40 rounded-md" />
         <Skeleton className="h-40 rounded-md" />
       </div>
@@ -285,9 +285,9 @@ const FinancialTabContent = memo(function FinancialTabContent() {
     : ['hsl(var(--chart-2))']
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5">
+    <div className="flex flex-col gap-3 p-4">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5">
+      <div className="grid grid-cols-4 gap-3">
         {/* P0-2 & P0-3: Fix budget label and add period description */}
         <StatCard
           title="Total Budget"
@@ -323,9 +323,9 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       </div>
 
       {/* Main Content: Charts + Transactions */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* Left Column: Cost Trend + Cost Breakdown */}
-        <div className="flex flex-col gap-1.5 min-h-0">
+        <div className="flex flex-col gap-3 min-h-0">
           <Section
             title="Cost Trend"
             description={hasBudgetTrendData ? "Actual vs budget" : "Monthly actual costs"}
@@ -367,7 +367,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
         </div>
 
         {/* Right Column: Recent Transactions + WO Costs + Dept Costs */}
-        <div className="flex flex-col gap-1.5 min-h-0">
+        <div className="flex flex-col gap-3 min-h-0">
           <Section
             title="Recent Transactions"
             description="Latest fleet expenses"
@@ -381,7 +381,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
               ) : (
                 <div className="flex flex-col gap-1">
                   {recentTransactions.map((transaction, index) => (
-                    <div key={index} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                    <div key={index} className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2">
                       <div>
                         <p className="text-sm font-medium text-foreground">{transaction.description}</p>
                         <p className="text-xs text-muted-foreground">
@@ -402,16 +402,16 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             icon={<Tag className="h-4 w-4" />}
             className="flex-none"
           >
-            <div className="grid grid-cols-3 gap-1.5">
-              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-md border border-white/[0.04] bg-[#111111] p-2 text-center">
                 <p className="text-xs text-white/60">Parts</p>
                 <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalPartsCost)}</p>
               </div>
-              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
+              <div className="rounded-md border border-white/[0.04] bg-[#111111] p-2 text-center">
                 <p className="text-xs text-white/60">Labor</p>
                 <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalLaborCost)}</p>
               </div>
-              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
+              <div className="rounded-md border border-white/[0.04] bg-[#111111] p-2 text-center">
                 <p className="text-xs text-white/60">Total</p>
                 <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalWoCost)}</p>
               </div>
@@ -428,7 +428,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             {/* P1-11: Removed inner overflow-y-auto */}
             <div className="flex-1 min-h-0">
               {departmentCosts.length > 0 ? (
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-3">
                   {departmentCosts.map((dept) => (
                     <div key={dept.department} className="flex items-center gap-2">
                       <span className="text-xs text-white/80 w-24 truncate" title={dept.department}>{dept.department}</span>
@@ -584,9 +584,9 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5">
+    <div className="flex flex-col gap-3 p-4">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           title="Active Vendors"
           value={activeVendors.length}
@@ -620,7 +620,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
       </div>
 
       {/* Main Content: Vendors + Purchase Orders */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* Left: Top Vendors */}
         <Section
           title="Top Vendors"
@@ -635,7 +635,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                 {displayedVendors.map((vendor) => (
                   <div
                     key={vendor.id}
-                    className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2 cursor-pointer"
+                    className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2 cursor-pointer"
                     onClick={() => push({
                       id: vendor.id,
                       type: 'vendor',
@@ -720,7 +720,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                 {recentPurchaseOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2 cursor-pointer"
+                    className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2 cursor-pointer"
                     onClick={() => push({
                       id: order.id,
                       type: 'purchase-order',
@@ -949,9 +949,9 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
   })()
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5">
+    <div className="flex flex-col gap-3 p-4">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           title="Fleet Utilization"
           value={`${fleetUtilization}%`}
@@ -981,7 +981,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
       </div>
 
       {/* Chart Row */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         <Section
           title="Cost Trend"
           description="Monthly fleet costs over 6 months"
@@ -1024,7 +1024,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
       </div>
 
       {/* Bottom Row: Action Items + Top Cost Drivers */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         <Section
           title="Action Items"
           description="Items requiring attention"
@@ -1035,7 +1035,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
             {actionItems.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {actionItems.map((item, index) => (
-                  <div key={index} className="flex items-start gap-2 rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                  <div key={index} className="flex items-start gap-2 rounded-md border border-white/[0.04] bg-[#111111] p-2">
                     <div className={`mt-0.5 h-2 w-2 rounded-full shrink-0 ${
                       item.severity === 'high' ? 'bg-rose-500' :
                       item.severity === 'medium' ? 'bg-amber-500' :
@@ -1198,9 +1198,9 @@ const ReportsTabContent = memo(function ReportsTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5">
+    <div className="flex flex-col gap-3 p-4">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           title="Available Reports"
           value={templates.length}
@@ -1228,7 +1228,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
       </div>
 
       {/* Main Content: Report Library + Recent Reports */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* Left: Report Library */}
         <Section
           title="Report Library"
@@ -1243,7 +1243,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
             ) : (
               <div className="flex flex-col gap-1">
                 {templates.map((report: any) => (
-                  <div key={report.id} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                  <div key={report.id} className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4 text-white/40" />
                       <div>
@@ -1282,7 +1282,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
             ) : (
               <div className="flex flex-col gap-1">
                 {history.map((item: any) => (
-                  <div key={item.id} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                  <div key={item.id} className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2">
                     <div>
                       <p className="text-sm font-medium text-foreground">{item.title}</p>
                       <p className="text-xs text-white/60">
@@ -1323,7 +1323,7 @@ export default function BusinessManagementHub() {
       description="Financial oversight, procurement, analytics, and comprehensive reporting"
       icon={<BarChart className="h-5 w-5" />}
     >
-      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
+      <div className="flex flex-col h-full gap-3 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="financial" className="flex items-center gap-2" data-testid="hub-tab-financial" aria-label="Financial">

@@ -57,7 +57,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
         const type = getValue<string>();
         const typeColors: Record<string, string> = {
           'oil change': 'bg-emerald-500/20 text-emerald-400',
-          'tire rotation': 'bg-purple-500/20 text-purple-400',
+          'tire rotation': 'bg-amber-500/20 text-amber-400',
           'brake service': 'bg-red-500/20 text-red-400',
           'engine repair': 'bg-orange-500/20 text-orange-400',
           'transmission': 'bg-amber-500/20 text-amber-400',

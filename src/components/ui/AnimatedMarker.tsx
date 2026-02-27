@@ -51,10 +51,10 @@ export function AnimatedMarker({
 
   // Status colors
   const statusColors = {
-    active: "bg-green-500 border-green-600",
-    idle: "bg-yellow-500 border-yellow-600",
+    active: "bg-emerald-500 border-emerald-600",
+    idle: "bg-amber-500 border-amber-600",
     maintenance: "bg-orange-500 border-orange-600",
-    offline: "bg-gray-500 border-gray-600",
+    offline: "bg-white/20 border-white/30",
   };
 
   // Override colors if error or warning
@@ -69,8 +69,7 @@ export function AnimatedMarker({
     <div
       className={cn(
         "relative rounded-full border-2 flex items-center justify-center",
-        "cursor-pointer shadow-sm transition-all duration-200 hover:scale-110 hover:shadow-lg",
-        "backdrop-blur-sm",
+        "cursor-pointer transition-all duration-200 hover:scale-110",
         sizeClasses[size],
         colorClasses,
         isActive && "ring-4 ring-white/50 scale-[1.2]",
@@ -133,9 +132,9 @@ export function AnimatedMarkerCluster({
     <div
       className={cn(
         "relative rounded-full border-3 flex items-center justify-center",
-        "cursor-pointer shadow-sm transition-all duration-200 hover:scale-[1.15] hover:shadow-lg",
-        "bg-gradient-to-br from-blue-500 to-blue-600",
-        "border-blue-700",
+        "cursor-pointer transition-all duration-200 hover:scale-[1.15]",
+        "bg-emerald-500",
+        "border-emerald-600",
         sizeClasses[size],
         isActive && "ring-4 ring-white/60",
         className
@@ -149,7 +148,7 @@ export function AnimatedMarkerCluster({
 
       {/* Ripple effect */}
       <div
-        className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-30"
+        className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-30"
       />
     </div>
   );
@@ -173,7 +172,7 @@ export function AnimatedMarkerRoute({
   const typeConfig = {
     start: { color: "bg-green-500 border-green-600", icon: "S" },
     end: { color: "bg-red-500 border-red-600", icon: "E" },
-    waypoint: { color: "bg-blue-500 border-blue-600", icon: "•" },
+    waypoint: { color: "bg-white/40 border-emerald-600", icon: "•" },
   };
 
   const config = typeConfig[type];
@@ -182,7 +181,7 @@ export function AnimatedMarkerRoute({
     <div
       className={cn(
         "relative w-4 h-4 rounded-full border-2 flex items-center justify-center",
-        "shadow-sm cursor-pointer",
+        "cursor-pointer",
         config.color,
         className
       )}
@@ -193,7 +192,7 @@ export function AnimatedMarkerRoute({
       <div className="text-white font-bold text-xs">{config.icon}</div>
       {label && (
         <div
-          className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium bg-black/75 text-white px-2 py-1 rounded shadow-sm"
+          className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium bg-black/75 text-white px-2 py-1 rounded"
         >
           {label}
         </div>

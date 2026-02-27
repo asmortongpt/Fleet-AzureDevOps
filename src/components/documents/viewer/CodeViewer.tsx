@@ -132,7 +132,7 @@ export function CodeViewer({ document: docMetadata }: CodeViewerProps) {
     // This is a simplified highlighter. For production, use a library like Prism.js
     keywords.forEach((keyword) => {
       const regex = new RegExp(`\\b${keyword}\\b`, 'g');
-      highlighted = highlighted.replace(regex, `<span class="text-purple-600 dark:text-purple-400 font-semibold">${keyword}</span>`);
+      highlighted = highlighted.replace(regex, `<span class="text-amber-600 dark:text-amber-400 font-semibold">${keyword}</span>`);
     });
 
     // Strings - now matching escaped quotes
@@ -144,11 +144,11 @@ export function CodeViewer({ document: docMetadata }: CodeViewerProps) {
     // Comments
     highlighted = highlighted.replace(
       /(\/\/.*$)/gm,
-      '<span class="text-gray-700 dark:text-gray-700 italic">$1</span>'
+      '<span class="text-white/40 dark:text-white/40 italic">$1</span>'
     );
     highlighted = highlighted.replace(
       /(\/\*[\s\S]*?\*\/)/g,
-      '<span class="text-gray-700 dark:text-gray-700 italic">$1</span>'
+      '<span class="text-white/40 dark:text-white/40 italic">$1</span>'
     );
 
     // Numbers

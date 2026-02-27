@@ -259,19 +259,19 @@ const safeTheme = generateThemeFromColor({
 Applied to `:root` when theme is set:
 
 ```css
---primary: #2563EB;
---secondary: #7C3AED;
---accent: #EC4899;
+--primary: #10b981;
+--secondary: #D97706;
+--accent: #F59E0B;
 --background: #FFFFFF;
---surface: #F8FAFC;
---foreground: #0F172A;
---muted: #CBD5E1;
---muted-foreground: #64748B;
---border: #E2E8F0;
+--surface: #F5F5F5;
+--foreground: #1a1a1a;
+--muted: #9CA3AF;
+--muted-foreground: #6B7280;
+--border: #E5E7EB;
 --success: #16A34A;
 --warning: #D97706;
 --error: #DC2626;
---info: #2563EB;
+--info: #10b981;
 --destructive: #DC2626;
 ```
 

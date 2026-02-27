@@ -76,7 +76,7 @@
 
 .search-input:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .filter-buttons {
@@ -109,7 +109,7 @@
 .filter-btn.active {
   background: var(--primary-color);
   color: white;
-  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.2);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
 }
 
 .view-mode-toggle {
@@ -187,7 +187,7 @@
 
 .vehicle-card.selected {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .vehicle-card.selected::before {
@@ -292,7 +292,7 @@
 
 .select-vehicle-btn.available:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .select-vehicle-btn.unavailable {
@@ -341,7 +341,7 @@
 }
 
 .vehicle-table tbody tr.selected {
-  background: rgba(30, 64, 175, 0.05);
+  background: rgba(16, 185, 129, 0.05);
 }
 
 .vehicle-info {
@@ -654,12 +654,12 @@
 .checkout-btn.primary {
   background: var(--primary-gradient);
   color: white;
-  box-shadow: 0 4px 14px rgba(30, 64, 175, 0.3);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
 }
 
 .checkout-btn.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
 }
 
 .checkout-btn.disabled {

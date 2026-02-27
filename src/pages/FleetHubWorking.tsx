@@ -95,7 +95,7 @@ const OverviewContent = memo(function OverviewContent({
                 <StatCard title="Under Maintenance" value={`${underMaintenance}`} variant="warning" icon={<Wrench className="w-5 h-5" />} />
                 <StatCard title="Telematics Active" value={`${telematicsActive}`} variant="info" icon={<Activity className="w-5 h-5" />} />
             </div>
-            <div className="bg-white/[0.03] p-6 rounded-lg border border-white/[0.08]">
+            <div className="bg-white/[0.03] p-6 rounded-lg border border-white/[0.04]">
                 <h3 className="text-lg font-semibold mb-2">Vehicle Stats & Maintenance Summary</h3>
                 <p className="text-white/80">
                     Real-time fleet health monitoring. Data is updated from live systems.
@@ -109,13 +109,13 @@ const VehiclesContent = memo(function VehiclesContent({ vehicles }: { vehicles: 
     return (
         <div className="h-full p-6 text-white">
             <h2 className="text-xl font-bold mb-4">Vehicle Inventory</h2>
-            <div className="bg-white/[0.03] p-4 rounded-lg border border-white/[0.08]">
+            <div className="bg-white/[0.03] p-4 rounded-lg border border-white/[0.04]">
                 {vehicles.length === 0 ? (
                     <p className="text-white/80">No vehicles available.</p>
                 ) : (
                     <div className="mt-4 space-y-2">
                         {vehicles.slice(0, 10).map((vehicle) => (
-                            <div key={vehicle.id} className="flex items-center justify-between py-2 border-b border-white/[0.08]">
+                            <div key={vehicle.id} className="flex items-center justify-between py-2 border-b border-white/[0.04]">
                                 <span>
                                     {formatVehicleName({ make: vehicle.make, model: vehicle.model, number: vehicle.unit_number || vehicle.unitNumber || vehicle.number })}
                                 </span>
@@ -133,7 +133,7 @@ const ModelsContent = memo(function ModelsContent() {
     return (
         <div className="h-full p-6 text-white">
             <h2 className="text-xl font-bold mb-4">Vehicle Models Database</h2>
-            <div className="bg-white/[0.03] p-4 rounded-lg border border-white/[0.08]">
+            <div className="bg-white/[0.03] p-4 rounded-lg border border-white/[0.04]">
                 <VehicleModelLibrary />
             </div>
         </div>
@@ -144,13 +144,13 @@ const MaintenanceContent = memo(function MaintenanceContent({ schedules }: { sch
     return (
         <div className="h-full p-6 text-white">
             <h2 className="text-xl font-bold mb-4">Maintenance Schedule</h2>
-            <div className="bg-white/[0.03] p-4 rounded-lg border border-white/[0.08]">
+            <div className="bg-white/[0.03] p-4 rounded-lg border border-white/[0.04]">
                 {schedules.length === 0 ? (
                     <p className="text-white/80">No maintenance schedules available.</p>
                 ) : (
                     <div className="space-y-2">
                         {schedules.slice(0, 10).map((schedule) => (
-                            <div key={schedule.id} className="flex items-center justify-between py-2 border-b border-white/[0.08]">
+                            <div key={schedule.id} className="flex items-center justify-between py-2 border-b border-white/[0.04]">
                                 <span>{schedule.title || schedule.type || 'Maintenance'}</span>
                                 <span className="text-white/80">{schedule.next_due || schedule.due_date || '—'}</span>
                             </div>
@@ -166,13 +166,13 @@ const WorkOrdersContent = memo(function WorkOrdersContent({ workOrders }: { work
     return (
         <div className="h-full p-6 text-white">
             <h2 className="text-xl font-bold mb-4">Work Order Management</h2>
-            <div className="bg-white/[0.03] p-4 rounded-lg border border-white/[0.08]">
+            <div className="bg-white/[0.03] p-4 rounded-lg border border-white/[0.04]">
                 {workOrders.length === 0 ? (
                     <p className="text-white/80">No work orders available.</p>
                 ) : (
                     <div className="space-y-2">
                         {workOrders.slice(0, 10).map((order) => (
-                            <div key={order.id} className="flex items-center justify-between py-2 border-b border-white/[0.08]">
+                            <div key={order.id} className="flex items-center justify-between py-2 border-b border-white/[0.04]">
                                 <span>{order.title || order.description || 'Work Order'}</span>
                                 <span className="text-white/80">{order.status || 'unknown'}</span>
                             </div>
@@ -188,7 +188,7 @@ const TelematicsContent = memo(function TelematicsContent({ telemetryVehicles }:
     return (
         <div className="h-full p-6 text-white">
             <h2 className="text-xl font-bold mb-4">Telematics & Diagnostics</h2>
-            <div className="bg-white/[0.03] p-4 rounded-lg border border-white/[0.08]">
+            <div className="bg-white/[0.03] p-4 rounded-lg border border-white/[0.04]">
                 <h4 className="font-bold mb-2">OBD-II Data Stream</h4>
                 {telemetryVehicles.length === 0 ? (
                     <p className="text-white/80">No live telemetry data available.</p>
@@ -251,7 +251,7 @@ export default function FleetHub() {
             </div>
 
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.08] px-6 py-4 bg-white/[0.03] backdrop-blur">
+            <div className="flex items-center justify-between border-b border-white/[0.04] px-6 py-4 bg-[#0e0e0e]">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-emerald-500/10 rounded-lg">
                         <Truck className="w-6 h-6 text-emerald-400" />
@@ -265,7 +265,7 @@ export default function FleetHub() {
 
             {/* Layout */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
-                <div className="border-b border-white/[0.08] px-6 bg-white/[0.03] py-2">
+                <div className="border-b border-white/[0.04] px-6 bg-[#0e0e0e] py-2">
                     <TabsListWrap>
                         <TabsTriggerWrap value="overview">
                             <Layout className="w-4 h-4 mr-2" />
@@ -294,7 +294,7 @@ export default function FleetHub() {
 
                 <div className="flex flex-1 overflow-hidden">
                     {/* Main Content */}
-                    <main className="flex-1 overflow-y-auto bg-gradient-to-br from-[#111] to-[#111]">
+                    <main className="flex-1 overflow-y-auto bg-[#0a0a0a]">
                         <TabsContent value="overview" className="h-full mt-0">
                             <OverviewContent
                                 totalVehicles={metrics.total}
@@ -321,7 +321,7 @@ export default function FleetHub() {
                     </main>
 
                     {/* Right Sidebar */}
-                    <aside className="w-80 border-l border-white/[0.08] bg-white/[0.03] p-6 overflow-y-auto hidden xl:block">
+                    <aside className="w-80 border-l border-white/[0.04] bg-[#0e0e0e] p-6 overflow-y-auto hidden xl:block">
                         <div className="space-y-6" style={{ borderLeft: "1px solid transparent" }}>
                             <div>
                                 <h3 className="text-sm font-semibold text-white/90 uppercase tracking-wide mb-4">Quick Stats</h3>
@@ -338,13 +338,13 @@ export default function FleetHub() {
                                         <span className="text-sm text-white/80">Under Maintenance</span>
                                         <span className="font-bold text-amber-400">{metrics.maintenance}</span>
                                     </div>
-                                    <div className="flex items-center justify-between p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+                                    <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                                         <span className="text-sm text-white/80">Telematics Active</span>
-                                        <span className="font-bold text-indigo-400">{metrics.telematics}</span>
+                                        <span className="font-bold text-emerald-400">{metrics.telematics}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="pt-6 border-t border-white/[0.08]">
+                            <div className="pt-6 border-t border-white/[0.04]">
                                 <h3 className="text-sm font-semibold text-white/90 uppercase tracking-wide mb-4">Quick Actions</h3>
                                 <div className="space-y-2">
                                     <Button className="w-full justify-start" variant="outline" onClick={() => navigateTo('fleet-hub-consolidated')}><Plus className="mr-2 h-4 w-4" /> Add Vehicle</Button>

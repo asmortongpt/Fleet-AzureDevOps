@@ -219,10 +219,10 @@ const AdminTabContent = memo(function AdminTabContent() {
   if (isLoading) {
     return (
       <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Skeleton className="h-48 rounded-md" />
           <Skeleton className="h-48 rounded-md" />
         </div>
@@ -240,9 +240,9 @@ const AdminTabContent = memo(function AdminTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
       {/* Admin Statistics */}
-      <div className="grid gap-1.5 grid-cols-4">
+      <div className="grid gap-3 grid-cols-4">
         <StatCard
           title="Total Users"
           value={userRows.length}
@@ -274,7 +274,7 @@ const AdminTabContent = memo(function AdminTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* User Management */}
         <Section
           title="User Management"
@@ -288,11 +288,11 @@ const AdminTabContent = memo(function AdminTabContent() {
                 <p>No user accounts found. Users will appear here after Azure AD sync.</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-3">
                 {userGroups.map((userGroup) => (
                   <div
                     key={userGroup.role}
-                    className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                    className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-[#111111] p-3 cursor-pointer hover:bg-white/[0.04] transition-colors"
                     onClick={() => push({
                       id: userGroup.role,
                       type: 'user',
@@ -344,9 +344,9 @@ const AdminTabContent = memo(function AdminTabContent() {
                 <p>System health checks will appear once the health endpoint responds.</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-3">
                 {systemStatusItems.map((service) => (
-                  <div key={service.service} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={service.service} className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-[#111111] p-3">
                     <div>
                       <p className="font-medium text-foreground">{formatEnum(service.service)}</p>
                       <p className="text-sm text-muted-foreground">Details: {service.uptime}</p>
@@ -369,7 +369,7 @@ const AdminTabContent = memo(function AdminTabContent() {
             icon={<Activity className="h-4 w-4" />}
           >
             <div className="flex items-center gap-2 mb-2 shrink-0">
-              <div className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-[#242424] p-0.5">
+              <div className="flex items-center gap-1 rounded-lg border border-white/[0.04] bg-[#111111] p-0.5">
                 {(['all', '24h', '7d', '30d'] as const).map((period) => (
                   <button
                     key={period}
@@ -410,8 +410,8 @@ const AdminTabContent = memo(function AdminTabContent() {
                 </div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-[#242424]">
-                    <tr className="border-b border-white/[0.08]">
+                  <thead className="sticky top-0 bg-[#111111]">
+                    <tr className="border-b border-white/[0.04]">
                       <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Action</th>
                       <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Resource</th>
                       <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">User</th>
@@ -517,7 +517,7 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
   if (isConfigLoading) {
     return (
       <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Skeleton className="h-48 rounded-md" />
           <Skeleton className="h-48 rounded-md" />
         </div>
@@ -526,7 +526,7 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
       {/* Session-only override warning (P0-3) */}
       {Object.keys(featureFlagOverrides).length > 0 && (
         <div className="text-[10px] text-amber-400/80 flex items-center gap-1 px-2 py-1 bg-amber-950/20 rounded border border-amber-500/20">
@@ -536,7 +536,7 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
       )}
 
       {/* Main content: 2 columns */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* System Settings */}
         <Section
           title="System Settings"
@@ -550,11 +550,11 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
                 <p>No configuration categories available.</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-3">
                 {configCategories.map((item) => {
                   const Icon = item.icon
                   return (
-                    <div key={item.category} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                    <div key={item.category} className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-[#111111] p-3">
                       <div className="flex items-center gap-3">
                         <Icon className="h-4 w-4 text-muted-foreground" />
                         <div>
@@ -584,9 +584,9 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
                 <p>No feature flags configured for this tenant.</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-3">
                 {featureFlags.map((flag) => (
-                  <div key={flag.feature} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={flag.feature} className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-[#111111] p-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="font-semibold text-foreground truncate">{formatEnum(flag.feature)}</p>
@@ -681,10 +681,10 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
   if (isDataLoading) {
     return (
       <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Skeleton className="h-48 rounded-md" />
           <Skeleton className="h-48 rounded-md" />
         </div>
@@ -701,9 +701,9 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
       {/* Data Governance Statistics */}
-      <div className="grid gap-1.5 grid-cols-4">
+      <div className="grid gap-3 grid-cols-4">
         <StatCard
           title="System Health Score"
           value={systemHealthScore > 0 ? (
@@ -744,7 +744,7 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* Data Sources */}
         <Section
           title="Data Sources & Quality"
@@ -753,14 +753,14 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {databaseStats ? (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-3">
                 {[
                   { source: 'Vehicles', records: databaseStats.vehicles, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
                   { source: 'Drivers', records: databaseStats.drivers, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
                   { source: 'Maintenance Records', records: databaseStats.maintenanceRecords, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
                   { source: 'Database Size', records: databaseStats.databaseSize, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
                 ].map((source) => (
-                  <div key={source.source} className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={source.source} className="rounded-lg border border-white/[0.04] bg-[#111111] p-3">
                     <div className="flex items-center justify-between mb-1">
                       <p className="font-semibold text-foreground text-sm">{source.source}</p>
                       <span className={`text-xs font-medium ${semanticPercentColor(source.quality)}`}>
@@ -808,9 +808,9 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
                 <p>No recent system activity recorded.</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-3">
                 {auditRows.slice(0, 5).map((entry: any) => (
-                  <div key={entry.id} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={entry.id} className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-[#111111] p-3">
                     <div>
                       <p className="font-semibold text-foreground text-sm">{formatEnum(entry.action)}</p>
                       <p className="text-xs text-muted-foreground">
@@ -830,7 +830,7 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
 
       {/* Backup Confirmation Dialog */}
       <Dialog open={showBackupDialog} onOpenChange={setShowBackupDialog}>
-        <DialogContent className="bg-[#242424] border-white/[0.08]">
+        <DialogContent className="bg-[#111111] border-white/[0.04]">
           <DialogHeader>
             <DialogTitle>Run System Backup</DialogTitle>
           </DialogHeader>
@@ -935,10 +935,10 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
   if (isIntegrationsLoading) {
     return (
       <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Skeleton className="h-48 rounded-md" />
           <Skeleton className="h-48 rounded-md" />
         </div>
@@ -955,9 +955,9 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
       {/* Integration Statistics */}
-      <div className="grid gap-1.5 grid-cols-4">
+      <div className="grid gap-3 grid-cols-4">
         <StatCard
           title="Active Integrations"
           value={integrations.length}
@@ -987,7 +987,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* Connected Integrations */}
         <Section
           title="Connected Integrations"
@@ -1001,9 +1001,9 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
                 <p>No integrations connected. Configure API connections in Settings.</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-3">
                 {integrations.map((integration: any) => (
-                  <div key={integration.name} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={integration.name} className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-[#111111] p-3">
                     <div className="flex items-center gap-3">
                       <Plug className="h-4 w-4 text-muted-foreground" />
                       <div>
@@ -1058,12 +1058,12 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
               ) : (
                 <div className="space-y-2">
                   {/* Summary cards */}
-                  <div className="grid grid-cols-3 gap-1.5">
-                    <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3">
                       <p className="text-xs text-muted-foreground">Connected Vehicles</p>
                       <p className="text-lg font-bold text-foreground">{smartcarConnections?.total ?? 0}</p>
                     </div>
-                    <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                    <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3">
                       <p className="text-xs text-muted-foreground">Mode</p>
                       <p className="text-lg font-bold text-foreground">
                         <Badge variant={smartcarConnections?.mode === 'test' ? 'secondary' : 'default'}>
@@ -1071,7 +1071,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
                         </Badge>
                       </p>
                     </div>
-                    <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                    <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3">
                       <p className="text-xs text-muted-foreground">Status</p>
                       <p className="text-lg font-bold">
                         <Badge variant="default">
@@ -1084,10 +1084,10 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
 
                   {/* Connected vehicles table */}
                   {Array.isArray(smartcarConnections?.connections) && smartcarConnections.connections.length > 0 ? (
-                    <div className="rounded-lg border border-white/[0.08] overflow-hidden">
+                    <div className="rounded-lg border border-white/[0.04] overflow-hidden">
                       <table className="w-full text-sm">
-                        <thead className="bg-[#242424]">
-                          <tr className="border-b border-white/[0.08]">
+                        <thead className="bg-[#111111]">
+                          <tr className="border-b border-white/[0.04]">
                             <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Vehicle</th>
                             <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Status</th>
                             <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Last Sync</th>
@@ -1190,10 +1190,10 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
   if (isDocumentsLoading) {
     return (
       <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Skeleton className="h-48 rounded-md" />
           <Skeleton className="h-48 rounded-md" />
         </div>
@@ -1210,9 +1210,9 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
       {/* Document Statistics */}
-      <div className="grid gap-1.5 grid-cols-4">
+      <div className="grid gap-3 grid-cols-4">
         <StatCard
           title="Total Documents"
           value={documentRows.length}
@@ -1240,7 +1240,7 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* Document Categories */}
         <Section
           title="Document Library"
@@ -1254,9 +1254,9 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
                 <p>No documents uploaded yet. Upload files to organize them into categories.</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-3">
                 {documentCategories.map((cat) => (
-                  <div key={cat.category} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={cat.category} className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-[#111111] p-3">
                     <div className="flex items-center gap-3">
                       <FolderOpen className="h-4 w-4 text-muted-foreground" />
                       <div>
@@ -1285,9 +1285,9 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
                 <p>No recent documents. Uploaded files will appear here.</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-3">
                 {recentDocuments.map((doc: any) => (
-                  <div key={doc.id} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                  <div key={doc.id} className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-[#111111] p-3">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
@@ -1333,7 +1333,7 @@ export default function AdminConfigurationHub() {
       icon={<Settings className="h-5 w-5" />}
       className="cta-hub"
     >
-      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
+      <div className="flex flex-col h-full gap-3 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="admin" className="flex items-center gap-2" data-testid="hub-tab-admin" aria-label="Admin">

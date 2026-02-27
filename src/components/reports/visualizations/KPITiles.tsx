@@ -79,7 +79,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
         return 'text-red-600 bg-red-50';
       case 'flat':
       default:
-        return 'text-white/70 bg-gray-50';
+        return 'text-white/70 bg-white/[0.03]';
     }
   };
 
@@ -102,7 +102,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
         return (
           <Card
             key={measure.id}
-            className="p-3 hover:shadow-md transition-shadow"
+            className="p-3 hover:border-white/[0.12] transition-colors"
             role="article"
             aria-label={`${measure.label} KPI: ${formatValue(measure.value, measure.format)}`}
           >
@@ -124,11 +124,11 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
 
             {/* Value */}
             <div className="mb-3">
-              <div className="text-base font-bold text-gray-900">
+              <div className="text-base font-bold text-white/80">
                 {formatValue(measure.value, measure.format)}
               </div>
               {measure.trend && (
-                <div className="text-xs text-gray-700 mt-1">
+                <div className="text-xs text-white/40 mt-1">
                   {measure.trend.label}
                 </div>
               )}
@@ -141,7 +141,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
                   <span>Target: {formatValue(measure.target, measure.format)}</span>
                   <span className="font-medium">{progress.toFixed(0)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-white/[0.06] rounded-full h-2 overflow-hidden">
                   <div
                     className={`h-full ${progressColor} transition-all duration-300 rounded-full`}
                     style={{ width: `${progress}%` }}
@@ -156,9 +156,9 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
             )}
 
             {/* Drill-down indicator */}
-            <div className="mt-2 pt-3 border-t border-gray-100">
+            <div className="mt-2 pt-3 border-t border-white/[0.06]">
               <button
-                className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+                className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-800 font-medium transition-colors"
                 onClick={() => {
                   // Handle drill-down
                   logger.info('Drill down into', measure.id);

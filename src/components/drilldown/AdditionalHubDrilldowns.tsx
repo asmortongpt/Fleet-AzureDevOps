@@ -19,7 +19,7 @@ import { formatCurrency, formatDate, formatNumber, formatTime } from '@/utils/fo
 /** Shared loading spinner used across all drilldowns */
 function DrilldownLoader({ label }: { label: string }) {
     return (
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[#111111] border-white/[0.04]">
             <CardContent className="p-6 flex flex-col items-center justify-center gap-2">
                 <Loader2 className="w-5 h-5 text-white/40 animate-spin" />
                 <span className="text-xs text-white/40">Loading {label}...</span>
@@ -31,7 +31,7 @@ function DrilldownLoader({ label }: { label: string }) {
 /** Shared empty-state card */
 function EmptyState({ icon: Icon, label }: { icon: React.ComponentType<{ className?: string }>; label: string }) {
     return (
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[#111111] border-white/[0.04]">
             <CardContent className="p-6 flex flex-col items-center justify-center gap-2">
                 <Icon className="w-5 h-5 text-white/20" />
                 <span className="text-xs text-white/40">No {label} found</span>
@@ -84,7 +84,7 @@ export function IncidentsDrilldown() {
             </div>
 
             {/* Incident List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <AlertTriangle className="w-3 h-3 text-amber-400" />
@@ -194,7 +194,7 @@ export function SafetyScoreDetailDrilldown() {
             </Card>
 
             {/* Component Breakdown */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Score Components</CardTitle>
                 </CardHeader>
@@ -263,7 +263,7 @@ export function VideoTelematicsDrilldown() {
             </div>
 
             {/* Events List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Recent Events</CardTitle>
                 </CardHeader>
@@ -350,9 +350,9 @@ export function DispatchDrilldown() {
                         <div className="text-xs text-white/40">In Transit</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-purple-900/30 border-purple-700/50">
+                <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-3 text-center">
-                        <div className="text-base font-bold text-purple-400">{statusCounts.completed}</div>
+                        <div className="text-base font-bold text-amber-400">{statusCounts.completed}</div>
                         <div className="text-xs text-white/40">Completed</div>
                     </CardContent>
                 </Card>
@@ -365,7 +365,7 @@ export function DispatchDrilldown() {
             </div>
 
             {/* Jobs List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Package className="w-3 h-3 text-emerald-400" />
@@ -457,7 +457,7 @@ export function RoutesDrilldown() {
                         <div className="text-xs text-white/40">Completed</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">{stats.avgDuration}</div>
                         <div className="text-xs text-white/40">Avg Duration</div>
@@ -466,7 +466,7 @@ export function RoutesDrilldown() {
             </div>
 
             {/* Route List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Route Details</CardTitle>
                 </CardHeader>
@@ -488,7 +488,7 @@ export function RoutesDrilldown() {
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${status === 'in_progress' || status === 'in-progress' || status === 'in_transit' ? 'border-emerald-500 text-emerald-700' :
-                                        status === 'completed' ? 'border-purple-500 text-purple-400' :
+                                        status === 'completed' ? 'border-amber-500 text-amber-400' :
                                             'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(route.status)}
@@ -556,7 +556,7 @@ export function TasksDrilldown() {
             </div>
 
             {/* Tasks List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <ClipboardList className="w-3 h-3 text-amber-400" />
@@ -632,7 +632,7 @@ export function VendorsDrilldown() {
             </div>
 
             {/* Facility List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Building2 className="w-3 h-3 text-emerald-400" />
@@ -701,7 +701,7 @@ export function PartsInventoryDrilldown() {
                         <div className="text-xs text-white/40">Service Categories</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">{totalParts}</div>
                         <div className="text-xs text-white/40">Parts Used</div>
@@ -710,7 +710,7 @@ export function PartsInventoryDrilldown() {
             </div>
 
             {/* Category Breakdown */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Wrench className="w-3 h-3 text-amber-400" />
@@ -790,7 +790,7 @@ export function PurchaseOrdersDrilldown() {
                         <div className="text-xs text-white/40">Medium</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-white/[0.04] border-white/[0.08]">
+                <Card className="bg-white/[0.04] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/60">{priorityCounts.low}</div>
                         <div className="text-xs text-white/40">Low</div>
@@ -799,7 +799,7 @@ export function PurchaseOrdersDrilldown() {
             </div>
 
             {/* Pending Orders List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <ShoppingCart className="w-3 h-3 text-amber-400" />
@@ -876,7 +876,7 @@ export function FuelPurchasingDrilldown() {
                         <div className="text-xs text-white/40">Total Gallons</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">${stats.avgPricePerGallon.toFixed(2)}</div>
                         <div className="text-xs text-white/40">Avg $/Gallon</div>
@@ -885,7 +885,7 @@ export function FuelPurchasingDrilldown() {
             </div>
 
             {/* Transactions List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Fuel className="w-3 h-3 text-amber-400" />

@@ -212,7 +212,7 @@ export default function VideoPlayerEnhanced({
 
         {/* Loading Overlay */}
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
             <div className="text-white text-sm">Loading video...</div>
           </div>
         )}
@@ -249,7 +249,7 @@ export default function VideoPlayerEnhanced({
                 <div
                   key={`${annotation.timestamp}-${annotation.text}`}
                   className={cn(
-                    'px-2 py-2 rounded-lg text-white text-sm font-medium shadow-sm',
+                    'px-2 py-2 rounded-lg text-white text-sm font-medium',
                     annotation.color
                   )}
                 >
@@ -260,7 +260,7 @@ export default function VideoPlayerEnhanced({
         )}
 
         {/* Controls Overlay - Shows on hover */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
           {/* Timeline with Event Markers */}
           <div className="relative mb-2">
             {/* Event Markers */}
@@ -401,13 +401,13 @@ export default function VideoPlayerEnhanced({
 
         {/* Event Timeline Below Video */}
         {events.length > 0 && (
-          <div className="p-2 border-t">
-            <h4 className="font-semibold mb-3">Safety Events in Video</h4>
+          <div className="p-2 border-t border-white/[0.04]">
+            <h4 className="font-semibold mb-3 text-white">Safety Events in Video</h4>
             <div className="space-y-2">
               {events.map((event) => (
                 <div
                   key={event.id}
-                  className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                  className="flex items-center justify-between p-2 hover:bg-white/[0.03] rounded-lg cursor-pointer"
                   onClick={() => jumpToEvent(event)}
                 >
                   <div className="flex items-center gap-3">
@@ -416,12 +416,12 @@ export default function VideoPlayerEnhanced({
                     </Badge>
                     <div>
                       <div className="font-medium">{event.eventType}</div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-white/60">
                         {event.description}
                       </div>
                     </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-white/60">
                     {formatTime(event.timestamp)}
                   </div>
                 </div>

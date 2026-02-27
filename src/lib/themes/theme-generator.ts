@@ -78,17 +78,17 @@ export function generateThemeFromColor(options: ThemeGenerationOptions): Theme {
           colors: {
             primary: options.primaryColor,
             secondary: options.secondaryColor,
-            accent: '#64748B',
-            background: '#0F172A',
-            surface: '#1E293B',
-            foreground: '#F8FAFC',
-            muted: '#475569',
-            mutedForeground: '#CBD5E1',
-            border: '#334155',
+            accent: '#737373',
+            background: '#1a1a1a',
+            surface: '#1a1a1a',
+            foreground: '#FAFAFA',
+            muted: '#525252',
+            mutedForeground: '#D4D4D4',
+            border: '#333333',
             success: '#22C55E',
             warning: '#F59E0B',
             error: '#EF4444',
-            info: '#3B82F6',
+            info: '#10b981',
             destructive: '#EF4444',
           },
         }
@@ -100,17 +100,17 @@ export function generateThemeFromColor(options: ThemeGenerationOptions): Theme {
           colors: {
             primary: options.primaryColor,
             secondary: options.secondaryColor,
-            accent: '#94A3B8',
+            accent: '#A3A3A3',
             background: '#FFFFFF',
-            surface: '#F8FAFC',
-            foreground: '#0F172A',
-            muted: '#CBD5E1',
-            mutedForeground: '#64748B',
-            border: '#E2E8F0',
+            surface: '#FAFAFA',
+            foreground: '#1a1a1a',
+            muted: '#D4D4D4',
+            mutedForeground: '#737373',
+            border: '#E5E5E5',
             success: '#16A34A',
             warning: '#D97706',
             error: '#DC2626',
-            info: '#2563EB',
+            info: '#10b981',
             destructive: '#DC2626',
           },
         }
@@ -188,10 +188,10 @@ export function generateThemeCSS(theme: Theme): string {
   --transition-slow: 350ms ease-in-out;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
   /* Border radius */
   --radius-sm: 0.25rem;
@@ -204,14 +204,14 @@ export function generateThemeCSS(theme: Theme): string {
 /* Light mode adjustments */
 @media (prefers-color-scheme: light) {
   :root {
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
 }
 
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   :root {
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   }
 }
 

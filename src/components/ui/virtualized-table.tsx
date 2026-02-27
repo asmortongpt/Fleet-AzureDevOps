@@ -383,7 +383,7 @@ export function VirtualizedTable<TData>({
       <div
         ref={tableContainerRef}
         className={cn(
-          'relative overflow-auto rounded-lg border border-white/[0.08] dark:border-white/[0.08]',
+          'relative overflow-auto rounded-lg border border-white/[0.04] dark:border-white/[0.04]',
           className
         )}
         style={{ maxHeight }}
@@ -399,7 +399,7 @@ export function VirtualizedTable<TData>({
             )}
           >
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-white/[0.08] dark:border-white/[0.08]">
+              <tr key={headerGroup.id} className="border-b border-white/[0.04] dark:border-white/[0.04]">
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
@@ -478,7 +478,7 @@ export function VirtualizedTable<TData>({
                     data-index={virtualRow.index}
                     ref={virtualizer.measureElement}
                     className={cn(
-                      'border-b border-white/[0.08] dark:border-white/[0.08] hover:bg-white/[0.03] dark:hover:bg-white/[0.06] transition-colors',
+                      'border-b border-white/[0.04] dark:border-white/[0.04] hover:bg-white/[0.03] dark:hover:bg-white/[0.06] transition-colors',
                       row.getIsSelected() && 'bg-emerald-50 dark:bg-white/[0.04]',
                       onRowClick && 'cursor-pointer'
                     )}
@@ -509,7 +509,7 @@ export function VirtualizedTable<TData>({
                 <tr
                   key={row.id}
                   className={cn(
-                    'border-b border-white/[0.08] dark:border-white/[0.08] hover:bg-white/[0.03] dark:hover:bg-white/[0.06] transition-colors',
+                    'border-b border-white/[0.04] dark:border-white/[0.04] hover:bg-white/[0.03] dark:hover:bg-white/[0.06] transition-colors',
                     row.getIsSelected() && 'bg-emerald-50 dark:bg-white/[0.04]',
                     onRowClick && 'cursor-pointer'
                   )}

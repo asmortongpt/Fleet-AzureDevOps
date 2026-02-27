@@ -92,29 +92,29 @@ function MetricTooltip({
       <TooltipTrigger asChild>
         {children}
       </TooltipTrigger>
-      <TooltipContent side="top" className="p-0 max-w-sm bg-popover border-border/50 shadow-sm">
+      <TooltipContent side="top" className="p-0 max-w-sm bg-[#161616] border border-white/[0.04] rounded-lg">
         <div className="p-3 space-y-2">
           <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            <p className="text-[10px] font-medium text-white/35 uppercase tracking-wider">
               {title}
             </p>
-            <p className="text-base font-bold text-foreground mt-0.5">
+            <p className="text-base font-semibold text-white mt-0.5">
               {currentValue}
             </p>
           </div>
 
           {description && (
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-[11px] text-white/30 leading-relaxed">
               {description}
             </p>
           )}
 
           {comparison && (
-            <div className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/50">
-              <span className="text-xs text-muted-foreground">{comparison.label}</span>
+            <div className="flex items-center justify-between py-1.5 px-2 rounded-lg bg-white/[0.04]">
+              <span className="text-[11px] text-white/30">{comparison.label}</span>
               <span className={cn(
-                "text-xs font-semibold",
-                comparison.trend === "up" ? "text-success" : comparison.trend === "down" ? "text-destructive" : "text-foreground"
+                "text-[11px] font-semibold",
+                comparison.trend === "up" ? "text-emerald-400" : comparison.trend === "down" ? "text-rose-400" : "text-white/60"
               )}>
                 {comparison.value}
               </span>
@@ -122,9 +122,9 @@ function MetricTooltip({
           )}
 
           {benchmark && (
-            <div className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/50">
-              <span className="text-xs text-muted-foreground">{benchmark.label}</span>
-              <span className="text-xs font-semibold text-foreground">
+            <div className="flex items-center justify-between py-1.5 px-2 rounded-lg bg-white/[0.04]">
+              <span className="text-[11px] text-white/30">{benchmark.label}</span>
+              <span className="text-[11px] font-semibold text-white/60">
                 {benchmark.value}
               </span>
             </div>

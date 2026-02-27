@@ -18,13 +18,13 @@ import { formatVehicleName } from "@/utils/vehicle-display"
 const STATUS_COLORS: Record<string, string> = {
   active: "#10b981",    // emerald
   idle: "#9ca3af",      // gray
-  charging: "#06b6d4",  // cyan
+  charging: "#10b981",  // emerald
   service: "#f59e0b",   // amber
   emergency: "#f43f5e", // rose
   offline: "#9ca3af",   // gray
-  assigned: "#818cf8",  // indigo
+  assigned: "#a3a3a3",  // neutral gray
   dispatched: "#fb923c", // orange
-  en_route: "#38bdf8",  // sky
+  en_route: "#34d399",  // emerald-light
   on_site: "#facc15",   // yellow
   completed: "#34d399", // emerald
   maintenance: "#f59e0b", // amber
@@ -425,7 +425,7 @@ export function buildVehiclePopupHTML(
       <button
         onclick="window.dispatchEvent(new CustomEvent('vehicle-action', { detail: { action: 'dispatch', vehicleId: '${escapedId}' } }))"
         style="${btnBase}"
-        onmouseover="this.style.background='rgba(6,182,212,0.15)';this.style.color='#06b6d4';this.style.borderColor='rgba(6,182,212,0.3)'"
+        onmouseover="this.style.background='rgba(6,182,212,0.15)';this.style.color='#10b981';this.style.borderColor='rgba(6,182,212,0.3)'"
         onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='${TEXT_SECONDARY}';this.style.borderColor='rgba(255,255,255,0.1)'"
       >${SVG_SEND} Dispatch</button>
       <button

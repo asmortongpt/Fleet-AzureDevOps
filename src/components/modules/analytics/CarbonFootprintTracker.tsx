@@ -310,7 +310,7 @@ const CarbonFootprintTracker: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-base font-bold text-gray-900">Carbon Footprint Tracker</h1>
+          <h1 className="text-base font-bold text-white/80">Carbon Footprint Tracker</h1>
           <p className="text-white/40 mt-1">Monitor environmental impact and ESG performance</p>
         </div>
         <div className="flex gap-2">
@@ -336,13 +336,13 @@ const CarbonFootprintTracker: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-white/40">CO₂ Emissions</CardTitle>
-            <Cloud className="w-3 h-3 text-gray-700" />
+            <Cloud className="w-3 h-3 text-white/40" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">
               {formatLargeNumber(summary?.total_carbon_kg || 0)} kg
             </div>
-            <p className="text-xs text-gray-700 mt-1">
+            <p className="text-xs text-white/40 mt-1">
               From EV charging
             </p>
           </CardContent>
@@ -357,7 +357,7 @@ const CarbonFootprintTracker: React.FC = () => {
             <div className="text-base font-bold text-green-600">
               {formatLargeNumber(summary?.total_saved_kg || 0)} kg
             </div>
-            <p className="text-xs text-gray-700 mt-1">
+            <p className="text-xs text-white/40 mt-1">
               vs. ICE vehicles
             </p>
           </CardContent>
@@ -372,7 +372,7 @@ const CarbonFootprintTracker: React.FC = () => {
             <div className="text-base font-bold text-emerald-400">
               {formatNumber(summary?.avg_reduction_percent || 0, 1)}%
             </div>
-            <p className="text-xs text-gray-700 mt-1">
+            <p className="text-xs text-white/40 mt-1">
               Carbon reduction
             </p>
           </CardContent>
@@ -389,7 +389,7 @@ const CarbonFootprintTracker: React.FC = () => {
             <div className="text-base font-bold text-green-600">
               {treesEquivalent}
             </div>
-            <p className="text-xs text-gray-700 mt-1">
+            <p className="text-xs text-white/40 mt-1">
               Annual absorption
             </p>
           </CardContent>

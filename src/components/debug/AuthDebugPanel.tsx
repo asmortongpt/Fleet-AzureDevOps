@@ -150,7 +150,7 @@ export function AuthDebugPanel() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 max-w-md">
-      <Card className="border-2 border-yellow-500 bg-[#111] text-white shadow-xl">
+      <Card className="border-2 border-yellow-500 bg-[#111] text-white">
         {/* Header */}
         <div
           className="flex items-center justify-between border-b border-yellow-500/30 bg-yellow-500/10 p-3 cursor-pointer"
@@ -251,7 +251,7 @@ export function AuthDebugPanel() {
             {tokenInfo && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-2">
-                  <Key className="h-4 w-4 text-purple-400" />
+                  <Key className="h-4 w-4 text-amber-400" />
                   <h3 className="font-semibold text-sm">Token Information</h3>
                 </div>
 
@@ -293,7 +293,7 @@ export function AuthDebugPanel() {
 
                 {/* Token Payload */}
                 <details className="bg-[#1a1a1a] rounded p-3">
-                  <summary className="cursor-pointer text-xs font-semibold text-purple-400">
+                  <summary className="cursor-pointer text-xs font-semibold text-amber-400">
                     Token Payload
                   </summary>
                   <pre className="mt-2 text-xs text-white/60 overflow-x-auto">
@@ -346,7 +346,7 @@ export function AuthDebugPanel() {
 
             {/* Session Storage Info */}
             <details className="bg-[#1a1a1a] rounded p-3">
-              <summary className="cursor-pointer text-xs font-semibold text-cyan-400">
+              <summary className="cursor-pointer text-xs font-semibold text-emerald-400">
                 Session Storage Keys
               </summary>
               <div className="mt-2 space-y-1 text-xs text-white/60">

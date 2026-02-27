@@ -85,9 +85,9 @@ const CATEGORY_CONFIG: Record<EventCategory, {
   driver: { icon: User, label: 'Driver', color: 'text-green-500' },
   fuel: { icon: Fuel, label: 'Fuel', color: 'text-amber-500' },
   alert: { icon: AlertTriangle, label: 'Alert', color: 'text-red-500' },
-  system: { icon: Zap, label: 'System', color: 'text-purple-500' },
-  communication: { icon: MessageCircle, label: 'Comms', color: 'text-cyan-500' },
-  dispatch: { icon: MapPin, label: 'Dispatch', color: 'text-indigo-500' }
+  system: { icon: Zap, label: 'System', color: 'text-amber-500' },
+  communication: { icon: MessageCircle, label: 'Comms', color: 'text-emerald-500' },
+  dispatch: { icon: MapPin, label: 'Dispatch', color: 'text-emerald-500' }
 }
 
 const SEVERITY_CONFIG: Record<EventSeverity, {
@@ -125,7 +125,7 @@ function EventItem({ event, compact, onAcknowledge, onClick }: EventItemProps) {
       tabIndex={0}
       className={cn(
         "p-3 rounded-lg border cursor-pointer transition-all",
-        "hover:shadow-md hover:border-primary/30",
+        " hover:border-primary/30",
         severityConfig.bgColor,
         severityConfig.borderColor,
         event.acknowledged && "opacity-60"

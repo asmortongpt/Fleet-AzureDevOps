@@ -67,9 +67,9 @@ const VARIANT_STYLES = {
   },
   info: {
     icon: Info,
-    iconColor: 'text-blue-800',
-    bgColor: 'bg-blue-50 dark:bg-blue-950',
-    borderColor: 'border-blue-200 dark:border-blue-800',
+    iconColor: 'text-emerald-800',
+    bgColor: 'bg-neutral-50 dark:bg-neutral-950',
+    borderColor: 'border-neutral-200 dark:border-neutral-800',
   },
 }
 
@@ -113,7 +113,7 @@ function ActionToastContent({
   return (
     <div
       className={cn(
-        'relative flex flex-col gap-3 p-2 rounded-lg border shadow-sm',
+        'relative flex flex-col gap-3 p-2 rounded-lg border',
         'min-w-[320px] max-w-[420px]',
         styles.bgColor,
         styles.borderColor
@@ -180,7 +180,7 @@ function ActionToastContent({
               variant === 'success' && 'bg-green-500',
               variant === 'warning' && 'bg-amber-500',
               variant === 'error' && 'bg-red-500',
-              variant === 'info' && 'bg-blue-500'
+              variant === 'info' && 'bg-neutral-500'
             )}
             style={{ width: `${progress}%` }}
           />

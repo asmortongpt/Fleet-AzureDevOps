@@ -103,7 +103,7 @@ export const UXShowcase: React.FC = () => {
       <section className="space-y-2">
         <h2 className="text-sm font-semibold border-b pb-2">Skeleton Loaders</h2>
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="p-2 bg-gray-50 border-b">
+          <div className="p-2 bg-white/[0.03] border-b">
             <h3 className="font-semibold">Loading Table Data...</h3>
           </div>
           <SkeletonTable rows={3} />
@@ -188,7 +188,7 @@ export const UXShowcase: React.FC = () => {
         <h2 className="text-sm font-semibold border-b pb-2">Empty State Example</h2>
         <div className="bg-white rounded-lg shadow p-12 text-center">
           <svg
-            className="mx-auto h-16 w-16 text-gray-400 mb-2"
+            className="mx-auto h-16 w-16 text-white/40 mb-2"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -200,8 +200,8 @@ export const UXShowcase: React.FC = () => {
               d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          <h3 className="text-sm font-medium text-gray-900 mb-2">No vehicles found</h3>
-          <p className="text-gray-500 mb-2">
+          <h3 className="text-sm font-medium text-white/80 mb-2">No vehicles found</h3>
+          <p className="text-white/40 mb-2">
             Get started by adding your first vehicle to the fleet.
           </p>
           <button className="bg-emerald-600 text-white px-3 py-2 rounded hover:bg-emerald-700">
@@ -216,18 +216,18 @@ export const UXShowcase: React.FC = () => {
         <div className="bg-white p-3 rounded-lg shadow space-y-2">
           <div className="max-w-md space-y-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-white/40 mb-1">
                 Normal State
               </label>
               <input
                 type="text"
                 placeholder="Enter value"
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 border border-white/[0.08] rounded focus:ring-2 focus:ring-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-white/40 mb-1">
                 Error State
               </label>
               <input
@@ -239,14 +239,14 @@ export const UXShowcase: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-white/40 mb-1">
                 Disabled State
               </label>
               <input
                 type="text"
                 placeholder="Disabled field"
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded bg-gray-100 cursor-not-allowed"
+                className="w-full px-3 py-2 border border-white/[0.08] rounded bg-white/[0.05] cursor-not-allowed"
               />
             </div>
 
@@ -256,7 +256,7 @@ export const UXShowcase: React.FC = () => {
               </button>
               <button
                 disabled
-                className="bg-gray-400 text-white px-3 py-2 rounded cursor-not-allowed"
+                className="bg-white/[0.10] text-white px-3 py-2 rounded cursor-not-allowed"
               >
                 Disabled Button
               </button>
@@ -271,23 +271,23 @@ export const UXShowcase: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           <div className="bg-white rounded-lg shadow p-2">
             <div className="h-20 bg-emerald-600 rounded mb-2"></div>
-            <p className="text-sm font-medium">Primary (Blue)</p>
-            <p className="text-xs text-gray-500">Actions, Links</p>
+            <p className="text-sm font-medium">Primary (Emerald)</p>
+            <p className="text-xs text-white/40">Actions, Links</p>
           </div>
           <div className="bg-white rounded-lg shadow p-2">
             <div className="h-20 bg-green-600 rounded mb-2"></div>
             <p className="text-sm font-medium">Success (Green)</p>
-            <p className="text-xs text-gray-500">Confirmations</p>
+            <p className="text-xs text-white/40">Confirmations</p>
           </div>
           <div className="bg-white rounded-lg shadow p-2">
             <div className="h-20 bg-red-600 rounded mb-2"></div>
             <p className="text-sm font-medium">Error (Red)</p>
-            <p className="text-xs text-gray-500">Errors, Warnings</p>
+            <p className="text-xs text-white/40">Errors, Warnings</p>
           </div>
           <div className="bg-white rounded-lg shadow p-2">
             <div className="h-20 bg-yellow-500 rounded mb-2"></div>
             <p className="text-sm font-medium">Warning (Yellow)</p>
-            <p className="text-xs text-gray-500">Cautions</p>
+            <p className="text-xs text-white/40">Cautions</p>
           </div>
         </div>
       </section>

@@ -111,7 +111,7 @@ export function DetailViewSkeleton() {
   return (
     <div className="space-y-2">
       {/* Header skeleton */}
-      <div className="bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 p-3 rounded-lg">
+      <div className="bg-[#111111] p-3 rounded-lg">
         <div className="space-y-3">
           <div className="h-8 w-1/3 bg-white/20 animate-pulse rounded" />
           <div className="h-4 w-1/4 bg-white/20 animate-pulse rounded" />

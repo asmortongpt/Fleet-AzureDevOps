@@ -203,17 +203,7 @@ export function AuthCallback() {
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden flex flex-col items-center justify-center bg-[hsl(var(--background))]">
-      {/* CINEMATIC BACKGROUND */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--card))_0%,hsl(var(--background))_100%)]" />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[hsl(var(--primary))] rounded-full blur-[180px] pointer-events-none opacity-10"
-        />
-        <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: 'linear-gradient(90deg, hsl(var(--border) / 0.08) 1px, transparent 1px), linear-gradient(hsl(var(--border) / 0.08) 1px, transparent 1px)',
-          backgroundSize: '60px 60px'
-        }} />
-      </div>
+      {/* Minimal background */}
 
       <div className="relative z-10 flex flex-col items-center">
         {/* BRANDING HUB */}
@@ -221,9 +211,9 @@ export function AuthCallback() {
           className="mb-16 flex flex-col items-center"
         >
           <img
-            src="/logos/png/archony-logo-reverse-300px.png"
-            alt="ArchonY"
-            className="h-12 w-auto mb-6 drop-shadow-[0_0_20px_hsl(var(--primary)/0.4)] mix-blend-lighten"
+            src="/logos/png/cta-logo-primary-lockup-reverse-300px.png"
+            alt="CTA Fleet"
+            className="h-12 w-auto mb-6"
           />
           <div className="flex items-center gap-3">
             <div className="h-px w-6 bg-border/50" />
@@ -233,7 +223,7 @@ export function AuthCallback() {
         </div>
 
         {/* LOADING CORE */}
-        <div className="flex flex-col items-center gap-8 glass-premium p-10 rounded-[32px] border-border/50 shadow-2xl">
+        <div className="flex flex-col items-center gap-8 bg-[#111111] p-10 rounded-[32px] border border-white/[0.04]">
           <div className="relative">
             <div
               className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[hsl(var(--primary))] border-b-2 border-l-2 border-border/50 animate-spin"
@@ -241,11 +231,10 @@ export function AuthCallback() {
             <div className="absolute inset-0 flex items-center justify-center">
               <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
             </div>
-            <div className="absolute -inset-4 bg-emerald-500/10 blur-2xl rounded-full" />
           </div>
 
           <div className="flex flex-col items-center gap-2">
-            <h3 className="text-sm font-black text-foreground uppercase tracking-widest text-shadow-premium">
+            <h3 className="text-sm font-black text-white uppercase tracking-widest">
               {errorMessage ? 'Authentication Error' : 'Establishing Protocol'}
             </h3>
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.1em]">
@@ -253,9 +242,9 @@ export function AuthCallback() {
             </p>
           </div>
 
-          <div className="w-48 h-1 bg-muted/40 rounded-full overflow-hidden relative">
+          <div className="w-48 h-1 bg-white/[0.06] rounded-full overflow-hidden relative">
             <div
-              className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-[hsl(var(--primary))] to-transparent shadow-[0_0_10px_hsl(var(--primary))] animate-pulse"
+              className="absolute inset-0 w-1/2 bg-emerald-500 animate-pulse"
             />
           </div>
         </div>
@@ -271,7 +260,7 @@ export function AuthCallback() {
           <div className="w-1 h-1 rounded-full bg-border/50" />
           <div className="flex items-center gap-2">
             <Zap className="w-3.5 h-3.5" />
-            <span className="text-[9px] font-black uppercase tracking-widest">ArchonY V3</span>
+            <span className="text-[9px] font-black uppercase tracking-widest">CTA Fleet V3</span>
           </div>
         </div>
       </div>

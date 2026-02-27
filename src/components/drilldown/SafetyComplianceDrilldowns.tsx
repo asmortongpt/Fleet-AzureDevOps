@@ -301,7 +301,7 @@ export function ViolationsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[#111111] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalViolations}</div>
             <div className="text-xs text-white/40">Total Violations</div>
@@ -334,7 +334,7 @@ export function ViolationsMatrixView() {
       </div>
 
       {/* Total Fines */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <span>Total Fines Assessment</span>
@@ -351,7 +351,7 @@ export function ViolationsMatrixView() {
       </Card>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex-1 min-w-[200px]">
@@ -405,7 +405,7 @@ export function ViolationsMatrixView() {
       </Card>
 
       {/* Excel-Style Violations Matrix */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Scale className="w-3 h-3 text-amber-400" />
@@ -627,7 +627,7 @@ export function IncidentsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[#111111] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalIncidents}</div>
             <div className="text-xs text-white/40">Total Incidents</div>
@@ -660,7 +660,7 @@ export function IncidentsMatrixView() {
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex-1 min-w-[200px]">
@@ -716,7 +716,7 @@ export function IncidentsMatrixView() {
       </Card>
 
       {/* Excel-Style Incidents Matrix */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Shield className="w-3 h-3 text-emerald-400" />

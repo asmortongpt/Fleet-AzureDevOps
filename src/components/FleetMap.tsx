@@ -33,7 +33,7 @@ interface FleetMapProps {
 export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
+  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const leafletIcon = useMemo(
@@ -114,7 +114,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
     if (!map || !vehicles.length) return;
 
     // Clear existing markers
-    markers.forEach((marker) => marker.setMap(null));
+    markers.forEach((marker) => { marker.map = null; });
 
     // Create new markers
     const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
@@ -158,13 +158,13 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
       });
 
       newMarkers.push(marker);
-      bounds.extend(marker.getPosition()!);
+      bounds.extend(marker.position as google.maps.LatLng);
     });
 
     // Fit map to show all markers
     if (hasValidCoordinates && newMarkers.length > 0) {
       if (newMarkers.length === 1) {
-        map.setCenter(newMarkers[0].getPosition()!);
+        map.setCenter(newMarkers[0].position as google.maps.LatLng);
         map.setZoom(14);
       } else {
         map.fitBounds(bounds);
@@ -183,7 +183,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
         return `${baseUrl}green.png`;
       case 'in_use':
       case 'in use':
-        return `${baseUrl}blue.png`;
+        return `${baseUrl}green-dot.png`;
       case 'maintenance':
       case 'repair':
         return `${baseUrl}yellow.png`;
@@ -191,7 +191,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
       case 'inactive':
         return `${baseUrl}red.png`;
       default:
-        return `${baseUrl}purple.png`;
+        return `${baseUrl}ltblue-dot.png`;
     }
   };
 
@@ -284,7 +284,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
 
         {/* Legend */}
         {vehiclesWithCoords.length > 0 && (
-          <div className="mt-2 p-2 bg-gray-50 rounded-lg">
+          <div className="mt-2 p-2 bg-white/[0.03] rounded-lg">
             <h4 className="text-sm font-semibold mb-2">Status Legend</h4>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
               <div className="flex items-center gap-2">
@@ -304,7 +304,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
                 <span>Out of Service</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                <div className="w-3 h-3 rounded-full bg-amber-500"></div>
                 <span>Unknown</span>
               </div>
             </div>

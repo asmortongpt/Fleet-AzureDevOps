@@ -85,7 +85,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
         if (!active || !payload) return null
 
         return (
-            <div className="bg-[#1a1a1a]/95 border border-white/[0.15] rounded-lg p-2 shadow-sm">
+            <div className="bg-[#1a1a1a]/95 border border-white/[0.15] rounded-lg p-2">
                 <p className="text-white/60 font-medium mb-2">{label}</p>
                 {payload.map((entry: any) => (
                     <div key={entry.name} className="flex items-center justify-between gap-2 text-sm">

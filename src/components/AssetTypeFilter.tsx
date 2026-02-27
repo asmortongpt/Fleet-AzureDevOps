@@ -105,7 +105,7 @@ const operationalStatuses: { value: OperationalStatus; label: string; color: str
   { value: 'AVAILABLE', label: 'Available', color: 'text-green-600' },
   { value: 'IN_USE', label: 'In Use', color: 'text-emerald-800' },
   { value: 'MAINTENANCE', label: 'Maintenance', color: 'text-orange-600' },
-  { value: 'RESERVED', label: 'Reserved', color: 'text-purple-600' }
+  { value: 'RESERVED', label: 'Reserved', color: 'text-amber-600' }
 ]
 
 const primaryMetrics: { value: PrimaryMetric; label: string }[] = [
@@ -156,12 +156,12 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
     : []
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="bg-white rounded-lg border border-white/[0.08]">
       {/* Filter Header */}
-      <div className="flex items-center justify-between p-2 border-b border-gray-200">
+      <div className="flex items-center justify-between p-2 border-b border-white/[0.08]">
         <div className="flex items-center gap-2">
           <Filter className="w-3 h-3 text-white/70" />
-          <h3 className="font-semibold text-gray-900">Asset Filters</h3>
+          <h3 className="font-semibold text-white/80">Asset Filters</h3>
           {activeFilterCount > 0 && (
             <span className="px-2 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-700 rounded-full">
               {activeFilterCount} active
@@ -172,14 +172,14 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
           {activeFilterCount > 0 && (
             <button
               onClick={handleClearAll}
-              className="text-sm text-white/70 hover:text-gray-900 transition-colors"
+              className="text-sm text-white/70 hover:text-white/80 transition-colors"
             >
               Clear all
             </button>
           )}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-gray-700 hover:text-white/70 transition-colors"
+            className="text-white/40 hover:text-white/70 transition-colors"
           >
             {isExpanded ? <X className="w-3 h-3" /> : <Filter className="w-3 h-3" />}
           </button>
@@ -188,7 +188,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
 
       {/* Active Filters Pills */}
       {activeFilterCount > 0 && (
-        <div className="flex flex-wrap gap-2 p-2 border-b border-gray-200 bg-gray-50">
+        <div className="flex flex-wrap gap-2 p-2 border-b border-white/[0.08] bg-white/[0.03]">
           {filters.asset_category && (
             <FilterPill
               label={`Category: ${assetCategories.find(c => c.value === filters.asset_category)?.label}`}
@@ -233,14 +233,14 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
         <div className="p-2 space-y-2">
           {/* Asset Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-white/40 mb-2">
               <Truck className="w-4 h-4 inline mr-1" />
               Asset Category
             </label>
             <select
               value={filters.asset_category || ''}
               onChange={(e) => handleFilterChange('asset_category', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             >
               <option value="">All Categories</option>
               {assetCategories.map(cat => (
@@ -254,14 +254,14 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
           {/* Asset Type (conditional on category) */}
           {filters.asset_category && availableAssetTypes.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white/40 mb-2">
                 <Settings className="w-4 h-4 inline mr-1" />
                 Asset Type
               </label>
               <select
                 value={filters.asset_type || ''}
                 onChange={(e) => handleFilterChange('asset_type', e.target.value || undefined)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               >
                 <option value="">All Types</option>
                 {availableAssetTypes.map(type => (
@@ -275,14 +275,14 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
 
           {/* Power Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-white/40 mb-2">
               <Settings className="w-4 h-4 inline mr-1" />
               Power Type
             </label>
             <select
               value={filters.power_type || ''}
               onChange={(e) => handleFilterChange('power_type', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             >
               <option value="">All Power Types</option>
               {powerTypes.map(type => (
@@ -295,14 +295,14 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
 
           {/* Operational Status */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-white/40 mb-2">
               <CheckCircle className="w-4 h-4 inline mr-1" />
               Operational Status
             </label>
             <select
               value={filters.operational_status || ''}
               onChange={(e) => handleFilterChange('operational_status', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             >
               <option value="">All Statuses</option>
               {operationalStatuses.map(status => (
@@ -315,14 +315,14 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
 
           {/* Primary Metric */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-white/40 mb-2">
               <Calendar className="w-4 h-4 inline mr-1" />
               Primary Tracking Metric
             </label>
             <select
               value={filters.primary_metric || ''}
               onChange={(e) => handleFilterChange('primary_metric', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             >
               <option value="">All Metrics</option>
               {primaryMetrics.map(metric => (
@@ -340,9 +340,9 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
                 type="checkbox"
                 checked={filters.is_road_legal === true}
                 onChange={(e) => handleFilterChange('is_road_legal', e.target.checked ? true : undefined)}
-                className="w-4 h-4 text-emerald-800 border-gray-300 rounded focus:ring-emerald-500"
+                className="w-4 h-4 text-emerald-800 border-white/[0.08] rounded focus:ring-emerald-500"
               />
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-white/40">
                 Road Legal Only
               </span>
             </label>

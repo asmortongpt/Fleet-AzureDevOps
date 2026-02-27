@@ -218,13 +218,13 @@ export function SafetyNotificationSystem() {
             </div>
 
             {/* Filters */}
-            <Card className="bg-gradient-to-br from-[#1a1a1a]/60 to-[#111]/60 backdrop-blur-xl border-white/[0.06]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardContent className="p-2">
                     <div className="flex gap-2 items-center">
                         <div className="flex gap-2 items-center">
                             <label className="text-sm text-white/80">Filter:</label>
                             <Select value={filter} onValueChange={(value: any) => setFilter(value)}>
-                                <SelectTrigger className="w-[140px] bg-[#242424] border-white/[0.12] text-white">
+                                <SelectTrigger className="w-[140px] bg-[#111111] border-white/[0.04] text-white">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -236,7 +236,7 @@ export function SafetyNotificationSystem() {
                         <div className="flex gap-2 items-center">
                             <label className="text-sm text-white/80">Category:</label>
                             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                                <SelectTrigger className="w-[140px] bg-[#242424] border-white/[0.12] text-white">
+                                <SelectTrigger className="w-[140px] bg-[#111111] border-white/[0.04] text-white">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -257,7 +257,7 @@ export function SafetyNotificationSystem() {
             </Card>
 
             {/* Notifications List */}
-            <Card className="bg-gradient-to-br from-[#1a1a1a]/60 to-[#111]/60 backdrop-blur-xl border-white/[0.06]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader>
                     <CardTitle className="text-white">Recent Notifications</CardTitle>
                 </CardHeader>
@@ -354,7 +354,7 @@ export function SafetyNotificationSystem() {
             </Card>
 
             {/* Notification Settings */}
-            <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 border-emerald-500/30">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader>
                     <CardTitle className="text-white text-sm">Notification Preferences</CardTitle>
                 </CardHeader>

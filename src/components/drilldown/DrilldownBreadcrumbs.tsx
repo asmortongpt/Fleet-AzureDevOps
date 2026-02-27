@@ -17,7 +17,7 @@ export function DrilldownBreadcrumbs() {
   return (
     <nav
       data-testid="breadcrumb"
-      className="flex items-center gap-2 px-3 py-3 bg-[#242424] border-b border-white/[0.08] overflow-x-auto"
+      className="flex items-center gap-2 px-3 py-3 bg-[#111111] border-b border-white/[0.04] overflow-x-auto"
       aria-label="Breadcrumb"
     >
       {/* Home button */}

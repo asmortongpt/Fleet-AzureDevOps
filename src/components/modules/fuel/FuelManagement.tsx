@@ -278,7 +278,7 @@ export function FuelManagement() {
                             variant="outline"
                             className={tx.isFullFill
                               ? "text-xs bg-green-500/10 text-green-500 border-green-500/20"
-                              : "text-xs bg-gray-500/10 text-gray-400 border-gray-500/20"
+                              : "text-xs bg-white/[0.03]0/10 text-white/40 border-white/[0.08]/20"
                             }
                           >
                             {tx.isFullFill ? "Full" : "Partial"}

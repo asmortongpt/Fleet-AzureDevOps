@@ -77,16 +77,16 @@ function buildKPIs(stats: {
       value: capacityLabel,
       icon: <Gauge className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
       moduleId: 'fleet-optimizer',
-      color: '#A855F7',
-      glowColor: 'rgba(168,85,247,0.3)',
+      color: '#F59E0B',
+      glowColor: 'rgba(245,158,11,0.3)',
     },
     {
       label: 'Personnel',
       value: personnel,
       icon: <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
       moduleId: 'driver-mgmt',
-      color: '#38BDF8',
-      glowColor: 'rgba(56,189,248,0.3)',
+      color: '#14B8A6',
+      glowColor: 'rgba(20,184,166,0.3)',
     },
     // Incidents chip can be displayed in expanded UI later; keep computed for easy swap.
     // { label: 'Incidents', value: incidents, ... }
@@ -147,9 +147,9 @@ export function FloatingKPIStrip() {
                 onClick={() => handleChipClick(kpi)}
                 className={cn(
                   'group relative flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl',
-                  'bg-background/80 backdrop-blur-2xl',
-                  'border border-border/50',
-                  'hover:border-border/80 hover:bg-background/90 transition-all duration-300 shadow-2xl',
+                  'bg-[#111111]/90',
+                  'border border-white/[0.04]',
+                  'hover:border-white/[0.08] hover:bg-[#161616]/90 transition-all duration-300',
                   'active:scale-95 shrink-0 sm:shrink'
                 )}
               >
@@ -159,17 +159,17 @@ export function FloatingKPIStrip() {
                 />
 
                 <div
-                  className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-muted/40 border border-border/50 transition-transform group-hover:scale-110"
+                  className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-white/[0.04] border border-white/[0.04] transition-transform group-hover:scale-110"
                   style={{ color: kpi.color }}
                 >
                   {kpi.icon}
                 </div>
 
                 <div className="flex flex-col items-start">
-                  <span className="text-[8px] sm:text-[9px] font-black text-muted-foreground uppercase tracking-[0.15em] leading-none mb-0.5">
+                  <span className="text-[8px] sm:text-[9px] font-black text-white/35 uppercase tracking-[0.15em] leading-none mb-0.5">
                     {kpi.label}
                   </span>
-                  <span className="text-xs sm:text-sm font-bold text-foreground tabular-nums leading-none">
+                  <span className="text-xs sm:text-sm font-bold text-white tabular-nums leading-none">
                     {kpi.value}
                   </span>
                 </div>

@@ -86,18 +86,18 @@ export function ReactiveMetricCard({
     success: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300',
     warning: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300',
     error: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300',
-    info: 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-300',
+    info: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300',
   }
 
   const trendColors: Record<string, string> = {
     up: 'text-green-600 dark:text-green-400',
     down: 'text-red-600 dark:text-red-400',
-    neutral: 'text-white/70 dark:text-gray-700',
+    neutral: 'text-white/70 dark:text-white/40',
   }
 
   return (
     <div
-      className={`rounded-lg p-3 shadow-sm transition-transform duration-200 hover:scale-[1.02] ${colorClasses[color]}`}
+      className={`rounded-lg p-3 transition-transform duration-200 hover:scale-[1.02] ${colorClasses[color]}`}
     >
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium opacity-80">{title}</h3>
@@ -187,7 +187,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center p-12 text-gray-700 dark:text-gray-700">
+      <div className="flex items-center justify-center p-12 text-white/40 dark:text-white/40">
         {emptyMessage}
       </div>
     )
@@ -196,13 +196,13 @@ export function ReactiveDataTable<T extends Record<string, any>>({
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
-        <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <thead className="bg-white/[0.03] dark:bg-[#18181b] border-b border-white/[0.08] dark:border-white/[0.08]">
           <tr>
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`px-3 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider ${
-                  column.sortable ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700' : ''
+                className={`px-3 py-3 text-left text-xs font-medium text-white/40 dark:text-white/40 uppercase tracking-wider ${
+                  column.sortable ? 'cursor-pointer hover:bg-white/[0.05] dark:hover:bg-white/[0.08]' : ''
                 }`}
                 onClick={() => column.sortable && handleSort(column.key)}
               >
@@ -216,13 +216,13 @@ export function ReactiveDataTable<T extends Record<string, any>>({
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+        <tbody className="bg-white dark:bg-[#111113] divide-y divide-gray-200 dark:divide-gray-800">
           {sortedData.map((item) => (
             <tr
               key={String(item[keyField])}
               className={`${
                 onRowClick
-                  ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800'
+                  ? 'cursor-pointer hover:bg-white/[0.03] dark:hover:bg-[#18181b]'
                   : ''
               }`}
               onClick={() => onRowClick?.(item)}
@@ -284,14 +284,14 @@ export function RealtimeAlertsFeed() {
             <div className="flex gap-2">
               <button
                 onClick={() => acknowledgeAlert(alert.id)}
-                className="text-xs px-3 py-1 rounded bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="text-xs px-3 py-1 rounded bg-white dark:bg-[#18181b] hover:bg-white/[0.05] dark:hover:bg-white/[0.08]"
                 aria-label="Acknowledge alert"
               >
                 ✓
               </button>
               <button
                 onClick={() => removeAlert(alert.id)}
-                className="text-xs px-3 py-1 rounded bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="text-xs px-3 py-1 rounded bg-white dark:bg-[#18181b] hover:bg-white/[0.05] dark:hover:bg-white/[0.08]"
                 aria-label="Dismiss alert"
               >
                 ✕
@@ -302,7 +302,7 @@ export function RealtimeAlertsFeed() {
       ))}
 
       {alerts.length === 0 && (
-        <div className="text-center py-3 text-gray-700 dark:text-gray-700">
+        <div className="text-center py-3 text-white/40 dark:text-white/40">
           No active alerts
         </div>
       )}
@@ -413,7 +413,7 @@ export function LiveVehicleList({ onVehicleClick }: { onVehicleClick?: (vehicle:
           active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
           maintenance: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
           offline: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-          retired: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+          retired: 'bg-white/[0.05] text-white/60 dark:bg-[#111113] dark:text-white/80',
         }
 
         return (

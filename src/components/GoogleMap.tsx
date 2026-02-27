@@ -5,7 +5,7 @@ import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "@/componen
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import type { MarkerStyle, MarkerSize } from "@/stores/useMapMarkerSettings"
 import logger from '@/utils/logger';
-import { buildVehicleMarkerIcon, buildSelectedMarkerIcon, getStatusColor } from "@/utils/vehicle-map-icons"
+import { buildVehicleMarkerIcon, buildSelectedMarkerIcon, getStatusColor, type VehicleMarkerData } from "@/utils/vehicle-map-icons"
 import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
 /**
  * Props for the GoogleMap component
@@ -500,9 +500,18 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
           const isSelected = selectedVehicleId === vehicle.id
           const vehicleType = vehicle.type || (vehicle as any).vehicle_type || 'sedan'
           const statusClr = getStatusColor(vehicle.status)
+
+          // Gather optional vehicle data for enhanced marker rendering
+          const v = vehicle as any
+          const markerData: VehicleMarkerData = {
+            fuelPercent: v.fuel_level ?? v.fuelLevel ?? v.fuel_percent ?? v.battery_percent ?? v.batteryPercent ?? undefined,
+            speed: v.speed ?? v.current_speed ?? v.currentSpeed ?? undefined,
+            heading: v.heading ?? v.bearing ?? undefined,
+          }
+
           const markerIcon = isSelected
-            ? buildSelectedMarkerIcon(vehicleType, statusClr, markerStyle, markerSize)
-            : buildVehicleMarkerIcon(vehicleType, statusClr, markerStyle, markerSize)
+            ? buildSelectedMarkerIcon(vehicleType, statusClr, markerStyle, markerSize, markerData)
+            : buildVehicleMarkerIcon(vehicleType, statusClr, markerStyle, markerSize, markerData)
 
           const marker = new google.maps.Marker({
             position: coords,
@@ -599,7 +608,7 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
             optimized: true,
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
-              fillColor: camera.operational ? "#3b82f6" : "#6b7280",
+              fillColor: camera.operational ? "#10b981" : "#6b7280",
               fillOpacity: 1,
               strokeColor: "#ffffff",
               strokeWeight: 2,
@@ -741,7 +750,7 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
         <div className="text-center p-3 max-w-md">
           <div className="text-sm mb-2">⚠️</div>
           <p className="text-destructive font-semibold mb-2">Map Error</p>
-          <p className="text-sm text-muted-foreground mb-2">{error}</p>
+          <p className="text-sm text-white/60 mb-2">{error}</p>
           <button
             onClick={retryLoad}
             className="px-2 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
@@ -755,7 +764,7 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
             Switch to Grid View
           </button>
           {retryCount > 0 && (
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="text-xs text-white/35 mt-2">
               Retry attempts: {retryCount}
             </p>
           )}
@@ -773,16 +782,16 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
     >
       <div ref={mapRef} className="absolute inset-0 w-full h-full rounded-lg overflow-hidden" />
       {isLoading && (
-        <div data-testid="loading-indicator" className="absolute inset-0 w-full h-full flex items-center justify-center bg-background/95 backdrop-blur-sm">
+        <div data-testid="loading-indicator" className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#0a0a0a]">
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-2">
               <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
               <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
             </div>
-            <p className="text-sm font-medium text-foreground mb-1">
+            <p className="text-sm font-medium text-white mb-1">
               Loading Google Maps...
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-white/35">
               React 19 Compatible • Production Ready
             </p>
           </div>
@@ -878,7 +887,7 @@ function createCameraInfoHTML(camera: TrafficCamera): string {
           rel="noopener noreferrer"
           style="
             display: inline-block;
-            background-color: #3b82f6;
+            background-color: #10b981;
             color: white;
             padding: 8px 16px;
             border-radius: 6px;
@@ -887,8 +896,8 @@ function createCameraInfoHTML(camera: TrafficCamera): string {
             font-weight: 500;
             transition: background-color 0.2s;
           "
-          onmouseover="this.style.backgroundColor='#2563eb'"
-          onmouseout="this.style.backgroundColor='#3b82f6'"
+          onmouseover="this.style.backgroundColor='#059669'"
+          onmouseout="this.style.backgroundColor='#10b981'"
         >
           📹 View Live Feed
         </a>

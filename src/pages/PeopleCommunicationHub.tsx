@@ -174,11 +174,11 @@ const PeopleTabContent = memo(function PeopleTabContent() {
   // P1-5: Loading state
   if (peopleLoading) {
     return (
-      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-1.5">
+      <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Skeleton className="h-64" />
           <Skeleton className="h-64" />
         </div>
@@ -187,9 +187,9 @@ const PeopleTabContent = memo(function PeopleTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           title="Total Employees"
           value={formatNumber(userRows.length)}
@@ -218,7 +218,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
       </div>
 
       {/* Main Content: Two columns */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* Left Column: Team Overview */}
         {/* P1-11: Action button placeholder for team management */}
         <Section
@@ -234,7 +234,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
                 {teamRows.map((dept: any) => (
                   <div
                     key={dept.id}
-                    className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                    className="flex items-center justify-between rounded border border-white/[0.04] bg-[#111111] p-2.5"
                     title="Team details coming soon"
                   >
                     <div className="flex items-center gap-2">
@@ -257,7 +257,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
         </Section>
 
         {/* Right Column: Recently Added Users + Training */}
-        <div className="flex flex-col gap-1.5 min-h-0">
+        <div className="flex flex-col gap-3 min-h-0">
           {/* P1-6: Renamed from "Recent Activity" to "Recently Added Users" */}
           <Section
             title="Recently Added Users"
@@ -272,7 +272,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
                   {recentUsers.map((user, index) => (
                     <div
                       key={index}
-                      className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                      className="flex items-start gap-2 rounded border border-white/[0.04] bg-[#111111] p-2.5"
                       title="User details coming soon"
                     >
                       {/* P1-6: UserPlus for active, UserX for inactive */}
@@ -309,7 +309,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
                     // P1-7: Conditional progress bar colors
                     const completionPct = training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0
                     return (
-                      <div key={training.program} className="rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                      <div key={training.program} className="rounded border border-white/[0.04] bg-[#111111] p-2.5">
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-medium text-foreground">{training.program}</p>
                           <p className="text-xs text-muted-foreground">
@@ -401,11 +401,11 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
   // P1-5: Loading state
   if (communicationLoading) {
     return (
-      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-1.5">
+      <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Skeleton className="h-64" />
           <Skeleton className="h-64" />
         </div>
@@ -414,9 +414,9 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           title="Unread Messages"
           value={formatNumber(unreadCount)}
@@ -445,7 +445,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
       </div>
 
       {/* Main Content: Two columns */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* Left Column: Communication Log */}
         {/* P1-11: Add "Compose" button */}
         <Section
@@ -461,7 +461,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
                 {messages.slice(0, 8).map((msg: any) => (
                   <div
                     key={msg.id}
-                    className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                    className="flex items-start gap-2 rounded border border-white/[0.04] bg-[#111111] p-2.5"
                     title="Message details coming soon"
                   >
                     <User className="h-4 w-4 text-muted-foreground mt-0.5" />
@@ -486,7 +486,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
         </Section>
 
         {/* Right Column: Announcements + Channels */}
-        <div className="flex flex-col gap-1.5 min-h-0">
+        <div className="flex flex-col gap-3 min-h-0">
           <Section
             title="Announcements"
             description="Company-wide notifications"
@@ -498,7 +498,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
               ) : (
                 <div className="space-y-1.5">
                   {announcementRows.slice(0, 5).map((announcement: any) => (
-                    <div key={announcement.id} className="rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                    <div key={announcement.id} className="rounded border border-white/[0.04] bg-[#111111] p-2.5">
                       <div className="flex items-center justify-between mb-1">
                         <Badge variant="secondary">{formatEnum(announcement.type) || 'Announcement'}</Badge>
                         <p className="text-xs text-muted-foreground">
@@ -526,7 +526,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
                   {channelRows.map((channel: any) => (
                     <div
                       key={channel.id}
-                      className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                      className="flex items-center justify-between rounded border border-white/[0.04] bg-[#111111] p-2.5"
                       title="Channel details coming soon"
                     >
                       <div className="flex items-center gap-2">
@@ -685,11 +685,11 @@ const WorkTabContent = memo(function WorkTabContent() {
   // P1-5: Loading state
   if (tasksLoading) {
     return (
-      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-1.5">
+      <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Skeleton className="h-64" />
           <Skeleton className="h-64" />
         </div>
@@ -698,9 +698,9 @@ const WorkTabContent = memo(function WorkTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           title="Active Tasks"
           value={formatNumber(activeTasks.length)}
@@ -729,7 +729,7 @@ const WorkTabContent = memo(function WorkTabContent() {
       </div>
 
       {/* Main Content: Two columns */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* Left Column: Task Board */}
         {/* P0-4: Add Task button in Section actions */}
         <Section
@@ -743,7 +743,7 @@ const WorkTabContent = memo(function WorkTabContent() {
           }
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-3 gap-3">
               {taskColumns.map((column) => (
                 <div key={column.status}>
                   <div className="flex items-center justify-between mb-1.5">
@@ -761,7 +761,7 @@ const WorkTabContent = memo(function WorkTabContent() {
                         return (
                           <div
                             key={task.id}
-                            className="rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04]"
+                            className="rounded border border-white/[0.04] bg-[#111111] p-2 cursor-pointer hover:bg-white/[0.04]"
                             onClick={() => push({
                               id: task.id,
                               type: 'task',
@@ -823,7 +823,7 @@ const WorkTabContent = memo(function WorkTabContent() {
         </Section>
 
         {/* Right Column: Upcoming Deadlines */}
-        <div className="flex flex-col gap-1.5 min-h-0">
+        <div className="flex flex-col gap-3 min-h-0">
           {/* P1-13: Rename "This Week's Schedule" to "Upcoming Deadlines" */}
           <Section
             title="Upcoming Deadlines"
@@ -836,7 +836,7 @@ const WorkTabContent = memo(function WorkTabContent() {
               ) : (
                 <div className="space-y-1.5">
                   {upcomingDeadlines.slice(0, 5).map((item: any) => (
-                    <div key={item.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                    <div key={item.id} className="flex items-center justify-between rounded border border-white/[0.04] bg-[#111111] p-2.5">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <div>
@@ -866,7 +866,7 @@ const WorkTabContent = memo(function WorkTabContent() {
               ) : (
                 <div className="space-y-1.5">
                   {meetings.map((meeting: any) => (
-                    <div key={meeting.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                    <div key={meeting.id} className="flex items-center justify-between rounded border border-white/[0.04] bg-[#111111] p-2.5">
                       <div className="flex items-center gap-2">
                         <Video className="h-4 w-4 text-muted-foreground" />
                         <div>
@@ -894,7 +894,7 @@ const WorkTabContent = memo(function WorkTabContent() {
 
       {/* Meeting Details Dialog */}
       <Dialog open={!!selectedMeeting} onOpenChange={(open) => { if (!open) setSelectedMeeting(null); }}>
-        <DialogContent className="bg-[#242424] border-white/[0.08]">
+        <DialogContent className="bg-[#111111] border-white/[0.04]">
           <DialogHeader>
             <DialogTitle>{selectedMeeting?.subject || selectedMeeting?.title || 'Meeting Details'}</DialogTitle>
           </DialogHeader>
@@ -935,7 +935,7 @@ const WorkTabContent = memo(function WorkTabContent() {
 
       {/* P0-4: Add Task Dialog */}
       <Dialog open={showAddTask} onOpenChange={setShowAddTask}>
-        <DialogContent className="bg-[#242424] border-white/[0.08]">
+        <DialogContent className="bg-[#111111] border-white/[0.04]">
           <DialogHeader>
             <DialogTitle>Create Task</DialogTitle>
           </DialogHeader>
@@ -944,16 +944,16 @@ const WorkTabContent = memo(function WorkTabContent() {
               placeholder="Task title"
               value={newTask.title}
               onChange={e => setNewTask(p => ({...p, title: e.target.value}))}
-              className="bg-[#1a1a1a] border-white/[0.08]"
+              className="bg-[#1a1a1a] border-white/[0.04]"
             />
             <Input
               placeholder="Description"
               value={newTask.description}
               onChange={e => setNewTask(p => ({...p, description: e.target.value}))}
-              className="bg-[#1a1a1a] border-white/[0.08]"
+              className="bg-[#1a1a1a] border-white/[0.04]"
             />
             <select
-              className="w-full rounded-md bg-[#1a1a1a] border border-white/[0.08] text-white/80 p-2 text-sm"
+              className="w-full rounded-md bg-[#1a1a1a] border border-white/[0.04] text-white/80 p-2 text-sm"
               value={newTask.priority}
               onChange={e => setNewTask(p => ({...p, priority: e.target.value}))}
             >
@@ -987,7 +987,7 @@ export default function PeopleCommunicationHub() {
       icon={Users}
       className="cta-hub"
     >
-      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
+      <div className="flex flex-col h-full gap-3 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="people" className="flex items-center gap-2" data-testid="hub-tab-people">

@@ -218,7 +218,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
       case 'cancelled':
         return <XCircle className="h-5 w-5 text-red-500" />
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-700" />
+        return <AlertCircle className="h-5 w-5 text-white/40" />
     }
   }
 
@@ -280,7 +280,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
 
           {/* Cost Summary */}
           <div className="grid grid-cols-3 gap-2">
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleViewParts}>
+            <Card className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={handleViewParts}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Package className="h-4 w-4" />
@@ -299,7 +299,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleViewLabor}>
+            <Card className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={handleViewLabor}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Users className="h-4 w-4" />
@@ -975,8 +975,8 @@ function WOCategoryBadge({ category }: { category: string }) {
   const colorMap: Record<string, string> = {
     preventive: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     corrective: 'bg-orange-100 text-orange-800 border-orange-200',
-    inspection: 'bg-purple-100 text-purple-800 border-purple-200',
-    body_work: 'bg-gray-100 text-gray-800 border-gray-200',
+    inspection: 'bg-amber-100 text-amber-800 border-amber-200',
+    body_work: 'bg-white/[0.05] text-white/60 border-white/[0.08]',
     electrical: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     tire_service: 'bg-green-100 text-green-800 border-green-200',
   }

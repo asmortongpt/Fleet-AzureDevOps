@@ -93,7 +93,7 @@ export function DrilldownPanel({
     <div
       data-testid="drilldown-panel"
       className={cn(
-        "fixed inset-0 bg-[#111]/95 backdrop-blur-sm z-50 overflow-auto",
+        "fixed inset-0 bg-[#0e0e0e] z-50 overflow-auto",
         className
       )}
       role="dialog"
@@ -101,7 +101,7 @@ export function DrilldownPanel({
       aria-labelledby={title ? "drilldown-panel-title" : undefined}
     >
       {/* Sticky Header */}
-      <div className="sticky top-0 bg-[#1a1a1a] border-b border-white/[0.08] shadow-sm z-10">
+      <div className="sticky top-0 bg-[#1a1a1a] border-b border-white/[0.04] z-10">
         <div className="flex items-center justify-between p-2 gap-2">
           {/* Left: Back button + Title */}
           <div className="flex items-center gap-3 flex-1 min-w-0">

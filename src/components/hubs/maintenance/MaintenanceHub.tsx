@@ -242,11 +242,11 @@ export function MaintenanceHub() {
     switch (category?.toLowerCase()) {
       case 'preventive': return 'bg-emerald-500/10 text-emerald-800 border-emerald-500/20';
       case 'corrective': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'inspection': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'body_work': return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'inspection': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'body_work': return 'bg-white/[0.05] text-white/60 border-white/[0.08]';
       case 'electrical': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'tire_service': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-white/[0.05] text-white/70 border-white/[0.08]';
+      default: return 'bg-white/[0.05] text-white/70 border-white/[0.04]';
     }
   };
 
@@ -357,7 +357,7 @@ export function MaintenanceHub() {
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'downtime')}>
           <CardContent className="p-2">
             <div className="flex items-center gap-2">
-              <Timer className="w-3 h-3 text-purple-500" />
+              <Timer className="w-3 h-3 text-amber-500" />
               <div>
                 <p className="text-xs text-muted-foreground">Total Downtime</p>
                 <p className="text-sm font-bold">{metrics.totalDowntime.toFixed(1)}h</p>
@@ -575,7 +575,7 @@ export function MaintenanceHub() {
                     <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
                       {wo.downtime_hours != null && wo.downtime_hours > 0 && (
                         <span className="flex items-center gap-1">
-                          <Timer className="w-3 h-3 text-purple-500" />
+                          <Timer className="w-3 h-3 text-amber-500" />
                           Downtime: {wo.downtime_hours.toFixed(1)}h
                         </span>
                       )}

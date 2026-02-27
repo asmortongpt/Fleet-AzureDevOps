@@ -214,15 +214,15 @@ export function RoutesOperations() {
           setIsCreating(false);
         }}
         className={cn(
-          'p-4 border-b border-white/[0.08] cursor-pointer transition-colors',
+          'p-4 border-b border-white/[0.04] cursor-pointer transition-colors',
           'hover:bg-muted',
           isSelected && 'bg-muted border-l-4 border-l-foreground'
         )}
       >
         <div className="flex items-start justify-between gap-3">
           {/* Route Icon */}
-          <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-gradient-to-br from-violet-400/20 to-pink-500/20 flex items-center justify-center border border-white/[0.08]">
-            <MapPin className="w-6 h-6 text-violet-400" />
+          <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center border border-white/[0.04]">
+            <MapPin className="w-6 h-6 text-amber-400" />
           </div>
 
           {/* Route Info */}
@@ -234,7 +234,7 @@ export function RoutesOperations() {
               {route.stops.length} stops • {distance} mi • {formatDuration(route.estimatedDuration)}
             </p>
             {nextStop && (
-              <p className="text-xs text-cyan-300 mt-1">
+              <p className="text-xs text-emerald-300 mt-1">
                 Next: {nextStop.address}
               </p>
             )}
@@ -276,7 +276,7 @@ export function RoutesOperations() {
   const detailContent = () => {
     if (isCreating) {
       return (
-        <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-4">New Route</h4>
           <div className="space-y-3">
             <Input
@@ -309,7 +309,7 @@ export function RoutesOperations() {
     return (
       <div className="space-y-4">
         {/* Route Summary */}
-        <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-4">Route Details</h4>
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
@@ -336,7 +336,7 @@ export function RoutesOperations() {
         </div>
 
         {/* Optimization Score */}
-        <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-3">Efficiency Score</h4>
           <div className="mb-3">
             <div className="flex justify-between items-center mb-2">
@@ -360,7 +360,7 @@ export function RoutesOperations() {
           <Button
             onClick={handleOptimize}
             size="sm"
-            className="bg-violet-500 hover:bg-violet-400 text-white w-full"
+            className="bg-amber-500 hover:bg-amber-400 text-white w-full"
           >
             <Zap className="w-4 h-4" />
             <span className="ml-2">Optimize Route</span>
@@ -369,7 +369,7 @@ export function RoutesOperations() {
 
         {/* Route Stops */}
         {selectedRoute.stops.length > 0 && (
-          <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+          <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
             <h4 className="text-sm font-bold text-white mb-3">Stops ({selectedRoute.stops.length})</h4>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {selectedRoute.stops.map((stop) => (
@@ -395,7 +395,7 @@ export function RoutesOperations() {
 
         {/* Notes */}
         {selectedRoute.notes && (
-          <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+          <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
             <h4 className="text-sm font-bold text-white mb-2">Notes</h4>
             <p className="text-xs text-white/60">{selectedRoute.notes}</p>
           </div>
@@ -410,7 +410,7 @@ export function RoutesOperations() {
   const listPanel = (
     <div className="flex flex-col h-full">
       {/* Search Bar */}
-      <div className="p-4 border-b border-white/[0.08]">
+      <div className="p-4 border-b border-white/[0.04]">
         <div className="relative">
           <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70"
@@ -482,7 +482,7 @@ export function RoutesOperations() {
               setSelectedRouteId(null);
             }}
             size="sm"
-            className="bg-violet-500 hover:bg-violet-400 text-white"
+            className="bg-amber-500 hover:bg-amber-400 text-white"
           >
             <Plus className="w-4 h-4" />
             <span className="ml-2">New Route</span>

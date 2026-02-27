@@ -328,7 +328,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
           </Card>
           <Card>
             <CardContent className="p-2 text-center">
-              <div className="text-sm font-bold text-purple-600">
+              <div className="text-sm font-bold text-amber-600">
                 {metrics.completedStops}/{metrics.totalStops}
               </div>
               <div className="text-xs text-muted-foreground">Stops Complete</div>

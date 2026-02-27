@@ -89,7 +89,7 @@ export function DriverActivityFeed({
       case 'on-break':
         return 'bg-amber-500';
       case 'offline':
-        return 'bg-gray-400';
+        return 'bg-white/[0.10]';
       default:
         return 'bg-white/[0.15]';
     }
@@ -149,7 +149,7 @@ export function DriverActivityFeed({
               <div
                 key={driver.id}
                 onClick={() => onDriverClick?.(driver.id)}
-                className="p-3 rounded-lg border border-white/[0.08] hover:border-emerald-500/30 hover:shadow-sm transition-all cursor-pointer"
+                className="p-3 rounded-lg border border-white/[0.04] hover:border-emerald-500/30  transition-all cursor-pointer"
               >
                 <div className="flex items-start gap-3">
                   {/* Avatar with status indicator */}
@@ -197,7 +197,7 @@ export function DriverActivityFeed({
                     )}
 
                     {/* Last update */}
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.08]">
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.04]">
                       <div className="flex items-center gap-1 text-xs text-white/40">
                         <Clock className="h-3 w-3" />
                         {driver.lastUpdate ? (

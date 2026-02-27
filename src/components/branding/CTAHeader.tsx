@@ -1,9 +1,9 @@
 /**
  * CTA-Branded Header Component
- * Official Capital Technology Alliance branding with ArchonY logo
+ * Official Capital Technology Alliance branding with CTA Fleet logo
  *
  * Features:
- * - ArchonY logo with animated swoosh
+ * - CTA Fleet logo with animated swoosh
  * - Official CTA color palette
  * - Responsive design
  * - Reusable across all pages
@@ -32,7 +32,7 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
 
   return (
     <div className={`flex flex-col items-center justify-center ${className}`}>
-      {/* ArchonY Logo with Swoosh */}
+      {/* CTA Fleet Logo with Swoosh */}
       <div className={`relative ${s.container} flex flex-col items-center justify-center mb-2`}>
         {/* Curved Swoosh Element - CTA Official Gradient */}
         <svg
@@ -60,7 +60,7 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
           />
         </svg>
 
-        {/* ArchonY Typography */}
+        {/* CTA Fleet Typography */}
         <div className="relative z-10 mt-8">
           <div
             className={`${s.logo} font-bold tracking-wider mb-0.5`}
@@ -76,7 +76,7 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
               backgroundClip: 'text'
             }}
           >
-            ARCHON·Y
+            CTA FLEET
           </div>
           {showTagline && (
             <div
@@ -87,7 +87,7 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
                 fontWeight: 600
               }}
             >
-              INTELLIGENT PERFORMANCE
+              FLEET COMMAND
             </div>
           )}
         </div>

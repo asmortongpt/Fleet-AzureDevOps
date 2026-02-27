@@ -53,7 +53,7 @@ export function Login() {
       <div className="relative w-full max-w-md">
         {/* Logo and Branding */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-[hsl(var(--warning))] to-[hsl(var(--destructive))] shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-2xl bg-emerald-500">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
@@ -67,7 +67,7 @@ export function Login() {
         </div>
 
         {/* Login Card */}
-        <div className="bg-card/90 text-card-foreground rounded-2xl shadow-2xl border border-border/50 overflow-hidden">
+        <div className="bg-[#111111] text-white rounded-2xl border border-white/[0.04] overflow-hidden">
           <div className="p-10">
             {/* Error Alert */}
             {(urlError || emailLoginMutation.isError) && (
@@ -85,7 +85,7 @@ export function Login() {
                 <Button
                   onClick={() => loginWithMicrosoft()}
                   size="lg"
-                  className="w-full h-14 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))] text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-base transition-all duration-200"
                 >
                   <svg className="w-5 h-5 mr-3" viewBox="0 0 23 23">
                     <path fill="hsl(var(--primary-foreground))" d="M1 1h10v10H1z" opacity="0.9" />
@@ -176,7 +176,7 @@ export function Login() {
           </div>
 
           {/* Security Footer */}
-          <div className="bg-muted/40 px-10 py-4 border-t border-border/50">
+          <div className="bg-white/[0.03] px-10 py-4 border-t border-white/[0.04]">
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <Lock className="w-3.5 h-3.5" />
               <span className="font-medium">256-bit encrypted connection</span>

@@ -171,11 +171,11 @@ export function GuidedScanFlow({ onComplete, onCancel }: GuidedScanFlowProps) {
             <img
               src={previews[currentStep]!}
               alt={`${currentAngle.label} capture`}
-              className="w-full h-auto rounded-xl border border-white/[0.08] max-h-[200px] object-contain bg-[#0a0a0a]"
+              className="w-full h-auto rounded-xl border border-white/[0.04] max-h-[200px] object-contain bg-[#0a0a0a]"
             />
             <button
               onClick={handleRetake}
-              className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-lg bg-[#111]/90 text-xs text-white/70 hover:text-white hover:bg-white/[0.12] transition-colors border border-white/[0.08]"
+              className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-lg bg-[#111]/90 text-xs text-white/70 hover:text-white hover:bg-white/[0.12] transition-colors border border-white/[0.04]"
             >
               <RotateCcw className="w-3 h-3" />
               Retake

@@ -52,7 +52,7 @@ export function SystemStatusPanel({
       case 'error':
         return 'text-red-600 dark:text-red-400'
       default:
-        return 'text-white/40 dark:text-gray-700'
+        return 'text-white/40 dark:text-white/40'
     }
   }
 
@@ -82,7 +82,7 @@ export function SystemStatusPanel({
   }
 
   return (
-    <Card className="shadow-sm border-border/50">
+    <Card className="border-border/50">
       <CardHeader className="px-2 py-3 border-b border-border/50 bg-muted/30">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -156,7 +156,7 @@ export function SystemStatusPanel({
                           className={`w-1.5 h-1.5 flex-shrink-0 ${
                             emulator.status === 'connected'
                               ? 'fill-green-500 text-green-500 animate-pulse'
-                              : 'fill-gray-400 text-gray-700'
+                              : 'fill-white/30 text-white/40'
                           }`}
                          
                         />

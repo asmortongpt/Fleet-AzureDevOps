@@ -92,7 +92,7 @@ function getMaintenanceStatusVariant(status: string): 'success-subtle' | 'warnin
 
 function getTimelineIcon(type: string) {
   switch (type) {
-    case 'started': return <Power className="h-3.5 w-3.5 text-sky-400" />;
+    case 'started': return <Power className="h-3.5 w-3.5 text-teal-400" />;
     case 'trip': return <Route className="h-3.5 w-3.5 text-emerald-400" />;
     case 'fuel': return <Fuel className="h-3.5 w-3.5 text-amber-400" />;
     default: return <CircleDot className="h-3.5 w-3.5 text-muted-foreground" />;
@@ -101,7 +101,7 @@ function getTimelineIcon(type: string) {
 
 function getTimelineDotColor(type: string): string {
   switch (type) {
-    case 'started': return 'bg-sky-500';
+    case 'started': return 'bg-teal-500';
     case 'trip': return 'bg-emerald-500';
     case 'fuel': return 'bg-amber-500';
     default: return 'bg-muted-foreground';
@@ -160,7 +160,7 @@ const timelineEvents = [
 
 function FieldRow({ icon, label, value, mono }: { icon: React.ReactNode; label: string; value: React.ReactNode; mono?: boolean }) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-white/[0.08] last:border-b-0">
+    <div className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-b-0">
       <div className="flex items-center gap-2 text-muted-foreground">
         {icon}
         <span className="text-xs">{label}</span>
@@ -230,7 +230,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b border-white/[0.08] px-3 py-2.5">
+      <div className="border-b border-white/[0.04] px-3 py-2.5">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-foreground">
@@ -248,7 +248,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-        <TabsList className="w-full justify-start border-b border-white/[0.08] rounded-none px-1">
+        <TabsList className="w-full justify-start border-b border-white/[0.04] rounded-none px-1">
           <TabsTrigger value="overview" className="gap-1.5 text-xs">
             <Car className="h-3.5 w-3.5" />
             Overview
@@ -273,7 +273,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="p-3 space-y-3">
-          <Card className="bg-[#242424] border-white/[0.08] p-3">
+          <Card className="bg-[#111111] border-white/[0.04] p-3">
             <h3 className="text-xs font-semibold text-foreground mb-1">Vehicle Information</h3>
             <div>
               <FieldRow
@@ -295,7 +295,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
             </div>
           </Card>
 
-          <Card className="bg-[#242424] border-white/[0.08] p-3">
+          <Card className="bg-[#111111] border-white/[0.04] p-3">
             <h3 className="text-xs font-semibold text-foreground mb-1">Current Status</h3>
             <div>
               <FieldRow
@@ -326,7 +326,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
 
         {/* Live Tab */}
         <TabsContent value="live" className="p-3 space-y-3">
-          <Card className="bg-[#242424] border-white/[0.08] p-3">
+          <Card className="bg-[#111111] border-white/[0.04] p-3">
             <h3 className="text-xs font-semibold text-foreground mb-3">Live Vehicle Location</h3>
             {vehicle.location ? (
               <div className="space-y-3">
@@ -362,7 +362,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
 
                 <button
                   type="button"
-                  className="w-full flex items-center justify-center gap-2 rounded-md border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-xs font-medium text-foreground"
+                  className="w-full flex items-center justify-center gap-2 rounded-md border border-white/[0.04] bg-white/[0.04] px-3 py-2 text-xs font-medium text-foreground"
                 >
                   <MapPin className="h-3.5 w-3.5" />
                   View on Map
@@ -378,7 +378,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
 
         {/* Telemetry Tab */}
         <TabsContent value="telemetry" className="p-3">
-          <Card className="bg-[#242424] border-white/[0.08] p-3">
+          <Card className="bg-[#111111] border-white/[0.04] p-3">
             <h3 className="text-xs font-semibold text-foreground mb-1">OBD2 Diagnostics</h3>
             <p className="text-xs text-muted-foreground mb-3">
               Vehicle ID: {vehicle.id}
@@ -389,8 +389,8 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
 
         {/* Maintenance Tab */}
         <TabsContent value="maintenance" className="p-3">
-          <Card className="bg-[#242424] border-white/[0.08] p-0 overflow-hidden">
-            <div className="px-3 py-2.5 border-b border-white/[0.08]">
+          <Card className="bg-[#111111] border-white/[0.04] p-0 overflow-hidden">
+            <div className="px-3 py-2.5 border-b border-white/[0.04]">
               <h3 className="text-xs font-semibold text-foreground">Maintenance History</h3>
             </div>
             {maintenanceRecords.length === 0 ? (
@@ -436,8 +436,8 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
 
         {/* Timeline Tab */}
         <TabsContent value="timeline" className="p-3">
-          <Card className="bg-[#242424] border-white/[0.08] p-0 overflow-hidden">
-            <div className="px-3 py-2.5 border-b border-white/[0.08]">
+          <Card className="bg-[#111111] border-white/[0.04] p-0 overflow-hidden">
+            <div className="px-3 py-2.5 border-b border-white/[0.04]">
               <h3 className="text-xs font-semibold text-foreground">Activity Timeline</h3>
             </div>
             {timelineEvents.length === 0 ? (

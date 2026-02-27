@@ -57,9 +57,8 @@ export function TrafficCameraControlPanel({
     if (!isVisible) return null;
 
     return (
-        <Card className="fixed top-24 right-2 sm:right-6 w-[calc(100%-1rem)] sm:w-80 shadow-sm z-40 border border-white/20 bg-white/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-lg overflow-hidden ring-1 ring-black/5">
-            <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
-            <CardHeader className="pb-2 border-b border-black/5 flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/40">
+        <Card className="fixed top-24 right-2 sm:right-6 w-[calc(100%-1rem)] sm:w-80 z-40 border border-white/[0.04] bg-[#0e0e0e] animate-in slide-in-from-right-10 rounded-lg overflow-hidden">
+            <CardHeader className="pb-2 border-b border-white/[0.04] flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/[0.03]">
                 <div>
                     <CardTitle className="text-base font-bold flex items-center gap-2 text-white/80">
                         <div className="p-1.5 bg-emerald-500/10 rounded-md border border-emerald-500/20">
@@ -72,17 +71,17 @@ export function TrafficCameraControlPanel({
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                         </div>
-                        <span className="text-[10px] uppercase tracking-wider text-gray-800 font-semibold">Live Monitoring</span>
+                        <span className="text-[10px] uppercase tracking-wider text-white/35 font-semibold">Live Monitoring</span>
                     </div>
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose} aria-label="Close traffic camera panel">
+                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/[0.06] rounded-full" onClick={onClose} aria-label="Close traffic camera panel">
                     <X className="w-4 h-4 text-white/40" />
                 </Button>
             </CardHeader>
             <CardContent className="pt-2 space-y-2">
 
                 {/* Sync Controls */}
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="flex items-center justify-between text-xs text-white/60">
                     <span>{sources.length} Sources Active</span>
                     <Button
                         variant="ghost"
@@ -99,7 +98,7 @@ export function TrafficCameraControlPanel({
                 {/* Filters */}
                 <div className="space-y-3">
                     <div className="relative">
-                        <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-muted-foreground" />
+                        <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-white/60" />
                         <Input
                             placeholder="Search cameras..."
                             value={filters.search}
@@ -142,11 +141,11 @@ export function TrafficCameraControlPanel({
                 <div className="pt-2 border-t flex gap-2 justify-center">
                     <div className="flex items-center gap-1.5">
                         <div className="w-2 h-2 rounded-full bg-green-500" />
-                        <span className="text-xs text-muted-foreground">Active</span>
+                        <span className="text-xs text-white/60">Active</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <div className="w-2 h-2 rounded-full bg-red-500" />
-                        <span className="text-xs text-muted-foreground">Offline</span>
+                        <span className="text-xs text-white/60">Offline</span>
                     </div>
                 </div>
 

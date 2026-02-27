@@ -478,7 +478,7 @@ export function MapSettings() {
               <div
                 key={provider.id}
                 className={`border rounded-lg transition-all ${
-                  isSelected ? "border-primary bg-primary/5 shadow-sm" : ""
+                  isSelected ? "border-primary bg-primary/5" : ""
                 } ${!validation?.isAvailable && !isCurrentProvider ? "opacity-60" : ""}`}
               >
                 <div className="flex items-start space-x-3 p-2">

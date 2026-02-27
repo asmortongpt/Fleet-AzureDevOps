@@ -243,7 +243,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
     }
 
     return (
-      <Badge className={colors[type] || 'bg-gray-500/10'}>
+      <Badge className={colors[type] || 'bg-white/[0.03]0/10'}>
         {type}
       </Badge>
     )

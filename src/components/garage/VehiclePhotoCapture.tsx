@@ -189,7 +189,7 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
               onClick={() => setSelectedSlot(i)}
               className={cn(
                 'relative w-10 h-10 rounded-lg border flex-shrink-0 overflow-hidden transition-all',
-                'border-white/[0.08] bg-white/[0.03]',
+                'border-white/[0.04] bg-white/[0.03]',
                 isSelected && 'ring-2 ring-emerald-500',
                 !isCaptured && !isSelected && 'hover:bg-white/[0.06]'
               )}
@@ -240,12 +240,12 @@ export function VehiclePhotoCapture({ onCapture, maxPhotos = 8 }: VehiclePhotoCa
             <img
               src={previews[selectedSlot]!}
               alt={`${currentAngle.label} capture`}
-              className="w-full h-auto rounded-xl border border-white/[0.08] max-h-[220px] object-contain bg-[#0a0a0a]"
+              className="w-full h-auto rounded-xl border border-white/[0.04] max-h-[220px] object-contain bg-[#0a0a0a]"
             />
             <button
               type="button"
               onClick={handleRetake}
-              className="absolute top-2 right-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#111]/90 text-xs text-white/70 hover:text-white hover:bg-white/[0.12] transition-colors border border-white/[0.08]"
+              className="absolute top-2 right-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#111]/90 text-xs text-white/70 hover:text-white hover:bg-white/[0.12] transition-colors border border-white/[0.04]"
             >
               <RotateCcw className="w-3 h-3" />
               Retake

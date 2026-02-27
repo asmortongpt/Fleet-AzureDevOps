@@ -107,9 +107,9 @@ export const VehicleGrid: React.FC = () => {
     active: 'bg-green-500/10 text-green-500 border-green-500/20',
     maintenance: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
     inactive: 'bg-red-500/10 text-red-500 border-red-500/20',
-    assigned: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+    assigned: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
     dispatched: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-    en_route: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+    en_route: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
     on_site: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
     completed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   };
@@ -121,7 +121,7 @@ export const VehicleGrid: React.FC = () => {
           <div
             key={vehicle.id}
             onClick={() => setSelectedVehicle(vehicle)}
-            className="group cursor-pointer cta-card hover:border-[rgba(0,204,254,0.6)] hover:shadow-[0_12px_24px_rgba(6,12,26,0.5)] transition-all duration-200"
+            className="group cursor-pointer cta-card hover:border-[rgba(16,185,129,0.6)] hover:shadow-[0_12px_24px_rgba(6,12,26,0.5)] transition-all duration-200"
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === 'Enter' && setSelectedVehicle(vehicle)}

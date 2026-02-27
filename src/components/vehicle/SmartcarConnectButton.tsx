@@ -182,7 +182,7 @@ export function SmartcarConnectButton({
   }
 
   return (
-    <div className={cn('rounded-lg border border-white/[0.08] bg-white/[0.02] p-2.5', className)}>
+    <div className={cn('rounded-lg border border-white/[0.04] bg-white/[0.02] p-2.5', className)}>
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <div className="p-1.5 rounded-md bg-emerald-500/10">

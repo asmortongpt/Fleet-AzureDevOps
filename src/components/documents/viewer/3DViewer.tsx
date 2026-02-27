@@ -49,7 +49,7 @@ export function ThreeDViewer({ document }: ThreeDViewerProps) {
     return (
       <div className="flex items-center justify-center h-full bg-muted/30">
         <div className="text-center max-w-md p-3">
-          <div className="w-24 h-24 mx-auto mb-3 rounded-full bg-background flex items-center justify-center text-indigo-600">
+          <div className="w-24 h-24 mx-auto mb-3 rounded-full bg-background flex items-center justify-center text-emerald-600">
             <Box className="w-12 h-9" />
           </div>
           <h3 className="text-base font-semibold mb-2">{document.name}</h3>

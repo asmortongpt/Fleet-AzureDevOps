@@ -38,7 +38,7 @@ const GRADIENT_COLORS = [
   { id: 'bar-gradient-2', start: '#10B981', end: '#10B981' },
   { id: 'bar-gradient-3', start: '#F59E0B', end: '#F59E0B' },
   { id: 'bar-gradient-4', start: '#EF4444', end: '#EF4444' },
-  { id: 'bar-gradient-5', start: '#8B5CF6', end: '#8B5CF6' },
+  { id: 'bar-gradient-5', start: '#D97706', end: '#D97706' },
   { id: 'bar-gradient-6', start: '#F97316', end: '#F97316' },
 ]
 
@@ -73,7 +73,7 @@ export function ResponsiveBarChart({
     if (active && payload && payload.length) {
       return (
         <div
-          className="bg-background border-2 border-border rounded-xl shadow-xl p-4"
+          className="bg-background border-2 border-border rounded-xl p-4"
         >
           <p className="font-semibold text-sm mb-2">{label}</p>
           {payload.map((entry: any) => (
@@ -112,7 +112,7 @@ export function ResponsiveBarChart({
 
   const barChartContent = loading ? (
     <div
-      className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
+      className="w-full bg-white/[0.04] animate-pulse rounded-lg"
       style={{ height: compact ? '100%' : height }}
     />
   ) : (
@@ -196,7 +196,7 @@ export function ResponsiveBarChart({
 
   return (
     <div>
-      <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <CardTitle className="text-xl font-bold">{title}</CardTitle>
           {description && <CardDescription className="text-sm">{description}</CardDescription>}

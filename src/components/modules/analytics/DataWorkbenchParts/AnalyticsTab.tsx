@@ -327,7 +327,7 @@ export function AnalyticsTab({
             description="Active rate by department"
             data={utilizationByDepartment}
             dataKeys={["utilization"]}
-            colors={["#3b82f6"]}
+            colors={["#10b981"]}
             height={260}
           />
         )}

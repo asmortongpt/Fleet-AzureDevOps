@@ -199,7 +199,7 @@ export function DocumentMap({
   // --------------------------------------------------------------------------
 
   const createMarkerIcon = (categoryColor?: string) => {
-    const color = categoryColor || '#3B82F6'
+    const color = categoryColor || '#10b981'
 
     return L.divIcon({
       className: 'custom-document-marker',
@@ -313,7 +313,7 @@ export function DocumentMap({
       </div>
 
       {/* Document count badge */}
-      <div className="absolute bottom-4 left-4 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg shadow-sm text-sm z-[1000]">
+      <div className="absolute bottom-4 left-4 bg-white dark:bg-[#18181b] px-3 py-2 rounded-lg text-sm z-[1000]">
         <div className="flex items-center gap-2">
           <svg
             className="w-4 h-4 text-emerald-800"
@@ -322,7 +322,7 @@ export function DocumentMap({
           >
             <path d="M4 3C2.89543 3 2 3.89543 2 5V15C2 16.1046 2.89543 17 4 17H16C17.1046 17 18 16.1046 18 15V5C18 3.89543 17.1046 3 16 3H4ZM4 5H16V7H4V5ZM4 9H16V15H4V9Z" />
           </svg>
-          <span className="font-medium text-gray-700 dark:text-gray-300">
+          <span className="font-medium text-white/40 dark:text-white/60">
             {filteredDocuments.length} {filteredDocuments.length === 1 ? 'document' : 'documents'}
           </span>
         </div>

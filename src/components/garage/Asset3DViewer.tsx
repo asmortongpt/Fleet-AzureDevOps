@@ -338,7 +338,7 @@ function DamageMarker({ point, isSelected, onClick }: DamageMarkerProps) {
       {/* Tooltip on hover/select */}
       {isSelected && (
         <Html center distanceFactor={10}>
-          <div className="bg-[#111]/95 text-white text-xs px-3 py-2 rounded-lg shadow-sm whitespace-nowrap border border-white/[0.08]">
+          <div className="bg-[#111111]/95 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap border border-white/[0.04]">
             <div className="font-semibold">{point.zone}</div>
             <div className="text-white/60 capitalize">{point.severity} damage</div>
             {point.description && (
@@ -384,7 +384,7 @@ function HotspotMarker({ hotspot }: { hotspot: VehicleHotspot }) {
           onMouseLeave={() => setHovered(false)}
           className="select-none"
         >
-          <div className="bg-[#111]/85 backdrop-blur-sm rounded-full px-2 py-0.5 border border-white/[0.12] flex items-center gap-1.5 whitespace-nowrap cursor-default transition-transform hover:scale-105">
+          <div className="bg-[#111]/85 backdrop-blur-sm rounded-full px-2 py-0.5 border border-white/[0.04] flex items-center gap-1.5 whitespace-nowrap cursor-default transition-transform hover:scale-105">
             <div className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
             <span className="text-[10px] text-white/70 font-medium">{hotspot.label}</span>
             <span className={`text-[10px] font-bold ${statusClass}`}>
@@ -392,7 +392,7 @@ function HotspotMarker({ hotspot }: { hotspot: VehicleHotspot }) {
             </span>
           </div>
           {hovered && hotspot.detail && (
-            <div className="mt-1 bg-[#111]/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 border border-white/[0.12] whitespace-nowrap">
+            <div className="mt-1 bg-[#111]/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 border border-white/[0.04] whitespace-nowrap">
               <p className="text-[10px] text-white/50">{hotspot.detail}</p>
             </div>
           )}
@@ -684,7 +684,7 @@ class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundary
                 <summary className="text-xs text-white/40 cursor-pointer hover:text-white/60">
                   Error details (dev only)
                 </summary>
-                <pre className="text-xs text-red-400 mt-2 p-3 bg-black/50 rounded overflow-auto max-h-40">
+                <pre className="text-xs text-red-400 mt-2 p-3 bg-[#0a0a0a] rounded overflow-auto max-h-40">
                   {this.state.error.message}
                   {'\n\n'}
                   {this.state.error.stack}
@@ -906,7 +906,7 @@ export function Asset3DViewer({
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#111]/80 backdrop-blur-sm">
+        <div className="absolute inset-0 flex items-center justify-center bg-[#111111]/80">
           <div className="text-center text-white">
             <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm text-white/60">Loading 3D model...</p>
@@ -927,7 +927,7 @@ export function Asset3DViewer({
 
       {/* Camera Preset Controls */}
       {showControls && !loadError && (
-        <div className="absolute top-4 right-4 bg-[#111]/90 backdrop-blur-sm rounded-lg border border-white/[0.08] p-2 space-y-2">
+        <div className="absolute top-4 right-4 bg-[#0e0e0e]/90 backdrop-blur-sm rounded-lg border border-white/[0.04] p-2 space-y-2">
           <h3 className="font-semibold text-sm text-white mb-2">Camera Views</h3>
           <div className="grid grid-cols-2 gap-2">
             {cameraPresetList.map(preset => (
@@ -949,7 +949,7 @@ export function Asset3DViewer({
 
       {/* Device Info Badge — hidden in immersive mode (showControls=false) */}
       {showControls && deviceCapabilities && (
-        <div className="absolute bottom-4 left-4 bg-[#111]/80 text-white text-xs px-3 py-2 rounded-lg border border-white/[0.08] flex items-center gap-2">
+        <div className="absolute bottom-4 left-4 bg-[#111]/80 text-white text-xs px-3 py-2 rounded-lg border border-white/[0.04] flex items-center gap-2">
           <span className={deviceCapabilities.webgl2 ? 'text-emerald-400' : 'text-amber-400'}>&#9679;</span>
           <span className="text-white/60">WebGL {deviceCapabilities.webgl2 ? '2.0' : '1.0'}</span>
           {deviceCapabilities.maxTextureSize && (
@@ -960,7 +960,7 @@ export function Asset3DViewer({
 
       {/* Vehicle Info Badge — hidden in immersive mode */}
       {showControls && (make || model) && (
-        <div className="absolute bottom-4 right-4 bg-[#111]/80 text-white/60 text-xs px-3 py-2 rounded-lg border border-white/[0.08]">
+        <div className="absolute bottom-4 right-4 bg-[#111]/80 text-white/60 text-xs px-3 py-2 rounded-lg border border-white/[0.04]">
           {year && <span>{year} </span>}
           {make && <span>{make} </span>}
           {model && <span>{model}</span>}

@@ -294,7 +294,7 @@ export function IncidentManagement() {
 
   const getSeverityColor = (severity: Incident['severity']) => {
     const colors = {
-      low: "bg-gray-100 text-gray-700",
+      low: "bg-white/[0.05] text-white/40",
       medium: "bg-emerald-500/10 text-emerald-700",
       high: "bg-orange-100 text-orange-700",
       critical: "bg-red-100 text-red-700"
@@ -307,8 +307,8 @@ export function IncidentManagement() {
       pending: "bg-yellow-100 text-yellow-700",
       in_progress: "bg-emerald-500/10 text-emerald-700",
       completed: "bg-green-100 text-green-700",
-      closed: "bg-gray-100 text-gray-700",
-      cancelled: "bg-gray-100 text-gray-700"
+      closed: "bg-white/[0.05] text-white/40",
+      cancelled: "bg-white/[0.05] text-white/40"
     }
     return colors[status]
   }

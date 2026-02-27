@@ -90,7 +90,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
 
   if (!driver) {
     return (
-      <div className="p-3 text-gray-700">
+      <div className="p-3 text-white/40">
         No driver data available
       </div>
     );
@@ -114,10 +114,10 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               </div>
             )}
             <div>
-              <h2 className="text-sm font-bold text-gray-900 dark:text-white">
+              <h2 className="text-sm font-bold text-white/80 dark:text-white">
                 {driver.name}
               </h2>
-              <p className="text-sm text-white/40 dark:text-gray-700">
+              <p className="text-sm text-white/40 dark:text-white/40">
                 {driver.email} • {driver.phone}
               </p>
             </div>
@@ -258,7 +258,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                     <span className="text-sm text-white/40">Driving Hours Today</span>
                     <span className="text-sm font-medium">6.5 / 11 hrs</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-white/[0.06] rounded-full h-2">
                     <div className="bg-emerald-600 h-2 rounded-full" style={{ width: '59%' }}></div>
                   </div>
                 </div>
@@ -267,7 +267,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                     <span className="text-sm text-white/40">On-Duty Hours</span>
                     <span className="text-sm font-medium">8.2 / 14 hrs</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-white/[0.06] rounded-full h-2">
                     <div className="bg-green-600 h-2 rounded-full" style={{ width: '59%' }}></div>
                   </div>
                 </div>
@@ -276,7 +276,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                     <span className="text-sm text-white/40">Cycle Hours</span>
                     <span className="text-sm font-medium">45 / 60 hrs</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-white/[0.06] rounded-full h-2">
                     <div className="bg-yellow-600 h-2 rounded-full" style={{ width: '75%' }}></div>
                   </div>
                 </div>
@@ -303,7 +303,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
 
             <Card className="p-2">
               <h3 className="text-sm font-semibold mb-2">Violation History</h3>
-              <div className="text-center py-2 text-gray-700">
+              <div className="text-center py-2 text-white/40">
                 <p className="text-green-600 font-medium">Clean Record</p>
                 <p className="text-sm">No violations in the past 12 months</p>
               </div>
@@ -319,9 +319,9 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <div className="border-l-4 border-emerald-500 pl-2 py-2">
                 <p className="font-medium">Morning Route</p>
                 <p className="text-sm text-white/40">7:00 AM - 11:30 AM</p>
-                <p className="text-sm text-gray-700">Route: Downtown Deliveries</p>
+                <p className="text-sm text-white/40">Route: Downtown Deliveries</p>
                 {driver.currentVehicle && (
-                  <p className="text-sm text-gray-700">Vehicle: {driver.currentVehicle.name}</p>
+                  <p className="text-sm text-white/40">Vehicle: {driver.currentVehicle.name}</p>
                 )}
               </div>
               <div className="border-l-4 border-green-500 pl-2 py-2">
@@ -331,10 +331,10 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <div className="border-l-4 border-emerald-500 pl-2 py-2">
                 <p className="font-medium">Afternoon Route</p>
                 <p className="text-sm text-white/40">12:30 PM - 5:00 PM</p>
-                <p className="text-sm text-gray-700">Route: Suburban Deliveries</p>
+                <p className="text-sm text-white/40">Route: Suburban Deliveries</p>
               </div>
-              <div className="border-l-4 border-gray-300 pl-2 py-2">
-                <p className="font-medium text-gray-700">Off-Duty</p>
+              <div className="border-l-4 border-white/[0.08] pl-2 py-2">
+                <p className="font-medium text-white/40">Off-Duty</p>
                 <p className="text-sm text-white/40">After 5:00 PM</p>
               </div>
             </div>

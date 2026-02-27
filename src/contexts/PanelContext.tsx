@@ -1,5 +1,5 @@
 /**
- * PanelContext - Core state management for the ArchonY single-page panel system
+ * PanelContext - Core state management for the CTA Fleet single-page panel system
  *
  * Manages the panel stack (side panels and takeover views), replacing both
  * NavigationContext (module switching) and DrilldownContext (record navigation).

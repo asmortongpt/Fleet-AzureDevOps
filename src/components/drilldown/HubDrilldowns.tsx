@@ -53,7 +53,7 @@ export function DriversRosterDrilldown() {
         <div className="space-y-2">
             {/* Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <div className="text-base font-bold text-white">{drivers.length}</div>
                         <div className="text-sm text-white/40">Total Drivers</div>
@@ -71,7 +71,7 @@ export function DriversRosterDrilldown() {
                         <div className="text-sm text-white/40">Off Duty</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <div className="text-base font-bold text-white/80">{onLeave.length}</div>
                         <div className="text-sm text-white/40">On Leave</div>
@@ -80,7 +80,7 @@ export function DriversRosterDrilldown() {
             </div>
 
             {/* Driver List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Driver Roster</CardTitle>
                 </CardHeader>
@@ -88,7 +88,7 @@ export function DriversRosterDrilldown() {
                     {drivers.slice(0, 10).map(driver => (
                         <div
                             key={driver.id}
-                            className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-[#242424] transition-colors"
+                            className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-[#111111] transition-colors"
                             onClick={() => push({ type: 'driver', data: driver } as Omit<DrilldownLevel, "timestamp">)}
                         >
                             <div className="flex items-center gap-3">
@@ -134,7 +134,7 @@ export function DriverPerformanceDrilldown() {
     return (
         <div className="space-y-2">
             {/* Performance Breakdown */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <ChartLine className="w-3 h-3 text-emerald-400" />
@@ -182,7 +182,7 @@ export function DriverPerformanceDrilldown() {
             </Card>
 
             {/* Top Performers List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Star className="w-3 h-3 text-amber-400" weight="fill" />
@@ -193,11 +193,11 @@ export function DriverPerformanceDrilldown() {
                     {topPerformers.slice(0, 5).map((driver, idx) => (
                         <div
                             key={driver.id}
-                            className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-[#242424] transition-colors"
+                            className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-[#111111] transition-colors"
                             onClick={() => push({ type: 'driver', data: driver } as Omit<DrilldownLevel, "timestamp">)}
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm">
+                                <div className="w-4 h-4 rounded-full bg-amber-900/40 flex items-center justify-center text-white font-bold text-sm">
                                     {idx + 1}
                                 </div>
                                 <div>
@@ -281,7 +281,7 @@ export function DriverScorecardDrilldown() {
             </div>
 
             {/* Score Categories */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Score Components</CardTitle>
                 </CardHeader>
@@ -322,7 +322,7 @@ export function GarageDrilldown() {
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(bay => {
                     const isOccupied = bay <= 5
                     return (
-                        <Card key={bay} className={`${isOccupied ? 'bg-white/[0.04] border-emerald-500/30' : 'bg-[#242424] border-white/[0.08]'}`}>
+                        <Card key={bay} className={`${isOccupied ? 'bg-white/[0.04] border-emerald-500/30' : 'bg-[#111111] border-white/[0.04]'}`}>
                             <CardContent className="p-3 text-center">
                                 <div className={`text-sm font-bold ${isOccupied ? 'text-emerald-400' : 'text-white/40'}`}>Bay {bay}</div>
                                 <div className="text-xs text-white/40">{isOccupied ? 'In Use' : 'Open'}</div>
@@ -341,7 +341,7 @@ export function GarageDrilldown() {
                         <div className="text-sm text-white/40">In Progress</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <Warning className="w-4 h-4 text-white/40 mx-auto mb-2" />
                         <div className="text-base font-bold text-white/80">{pending.length}</div>
@@ -358,7 +358,7 @@ export function GarageDrilldown() {
             </div>
 
             {/* Work Orders List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Active Work Orders</CardTitle>
                 </CardHeader>
@@ -366,7 +366,7 @@ export function GarageDrilldown() {
                     {workOrders.slice(0, 8).map(wo => (
                         <div
                             key={wo.id}
-                            className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-[#242424] transition-colors"
+                            className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-[#111111] transition-colors"
                             onClick={() => push({ type: 'workorder', data: wo } as Omit<DrilldownLevel, "timestamp">)}
                         >
                             <div className="flex items-center gap-3">
@@ -468,14 +468,14 @@ export function PredictiveMaintenanceDrilldown() {
                         <div className="text-sm text-white/40">Due This Week</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <Gauge className="w-4 h-4 text-white/60 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{formatNumber(avgMileage)}</div>
                         <div className="text-sm text-white/40">Avg Miles</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <Truck className="w-4 h-4 text-white/60 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{avgAge} yr</div>
@@ -485,7 +485,7 @@ export function PredictiveMaintenanceDrilldown() {
             </div>
 
             {/* Open Work Orders */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Wrench className="w-3 h-3 text-amber-400" weight="fill" />
@@ -502,7 +502,7 @@ export function PredictiveMaintenanceDrilldown() {
             </Card>
 
             {/* Top Vehicles Needing Attention */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Warning className="w-3 h-3 text-red-400" />
@@ -642,7 +642,7 @@ export function MaintenanceCalendarDrilldown() {
                         <div className="text-sm text-white/40">This Week</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <CalendarDots className="w-4 h-4 text-white/60 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{nextWeek.length}</div>
@@ -652,7 +652,7 @@ export function MaintenanceCalendarDrilldown() {
             </div>
 
             {/* Upcoming Maintenance List */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <CalendarDots className="w-3 h-3 text-emerald-400" weight="fill" />
@@ -729,7 +729,7 @@ export function ExecutiveDashboardDrilldown() {
         <div className="space-y-2">
             {/* Fleet Overview Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <Truck className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{vehicles.length}</div>
@@ -743,7 +743,7 @@ export function ExecutiveDashboardDrilldown() {
                         <div className="text-sm text-white/40">Active Rate</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <User className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{activeDrivers.length}</div>
@@ -761,14 +761,14 @@ export function ExecutiveDashboardDrilldown() {
 
             {/* Key Indicators */}
             <div className="grid grid-cols-2 gap-3">
-                <Card className={`${monthlyIncidents.length > 5 ? 'bg-red-900/30 border-red-700/50' : 'bg-[#242424] border-white/[0.08]'}`}>
+                <Card className={`${monthlyIncidents.length > 5 ? 'bg-red-900/30 border-red-700/50' : 'bg-[#111111] border-white/[0.04]'}`}>
                     <CardContent className="p-2 text-center">
                         <Warning className={`w-4 h-4 mx-auto mb-1 ${monthlyIncidents.length > 5 ? 'text-red-400' : 'text-white/60'}`} />
                         <div className={`text-base font-bold ${monthlyIncidents.length > 5 ? 'text-red-400' : 'text-white'}`}>{monthlyIncidents.length}</div>
                         <div className="text-sm text-white/40">Incidents This Month</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <GasPump className="w-4 h-4 text-white/60 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{formatCurrency(totalFuelCost)}</div>
@@ -778,7 +778,7 @@ export function ExecutiveDashboardDrilldown() {
             </div>
 
             {/* Performance Bars */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <ChartLine className="w-3 h-3 text-emerald-400" />
@@ -873,7 +873,7 @@ export function CostAnalysisDrilldown() {
         <div className="space-y-2">
             {/* Cost Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <CurrencyDollar className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{formatCurrency(totalCost)}</div>
@@ -887,14 +887,14 @@ export function CostAnalysisDrilldown() {
                         <div className="text-sm text-white/40">Fuel Cost</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <Wrench className="w-4 h-4 text-white/60 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{formatCurrency(totalMaintenanceCost)}</div>
                         <div className="text-sm text-white/40">Maintenance</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <CarSimple className="w-4 h-4 text-white/60 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{formatCurrency(costPerVehicle)}</div>
@@ -904,7 +904,7 @@ export function CostAnalysisDrilldown() {
             </div>
 
             {/* Cost Breakdown */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <ChartLine className="w-3 h-3 text-emerald-400" />
@@ -935,7 +935,7 @@ export function CostAnalysisDrilldown() {
             </Card>
 
             {/* High-Cost Items */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <CurrencyDollar className="w-3 h-3 text-amber-400" />
@@ -965,7 +965,7 @@ export function CostAnalysisDrilldown() {
             </Card>
 
             {/* High-Cost Fuel Transactions */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <GasPump className="w-3 h-3 text-amber-400" />
@@ -1042,7 +1042,7 @@ export function FleetOptimizerDrilldown() {
                         <div className="text-sm text-white/40">Utilization</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <Truck className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{activeVehicles.length}</div>
@@ -1056,7 +1056,7 @@ export function FleetOptimizerDrilldown() {
                         <div className="text-sm text-white/40">Idle</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardContent className="p-2 text-center">
                         <Wrench className="w-4 h-4 text-white/60 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{serviceVehicles.length}</div>
@@ -1066,7 +1066,7 @@ export function FleetOptimizerDrilldown() {
             </div>
 
             {/* Performance Metrics */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Gauge className="w-3 h-3 text-emerald-400" weight="fill" />
@@ -1110,7 +1110,7 @@ export function FleetOptimizerDrilldown() {
             </Card>
 
             {/* Route Status */}
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[#111111] border-white/[0.04]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <MapPin className="w-3 h-3 text-emerald-400" />
@@ -1137,7 +1137,7 @@ export function FleetOptimizerDrilldown() {
 
             {/* Idle Vehicles for Reassignment */}
             {reassignableVehicles.length > 0 && (
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[#111111] border-white/[0.04]">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-white text-sm flex items-center gap-2">
                             <Lightning className="w-3 h-3 text-amber-400" />

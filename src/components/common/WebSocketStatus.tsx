@@ -247,7 +247,7 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
         return {
           color: 'text-white/50',
           bgColor: 'bg-white/[0.03]',
-          borderColor: 'border-white/[0.08]',
+          borderColor: 'border-white/[0.04]',
           label: 'Disconnected',
           icon: <WifiOff className="h-5 w-5" />,
         };
@@ -314,7 +314,7 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
       </div>
 
       {stats.lastConnectedAt && (
-        <div className="mt-2 pt-2 border-t border-white/[0.08]">
+        <div className="mt-2 pt-2 border-t border-white/[0.04]">
           <div className="text-xs text-white/40">
             Last connected:{' '}
             <span className="font-mono">

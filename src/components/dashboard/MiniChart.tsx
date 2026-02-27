@@ -12,7 +12,7 @@ interface MiniChartProps {
   title: string
   data: DataPoint[]
   type?: "bar" | "line" | "sparkline"
-  color?: "blue" | "green" | "amber" | "red" | "purple"
+  color?: "teal" | "green" | "amber" | "red"
   currentValue?: string | number
   className?: string
 }
@@ -21,26 +21,24 @@ export function MiniChart({
   title,
   data,
   type = "bar",
-  color = "blue",
+  color = "teal",
   currentValue,
   className
 }: MiniChartProps) {
   const maxValue = useMemo(() => Math.max(...data.map(d => d.value), 1), [data])
 
   const colorClasses = {
-    blue: "bg-emerald-500/50 dark:bg-emerald-400",
+    teal: "bg-emerald-500/50 dark:bg-emerald-400",
     green: "bg-green-500 dark:bg-green-400",
     amber: "bg-amber-500 dark:bg-amber-400",
     red: "bg-red-500 dark:bg-red-400",
-    purple: "bg-purple-500 dark:bg-purple-400"
   }
 
   const _bgColorClasses = {
-    blue: "bg-emerald-500/10 dark:bg-emerald-950",
+    teal: "bg-emerald-500/10 dark:bg-emerald-950",
     green: "bg-green-100 dark:bg-green-950",
     amber: "bg-amber-100 dark:bg-amber-950",
     red: "bg-red-100 dark:bg-red-950",
-    purple: "bg-purple-100 dark:bg-purple-950"
   }
 
   if (type === "sparkline") {

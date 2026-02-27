@@ -210,7 +210,7 @@ function TableSkeleton({ rows = 4 }: { rows?: number }) {
   return (
     <div className="space-y-2">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="rounded-lg bg-white/[0.03] border border-white/[0.08] p-3">
+        <div key={i} className="rounded-lg bg-white/[0.03] border border-white/[0.04] p-3">
           <div className="flex items-center justify-between">
             <div className="space-y-2 flex-1">
               <div className="h-3 w-32 bg-white/[0.06] rounded animate-pulse" />
@@ -370,7 +370,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
           {/* ---------------------------------------------------------------- */}
           {/* Header: compact, data-dense                                      */}
           {/* ---------------------------------------------------------------- */}
-          <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3">
+          <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 {/* Line 1: name + edit button */}
@@ -409,7 +409,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                     </span>
                   )}
                   {vehicle.license_plate && (
-                    <span className="inline-flex items-center gap-1 rounded bg-white/[0.06] border border-white/[0.08] px-2 py-0.5 text-xs font-semibold text-white/80 tracking-wide">
+                    <span className="inline-flex items-center gap-1 rounded bg-white/[0.06] border border-white/[0.04] px-2 py-0.5 text-xs font-semibold text-white/80 tracking-wide">
                       {vehicle.license_plate}
                     </span>
                   )}
@@ -439,7 +439,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 label: 'Health Score',
                 data: { vehicleId, healthScore }
               })}
-              className="rounded-lg bg-[#242424] border border-white/[0.08] p-2 text-left hover:bg-white/[0.04] transition-colors cursor-pointer"
+              className="rounded-lg bg-[#111111] border border-white/[0.04] p-2 text-left hover:bg-white/[0.04] transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-1.5 mb-1">
                 <Activity className="h-3.5 w-3.5 text-white/40" />
@@ -457,7 +457,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </button>
 
             {/* Fuel Level */}
-            <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
+            <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-2">
               <div className="flex items-center gap-1.5 mb-1">
                 <Fuel className="h-3.5 w-3.5 text-white/40" />
                 <span className="text-[11px] text-white/40 font-medium">Fuel</span>
@@ -474,7 +474,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </div>
 
             {/* Odometer */}
-            <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
+            <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-2">
               <div className="flex items-center gap-1.5 mb-1">
                 <Gauge className="h-3.5 w-3.5 text-white/40" />
                 <span className="text-[11px] text-white/40 font-medium">Odometer</span>
@@ -486,7 +486,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </div>
 
             {/* Uptime */}
-            <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
+            <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-2">
               <div className="flex items-center gap-1.5 mb-1">
                 <Clock className="h-3.5 w-3.5 text-white/40" />
                 <span className="text-[11px] text-white/40 font-medium">Uptime</span>
@@ -528,7 +528,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             {/* ============================================================= */}
             <TabsContent value="overview" className="space-y-2 mt-2">
               {/* Vehicle Information */}
-              <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3">
+              <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3">
                 <h4 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">Vehicle Information</h4>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                   <div>
@@ -552,7 +552,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
 
               {/* Asset Classification */}
               {(vehicle.asset_category || vehicle.asset_type || vehicle.power_type) && (
-                <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3">
+                <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3">
                   <h4 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                     <Car className="h-3.5 w-3.5" />
                     Asset Classification
@@ -595,7 +595,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               )}
 
               {/* Current Assignment */}
-              <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3">
+              <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3">
                 <h4 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <UserCheck className="h-3.5 w-3.5" />
                   Current Assignment
@@ -659,7 +659,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 vehicle.pto_hours ||
                 vehicle.aux_hours ||
                 vehicle.cycle_count) && (
-                <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3">
+                <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3">
                   <h4 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                     <Activity className="h-3.5 w-3.5" />
                     Usage Metrics
@@ -726,7 +726,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                   vehicle.max_reach_feet ||
                   vehicle.bucket_capacity_yards ||
                   vehicle.operating_weight_lbs) && (
-                <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3">
+                <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3">
                   <h4 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                     <Settings className="h-3.5 w-3.5" />
                     Equipment Specifications
@@ -778,7 +778,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
 
               {/* Cost Summary */}
               <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3">
+                <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3">
                   <div className="flex items-center gap-1.5 mb-1">
                     <Wrench className="h-3.5 w-3.5 text-white/40" />
                     <span className="text-[11px] text-white/40 font-medium">Total Maintenance</span>
@@ -788,7 +788,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                     {maintenanceHistory?.length || 0} records
                   </p>
                 </div>
-                <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3">
+                <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3">
                   <div className="flex items-center gap-1.5 mb-1">
                     <AlertTriangle className="h-3.5 w-3.5 text-white/40" />
                     <span className="text-[11px] text-white/40 font-medium">Total Incidents</span>
@@ -808,10 +808,10 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               {maintenanceLoading ? (
                 <TableSkeleton />
               ) : maintenanceArr.length > 0 ? (
-                <div className="rounded-lg border border-white/[0.08] overflow-hidden">
+                <div className="rounded-lg border border-white/[0.04] overflow-hidden">
                   <div className="max-h-[300px] overflow-y-auto">
                     <table className="w-full text-sm">
-                      <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
+                      <thead className="sticky top-0 z-10 bg-[#111111] border-b border-white/[0.04]">
                         <tr>
                           <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Work Order</th>
                           <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Type</th>
@@ -865,10 +865,10 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               {incidentsLoading ? (
                 <TableSkeleton />
               ) : incidentsArr.length > 0 ? (
-                <div className="rounded-lg border border-white/[0.08] overflow-hidden">
+                <div className="rounded-lg border border-white/[0.04] overflow-hidden">
                   <div className="max-h-[300px] overflow-y-auto">
                     <table className="w-full text-sm">
-                      <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
+                      <thead className="sticky top-0 z-10 bg-[#111111] border-b border-white/[0.04]">
                         <tr>
                           <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Incident</th>
                           <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Severity</th>
@@ -925,21 +925,21 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 <>
                   {/* Summary strip */}
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
+                    <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-2">
                       <p className="text-[11px] text-white/40">Total Trips</p>
                       <p className="text-sm font-bold text-white">{formatNumber(totalTrips)}</p>
                     </div>
-                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
+                    <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-2">
                       <p className="text-[11px] text-white/40">Total Distance</p>
                       <p className="text-sm font-bold text-white">{formatNumber(totalDistance, 1)} mi</p>
                     </div>
                   </div>
 
                   {/* Trips table */}
-                  <div className="rounded-lg border border-white/[0.08] overflow-hidden">
+                  <div className="rounded-lg border border-white/[0.04] overflow-hidden">
                     <div className="max-h-[300px] overflow-y-auto">
                       <table className="w-full text-sm">
-                        <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
+                        <thead className="sticky top-0 z-10 bg-[#111111] border-b border-white/[0.04]">
                           <tr>
                             <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Route</th>
                             <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Driver</th>
@@ -994,10 +994,10 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               {inspectionsLoading ? (
                 <TableSkeleton />
               ) : inspectionsArr.length > 0 ? (
-                <div className="rounded-lg border border-white/[0.08] overflow-hidden">
+                <div className="rounded-lg border border-white/[0.04] overflow-hidden">
                   <div className="max-h-[300px] overflow-y-auto">
                     <table className="w-full text-sm">
-                      <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
+                      <thead className="sticky top-0 z-10 bg-[#111111] border-b border-white/[0.04]">
                         <tr>
                           <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Inspection</th>
                           <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Result</th>
@@ -1048,13 +1048,13 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 <>
                   {/* Fuel summary strip */}
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
+                    <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-2">
                       <p className="text-[11px] text-white/40">Total Fuel</p>
                       <p className="text-sm font-bold text-white">
                         {formatNumber(fuelArr.reduce((sum, r) => sum + r.gallons, 0), 1)} gal
                       </p>
                     </div>
-                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
+                    <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-2">
                       <p className="text-[11px] text-white/40">Total Cost</p>
                       <p className="text-sm font-bold text-white">
                         {formatCurrency(fuelArr.reduce((sum, r) => sum + r.cost, 0))}
@@ -1063,10 +1063,10 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                   </div>
 
                   {/* Fuel table */}
-                  <div className="rounded-lg border border-white/[0.08] overflow-hidden">
+                  <div className="rounded-lg border border-white/[0.04] overflow-hidden">
                     <div className="max-h-[300px] overflow-y-auto">
                       <table className="w-full text-sm">
-                        <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
+                        <thead className="sticky top-0 z-10 bg-[#111111] border-b border-white/[0.04]">
                           <tr>
                             <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Gallons</th>
                             <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Location</th>
@@ -1112,10 +1112,10 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               {documentsLoading ? (
                 <TableSkeleton />
               ) : documentsArr.length > 0 ? (
-                <div className="rounded-lg border border-white/[0.08] overflow-hidden">
+                <div className="rounded-lg border border-white/[0.04] overflow-hidden">
                   <div className="max-h-[300px] overflow-y-auto">
                     <table className="w-full text-sm">
-                      <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
+                      <thead className="sticky top-0 z-10 bg-[#111111] border-b border-white/[0.04]">
                         <tr>
                           <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Document</th>
                           <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Type</th>

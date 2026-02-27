@@ -70,22 +70,22 @@ export function InteractiveTooltip({
     active: {
       color: "bg-green-500",
       label: "Active",
-      textColor: "text-green-700"
+      textColor: "text-emerald-400"
     },
     idle: {
-      color: "bg-yellow-500",
+      color: "bg-amber-500",
       label: "Idle",
-      textColor: "text-yellow-700"
+      textColor: "text-amber-400"
     },
     maintenance: {
       color: "bg-orange-500",
       label: "Maintenance",
-      textColor: "text-orange-700"
+      textColor: "text-orange-400"
     },
     offline: {
-      color: "bg-gray-500",
+      color: "bg-white/30",
       label: "Offline",
-      textColor: "text-gray-700"
+      textColor: "text-white/40"
     },
   };
 
@@ -103,7 +103,7 @@ export function InteractiveTooltip({
             <TooltipContent
               side={effectiveSide}
               align={align}
-              className={cn("bg-gray-900 text-white border-gray-700", className)}
+              className={cn("bg-[#1a1a1a] text-white border-white/[0.04]", className)}
             >
               {content}
             </TooltipContent>
@@ -122,13 +122,13 @@ export function InteractiveTooltip({
           <TooltipContent
             side={effectiveSide}
             align={align}
-            className={cn("p-0 border-0 bg-transparent shadow-none", className)}
+            className={cn("p-0 border-0 bg-transparent", className)}
           >
             <div
-              className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden min-w-[280px] max-w-[320px]"
+              className="bg-[#111111] border border-white/[0.04] rounded-lg overflow-hidden min-w-[280px] max-w-[320px]"
             >
               {/* Header */}
-              <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-2 py-3 text-white">
+              <div className="bg-emerald-600 px-2 py-3 text-white">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
                     <h4 className="font-semibold text-sm leading-tight">{data.name}</h4>
@@ -136,7 +136,7 @@ export function InteractiveTooltip({
                   </div>
                   <div className={cn(
                     "px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1",
-                    "bg-white/20 backdrop-blur-sm"
+                    "bg-white/20"
                   )}>
                     <div className={cn("w-2 h-2 rounded-full", config?.color)} />
                     {config?.label}
@@ -172,16 +172,16 @@ export function InteractiveTooltip({
                   <div className="space-y-2 text-sm">
                     {data.location && (
                       <div className="flex items-start gap-2">
-                        <span className="text-gray-700 text-xs">📍</span>
-                        <span className="text-gray-700 text-xs flex-1 leading-relaxed">
+                        <span className="text-white/60 text-xs">📍</span>
+                        <span className="text-white/60 text-xs flex-1 leading-relaxed">
                           {data.location}
                         </span>
                       </div>
                     )}
                     {data.driver && (
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-700 text-xs">👤</span>
-                        <span className="text-gray-700 text-xs font-medium">
+                        <span className="text-white/60 text-xs">👤</span>
+                        <span className="text-white/60 text-xs font-medium">
                           {data.driver}
                         </span>
                       </div>
@@ -197,9 +197,9 @@ export function InteractiveTooltip({
                         key={alert.message}
                         className={cn(
                           "text-xs p-2 rounded flex items-start gap-2",
-                          alert.type === "error" && "bg-red-50 text-red-700",
-                          alert.type === "warning" && "bg-yellow-50 text-yellow-700",
-                          alert.type === "info" && "bg-emerald-50 text-emerald-400"
+                          alert.type === "error" && "bg-red-500/10 text-red-400",
+                          alert.type === "warning" && "bg-amber-500/10 text-amber-400",
+                          alert.type === "info" && "bg-emerald-500/10 text-emerald-400"
                         )}
                       >
                         <span className="flex-shrink-0">
@@ -215,7 +215,7 @@ export function InteractiveTooltip({
 
                 {/* Last Update */}
                 {data.lastUpdate && (
-                  <div className="text-xs text-gray-700 text-center pt-2 border-t">
+                  <div className="text-xs text-white/35 text-center pt-2 border-t border-white/[0.04]">
                     Updated {formatRelativeTime(data.lastUpdate)}
                   </div>
                 )}
@@ -240,7 +240,7 @@ export function InteractiveTooltip({
                           onTrack(data.id);
                           setIsOpen(false);
                         }}
-                        className="flex-1 px-3 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-md transition-colors"
+                        className="flex-1 px-3 py-2 border border-white/[0.04] hover:bg-white/[0.04] text-white/60 text-xs font-medium rounded-md transition-colors"
                       >
                         Track
                       </button>
@@ -270,7 +270,7 @@ function MetricItem({ label, value, icon, warning }: MetricItemProps) {
   return (
     <div className={cn(
       "p-2 rounded-lg border",
-      warning ? "bg-yellow-50 border-yellow-200" : "bg-gray-50 border-gray-200"
+      warning ? "bg-amber-500/10 border-amber-500/20" : "bg-white/[0.04] border-white/[0.04]"
     )}>
       <div className="flex items-center gap-1 mb-1">
         {icon && <span className="text-xs">{icon}</span>}
@@ -278,7 +278,7 @@ function MetricItem({ label, value, icon, warning }: MetricItemProps) {
       </div>
       <div className={cn(
         "text-sm font-semibold",
-        warning ? "text-yellow-700" : "text-gray-900"
+        warning ? "text-amber-400" : "text-white"
       )}>
         {value}
       </div>
@@ -314,10 +314,10 @@ export function SimpleTooltip({
           <TooltipContent
             side={side}
             align={align}
-            className={cn("p-0 border-0 bg-transparent shadow-none", className)}
+            className={cn("p-0 border-0 bg-transparent", className)}
           >
             <div
-              className="bg-gray-900 text-white px-3 py-2 rounded-md shadow-sm text-sm max-w-xs"
+              className="bg-[#1a1a1a] text-white px-3 py-2 rounded-md text-sm max-w-xs border border-white/[0.04]"
             >
               {content}
             </div>
@@ -376,11 +376,11 @@ export function DataTooltip({
       <Tooltip open={isOpen} onOpenChange={setIsOpen}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
         {isOpen && (
-          <TooltipContent className="p-0 border-0 bg-transparent shadow-none">
+          <TooltipContent className="p-0 border-0 bg-transparent">
             <div
-              className="bg-card border border-border rounded-lg shadow-sm px-3 py-2 min-w-[120px]"
+              className="bg-[#111111] border border-white/[0.04] rounded-lg px-3 py-2 min-w-[120px]"
             >
-              <div className="text-xs text-muted-foreground mb-1">{label}</div>
+              <div className="text-xs text-white/40 mb-1">{label}</div>
               <div className="flex items-baseline gap-1">
                 <div
                   className="text-sm font-bold"
@@ -388,12 +388,12 @@ export function DataTooltip({
                 >
                   {value}
                 </div>
-                {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
+                {unit && <span className="text-xs text-white/40">{unit}</span>}
               </div>
               {change !== undefined && (
                 <div className={cn(
                   "text-xs font-medium mt-1",
-                  change >= 0 ? "text-green-600" : "text-red-600"
+                  change >= 0 ? "text-emerald-400" : "text-rose-400"
                 )}>
                   {change >= 0 ? "↑" : "↓"} {Math.abs(change)}%
                 </div>

@@ -248,7 +248,7 @@ export function QualityControlPanel({
         return (
             <button
                 onClick={onToggle}
-                className="absolute bottom-4 left-4 bg-[#111]/80 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-white border border-white/[0.15] hover:bg-[#1a1a1a] transition-colors z-40"
+                className="absolute bottom-4 left-4 bg-[#111111]/80 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-white border border-white/[0.04] hover:bg-[#1a1a1a] transition-colors z-40"
             >
                 ⚙️ Quality: {config.quality.toUpperCase()}
             </button>
@@ -256,8 +256,8 @@ export function QualityControlPanel({
     }
 
     return (
-        <div className="absolute bottom-4 left-4 w-72 bg-[#111]/95 backdrop-blur-sm rounded-md border border-white/[0.15] shadow-sm z-50">
-            <div className="p-3 border-b border-white/[0.15] flex items-center justify-between">
+        <div className="absolute bottom-4 left-4 w-72 bg-[#0e0e0e]/95 backdrop-blur-sm rounded-md border border-white/[0.04] z-50">
+            <div className="p-3 border-b border-white/[0.04] flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-white">Rendering Quality</h4>
                 <button onClick={onToggle} className="text-white/70 hover:text-white">✕</button>
             </div>
@@ -273,7 +273,7 @@ export function QualityControlPanel({
                                 onClick={() => onChange(getPresetConfig(preset))}
                                 className={`px-2 py-1 rounded text-xs font-medium transition-colors ${config.quality === preset
                                     ? 'bg-emerald-600 text-white'
-                                    : 'bg-[#1a1a1a] text-white/70 hover:bg-white/[0.15]'
+                                    : 'bg-[#1a1a1a] text-white/70 hover:bg-white/[0.06]'
                                     }`}
                             >
                                 {preset.toUpperCase()}
@@ -297,7 +297,7 @@ export function QualityControlPanel({
                                 type="checkbox"
                                 checked={config[key as keyof PostProcessingConfig] as boolean}
                                 onChange={(e) => onChange({ ...config, [key]: e.target.checked })}
-                                className="rounded bg-white/[0.15] border-white/[0.12]"
+                                className="rounded bg-white/[0.06] border-white/[0.04]"
                             />
                         </label>
                     ))}
@@ -316,7 +316,7 @@ export function QualityControlPanel({
                             step="0.1"
                             value={config.dofBokehScale}
                             onChange={(e) => onChange({ ...config, dofBokehScale: Number(e.target.value) })}
-                            className="w-full h-1.5 bg-white/[0.15] rounded-lg appearance-none cursor-pointer"
+                            className="w-full h-1.5 bg-white/[0.06] rounded-lg appearance-none cursor-pointer"
                         />
                     </div>
                 )}
@@ -333,7 +333,7 @@ export function QualityControlPanel({
                             step="0.1"
                             value={config.aoIntensity}
                             onChange={(e) => onChange({ ...config, aoIntensity: Number(e.target.value) })}
-                            className="w-full h-1.5 bg-white/[0.15] rounded-lg appearance-none cursor-pointer"
+                            className="w-full h-1.5 bg-white/[0.06] rounded-lg appearance-none cursor-pointer"
                         />
                     </div>
                 )}
