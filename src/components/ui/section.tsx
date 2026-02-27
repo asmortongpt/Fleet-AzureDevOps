@@ -1,8 +1,8 @@
 /**
- * Section — Premium content card with glass depth
+ * Section — Premium content card
  *
- * Gradient background, subtle border glow on hover,
- * frosted header bar, smooth transitions.
+ * Glass background, colored icon badge in header,
+ * subtle bottom shadow for depth, generous padding.
  */
 import React from 'react'
 
@@ -30,26 +30,38 @@ export function Section({
   return (
     <section
       className={cn(
-        'premium-section flex flex-col',
+        'flex flex-col rounded-2xl overflow-hidden',
         className
       )}
+      style={{
+        background: 'linear-gradient(160deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.015) 100%)',
+        border: '1px solid rgba(255,255,255,0.07)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03)',
+      }}
     >
-      <div className="section-header flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+      {/* Header */}
+      <div
+        className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"
+        style={{
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)',
+        }}
+      >
         <div className="flex items-center gap-3">
           {icon ? (
             <div
-              className="flex h-7 w-7 items-center justify-center rounded-lg"
+              className="flex h-8 w-8 items-center justify-center rounded-xl"
               style={{
-                background: 'rgba(16, 185, 129, 0.08)',
-                border: '1px solid rgba(16, 185, 129, 0.12)',
-                color: 'var(--accent-primary)',
+                background: 'rgba(16,185,129,0.10)',
+                border: '1px solid rgba(16,185,129,0.15)',
+                color: '#10b981',
               }}
             >
               {icon}
             </div>
           ) : null}
           <div>
-            <h3 className="text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
+            <h3 className="text-[15px] font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
             {description ? (
               <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{description}</p>
             ) : null}
@@ -57,7 +69,9 @@ export function Section({
         </div>
         {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
       </div>
-      <div className={cn('p-4', contentClassName)}>{children}</div>
+
+      {/* Content */}
+      <div className={cn('p-5', contentClassName)}>{children}</div>
     </section>
   )
 }
