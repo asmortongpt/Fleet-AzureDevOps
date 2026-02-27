@@ -2,7 +2,10 @@
  * SinglePageShell — Root layout for CTA Fleet application
  *
  * Fixed viewport (100vh x 100vw, overflow-hidden).
- * Layout: IconRail (64px left) + CompactHeader (56px top) + Content
+ * Layout: IconRail (64px left) + CompactHeader (48px top) + Content
+ *
+ * Map mode: TickerBar (top) + MapCanvas + VehicleRail (right, desktop) + TimelineStrip (bottom)
+ * Module mode: Full-bleed module content
  */
 import { useState, useEffect, memo } from 'react'
 
@@ -17,6 +20,7 @@ import { MobileTabBar } from './MobileTabBar'
 import { PanelManager } from './PanelManager'
 
 import { AIAssistantFloatingButton } from '@/components/ai/AIAssistantButton'
+import { VehicleRail } from '@/components/ui/vehicle-rail'
 import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
@@ -71,12 +75,31 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
               {moduleContent}
             </div>
           ) : (
-            <>
-              <MapCanvas />
-              <FloatingKPIStrip />
-              <PanelManager />
-              <BottomDrawer />
-            </>
+            <div className="flex flex-col h-full">
+              {/* TickerBar pinned at top of map area */}
+              <div className="shrink-0 z-10">
+                <FloatingKPIStrip />
+              </div>
+
+              {/* Map + VehicleRail row */}
+              <div className="flex-1 flex min-h-0 relative">
+                {/* Map fills remaining space */}
+                <div className="flex-1 relative min-w-0">
+                  <MapCanvas />
+                  <PanelManager />
+                </div>
+
+                {/* VehicleRail on right (desktop only, 360px) */}
+                {isDesktop && (
+                  <VehicleRail vehicles={[]} />
+                )}
+              </div>
+
+              {/* TimelineStrip at bottom */}
+              <div className="shrink-0 z-10">
+                <BottomDrawer />
+              </div>
+            </div>
           )}
         </div>
       </main>
