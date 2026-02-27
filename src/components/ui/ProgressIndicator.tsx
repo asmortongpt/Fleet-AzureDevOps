@@ -59,13 +59,13 @@ export function LinearProgress({
     <div className={cn("relative w-full", className)}>
       {/* Background track */}
       <div
-        className="w-full bg-white/[0.06] rounded-full overflow-hidden relative"
+        className="w-full bg-[var(--surface-glass-hover)] rounded-full overflow-hidden relative"
         style={{ height: `${height}px` }}
       >
         {/* Buffer (if provided) */}
         {bufferPercentage !== undefined && (
           <div
-            className="absolute top-0 left-0 h-full bg-white/[0.10] rounded-full transition-all duration-300"
+            className="absolute top-0 left-0 h-full bg-[var(--surface-glass-active)] rounded-full transition-all duration-300"
             style={{ width: `${bufferPercentage}%` }}
           />
         )}
@@ -83,7 +83,7 @@ export function LinearProgress({
           >
             {/* Subtle highlight */}
             <div
-              className="absolute inset-0 bg-white/[0.06]"
+              className="absolute inset-0 bg-[var(--surface-glass-hover)]"
             />
           </div>
         )}
@@ -92,7 +92,7 @@ export function LinearProgress({
       {/* Label */}
       {showLabel && !indeterminate && (
         <div
-          className="absolute -top-5 right-0 text-xs font-semibold text-white/60"
+          className="absolute -top-5 right-0 text-xs font-semibold text-[var(--text-secondary)]"
         >
           {Math.round(percentage)}%
         </div>
@@ -129,7 +129,7 @@ export function CircularProgress({
   className,
 }: CircularProgressProps) {
   const variantColors = {
-    primary: "#10b981",
+    primary: "var(--accent-primary)",
     success: "#22c55e",
     warning: "#eab308",
     danger: "#ef4444",
@@ -150,7 +150,7 @@ export function CircularProgress({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="rgba(255,255,255,0.06)"
+          stroke="var(--surface-glass-hover)"
           strokeWidth={strokeWidth}
         />
 
@@ -221,7 +221,7 @@ export function StepProgress({
   const isHorizontal = orientation === "horizontal";
 
   const statusConfig = {
-    pending: { bg: "bg-white/[0.06]", text: "text-white/35", border: "border-white/[0.04]" },
+    pending: { bg: "bg-[var(--surface-glass-hover)]", text: "text-[var(--text-tertiary)]", border: "border-[var(--border-subtle)]" },
     active: { bg: "bg-neutral-500", text: "text-white", border: "border-emerald-500" },
     completed: { bg: "bg-green-500", text: "text-white", border: "border-green-500" },
     error: { bg: "bg-red-500", text: "text-white", border: "border-red-500" },
@@ -294,7 +294,7 @@ export function StepProgress({
               className={cn(
                 "text-sm font-medium",
                 isHorizontal ? "ml-2" : "text-center",
-                step.status === "active" ? "text-emerald-400" : "text-white/60"
+                step.status === "active" ? "text-[var(--accent-primary)]" : "text-[var(--text-secondary)]"
               )}
             >
               {step.label}
@@ -304,7 +304,7 @@ export function StepProgress({
             {!isLast && (
               <div
                 className={cn(
-                  "bg-white/[0.06] relative overflow-hidden",
+                  "bg-[var(--surface-glass-hover)] relative overflow-hidden",
                   isHorizontal ? "flex-1 h-0.5 mx-2" : "w-0.5 h-8 mx-auto"
                 )}
               >
@@ -361,7 +361,7 @@ export function UploadProgress({
 
   return (
     <div
-      className={cn("border border-white/[0.04] rounded-lg p-2 bg-[#111111]", className)}
+      className={cn("border border-[var(--border-subtle)] rounded-lg p-2 bg-[var(--surface-1)]", className)}
     >
       <div className="flex items-start gap-3">
         {/* File icon */}
@@ -370,7 +370,7 @@ export function UploadProgress({
             "w-10 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
             status === "success" && "bg-green-500/10 text-green-400",
             status === "error" && "bg-red-500/10 text-red-400",
-            status === "uploading" && "bg-white/[0.06] text-white/60"
+            status === "uploading" && "bg-[var(--surface-glass-hover)] text-[var(--text-secondary)]"
           )}
         >
           {status === "success" ? "✓" : status === "error" ? "✕" : "📄"}
@@ -381,7 +381,7 @@ export function UploadProgress({
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{fileName}</p>
-              <p className="text-xs text-white/60 mt-0.5">
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                 {formatBytes(uploadedBytes)} / {formatBytes(fileSize)}
                 {speed && status === "uploading" && ` • ${formatSpeed(speed)}`}
               </p>
@@ -391,7 +391,7 @@ export function UploadProgress({
             {onCancel && status === "uploading" && (
               <button
                 onClick={onCancel}
-                className="text-white/35 hover:text-white/60 p-1"
+                className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] p-1"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -439,7 +439,7 @@ interface LoadingSpinnerProps extends BaseProgressProps {
 
 export function LoadingSpinner({
   size = 24,
-  color = "#10b981",
+  color = "var(--accent-primary)",
   label,
   className,
 }: LoadingSpinnerProps) {
@@ -474,7 +474,7 @@ export function LoadingSpinner({
       </div>
       {label && (
         <p
-          className="text-sm text-white/60"
+          className="text-sm text-[var(--text-secondary)]"
         >
           {label}
         </p>

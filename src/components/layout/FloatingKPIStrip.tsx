@@ -147,9 +147,9 @@ export function FloatingKPIStrip() {
                 onClick={() => handleChipClick(kpi)}
                 className={cn(
                   'group relative flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl',
-                  'bg-[#111111]/90',
-                  'border border-white/[0.04]',
-                  'hover:border-white/[0.08] hover:bg-[#161616]/90 transition-all duration-300',
+                  'bg-[var(--surface-1)]/90',
+                  'border border-[var(--border-subtle)]',
+                  'hover:border-[var(--border-default)] hover:bg-[var(--surface-2)]/90 transition-all duration-300',
                   'active:scale-95 shrink-0 sm:shrink'
                 )}
               >
@@ -159,14 +159,14 @@ export function FloatingKPIStrip() {
                 />
 
                 <div
-                  className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-white/[0.04] border border-white/[0.04] transition-transform group-hover:scale-110"
+                  className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[var(--surface-glass)] border border-[var(--border-subtle)] transition-transform group-hover:scale-110"
                   style={{ color: kpi.color }}
                 >
                   {kpi.icon}
                 </div>
 
                 <div className="flex flex-col items-start">
-                  <span className="text-[8px] sm:text-[9px] font-black text-white/35 uppercase tracking-[0.15em] leading-none mb-0.5">
+                  <span className="text-[8px] sm:text-[9px] font-black text-[var(--text-tertiary)] uppercase tracking-[0.15em] leading-none mb-0.5">
                     {kpi.label}
                   </span>
                   <span className="text-xs sm:text-sm font-bold text-white tabular-nums leading-none">

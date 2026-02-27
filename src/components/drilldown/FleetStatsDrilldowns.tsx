@@ -1280,7 +1280,7 @@ export function VehicleListDrilldown() {
                                             vehicle.status === 'en_route' ? 'bg-white/[0.06]' :
                                             vehicle.status === 'on_site' ? 'bg-amber-900/30' :
                                             vehicle.status === 'completed' ? 'bg-emerald-900/30' :
-                                                'bg-[#1a1a1a]'
+                                                'bg-[var(--surface-2)]'
                                             }`}>
                                             <Truck className={`h-5 w-5 ${vehicle.status === 'active' ? 'text-emerald-400' :
                                                 vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'text-amber-400' :

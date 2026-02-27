@@ -14,7 +14,7 @@ interface ProMaxLayoutProps {
 
 export function ProMaxLayout({ children }: ProMaxLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#0e0e0e]">
+    <div className="min-h-screen bg-[var(--surface-0)]">
       <div className="relative z-10">
         <div>
           <style>

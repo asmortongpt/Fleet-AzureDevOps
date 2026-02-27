@@ -24,18 +24,18 @@ interface LoadingSkeletonProps {
  */
 export function MapLoadingSkeleton({ className }: LoadingSkeletonProps) {
   return (
-    <div className={cn("relative w-full h-full bg-[#0e0e0e] overflow-hidden", className)}>
+    <div className={cn("relative w-full h-full bg-[var(--surface-1)] overflow-hidden", className)}>
       {/* Map background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="grid grid-cols-8 grid-rows-8 h-full w-full">
           {Array.from({ length: 64 }).map((_, i) => (
-            <div key={i} className="border border-white/[0.04]" />
+            <div key={i} className="border border-[var(--border-subtle)]" />
           ))}
         </div>
       </div>
 
       {/* Loading overlay */}
-      <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a]/80">
+      <div className="absolute inset-0 flex items-center justify-center bg-[var(--overlay-backdrop)]">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -182,7 +182,7 @@ export function TableLoadingSkeleton({
   return (
     <div className={cn("border rounded-lg overflow-hidden", className)}>
       {/* Table header */}
-      <div className="grid gap-2 p-2 bg-[#1a1a1a] border-b border-white/[0.04]" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+      <div className="grid gap-2 p-2 bg-[var(--surface-2)] border-b border-[var(--border-subtle)]" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
         {[...Array(columns)].map((_, i) => (
           <Skeleton key={i} className="h-4 w-full" />
         ))}
@@ -283,7 +283,7 @@ export function ChartLoadingSkeleton({ className }: LoadingSkeletonProps) {
           {[...Array(12)].map((_, i) => (
             <motion.div
               key={i}
-              className="flex-1 bg-white/[0.04] rounded-t"
+              className="flex-1 bg-[var(--surface-glass)] rounded-t"
               initial={{ height: 0 }}
               animate={{ height: `${30 + Math.random() * 70}%` }}
               transition={{ delay: i * 0.05, duration: 0.3 }}

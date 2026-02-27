@@ -110,7 +110,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       case 'DELETE':
         return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
       default:
-        return 'bg-white/[0.05] text-[var(--text-tertiary)] dark:bg-[#111113] dark:text-[var(--text-secondary)]'
+        return 'bg-white/[0.05] text-[var(--text-tertiary)] dark:bg-[var(--surface-1)] dark:text-[var(--text-secondary)]'
     }
   }
 

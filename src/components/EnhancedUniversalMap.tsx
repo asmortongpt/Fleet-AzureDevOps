@@ -307,7 +307,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs ${
                   isActive
                     ? 'bg-white dark:bg-[var(--surface-3)]'
-                    : 'bg-white/[0.05] dark:bg-[#111113] opacity-60'
+                    : 'bg-white/[0.05] dark:bg-[var(--surface-1)] opacity-60'
                 }`}
               >
                 <div
@@ -371,7 +371,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
 
       {/* Circuit Breaker Status (Development Only) */}
       {import.meta.env.MODE === 'development' && (
-        <div className="absolute bottom-4 left-4 z-40 bg-black/70 text-white px-2 py-1 rounded text-xs font-mono space-y-1">
+        <div className="absolute bottom-4 left-4 z-40 bg-[var(--overlay-backdrop)] text-white px-2 py-1 rounded text-xs font-mono space-y-1">
           <div>Circuit: {errorRecovery.circuitState}</div>
           <div>Failures: {errorRecovery.failureCount}</div>
           <div>Recoveries: {errorRecovery.recoveryAttempts}</div>

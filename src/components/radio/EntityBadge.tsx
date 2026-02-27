@@ -113,7 +113,7 @@ export function EntityBadgeList({
         />
       ))}
       {remainingCount > 0 && (
-        <Badge variant="outline" className="bg-white/[0.03] dark:bg-[#111113]">
+        <Badge variant="outline" className="bg-white/[0.03] dark:bg-[var(--surface-1)]">
           +{remainingCount} more
         </Badge>
       )}

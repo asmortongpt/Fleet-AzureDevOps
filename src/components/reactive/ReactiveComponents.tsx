@@ -216,7 +216,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white dark:bg-[#111113] divide-y divide-gray-200 dark:divide-gray-800">
+        <tbody className="bg-white dark:bg-[var(--surface-1)] divide-y divide-gray-200 dark:divide-gray-800">
           {sortedData.map((item) => (
             <tr
               key={String(item[keyField])}
@@ -413,7 +413,7 @@ export function LiveVehicleList({ onVehicleClick }: { onVehicleClick?: (vehicle:
           active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
           maintenance: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
           offline: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-          retired: 'bg-white/[0.05] text-[var(--text-secondary)] dark:bg-[#111113] dark:text-[var(--text-primary)]',
+          retired: 'bg-white/[0.05] text-[var(--text-secondary)] dark:bg-[var(--surface-1)] dark:text-[var(--text-primary)]',
         }
 
         return (

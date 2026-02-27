@@ -337,7 +337,7 @@ export function OSHAComplianceView() {
             { date: '2025-12-05', action: 'Hazard Assessment Conducted', status: 'completed' },
             { date: '2025-12-01', action: 'PPE Inspection Due', status: 'pending' },
           ].map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-[#111]/50 rounded-lg">
+            <div key={index} className="flex items-center justify-between p-3 bg-[var(--surface-1)]/50 rounded-lg">
               <div>
                 <div className="font-medium text-white">{item.action}</div>
                 <div className="text-xs text-[var(--text-tertiary)]">{formatDate(item.date)}</div>
@@ -403,7 +403,7 @@ export function DaysIncidentFreeView() {
             { period: 'Apr - May 2025', days: 28, status: 'past' },
             { period: 'Jan - Feb 2025', days: 21, status: 'past' },
           ].map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-[#111]/50 rounded-lg">
+            <div key={index} className="flex items-center justify-between p-3 bg-[var(--surface-1)]/50 rounded-lg">
               <div>
                 <div className="font-medium text-white">{item.period}</div>
                 <div className="text-xs text-[var(--text-tertiary)]">{item.days} days</div>

@@ -151,7 +151,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
     if (!showDetails || !error) return null
 
     return (
-      <div className="mt-2 p-2 bg-white/[0.03] dark:bg-[#111113] rounded-lg">
+      <div className="mt-2 p-2 bg-white/[0.03] dark:bg-[var(--surface-1)] rounded-lg">
         <div className="space-y-2">
           <div>
             <h4 className="font-semibold text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]">

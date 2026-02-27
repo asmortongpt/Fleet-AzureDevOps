@@ -252,11 +252,11 @@ export function PerformanceMonitor({
       role="complementary"
       aria-label="Performance Monitor"
     >
-      <div className="bg-white dark:bg-[#111113] border-2 border-[var(--border-default)] dark:border-[var(--border-default)] rounded-lg overflow-hidden max-w-md">
+      <div className="bg-white dark:bg-[var(--surface-1)] border-2 border-[var(--border-default)] dark:border-[var(--border-default)] rounded-lg overflow-hidden max-w-md">
         {/* Header */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="w-full px-3 py-2 bg-[#111113] dark:bg-[var(--surface-0)] text-white flex items-center justify-between hover:bg-[var(--surface-3)] dark:hover:bg-[#111113] transition-colors"
+          className="w-full px-3 py-2 bg-[var(--surface-1)] dark:bg-[var(--surface-0)] text-white flex items-center justify-between hover:bg-[var(--surface-3)] dark:hover:bg-[var(--surface-1)] transition-colors"
           aria-expanded={expanded}
           aria-controls="performance-monitor-content"
         >

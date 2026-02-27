@@ -378,7 +378,7 @@ export function EndpointHealthDashboard({
                     onOpenChange={() => toggleCategory(category.name)}
                   >
                     <CollapsibleTrigger className="w-full">
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] dark:bg-[#111113] hover:bg-white/[0.05] dark:hover:bg-[var(--surface-3)] transition-colors">
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] dark:bg-[var(--surface-1)] hover:bg-white/[0.05] dark:hover:bg-[var(--surface-3)] transition-colors">
                         <div className="flex items-center gap-3">
                           {isExpanded ? (
                             <ChevronDown className="h-4 w-4 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />

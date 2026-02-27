@@ -23,7 +23,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       cell: ({ row }) => {
         const imageUrl = row.original.metadata?.image_url;
         return (
-          <div className="w-16 h-9 rounded-lg overflow-hidden bg-[#1a1a1a] flex items-center justify-center">
+          <div className="w-16 h-9 rounded-lg overflow-hidden bg-[var(--surface-2)] flex items-center justify-center">
             {imageUrl ? (
               <img
                 src={imageUrl}

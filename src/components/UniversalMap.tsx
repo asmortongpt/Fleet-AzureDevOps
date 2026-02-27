@@ -171,7 +171,7 @@ class MapErrorBoundary extends Component<
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center h-full w-full bg-white/[0.03] dark:bg-[#111113] p-3">
+        <div className="flex flex-col items-center justify-center h-full w-full bg-white/[0.03] dark:bg-[var(--surface-1)] p-3">
           <div className="max-w-md text-center">
             <div className="mb-2 text-red-500">
               <svg
@@ -714,7 +714,7 @@ export function UniversalMap(props: UniversalMapProps) {
       <div className="relative w-full h-full min-h-[500px]">
         {/* Loading Overlay */}
         {loadingState === "loading" && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-[#111113]/80">
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-[var(--surface-1)]/80">
             <div className="flex flex-col items-center gap-3">
               <div className="w-12 h-9 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
               <p className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
@@ -750,7 +750,7 @@ export function UniversalMap(props: UniversalMapProps) {
 
         {/* Provider Badge (Development Only) */}
         {import.meta.env.MODE === "development" && (
-          <div className="absolute top-4 right-4 z-40 bg-black/70 text-white px-2 py-1 rounded text-xs font-mono">
+          <div className="absolute top-4 right-4 z-40 bg-[var(--overlay-backdrop)] text-white px-2 py-1 rounded text-xs font-mono">
             {provider === "google" ? "Google Maps" : "Leaflet/OSM"}
           </div>
         )}

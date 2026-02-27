@@ -46,15 +46,15 @@ export function FlyoutMenu() {
     >
       <div
         className={cn(
-          'w-52 h-full bg-[#0e0e0e]',
-          'border-r border-white/[0.04]',
+          'w-52 h-full bg-[var(--surface-1)]',
+          'border-r border-[var(--border-subtle)]',
           'shadow-[4px_0_32px_rgba(0,0,0,0.5)]',
           'overflow-y-auto scrollbar-none',
         )}
       >
         {/* Category header */}
-        <div className="sticky top-0 bg-[#0e0e0e] px-5 pt-5 pb-3 border-b border-white/[0.04]">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+        <div className="sticky top-0 bg-[var(--surface-1)] px-5 pt-5 pb-3 border-b border-[var(--border-subtle)]">
+          <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
             {categoryLabels[flyoutCategory]}
           </h2>
         </div>
@@ -65,7 +65,7 @@ export function FlyoutMenu() {
             <li key={mod.id}>
               <button
                 onClick={() => handleSelectModule(mod.id)}
-                className="w-full text-left px-3 py-2.5 rounded-lg text-[13px] text-white/40 hover:text-white hover:bg-white/[0.04] transition-colors duration-150 focus:outline-none"
+                className="w-full text-left px-3 py-2.5 rounded-lg text-[13px] text-[var(--text-tertiary)] hover:text-white hover:bg-[var(--surface-glass)] transition-colors duration-150 focus:outline-none"
               >
                 {mod.label}
               </button>
@@ -73,7 +73,7 @@ export function FlyoutMenu() {
           ))}
 
           {modules.length === 0 && (
-            <p className="text-[13px] text-white/20 px-3 py-8 text-center">
+            <p className="text-[13px] text-[var(--text-quaternary)] px-3 py-8 text-center">
               No modules available
             </p>
           )}

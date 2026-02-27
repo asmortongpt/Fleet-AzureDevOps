@@ -298,7 +298,7 @@ export function VirtualizedTable<TData>({
         {/* Search */}
         {enableSearch && (
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
             <Input
               placeholder="Search all columns..."
               value={globalFilter ?? ''}
@@ -312,7 +312,7 @@ export function VirtualizedTable<TData>({
                 className="absolute right-3 top-1/2 transform -translate-y-1/2"
                 aria-label="Clear search"
               >
-                <X className="w-4 h-4 text-white/40 hover:text-white/40" />
+                <X className="w-4 h-4 text-[var(--text-tertiary)] hover:text-[var(--text-tertiary)]" />
               </button>
             )}
           </div>
@@ -383,7 +383,7 @@ export function VirtualizedTable<TData>({
       <div
         ref={tableContainerRef}
         className={cn(
-          'relative overflow-auto rounded-lg border border-white/[0.04] dark:border-white/[0.04]',
+          'relative overflow-auto rounded-lg border border-[var(--border-subtle)] dark:border-[var(--border-subtle)]',
           className
         )}
         style={{ maxHeight }}
@@ -394,17 +394,17 @@ export function VirtualizedTable<TData>({
           {/* Header */}
           <thead
             className={cn(
-              'bg-white/[0.03] dark:bg-[#111]',
+              'bg-[var(--surface-glass)] dark:bg-[var(--surface-1)]',
               stickyHeader && 'sticky top-0 z-10'
             )}
           >
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-white/[0.04] dark:border-white/[0.04]">
+              <tr key={headerGroup.id} className="border-b border-[var(--border-subtle)] dark:border-[var(--border-subtle)]">
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
                     style={{ width: header.getSize() }}
-                    className="relative px-2 py-3 text-left text-xs font-medium text-white/40 dark:text-white/80 uppercase tracking-wider"
+                    className="relative px-2 py-3 text-left text-xs font-medium text-[var(--text-tertiary)] dark:text-[var(--text-primary)] uppercase tracking-wider"
                   >
                     {header.isPlaceholder ? null : (
                       <div className="flex items-center gap-2">
@@ -478,8 +478,8 @@ export function VirtualizedTable<TData>({
                     data-index={virtualRow.index}
                     ref={virtualizer.measureElement}
                     className={cn(
-                      'border-b border-white/[0.04] dark:border-white/[0.04] hover:bg-white/[0.03] dark:hover:bg-white/[0.06] transition-colors',
-                      row.getIsSelected() && 'bg-emerald-50 dark:bg-white/[0.04]',
+                      'border-b border-[var(--border-subtle)] dark:border-[var(--border-subtle)] hover:bg-[var(--surface-glass)] dark:hover:bg-[var(--surface-glass-hover)] transition-colors',
+                      row.getIsSelected() && 'bg-emerald-50 dark:bg-[var(--surface-glass)]',
                       onRowClick && 'cursor-pointer'
                     )}
                     style={{
@@ -496,7 +496,7 @@ export function VirtualizedTable<TData>({
                       <td
                         key={cell.id}
                         style={{ width: cell.column.getSize() }}
-                        className="px-2 py-3 text-sm text-white/40 dark:text-white/80"
+                        className="px-2 py-3 text-sm text-[var(--text-tertiary)] dark:text-[var(--text-primary)]"
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
@@ -509,8 +509,8 @@ export function VirtualizedTable<TData>({
                 <tr
                   key={row.id}
                   className={cn(
-                    'border-b border-white/[0.04] dark:border-white/[0.04] hover:bg-white/[0.03] dark:hover:bg-white/[0.06] transition-colors',
-                    row.getIsSelected() && 'bg-emerald-50 dark:bg-white/[0.04]',
+                    'border-b border-[var(--border-subtle)] dark:border-[var(--border-subtle)] hover:bg-[var(--surface-glass)] dark:hover:bg-[var(--surface-glass-hover)] transition-colors',
+                    row.getIsSelected() && 'bg-emerald-50 dark:bg-[var(--surface-glass)]',
                     onRowClick && 'cursor-pointer'
                   )}
                   onClick={() => onRowClick?.(row.original)}
@@ -519,7 +519,7 @@ export function VirtualizedTable<TData>({
                     <td
                       key={cell.id}
                       style={{ width: cell.column.getSize() }}
-                      className="px-2 py-3 text-sm text-white/40 dark:text-white/80"
+                      className="px-2 py-3 text-sm text-[var(--text-tertiary)] dark:text-[var(--text-primary)]"
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
@@ -534,7 +534,7 @@ export function VirtualizedTable<TData>({
       {/* Pagination */}
       {enablePagination && (
         <div className="flex items-center justify-between">
-          <div className="text-sm text-white/40 dark:text-white/80">
+          <div className="text-sm text-[var(--text-tertiary)] dark:text-[var(--text-primary)]">
             Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
             {Math.min(
               (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
@@ -579,7 +579,7 @@ function ColumnFilter({ column }: { column: any }) {
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            'p-1 rounded hover:bg-white/[0.06] dark:hover:bg-white/[0.06]',
+            'p-1 rounded hover:bg-[var(--surface-glass-hover)] dark:hover:bg-[var(--surface-glass-hover)]',
             columnFilterValue && 'text-primary'
           )}
           aria-label={`Filter ${column.id}`}
@@ -623,7 +623,7 @@ const DefaultLoadingState = () => (
   <div className="flex items-center justify-center h-64">
     <div className="text-center space-y-2">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-      <p className="text-sm text-white/40">Loading data...</p>
+      <p className="text-sm text-[var(--text-tertiary)]">Loading data...</p>
     </div>
   </div>
 )
@@ -633,7 +633,7 @@ const DefaultErrorState = ({ error }: { error: Error }) => (
     <div className="text-center space-y-2">
       <X className="w-4 h-4 text-red-500 mx-auto" />
       <p className="text-sm font-medium">Failed to load data</p>
-      <p className="text-xs text-white/40">{error.message}</p>
+      <p className="text-xs text-[var(--text-tertiary)]">{error.message}</p>
     </div>
   </div>
 )
@@ -641,11 +641,11 @@ const DefaultErrorState = ({ error }: { error: Error }) => (
 const DefaultEmptyState = ({ message }: { message: string }) => (
   <div className="flex items-center justify-center h-64">
     <div className="text-center space-y-2">
-      <div className="p-3 bg-neutral-100 dark:bg-[#1a1a1a] rounded-full inline-flex">
-        <Search className="w-4 h-4 text-white/40" />
+      <div className="p-3 bg-neutral-100 dark:bg-[var(--surface-2)] rounded-full inline-flex">
+        <Search className="w-4 h-4 text-[var(--text-tertiary)]" />
       </div>
       <p className="text-sm font-medium">{message}</p>
-      <p className="text-xs text-white/40">Try adjusting your filters or search</p>
+      <p className="text-xs text-[var(--text-tertiary)]">Try adjusting your filters or search</p>
     </div>
   </div>
 )

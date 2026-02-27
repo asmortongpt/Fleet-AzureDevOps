@@ -494,7 +494,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
       const errorDetails = getErrorDetails(categorizedError, provider)
 
       return (
-        <div className="flex items-center justify-center w-full h-full bg-white/[0.03] dark:bg-[#111113] p-3">
+        <div className="flex items-center justify-center w-full h-full bg-white/[0.03] dark:bg-[var(--surface-1)] p-3">
           <Card className="max-w-2xl w-full">
             <CardHeader>
               <div className="flex items-start justify-between">

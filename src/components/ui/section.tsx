@@ -30,21 +30,21 @@ export function Section({
   return (
     <section
       className={cn(
-        'flex flex-col rounded-2xl bg-[#111111] border border-white/[0.04]',
+        'flex flex-col rounded-2xl bg-[var(--surface-1)] border border-[var(--border-subtle)]',
         className
       )}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-white/[0.04]">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-3">
           {icon ? (
-            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/[0.04] text-white/40">
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--surface-glass)] text-[var(--text-tertiary)]">
               {icon}
             </div>
           ) : null}
           <div>
             <h3 className="text-[14px] font-semibold text-white">{title}</h3>
             {description ? (
-              <p className="text-[12px] text-white/30 mt-0.5">{description}</p>
+              <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">{description}</p>
             ) : null}
           </div>
         </div>

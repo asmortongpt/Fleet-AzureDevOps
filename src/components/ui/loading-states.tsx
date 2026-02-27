@@ -41,7 +41,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   return (
     <div
       className={cn(
-        'relative overflow-hidden bg-white/[0.04]',
+        'relative overflow-hidden bg-[var(--surface-glass)]',
         roundedClasses[rounded],
         variant === 'shimmer' && 'skeleton-shimmer',
         variant === 'pulse' && 'animate-pulse',
@@ -68,7 +68,7 @@ export const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
   return (
     <div className="w-full space-y-3" role="status" aria-label="Loading table data">
       {/* Header */}
-      <div className="flex gap-2 p-2 bg-[#1a1a1a] rounded-t-lg">
+      <div className="flex gap-2 p-2 bg-[var(--surface-2)] rounded-t-lg">
         {Array.from({ length: columns }).map((_, i) => (
           <Skeleton key={i} className="h-4 flex-1" />
         ))}
@@ -78,7 +78,7 @@ export const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
       {Array.from({ length: rows }).map((_, rowIndex) => (
         <div
           key={rowIndex}
-          className="flex gap-2 p-2 border-b border-white/[0.04]"
+          className="flex gap-2 p-2 border-b border-[var(--border-subtle)]"
         >
           {Array.from({ length: columns }).map((_, colIndex) => (
             <Skeleton
@@ -97,7 +97,7 @@ export const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
 
 export const CardSkeleton: React.FC<{ showImage?: boolean }> = ({ showImage = false }) => {
   return (
-    <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-3 space-y-2">
+    <div className="bg-[var(--surface-1)] rounded-lg border border-[var(--border-subtle)] p-3 space-y-2">
       {showImage && <Skeleton className="h-48 w-full" />}
       <Skeleton className="h-6 w-3/4" />
       <Skeleton className="h-4 w-full" />
@@ -112,7 +112,7 @@ export const CardSkeleton: React.FC<{ showImage?: boolean }> = ({ showImage = fa
 
 export const StatCardSkeleton: React.FC = () => {
   return (
-    <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-3">
+    <div className="bg-[var(--surface-1)] rounded-lg border border-[var(--border-subtle)] p-3">
       <div className="flex items-start justify-between">
         <div className="space-y-2 flex-1">
           <Skeleton className="h-4 w-24" />
@@ -127,7 +127,7 @@ export const StatCardSkeleton: React.FC = () => {
 
 export const ChartSkeleton: React.FC<{ height?: string }> = ({ height = '300px' }) => {
   return (
-    <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-3">
+    <div className="bg-[var(--surface-1)] rounded-lg border border-[var(--border-subtle)] p-3">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Skeleton className="h-6 w-32" />
@@ -159,7 +159,7 @@ export const ListSkeleton: React.FC<{ items?: number }> = ({ items = 5 }) => {
       {Array.from({ length: items }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-2 p-2 bg-[#111111] rounded-lg border border-white/[0.04]"
+          className="flex items-center gap-2 p-2 bg-[var(--surface-1)] rounded-lg border border-[var(--border-subtle)]"
         >
           <Skeleton className="h-8 w-10" rounded="full" />
           <div className="flex-1 space-y-2">
@@ -231,24 +231,24 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
         'absolute inset-0 z-50 flex items-center justify-center',
         fullScreen && 'fixed',
         blur && 'backdrop-blur-sm',
-        'bg-[#0a0a0a]/80'
+        'bg-[var(--overlay-backdrop)]'
       )}
     >
-      <div className="bg-[#111111] rounded-lg p-3 max-w-sm w-full mx-2 border border-white/[0.04]">
+      <div className="bg-[var(--surface-1)] rounded-lg p-3 max-w-sm w-full mx-2 border border-[var(--border-subtle)]">
         <div className="flex flex-col items-center space-y-2">
           <Spinner size="lg" />
-          <p className="text-sm font-medium text-white/60">
+          <p className="text-sm font-medium text-[var(--text-secondary)]">
             {message}
           </p>
           {progress !== undefined && (
             <div className="w-full">
-              <div className="h-2 bg-white/[0.04] rounded-full overflow-hidden">
+              <div className="h-2 bg-[var(--surface-glass)] rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary rounded-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p className="text-xs text-white/35 mt-2 text-center">
+              <p className="text-xs text-[var(--text-tertiary)] mt-2 text-center">
                 {Math.round(progress)}% complete
               </p>
             </div>
@@ -319,7 +319,7 @@ export function AsyncState<T>({
 const DefaultLoadingState: React.FC = () => (
   <div className="flex flex-col items-center justify-center p-3 space-y-2">
     <Spinner size="lg" />
-    <p className="text-sm text-white/35">Loading data...</p>
+    <p className="text-sm text-[var(--text-tertiary)]">Loading data...</p>
   </div>
 )
 
@@ -332,7 +332,7 @@ const DefaultErrorState: React.FC<{ error: Error }> = ({ error }) => (
       <p className="text-sm font-medium text-white">
         Failed to load data
       </p>
-      <p className="text-xs text-white/35 mt-1">
+      <p className="text-xs text-[var(--text-tertiary)] mt-1">
         {error.message}
       </p>
     </div>
@@ -347,14 +347,14 @@ const DefaultErrorState: React.FC<{ error: Error }> = ({ error }) => (
 
 const DefaultEmptyState: React.FC = () => (
   <div className="flex flex-col items-center justify-center p-3 space-y-2">
-    <div className="p-3 bg-white/[0.04] rounded-full">
-      <Clock className="w-4 h-4 text-white/40" />
+    <div className="p-3 bg-[var(--surface-glass)] rounded-full">
+      <Clock className="w-4 h-4 text-[var(--text-tertiary)]" />
     </div>
     <div className="text-center">
       <p className="text-sm font-medium text-white">
         No data available
       </p>
-      <p className="text-xs text-white/35 mt-1">
+      <p className="text-xs text-[var(--text-tertiary)] mt-1">
         Check back later for updates
       </p>
     </div>
@@ -379,8 +379,8 @@ export const LoadingStatus: React.FC<LoadingStatusProps> = ({ status, message })
   }
 
   const colors = {
-    idle: 'text-white/35',
-    loading: 'text-emerald-400',
+    idle: 'text-[var(--text-tertiary)]',
+    loading: 'text-[var(--accent-primary)]',
     success: 'text-green-500',
     error: 'text-red-500'
   }

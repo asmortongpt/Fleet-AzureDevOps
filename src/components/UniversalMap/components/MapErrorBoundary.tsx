@@ -40,7 +40,7 @@ export class MapErrorBoundary extends Component<
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center h-full w-full bg-white/[0.03] dark:bg-[#111113] p-3">
+        <div className="flex flex-col items-center justify-center h-full w-full bg-white/[0.03] dark:bg-[var(--surface-1)] p-3">
           <div className="max-w-md text-center">
             <div className="mb-2 text-red-500">
               <svg

@@ -70,7 +70,7 @@ export function InteractiveTooltip({
     active: {
       color: "bg-green-500",
       label: "Active",
-      textColor: "text-emerald-400"
+      textColor: "text-[var(--accent-primary)]"
     },
     idle: {
       color: "bg-amber-500",
@@ -85,7 +85,7 @@ export function InteractiveTooltip({
     offline: {
       color: "bg-white/30",
       label: "Offline",
-      textColor: "text-white/40"
+      textColor: "text-[var(--text-tertiary)]"
     },
   };
 
@@ -103,7 +103,7 @@ export function InteractiveTooltip({
             <TooltipContent
               side={effectiveSide}
               align={align}
-              className={cn("bg-[#1a1a1a] text-white border-white/[0.04]", className)}
+              className={cn("bg-[var(--surface-2)] text-white border-[var(--border-subtle)]", className)}
             >
               {content}
             </TooltipContent>
@@ -125,7 +125,7 @@ export function InteractiveTooltip({
             className={cn("p-0 border-0 bg-transparent", className)}
           >
             <div
-              className="bg-[#111111] border border-white/[0.04] rounded-lg overflow-hidden min-w-[280px] max-w-[320px]"
+              className="bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-lg overflow-hidden min-w-[280px] max-w-[320px]"
             >
               {/* Header */}
               <div className="bg-emerald-600 px-2 py-3 text-white">
@@ -172,16 +172,16 @@ export function InteractiveTooltip({
                   <div className="space-y-2 text-sm">
                     {data.location && (
                       <div className="flex items-start gap-2">
-                        <span className="text-white/60 text-xs">📍</span>
-                        <span className="text-white/60 text-xs flex-1 leading-relaxed">
+                        <span className="text-[var(--text-secondary)] text-xs">📍</span>
+                        <span className="text-[var(--text-secondary)] text-xs flex-1 leading-relaxed">
                           {data.location}
                         </span>
                       </div>
                     )}
                     {data.driver && (
                       <div className="flex items-center gap-2">
-                        <span className="text-white/60 text-xs">👤</span>
-                        <span className="text-white/60 text-xs font-medium">
+                        <span className="text-[var(--text-secondary)] text-xs">👤</span>
+                        <span className="text-[var(--text-secondary)] text-xs font-medium">
                           {data.driver}
                         </span>
                       </div>
@@ -199,7 +199,7 @@ export function InteractiveTooltip({
                           "text-xs p-2 rounded flex items-start gap-2",
                           alert.type === "error" && "bg-red-500/10 text-red-400",
                           alert.type === "warning" && "bg-amber-500/10 text-amber-400",
-                          alert.type === "info" && "bg-emerald-500/10 text-emerald-400"
+                          alert.type === "info" && "bg-emerald-500/10 text-[var(--accent-primary)]"
                         )}
                       >
                         <span className="flex-shrink-0">
@@ -215,7 +215,7 @@ export function InteractiveTooltip({
 
                 {/* Last Update */}
                 {data.lastUpdate && (
-                  <div className="text-xs text-white/35 text-center pt-2 border-t border-white/[0.04]">
+                  <div className="text-xs text-[var(--text-tertiary)] text-center pt-2 border-t border-[var(--border-subtle)]">
                     Updated {formatRelativeTime(data.lastUpdate)}
                   </div>
                 )}
@@ -240,7 +240,7 @@ export function InteractiveTooltip({
                           onTrack(data.id);
                           setIsOpen(false);
                         }}
-                        className="flex-1 px-3 py-2 border border-white/[0.04] hover:bg-white/[0.04] text-white/60 text-xs font-medium rounded-md transition-colors"
+                        className="flex-1 px-3 py-2 border border-[var(--border-subtle)] hover:bg-[var(--surface-glass)] text-[var(--text-secondary)] text-xs font-medium rounded-md transition-colors"
                       >
                         Track
                       </button>
@@ -270,11 +270,11 @@ function MetricItem({ label, value, icon, warning }: MetricItemProps) {
   return (
     <div className={cn(
       "p-2 rounded-lg border",
-      warning ? "bg-amber-500/10 border-amber-500/20" : "bg-white/[0.04] border-white/[0.04]"
+      warning ? "bg-amber-500/10 border-amber-500/20" : "bg-[var(--surface-glass)] border-[var(--border-subtle)]"
     )}>
       <div className="flex items-center gap-1 mb-1">
         {icon && <span className="text-xs">{icon}</span>}
-        <span className="text-xs text-white/40">{label}</span>
+        <span className="text-xs text-[var(--text-tertiary)]">{label}</span>
       </div>
       <div className={cn(
         "text-sm font-semibold",
@@ -317,7 +317,7 @@ export function SimpleTooltip({
             className={cn("p-0 border-0 bg-transparent", className)}
           >
             <div
-              className="bg-[#1a1a1a] text-white px-3 py-2 rounded-md text-sm max-w-xs border border-white/[0.04]"
+              className="bg-[var(--surface-2)] text-white px-3 py-2 rounded-md text-sm max-w-xs border border-[var(--border-subtle)]"
             >
               {content}
             </div>
@@ -378,9 +378,9 @@ export function DataTooltip({
         {isOpen && (
           <TooltipContent className="p-0 border-0 bg-transparent">
             <div
-              className="bg-[#111111] border border-white/[0.04] rounded-lg px-3 py-2 min-w-[120px]"
+              className="bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 min-w-[120px]"
             >
-              <div className="text-xs text-white/40 mb-1">{label}</div>
+              <div className="text-xs text-[var(--text-tertiary)] mb-1">{label}</div>
               <div className="flex items-baseline gap-1">
                 <div
                   className="text-sm font-bold"
@@ -388,12 +388,12 @@ export function DataTooltip({
                 >
                   {value}
                 </div>
-                {unit && <span className="text-xs text-white/40">{unit}</span>}
+                {unit && <span className="text-xs text-[var(--text-tertiary)]">{unit}</span>}
               </div>
               {change !== undefined && (
                 <div className={cn(
                   "text-xs font-medium mt-1",
-                  change >= 0 ? "text-emerald-400" : "text-rose-400"
+                  change >= 0 ? "text-[var(--accent-primary)]" : "text-rose-400"
                 )}>
                   {change >= 0 ? "↑" : "↓"} {Math.abs(change)}%
                 </div>

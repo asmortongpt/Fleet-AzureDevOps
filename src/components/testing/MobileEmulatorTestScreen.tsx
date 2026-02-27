@@ -261,7 +261,7 @@ export function MobileEmulatorTestScreen() {
               {/* Device Frame */}
               <div className="flex justify-center">
                 <div
-                  className="bg-[#111113] rounded-3xl p-2"
+                  className="bg-[var(--surface-1)] rounded-3xl p-2"
                   style={{
                     width: dimensions.width + 32,
                     height: dimensions.height + 32

@@ -557,7 +557,7 @@ export function VideoTelematics() {
           </DialogHeader>
           {selectedEvent && (
             <div className="space-y-2">
-              <div className="aspect-video bg-[#111113] rounded-lg flex items-center justify-center">
+              <div className="aspect-video bg-[var(--surface-1)] rounded-lg flex items-center justify-center">
                 <div className="text-center text-[var(--text-tertiary)]">
                   <Video className="w-16 h-16 mx-auto mb-2" />
                   <p>Video Player</p>

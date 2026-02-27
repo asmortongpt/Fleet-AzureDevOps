@@ -259,7 +259,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
 
         {/* Detailed Statistics */}
         {showDetails && selectedProvider && (
-          <Card className="bg-white/[0.03] dark:bg-[#111113]">
+          <Card className="bg-white/[0.03] dark:bg-[var(--surface-1)]">
             <CardHeader>
               <CardTitle className="text-sm">
                 {getProviderName(selectedProvider)} Details

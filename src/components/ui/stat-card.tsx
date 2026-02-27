@@ -45,7 +45,7 @@ export function StatCard({
     const displayTrendValue = trendValue || (change !== undefined ? `${change > 0 ? '+' : ''}${change}%` : undefined)
 
     const TrendIcon = trend === 'up' ? ArrowUp : trend === 'down' ? ArrowDown : Minus
-    const trendColor = trend === 'up' ? 'text-emerald-400' : trend === 'down' ? 'text-rose-400' : 'text-white/30'
+    const trendColor = trend === 'up' ? 'text-[var(--accent-primary)]' : trend === 'down' ? 'text-rose-400' : 'text-[var(--text-tertiary)]'
 
     const sizeMap = {
         sm: { padding: 'p-3', title: 'text-[10px]', value: 'text-lg', sub: 'text-[10px]' },
@@ -67,16 +67,16 @@ export function StatCard({
             }}
             aria-label={isClickable ? `${title}: ${value}. ${drilldownLabel}` : undefined}
             className={cn(
-                'group rounded-2xl border border-white/[0.04] bg-[#111111]',
+                'group rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-1)]',
                 s.padding,
-                isClickable && 'cursor-pointer hover:bg-[#161616] transition-colors duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20',
+                isClickable && 'cursor-pointer hover:bg-[var(--surface-2)] transition-colors duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20',
                 className
             )}
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1 min-w-0 flex-1">
                     <p className={cn(
-                        'font-medium text-white/35 uppercase tracking-wider truncate',
+                        'font-medium text-[var(--text-tertiary)] uppercase tracking-wider truncate',
                         s.title
                     )}>
                         {title}
@@ -90,7 +90,7 @@ export function StatCard({
                     {(displaySubtitle || trend) && (
                         <div className="flex items-center gap-2 flex-wrap pt-0.5">
                             {displaySubtitle && (
-                                <p className={cn('text-white/30 truncate', s.sub)}>{displaySubtitle}</p>
+                                <p className={cn('text-[var(--text-tertiary)] truncate', s.sub)}>{displaySubtitle}</p>
                             )}
                             {trend && displayTrendValue && (
                                 <div className={cn('flex items-center gap-0.5 font-medium', trendColor, s.sub)}>
@@ -103,14 +103,14 @@ export function StatCard({
                 </div>
 
                 {icon && (
-                    <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-white/[0.04] text-white/30 shrink-0">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-[var(--surface-glass)] text-[var(--text-tertiary)] shrink-0">
                         {icon}
                     </div>
                 )}
             </div>
 
             {isClickable && (
-                <div className="mt-2 flex items-center gap-1 text-white/20 group-hover:text-white/40 transition-colors duration-150">
+                <div className="mt-2 flex items-center gap-1 text-[var(--text-quaternary)] group-hover:text-[var(--text-tertiary)] transition-colors duration-150">
                     <span className="text-[10px] font-medium">{drilldownLabel}</span>
                     <ChevronRight className="w-3 h-3" />
                 </div>
@@ -157,7 +157,7 @@ export function ProgressRing({
                 <circle
                     cx={size / 2} cy={size / 2} r={radius}
                     fill="none" stroke="currentColor" strokeWidth={strokeWidth}
-                    className="text-white/[0.06]"
+                    className="text-[var(--surface-glass-hover)]"
                 />
                 <circle
                     cx={size / 2} cy={size / 2} r={radius}
@@ -169,8 +169,8 @@ export function ProgressRing({
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-sm font-semibold text-white tabular-nums">{progress}%</span>
-                {label && <span className="text-[10px] text-white/35 font-medium">{label}</span>}
-                {sublabel && <span className="text-[10px] text-white/20">{sublabel}</span>}
+                {label && <span className="text-[10px] text-[var(--text-tertiary)] font-medium">{label}</span>}
+                {sublabel && <span className="text-[10px] text-[var(--text-quaternary)]">{sublabel}</span>}
             </div>
         </div>
     )
@@ -202,7 +202,7 @@ export function StatusDot({ status, label, size = 'default' }: StatusDotProps) {
     return (
         <div className="flex items-center gap-2">
             <span className={cn('rounded-full', dotSizes[size], statusColors[status])} />
-            {label && <span className="text-[12px] text-white/50 font-medium">{label}</span>}
+            {label && <span className="text-[12px] text-[var(--text-secondary)] font-medium">{label}</span>}
         </div>
     )
 }
@@ -231,19 +231,19 @@ export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
                 }
             }}
             className={cn(
-                'flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0',
+                'flex items-center justify-between py-2.5 border-b border-[var(--border-subtle)] last:border-0',
                 isClickable && 'cursor-pointer rounded-lg px-2 -mx-2 hover:bg-white/[0.02] transition-colors duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20'
             )}
         >
-            <span className="text-[12px] text-white/40">{label}</span>
+            <span className="text-[12px] text-[var(--text-tertiary)]">{label}</span>
             <div className="flex items-center gap-1.5">
                 <span className="text-[13px] font-semibold text-white tabular-nums">{value}</span>
                 {trend && (
-                    <span className={trend === 'up' ? 'text-emerald-400' : 'text-rose-400'}>
+                    <span className={trend === 'up' ? 'text-[var(--accent-primary)]' : 'text-rose-400'}>
                         {trend === 'up' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                     </span>
                 )}
-                {isClickable && <ChevronRight className="w-3 h-3 text-white/20" />}
+                {isClickable && <ChevronRight className="w-3 h-3 text-[var(--text-quaternary)]" />}
             </div>
         </div>
     )
@@ -273,8 +273,8 @@ interface MetricBadgeProps {
 }
 
 const badgeVariants = {
-    default: 'bg-white/[0.04] text-white/50',
-    success: 'bg-emerald-500/10 text-emerald-400',
+    default: 'bg-[var(--surface-glass)] text-[var(--text-secondary)]',
+    success: 'bg-[var(--accent-muted)] text-[var(--accent-primary)]',
     warning: 'bg-amber-500/10 text-amber-400',
     danger: 'bg-rose-500/10 text-rose-400'
 }

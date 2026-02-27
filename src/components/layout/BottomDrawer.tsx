@@ -17,7 +17,7 @@ export function BottomDrawer() {
     <div
       className={cn(
         'absolute bottom-0 left-0 right-0 z-10',
-        'bg-[#0e0e0e] border-t border-white/[0.04]',
+        'bg-[var(--surface-1)] border-t border-[var(--border-subtle)]',
         'transition-all duration-300 ease-in-out',
         open ? 'h-[200px] sm:h-[280px]' : 'h-8'
       )}
@@ -25,10 +25,10 @@ export function BottomDrawer() {
       {/* Grab bar */}
       <button
         onClick={toggleBottomDrawer}
-        className="w-full flex items-center justify-center gap-2 h-8 text-white/40 hover:text-white transition-colors"
+        className="w-full flex items-center justify-center gap-2 h-8 text-[var(--text-tertiary)] hover:text-white transition-colors"
         aria-label={open ? 'Collapse activity panel' : 'Expand activity panel'}
       >
-        <div className="w-8 h-0.5 rounded-full bg-white/[0.08]" />
+        <div className="w-8 h-0.5 rounded-full bg-[var(--surface-glass-hover)]" />
         {open ? (
           <ChevronDown className="w-3 h-3" />
         ) : (
@@ -54,19 +54,19 @@ export function BottomDrawer() {
             ].map((item) => (
               <div
                 key={item.text}
-                className="flex items-start gap-3 py-2 text-xs border-b border-white/[0.04] last:border-0"
+                className="flex items-start gap-3 py-2 text-xs border-b border-[var(--border-subtle)] last:border-0"
               >
-                <span className="text-white/35 shrink-0 w-12 sm:w-14 text-right tabular-nums font-mono text-[10px] sm:text-[11px]">
+                <span className="text-[var(--text-tertiary)] shrink-0 w-12 sm:w-14 text-right tabular-nums font-mono text-[10px] sm:text-[11px]">
                   {item.time}
                 </span>
                 <div className={cn(
                   'w-1.5 h-1.5 rounded-full mt-1 shrink-0',
                   item.type === 'success' ? 'bg-emerald-400' :
-                  item.type === 'warning' ? 'bg-white/80' :
-                  item.type === 'alert' ? 'bg-white/40' :
-                  'bg-white/20'
+                  item.type === 'warning' ? 'bg-[var(--text-primary)]' :
+                  item.type === 'alert' ? 'bg-[var(--text-tertiary)]' :
+                  'bg-[var(--text-quaternary)]'
                 )} />
-                <span className="text-white/60">{item.text}</span>
+                <span className="text-[var(--text-secondary)]">{item.text}</span>
               </div>
             ))}
           </div>

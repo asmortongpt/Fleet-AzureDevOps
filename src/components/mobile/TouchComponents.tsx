@@ -300,7 +300,7 @@ export function BottomSheet({
 
       {/* Sheet */}
       <div
-        className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-[#111113] rounded-t-3xl overflow-hidden transition-transform duration-300"
+        className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-[var(--surface-1)] rounded-t-3xl overflow-hidden transition-transform duration-300"
         style={{ transform: `translateY(${100 - currentSnapPoint}%)` }}
       >
         {/* Drag handle */}
@@ -355,7 +355,7 @@ export function ActionSheet({
 
       {/* Action Sheet */}
       <div
-        className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-[#111113] rounded-t-3xl p-2 safe-bottom transition-transform duration-300"
+        className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-[var(--surface-1)] rounded-t-3xl p-2 safe-bottom transition-transform duration-300"
       >
         {title && (
           <div className="text-center mb-2">

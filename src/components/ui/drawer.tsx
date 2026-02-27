@@ -59,7 +59,7 @@ function DrawerContent({
         data-slot="drawer-content"
         className={cn(
           "group/drawer-content fixed z-50 flex h-auto flex-col",
-          "bg-[#0e0e0e]",
+          "bg-[var(--surface-1)]",
           // Bottom drawer
           "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0",
           "data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[85vh]",
@@ -77,7 +77,7 @@ function DrawerContent({
           "data-[vaul-drawer-direction=left]:w-[85vw] data-[vaul-drawer-direction=left]:sm:w-[400px] data-[vaul-drawer-direction=left]:sm:max-w-md",
           "data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:rounded-r-2xl",
           // Border styling
-          "border-white/[0.04]",
+          "border-[var(--border-subtle)]",
           className
         )}
         {...props}
@@ -90,8 +90,8 @@ function DrawerContent({
           <DrawerPrimitive.Close
             className={cn(
               "absolute top-4 right-4 rounded-lg p-2",
-              "text-white/40 hover:text-white",
-              "bg-white/[0.04] hover:bg-white/[0.08]",
+              "text-[var(--text-tertiary)] hover:text-white",
+              "bg-[var(--surface-glass)] hover:bg-[var(--surface-glass-hover)]",
               "transition-all duration-200",
               "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
               "hidden group-data-[vaul-drawer-direction=left]/drawer-content:block group-data-[vaul-drawer-direction=right]/drawer-content:block",
@@ -115,7 +115,7 @@ function DrawerHeader({ className, ...props }: ComponentProps<"div">) {
       data-slot="drawer-header"
       className={cn(
         "flex flex-col gap-1.5 p-2 sm:p-3",
-        "border-b border-white/[0.04]",
+        "border-b border-[var(--border-subtle)]",
         className
       )}
       {...props}
@@ -129,7 +129,7 @@ function DrawerFooter({ className, ...props }: ComponentProps<"div">) {
       data-slot="drawer-footer"
       className={cn(
         "mt-auto flex flex-col gap-2 p-2 sm:p-3",
-        "border-t border-white/[0.04]",
+        "border-t border-[var(--border-subtle)]",
         className
       )}
       {...props}
@@ -157,7 +157,7 @@ function DrawerDescription({
   return (
     <DrawerPrimitive.Description
       data-slot="drawer-description"
-      className={cn("text-sm text-white/60 leading-relaxed", className)}
+      className={cn("text-sm text-[var(--text-secondary)] leading-relaxed", className)}
       {...props}
     />
   )

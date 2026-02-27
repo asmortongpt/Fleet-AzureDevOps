@@ -194,7 +194,7 @@ export function HeatmapChart({
                           )}
 
                           {/* Tooltip on hover */}
-                          <div className="absolute hidden group-hover:block bg-[#1a1a1a] text-white text-xs rounded px-2 py-1 -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-20">
+                          <div className="absolute hidden group-hover:block bg-[var(--surface-2)] text-white text-xs rounded px-2 py-1 -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-20">
                             {x} × {y}: {value.toFixed(2)}
                           </div>
                         </div>

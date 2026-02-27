@@ -43,7 +43,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       cell: ({ row }) => {
         const avatarUrl = row.original.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.original.driver_id}`;
         return (
-          <div className="w-10 h-8 rounded-full overflow-hidden bg-[#1a1a1a] flex items-center justify-center border-2 border-[var(--border-subtle)]">
+          <div className="w-10 h-8 rounded-full overflow-hidden bg-[var(--surface-2)] flex items-center justify-center border-2 border-[var(--border-subtle)]">
             <img
               src={avatarUrl}
               alt={`${row.original.first_name} ${row.original.last_name}`}

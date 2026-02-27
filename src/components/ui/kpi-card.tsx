@@ -71,8 +71,8 @@ export function KPICard({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-white/[0.04] bg-[#111111] p-4",
-        isClickable && "cursor-pointer hover:bg-[#161616] transition-colors duration-150",
+        "rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-1)] p-4",
+        isClickable && "cursor-pointer hover:bg-[var(--surface-2)] transition-colors duration-150",
         loading && "animate-pulse",
         className
       )}
@@ -83,17 +83,17 @@ export function KPICard({
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            {icon && <span className="text-white/30 shrink-0">{icon}</span>}
-            <span className="text-[11px] font-medium text-white/35 uppercase tracking-wider truncate">
+            {icon && <span className="text-[var(--text-tertiary)] shrink-0">{icon}</span>}
+            <span className="text-[11px] font-medium text-[var(--text-tertiary)] uppercase tracking-wider truncate">
               {title}
             </span>
           </div>
           {subtitle && (
-            <p className="text-[11px] text-white/20 mt-0.5">{subtitle}</p>
+            <p className="text-[11px] text-[var(--text-quaternary)] mt-0.5">{subtitle}</p>
           )}
         </div>
         {isClickable && (
-          <ChevronRight className="w-4 h-4 text-white/15 shrink-0" />
+          <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)] shrink-0" />
         )}
       </div>
 
@@ -109,9 +109,9 @@ export function KPICard({
         <div className="flex items-center gap-2 text-[11px]">
           <div className={cn(
             "flex items-center gap-1",
-            isPositiveTrend && "text-emerald-400",
+            isPositiveTrend && "text-[var(--accent-primary)]",
             isNegativeTrend && "text-rose-400",
-            calculatedTrend === "flat" && "text-white/30"
+            calculatedTrend === "flat" && "text-[var(--text-tertiary)]"
           )}>
             {isPositiveTrend && <TrendingUp className="w-3 h-3" />}
             {isNegativeTrend && <TrendingDown className="w-3 h-3" />}
@@ -121,7 +121,7 @@ export function KPICard({
               {calculatedChange.toFixed(1)}%
             </span>
           </div>
-          <span className="text-white/20">{period}</span>
+          <span className="text-[var(--text-quaternary)]">{period}</span>
         </div>
       )}
 
@@ -129,12 +129,12 @@ export function KPICard({
       {!loading && target !== undefined && (
         <div className="mt-3 space-y-1">
           <div className="flex items-center justify-between text-[11px]">
-            <span className="text-white/30">Target</span>
-            <span className="font-medium text-white/50 tabular-nums">
+            <span className="text-[var(--text-tertiary)]">Target</span>
+            <span className="font-medium text-[var(--text-secondary)] tabular-nums">
               {formatValue(target, format, unit)}
             </span>
           </div>
-          <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
+          <div className="h-1 bg-[var(--surface-glass-hover)] rounded-full overflow-hidden">
             <div
               className={cn(
                 "h-full rounded-full transition-all",
@@ -150,7 +150,7 @@ export function KPICard({
 
       {/* Confidence */}
       {!loading && confidence !== undefined && (
-        <div className="mt-2 text-[10px] text-white/20">
+        <div className="mt-2 text-[10px] text-[var(--text-quaternary)]">
           {(confidence * 100).toFixed(0)}% confidence
         </div>
       )}
