@@ -260,7 +260,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <h3 className="text-sm font-bold">{schedule.serviceType}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 {schedule.vehicleNumber} • {schedule.vehicleMake} {schedule.vehicleModel} ({schedule.vehicleYear})
               </p>
               <div className="flex items-center gap-2">
@@ -270,7 +270,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                 <Badge variant="outline">{schedule.frequency}</Badge>
               </div>
             </div>
-            <Calendar className="w-12 h-9 text-muted-foreground" />
+            <Calendar className="w-12 h-9 text-[var(--text-secondary)]" />
           </div>
 
           {/* Quick Stats */}
@@ -316,20 +316,20 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                 <CardContent className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Service Type</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Service Type</p>
                       <p className="font-medium">{schedule.serviceType}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Frequency</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Frequency</p>
                       <p className="font-medium">{schedule.frequency}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Next Due Date</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Next Due Date</p>
                       <p className="font-medium">{formatDate(schedule.nextDueDate)}</p>
                     </div>
                     {schedule.nextDueMileage && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Next Due Mileage</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Next Due Mileage</p>
                         <p className="font-medium">{formatNumber(schedule.nextDueMileage)} mi</p>
                       </div>
                     )}
@@ -337,15 +337,15 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
 
                   {schedule.lastServiceDate && (
                     <div className="pt-2 border-t">
-                      <p className="text-sm text-muted-foreground mb-2">Last Service</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-2">Last Service</p>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="text-xs text-muted-foreground">Date</p>
+                          <p className="text-xs text-[var(--text-secondary)]">Date</p>
                           <p className="font-medium">{formatDate(schedule.lastServiceDate)}</p>
                         </div>
                         {schedule.lastServiceMileage && (
                           <div>
-                            <p className="text-xs text-muted-foreground">Mileage</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Mileage</p>
                             <p className="font-medium">{formatNumber(schedule.lastServiceMileage)} mi</p>
                           </div>
                         )}
@@ -355,14 +355,14 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
 
                   {schedule.serviceDescription && (
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Description</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-1">Description</p>
                       <p className="text-sm">{schedule.serviceDescription}</p>
                     </div>
                   )}
 
                   {schedule.notes && (
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Notes</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-1">Notes</p>
                       <p className="text-sm">{schedule.notes}</p>
                     </div>
                   )}
@@ -420,7 +420,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                                 </Badge>
                               </div>
                               <p className="text-sm">{record.description}</p>
-                              <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-2 mt-2 text-xs text-[var(--text-secondary)]">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
                                   {formatDate(record.serviceDate)}
@@ -456,7 +456,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-2">
+                    <p className="text-sm text-[var(--text-secondary)] text-center py-2">
                       No service history available
                     </p>
                   )}
@@ -476,15 +476,15 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                 <CardContent className="space-y-2">
                   <div>
                     <p className="font-medium text-sm">{schedule.serviceProvider}</p>
-                    <p className="text-sm text-muted-foreground">{schedule.serviceProviderContact.address}</p>
+                    <p className="text-sm text-[var(--text-secondary)]">{schedule.serviceProviderContact.address}</p>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <User className="w-4 h-4 text-muted-foreground" />
+                      <User className="w-4 h-4 text-[var(--text-secondary)]" />
                       <div>
                         <p className="text-sm font-medium">{schedule.serviceProviderContact.name}</p>
-                        <p className="text-xs text-muted-foreground">Primary Contact</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Primary Contact</p>
                       </div>
                     </div>
 
@@ -492,10 +492,10 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                       href={`tel:${schedule.serviceProviderContact.phone}`}
                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
                     >
-                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <Phone className="w-4 h-4 text-[var(--text-secondary)]" />
                       <div>
                         <p className="text-sm font-medium">{schedule.serviceProviderContact.phone}</p>
-                        <p className="text-xs text-muted-foreground">Click to call</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Click to call</p>
                       </div>
                     </a>
 
@@ -538,21 +538,21 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                 <CardContent className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Vehicle Number</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Vehicle Number</p>
                       <p className="font-medium">{schedule.vehicleNumber}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Current Mileage</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Current Mileage</p>
                       <p className="font-medium">{formatNumber(schedule.currentMileage)} mi</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Make/Model</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Make/Model</p>
                       <p className="font-medium">
                         {schedule.vehicleMake} {schedule.vehicleModel}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Year</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Year</p>
                       <p className="font-medium">{schedule.vehicleYear}</p>
                     </div>
                   </div>
@@ -654,7 +654,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <h3 className="text-sm font-bold">{repair.repairType}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 WO #{repair.workOrderNumber} • {repair.vehicleNumber}
               </p>
               <div className="flex items-center gap-2">
@@ -662,7 +662,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                 <Badge variant={getPriorityVariant(repair.priority)}>{repair.priority} Priority</Badge>
               </div>
             </div>
-            <Wrench className="w-12 h-9 text-muted-foreground" />
+            <Wrench className="w-12 h-9 text-[var(--text-secondary)]" />
           </div>
 
           {/* Quick Stats */}
@@ -707,36 +707,36 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Description</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Description</p>
                     <p className="text-sm">{repair.description}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Reported Date</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Reported Date</p>
                       <p className="font-medium">{formatDate(repair.reportedDate)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Reported By</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Reported By</p>
                       <p className="font-medium">{repair.reportedBy}</p>
                     </div>
                     {repair.diagnosisDate && (
                       <>
                         <div>
-                          <p className="text-sm text-muted-foreground">Diagnosis Date</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Diagnosis Date</p>
                           <p className="font-medium">{formatDate(repair.diagnosisDate)}</p>
                         </div>
                       </>
                     )}
                     {repair.startDate && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Start Date</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Start Date</p>
                         <p className="font-medium">{formatDate(repair.startDate)}</p>
                       </div>
                     )}
                     {repair.completionDate && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Completion Date</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Completion Date</p>
                         <p className="font-medium">{formatDate(repair.completionDate)}</p>
                       </div>
                     )}
@@ -744,7 +744,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
 
                   {repair.diagnosisNotes && (
                     <div className="pt-2 border-t">
-                      <p className="text-sm text-muted-foreground mb-1">Diagnosis Notes</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-1">Diagnosis Notes</p>
                       <p className="text-sm">{repair.diagnosisNotes}</p>
                     </div>
                   )}
@@ -801,8 +801,8 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <p className="font-medium">{part.partName}</p>
-                              <p className="text-sm text-muted-foreground">PN: {part.partNumber}</p>
-                              <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                              <p className="text-sm text-[var(--text-secondary)]">PN: {part.partNumber}</p>
+                              <div className="mt-2 flex items-center gap-2 text-xs text-[var(--text-secondary)]">
                                 <span>Qty: {part.quantity}</span>
                                 <span>Unit: {formatCurrency(part.unitCost)}</span>
                                 <span className="font-medium text-foreground">
@@ -810,10 +810,10 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                                 </span>
                               </div>
                               <div className="mt-2">
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-[var(--text-secondary)]">
                                   Supplier: {part.supplier}
                                 </p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-[var(--text-secondary)]">
                                   Contact: {part.supplierContact}
                                 </p>
                               </div>
@@ -834,7 +834,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-2">No parts used</p>
+                    <p className="text-sm text-[var(--text-secondary)] text-center py-2">No parts used</p>
                   )}
                 </CardContent>
               </Card>
@@ -867,11 +867,11 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                                 </Avatar>
                                 <div>
                                   <p className="font-medium">{entry.technicianName}</p>
-                                  <p className="text-xs text-muted-foreground">{entry.description}</p>
+                                  <p className="text-xs text-[var(--text-secondary)]">{entry.description}</p>
                                 </div>
                               </div>
                               <div className="mt-2 flex items-center gap-2 text-sm">
-                                <span className="text-muted-foreground">
+                                <span className="text-[var(--text-secondary)]">
                                   {entry.hours} hrs @ {formatCurrency(entry.rate)}/hr
                                 </span>
                                 <span className="font-medium">
@@ -895,7 +895,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-2">
+                    <p className="text-sm text-[var(--text-secondary)] text-center py-2">
                       No labor entries
                     </p>
                   )}
@@ -914,7 +914,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Reported By</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-2">Reported By</p>
                     <div className="space-y-2">
                       <p className="font-medium">{repair.reportedBy}</p>
                       <a
@@ -936,7 +936,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
 
                   {repair.assignedTechnician && (
                     <div className="pt-2 border-t">
-                      <p className="text-sm text-muted-foreground mb-2">Assigned Technician</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-2">Assigned Technician</p>
                       <div className="space-y-2">
                         <p className="font-medium">{repair.assignedTechnician}</p>
                         {repair.technicianPhone && (
@@ -1083,7 +1083,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <h3 className="text-sm font-bold">{inspection.inspectionType} Inspection</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 {inspection.inspectionNumber} • {inspection.vehicleNumber}
               </p>
               <div className="flex items-center gap-2">
@@ -1098,7 +1098,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                 )}
               </div>
             </div>
-            <ClipboardList className="w-12 h-9 text-muted-foreground" />
+            <ClipboardList className="w-12 h-9 text-[var(--text-secondary)]" />
           </div>
 
           {/* Quick Stats */}
@@ -1155,22 +1155,22 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                 <CardContent className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Inspection Date</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Inspection Date</p>
                       <p className="font-medium">
                         {formatDate(inspection.inspectionDate)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Mileage</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Mileage</p>
                       <p className="font-medium">{formatNumber(inspection.mileage)} mi</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Location</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Location</p>
                       <p className="font-medium">{inspection.location.facilityName}</p>
                     </div>
                     {inspection.nextInspectionDue && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Next Due</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Next Due</p>
                         <p className="font-medium">
                           {formatDate(inspection.nextInspectionDue)}
                         </p>
@@ -1180,7 +1180,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
 
                   {inspection.expirationDate && (
                     <div className="pt-2 border-t">
-                      <p className="text-sm text-muted-foreground">Expiration Date</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Expiration Date</p>
                       <p className="font-medium">
                         {formatDate(inspection.expirationDate)}
                       </p>
@@ -1189,7 +1189,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
 
                   {inspection.certificationNumber && (
                     <div>
-                      <p className="text-sm text-muted-foreground">Certification Number</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Certification Number</p>
                       <p className="font-medium">{inspection.certificationNumber}</p>
                     </div>
                   )}
@@ -1220,17 +1220,17 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                   <div className="grid grid-cols-3 gap-2 text-center text-sm">
                     <div>
                       <p className="text-sm font-bold text-green-600">{inspection.itemsPassed}</p>
-                      <p className="text-muted-foreground">Passed</p>
+                      <p className="text-[var(--text-secondary)]">Passed</p>
                     </div>
                     <div>
                       <p className="text-sm font-bold text-yellow-600">
                         {inspection.itemsAdvisory}
                       </p>
-                      <p className="text-muted-foreground">Advisory</p>
+                      <p className="text-[var(--text-secondary)]">Advisory</p>
                     </div>
                     <div>
                       <p className="text-sm font-bold text-red-600">{inspection.itemsFailed}</p>
-                      <p className="text-muted-foreground">Failed</p>
+                      <p className="text-[var(--text-secondary)]">Failed</p>
                     </div>
                   </div>
                 </CardContent>
@@ -1274,9 +1274,9 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground">{formatEnum(item.category)}</p>
+                          <p className="text-xs text-[var(--text-secondary)]">{formatEnum(item.category)}</p>
                           {item.notes && (
-                            <p className="text-xs text-muted-foreground mt-1">{item.notes}</p>
+                            <p className="text-xs text-[var(--text-secondary)] mt-1">{item.notes}</p>
                           )}
                         </div>
                       </div>
@@ -1308,7 +1308,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                                   {formatEnum(item.severity)}
                                 </Badge>
                               </div>
-                              <p className="text-sm text-muted-foreground mt-1">{item.notes}</p>
+                              <p className="text-sm text-[var(--text-secondary)] mt-1">{item.notes}</p>
                             </div>
                           </div>
 
@@ -1329,7 +1329,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                                 {item.actionStatus}
                               </Badge>
                               {item.estimatedCost && (
-                                <span className="text-sm text-muted-foreground">
+                                <span className="text-sm text-[var(--text-secondary)]">
                                   Est. Cost: {formatCurrency(item.estimatedCost)}
                                 </span>
                               )}
@@ -1341,7 +1341,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                   ) : (
                     <div className="text-center py-3">
                       <CheckCircle className="w-12 h-9 text-green-500 mx-auto mb-2" />
-                      <p className="text-muted-foreground">No failed items</p>
+                      <p className="text-[var(--text-secondary)]">No failed items</p>
                     </div>
                   )}
                 </CardContent>
@@ -1360,7 +1360,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                 <CardContent className="space-y-2">
                   <div>
                     <p className="font-medium text-sm">{inspection.inspector.name}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-[var(--text-secondary)]">
                       Cert. #{inspection.inspector.certificationNumber}
                     </p>
                   </div>
@@ -1370,10 +1370,10 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                       href={`tel:${inspection.inspector.phone}`}
                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
                     >
-                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <Phone className="w-4 h-4 text-[var(--text-secondary)]" />
                       <div>
                         <p className="text-sm font-medium">{inspection.inspector.phone}</p>
-                        <p className="text-xs text-muted-foreground">Click to call</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Click to call</p>
                       </div>
                     </a>
 
@@ -1397,7 +1397,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <p className="font-medium">{inspection.location.facilityName}</p>
-                  <p className="text-sm text-muted-foreground">{inspection.location.address}</p>
+                  <p className="text-sm text-[var(--text-secondary)]">{inspection.location.address}</p>
                   <a
                     href={`tel:${inspection.location.phone}`}
                     className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
@@ -1475,12 +1475,12 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <h3 className="text-sm font-bold">{record.serviceType}</h3>
-              <p className="text-sm text-muted-foreground">WO #{record.workOrderNumber}</p>
+              <p className="text-sm text-[var(--text-secondary)]">WO #{record.workOrderNumber}</p>
               <Badge variant={record.status === 'completed' ? 'outline' : 'destructive'}>
                 {formatEnum(record.status)}
               </Badge>
             </div>
-            <FileText className="w-12 h-9 text-muted-foreground" />
+            <FileText className="w-12 h-9 text-[var(--text-secondary)]" />
           </div>
 
           {/* Cost Breakdown */}
@@ -1524,27 +1524,27 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Description</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Description</p>
                     <p className="text-sm">{record.description}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Service Date</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Service Date</p>
                       <p className="font-medium">
                         {formatDate(record.serviceDate)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Mileage</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Mileage</p>
                       <p className="font-medium">{formatNumber(record.mileage)} mi</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Labor Hours</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Labor Hours</p>
                       <p className="font-medium">{record.laborHours} hrs</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Labor Rate</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Labor Rate</p>
                       <p className="font-medium">
                         {formatCurrency(record.laborCost / record.laborHours)}/hr
                       </p>
@@ -1553,7 +1553,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
 
                   {record.notes && (
                     <div className="pt-2 border-t">
-                      <p className="text-sm text-muted-foreground mb-1">Notes</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-1">Notes</p>
                       <p className="text-sm">{record.notes}</p>
                     </div>
                   )}
@@ -1580,16 +1580,16 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="text-sm text-muted-foreground">Provider</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Provider</p>
                           <p className="font-medium">{record.warranty.provider}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Coverage</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Coverage</p>
                           <p className="font-medium">{record.warranty.coverage}</p>
                         </div>
                         {record.warranty.expirationDate && (
                           <div>
-                            <p className="text-sm text-muted-foreground">Expiration Date</p>
+                            <p className="text-sm text-[var(--text-secondary)]">Expiration Date</p>
                             <p className="font-medium">
                               {formatDate(record.warranty.expirationDate)}
                             </p>
@@ -1597,7 +1597,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                         )}
                         {record.warranty.expirationMileage && (
                           <div>
-                            <p className="text-sm text-muted-foreground">Expiration Mileage</p>
+                            <p className="text-sm text-[var(--text-secondary)]">Expiration Mileage</p>
                             <p className="font-medium">
                               {formatNumber(record.warranty.expirationMileage)} mi
                             </p>
@@ -1607,8 +1607,8 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                     </div>
                   ) : (
                     <div className="text-center py-3">
-                      <XCircle className="w-12 h-9 text-white/40 mx-auto mb-2" />
-                      <p className="text-muted-foreground">No active warranty</p>
+                      <XCircle className="w-12 h-9 text-[var(--text-tertiary)] mx-auto mb-2" />
+                      <p className="text-[var(--text-secondary)]">No active warranty</p>
                     </div>
                   )}
                 </CardContent>
@@ -1634,10 +1634,10 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                       href={`tel:${record.technicianPhone}`}
                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
                     >
-                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <Phone className="w-4 h-4 text-[var(--text-secondary)]" />
                       <div>
                         <p className="text-sm font-medium">{record.technicianPhone}</p>
-                        <p className="text-xs text-muted-foreground">Click to call</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Click to call</p>
                       </div>
                     </a>
 
@@ -1684,7 +1684,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <h3 className="text-sm font-bold">{vendor.vendorName}</h3>
-              <p className="text-sm text-muted-foreground">{vendor.vendorType}</p>
+              <p className="text-sm text-[var(--text-secondary)]">{vendor.vendorType}</p>
               <div className="flex items-center gap-2">
                 <Badge variant="outline">
                   {vendor.averageRating.toFixed(1)} ★ Rating
@@ -1692,7 +1692,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                 <Badge variant="secondary">{vendor.activeContracts} Active Contracts</Badge>
               </div>
             </div>
-            <Building className="w-12 h-9 text-muted-foreground" />
+            <Building className="w-12 h-9 text-[var(--text-secondary)]" />
           </div>
 
           {/* Quick Stats */}
@@ -1784,7 +1784,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Primary Contact</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Primary Contact</p>
                     <p className="font-medium">{vendor.contactPerson}</p>
                   </div>
 
@@ -1793,10 +1793,10 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                       href={`tel:${vendor.phone}`}
                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
                     >
-                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <Phone className="w-4 h-4 text-[var(--text-secondary)]" />
                       <div>
                         <p className="text-sm font-medium">{vendor.phone}</p>
-                        <p className="text-xs text-muted-foreground">Click to call</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Click to call</p>
                       </div>
                     </a>
 
@@ -1810,13 +1810,13 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                   </div>
 
                   <div className="pt-2 border-t">
-                    <p className="text-sm text-muted-foreground mb-1">Address</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Address</p>
                     <p className="text-sm">{vendor.address}</p>
                   </div>
 
                   {vendor.website && (
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Website</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-1">Website</p>
                       <a
                         href={vendor.website}
                         target="_blank"
@@ -1840,19 +1840,19 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                 <CardContent className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Active Contracts</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Active Contracts</p>
                       <p className="font-medium">{vendor.activeContracts}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Payment Terms</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Payment Terms</p>
                       <p className="font-medium">{vendor.paymentTerms}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Avg Response Time</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Avg Response Time</p>
                       <p className="font-medium">{vendor.responseTime}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Rating</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Rating</p>
                       <p className="font-medium">{vendor.averageRating.toFixed(1)} / 5.0</p>
                     </div>
                   </div>
@@ -1866,11 +1866,11 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                 <CardContent className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Services YTD</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Total Services YTD</p>
                       <p className="text-sm font-bold">{vendor.totalServicesYTD}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Cost YTD</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Total Cost YTD</p>
                       <p className="text-sm font-bold">
                         {formatCurrency(vendor.totalCostYTD)}
                       </p>
@@ -1878,7 +1878,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                   </div>
 
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Average Cost per Service</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Average Cost per Service</p>
                     <p className="text-sm font-medium">
                       {formatCurrency(vendor.totalCostYTD / vendor.totalServicesYTD)}
                     </p>
@@ -2446,7 +2446,7 @@ export function PartsInventoryPanel() {
       sortable: true,
       type: 'number',
       width: '70px',
-      className: 'text-muted-foreground',
+      className: 'text-[var(--text-secondary)]',
     },
     {
       key: 'maxStock',
@@ -2454,7 +2454,7 @@ export function PartsInventoryPanel() {
       sortable: true,
       type: 'number',
       width: '70px',
-      className: 'text-muted-foreground',
+      className: 'text-[var(--text-secondary)]',
     },
     {
       key: 'location',

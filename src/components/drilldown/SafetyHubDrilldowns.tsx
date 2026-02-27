@@ -112,7 +112,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
       render: (incident) => incident.oshaRecordable ? (
         <CheckCircle className="w-4 h-4 text-orange-500" />
       ) : (
-        <XCircle className="w-4 h-4 text-muted-foreground" />
+        <XCircle className="w-4 h-4 text-[var(--text-secondary)]" />
       ),
     },
     {
@@ -132,7 +132,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-red-400">
               {filteredIncidents.filter(i => i.status === 'pending' || i.status === 'in_progress').length}
             </div>
-            <div className="text-xs text-white/40">Open/Investigating</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Open/Investigating</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -140,7 +140,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-amber-400">
               {filteredIncidents.filter(i => i.oshaRecordable).length}
             </div>
-            <div className="text-xs text-white/40">OSHA Recordable</div>
+            <div className="text-xs text-[var(--text-tertiary)]">OSHA Recordable</div>
           </CardContent>
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
@@ -148,13 +148,13 @@ export function IncidentListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-emerald-400">
               {filteredIncidents.reduce((sum, i) => sum + i.workDaysLost, 0)}
             </div>
-            <div className="text-xs text-white/40">Total Days Lost</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Days Lost</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Incident Table */}
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <AlertTriangle className="w-3 h-3 text-amber-400" />
@@ -249,15 +249,15 @@ export function LostTimeIncidentsView() {
         <CardContent className="p-3 text-center">
           <AlertTriangle className="w-10 h-8 text-red-400 mx-auto mb-2" />
           <div className="text-sm font-bold text-white">{totalDaysLost}</div>
-          <div className="text-sm text-white/40">Total Work Days Lost</div>
-          <div className="text-xs text-white/40 mt-1">
+          <div className="text-sm text-[var(--text-tertiary)]">Total Work Days Lost</div>
+          <div className="text-xs text-[var(--text-tertiary)] mt-1">
             from {safeLostTimeIncidents.length} incidents
           </div>
         </CardContent>
       </Card>
 
       {/* Table */}
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Calendar className="w-3 h-3 text-red-400" />
@@ -291,13 +291,13 @@ export function OSHAComplianceView() {
         <CardContent className="p-3 text-center">
           <ShieldCheck className="w-10 h-8 text-emerald-400 mx-auto mb-2" />
           <div className="text-sm font-bold text-white">87%</div>
-          <div className="text-sm text-white/40">OSHA Compliance Score</div>
+          <div className="text-sm text-[var(--text-tertiary)]">OSHA Compliance Score</div>
           <div className="text-xs text-emerald-400 mt-1">+3% from last month</div>
         </CardContent>
       </Card>
 
       {/* Component Breakdown */}
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Compliance Components</CardTitle>
         </CardHeader>
@@ -326,7 +326,7 @@ export function OSHAComplianceView() {
       </Card>
 
       {/* Recent Activity */}
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Recent OSHA Activity</CardTitle>
         </CardHeader>
@@ -340,7 +340,7 @@ export function OSHAComplianceView() {
             <div key={index} className="flex items-center justify-between p-3 bg-[#111]/50 rounded-lg">
               <div>
                 <div className="font-medium text-white">{item.action}</div>
-                <div className="text-xs text-white/40">{formatDate(item.date)}</div>
+                <div className="text-xs text-[var(--text-tertiary)]">{formatDate(item.date)}</div>
               </div>
               <Badge variant={item.status === 'completed' ? 'outline' : 'default'}>
                 {formatEnum(item.status)}
@@ -370,11 +370,11 @@ export function DaysIncidentFreeView() {
           <div className="text-sm text-white/80 mb-2">Days Without Incident</div>
           <div className="flex justify-center gap-2 text-sm">
             <div>
-              <div className="text-white/40">Target</div>
+              <div className="text-[var(--text-tertiary)]">Target</div>
               <div className="text-base font-bold text-white">{target}</div>
             </div>
             <div>
-              <div className="text-white/40">Record</div>
+              <div className="text-[var(--text-tertiary)]">Record</div>
               <div className="text-base font-bold text-emerald-400">{longestStreak}</div>
             </div>
           </div>
@@ -385,14 +385,14 @@ export function DaysIncidentFreeView() {
               style={{ width: `${Math.min((currentStreak / target) * 100, 100)}%` }}
             />
           </div>
-          <div className="text-xs text-white/40 mt-2">
+          <div className="text-xs text-[var(--text-tertiary)] mt-2">
             {Math.round((currentStreak / target) * 100)}% to target
           </div>
         </CardContent>
       </Card>
 
       {/* Historical Data */}
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Historical Streaks</CardTitle>
         </CardHeader>
@@ -406,7 +406,7 @@ export function DaysIncidentFreeView() {
             <div key={index} className="flex items-center justify-between p-3 bg-[#111]/50 rounded-lg">
               <div>
                 <div className="font-medium text-white">{item.period}</div>
-                <div className="text-xs text-white/40">{item.days} days</div>
+                <div className="text-xs text-[var(--text-tertiary)]">{item.days} days</div>
               </div>
               {item.status === 'longest' && (
                 <Badge variant="default" className="bg-emerald-600">

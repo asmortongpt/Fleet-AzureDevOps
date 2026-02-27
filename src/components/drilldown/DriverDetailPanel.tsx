@@ -92,7 +92,7 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
             </Avatar>
             <div className="flex-1 space-y-1">
               <h3 className="text-sm font-bold">{driverName}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 {driver.role || 'Driver'} · {driver.department || '—'}
               </p>
               <div className="flex items-center gap-2 mt-2">
@@ -116,7 +116,7 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
+                <Mail className="h-4 w-4 text-[var(--text-secondary)]" />
                 <span className="text-sm">{driver.email || '—'}</span>
                 {driver.email && (
                   <EmailButton
@@ -132,18 +132,18 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-muted-foreground" />
+                <Phone className="h-4 w-4 text-[var(--text-secondary)]" />
                 <span className="text-sm">{driver.phone || '—'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Calendar className="h-4 w-4 text-[var(--text-secondary)]" />
                 <span className="text-sm">
                   Joined {formatDate(driver.hire_date)}
                 </span>
               </div>
               {driver.license_number && (
                 <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-muted-foreground" />
+                  <Shield className="h-4 w-4 text-[var(--text-secondary)]" />
                   <span className="text-sm">
                     License: {driver.license_number} ({driver.license_state})
                     {driver.license_expiry_date && ` · Exp: ${formatDate(driver.license_expiry_date)}`}
@@ -197,7 +197,7 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
                 <p className="text-sm font-medium">{driver.emergency_contact_name}</p>
                 {driver.emergency_contact_phone && (
                   <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <Phone className="h-4 w-4 text-[var(--text-secondary)]" />
                     <span className="text-sm">{driver.emergency_contact_phone}</span>
                   </div>
                 )}

@@ -131,7 +131,7 @@ export function TreemapChart({
 
   return (
     <div>
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}

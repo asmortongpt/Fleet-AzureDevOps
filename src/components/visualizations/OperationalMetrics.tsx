@@ -124,9 +124,9 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
       case 'down':
         return 'text-red-600';
       case 'stable':
-        return 'text-white/40';
+        return 'text-[var(--text-tertiary)]';
       default:
-        return 'text-white/40';
+        return 'text-[var(--text-tertiary)]';
     }
   };
 
@@ -188,7 +188,7 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
               </div>
 
               {/* Status indicator */}
-              <div className="mt-2 pt-2 border-t border-white/[0.04]">
+              <div className="mt-2 pt-2 border-t border-[var(--border-subtle)]">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-white/50">Status</span>
                   <span className={`font-medium ${isAboveTarget ? 'text-green-600' : 'text-amber-600'}`}>

@@ -153,8 +153,8 @@ export function HealthScoreBreakdown({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
-        <span className="ml-3 text-sm text-white/40">Loading condition data...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--text-tertiary)]" />
+        <span className="ml-3 text-sm text-[var(--text-tertiary)]">Loading condition data...</span>
       </div>
     )
   }
@@ -164,14 +164,14 @@ export function HealthScoreBreakdown({
     return (
       <div className="space-y-4 p-1">
         {vehicleName && (
-          <p className="text-[9px] font-semibold uppercase tracking-wider text-white/40">
+          <p className="text-[9px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
             Health Breakdown — {vehicleName}
           </p>
         )}
-        <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-6 text-center">
+        <div className="rounded-lg bg-[var(--surface-primary)] border border-[var(--border-subtle)] p-6 text-center">
           <Activity className="h-8 w-8 mx-auto text-white/20 mb-3" />
-          <p className="text-sm text-white/60 font-medium">No Telemetry Data</p>
-          <p className="text-xs text-white/40 mt-1">
+          <p className="text-sm text-[var(--text-secondary)] font-medium">No Telemetry Data</p>
+          <p className="text-xs text-[var(--text-tertiary)] mt-1">
             Connect an OBD2 adapter or telematics provider to see real-time health metrics.
           </p>
         </div>
@@ -183,13 +183,13 @@ export function HealthScoreBreakdown({
     <div className="space-y-4 p-1">
       {/* Header */}
       {vehicleName && (
-        <p className="text-[9px] font-semibold uppercase tracking-wider text-white/40">
+        <p className="text-[9px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
           Health Breakdown — {vehicleName}
         </p>
       )}
 
       {/* Overall score ring */}
-      <div className="relative flex items-center justify-center rounded-lg bg-[#111111] border border-white/[0.04] p-4">
+      <div className="relative flex items-center justify-center rounded-lg bg-[var(--surface-primary)] border border-[var(--border-subtle)] p-4">
         <svg width="140" height="140" viewBox="0 0 140 140" className="-rotate-90">
           {/* Background track */}
           <circle
@@ -217,20 +217,20 @@ export function HealthScoreBreakdown({
         </svg>
         <div className="absolute flex flex-col items-center">
           <span className="text-3xl font-bold text-white">{formatNumber(overall)}</span>
-          <span className="text-[10px] text-white/40 uppercase tracking-wider">Overall</span>
+          <span className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider">Overall</span>
         </div>
       </div>
 
       {/* Metric bars */}
-      <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3 space-y-2.5">
-        <p className="text-[9px] font-semibold uppercase tracking-wider text-white/40 mb-1">Component Health</p>
+      <div className="rounded-lg bg-[var(--surface-primary)] border border-[var(--border-subtle)] p-3 space-y-2.5">
+        <p className="text-[9px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">Component Health</p>
 
         {metrics.map((m) => {
           const Icon = m.icon
           return (
             <div key={m.key} className="flex items-center gap-2">
-              <Icon className="h-3.5 w-3.5 shrink-0 text-white/40" />
-              <span className="w-28 shrink-0 text-xs text-white/60 truncate">{m.label}</span>
+              <Icon className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]" />
+              <span className="w-28 shrink-0 text-xs text-[var(--text-secondary)] truncate">{m.label}</span>
               <div className="flex-1 h-2 rounded-full bg-white/[0.06] overflow-hidden">
                 <div
                   className={cn('h-full rounded-full transition-all duration-500', barColor(m.value))}
@@ -247,8 +247,8 @@ export function HealthScoreBreakdown({
 
       {/* Critical alerts */}
       {alerts.length > 0 && (
-        <div className="rounded-lg bg-[#111111] border border-white/[0.04] p-3 space-y-2">
-          <p className="text-[9px] font-semibold uppercase tracking-wider text-white/40">Critical Alerts</p>
+        <div className="rounded-lg bg-[var(--surface-primary)] border border-[var(--border-subtle)] p-3 space-y-2">
+          <p className="text-[9px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Critical Alerts</p>
 
           {alerts.map((a, i) => (
             <div

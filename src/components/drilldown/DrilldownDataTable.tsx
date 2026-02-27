@@ -264,8 +264,8 @@ export function DrilldownDataTable<T extends Record<string, any>>({
           }}
           className={cn(
             'inline-flex items-center gap-1 cursor-pointer',
-            'text-primary hover:underline underline-offset-2',
-            'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1 rounded'
+            'text-[var(--accent-primary)] hover:underline underline-offset-2',
+            'focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]/50 focus:ring-offset-1 rounded'
           )}
           title={`View ${column.drilldown.getRecordLabel(row)}`}
         >
@@ -328,7 +328,7 @@ export function DrilldownDataTable<T extends Record<string, any>>({
   if (sortedData.length === 0) {
     return (
       <div className={cn('text-center py-12', className)}>
-        <p className="text-muted-foreground">{emptyMessage}</p>
+        <p className="text-[var(--text-secondary)]">{emptyMessage}</p>
       </div>
     )
   }
@@ -345,14 +345,14 @@ export function DrilldownDataTable<T extends Record<string, any>>({
                 className={cn(
                   column.className,
                   compact && 'py-2 text-xs',
-                  column.sortable && 'cursor-pointer select-none hover:bg-muted/50'
+                  column.sortable && 'cursor-pointer select-none hover:bg-[var(--surface-3)]'
                 )}
                 onClick={() => handleSort(column)}
               >
                 <div className="flex items-center gap-2">
                   <span>{column.header}</span>
                   {column.sortable && sortColumn === column.key && (
-                    <span className="text-muted-foreground">
+                    <span className="text-[var(--text-secondary)]">
                       {sortDirection === 'asc' ? (
                         <ChevronUp className="w-4 h-4" />
                       ) : (
@@ -374,8 +374,8 @@ export function DrilldownDataTable<T extends Record<string, any>>({
               key={getRecordId(row)}
               className={cn(
                 getRowClassName(row, index),
-                !disableRowDrilldown && 'cursor-pointer hover:bg-muted/50',
-                striped && index % 2 === 0 && 'bg-muted/20',
+                !disableRowDrilldown && 'cursor-pointer hover:bg-[var(--surface-3)]',
+                striped && index % 2 === 0 && 'bg-[var(--surface-glass)]',
                 'group transition-colors'
               )}
               onClick={(e) => handleRowClick(row, e)}
@@ -405,7 +405,7 @@ export function DrilldownDataTable<T extends Record<string, any>>({
                 <TableCell className="w-10">
                   <ChevronRight
                     className={cn(
-                      'w-3 h-3 text-muted-foreground',
+                      'w-3 h-3 text-[var(--text-secondary)]',
                       'opacity-0 group-hover:opacity-100 transition-opacity'
                     )}
                   />
@@ -419,7 +419,7 @@ export function DrilldownDataTable<T extends Record<string, any>>({
       {/* Pagination */}
       {pagination && (
         <div className="flex items-center justify-between mt-2">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-[var(--text-secondary)]">
             Showing {(pagination.page - 1) * pagination.pageSize + 1} to{' '}
             {Math.min(pagination.page * pagination.pageSize, pagination.total)} of{' '}
             {pagination.total} results
@@ -509,10 +509,10 @@ export function DrilldownVehicleTable({
         <span
           className={cn(
             'px-2 py-1 text-xs rounded-full',
-            row.status === 'active' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-            row.status === 'idle' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-            row.status === 'service' && 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-            row.status === 'offline' && 'bg-white/[0.05] text-white/60 dark:bg-white/[0.03] dark:text-white/40'
+            row.status === 'active' && 'bg-[var(--status-success)]/10 text-[var(--status-success)]',
+            row.status === 'idle' && 'bg-[var(--status-warning)]/10 text-[var(--status-warning)]',
+            row.status === 'service' && 'bg-[var(--status-warning)]/10 text-[var(--status-warning)]',
+            row.status === 'offline' && 'bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)]'
           )}
         >
           {row.status || '—'}
@@ -609,9 +609,9 @@ export function DrilldownWorkOrderTable({
         <span
           className={cn(
             'px-2 py-1 text-xs rounded-full',
-            row.status === 'pending' && 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700',
-            row.status === 'in-progress' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-            row.status === 'completed' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+            row.status === 'pending' && 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]',
+            row.status === 'in-progress' && 'bg-[var(--status-warning)]/10 text-[var(--status-warning)]',
+            row.status === 'completed' && 'bg-[var(--status-success)]/10 text-[var(--status-success)]'
           )}
         >
           {row.status || '—'}
@@ -626,9 +626,9 @@ export function DrilldownWorkOrderTable({
         <span
           className={cn(
             'px-2 py-1 text-xs rounded-full',
-            row.priority === 'high' && 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-            row.priority === 'medium' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-            row.priority === 'low' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+            row.priority === 'high' && 'bg-[var(--status-danger)]/10 text-[var(--status-danger)]',
+            row.priority === 'medium' && 'bg-[var(--status-warning)]/10 text-[var(--status-warning)]',
+            row.priority === 'low' && 'bg-[var(--status-success)]/10 text-[var(--status-success)]'
           )}
         >
           {row.priority || '-'}
@@ -725,9 +725,9 @@ export function DrilldownDriverTable({
         <span
           className={cn(
             'px-2 py-1 text-xs rounded-full',
-            row.status === 'on-duty' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-            row.status === 'driving' && 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700',
-            row.status === 'off-duty' && 'bg-white/[0.05] text-white/60 dark:bg-white/[0.03] dark:text-white/40'
+            row.status === 'on-duty' && 'bg-[var(--status-success)]/10 text-[var(--status-success)]',
+            row.status === 'driving' && 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]',
+            row.status === 'off-duty' && 'bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)]'
           )}
         >
           {row.status || '—'}
@@ -759,9 +759,9 @@ export function DrilldownDriverTable({
           <span
             className={cn(
               'font-medium',
-              (row.score ?? 0) >= 90 && 'text-green-600',
-              (row.score ?? 0) >= 70 && (row.score ?? 0) < 90 && 'text-yellow-600',
-              (row.score ?? 0) < 70 && 'text-red-600'
+              (row.score ?? 0) >= 90 && 'text-[var(--status-success)]',
+              (row.score ?? 0) >= 70 && (row.score ?? 0) < 90 && 'text-[var(--status-warning)]',
+              (row.score ?? 0) < 70 && 'text-[var(--status-danger)]'
             )}
           >
             {row.score}%

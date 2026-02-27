@@ -115,26 +115,26 @@ function EmailParticipants({ email, push }: { email: EmailRecord; push: any }) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">
           Participants
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-start gap-3">
-          <User className="w-4 h-4 mt-1 text-muted-foreground" />
+          <User className="w-4 h-4 mt-1 text-[var(--text-secondary)]" />
           <div className="flex-1 min-w-0">
-            <div className="text-xs text-muted-foreground uppercase">From</div>
+            <div className="text-xs text-[var(--text-secondary)] uppercase">From</div>
             <div className="font-medium truncate">
               {email.fromName || email.from}
             </div>
-            <div className="text-sm text-muted-foreground truncate">{email.from}</div>
+            <div className="text-sm text-[var(--text-secondary)] truncate">{email.from}</div>
           </div>
         </div>
 
         <div className="flex items-start gap-3">
-          <User className="w-4 h-4 mt-1 text-muted-foreground" />
+          <User className="w-4 h-4 mt-1 text-[var(--text-secondary)]" />
           <div className="flex-1 min-w-0">
-            <div className="text-xs text-muted-foreground uppercase">To</div>
+            <div className="text-xs text-[var(--text-secondary)] uppercase">To</div>
             <div className="space-y-1">
               {email.to.map((recipient) => (
                 <div key={recipient} className="text-sm truncate">{recipient}</div>
@@ -145,9 +145,9 @@ function EmailParticipants({ email, push }: { email: EmailRecord; push: any }) {
 
         {email.cc && email.cc.length > 0 && (
           <div className="flex items-start gap-3">
-            <User className="w-4 h-4 mt-1 text-muted-foreground" />
+            <User className="w-4 h-4 mt-1 text-[var(--text-secondary)]" />
             <div className="flex-1 min-w-0">
-              <div className="text-xs text-muted-foreground uppercase">CC</div>
+              <div className="text-xs text-[var(--text-secondary)] uppercase">CC</div>
               <div className="space-y-1">
                 {email.cc.map((recipient) => (
                   <div key={recipient} className="text-sm truncate">{recipient}</div>
@@ -158,9 +158,9 @@ function EmailParticipants({ email, push }: { email: EmailRecord; push: any }) {
         )}
 
         <div className="flex items-start gap-3">
-          <Clock className="w-4 h-4 mt-1 text-muted-foreground" />
+          <Clock className="w-4 h-4 mt-1 text-[var(--text-secondary)]" />
           <div className="flex-1 min-w-0">
-            <div className="text-xs text-muted-foreground uppercase">Date</div>
+            <div className="text-xs text-[var(--text-secondary)] uppercase">Date</div>
             <div className="text-sm">
               {formatDateTime(email.date)}
             </div>
@@ -184,7 +184,7 @@ function EmailBody({ email }: { email: EmailRecord }) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">
           Message
         </CardTitle>
       </CardHeader>
@@ -230,7 +230,7 @@ function EmailAttachments({ email }: { email: EmailRecord }) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+        <CardTitle className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
           <Paperclip className="w-4 h-4" />
           Attachments ({email.attachments.length})
         </CardTitle>
@@ -240,13 +240,13 @@ function EmailAttachments({ email }: { email: EmailRecord }) {
           {email.attachments.map((attachment) => (
             <div
               key={attachment.id}
-              className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+              className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg hover:bg-[var(--surface-glass-hover)] transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <span className="text-sm">{getFileIcon(attachment.type)}</span>
                 <div className="min-w-0">
                   <div className="font-medium text-sm truncate">{attachment.name}</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-[var(--text-secondary)]">
                     {formatFileSize(attachment.size)}
                   </div>
                 </div>
@@ -277,7 +277,7 @@ function RelatedRecords({ email, push }: { email: EmailRecord; push: any }) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+        <CardTitle className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
           <ExternalLink className="w-4 h-4" />
           Related Records
         </CardTitle>
@@ -286,7 +286,7 @@ function RelatedRecords({ email, push }: { email: EmailRecord; push: any }) {
         <div className="space-y-2">
           {email.relatedVendorId && (
             <div
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors"
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--surface-glass-hover)] cursor-pointer transition-colors"
               onClick={() => push({
                 id: `vendor-${email.relatedVendorId}`,
                 type: 'vendor',
@@ -294,10 +294,10 @@ function RelatedRecords({ email, push }: { email: EmailRecord; push: any }) {
                 data: { vendorId: email.relatedVendorId }
               })}
             >
-              <Building className="w-4 h-4 text-muted-foreground" />
+              <Building className="w-4 h-4 text-[var(--text-secondary)]" />
               <div className="flex-1">
                 <div className="text-sm font-medium">Vendor</div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-[var(--text-secondary)]">
                   {email.relatedVendorName || email.relatedVendorId}
                 </div>
               </div>
@@ -307,7 +307,7 @@ function RelatedRecords({ email, push }: { email: EmailRecord; push: any }) {
 
           {email.relatedWorkOrderId && (
             <div
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors"
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--surface-glass-hover)] cursor-pointer transition-colors"
               onClick={() => push({
                 id: `workorder-${email.relatedWorkOrderId}`,
                 type: 'workOrder',
@@ -315,10 +315,10 @@ function RelatedRecords({ email, push }: { email: EmailRecord; push: any }) {
                 data: { workOrderId: email.relatedWorkOrderId }
               })}
             >
-              <FileText className="w-4 h-4 text-muted-foreground" />
+              <FileText className="w-4 h-4 text-[var(--text-secondary)]" />
               <div className="flex-1">
                 <div className="text-sm font-medium">Work Order</div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-[var(--text-secondary)]">
                   WO-{email.relatedWorkOrderId}
                 </div>
               </div>
@@ -328,7 +328,7 @@ function RelatedRecords({ email, push }: { email: EmailRecord; push: any }) {
 
           {email.relatedInvoiceId && (
             <div
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors"
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--surface-glass-hover)] cursor-pointer transition-colors"
               onClick={() => push({
                 id: `invoice-${email.relatedInvoiceId}`,
                 type: 'invoice',
@@ -336,10 +336,10 @@ function RelatedRecords({ email, push }: { email: EmailRecord; push: any }) {
                 data: { invoiceId: email.relatedInvoiceId }
               })}
             >
-              <FileText className="w-4 h-4 text-muted-foreground" />
+              <FileText className="w-4 h-4 text-[var(--text-secondary)]" />
               <div className="flex-1">
                 <div className="text-sm font-medium">Invoice</div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-[var(--text-secondary)]">
                   INV-{email.relatedInvoiceId}
                 </div>
               </div>
@@ -357,7 +357,7 @@ function EmailLabels({ email }: { email: EmailRecord }) {
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      <Tag className="w-4 h-4 text-muted-foreground" />
+      <Tag className="w-4 h-4 text-[var(--text-secondary)]" />
       {email.labels.map((label) => (
         <Badge key={label} variant="secondary" className="text-xs">
           {label}
@@ -433,7 +433,7 @@ export function EmailDetailPanel({ emailId, email: providedEmail }: EmailDetailP
           <Card>
             <CardContent className="py-3">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-[var(--text-secondary)]">
                   This email is part of a thread with {email.threadCount} messages
                 </div>
                 <Button variant="outline" size="sm">View Thread</Button>

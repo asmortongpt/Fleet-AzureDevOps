@@ -19,10 +19,10 @@ import { formatCurrency, formatDate, formatNumber, formatTime } from '@/utils/fo
 /** Shared loading spinner used across all drilldowns */
 function DrilldownLoader({ label }: { label: string }) {
     return (
-        <Card className="bg-[#111111] border-white/[0.04]">
+        <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
             <CardContent className="p-6 flex flex-col items-center justify-center gap-2">
-                <Loader2 className="w-5 h-5 text-white/40 animate-spin" />
-                <span className="text-xs text-white/40">Loading {label}...</span>
+                <Loader2 className="w-5 h-5 text-[var(--text-tertiary)] animate-spin" />
+                <span className="text-xs text-[var(--text-tertiary)]">Loading {label}...</span>
             </CardContent>
         </Card>
     )
@@ -31,10 +31,10 @@ function DrilldownLoader({ label }: { label: string }) {
 /** Shared empty-state card */
 function EmptyState({ icon: Icon, label }: { icon: React.ComponentType<{ className?: string }>; label: string }) {
     return (
-        <Card className="bg-[#111111] border-white/[0.04]">
+        <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
             <CardContent className="p-6 flex flex-col items-center justify-center gap-2">
                 <Icon className="w-5 h-5 text-white/20" />
-                <span className="text-xs text-white/40">No {label} found</span>
+                <span className="text-xs text-[var(--text-tertiary)]">No {label} found</span>
             </CardContent>
         </Card>
     )
@@ -66,25 +66,25 @@ export function IncidentsDrilldown() {
                 <Card className="bg-red-900/30 border-red-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-red-400">{statusCounts.open}</div>
-                        <div className="text-xs text-white/40">Open</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Open</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-amber-400">{statusCounts.underReview}</div>
-                        <div className="text-xs text-white/40">Under Review</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Under Review</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">{statusCounts.resolved}</div>
-                        <div className="text-xs text-white/40">Resolved</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Resolved</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Incident List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <AlertTriangle className="w-3 h-3 text-amber-400" />
@@ -93,7 +93,7 @@ export function IncidentsDrilldown() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {incidents.length === 0 && (
-                        <p className="text-xs text-white/40 text-center py-4">No incidents recorded</p>
+                        <p className="text-xs text-[var(--text-tertiary)] text-center py-4">No incidents recorded</p>
                     )}
                     {incidents.slice(0, 8).map((incident: any) => {
                         const severity = String(incident.severity || 'low').toLowerCase()
@@ -102,16 +102,16 @@ export function IncidentsDrilldown() {
                         const driverLabel = incident.driver_name || incident.driver_id || ''
                         const vehicleLabel = incident.vehicle_number || incident.vehicle_id || ''
                         return (
-                            <div key={incident.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={incident.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div>
                                     <div className="font-medium text-white">{formatEnum(incidentType)}</div>
-                                    <div className="text-xs text-white/40">
+                                    <div className="text-xs text-[var(--text-tertiary)]">
                                         {[driverLabel, vehicleLabel, incidentDate ? formatDate(incidentDate) : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${severity === 'high' || severity === 'critical' ? 'border-red-500 text-red-400' :
                                         severity === 'medium' || severity === 'moderate' ? 'border-amber-500 text-amber-400' :
-                                            'border-white/[0.12] text-white/40'
+                                            'border-white/[0.12] text-[var(--text-tertiary)]'
                                     }`}>
                                     {formatEnum(severity)}
                                 </Badge>
@@ -189,12 +189,12 @@ export function SafetyScoreDetailDrilldown() {
                 <CardContent className="p-3 text-center">
                     <ShieldCheck className="w-10 h-8 text-emerald-700 mx-auto mb-2" />
                     <div className="text-sm font-bold text-white">{stats.avgScore}</div>
-                    <div className="text-sm text-white/40">Fleet Safety Score</div>
+                    <div className="text-sm text-[var(--text-tertiary)]">Fleet Safety Score</div>
                 </CardContent>
             </Card>
 
             {/* Component Breakdown */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Score Components</CardTitle>
                 </CardHeader>
@@ -251,25 +251,25 @@ export function VideoTelematicsDrilldown() {
                     <CardContent className="p-2 text-center">
                         <Video className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">{camerasOnline}</div>
-                        <div className="text-xs text-white/40">Cameras Online</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Cameras Online</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-amber-400">{todayEvents.length}</div>
-                        <div className="text-xs text-white/40">Events Today</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Events Today</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Events List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Recent Events</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {displayEvents.length === 0 && (
-                        <p className="text-xs text-white/40 text-center py-4">No events recorded</p>
+                        <p className="text-xs text-[var(--text-tertiary)] text-center py-4">No events recorded</p>
                     )}
                     {displayEvents.map((event: any) => {
                         const eventType = event.type || event.incident_type || 'Event'
@@ -278,12 +278,12 @@ export function VideoTelematicsDrilldown() {
                         const timeStr = eventDate ? formatTime(eventDate) : ''
                         const isResolved = String(event.status || '').toLowerCase() === 'resolved' || String(event.status || '').toLowerCase() === 'closed'
                         return (
-                            <div key={event.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={event.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div className="flex items-center gap-3">
                                     <Play className="w-3 h-3 text-emerald-400" />
                                     <div>
                                         <div className="font-medium text-white">{formatEnum(eventType)}</div>
-                                        <div className="text-xs text-white/40">{vehicleLabel}{timeStr ? ` \u2022 ${timeStr}` : ''}</div>
+                                        <div className="text-xs text-[var(--text-tertiary)]">{vehicleLabel}{timeStr ? ` \u2022 ${timeStr}` : ''}</div>
                                     </div>
                                 </div>
                                 {isResolved ? (
@@ -341,31 +341,31 @@ export function DispatchDrilldown() {
                 <Card className="bg-white/[0.04] border-emerald-500/30">
                     <CardContent className="p-3 text-center">
                         <div className="text-base font-bold text-emerald-400">{statusCounts.active}</div>
-                        <div className="text-xs text-white/40">Active</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Active</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-3 text-center">
                         <div className="text-base font-bold text-emerald-700">{statusCounts.inTransit}</div>
-                        <div className="text-xs text-white/40">In Transit</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">In Transit</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-3 text-center">
                         <div className="text-base font-bold text-amber-400">{statusCounts.completed}</div>
-                        <div className="text-xs text-white/40">Completed</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Completed</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-red-900/30 border-red-700/50">
                     <CardContent className="p-3 text-center">
                         <div className="text-base font-bold text-red-400">{statusCounts.delayed}</div>
-                        <div className="text-xs text-white/40">Delayed</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Delayed</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Jobs List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Package className="w-3 h-3 text-emerald-400" />
@@ -374,7 +374,7 @@ export function DispatchDrilldown() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {activeJobs.length === 0 && (
-                        <p className="text-xs text-white/40 text-center py-4">No active jobs</p>
+                        <p className="text-xs text-[var(--text-tertiary)] text-center py-4">No active jobs</p>
                     )}
                     {activeJobs.map((job: any) => {
                         const status = String(job.status || 'planned').toLowerCase().replace(/-/g, '_')
@@ -383,21 +383,21 @@ export function DispatchDrilldown() {
                         const duration = Number(job.estimatedDuration || job.estimated_duration || 0)
                         const etaLabel = duration > 0 ? `${Math.round(duration)} min` : ''
                         return (
-                            <div key={job.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={job.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div className="flex items-center gap-3">
                                     <Truck className={`w-3 h-3 ${status === 'in_transit' || status === 'in_progress' ? 'text-emerald-700' :
-                                            status === 'delayed' || status === 'cancelled' ? 'text-red-400' : 'text-white/40'
+                                            status === 'delayed' || status === 'cancelled' ? 'text-red-400' : 'text-[var(--text-tertiary)]'
                                         }`} />
                                     <div>
                                         <div className="font-medium text-white text-sm">{destination}</div>
-                                        <div className="text-xs text-white/40">
+                                        <div className="text-xs text-[var(--text-tertiary)]">
                                             {[origin, etaLabel ? `ETA: ${etaLabel}` : ''].filter(Boolean).join(' \u2022 ')}
                                         </div>
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${status === 'in_transit' || status === 'in_progress' ? 'border-emerald-500 text-emerald-700' :
                                         status === 'delayed' || status === 'cancelled' ? 'border-red-500 text-red-400' :
-                                            'border-white/[0.12] text-white/40'
+                                            'border-white/[0.12] text-[var(--text-tertiary)]'
                                     }`}>
                                     {formatEnum(job.status)}
                                 </Badge>
@@ -448,31 +448,31 @@ export function RoutesDrilldown() {
                     <CardContent className="p-2 text-center">
                         <Map className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">{stats.active}</div>
-                        <div className="text-xs text-white/40">Active Routes</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Active Routes</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">{stats.completed}</div>
-                        <div className="text-xs text-white/40">Completed</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Completed</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">{stats.avgDuration}</div>
-                        <div className="text-xs text-white/40">Avg Duration</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Avg Duration</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Route List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Route Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {routes.length === 0 && (
-                        <p className="text-xs text-white/40 text-center py-4">No routes found</p>
+                        <p className="text-xs text-[var(--text-tertiary)] text-center py-4">No routes found</p>
                     )}
                     {routes.slice(0, 8).map((route: any) => {
                         const origin = route.originName || route.origin_name || route.startLocation || route.start_location || 'Origin'
@@ -480,16 +480,16 @@ export function RoutesDrilldown() {
                         const distance = Number(route.distance || 0)
                         const status = String(route.status || 'planned').toLowerCase()
                         return (
-                            <div key={route.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={route.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div>
                                     <div className="font-medium text-white text-sm">{route.name || `${origin} to ${dest}`}</div>
-                                    <div className="text-xs text-white/40">
+                                    <div className="text-xs text-[var(--text-tertiary)]">
                                         {distance > 0 ? `${distance.toFixed(1)} mi` : ''}{distance > 0 ? ' \u2022 ' : ''}{origin} \u2192 {dest}
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${status === 'in_progress' || status === 'in-progress' || status === 'in_transit' ? 'border-emerald-500 text-emerald-700' :
                                         status === 'completed' ? 'border-amber-500 text-amber-400' :
-                                            'border-white/[0.12] text-white/40'
+                                            'border-white/[0.12] text-[var(--text-tertiary)]'
                                     }`}>
                                     {formatEnum(route.status)}
                                 </Badge>
@@ -538,25 +538,25 @@ export function TasksDrilldown() {
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-amber-400">{statusCounts.pending}</div>
-                        <div className="text-xs text-white/40">Pending</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Pending</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-400">{statusCounts.inProgress}</div>
-                        <div className="text-xs text-white/40">In Progress</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">In Progress</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">{statusCounts.completed}</div>
-                        <div className="text-xs text-white/40">Completed</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Completed</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Tasks List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <ClipboardList className="w-3 h-3 text-amber-400" />
@@ -568,16 +568,16 @@ export function TasksDrilldown() {
                         const priority = String(wo.priority || 'medium').toLowerCase()
                         const dueDate = wo.dueDate || wo.due_date || ''
                         return (
-                            <div key={wo.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={wo.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div>
                                     <div className="font-medium text-white text-sm">{wo.title || wo.serviceType || wo.number || 'Work Order'}</div>
-                                    <div className="text-xs text-white/40">
+                                    <div className="text-xs text-[var(--text-tertiary)]">
                                         {[formatEnum(wo.status), dueDate ? `Due: ${formatDate(dueDate)}` : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${priority === 'high' || priority === 'urgent' ? 'border-red-500 text-red-400' :
                                         priority === 'medium' ? 'border-amber-500 text-amber-400' :
-                                            'border-white/[0.12] text-white/40'
+                                            'border-white/[0.12] text-[var(--text-tertiary)]'
                                     }`}>
                                     {formatEnum(priority)}
                                 </Badge>
@@ -614,25 +614,25 @@ export function VendorsDrilldown() {
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">{statusCounts.operational}</div>
-                        <div className="text-xs text-white/40">Operational</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Operational</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-amber-400">{statusCounts.maintenance}</div>
-                        <div className="text-xs text-white/40">Maintenance</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Maintenance</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-red-900/30 border-red-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-red-400">{statusCounts.closed}</div>
-                        <div className="text-xs text-white/40">Closed</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Closed</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Facility List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Building2 className="w-3 h-3 text-emerald-400" />
@@ -643,10 +643,10 @@ export function VendorsDrilldown() {
                     {facilities.slice(0, 8).map((facility: any) => {
                         const status = String(facility.status || 'operational').toLowerCase()
                         return (
-                            <div key={facility.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={facility.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div>
                                     <div className="font-medium text-white text-sm">{facility.name || 'Facility'}</div>
-                                    <div className="text-xs text-white/40">
+                                    <div className="text-xs text-[var(--text-tertiary)]">
                                         {[formatEnum(facility.type || facility.serviceType), facility.address || facility.region || ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
@@ -698,19 +698,19 @@ export function PartsInventoryDrilldown() {
                     <CardContent className="p-2 text-center">
                         <Wrench className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">{categoryCounts.length}</div>
-                        <div className="text-xs text-white/40">Service Categories</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Service Categories</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">{totalParts}</div>
-                        <div className="text-xs text-white/40">Parts Used</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Parts Used</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Category Breakdown */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Wrench className="w-3 h-3 text-amber-400" />
@@ -775,31 +775,31 @@ export function PurchaseOrdersDrilldown() {
                 <Card className="bg-red-900/30 border-red-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-red-400">{priorityCounts.urgent}</div>
-                        <div className="text-xs text-white/40">Urgent</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Urgent</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-amber-400">{priorityCounts.high}</div>
-                        <div className="text-xs text-white/40">High</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">High</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-400">{priorityCounts.medium}</div>
-                        <div className="text-xs text-white/40">Medium</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Medium</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-white/[0.04] border-white/[0.04]">
+                <Card className="bg-white/[0.04] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-white/60">{priorityCounts.low}</div>
-                        <div className="text-xs text-white/40">Low</div>
+                        <div className="text-sm font-bold text-[var(--text-secondary)]">{priorityCounts.low}</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Low</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Pending Orders List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <ShoppingCart className="w-3 h-3 text-amber-400" />
@@ -808,22 +808,22 @@ export function PurchaseOrdersDrilldown() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {pendingOrders.length === 0 && (
-                        <p className="text-xs text-white/40 text-center py-4">No pending purchase orders</p>
+                        <p className="text-xs text-[var(--text-tertiary)] text-center py-4">No pending purchase orders</p>
                     )}
                     {pendingOrders.slice(0, 8).map((wo: any) => {
                         const priority = String(wo.priority || 'medium').toLowerCase()
                         const cost = wo.estimatedCost || wo.estimated_cost || wo.cost || 0
                         return (
-                            <div key={wo.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={wo.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div>
                                     <div className="font-medium text-white text-sm">{wo.title || wo.serviceType || wo.number || 'Work Order'}</div>
-                                    <div className="text-xs text-white/40">
+                                    <div className="text-xs text-[var(--text-tertiary)]">
                                         {[formatEnum(wo.status), cost > 0 ? `Est: ${formatCurrency(Number(cost))}` : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${priority === 'urgent' ? 'border-red-500 text-red-400' :
                                         priority === 'high' ? 'border-amber-500 text-amber-400' :
-                                            'border-white/[0.12] text-white/40'
+                                            'border-white/[0.12] text-[var(--text-tertiary)]'
                                     }`}>
                                     {formatEnum(priority)}
                                 </Badge>
@@ -867,25 +867,25 @@ export function FuelPurchasingDrilldown() {
                     <CardContent className="p-2 text-center">
                         <Fuel className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">{stats.count}</div>
-                        <div className="text-xs text-white/40">Transactions</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Transactions</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">{formatNumber(stats.totalGallons)}</div>
-                        <div className="text-xs text-white/40">Total Gallons</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Total Gallons</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">${stats.avgPricePerGallon.toFixed(2)}</div>
-                        <div className="text-xs text-white/40">Avg $/Gallon</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Avg $/Gallon</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Transactions List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Fuel className="w-3 h-3 text-amber-400" />
@@ -900,13 +900,13 @@ export function FuelPurchasingDrilldown() {
                         const station = ft.station || ft.station_name || ft.station_brand || ft.stationBrand || ''
                         const vehicleLabel = ft.vehicleNumber || ft.vehicle_number || ft.vehicleId || ''
                         return (
-                            <div key={ft.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={ft.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div>
                                     <div className="font-medium text-white text-sm">
                                         {gallons > 0 ? `${gallons.toFixed(1)} gal` : 'Fuel Purchase'}
                                         {station ? ` @ ${station}` : ''}
                                     </div>
-                                    <div className="text-xs text-white/40">
+                                    <div className="text-xs text-[var(--text-tertiary)]">
                                         {[vehicleLabel, fuelDate ? formatDate(fuelDate) : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>

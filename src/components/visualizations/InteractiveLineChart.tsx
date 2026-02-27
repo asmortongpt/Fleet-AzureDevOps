@@ -127,7 +127,7 @@ export function InteractiveLineChart({
 
   return (
     <div>
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>

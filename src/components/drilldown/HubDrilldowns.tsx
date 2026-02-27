@@ -53,34 +53,34 @@ export function DriversRosterDrilldown() {
         <div className="space-y-2">
             {/* Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <div className="text-base font-bold text-white">{drivers.length}</div>
-                        <div className="text-sm text-white/40">Total Drivers</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Total Drivers</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-base font-bold text-emerald-700">{onDuty.length}</div>
-                        <div className="text-sm text-white/40">On Duty</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">On Duty</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-base font-bold text-amber-400">{offDuty.length}</div>
-                        <div className="text-sm text-white/40">Off Duty</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Off Duty</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <div className="text-base font-bold text-white/80">{onLeave.length}</div>
-                        <div className="text-sm text-white/40">On Leave</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">On Leave</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Driver List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Driver Roster</CardTitle>
                 </CardHeader>
@@ -88,29 +88,29 @@ export function DriversRosterDrilldown() {
                     {drivers.slice(0, 10).map(driver => (
                         <div
                             key={driver.id}
-                            className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-[#111111] transition-colors"
+                            className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg cursor-pointer hover:bg-[var(--surface-primary)] transition-colors"
                             onClick={() => push({ type: 'driver', data: driver } as Omit<DrilldownLevel, "timestamp">)}
                         >
                             <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-full ${driver.status === 'active' ? 'bg-emerald-500/20' :
-                                    driver.status === 'off-duty' ? 'bg-amber-500/20' : 'bg-white/[0.05]'
+                                    driver.status === 'off-duty' ? 'bg-amber-500/20' : 'bg-[var(--surface-glass-hover)]'
                                     }`}>
                                     <User className={`w-4 h-4 ${driver.status === 'active' ? 'text-emerald-700' :
-                                        driver.status === 'off-duty' ? 'text-amber-400' : 'text-white/40'
+                                        driver.status === 'off-duty' ? 'text-amber-400' : 'text-[var(--text-tertiary)]'
                                         }`} weight="fill" />
                                 </div>
                                 <div>
                                     <div className="font-medium text-white">{driver.firstName ?? '—'} {driver.lastName ?? ''}</div>
-                                    <div className="text-xs text-white/40">{driver.licenseNumber ?? '—'}</div>
+                                    <div className="text-xs text-[var(--text-tertiary)]">{driver.licenseNumber ?? '—'}</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Badge variant="outline" className={`${driver.status === 'active' ? 'border-emerald-500 text-emerald-700' :
-                                    driver.status === 'off-duty' ? 'border-amber-500 text-amber-400' : 'border-white/[0.12] text-white/40'
+                                    driver.status === 'off-duty' ? 'border-amber-500 text-amber-400' : 'border-white/[0.12] text-[var(--text-tertiary)]'
                                     }`}>
                                     {formatEnum(driver.status)}
                                 </Badge>
-                                <ArrowRight className="w-4 h-4 text-white/40" />
+                                <ArrowRight className="w-4 h-4 text-[var(--text-tertiary)]" />
                             </div>
                         </div>
                     ))}
@@ -134,7 +134,7 @@ export function DriverPerformanceDrilldown() {
     return (
         <div className="space-y-2">
             {/* Performance Breakdown */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <ChartLine className="w-3 h-3 text-emerald-400" />
@@ -182,7 +182,7 @@ export function DriverPerformanceDrilldown() {
             </Card>
 
             {/* Top Performers List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Star className="w-3 h-3 text-amber-400" weight="fill" />
@@ -193,7 +193,7 @@ export function DriverPerformanceDrilldown() {
                     {topPerformers.slice(0, 5).map((driver, idx) => (
                         <div
                             key={driver.id}
-                            className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-[#111111] transition-colors"
+                            className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg cursor-pointer hover:bg-[var(--surface-primary)] transition-colors"
                             onClick={() => push({ type: 'driver', data: driver } as Omit<DrilldownLevel, "timestamp">)}
                         >
                             <div className="flex items-center gap-3">
@@ -202,7 +202,7 @@ export function DriverPerformanceDrilldown() {
                                 </div>
                                 <div>
                                     <div className="font-medium text-white">{driver.firstName ?? '—'} {driver.lastName ?? ''}</div>
-                                    <div className="text-xs text-white/40">Safety Score: {driver.safetyScore ?? 0}</div>
+                                    <div className="text-xs text-[var(--text-tertiary)]">Safety Score: {driver.safetyScore ?? 0}</div>
                                 </div>
                             </div>
                             <Trophy className="w-3 h-3 text-amber-400" weight="fill" />
@@ -268,20 +268,20 @@ export function DriverScorecardDrilldown() {
                     <CardContent className="p-2 text-center">
                         <Trophy className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
                         <div className="text-base font-bold text-white">{overall}</div>
-                        <div className="text-sm text-white/40">Fleet Average</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Fleet Average</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <Star className="w-4 h-4 text-amber-400 mx-auto mb-2" weight="fill" />
                         <div className="text-base font-bold text-white">{topScore}</div>
-                        <div className="text-sm text-white/40">Highest Score</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Highest Score</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Score Categories */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Score Components</CardTitle>
                 </CardHeader>
@@ -290,7 +290,7 @@ export function DriverScorecardDrilldown() {
                         <div key={item.label} className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                    <item.icon className="w-4 h-4 text-white/40" />
+                                    <item.icon className="w-4 h-4 text-[var(--text-tertiary)]" />
                                     <span className="text-white/80">{item.label}</span>
                                 </div>
                                 <span className="text-white font-medium">{item.score}%</span>
@@ -322,10 +322,10 @@ export function GarageDrilldown() {
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(bay => {
                     const isOccupied = bay <= 5
                     return (
-                        <Card key={bay} className={`${isOccupied ? 'bg-white/[0.04] border-emerald-500/30' : 'bg-[#111111] border-white/[0.04]'}`}>
+                        <Card key={bay} className={`${isOccupied ? 'bg-white/[0.04] border-emerald-500/30' : 'bg-[var(--surface-primary)] border-[var(--border-subtle)]'}`}>
                             <CardContent className="p-3 text-center">
-                                <div className={`text-sm font-bold ${isOccupied ? 'text-emerald-400' : 'text-white/40'}`}>Bay {bay}</div>
-                                <div className="text-xs text-white/40">{isOccupied ? 'In Use' : 'Open'}</div>
+                                <div className={`text-sm font-bold ${isOccupied ? 'text-emerald-400' : 'text-[var(--text-tertiary)]'}`}>Bay {bay}</div>
+                                <div className="text-xs text-[var(--text-tertiary)]">{isOccupied ? 'In Use' : 'Open'}</div>
                             </CardContent>
                         </Card>
                     )
@@ -338,27 +338,27 @@ export function GarageDrilldown() {
                     <CardContent className="p-2 text-center">
                         <Wrench className="w-4 h-4 text-amber-400 mx-auto mb-2" />
                         <div className="text-base font-bold text-amber-400">{inProgress.length}</div>
-                        <div className="text-sm text-white/40">In Progress</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">In Progress</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
-                        <Warning className="w-4 h-4 text-white/40 mx-auto mb-2" />
+                        <Warning className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-2" />
                         <div className="text-base font-bold text-white/80">{pending.length}</div>
-                        <div className="text-sm text-white/40">Pending</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Pending</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <CheckCircle className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
                         <div className="text-base font-bold text-emerald-700">{completed.length}</div>
-                        <div className="text-sm text-white/40">Completed</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Completed</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Work Orders List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Active Work Orders</CardTitle>
                 </CardHeader>
@@ -366,23 +366,23 @@ export function GarageDrilldown() {
                     {workOrders.slice(0, 8).map(wo => (
                         <div
                             key={wo.id}
-                            className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-[#111111] transition-colors"
+                            className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg cursor-pointer hover:bg-[var(--surface-primary)] transition-colors"
                             onClick={() => push({ type: 'workorder', data: wo } as Omit<DrilldownLevel, "timestamp">)}
                         >
                             <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-full ${wo.status === 'in-progress' ? 'bg-amber-500/20' :
-                                    wo.status === 'pending' ? 'bg-white/[0.05]' : 'bg-emerald-500/20'
+                                    wo.status === 'pending' ? 'bg-[var(--surface-glass-hover)]' : 'bg-emerald-500/20'
                                     }`}>
                                     <Wrench className={`w-4 h-4 ${wo.status === 'in-progress' ? 'text-amber-400' :
-                                        wo.status === 'pending' ? 'text-white/40' : 'text-emerald-700'
+                                        wo.status === 'pending' ? 'text-[var(--text-tertiary)]' : 'text-emerald-700'
                                         }`} weight="fill" />
                                 </div>
                                 <div>
                                     <div className="font-medium text-white">WO-{wo.workOrderNumber ?? '—'}</div>
-                                    <div className="text-xs text-white/40">{formatEnum(wo.status)}</div>
+                                    <div className="text-xs text-[var(--text-tertiary)]">{formatEnum(wo.status)}</div>
                                 </div>
                             </div>
-                            <ArrowRight className="w-4 h-4 text-white/40" />
+                            <ArrowRight className="w-4 h-4 text-[var(--text-tertiary)]" />
                         </div>
                     ))}
                 </CardContent>
@@ -458,34 +458,34 @@ export function PredictiveMaintenanceDrilldown() {
                     <CardContent className="p-2 text-center">
                         <Warning className="w-4 h-4 text-red-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-red-400">{overdue.length}</div>
-                        <div className="text-sm text-white/40">Overdue</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Overdue</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <CalendarDots className="w-4 h-4 text-amber-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-amber-400">{upcoming.length}</div>
-                        <div className="text-sm text-white/40">Due This Week</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Due This Week</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
-                        <Gauge className="w-4 h-4 text-white/60 mx-auto mb-1" />
+                        <Gauge className="w-4 h-4 text-[var(--text-secondary)] mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{formatNumber(avgMileage)}</div>
-                        <div className="text-sm text-white/40">Avg Miles</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Avg Miles</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
-                        <Truck className="w-4 h-4 text-white/60 mx-auto mb-1" />
+                        <Truck className="w-4 h-4 text-[var(--text-secondary)] mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{avgAge} yr</div>
-                        <div className="text-sm text-white/40">Avg Fleet Age</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Avg Fleet Age</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Open Work Orders */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Wrench className="w-3 h-3 text-amber-400" weight="fill" />
@@ -497,12 +497,12 @@ export function PredictiveMaintenanceDrilldown() {
                     <Progress value={openWOs.length > 0 ? Math.min(100, (openWOs.length / Math.max(workOrders.length, 1)) * 100) : 0} className="h-2 bg-white/[0.1]">
                         <div className="h-full bg-amber-500 transition-all" style={{ width: `${Math.min(100, (openWOs.length / Math.max(workOrders.length, 1)) * 100)}%` }} />
                     </Progress>
-                    <div className="text-xs text-white/40 mt-1">{openWOs.length} of {workOrders.length} work orders open</div>
+                    <div className="text-xs text-[var(--text-tertiary)] mt-1">{openWOs.length} of {workOrders.length} work orders open</div>
                 </CardContent>
             </Card>
 
             {/* Top Vehicles Needing Attention */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Warning className="w-3 h-3 text-red-400" />
@@ -511,13 +511,13 @@ export function PredictiveMaintenanceDrilldown() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {topNeedingAttention.length === 0 ? (
-                        <div className="text-sm text-white/40 text-center py-3">
+                        <div className="text-sm text-[var(--text-tertiary)] text-center py-3">
                             <CheckCircle className="w-5 h-5 text-emerald-400 mx-auto mb-1" />
                             All vehicles are in good standing
                         </div>
                     ) : (
                         topNeedingAttention.map(({ vehicle }) => (
-                            <div key={vehicle.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={vehicle.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 rounded-full bg-red-500/20">
                                         <Truck className="w-4 h-4 text-red-400" />
@@ -528,7 +528,7 @@ export function PredictiveMaintenanceDrilldown() {
                                                 ? formatVehicleName(vehicle)
                                                 : `Vehicle #${vehicle.number || vehicle.vehicleNumber || vehicle.id?.slice(-6)}`}
                                         </div>
-                                        <div className="text-xs text-white/40">{formatNumber(vehicle.mileage || 0)} mi</div>
+                                        <div className="text-xs text-[var(--text-tertiary)]">{formatNumber(vehicle.mileage || 0)} mi</div>
                                     </div>
                                 </div>
                                 <Badge variant="outline" className="border-red-500/50 text-red-400">Needs Service</Badge>
@@ -620,7 +620,7 @@ export function MaintenanceCalendarDrilldown() {
             case 'urgent': return 'border-red-500 text-red-400'
             case 'high': return 'border-amber-500 text-amber-400'
             case 'medium': return 'border-emerald-500 text-emerald-400'
-            default: return 'border-white/20 text-white/60'
+            default: return 'border-white/20 text-[var(--text-secondary)]'
         }
     }
 
@@ -632,27 +632,27 @@ export function MaintenanceCalendarDrilldown() {
                     <CardContent className="p-2 text-center">
                         <Warning className="w-4 h-4 text-red-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-red-400">{overdue.length}</div>
-                        <div className="text-sm text-white/40">Overdue</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Overdue</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <CalendarDots className="w-4 h-4 text-amber-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-amber-400">{thisWeek.length}</div>
-                        <div className="text-sm text-white/40">This Week</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">This Week</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
-                        <CalendarDots className="w-4 h-4 text-white/60 mx-auto mb-1" />
+                        <CalendarDots className="w-4 h-4 text-[var(--text-secondary)] mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{nextWeek.length}</div>
-                        <div className="text-sm text-white/40">Next Week</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Next Week</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Upcoming Maintenance List */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <CalendarDots className="w-3 h-3 text-emerald-400" weight="fill" />
@@ -661,13 +661,13 @@ export function MaintenanceCalendarDrilldown() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {upcomingItems.length === 0 ? (
-                        <div className="text-sm text-white/40 text-center py-3">
+                        <div className="text-sm text-[var(--text-tertiary)] text-center py-3">
                             <CheckCircle className="w-5 h-5 text-emerald-400 mx-auto mb-1" />
                             No upcoming maintenance scheduled
                         </div>
                     ) : (
                         upcomingItems.slice(0, 10).map(item => (
-                            <div key={item.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={item.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div className="flex items-center gap-3">
                                     <div className={`p-2 rounded-full ${item.status === 'overdue' ? 'bg-red-500/20' : 'bg-emerald-500/20'}`}>
                                         {item.type === 'work-order'
@@ -677,7 +677,7 @@ export function MaintenanceCalendarDrilldown() {
                                     </div>
                                     <div>
                                         <div className="font-medium text-white text-sm">{formatEnum(item.label)}</div>
-                                        <div className="text-xs text-white/40">{formatDate(item.dueDate)}</div>
+                                        <div className="text-xs text-[var(--text-tertiary)]">{formatDate(item.dueDate)}</div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -729,56 +729,56 @@ export function ExecutiveDashboardDrilldown() {
         <div className="space-y-2">
             {/* Fleet Overview Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <Truck className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{vehicles.length}</div>
-                        <div className="text-sm text-white/40">Fleet Size</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Fleet Size</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <TrendUp className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-emerald-400">{activeVehiclePct}%</div>
-                        <div className="text-sm text-white/40">Active Rate</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Active Rate</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <User className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{activeDrivers.length}</div>
-                        <div className="text-sm text-white/40">Active Drivers</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Active Drivers</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <Wrench className="w-4 h-4 text-amber-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-amber-400">{openWOs.length}</div>
-                        <div className="text-sm text-white/40">Open WOs</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Open WOs</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Key Indicators */}
             <div className="grid grid-cols-2 gap-3">
-                <Card className={`${monthlyIncidents.length > 5 ? 'bg-red-900/30 border-red-700/50' : 'bg-[#111111] border-white/[0.04]'}`}>
+                <Card className={`${monthlyIncidents.length > 5 ? 'bg-red-900/30 border-red-700/50' : 'bg-[var(--surface-primary)] border-[var(--border-subtle)]'}`}>
                     <CardContent className="p-2 text-center">
-                        <Warning className={`w-4 h-4 mx-auto mb-1 ${monthlyIncidents.length > 5 ? 'text-red-400' : 'text-white/60'}`} />
+                        <Warning className={`w-4 h-4 mx-auto mb-1 ${monthlyIncidents.length > 5 ? 'text-red-400' : 'text-[var(--text-secondary)]'}`} />
                         <div className={`text-base font-bold ${monthlyIncidents.length > 5 ? 'text-red-400' : 'text-white'}`}>{monthlyIncidents.length}</div>
-                        <div className="text-sm text-white/40">Incidents This Month</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Incidents This Month</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
-                        <GasPump className="w-4 h-4 text-white/60 mx-auto mb-1" />
+                        <GasPump className="w-4 h-4 text-[var(--text-secondary)] mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{formatCurrency(totalFuelCost)}</div>
-                        <div className="text-sm text-white/40">Total Fuel Cost</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Total Fuel Cost</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Performance Bars */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <ChartLine className="w-3 h-3 text-emerald-400" />
@@ -873,38 +873,38 @@ export function CostAnalysisDrilldown() {
         <div className="space-y-2">
             {/* Cost Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <CurrencyDollar className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{formatCurrency(totalCost)}</div>
-                        <div className="text-sm text-white/40">Total Cost</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Total Cost</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <GasPump className="w-4 h-4 text-amber-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-amber-400">{formatCurrency(totalFuelCost)}</div>
-                        <div className="text-sm text-white/40">Fuel Cost</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Fuel Cost</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
-                        <Wrench className="w-4 h-4 text-white/60 mx-auto mb-1" />
+                        <Wrench className="w-4 h-4 text-[var(--text-secondary)] mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{formatCurrency(totalMaintenanceCost)}</div>
-                        <div className="text-sm text-white/40">Maintenance</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Maintenance</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
-                        <CarSimple className="w-4 h-4 text-white/60 mx-auto mb-1" />
+                        <CarSimple className="w-4 h-4 text-[var(--text-secondary)] mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{formatCurrency(costPerVehicle)}</div>
-                        <div className="text-sm text-white/40">Per Vehicle</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Per Vehicle</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Cost Breakdown */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <ChartLine className="w-3 h-3 text-emerald-400" />
@@ -930,12 +930,12 @@ export function CostAnalysisDrilldown() {
                             <div className="h-full bg-emerald-500/50 transition-all" style={{ width: `${maintPct}%` }} />
                         </Progress>
                     </div>
-                    <div className="text-xs text-white/40 pt-1">Avg fuel price: ${avgPricePerGallon}/gal</div>
+                    <div className="text-xs text-[var(--text-tertiary)] pt-1">Avg fuel price: ${avgPricePerGallon}/gal</div>
                 </CardContent>
             </Card>
 
             {/* High-Cost Items */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <CurrencyDollar className="w-3 h-3 text-amber-400" />
@@ -944,17 +944,17 @@ export function CostAnalysisDrilldown() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {highCostWOs.length === 0 ? (
-                        <div className="text-sm text-white/40 text-center py-3">No cost data available</div>
+                        <div className="text-sm text-[var(--text-tertiary)] text-center py-3">No cost data available</div>
                     ) : (
                         highCostWOs.map(wo => (
-                            <div key={wo.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={wo.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 rounded-full bg-amber-500/20">
                                         <Wrench className="w-4 h-4 text-amber-400" weight="fill" />
                                     </div>
                                     <div>
                                         <div className="font-medium text-white text-sm">{wo.title || wo.serviceType || `WO-${wo.workOrderNumber || wo.number || ''}`}</div>
-                                        <div className="text-xs text-white/40">{formatEnum(wo.status)}</div>
+                                        <div className="text-xs text-[var(--text-tertiary)]">{formatEnum(wo.status)}</div>
                                     </div>
                                 </div>
                                 <span className="text-amber-400 font-medium">{formatCurrency(wo.cost || wo.estimatedCost || 0)}</span>
@@ -965,7 +965,7 @@ export function CostAnalysisDrilldown() {
             </Card>
 
             {/* High-Cost Fuel Transactions */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <GasPump className="w-3 h-3 text-amber-400" />
@@ -974,17 +974,17 @@ export function CostAnalysisDrilldown() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {highCostFuel.length === 0 ? (
-                        <div className="text-sm text-white/40 text-center py-3">No fuel data available</div>
+                        <div className="text-sm text-[var(--text-tertiary)] text-center py-3">No fuel data available</div>
                     ) : (
                         highCostFuel.map(t => (
-                            <div key={t.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={t.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 rounded-full bg-white/[0.06]">
-                                        <GasPump className="w-4 h-4 text-white/60" />
+                                        <GasPump className="w-4 h-4 text-[var(--text-secondary)]" />
                                     </div>
                                     <div>
                                         <div className="font-medium text-white text-sm">{t.vehicleNumber || t.vehicle_number || `Vehicle`}</div>
-                                        <div className="text-xs text-white/40">{t.gallons?.toFixed(1) || '—'} gal @ {t.station || '—'}</div>
+                                        <div className="text-xs text-[var(--text-tertiary)]">{t.gallons?.toFixed(1) || '—'} gal @ {t.station || '—'}</div>
                                     </div>
                                 </div>
                                 <span className="text-white font-medium">{formatCurrency(t.totalCost || t.total_cost || t.cost || 0)}</span>
@@ -1039,34 +1039,34 @@ export function FleetOptimizerDrilldown() {
                     <CardContent className="p-2 text-center">
                         <TrendUp className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-emerald-400">{utilizationRate}%</div>
-                        <div className="text-sm text-white/40">Utilization</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Utilization</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <Truck className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{activeVehicles.length}</div>
-                        <div className="text-sm text-white/40">Active</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Active</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <Lightning className="w-4 h-4 text-amber-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-amber-400">{idleVehicles.length}</div>
-                        <div className="text-sm text-white/40">Idle</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">Idle</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
-                        <Wrench className="w-4 h-4 text-white/60 mx-auto mb-1" />
+                        <Wrench className="w-4 h-4 text-[var(--text-secondary)] mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{serviceVehicles.length}</div>
-                        <div className="text-sm text-white/40">In Service</div>
+                        <div className="text-sm text-[var(--text-tertiary)]">In Service</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Performance Metrics */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Gauge className="w-3 h-3 text-emerald-400" weight="fill" />
@@ -1095,22 +1095,22 @@ export function FleetOptimizerDrilldown() {
                     <div className="grid grid-cols-3 gap-2 pt-2">
                         <div className="text-center">
                             <div className="text-sm font-medium text-white">{avgMpg}</div>
-                            <div className="text-xs text-white/40">Avg MPG</div>
+                            <div className="text-xs text-[var(--text-tertiary)]">Avg MPG</div>
                         </div>
                         <div className="text-center">
                             <div className="text-sm font-medium text-white">{formatNumber(totalGallons)}</div>
-                            <div className="text-xs text-white/40">Total Gallons</div>
+                            <div className="text-xs text-[var(--text-tertiary)]">Total Gallons</div>
                         </div>
                         <div className="text-center">
                             <div className="text-sm font-medium text-white">{formatNumber(totalDistance)}</div>
-                            <div className="text-xs text-white/40">Total Miles</div>
+                            <div className="text-xs text-[var(--text-tertiary)]">Total Miles</div>
                         </div>
                     </div>
                 </CardContent>
             </Card>
 
             {/* Route Status */}
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <MapPin className="w-3 h-3 text-emerald-400" />
@@ -1119,17 +1119,17 @@ export function FleetOptimizerDrilldown() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                     <div className="grid grid-cols-3 gap-2">
-                        <div className="p-2 bg-white/[0.03] rounded-lg text-center">
+                        <div className="p-2 bg-[var(--surface-glass)] rounded-lg text-center">
                             <div className="text-sm font-bold text-emerald-400">{completedRoutes.length}</div>
-                            <div className="text-xs text-white/40">Completed</div>
+                            <div className="text-xs text-[var(--text-tertiary)]">Completed</div>
                         </div>
-                        <div className="p-2 bg-white/[0.03] rounded-lg text-center">
+                        <div className="p-2 bg-[var(--surface-glass)] rounded-lg text-center">
                             <div className="text-sm font-bold text-emerald-400">{inProgressRoutes.length}</div>
-                            <div className="text-xs text-white/40">In Progress</div>
+                            <div className="text-xs text-[var(--text-tertiary)]">In Progress</div>
                         </div>
-                        <div className="p-2 bg-white/[0.03] rounded-lg text-center">
+                        <div className="p-2 bg-[var(--surface-glass)] rounded-lg text-center">
                             <div className="text-sm font-bold text-white/80">{plannedRoutes.length}</div>
-                            <div className="text-xs text-white/40">Planned</div>
+                            <div className="text-xs text-[var(--text-tertiary)]">Planned</div>
                         </div>
                     </div>
                 </CardContent>
@@ -1137,7 +1137,7 @@ export function FleetOptimizerDrilldown() {
 
             {/* Idle Vehicles for Reassignment */}
             {reassignableVehicles.length > 0 && (
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-white text-sm flex items-center gap-2">
                             <Lightning className="w-3 h-3 text-amber-400" />
@@ -1146,7 +1146,7 @@ export function FleetOptimizerDrilldown() {
                     </CardHeader>
                     <CardContent className="space-y-2">
                         {reassignableVehicles.map((v: any) => (
-                            <div key={v.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={v.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 rounded-full bg-amber-500/20">
                                         <Truck className="w-4 h-4 text-amber-400" />
@@ -1157,14 +1157,14 @@ export function FleetOptimizerDrilldown() {
                                                 ? formatVehicleName(v)
                                                 : `Vehicle #${v.number || v.vehicleNumber || v.id?.slice(-6)}`}
                                         </div>
-                                        <div className="text-xs text-white/40">{formatNumber(v.mileage || 0)} mi | {formatEnum(v.fuelType || 'unknown')}</div>
+                                        <div className="text-xs text-[var(--text-tertiary)]">{formatNumber(v.mileage || 0)} mi | {formatEnum(v.fuelType || 'unknown')}</div>
                                     </div>
                                 </div>
                                 <Badge variant="outline" className="border-amber-500/50 text-amber-400">Idle</Badge>
                             </div>
                         ))}
                         {offlineVehicles.length > 0 && (
-                            <div className="text-xs text-white/40 pt-1">{offlineVehicles.length} vehicle(s) currently offline</div>
+                            <div className="text-xs text-[var(--text-tertiary)] pt-1">{offlineVehicles.length} vehicle(s) currently offline</div>
                         )}
                     </CardContent>
                 </Card>

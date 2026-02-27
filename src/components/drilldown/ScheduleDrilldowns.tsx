@@ -142,7 +142,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{item.title}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 {formatEnum(item.type)} • {item.item_number}
               </p>
               <div className="flex items-center gap-2 mt-2">
@@ -150,7 +150,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                 <Badge variant={getTypeVariant(item.type)}>{formatEnum(item.type)}</Badge>
               </div>
             </div>
-            <Calendar className="h-9 w-12 text-muted-foreground" />
+            <Calendar className="h-9 w-12 text-[var(--text-secondary)]" />
           </div>
 
           {/* Quick Info */}
@@ -200,24 +200,24 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Description</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Description</p>
                     <p className="text-sm">{item.description || 'No description provided'}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Duration</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Duration</p>
                       <p className="font-medium">{item.duration_hours || 0} hours</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Priority</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Priority</p>
                       <p className="font-medium">{item.priority ? formatEnum(item.priority) : 'Normal'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Created By</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Created By</p>
                       <p className="font-medium">{item.created_by || 'System'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Created Date</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Created Date</p>
                       <p className="font-medium">
                         {formatDate(item.created_date)}
                       </p>
@@ -234,9 +234,9 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {item.assigned_driver && (
-                    <div className="p-3 rounded bg-muted/50">
+                    <div className="p-3 rounded bg-[var(--surface-glass)]">
                       <div className="flex items-center gap-2 mb-1">
-                        <User className="h-4 w-4 text-muted-foreground" />
+                        <User className="h-4 w-4 text-[var(--text-secondary)]" />
                         <p className="text-sm font-medium">Driver</p>
                       </div>
                       <p className="text-sm">{item.assigned_driver}</p>
@@ -259,9 +259,9 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                   )}
 
                   {item.assigned_vehicle && (
-                    <div className="p-3 rounded bg-muted/50">
+                    <div className="p-3 rounded bg-[var(--surface-glass)]">
                       <div className="flex items-center gap-2 mb-1">
-                        <Truck className="h-4 w-4 text-muted-foreground" />
+                        <Truck className="h-4 w-4 text-[var(--text-secondary)]" />
                         <p className="text-sm font-medium">Vehicle</p>
                       </div>
                       <p className="text-sm">{item.assigned_vehicle}</p>
@@ -284,7 +284,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                   )}
 
                   {!item.assigned_driver && !item.assigned_vehicle && (
-                    <p className="text-sm text-muted-foreground">No resources assigned</p>
+                    <p className="text-sm text-[var(--text-secondary)]">No resources assigned</p>
                   )}
                 </CardContent>
               </Card>
@@ -299,7 +299,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                   {item.start_location && (
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <MapPin className="h-4 w-4 text-[var(--text-secondary)]" />
                         <p className="text-sm font-medium">Start Location</p>
                       </div>
                       <p className="text-sm">{item.start_location}</p>
@@ -309,7 +309,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                   {item.end_location && (
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <MapPin className="h-4 w-4 text-[var(--text-secondary)]" />
                         <p className="text-sm font-medium">End Location</p>
                       </div>
                       <p className="text-sm">{item.end_location}</p>
@@ -318,13 +318,13 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
 
                   {item.distance && (
                     <div>
-                      <p className="text-sm text-muted-foreground">Estimated Distance</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Estimated Distance</p>
                       <p className="font-medium">{item.distance} miles</p>
                     </div>
                   )}
 
                   {!item.start_location && !item.end_location && (
-                    <p className="text-sm text-muted-foreground">No location information</p>
+                    <p className="text-sm text-[var(--text-secondary)]">No location information</p>
                   )}
                 </CardContent>
               </Card>
@@ -339,7 +339,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                   {item.notes ? (
                     <p className="text-sm whitespace-pre-wrap">{item.notes}</p>
                   ) : (
-                    <p className="text-sm text-muted-foreground">No notes available</p>
+                    <p className="text-sm text-[var(--text-secondary)]">No notes available</p>
                   )}
                 </CardContent>
               </Card>
@@ -468,7 +468,7 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
               }, {})
             ).map(([date, dateItems]) => (
               <div key={date}>
-                <h4 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-[var(--text-secondary)] mb-2 flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   {date}
                 </h4>
@@ -493,11 +493,11 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
                               {getTypeIcon(item.type)}
                               <p className="font-semibold">{item.title}</p>
                             </div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-[var(--text-secondary)]">
                               {formatTime(item.start_time)} -{' '}
                               {formatTime(item.end_time)}
                             </p>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
                               {item.assigned_driver && (
                                 <span className="flex items-center gap-1">
                                   <User className="h-3 w-3" />
@@ -533,8 +533,8 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
           {(!items || items.length === 0) && (
             <Card>
               <CardContent className="p-3 text-center">
-                <Calendar className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">
+                <Calendar className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                <p className="text-[var(--text-secondary)]">
                   No scheduled items found for this period
                 </p>
               </CardContent>

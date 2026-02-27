@@ -28,10 +28,10 @@ function StatRow({ label, value, trend, icon: Icon }: {
     icon?: any;
 }) {
     return (
-        <div className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
+        <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0">
             <div className="flex items-center gap-2">
-                {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
-                <span className="text-sm text-muted-foreground">{label}</span>
+                {Icon && <Icon className="h-4 w-4 text-[var(--text-secondary)]" />}
+                <span className="text-sm text-[var(--text-secondary)]">{label}</span>
             </div>
             <div className="flex items-center gap-1">
                 <span className="font-semibold">{value}</span>
@@ -93,7 +93,7 @@ export function FleetOverviewDrilldown() {
                 <CardContent className="space-y-3">
                     {Object.entries(byStatus).map(([status, list]) => (
                         <div key={status} className="flex items-center gap-3">
-                            <div className="w-20 text-sm capitalize text-muted-foreground">{status}</div>
+                            <div className="w-20 text-sm capitalize text-[var(--text-secondary)]">{status}</div>
                             <div className="flex-1">
                                 <Progress value={(list.length / vehicles.length) * 100} className="h-2" />
                             </div>
@@ -136,7 +136,7 @@ export function FleetOverviewDrilldown() {
                                 })}
                             >
                                 <span className="text-sm font-bold">{list.length}</span>
-                                <span className="text-xs text-muted-foreground capitalize">{type}s</span>
+                                <span className="text-xs text-[var(--text-secondary)] capitalize">{type}s</span>
                             </Button>
                         ))}
                     </div>
@@ -171,14 +171,14 @@ export function ActiveVehiclesDrilldown() {
                 <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-700 border-emerald-500/20">
                     {vehicles.length} Active Vehicles
                 </Badge>
-                <span className="text-sm text-muted-foreground">Real-time status</span>
+                <span className="text-sm text-[var(--text-secondary)]">Real-time status</span>
             </div>
 
             <div className="space-y-2">
                 {vehicles.slice(0, 20).map(vehicle => (
                     <Card
                         key={vehicle.id}
-                        className="cursor-pointer bg-[#111111] hover:bg-white/[0.08] border-white/[0.04] transition-colors"
+                        className="cursor-pointer bg-[var(--surface-primary)] hover:bg-white/[0.08] border-[var(--border-subtle)] transition-colors"
                         onClick={() => push({
                             id: vehicle.id,
                             type: 'vehicle',
@@ -194,18 +194,18 @@ export function ActiveVehiclesDrilldown() {
                                     </div>
                                     <div>
                                         <div className="font-semibold">{vehicle.number}</div>
-                                        <div className="text-sm text-muted-foreground">{vehicle.name}</div>
+                                        <div className="text-sm text-[var(--text-secondary)]">{vehicle.name}</div>
                                     </div>
                                 </div>
                                 <div className="text-right">
                                     <div className="text-sm font-medium">{vehicle.driver?.split(' ').pop() || '—'}</div>
-                                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                    <div className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
                                         <MapPin className="h-3 w-3" />
                                         {vehicle.location.address.split(',')[1]?.trim() || 'On Route'}
                                     </div>
                                 </div>
                             </div>
-                            <div className="mt-2 flex gap-2 text-xs text-muted-foreground">
+                            <div className="mt-2 flex gap-2 text-xs text-[var(--text-secondary)]">
                                 <span>Fuel: {vehicle.fuelLevel}%</span>
                                 <span>|</span>
                                 <span>{formatNumber(vehicle.mileage)} mi</span>
@@ -216,7 +216,7 @@ export function ActiveVehiclesDrilldown() {
             </div>
 
             {vehicles.length > 20 && (
-                <div className="text-center text-sm text-muted-foreground py-2">
+                <div className="text-center text-sm text-[var(--text-secondary)] py-2">
                     Showing 20 of {vehicles.length} active vehicles
                 </div>
             )}
@@ -322,7 +322,7 @@ export function MaintenanceDrilldown() {
                             <div key={order.id} className="flex items-center justify-between py-2 border-b last:border-0">
                                 <div>
                                     <div className="font-medium">{order.title}</div>
-                                    <div className="text-xs text-muted-foreground">
+                                    <div className="text-xs text-[var(--text-secondary)]">
                                         {order.vehicleId} • Due: {order.dueDate || '—'}
                                     </div>
                                 </div>
@@ -405,7 +405,7 @@ export function FuelManagementDrilldown() {
                             <span>{formatEnum(type)}</span>
                             <div className="flex items-center gap-2">
                                 <span className="font-semibold">{list.length}</span>
-                                <span className="text-sm text-muted-foreground">
+                                <span className="text-sm text-[var(--text-secondary)]">
                                     {formatCurrency(list.reduce((sum, t) => sum + (t.cost ?? 0), 0))}
                                 </span>
                             </div>
@@ -425,13 +425,13 @@ export function FuelManagementDrilldown() {
                             <div key={tx.id} className="flex items-center justify-between py-2 border-b last:border-0">
                                 <div>
                                     <div className="font-medium">{tx.vehicleId}</div>
-                                    <div className="text-xs text-muted-foreground">
+                                    <div className="text-xs text-[var(--text-secondary)]">
                                         {tx.date} • {(tx.locationData?.address?.split(',')[0] || 'Unknown Location')}
                                     </div>
                                 </div>
                                 <div className="text-right">
                                     <div className="font-semibold">{formatCurrency(tx.cost ?? 0)}</div>
-                                    <div className="text-xs text-muted-foreground">{tx.gallons.toFixed(2)} gal</div>
+                                    <div className="text-xs text-[var(--text-secondary)]">{tx.gallons.toFixed(2)} gal</div>
                                 </div>
                             </div>
                         ))}
@@ -516,7 +516,7 @@ export function FuelStatsDrilldown() {
                         return (
                             <div key={type} className="space-y-1">
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="capitalize text-muted-foreground">{type}</span>
+                                    <span className="capitalize text-[var(--text-secondary)]">{type}</span>
                                     <span className="font-semibold">{formatCurrency(data.cost)} ({formatNumber(Math.round(data.gallons))} gal)</span>
                                 </div>
                                 <Progress value={pct} className="h-2" />
@@ -538,20 +538,20 @@ export function FuelStatsDrilldown() {
                         {topConsumers.map((item, idx) => {
                             const v = vehicleMap.get(item.vehicleId) as any
                             return (
-                                <div key={item.vehicleId} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
+                                <div key={item.vehicleId} className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-xs font-bold text-muted-foreground w-5">#{idx + 1}</span>
+                                        <span className="text-xs font-bold text-[var(--text-secondary)] w-5">#{idx + 1}</span>
                                         <span className="text-sm font-medium">{v?.number || v?.name || item.vehicleId}</span>
                                     </div>
                                     <div className="text-right">
                                         <div className="text-sm font-semibold">{formatCurrency(item.cost)}</div>
-                                        <div className="text-xs text-muted-foreground">{formatNumber(Math.round(item.gallons))} gal</div>
+                                        <div className="text-xs text-[var(--text-secondary)]">{formatNumber(Math.round(item.gallons))} gal</div>
                                     </div>
                                 </div>
                             )
                         })}
                         {topConsumers.length === 0 && (
-                            <div className="text-center py-4 text-sm text-muted-foreground">No fuel transaction data available</div>
+                            <div className="text-center py-4 text-sm text-[var(--text-secondary)]">No fuel transaction data available</div>
                         )}
                     </div>
                 </CardContent>
@@ -627,7 +627,7 @@ export function PerformanceMetricsDrilldown() {
                     <StatRow label="Planned" value={formatNumber(plannedRoutes)} icon={Calendar} />
                     {totalRoutes > 0 && (
                         <div className="mt-3 space-y-1">
-                            <div className="flex justify-between text-xs text-muted-foreground">
+                            <div className="flex justify-between text-xs text-[var(--text-secondary)]">
                                 <span>Completion Rate</span>
                                 <span>{Math.round((completedRoutes / totalRoutes) * 100)}%</span>
                             </div>
@@ -651,7 +651,7 @@ export function PerformanceMetricsDrilldown() {
                     <StatRow label="Avg. Resolution Time" value={`${avgResponseDays.toFixed(1)} days`} icon={Calendar} />
                     {workOrders.length > 0 && (
                         <div className="mt-3 space-y-1">
-                            <div className="flex justify-between text-xs text-muted-foreground">
+                            <div className="flex justify-between text-xs text-[var(--text-secondary)]">
                                 <span>WO Completion</span>
                                 <span>{woCompletionRate}%</span>
                             </div>
@@ -739,7 +739,7 @@ export function DriverStatsDrilldown() {
                         { label: 'Suspended', count: suspendedDrivers.length, color: 'text-red-500' },
                     ].map(({ label, count, color }) => (
                         <div key={label} className="flex items-center gap-3">
-                            <div className="w-20 text-sm text-muted-foreground">{label}</div>
+                            <div className="w-20 text-sm text-[var(--text-secondary)]">{label}</div>
                             <div className="flex-1">
                                 <Progress value={drivers.length > 0 ? (count / drivers.length) * 100 : 0} className="h-2" />
                             </div>
@@ -763,8 +763,8 @@ export function DriverStatsDrilldown() {
                         { label: 'Fair (60-74)', count: scoreFair, variant: 'default' as const, className: 'bg-amber-500 hover:bg-amber-600' },
                         { label: 'Needs Improvement (<60)', count: scorePoor, variant: 'destructive' as const, className: '' },
                     ].map(({ label, count, variant, className }) => (
-                        <div key={label} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
-                            <span className="text-sm text-muted-foreground">{label}</span>
+                        <div key={label} className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0">
+                            <span className="text-sm text-[var(--text-secondary)]">{label}</span>
                             <Badge variant={variant} className={className}>{count}</Badge>
                         </div>
                     ))}
@@ -792,7 +792,7 @@ export function DriverStatsDrilldown() {
                             return (
                                 <div
                                     key={driver.id}
-                                    className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/[0.04] rounded px-1 -mx-1 transition-colors"
+                                    className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0 cursor-pointer hover:bg-white/[0.04] rounded px-1 -mx-1 transition-colors"
                                     onClick={() => push({
                                         id: `driver-${driver.id}`,
                                         type: 'driver',
@@ -801,23 +801,23 @@ export function DriverStatsDrilldown() {
                                     })}
                                 >
                                     <div className="flex items-center gap-2">
-                                        <span className="text-xs font-bold text-muted-foreground w-5">#{idx + 1}</span>
+                                        <span className="text-xs font-bold text-[var(--text-secondary)] w-5">#{idx + 1}</span>
                                         <div>
                                             <div className="text-sm font-medium">{driver.name || `${driver.firstName || driver.first_name || ''} ${driver.lastName || driver.last_name || ''}`.trim() || 'Unknown'}</div>
-                                            <div className="text-xs text-muted-foreground">{driver.department || '—'}</div>
+                                            <div className="text-xs text-[var(--text-secondary)]">{driver.department || '—'}</div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <span className={`text-sm font-bold ${score >= 90 ? 'text-emerald-400' : score >= 75 ? 'text-emerald-400' : score >= 60 ? 'text-amber-500' : 'text-red-500'}`}>
                                             {score}
                                         </span>
-                                        <Gauge className="h-4 w-4 text-muted-foreground" />
+                                        <Gauge className="h-4 w-4 text-[var(--text-secondary)]" />
                                     </div>
                                 </div>
                             )
                         })}
                         {topDrivers.length === 0 && (
-                            <div className="text-center py-4 text-sm text-muted-foreground">No driver safety data available</div>
+                            <div className="text-center py-4 text-sm text-[var(--text-secondary)]">No driver safety data available</div>
                         )}
                     </div>
                 </CardContent>
@@ -845,7 +845,7 @@ export function UtilizationDrilldown() {
         { label: 'Active', vehicles: activeVehicles, color: 'bg-emerald-500', textColor: 'text-emerald-400' },
         { label: 'Idle', vehicles: idleVehicles, color: 'bg-amber-500', textColor: 'text-amber-400' },
         { label: 'In Service', vehicles: serviceVehicles, color: 'bg-red-500', textColor: 'text-red-400' },
-        { label: 'Offline', vehicles: offlineVehicles, color: 'bg-white/[0.2]', textColor: 'text-white/40' },
+        { label: 'Offline', vehicles: offlineVehicles, color: 'bg-white/[0.2]', textColor: 'text-[var(--text-tertiary)]' },
         { label: 'Charging', vehicles: chargingVehicles, color: 'bg-emerald-500/50', textColor: 'text-emerald-400' },
         { label: 'Emergency', vehicles: emergencyVehicles, color: 'bg-amber-500', textColor: 'text-amber-400' },
     ].filter(s => s.vehicles.length > 0)
@@ -883,10 +883,10 @@ export function UtilizationDrilldown() {
                         return (
                             <div key={label} className="space-y-1">
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="text-muted-foreground">{label}</span>
+                                    <span className="text-[var(--text-secondary)]">{label}</span>
                                     <div className="flex items-center gap-2">
                                         <span className={`font-semibold ${textColor}`}>{statusVehicles.length}</span>
-                                        <span className="text-xs text-muted-foreground">({Math.round(pct)}%)</span>
+                                        <span className="text-xs text-[var(--text-secondary)]">({Math.round(pct)}%)</span>
                                     </div>
                                 </div>
                                 <div className="w-full h-2 bg-white/[0.08] rounded-full overflow-hidden">
@@ -911,7 +911,7 @@ export function UtilizationDrilldown() {
                             {idleVehicles.slice(0, 8).map((vehicle: any) => (
                                 <div
                                     key={vehicle.id}
-                                    className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/[0.04] rounded px-1 -mx-1 transition-colors"
+                                    className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0 cursor-pointer hover:bg-white/[0.04] rounded px-1 -mx-1 transition-colors"
                                     onClick={() => push({
                                         id: `vehicle-${vehicle.id}`,
                                         type: 'vehicle',
@@ -923,14 +923,14 @@ export function UtilizationDrilldown() {
                                         <Truck className="h-4 w-4 text-amber-500" />
                                         <div>
                                             <div className="text-sm font-medium">{vehicle.number || vehicle.name}</div>
-                                            <div className="text-xs text-muted-foreground capitalize">{vehicle.type}</div>
+                                            <div className="text-xs text-[var(--text-secondary)] capitalize">{vehicle.type}</div>
                                         </div>
                                     </div>
                                     <Badge variant="secondary" className="bg-amber-500/10 text-amber-500 border-amber-500/20">Idle</Badge>
                                 </div>
                             ))}
                             {idleVehicles.length > 8 && (
-                                <div className="text-center text-xs text-muted-foreground py-1">
+                                <div className="text-center text-xs text-[var(--text-secondary)] py-1">
                                     +{idleVehicles.length - 8} more idle vehicles
                                 </div>
                             )}
@@ -1021,8 +1021,8 @@ export function SafetyScoreDrilldown() {
                         { label: 'Moderate', count: moderateIncidents, variant: 'default' as const, className: 'bg-amber-500 hover:bg-amber-600' },
                         { label: 'Minor', count: minorIncidents, variant: 'secondary' as const, className: '' },
                     ].map(({ label, count, variant, className }) => (
-                        <div key={label} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
-                            <span className="text-sm text-muted-foreground">{label}</span>
+                        <div key={label} className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0">
+                            <span className="text-sm text-[var(--text-secondary)]">{label}</span>
                             <Badge variant={variant} className={className}>{count}</Badge>
                         </div>
                     ))}
@@ -1048,7 +1048,7 @@ export function SafetyScoreDrilldown() {
                                 <div className="flex items-center justify-between text-sm">
                                     <div className="flex items-center gap-2">
                                         <StatusIcon className={`h-4 w-4 ${color}`} />
-                                        <span className="text-muted-foreground">{label}</span>
+                                        <span className="text-[var(--text-secondary)]">{label}</span>
                                     </div>
                                     <span className={`font-semibold ${color}`}>{count}</span>
                                 </div>
@@ -1060,7 +1060,7 @@ export function SafetyScoreDrilldown() {
                     })}
                     {inspections.length > 0 && (
                         <div className="pt-2 text-center">
-                            <span className="text-sm text-muted-foreground">
+                            <span className="text-sm text-[var(--text-secondary)]">
                                 Pass Rate: <span className="font-semibold text-foreground">{Math.round((passedInspections / inspections.length) * 100)}%</span>
                             </span>
                         </div>
@@ -1173,7 +1173,7 @@ export function VehicleListDrilldown() {
                             style={{ width: `${vehicle.fuelLevel}%` }}
                         />
                     </div>
-                    <span className="text-sm text-muted-foreground">{vehicle.fuelLevel}%</span>
+                    <span className="text-sm text-[var(--text-secondary)]">{vehicle.fuelLevel}%</span>
                 </div>
             )
         },
@@ -1193,7 +1193,7 @@ export function VehicleListDrilldown() {
                     <h2 className="text-sm font-bold">
                         {filter ? `${filter.charAt(0).toUpperCase() + filter.slice(1)} Vehicles` : 'All Vehicles'}
                     </h2>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">
                         {filteredVehicles.length} vehicle{filteredVehicles.length !== 1 ? 's' : ''} found
                     </p>
                 </div>
@@ -1204,10 +1204,10 @@ export function VehicleListDrilldown() {
                 <Card>
                     <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
-                            <Truck className="h-4 w-4 text-muted-foreground" />
+                            <Truck className="h-4 w-4 text-[var(--text-secondary)]" />
                             <div>
                                 <div className="text-sm font-bold">{filteredVehicles.length}</div>
-                                <div className="text-xs text-muted-foreground">Total</div>
+                                <div className="text-xs text-[var(--text-secondary)]">Total</div>
                             </div>
                         </div>
                     </CardContent>
@@ -1220,7 +1220,7 @@ export function VehicleListDrilldown() {
                                 <div className="text-sm font-bold text-emerald-600">
                                     {filteredVehicles.filter((v: any) => v.status === 'active').length}
                                 </div>
-                                <div className="text-xs text-muted-foreground">Active</div>
+                                <div className="text-xs text-[var(--text-secondary)]">Active</div>
                             </div>
                         </div>
                     </CardContent>
@@ -1233,7 +1233,7 @@ export function VehicleListDrilldown() {
                                 <div className="text-sm font-bold text-amber-600">
                                     {filteredVehicles.filter((v: any) => v.status === 'maintenance' || v.status === 'service').length}
                                 </div>
-                                <div className="text-xs text-muted-foreground">Maintenance</div>
+                                <div className="text-xs text-[var(--text-secondary)]">Maintenance</div>
                             </div>
                         </div>
                     </CardContent>
@@ -1241,12 +1241,12 @@ export function VehicleListDrilldown() {
                 <Card>
                     <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
-                            <Gauge className="h-4 w-4 text-muted-foreground" />
+                            <Gauge className="h-4 w-4 text-[var(--text-secondary)]" />
                             <div>
                                 <div className="text-sm font-bold">
                                     {Math.round(filteredVehicles.reduce((sum: number, v: any) => sum + (v.fuelLevel || 0), 0) / filteredVehicles.length)}%
                                 </div>
-                                <div className="text-xs text-muted-foreground">Avg Fuel</div>
+                                <div className="text-xs text-[var(--text-secondary)]">Avg Fuel</div>
                             </div>
                         </div>
                     </CardContent>
@@ -1286,17 +1286,17 @@ export function VehicleListDrilldown() {
                                                 vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'text-amber-400' :
                                                 vehicle.status === 'assigned' ? 'text-emerald-400' :
                                                 vehicle.status === 'dispatched' ? 'text-orange-400' :
-                                                vehicle.status === 'en_route' ? 'text-white/60' :
+                                                vehicle.status === 'en_route' ? 'text-[var(--text-secondary)]' :
                                                 vehicle.status === 'on_site' ? 'text-amber-400' :
                                                 vehicle.status === 'completed' ? 'text-emerald-400' :
-                                                    'text-white/40'
+                                                    'text-[var(--text-tertiary)]'
                                                 }`} />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="font-semibold truncate">
                                                 {vehicle.vehicleNumber || vehicle.number || `V-${vehicle.id}`}
                                             </div>
-                                            <div className="text-sm text-muted-foreground truncate">
+                                            <div className="text-sm text-[var(--text-secondary)] truncate">
                                                 {vehicle.name || formatVehicleShortName(vehicle)}
                                             </div>
                                         </div>
@@ -1304,7 +1304,7 @@ export function VehicleListDrilldown() {
                                     <div className="flex items-center gap-2">
                                         <div className="text-right hidden sm:block">
                                             <div className="text-sm font-medium">{formatNumber(vehicle.mileage ?? 0)} mi</div>
-                                            <div className="text-xs text-muted-foreground">Fuel: {vehicle.fuelLevel}%</div>
+                                            <div className="text-xs text-[var(--text-secondary)]">Fuel: {vehicle.fuelLevel}%</div>
                                         </div>
                                         {columns[2].render && columns[2].render(vehicle)}
                                     </div>
@@ -1314,7 +1314,7 @@ export function VehicleListDrilldown() {
                     </div>
 
                     {filteredVehicles.length === 0 && (
-                        <div className="text-center py-12 text-muted-foreground">
+                        <div className="text-center py-12 text-[var(--text-secondary)]">
                             <XCircle className="h-9 w-12 mx-auto mb-3 opacity-50" />
                             <p>No vehicles found matching the filter</p>
                         </div>

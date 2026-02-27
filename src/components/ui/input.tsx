@@ -15,26 +15,27 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         className={cn(
           // Base styles
-          "flex h-10 w-full min-w-0 rounded-lg border bg-white/[0.03] px-3 py-2 text-sm text-white",
+          "flex h-9 w-full min-w-0 rounded-[var(--radius-md)] border px-3 py-2 text-[var(--text-base)]",
+          "bg-[var(--surface-3)] text-[var(--text-primary)]",
           // Typography
-          "placeholder:text-white/25",
+          "placeholder:text-[var(--text-muted)]",
           "selection:bg-emerald-500/20 selection:text-white",
           // File input styles
-          "file:text-white file:inline-flex file:h-8 file:border-0 file:bg-white/[0.06] file:px-3 file:rounded-lg file:text-sm file:font-medium file:mr-3",
+          "file:text-white file:inline-flex file:h-8 file:border-0 file:bg-[var(--surface-glass-hover)] file:px-3 file:rounded-[var(--radius-md)] file:text-sm file:font-medium file:mr-3",
           // Border
-          "border-white/[0.04]",
+          "border-[var(--border-default)]",
           // Transitions
-          "transition-colors duration-150",
+          "transition-all duration-[var(--duration-fast)]",
           // Focus states
-          "focus:outline-none focus:border-white/[0.15]",
+          "focus:outline-none focus:border-[var(--border-focus)] focus:shadow-[0_0_0_2px_rgba(16,185,129,0.15)]",
           // Hover state
-          "hover:border-white/[0.08]",
+          "hover:border-[var(--border-strong)]",
           // Disabled state
           "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
           // Error state
-          error && "border-rose-500/30 focus:border-rose-500/50",
+          error && "border-[var(--status-danger)]/30 focus:border-[var(--status-danger)]/50",
           // Aria-invalid state
-          "aria-invalid:border-rose-500/30 aria-invalid:focus:border-rose-500/50",
+          "aria-invalid:border-[var(--status-danger)]/30 aria-invalid:focus:border-[var(--status-danger)]/50",
           className
         )}
         {...props}
@@ -55,17 +56,18 @@ const SearchInput = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         className={cn(
           // Base styles
-          "flex h-10 w-full min-w-0 rounded-lg border bg-white/[0.03] pl-10 pr-3 py-2 text-sm text-white",
+          "flex h-9 w-full min-w-0 rounded-[var(--radius-md)] border pl-10 pr-3 py-2 text-[var(--text-base)]",
+          "bg-[var(--surface-3)] text-[var(--text-primary)]",
           // Typography
-          "placeholder:text-white/25",
+          "placeholder:text-[var(--text-muted)]",
           // Border
-          "border-white/[0.04]",
+          "border-[var(--border-default)]",
           // Transitions
-          "transition-colors duration-150",
+          "transition-all duration-[var(--duration-fast)]",
           // Focus states
-          "focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.04]",
+          "focus:outline-none focus:border-[var(--border-focus)] focus:bg-[var(--surface-4)] focus:shadow-[0_0_0_2px_rgba(16,185,129,0.15)]",
           // Hover state
-          "hover:border-white/[0.08]",
+          "hover:border-[var(--border-strong)]",
           // Search cancel button
           "[&::-webkit-search-cancel-button]:appearance-none",
           className

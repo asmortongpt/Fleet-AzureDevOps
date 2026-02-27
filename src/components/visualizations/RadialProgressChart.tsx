@@ -65,7 +65,7 @@ export function RadialProgressChart({
 
   return (
     <div>
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
         <CardHeader>
           <CardTitle className="text-xl font-bold">{title}</CardTitle>
           {description && <CardDescription className="text-sm">{description}</CardDescription>}
@@ -73,7 +73,7 @@ export function RadialProgressChart({
         <CardContent className="flex items-center justify-center">
           {loading ? (
             <div
-              className="w-full bg-white/[0.04] animate-pulse rounded-full"
+              className="w-full bg-[var(--surface-glass)] animate-pulse rounded-full"
               style={{ height, aspectRatio: '1' }}
             />
           ) : (

@@ -91,9 +91,9 @@ interface DetailRowProps {
 function DetailRow({ label, value, icon }: DetailRowProps) {
   return (
     <div className="flex items-start gap-3 py-2">
-      {icon && <div className="mt-0.5 text-muted-foreground">{icon}</div>}
+      {icon && <div className="mt-0.5 text-[var(--text-secondary)]">{icon}</div>}
       <div className="flex-1 min-w-0">
-        <div className="text-xs text-muted-foreground uppercase tracking-wide">{label}</div>
+        <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wide">{label}</div>
         <div className="mt-0.5 font-medium">{value || '-'}</div>
       </div>
     </div>
@@ -125,7 +125,7 @@ interface StatusBadgeProps {
 
 function StatusBadge({ status, variant = 'default' }: StatusBadgeProps) {
   const variants = {
-    default: 'bg-white/[0.05] text-white/60',
+    default: 'bg-[var(--surface-glass-hover)] text-[var(--text-secondary)]',
     success: 'bg-green-100 text-green-800',
     warning: 'bg-yellow-100 text-yellow-800',
     danger: 'bg-red-100 text-red-800',
@@ -180,7 +180,7 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-sm font-bold">{asset.name}</h2>
-            <p className="text-muted-foreground">{asset.type}</p>
+            <p className="text-[var(--text-secondary)]">{asset.type}</p>
           </div>
           <StatusBadge status={asset.status} variant={statusVariant} />
         </div>
@@ -229,7 +229,7 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
         {/* Notes */}
         {asset.notes && (
           <DetailSection title="Notes">
-            <p className="text-sm text-muted-foreground">{asset.notes}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{asset.notes}</p>
           </DetailSection>
         )}
 
@@ -344,7 +344,7 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-sm font-bold">{invoice.number}</h2>
-            <p className="text-muted-foreground">{invoice.vendor}</p>
+            <p className="text-[var(--text-secondary)]">{invoice.vendor}</p>
           </div>
           <div className="text-right">
             <StatusBadge status={invoice.status} variant={statusVariant} />
@@ -376,11 +376,11 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
         <DetailSection title="Amount Breakdown">
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-[var(--text-secondary)]">Subtotal</span>
               <span>{formatCurrency(invoice.amount)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Tax</span>
+              <span className="text-[var(--text-secondary)]">Tax</span>
               <span>{formatCurrency(invoice.tax)}</span>
             </div>
             <Separator />
@@ -394,7 +394,7 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
         {/* Description */}
         {invoice.description && (
           <DetailSection title="Description">
-            <p className="text-sm text-muted-foreground">{invoice.description}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{invoice.description}</p>
           </DetailSection>
         )}
 
@@ -431,7 +431,7 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
             <DialogHeader>
               <DialogTitle>Confirm Payment</DialogTitle>
             </DialogHeader>
-            <p className="text-sm text-muted-foreground py-2">
+            <p className="text-sm text-[var(--text-secondary)] py-2">
               Mark invoice <strong>{invoice.number}</strong> ({formatCurrency(invoice.total)}) from <strong>{invoice.vendor}</strong> as paid?
             </p>
             <DialogFooter>
@@ -518,7 +518,7 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-sm font-bold">{route.name}</h2>
-            <p className="text-muted-foreground">
+            <p className="text-[var(--text-secondary)]">
               {route.startLocation} → {route.endLocation}
             </p>
           </div>
@@ -553,13 +553,13 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
         <DetailSection title="Assignment">
           <div className="grid grid-cols-2 gap-2">
             <div
-              className={cn(route.driverId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
+              className={cn(route.driverId && 'cursor-pointer hover:bg-[var(--surface-glass)] rounded p-2 -m-2')}
               onClick={handleDriverDrilldown}
             >
               <DetailRow label="Driver" value={route.driver} icon={<User className="w-4 h-4" />} />
             </div>
             <div
-              className={cn(route.vehicleId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
+              className={cn(route.vehicleId && 'cursor-pointer hover:bg-[var(--surface-glass)] rounded p-2 -m-2')}
               onClick={handleVehicleDrilldown}
             >
               <DetailRow label="Vehicle" value={route.vehicle} icon={<Truck className="w-4 h-4" />} />
@@ -732,7 +732,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
         {task.vehicle && (
           <DetailSection title="Related Vehicle">
             <div
-              className={cn(task.vehicleId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
+              className={cn(task.vehicleId && 'cursor-pointer hover:bg-[var(--surface-glass)] rounded p-2 -m-2')}
               onClick={() => {
                 if (task.vehicleId) {
                   push({
@@ -752,14 +752,14 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
         {/* Description */}
         {task.description && (
           <DetailSection title="Description">
-            <p className="text-sm text-muted-foreground">{task.description}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{task.description}</p>
           </DetailSection>
         )}
 
         {/* Notes */}
         {task.notes && (
           <DetailSection title="Notes">
-            <p className="text-sm text-muted-foreground">{task.notes}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{task.notes}</p>
           </DetailSection>
         )}
 
@@ -849,7 +849,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
             <DialogHeader>
               <DialogTitle>Complete Task</DialogTitle>
             </DialogHeader>
-            <p className="text-sm text-muted-foreground py-2">
+            <p className="text-sm text-[var(--text-secondary)] py-2">
               Mark task <strong>{task.name}</strong> as completed? This action indicates the task has been fully resolved.
             </p>
             <DialogFooter>
@@ -954,7 +954,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-sm font-bold">{incident.number}</h2>
-            <p className="text-muted-foreground">{formatEnum(incident.type)}</p>
+            <p className="text-[var(--text-secondary)]">{formatEnum(incident.type)}</p>
             <div className="flex gap-2 mt-2">
               <StatusBadge status={incident.status} variant={statusVariant} />
               <StatusBadge status={`${incident.severity} severity`} variant={severityVariant} />
@@ -988,7 +988,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
         <DetailSection title="Involved Parties">
           <div className="grid grid-cols-2 gap-2">
             <div
-              className={cn(incident.driverId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
+              className={cn(incident.driverId && 'cursor-pointer hover:bg-[var(--surface-glass)] rounded p-2 -m-2')}
               onClick={() => {
                 if (incident.driverId) {
                   push({
@@ -1003,7 +1003,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               <DetailRow label="Driver" value={incident.driver} icon={<User className="w-4 h-4" />} />
             </div>
             <div
-              className={cn(incident.vehicleId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
+              className={cn(incident.vehicleId && 'cursor-pointer hover:bg-[var(--surface-glass)] rounded p-2 -m-2')}
               onClick={() => {
                 if (incident.vehicleId) {
                   push({
@@ -1034,7 +1034,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
         {/* Description */}
         {incident.description && (
           <DetailSection title="Description">
-            <p className="text-sm text-muted-foreground">{incident.description}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{incident.description}</p>
           </DetailSection>
         )}
 
@@ -1160,7 +1160,7 @@ export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-sm font-bold">{vendor.name}</h2>
-            <p className="text-muted-foreground">{vendor.type}</p>
+            <p className="text-[var(--text-secondary)]">{vendor.type}</p>
           </div>
           <StatusBadge status={vendor.status} variant={statusVariant} />
         </div>
@@ -1323,7 +1323,7 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-sm font-bold">{part.name}</h2>
-            <p className="text-muted-foreground">{part.number}</p>
+            <p className="text-[var(--text-secondary)]">{part.number}</p>
           </div>
           <StatusBadge status={part.status.replace('-', ' ')} variant={statusVariant} />
         </div>
@@ -1362,7 +1362,7 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
         {part.vendor && (
           <DetailSection title="Supplier">
             <div
-              className={cn(part.vendorId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
+              className={cn(part.vendorId && 'cursor-pointer hover:bg-[var(--surface-glass)] rounded p-2 -m-2')}
               onClick={() => {
                 if (part.vendorId) {
                   push({
@@ -1458,7 +1458,7 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
               <DialogTitle>Adjust Quantity: {part.name}</DialogTitle>
             </DialogHeader>
             <div className="space-y-3 py-2">
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-[var(--text-secondary)]">
                 Current quantity: <strong>{adjustedQty ?? part.quantity}</strong>
               </div>
               <div>
@@ -1566,7 +1566,7 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-sm font-bold">{po.number}</h2>
-            <p className="text-muted-foreground">{po.vendor}</p>
+            <p className="text-[var(--text-secondary)]">{po.vendor}</p>
           </div>
           <div className="text-right">
             <StatusBadge status={po.status} variant={statusVariant} />
@@ -1581,7 +1581,7 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
           <div className="grid grid-cols-2 gap-2">
             <DetailRow label="PO Number" value={po.number} icon={<FileText className="w-4 h-4" />} />
             <div
-              className={cn(po.vendorId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
+              className={cn(po.vendorId && 'cursor-pointer hover:bg-[var(--surface-glass)] rounded p-2 -m-2')}
               onClick={() => {
                 if (po.vendorId) {
                   push({
@@ -1613,23 +1613,23 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
           {po.items && po.items.length > 0 ? (
             <div className="space-y-2">
               {po.items.map((item: any) => (
-                <div key={item.name || item.partName} className="flex justify-between p-2 bg-muted/30 rounded">
+                <div key={item.name || item.partName} className="flex justify-between p-2 bg-[var(--surface-glass)] rounded">
                   <span>{item.name || item.partName}</span>
-                  <span className="text-muted-foreground">
+                  <span className="text-[var(--text-secondary)]">
                     {item.quantity} x {formatCurrency(item.unitPrice)}
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No items</p>
+            <p className="text-sm text-[var(--text-secondary)]">No items</p>
           )}
         </DetailSection>
 
         {/* Notes */}
         {po.notes && (
           <DetailSection title="Notes">
-            <p className="text-sm text-muted-foreground">{po.notes}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{po.notes}</p>
           </DetailSection>
         )}
 
@@ -1710,15 +1710,15 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
               <DialogTitle>Receive Items</DialogTitle>
             </DialogHeader>
             <div className="py-2 space-y-2">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 Confirm receipt of all items for <strong>{po.number}</strong> from <strong>{po.vendor}</strong>?
               </p>
               {po.items && po.items.length > 0 && (
                 <div className="space-y-1">
                   {po.items.map((item: any) => (
-                    <div key={item.name || item.partName} className="flex justify-between p-2 bg-muted/30 rounded text-sm">
+                    <div key={item.name || item.partName} className="flex justify-between p-2 bg-[var(--surface-glass)] rounded text-sm">
                       <span>{item.name || item.partName}</span>
-                      <span className="text-muted-foreground">Qty: {item.quantity}</span>
+                      <span className="text-[var(--text-secondary)]">Qty: {item.quantity}</span>
                     </div>
                   ))}
                 </div>
@@ -1785,7 +1785,7 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-sm font-bold">{trip.name}</h2>
-            <p className="text-muted-foreground">
+            <p className="text-[var(--text-secondary)]">
               {trip.startLocation} → {trip.endLocation}
             </p>
           </div>
@@ -1822,7 +1822,7 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
         <DetailSection title="Driver & Vehicle">
           <div className="grid grid-cols-2 gap-2">
             <div
-              className={cn(trip.driverId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
+              className={cn(trip.driverId && 'cursor-pointer hover:bg-[var(--surface-glass)] rounded p-2 -m-2')}
               onClick={() => {
                 if (trip.driverId) {
                   push({
@@ -1837,7 +1837,7 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
               <DetailRow label="Driver" value={trip.driver} icon={<User className="w-4 h-4" />} />
             </div>
             <div
-              className={cn(trip.vehicleId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
+              className={cn(trip.vehicleId && 'cursor-pointer hover:bg-[var(--surface-glass)] rounded p-2 -m-2')}
               onClick={() => {
                 if (trip.vehicleId) {
                   push({
@@ -1970,7 +1970,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-sm font-bold">{inspection.number}</h2>
-            <p className="text-muted-foreground">{inspection.type} Inspection</p>
+            <p className="text-[var(--text-secondary)]">{inspection.type} Inspection</p>
           </div>
           <div className="flex gap-2">
             <StatusBadge status={inspection.status} variant={statusVariant} />
@@ -1997,7 +1997,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
         <DetailSection title="Driver & Vehicle">
           <div className="grid grid-cols-2 gap-2">
             <div
-              className={cn(inspection.driverId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
+              className={cn(inspection.driverId && 'cursor-pointer hover:bg-[var(--surface-glass)] rounded p-2 -m-2')}
               onClick={() => {
                 if (inspection.driverId) {
                   push({
@@ -2012,7 +2012,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
               <DetailRow label="Inspector" value={inspection.driver} icon={<User className="w-4 h-4" />} />
             </div>
             <div
-              className={cn(inspection.vehicleId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
+              className={cn(inspection.vehicleId && 'cursor-pointer hover:bg-[var(--surface-glass)] rounded p-2 -m-2')}
               onClick={() => {
                 if (inspection.vehicleId) {
                   push({
@@ -2046,7 +2046,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
         {/* Notes */}
         {inspection.notes && (
           <DetailSection title="Notes">
-            <p className="text-sm text-muted-foreground">{inspection.notes}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{inspection.notes}</p>
           </DetailSection>
         )}
 

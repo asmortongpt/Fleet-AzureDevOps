@@ -288,15 +288,15 @@ export function DrilldownMatrix<T extends Record<string, any>>({
   if (loading) {
     return (
       <div className={cn('flex items-center justify-center py-12', className)}>
-        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-        <span className="ml-2 text-muted-foreground">Loading data...</span>
+        <Loader2 className="w-4 h-4 animate-spin text-[var(--text-secondary)]" />
+        <span className="ml-2 text-[var(--text-secondary)]">Loading data...</span>
       </div>
     )
   }
 
   if (data.length === 0) {
     return (
-      <div className={cn('text-center py-12 text-muted-foreground', className)}>
+      <div className={cn('text-center py-12 text-[var(--text-secondary)]', className)}>
         {emptyMessage}
       </div>
     )
@@ -324,13 +324,13 @@ export function DrilldownMatrix<T extends Record<string, any>>({
         {caption && <caption className="sr-only">{caption}</caption>}
 
         {/* Header */}
-        <thead className="sticky top-0 z-20 bg-muted">
+        <thead className="sticky top-0 z-20 bg-[var(--surface-glass)]">
           <tr>
             {/* Row number header */}
             {showRowNumbers && (
               <th
                 className={cn(
-                  'sticky left-0 z-30 bg-muted px-2 text-center text-xs font-medium text-muted-foreground',
+                  'sticky left-0 z-30 bg-[var(--surface-glass)] px-2 text-center text-xs font-medium text-[var(--text-secondary)]',
                   rowHeightClasses[rowHeight],
                   showGridLines && 'border-r border-b border-border'
                 )}
@@ -353,7 +353,7 @@ export function DrilldownMatrix<T extends Record<string, any>>({
                     'px-3 font-medium text-left',
                     rowHeightClasses[rowHeight],
                     showGridLines && 'border-r border-b border-border',
-                    isStickyCol && 'sticky z-20 bg-muted',
+                    isStickyCol && 'sticky z-20 bg-[var(--surface-glass)]',
                     column.align === 'center' && 'text-center',
                     column.align === 'right' && 'text-right',
                     column.headerClassName
@@ -382,7 +382,7 @@ export function DrilldownMatrix<T extends Record<string, any>>({
                   <React.Fragment key={groupKey}>
                     {/* Group header row */}
                     <tr
-                      className="bg-muted/50 cursor-pointer hover:bg-muted"
+                      className="bg-[var(--surface-glass)] cursor-pointer hover:bg-[var(--surface-glass-hover)]"
                       onClick={() => toggleGroup(groupKey)}
                     >
                       <td
@@ -400,7 +400,7 @@ export function DrilldownMatrix<T extends Record<string, any>>({
                             <ChevronRight className="w-4 h-4" />
                           )}
                           <span>{groupKey}</span>
-                          <span className="text-muted-foreground">({groupItems.length})</span>
+                          <span className="text-[var(--text-secondary)]">({groupItems.length})</span>
                         </div>
                       </td>
                     </tr>
@@ -433,7 +433,7 @@ export function DrilldownMatrix<T extends Record<string, any>>({
         className={cn(
           'group cursor-pointer transition-colors',
           'hover:bg-primary/5',
-          striped && globalRowIndex % 2 === 0 && 'bg-muted/30'
+          striped && globalRowIndex % 2 === 0 && 'bg-[var(--surface-glass)]'
         )}
         onClick={(e) => handleRowDrilldown(row, e)}
       >
@@ -441,10 +441,10 @@ export function DrilldownMatrix<T extends Record<string, any>>({
         {showRowNumbers && (
           <td
             className={cn(
-              'sticky left-0 z-10 bg-inherit px-2 text-center text-xs text-muted-foreground',
+              'sticky left-0 z-10 bg-inherit px-2 text-center text-xs text-[var(--text-secondary)]',
               rowHeightClasses[rowHeight],
               showGridLines && 'border-r border-b border-border',
-              striped && globalRowIndex % 2 === 0 ? 'bg-muted/30' : 'bg-background',
+              striped && globalRowIndex % 2 === 0 ? 'bg-[var(--surface-glass)]' : 'bg-background',
               'group-hover:bg-primary/5'
             )}
           >
@@ -489,7 +489,7 @@ export function DrilldownMatrix<T extends Record<string, any>>({
                   'hover:underline hover:bg-primary/10',
                 ],
                 isFocused && 'ring-2 ring-inset ring-primary',
-                striped && globalRowIndex % 2 === 0 ? 'bg-muted/30' : 'bg-background',
+                striped && globalRowIndex % 2 === 0 ? 'bg-[var(--surface-glass)]' : 'bg-background',
                 isStickyCol && 'group-hover:bg-primary/5',
                 column.className
               )}
@@ -565,7 +565,7 @@ export function VehicleMatrix({ vehicles, loading, className }: VehicleMatrixPro
             row.status === 'active' && 'bg-green-100 text-green-700',
             row.status === 'idle' && 'bg-yellow-100 text-yellow-700',
             row.status === 'service' && 'bg-orange-100 text-orange-700',
-            row.status === 'offline' && 'bg-white/[0.05] text-white/40'
+            row.status === 'offline' && 'bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)]'
           )}
         >
           {row.status || '-'}
@@ -784,7 +784,7 @@ export function DriverMatrix({ drivers, loading, className }: DriverMatrixProps)
             'px-2 py-0.5 text-xs rounded',
             row.status === 'on-duty' && 'bg-green-100 text-green-700',
             row.status === 'driving' && 'bg-emerald-500/10 text-emerald-700',
-            row.status === 'off-duty' && 'bg-white/[0.05] text-white/40'
+            row.status === 'off-duty' && 'bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)]'
           )}
         >
           {row.status || '-'}

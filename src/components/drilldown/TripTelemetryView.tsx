@@ -57,7 +57,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
           {/* Trip Summary */}
           <div>
             <h3 className="text-sm font-semibold">Trip Telemetry</h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
               Detailed data for trip #{tripId.slice(0, 8)}
             </p>
           </div>
@@ -84,7 +84,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     <div className="text-sm font-bold">
                       {telemetry.gps_points?.length || 0}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
                       Recorded locations
                     </p>
                   </CardContent>
@@ -101,7 +101,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     <div className="text-sm font-bold">
                       {telemetry.duration || (trip as { duration?: string })?.duration || '—'}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
                       Total trip time
                     </p>
                   </CardContent>
@@ -118,7 +118,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     <div className="text-sm font-bold">
                       {telemetry.max_speed ? `${telemetry.max_speed.toFixed(0)} mph` : '—'}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
                       Peak velocity
                     </p>
                   </CardContent>
@@ -137,7 +137,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                         ? `${telemetry.fuel_economy.toFixed(1)} mpg`
                         : '—'}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
                       Average MPG
                     </p>
                   </CardContent>
@@ -186,15 +186,15 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                       {telemetry.gps_points.map((point, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center justify-between p-2 rounded bg-muted/50 text-sm"
+                          className="flex items-center justify-between p-2 rounded bg-[var(--surface-glass)] text-sm"
                         >
                           <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
+                            <MapPin className="h-4 w-4 text-[var(--text-secondary)]" />
                             <span className="font-mono text-xs">
                               {point.lat?.toFixed(6)}, {point.lng?.toFixed(6)}
                             </span>
                           </div>
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-xs text-[var(--text-secondary)]">
                             {point.timestamp
                               ? formatTime(point.timestamp)
                               : '—'}
@@ -203,7 +203,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-3">
+                    <p className="text-sm text-[var(--text-secondary)] text-center py-3">
                       No GPS data available
                     </p>
                   )}
@@ -240,7 +240,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Top Speed Location</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-[var(--text-secondary)]">
                         {telemetry.max_speed_location || '—'}
                       </span>
                     </div>
@@ -257,12 +257,12 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     telemetry.events.map((event, idx) => (
                       <div
                         key={idx}
-                        className="flex items-start gap-2 p-2 rounded bg-muted/50"
+                        className="flex items-start gap-2 p-2 rounded bg-[var(--surface-glass)]"
                       >
-                        <Activity className="h-4 w-4 text-muted-foreground mt-0.5" />
+                        <Activity className="h-4 w-4 text-[var(--text-secondary)] mt-0.5" />
                         <div className="flex-1">
                           <p className="text-sm font-medium">{event.type || '—'}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-[var(--text-secondary)]">
                             {event.timestamp
                               ? formatDateTime(event.timestamp)
                               : '—'}
@@ -271,7 +271,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-2">
+                    <p className="text-sm text-[var(--text-secondary)] text-center py-2">
                       No events recorded
                     </p>
                   )}
@@ -288,7 +288,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                 <CardContent className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Used</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Total Used</p>
                       <p className="text-sm font-bold">
                         {telemetry.fuel_used
                           ? `${telemetry.fuel_used.toFixed(2)} gal`
@@ -296,7 +296,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Economy</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Economy</p>
                       <p className="text-sm font-bold">
                         {telemetry.fuel_economy
                           ? `${telemetry.fuel_economy.toFixed(1)} mpg`

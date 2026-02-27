@@ -36,7 +36,7 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm",
+        "fixed inset-0 z-50 bg-black/70 backdrop-blur-sm",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         className
@@ -62,8 +62,8 @@ function DialogContent({
           "fixed top-[50%] left-[50%] z-50 translate-x-[-50%] translate-y-[-50%]",
           "w-full max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)] md:max-w-lg",
           // Visual styles
-          "bg-[#111111] border border-white/[0.04] rounded-2xl",
-          "grid gap-2 p-3",
+          "bg-[var(--surface-2)] border border-[var(--border-default)] rounded-[var(--radius-lg)]",
+          "grid gap-2 p-4 shadow-[var(--shadow-lg)]",
           // Animations
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -79,11 +79,11 @@ function DialogContent({
         {showClose && (
           <DialogPrimitive.Close
             className={cn(
-              "absolute top-4 right-4 rounded-lg p-1.5",
-              "text-white/30 hover:text-white/60",
-              "bg-transparent hover:bg-white/[0.04]",
-              "transition-all duration-200",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+              "absolute top-4 right-4 rounded-[var(--radius-md)] p-1.5",
+              "text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
+              "bg-transparent hover:bg-[var(--surface-glass-hover)]",
+              "transition-all duration-[var(--duration-fast)]",
+              "focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)]",
               "disabled:pointer-events-none",
               "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4"
             )}
@@ -113,7 +113,7 @@ function DialogFooter({ className, ...props }: ComponentProps<"div">) {
       data-slot="dialog-footer"
       className={cn(
         "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        "pt-2 border-t border-white/[0.04]",
+        "pt-3 border-t border-[var(--border-subtle)]",
         className
       )}
       {...props}
@@ -165,8 +165,8 @@ function DialogContentFullscreen({
           "sm:translate-x-[-50%] sm:translate-y-[-50%]",
           "w-full sm:max-w-lg sm:max-h-[85vh]",
           // Visual styles
-          "bg-[#0a0a0a] sm:bg-[#111111]",
-          "sm:border sm:border-white/[0.04] sm:rounded-2xl",
+          "bg-[var(--surface-0)] sm:bg-[var(--surface-2)]",
+          "sm:border sm:border-[var(--border-default)] sm:rounded-[var(--radius-lg)]",
           "flex flex-col overflow-hidden",
           // Animations
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -184,11 +184,11 @@ function DialogContentFullscreen({
         {showClose && (
           <DialogPrimitive.Close
             className={cn(
-              "absolute top-4 right-4 rounded-lg p-2",
-              "text-white/30 hover:text-white/60",
-              "bg-white/[0.04] hover:bg-white/[0.08]",
-              "transition-all duration-200",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+              "absolute top-4 right-4 rounded-[var(--radius-md)] p-2",
+              "text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
+              "bg-[var(--surface-glass)] hover:bg-[var(--surface-glass-hover)]",
+              "transition-all duration-[var(--duration-fast)]",
+              "focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)]",
               "disabled:pointer-events-none",
               "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-5"
             )}

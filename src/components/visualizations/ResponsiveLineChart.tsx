@@ -70,12 +70,12 @@ export function ResponsiveLineChart({
   compact = false,
 }: ResponsiveLineChartProps) {
   const chartColors = {
-    text: 'var(--foreground)',
-    grid: 'var(--border)',
+    text: 'var(--text-secondary)',
+    grid: 'var(--border-subtle)',
     tooltip: {
-      background: 'var(--card)',
-      border: 'var(--border)',
-      text: 'var(--foreground)',
+      background: 'var(--surface-3)',
+      border: 'var(--border-default)',
+      text: 'var(--text-primary)',
     },
   }
 
@@ -105,9 +105,10 @@ export function ResponsiveLineChart({
     if (active && payload && payload.length) {
       return (
         <div
-          className="bg-background border-2 border-border rounded-xl p-4"
+          className="rounded-xl p-4"
+          style={{ backgroundColor: 'var(--surface-3)', border: '1px solid var(--border-default)' }}
         >
-          <p className="font-semibold text-sm mb-2">{label}</p>
+          <p className="font-semibold text-sm mb-2 text-[var(--text-primary)]">{label}</p>
           {payload.map((entry: any) => (
             <div key={entry.name} className="flex items-center justify-between gap-4 mb-1">
               <div className="flex items-center gap-2">
@@ -115,11 +116,11 @@ export function ResponsiveLineChart({
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: entry.stroke }}
                 />
-                <span className="text-xs text-muted-foreground capitalize">
+                <span className="text-xs text-[var(--text-secondary)] capitalize">
                   {entry.name.replace('_', ' ')}
                 </span>
               </div>
-              <span className="font-bold text-sm">{entry.value}</span>
+              <span className="font-bold text-sm text-[var(--text-primary)]">{entry.value}</span>
             </div>
           ))}
         </div>
@@ -158,7 +159,7 @@ export function ResponsiveLineChart({
 
   const lineChartContent = loading ? (
     <div
-      className="w-full bg-white/[0.04] animate-pulse rounded-lg"
+      className="w-full bg-[var(--surface-glass)] animate-pulse rounded-lg"
       style={{ height: compact ? '100%' : height }}
     />
   ) : (
@@ -252,7 +253,7 @@ export function ResponsiveLineChart({
 
   return (
     <div>
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
@@ -263,10 +264,10 @@ export function ResponsiveLineChart({
               <div
                 className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
                   trend === 'up'
-                    ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'
+                    ? 'bg-[var(--status-success)]/10 text-[var(--status-success)]'
                     : trend === 'down'
-                    ? 'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300'
-                    : 'bg-neutral-100 dark:bg-[#111]/50 text-white/40 dark:text-white/80'
+                    ? 'bg-[var(--status-danger)]/10 text-[var(--status-danger)]'
+                    : 'bg-[var(--surface-glass)] text-[var(--text-tertiary)]'
                 }`}
               >
                 {trend === 'up' ? (

@@ -142,7 +142,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
       case 'environmental':
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />
       default:
-        return <AlertTriangle className="h-5 w-5 text-white/40" />
+        return <AlertTriangle className="h-5 w-5 text-[var(--text-tertiary)]" />
     }
   }
 
@@ -157,7 +157,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
       case 'update':
         return <Clock className="h-4 w-4 text-yellow-500" />
       default:
-        return <Clock className="h-4 w-4 text-white/40" />
+        return <Clock className="h-4 w-4 text-[var(--text-tertiary)]" />
     }
   }
 
@@ -169,7 +169,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{zone.name}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 {formatEnum(zone.type)} Hazard Zone
               </p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -199,7 +199,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">{zone.radius}m</div>
-                <p className="text-xs text-muted-foreground mt-1">coverage area</p>
+                <p className="text-xs text-[var(--text-secondary)] mt-1">coverage area</p>
               </CardContent>
             </Card>
 
@@ -212,7 +212,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">{affectedVehicles?.length || 0}</div>
-                <p className="text-xs text-muted-foreground mt-1">affected</p>
+                <p className="text-xs text-[var(--text-secondary)] mt-1">affected</p>
               </CardContent>
             </Card>
 
@@ -239,7 +239,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">{zoneEvents?.length || 0}</div>
-                <p className="text-xs text-muted-foreground mt-1">total events</p>
+                <p className="text-xs text-[var(--text-secondary)] mt-1">total events</p>
               </CardContent>
             </Card>
           </div>
@@ -268,7 +268,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                     {zone.location.address && (
                       <p className="font-medium">{zone.location.address}</p>
                     )}
-                    <div className="text-sm text-muted-foreground mt-1">
+                    <div className="text-sm text-[var(--text-secondary)] mt-1">
                       Coordinates: {zone.location.lat.toFixed(4)}, {zone.location.lng.toFixed(4)}
                     </div>
                     <Button
@@ -303,26 +303,26 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Type</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Type</p>
                       <p className="font-medium">{formatEnum(zone.type)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Severity</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Severity</p>
                       <Badge variant={getSeverityColor(zone.severity)}>
                         {formatEnum(zone.severity)}
                       </Badge>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Created By</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Created By</p>
                       <p className="font-medium">{zone.createdBy || '—'}</p>
                       {zone.createdDate && (
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-[var(--text-secondary)]">
                           {formatDate(zone.createdDate)}
                         </p>
                       )}
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Last Updated</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Last Updated</p>
                       <p className="font-medium">
                         {formatDate(zone.lastUpdated)}
                       </p>
@@ -344,7 +344,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                 <CardContent>
                   <ul className="space-y-3">
                     {zone.restrictions.map((restriction, index) => (
-                      <li key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                      <li key={index} className="flex items-start gap-3 p-3 bg-[var(--surface-glass)] rounded-lg">
                         <div className="flex items-center justify-center w-4 h-4 rounded-full bg-primary/10 text-primary font-medium text-sm mt-0.5">
                           {index + 1}
                         </div>
@@ -372,29 +372,29 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                             <div>
                               <p className="font-medium">{vehicle.vehicle_name}</p>
                               {vehicle.driver_name && (
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-[var(--text-secondary)]">
                                   Driver: {vehicle.driver_name}
                                 </p>
                               )}
                             </div>
                             <div className="grid grid-cols-3 gap-2 text-sm">
                               <div>
-                                <p className="text-muted-foreground">Last Entry</p>
+                                <p className="text-[var(--text-secondary)]">Last Entry</p>
                                 <p className="font-medium">
                                   {formatDate(vehicle.last_entry)}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground">Entries</p>
+                                <p className="text-[var(--text-secondary)]">Entries</p>
                                 <p className="font-medium">{vehicle.entry_count}</p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground">Total Time</p>
+                                <p className="text-[var(--text-secondary)]">Total Time</p>
                                 <p className="font-medium">{vehicle.total_time_in_zone} min</p>
                               </div>
                             </div>
                           </div>
-                          <Car className="h-5 w-5 text-muted-foreground ml-2" />
+                          <Car className="h-5 w-5 text-[var(--text-secondary)] ml-2" />
                         </div>
                       </CardContent>
                     </Card>
@@ -403,8 +403,8 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Car className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No vehicles affected</p>
+                    <Car className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No vehicles affected</p>
                   </CardContent>
                 </Card>
               )}
@@ -438,21 +438,21 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                                 <p className="font-medium">
                                   {formatEnum(event.event_type)}
                                 </p>
-                                <p className="text-sm text-muted-foreground mt-1">
+                                <p className="text-sm text-[var(--text-secondary)] mt-1">
                                   {event.description}
                                 </p>
                                 {event.vehicle_name && (
-                                  <p className="text-sm text-muted-foreground">
+                                  <p className="text-sm text-[var(--text-secondary)]">
                                     Vehicle: {event.vehicle_name}
                                   </p>
                                 )}
                               </div>
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-xs text-[var(--text-secondary)]">
                                 {formatDateTime(event.timestamp)}
                               </span>
                             </div>
                             {event.metadata && Object.keys(event.metadata).length > 0 && (
-                              <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
+                              <div className="mt-2 p-2 bg-[var(--surface-glass)] rounded text-xs">
                                 {Object.entries(event.metadata).map(([key, value]) => (
                                   <div key={key}>
                                     <span className="font-medium">{key}:</span> {String(value)}
@@ -469,8 +469,8 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Clock className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No events recorded</p>
+                    <Clock className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No events recorded</p>
                   </CardContent>
                 </Card>
               )}

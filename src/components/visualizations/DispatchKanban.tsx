@@ -193,7 +193,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
 
                   {/* Real-time update indicator */}
                   {getTaskUpdate(task.id) && (
-                    <div className="mt-2 pt-2 border-t border-white/[0.04]">
+                    <div className="mt-2 pt-2 border-t border-[var(--border-subtle)]">
                       <div className="flex items-center gap-1 text-xs text-green-600">
                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                         <span>Updated {formatTime(getTaskUpdate(task.id)!.timestamp)}</span>

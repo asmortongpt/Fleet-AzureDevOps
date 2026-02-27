@@ -17,32 +17,35 @@ export function DrilldownBreadcrumbs() {
   return (
     <nav
       data-testid="breadcrumb"
-      className="flex items-center gap-2 px-3 py-3 bg-[#111111] border-b border-white/[0.04] overflow-x-auto"
+      className="flex items-center gap-2 px-4 py-2.5 overflow-x-auto border-b"
+      style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border-subtle)' }}
       aria-label="Breadcrumb"
     >
       {/* Home button */}
       <button
         onClick={reset}
-        className="flex items-center gap-2 text-white/40 hover:text-white transition-colors whitespace-nowrap shrink-0"
+        className="flex items-center gap-2 transition-colors duration-[var(--duration-fast)] whitespace-nowrap shrink-0 hover:text-white"
+        style={{ color: 'var(--text-tertiary)' }}
         data-testid="breadcrumb-0"
         aria-label="Go to home"
       >
         <Home className="w-4 h-4" />
-        <span className="text-sm font-medium">Home</span>
+        <span className="text-[var(--text-sm)] font-medium">Home</span>
       </button>
 
       {/* Breadcrumb trail */}
       {levels.map((level, index) => (
         <div key={level.id} className="flex items-center gap-2 shrink-0">
-          <ChevronRight className="w-4 h-4 text-white/40" />
+          <ChevronRight className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
           <button
             onClick={() => goToLevel(index)}
             className={cn(
-              "text-sm whitespace-nowrap transition-colors",
+              "text-[var(--text-sm)] whitespace-nowrap transition-colors duration-[var(--duration-fast)]",
               index === levels.length - 1
-                ? "text-white font-semibold"
-                : "text-white/40 hover:text-white font-medium"
+                ? "font-semibold"
+                : "font-medium hover:text-white"
             )}
+            style={{ color: index === levels.length - 1 ? 'var(--text-primary)' : 'var(--text-tertiary)' }}
             data-testid={`breadcrumb-${index + 1}`}
             aria-current={index === levels.length - 1 ? "page" : undefined}
           >

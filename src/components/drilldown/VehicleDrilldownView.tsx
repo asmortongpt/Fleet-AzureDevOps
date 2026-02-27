@@ -34,7 +34,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
                 }}
               />
             ) : (
-              <Truck className="w-4 h-4 text-white/40" />
+              <Truck className="w-4 h-4 text-[var(--text-tertiary)]" />
             )}
           </div>
         );
@@ -63,7 +63,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       header: 'Year',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-white/40" />
+          <Calendar className="w-4 h-4 text-[var(--text-tertiary)]" />
           {getValue<number>()}
         </div>
       ),
@@ -72,7 +72,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       accessorKey: 'vin',
       header: 'VIN',
       cell: ({ getValue }) => (
-        <span className="font-mono text-xs text-white/40">{getValue<string>()}</span>
+        <span className="font-mono text-xs text-[var(--text-tertiary)]">{getValue<string>()}</span>
       ),
     },
     {
@@ -82,7 +82,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
         const status = getValue<string>();
         const statusColors: Record<string, string> = {
           active: 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30',
-          inactive: 'bg-white/[0.05] text-white/40 border-white/[0.12]/30',
+          inactive: 'bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)] border-white/[0.12]/30',
           maintenance: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
           retired: 'bg-red-500/20 text-red-400 border-red-500/30',
           assigned: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
@@ -103,7 +103,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       header: 'Mileage',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
-          <Gauge className="w-4 h-4 text-white/40" />
+          <Gauge className="w-4 h-4 text-[var(--text-tertiary)]" />
           {formatNumber(getValue<number>())} mi
         </div>
       ),
@@ -128,7 +128,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
           hybrid: 'bg-amber-500/20 text-amber-400',
         };
         return (
-          <span className={`px-2 py-0.5 rounded text-xs ${fuelColors[fuel?.toLowerCase()] || 'bg-white/[0.05] text-white/40'}`}>
+          <span className={`px-2 py-0.5 rounded text-xs ${fuelColors[fuel?.toLowerCase()] || 'bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)]'}`}>
             {fuel}
           </span>
         );
@@ -153,7 +153,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
         const isDueSoon = daysUntil < 7 && daysUntil >= 0;
         return (
           <div className="flex items-center gap-2">
-            <Wrench className={`w-4 h-4 ${isOverdue ? 'text-red-400' : isDueSoon ? 'text-amber-400' : 'text-white/40'}`} />
+            <Wrench className={`w-4 h-4 ${isOverdue ? 'text-red-400' : isDueSoon ? 'text-amber-400' : 'text-[var(--text-tertiary)]'}`} />
             <span className={isOverdue ? 'text-red-400 font-semibold' : isDueSoon ? 'text-amber-400' : ''}>
               {formatDate(date)}
               {isOverdue && ' (OVERDUE)'}

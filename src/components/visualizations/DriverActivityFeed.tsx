@@ -149,13 +149,13 @@ export function DriverActivityFeed({
               <div
                 key={driver.id}
                 onClick={() => onDriverClick?.(driver.id)}
-                className="p-3 rounded-lg border border-white/[0.04] hover:border-emerald-500/30  transition-all cursor-pointer"
+                className="p-3 rounded-lg border border-[var(--border-subtle)] hover:border-emerald-500/30  transition-all cursor-pointer"
               >
                 <div className="flex items-start gap-3">
                   {/* Avatar with status indicator */}
                   <div className="relative">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-white/[0.05] text-white/70 font-semibold">
+                      <AvatarFallback className="bg-[var(--surface-glass-hover)] text-white/70 font-semibold">
                         {getInitials(driver.name)}
                       </AvatarFallback>
                     </Avatar>
@@ -171,7 +171,7 @@ export function DriverActivityFeed({
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <div>
                         <h4 className="font-semibold text-sm text-white/90">{driver.name}</h4>
-                        <p className="text-xs text-white/40">#{driver.employeeNumber}</p>
+                        <p className="text-xs text-[var(--text-tertiary)]">#{driver.employeeNumber}</p>
                       </div>
                       <Badge
                         variant={driver.status === 'driving' ? 'default' : 'secondary'}
@@ -197,8 +197,8 @@ export function DriverActivityFeed({
                     )}
 
                     {/* Last update */}
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.04]">
-                      <div className="flex items-center gap-1 text-xs text-white/40">
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[var(--border-subtle)]">
+                      <div className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
                         <Clock className="h-3 w-3" />
                         {driver.lastUpdate ? (
                           <span>
@@ -238,7 +238,7 @@ export function DriverActivityFeed({
             ))}
 
             {enhancedDrivers.length === 0 && (
-              <div className="text-center py-12 text-white/40">
+              <div className="text-center py-12 text-[var(--text-tertiary)]">
                 <User className="h-16 w-16 mx-auto mb-4 opacity-20" />
                 <p>No drivers available</p>
               </div>

@@ -71,14 +71,14 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{facility.name}</h3>
-              <p className="text-sm text-muted-foreground">{facility.type || 'Facility'}</p>
+              <p className="text-sm text-[var(--text-secondary)]">{facility.type || 'Facility'}</p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant="default">
                   {formatEnum(facility.status)}
                 </Badge>
               </div>
             </div>
-            <Building2 className="h-9 w-12 text-muted-foreground" />
+            <Building2 className="h-9 w-12 text-[var(--text-secondary)]" />
           </div>
 
           <div className="grid grid-cols-2 gap-2">
@@ -117,23 +117,23 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                <MapPin className="h-4 w-4 text-[var(--text-secondary)] mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Address</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[var(--text-secondary)]">
                     {facility.address || '—'}
                   </p>
                 </div>
               </div>
               {facility.phone && (
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <Phone className="h-4 w-4 text-[var(--text-secondary)]" />
                   <p className="text-sm">{facility.phone}</p>
                 </div>
               )}
               {facility.manager && (
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <Users className="h-4 w-4 text-[var(--text-secondary)]" />
                   <p className="text-sm">Manager: {facility.manager}</p>
                 </div>
               )}
@@ -150,19 +150,19 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-2">
                 <div>
-                  <p className="text-sm text-muted-foreground">Active Vehicles</p>
+                  <p className="text-sm text-[var(--text-secondary)]">Active Vehicles</p>
                   <p className="text-base font-bold">{facility.stats.active_vehicles || 0}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">In Maintenance</p>
+                  <p className="text-sm text-[var(--text-secondary)]">In Maintenance</p>
                   <p className="text-base font-bold">{facility.stats.in_maintenance || 0}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Available</p>
+                  <p className="text-sm text-[var(--text-secondary)]">Available</p>
                   <p className="text-base font-bold">{facility.stats.available || 0}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Out of Service</p>
+                  <p className="text-sm text-[var(--text-secondary)]">Out of Service</p>
                   <p className="text-base font-bold">{facility.stats.out_of_service || 0}</p>
                 </div>
               </CardContent>

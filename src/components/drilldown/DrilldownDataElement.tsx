@@ -177,8 +177,8 @@ export const DrilldownDataElement = forwardRef<HTMLSpanElement, DrilldownDataEle
     const variantClasses = {
       default: 'hover:text-primary hover:underline',
       link: 'text-primary hover:underline underline-offset-2',
-      subtle: 'hover:bg-muted/50 rounded px-1 -mx-1',
-      badge: 'bg-muted hover:bg-muted/80 rounded-full px-2 py-0.5 text-sm',
+      subtle: 'hover:bg-[var(--surface-glass)] rounded px-1 -mx-1',
+      badge: 'bg-[var(--surface-glass)] hover:bg-[var(--surface-glass-hover)] rounded-full px-2 py-0.5 text-sm',
     }
 
     return (

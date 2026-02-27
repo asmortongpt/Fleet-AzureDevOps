@@ -53,7 +53,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
             <h3 className="text-sm font-semibold">
               Labor Details {workOrderNumber && `for WO #${workOrderNumber}`}
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
               {laborArr.length} technician{laborArr.length !== 1 ? 's' : ''} • {totalHours.toFixed(1)} hrs • {formatCurrency(totalCost)}
             </p>
           </div>
@@ -61,8 +61,8 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
           {laborArr.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Users className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">No labor entries recorded</p>
+                <Users className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                <p className="text-sm text-[var(--text-secondary)]">No labor entries recorded</p>
               </CardContent>
             </Card>
           ) : (
@@ -79,7 +79,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                           </Avatar>
                           <div>
                             <p className="font-medium">{entry.technician_name}</p>
-                            <p className="text-sm text-muted-foreground">{entry.role || 'Technician'}</p>
+                            <p className="text-sm text-[var(--text-secondary)]">{entry.role || 'Technician'}</p>
                           </div>
                         </div>
                         {entry.certified && (
@@ -88,22 +88,22 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                       </div>
 
                       {entry.task_description && (
-                        <p className="text-sm text-muted-foreground pl-12">
+                        <p className="text-sm text-[var(--text-secondary)] pl-12">
                           {entry.task_description}
                         </p>
                       )}
 
                       <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                         <div>
-                          <p className="text-xs text-muted-foreground">Hours</p>
+                          <p className="text-xs text-[var(--text-secondary)]">Hours</p>
                           <p className="font-medium">{entry.hours?.toFixed(1) || '0.0'}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Rate</p>
+                          <p className="text-xs text-[var(--text-secondary)]">Rate</p>
                           <p className="font-medium">{formatCurrency(entry.rate)}/hr</p>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Total</p>
+                          <p className="text-xs text-[var(--text-secondary)]">Total</p>
                           <p className="font-medium text-primary">
                             {formatCurrency((entry.hours * entry.rate) || 0)}
                           </p>
@@ -111,7 +111,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                       </div>
 
                       {entry.date && (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t">
+                        <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] pt-2 border-t">
                           <Calendar className="h-3 w-3" />
                           <span>{formatDate(entry.date)}</span>
                         </div>

@@ -45,7 +45,7 @@ export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakd
             <h3 className="text-sm font-semibold">
               Parts Breakdown {workOrderNumber && `for WO #${workOrderNumber}`}
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
               {parts.length} item{parts.length !== 1 ? 's' : ''} • Total: ${totalCost.toFixed(2)}
             </p>
           </div>
@@ -53,8 +53,8 @@ export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakd
           {parts.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Package className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">No parts recorded</p>
+                <Package className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                <p className="text-sm text-[var(--text-secondary)]">No parts recorded</p>
               </CardContent>
             </Card>
           ) : (
@@ -70,30 +70,30 @@ export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakd
                       <div className="flex-1 space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Package className="h-5 w-5 text-muted-foreground" />
+                            <Package className="h-5 w-5 text-[var(--text-secondary)]" />
                             <span className="font-medium">{part.name}</span>
                           </div>
-                          <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                          <ArrowRight className="h-5 w-5 text-[var(--text-secondary)] group-hover:text-foreground transition-colors" />
                         </div>
 
                         {part.part_number && (
                           <div className="flex items-center gap-2 text-sm">
-                            <Hash className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-muted-foreground">{part.part_number}</span>
+                            <Hash className="h-4 w-4 text-[var(--text-secondary)]" />
+                            <span className="text-[var(--text-secondary)]">{part.part_number}</span>
                           </div>
                         )}
 
                         <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                           <div>
-                            <p className="text-xs text-muted-foreground">Quantity</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Quantity</p>
                             <p className="font-medium">{part.quantity}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Unit Cost</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Unit Cost</p>
                             <p className="font-medium">${part.unit_cost?.toFixed(2) || '0.00'}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Total</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Total</p>
                             <p className="font-medium text-primary">
                               ${((part.quantity * part.unit_cost) || 0).toFixed(2)}
                             </p>
@@ -101,7 +101,7 @@ export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakd
                         </div>
 
                         {part.supplier && (
-                          <p className="text-xs text-muted-foreground pt-2 border-t">
+                          <p className="text-xs text-[var(--text-secondary)] pt-2 border-t">
                             Supplier: {part.supplier}
                           </p>
                         )}

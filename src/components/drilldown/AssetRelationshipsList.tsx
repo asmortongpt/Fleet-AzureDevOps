@@ -61,8 +61,8 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-3">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        <span className="ml-2 text-sm text-muted-foreground">Loading relationships...</span>
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--text-secondary)]" />
+        <span className="ml-2 text-sm text-[var(--text-secondary)]">Loading relationships...</span>
       </div>
     )
   }
@@ -71,11 +71,11 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
   if (error) {
     return (
       <div className="text-center py-3">
-        <Link2 className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-        <p className="text-sm text-muted-foreground">
+        <Link2 className="h-8 w-8 text-[var(--text-secondary)] mx-auto mb-2" />
+        <p className="text-sm text-[var(--text-secondary)]">
           No asset relationships found
         </p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-[var(--text-secondary)] mt-1">
           No attached trailers, equipment, or related assets for this vehicle
         </p>
       </div>
@@ -88,11 +88,11 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
   if (relationships.length === 0) {
     return (
       <div className="text-center py-3">
-        <Link2 className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-        <p className="text-sm text-muted-foreground">
+        <Link2 className="h-8 w-8 text-[var(--text-secondary)] mx-auto mb-2" />
+        <p className="text-sm text-[var(--text-secondary)]">
           No attached assets
         </p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-[var(--text-secondary)] mt-1">
           This vehicle has no currently attached trailers or equipment
         </p>
       </div>
@@ -107,7 +107,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <Link2 className="h-4 w-4 text-muted-foreground" />
+                <Link2 className="h-4 w-4 text-[var(--text-secondary)]" />
                 <h4 className="font-medium">
                   {relationship.child_asset_name ||
                     formatVehicleShortName({ make: relationship.child_make, model: relationship.child_model }) ||
@@ -118,7 +118,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
                 </Badge>
               </div>
 
-              <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+              <div className="mt-2 space-y-1 text-sm text-[var(--text-secondary)]">
                 {relationship.child_vin && (
                   <div>
                     <span className="font-medium">VIN:</span> {relationship.child_vin}

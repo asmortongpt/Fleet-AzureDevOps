@@ -32,15 +32,15 @@ export function SystemHealthDrilldown() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-6">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                <span className="ml-2 text-sm text-muted-foreground">Loading health data...</span>
+                <Loader2 className="h-5 w-5 animate-spin text-[var(--text-secondary)]" />
+                <span className="ml-2 text-sm text-[var(--text-secondary)]">Loading health data...</span>
             </div>
         )
     }
 
     if (error) {
         return (
-            <div className="text-center py-6 text-muted-foreground text-sm">
+            <div className="text-center py-6 text-[var(--text-secondary)] text-sm">
                 Unable to load system health data.
             </div>
         )
@@ -66,31 +66,31 @@ export function SystemHealthDrilldown() {
                     <CardContent className="p-3 text-center">
                         <Users className="w-3 h-3 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">{sessions}</div>
-                        <div className="text-xs text-white/40">Sessions</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Sessions</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-3 text-center">
                         <div className="text-base font-bold text-emerald-700">{uptimePct}</div>
-                        <div className="text-xs text-white/40">Uptime</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Uptime</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-3 text-center">
-                        <Cpu className="w-3 h-3 text-white/40 mx-auto mb-1" />
+                        <Cpu className="w-3 h-3 text-[var(--text-tertiary)] mx-auto mb-1" />
                         <div className="text-base font-bold text-white/80">{cpuPct}</div>
-                        <div className="text-xs text-white/40">CPU</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">CPU</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-3 text-center">
                         <div className="text-base font-bold text-white/80">{memPct}</div>
-                        <div className="text-xs text-white/40">Memory</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Memory</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Activity className="w-3 h-3 text-emerald-400" />
@@ -101,12 +101,12 @@ export function SystemHealthDrilldown() {
                     {services.map(svc => {
                         const isUp = svc.status === 'operational' || svc.status === 'ok' || svc.status === 'healthy'
                         return (
-                            <div key={svc.name} className="flex items-center justify-between p-2 bg-white/[0.03] rounded">
+                            <div key={svc.name} className="flex items-center justify-between p-2 bg-[var(--surface-glass)] rounded">
                                 <div className="flex items-center gap-2">
                                     <span className={`w-2 h-2 rounded-full ${isUp ? 'bg-emerald-400' : 'bg-amber-400'}`} />
                                     <span className="text-white/80">{svc.name}</span>
                                 </div>
-                                <span className="text-white/40 text-sm">{svc.latency ?? (isUp ? 'OK' : 'Down')}</span>
+                                <span className="text-[var(--text-tertiary)] text-sm">{svc.latency ?? (isUp ? 'OK' : 'Down')}</span>
                             </div>
                         )
                     })}
@@ -138,15 +138,15 @@ export function AlertsDrilldown() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-6">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                <span className="ml-2 text-sm text-muted-foreground">Loading alerts...</span>
+                <Loader2 className="h-5 w-5 animate-spin text-[var(--text-secondary)]" />
+                <span className="ml-2 text-sm text-[var(--text-secondary)]">Loading alerts...</span>
             </div>
         )
     }
 
     if (error) {
         return (
-            <div className="text-center py-6 text-muted-foreground text-sm">
+            <div className="text-center py-6 text-[var(--text-secondary)] text-sm">
                 Unable to load alerts.
             </div>
         )
@@ -165,24 +165,24 @@ export function AlertsDrilldown() {
                     <CardContent className="p-2 text-center">
                         <CheckCircle className={`w-4 h-4 mx-auto mb-2 ${criticalCount === 0 ? 'text-emerald-700' : 'text-red-400'}`} />
                         <div className={`text-sm font-bold ${criticalCount === 0 ? 'text-emerald-700' : 'text-red-400'}`}>{criticalCount}</div>
-                        <div className="text-xs text-white/40">Critical</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Critical</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">{acknowledgedCount}</div>
-                        <div className="text-xs text-white/40">Resolved Today</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Resolved Today</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">{suppressedCount}</div>
-                        <div className="text-xs text-white/40">Suppressed</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Suppressed</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Bell className="w-3 h-3 text-amber-400" />
@@ -191,14 +191,14 @@ export function AlertsDrilldown() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {alerts.length === 0 ? (
-                        <div className="text-center py-4 text-white/40 text-sm">No recent alerts</div>
+                        <div className="text-center py-4 text-[var(--text-tertiary)] text-sm">No recent alerts</div>
                     ) : alerts.map(alert => {
                         const isWarning = alert.severity === 'warning' || alert.severity === 'critical'
                         const isAck = alert.acknowledged || alert.status === 'resolved' || alert.status === 'acknowledged'
                         const timeAgo = alert.created_at ? formatDateTime(alert.created_at) : '—'
 
                         return (
-                            <div key={alert.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                            <div key={alert.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                                 <div className="flex items-center gap-3">
                                     {isWarning ?
                                         <AlertTriangle className="w-3 h-3 text-amber-400" /> :
@@ -208,7 +208,7 @@ export function AlertsDrilldown() {
                                         <div className="font-medium text-white text-sm">
                                             {alert.description || alert.alert_type || 'Alert'}
                                         </div>
-                                        <div className="text-xs text-white/40">{timeAgo}</div>
+                                        <div className="text-xs text-[var(--text-tertiary)]">{timeAgo}</div>
                                     </div>
                                 </div>
                                 {isAck && <Badge variant="outline" className="border-emerald-500 text-emerald-700">Ack</Badge>}
@@ -243,15 +243,15 @@ export function FilesDrilldown() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-6">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                <span className="ml-2 text-sm text-muted-foreground">Loading files...</span>
+                <Loader2 className="h-5 w-5 animate-spin text-[var(--text-secondary)]" />
+                <span className="ml-2 text-sm text-[var(--text-secondary)]">Loading files...</span>
             </div>
         )
     }
 
     if (error) {
         return (
-            <div className="text-center py-6 text-muted-foreground text-sm">
+            <div className="text-center py-6 text-[var(--text-secondary)] text-sm">
                 Unable to load document data.
             </div>
         )
@@ -290,30 +290,30 @@ export function FilesDrilldown() {
                     <CardContent className="p-2 text-center">
                         <HardDrive className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">{totalStorage}</div>
-                        <div className="text-xs text-white/40">Total Storage</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Total Storage</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#111111] border-white/[0.04]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">{totalFiles}</div>
-                        <div className="text-xs text-white/40">Total Files</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Total Files</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">{uploadedToday}</div>
-                        <div className="text-xs text-white/40">Uploaded Today</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Uploaded Today</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-[#111111] border-white/[0.04]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Storage by Type</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {sortedTypes.length === 0 ? (
-                        <div className="text-center py-4 text-white/40 text-sm">No files found</div>
+                        <div className="text-center py-4 text-[var(--text-tertiary)] text-sm">No files found</div>
                     ) : sortedTypes.map(([ type, bytes ], idx) => {
                         const percent = totalBytes > 0 ? Math.round((bytes / totalBytes) * 100) : 0
                         return (

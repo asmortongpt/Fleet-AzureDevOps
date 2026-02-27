@@ -67,7 +67,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
             <h3 className="text-sm font-semibold">
               Trip History {vehicleName && `for ${vehicleName}`}
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
               {tripsArr.length} trip{tripsArr.length !== 1 ? 's' : ''} found
             </p>
           </div>
@@ -76,8 +76,8 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
           {tripsArr.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Route className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">No trips recorded</p>
+                <Route className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                <p className="text-sm text-[var(--text-secondary)]">No trips recorded</p>
               </CardContent>
             </Card>
           ) : (
@@ -97,44 +97,44 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                             <Badge variant="default">
                               {trip.status}
                             </Badge>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-[var(--text-secondary)]">
                               Trip #{String(trip.id).slice(0, 8)}
                             </span>
                           </div>
-                          <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                          <ArrowRight className="h-5 w-5 text-[var(--text-secondary)] group-hover:text-foreground transition-colors" />
                         </div>
 
                         {/* Driver */}
                         {trip.driver_name && (
                           <div className="flex items-center gap-2 text-sm">
-                            <User className="h-4 w-4 text-muted-foreground" />
+                            <User className="h-4 w-4 text-[var(--text-secondary)]" />
                             <span>{trip.driver_name}</span>
                           </div>
                         )}
 
                         {/* Time */}
                         <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <Calendar className="h-4 w-4 text-[var(--text-secondary)]" />
                           <span>
                             {formatDate(trip.start_time)}
                           </span>
-                          <Clock className="h-4 w-4 text-muted-foreground ml-2" />
+                          <Clock className="h-4 w-4 text-[var(--text-secondary)] ml-2" />
                           <span>{trip.duration || '—'}</span>
                         </div>
 
                         {/* Route */}
                         <div className="flex items-start gap-2 text-sm">
-                          <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                          <MapPin className="h-4 w-4 text-[var(--text-secondary)] mt-0.5" />
                           <div className="flex-1 space-y-1">
                             <div className="flex items-center gap-2">
                               <span className="font-medium">From:</span>
-                              <span className="text-muted-foreground truncate">
+                              <span className="text-[var(--text-secondary)] truncate">
                                 {trip.start_location || '—'}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="font-medium">To:</span>
-                              <span className="text-muted-foreground truncate">
+                              <span className="text-[var(--text-secondary)] truncate">
                                 {trip.end_location || '—'}
                               </span>
                             </div>
@@ -144,19 +144,19 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                         {/* Stats Grid */}
                         <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                           <div>
-                            <p className="text-xs text-muted-foreground">Distance</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Distance</p>
                             <p className="font-medium">
                               {trip.distance ? `${trip.distance.toFixed(1)} mi` : '—'}
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Avg Speed</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Avg Speed</p>
                             <p className="font-medium">
                               {trip.avg_speed ? `${trip.avg_speed.toFixed(0)} mph` : '—'}
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Fuel Used</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Fuel Used</p>
                             <p className="font-medium">
                               {trip.fuel_used ? `${trip.fuel_used.toFixed(1)} gal` : '—'}
                             </p>
@@ -165,7 +165,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
 
                         {/* Recent timestamp */}
                         {trip.start_time && (
-                          <p className="text-xs text-muted-foreground pt-2">
+                          <p className="text-xs text-[var(--text-secondary)] pt-2">
                             {formatDistanceToNow(new Date(trip.start_time), {
                               addSuffix: true,
                             })}

@@ -231,7 +231,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
       case 'reported':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />
       default:
-        return <AlertCircle className="h-5 w-5 text-white/40" />
+        return <AlertCircle className="h-5 w-5 text-[var(--text-tertiary)]" />
     }
   }
 
@@ -256,7 +256,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">Incident #{incident.incident_number}</h3>
-              <p className="text-sm text-muted-foreground">{incident.title}</p>
+              <p className="text-sm text-[var(--text-secondary)]">{incident.title}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant={getSeverityColor(incident.severity)}>
                   {formatEnum(incident.severity)} Severity
@@ -291,7 +291,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                   {formatDate(incident.date)}
                 </div>
                 {incident.time && (
-                  <p className="text-xs text-muted-foreground mt-1">{incident.time}</p>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">{incident.time}</p>
                 )}
               </CardContent>
             </Card>
@@ -308,7 +308,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                   {formatCurrency(incident.actual_cost ?? incident.estimated_cost ?? 0)}
                 </div>
                 {incident.estimated_cost && incident.actual_cost && incident.actual_cost !== incident.estimated_cost && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
                     Est: {formatCurrency(incident.estimated_cost)}
                   </p>
                 )}
@@ -324,7 +324,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">{evidenceArr.length}</div>
-                <p className="text-xs text-muted-foreground mt-1">files attached</p>
+                <p className="text-xs text-[var(--text-secondary)] mt-1">files attached</p>
               </CardContent>
             </Card>
 
@@ -337,7 +337,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">{partiesArr.length}</div>
-                <p className="text-xs text-muted-foreground mt-1">parties</p>
+                <p className="text-xs text-[var(--text-secondary)] mt-1">parties</p>
               </CardContent>
             </Card>
           </div>
@@ -362,26 +362,26 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Type</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Type</p>
                       <p className="font-medium">{formatEnum(incident.type)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Severity</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Severity</p>
                       <Badge variant={getSeverityColor(incident.severity)}>
                         {formatEnum(incident.severity)}
                       </Badge>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Status</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Status</p>
                       <Badge variant={getStatusColor(incident.status)}>
                         {formatEnum(incident.status)}
                       </Badge>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Reported By</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Reported By</p>
                       <p className="font-medium">{incident.reported_by || '—'}</p>
                       {incident.reported_date && (
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-[var(--text-secondary)]">
                           {formatDate(incident.reported_date)}
                         </p>
                       )}
@@ -416,13 +416,13 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                     <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                       {incident.weather_conditions && (
                         <div>
-                          <p className="text-sm text-muted-foreground">Weather</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Weather</p>
                           <p className="font-medium">{incident.weather_conditions}</p>
                         </div>
                       )}
                       {incident.road_conditions && (
                         <div>
-                          <p className="text-sm text-muted-foreground">Road Conditions</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Road Conditions</p>
                           <p className="font-medium">{incident.road_conditions}</p>
                         </div>
                       )}
@@ -507,13 +507,13 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                   <CardContent className="space-y-3">
                     {incident.police_report_number && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Police Report Number</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Police Report Number</p>
                         <p className="font-medium">{incident.police_report_number}</p>
                       </div>
                     )}
                     {incident.insurance_claim_number && (
                       <div className="pt-2 border-t">
-                        <p className="text-sm text-muted-foreground">Insurance Claim Number</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Insurance Claim Number</p>
                         <div className="flex items-center gap-2 mt-1">
                           <p className="font-medium">{incident.insurance_claim_number}</p>
                           {incident.insurance_claim_status && (
@@ -537,7 +537,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                     <Card key={item.id} className="overflow-hidden">
                       <CardContent className="p-0">
                         {item.type === 'photo' && item.thumbnail_url && (
-                          <div className="aspect-video bg-muted relative">
+                          <div className="aspect-video bg-[var(--surface-glass)] relative">
                             <img
                               src={item.thumbnail_url}
                               alt={item.filename}
@@ -551,10 +551,10 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                             <span className="text-sm font-medium truncate">{item.filename}</span>
                           </div>
                           {item.description && (
-                            <p className="text-xs text-muted-foreground">{item.description}</p>
+                            <p className="text-xs text-[var(--text-secondary)]">{item.description}</p>
                           )}
                           <div className="flex items-center justify-between pt-2 border-t">
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs text-[var(--text-secondary)]">
                               {formatDate(item.uploaded_date)}
                             </div>
                             <Button variant="ghost" size="sm" className="h-6 px-2">
@@ -569,8 +569,8 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Camera className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No evidence files attached</p>
+                    <Camera className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No evidence files attached</p>
                   </CardContent>
                 </Card>
               )}
@@ -593,7 +593,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                                 </Badge>
                               </div>
                               {party.role && (
-                                <p className="text-sm text-muted-foreground">{party.role}</p>
+                                <p className="text-sm text-[var(--text-secondary)]">{party.role}</p>
                               )}
                             </div>
                           </div>
@@ -602,13 +602,13 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                             <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                               {party.contact_phone && (
                                 <div className="flex items-center gap-2 text-sm">
-                                  <Phone className="h-3 w-3 text-muted-foreground" />
+                                  <Phone className="h-3 w-3 text-[var(--text-secondary)]" />
                                   <span>{party.contact_phone}</span>
                                 </div>
                               )}
                               {party.contact_email && (
                                 <div className="flex items-center gap-2 text-sm">
-                                  <Mail className="h-3 w-3 text-muted-foreground" />
+                                  <Mail className="h-3 w-3 text-[var(--text-secondary)]" />
                                   <span className="truncate">{party.contact_email}</span>
                                 </div>
                               )}
@@ -617,14 +617,14 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
 
                           {party.injuries && (
                             <div className="pt-2 border-t">
-                              <p className="text-sm text-muted-foreground">Injuries</p>
+                              <p className="text-sm text-[var(--text-secondary)]">Injuries</p>
                               <p className="text-sm font-medium text-destructive">{party.injuries}</p>
                             </div>
                           )}
 
                           {party.statement && (
                             <div className="pt-2 border-t">
-                              <p className="text-sm text-muted-foreground">Statement</p>
+                              <p className="text-sm text-[var(--text-secondary)]">Statement</p>
                               <p className="text-sm mt-1">{party.statement}</p>
                             </div>
                           )}
@@ -636,8 +636,8 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <User className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No involved parties recorded</p>
+                    <User className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No involved parties recorded</p>
                   </CardContent>
                 </Card>
               )}
@@ -670,15 +670,15 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                               <div>
                                 <p className="font-medium">{event.description}</p>
                                 {event.user_name && (
-                                  <p className="text-sm text-muted-foreground">by {event.user_name}</p>
+                                  <p className="text-sm text-[var(--text-secondary)]">by {event.user_name}</p>
                                 )}
                               </div>
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-xs text-[var(--text-secondary)]">
                                 {formatDateTime(event.timestamp)}
                               </span>
                             </div>
                             {event.metadata && Object.keys(event.metadata).length > 0 && (
-                              <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
+                              <div className="mt-2 p-2 bg-[var(--surface-glass)] rounded text-xs">
                                 {Object.entries(event.metadata).map(([key, value]) => (
                                   <div key={key}>
                                     <span className="font-medium">{key}:</span> {String(value)}
@@ -695,8 +695,8 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <History className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No timeline events recorded</p>
+                    <History className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No timeline events recorded</p>
                   </CardContent>
                 </Card>
               )}
@@ -717,16 +717,16 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                       {relatedArr.map((record) => (
                         <div
                           key={record.id}
-                          className="p-3 rounded border hover:bg-muted/50 cursor-pointer transition-colors"
+                          className="p-3 rounded border hover:bg-[var(--surface-glass)] cursor-pointer transition-colors"
                           onClick={() => handleViewRelatedRecord(record)}
                         >
                           <div className="flex items-center justify-between">
                             <div>
                               <p className="font-medium capitalize">{record.type.replace('_', ' ')}</p>
-                              <p className="text-sm text-muted-foreground">{record.title}</p>
+                              <p className="text-sm text-[var(--text-secondary)]">{record.title}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-[var(--text-secondary)]">
                                 {formatDate(record.date)}
                               </p>
                               {record.status && (
@@ -744,8 +744,8 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <FileText className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No related records found</p>
+                    <FileText className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No related records found</p>
                   </CardContent>
                 </Card>
               )}

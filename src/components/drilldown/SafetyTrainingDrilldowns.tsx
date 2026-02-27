@@ -110,7 +110,7 @@ export function TrainingRecordsMatrixView() {
       cell: ({ row }) => (
         <div>
           <div className="font-medium">{row.original.course_name}</div>
-          <div className="text-xs text-muted-foreground">{row.original.course_code}</div>
+          <div className="text-xs text-[var(--text-secondary)]">{row.original.course_code}</div>
         </div>
       ),
     },
@@ -262,10 +262,10 @@ export function TrainingRecordsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-[#111111] border-white/[0.04]">
+        <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalRecords}</div>
-            <div className="text-xs text-white/40">Total Records</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Records</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -274,7 +274,7 @@ export function TrainingRecordsMatrixView() {
               <CheckCircle className="w-3 h-3 text-green-400" />
               <div className="text-sm font-bold text-green-400">{completedCount}</div>
             </div>
-            <div className="text-xs text-white/40">Completed</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Completed</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -283,19 +283,19 @@ export function TrainingRecordsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-amber-400" />
               <div className="text-sm font-bold text-amber-400">{expiringCount}</div>
             </div>
-            <div className="text-xs text-white/40">Expiring Soon</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Expiring Soon</div>
           </CardContent>
         </Card>
-        <Card className="bg-white/[0.04] border-white/[0.04]">
+        <Card className="bg-white/[0.04] border-[var(--border-subtle)]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-emerald-400">{avgScore.toFixed(1)}%</div>
-            <div className="text-xs text-white/40">Average Score</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Average Score</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3">
             <div className="flex-1">
@@ -338,7 +338,7 @@ export function TrainingRecordsMatrixView() {
       </Card>
 
       {/* Excel-Style Training Records Matrix */}
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <GraduationCap className="w-3 h-3 text-emerald-400" />
@@ -406,7 +406,7 @@ export function CertificationsMatrixView() {
       cell: ({ row }) => (
         <div>
           <div className="font-medium">{row.original.certification_name}</div>
-          <div className="text-xs text-muted-foreground">{row.original.certification_number}</div>
+          <div className="text-xs text-[var(--text-secondary)]">{row.original.certification_number}</div>
         </div>
       ),
     },
@@ -498,7 +498,7 @@ export function CertificationsMatrixView() {
         row.original.renewal_cost ? (
           <div className="text-right font-medium">{formatCurrency(row.original.renewal_cost)}</div>
         ) : (
-          <div className="text-center text-muted-foreground">-</div>
+          <div className="text-center text-[var(--text-secondary)]">-</div>
         ),
     },
   ]
@@ -551,10 +551,10 @@ export function CertificationsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-[#111111] border-white/[0.04]">
+        <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalCerts}</div>
-            <div className="text-xs text-white/40">Total Certifications</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Certifications</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -563,7 +563,7 @@ export function CertificationsMatrixView() {
               <CheckCircle className="w-3 h-3 text-green-400" />
               <div className="text-sm font-bold text-green-400">{activeCount}</div>
             </div>
-            <div className="text-xs text-white/40">Active</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Active</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -572,19 +572,19 @@ export function CertificationsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-amber-400" />
               <div className="text-sm font-bold text-amber-400">{expiringCount}</div>
             </div>
-            <div className="text-xs text-white/40">Expiring Soon</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Expiring Soon</div>
           </CardContent>
         </Card>
-        <Card className="bg-white/[0.04] border-white/[0.04]">
+        <Card className="bg-white/[0.04] border-[var(--border-subtle)]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-emerald-400">{formatCurrency(renewalCost)}</div>
-            <div className="text-xs text-white/40">Renewal Cost</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Renewal Cost</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3">
             <div className="flex-1">
@@ -628,7 +628,7 @@ export function CertificationsMatrixView() {
       </Card>
 
       {/* Excel-Style Certifications Matrix */}
-      <Card className="bg-[#111111] border-white/[0.04]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Medal className="w-3 h-3 text-amber-400" />
