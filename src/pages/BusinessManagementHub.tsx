@@ -1,19 +1,11 @@
 /**
- * BusinessManagementHub - Consolidated Business Management Dashboard
+ * BusinessManagementHub - Command Center Redesign
  *
- * Consolidates:
- * - FinancialHub (budget tracking, cost analysis)
- * - ProcurementHub (vendor management, purchasing)
- * - AnalyticsHub (business intelligence, metrics)
- * - ReportsHub (report generation, dashboards)
- *
- * Features:
- * - Financial oversight and cost analysis
- * - Procurement and vendor management
- * - Business analytics and insights
- * - Comprehensive reporting
- * - WCAG 2.1 AA accessibility
- * - Performance optimized
+ * Layout:
+ * - Hero Banner (120px): 4 financial metrics, 42px font, sparklines
+ * - Horizontal tabs: Financial, Procurement, Analytics, Reports
+ * - Financial tab: 3-column (Cost Trend 40% | Cost Breakdown 30% | Recent Transactions 30%)
+ * - All data hooks preserved from original implementation
  */
 
 import {
@@ -43,20 +35,25 @@ import {
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts'
 import useSWR from 'swr'
 
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import HubPage from '@/components/ui/hub-page'
-import { Section } from '@/components/ui/section'
+import { HeroBanner, BannerMetric } from '@/components/ui/hero-banner'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-  StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
-  ResponsivePieChart,
 } from '@/components/visualizations'
 import { useAuth } from '@/contexts'
 import { useDrilldown } from '@/contexts/DrilldownContext'
@@ -65,11 +62,55 @@ import { useFleetData } from '@/hooks/use-fleet-data'
 import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate, formatCurrency, formatNumber } from '@/utils/format-helpers'
-import logger from '@/utils/logger';
-import { formatVehicleName } from '@/utils/vehicle-display';
+import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 
 const fetcher = apiFetcher
+
+// ============================================================================
+// INLINE STAT CARD (replaces StatCard from visualizations)
+// ============================================================================
+
+function InlineStat({
+  label,
+  value,
+  detail,
+  icon: Icon,
+  trend,
+}: {
+  label: string
+  value: string | number
+  detail?: string
+  icon: React.ComponentType<{ className?: string }>
+  trend?: 'up' | 'down' | 'neutral'
+}) {
+  const trendColor =
+    trend === 'up' ? 'text-emerald-400' : trend === 'down' ? 'text-rose-400' : 'text-white/40'
+  return (
+    <div
+      className="rounded-xl px-4 py-3 flex items-center gap-3"
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
+      <div
+        className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0"
+        style={{ background: 'rgba(16,185,129,0.08)' }}
+      >
+        <Icon className="h-4 w-4 text-emerald-400/70" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] uppercase tracking-[0.1em] text-white/30 font-semibold">{label}</p>
+        <p className={`text-lg font-bold text-white tabular-nums leading-tight ${trend ? trendColor : ''}`}>
+          {value}
+        </p>
+        {detail && <p className="text-[10px] text-white/25 truncate">{detail}</p>}
+      </div>
+    </div>
+  )
+}
 
 // ============================================================================
 // LOADING SKELETON COMPONENT
@@ -94,7 +135,7 @@ function TabLoadingSkeleton() {
 // ============================================================================
 
 /**
- * Financial Tab - Budget tracking and cost analysis
+ * Financial Tab - HeroBanner + 3-column layout (Cost Trend | Cost Breakdown bars | Recent Transactions)
  */
 const FinancialTabContent = memo(function FinancialTabContent() {
   const { workOrders: fleetWorkOrders, vehicles, error: fleetDataError } = useFleetData()
@@ -213,7 +254,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       return breakdown.map((row: any) => ({
         name: row.category || row.name || "Uncategorized",
         value: Number(row.amount || row.value || 0)
-      })).filter((d: any) => d.value > 0)
+      })).filter((d: any) => d.value > 0).sort((a: any, b: any) => b.value - a.value)
     }
     // Fallback: derive from work orders by type
     const cats = new Map<string, number>()
@@ -221,7 +262,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       const cat = formatEnum(wo.type || 'maintenance')
       cats.set(cat, (cats.get(cat) || 0) + Number(wo.total_cost || wo.cost || 0))
     })
-    return Array.from(cats.entries()).map(([name, value]) => ({ name, value })).filter(d => d.value > 0)
+    return Array.from(cats.entries()).map(([name, value]) => ({ name, value })).filter(d => d.value > 0).sort((a, b) => b.value - a.value)
   }, [summary, fleetWorkOrders])
 
   const recentTransactions = useMemo((): { description: string; amount: number; category: string; date: string }[] => {
@@ -261,15 +302,14 @@ const FinancialTabContent = memo(function FinancialTabContent() {
     return 0
   })()
 
-  // P0-4: Fix savings calculation — show negative (overrun) values
   const budgetDelta = budgetTotal > 0 ? budgetTotal - spentTotal : 0
   const isOverBudget = budgetDelta < 0
 
   if (financialError) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-destructive font-medium">Failed to load financial data</p>
-        <p className="text-sm text-muted-foreground">{financialError instanceof Error ? financialError.message : 'Unable to load financial data. Please try again.'}</p>
+        <p className="text-rose-400 font-medium">Failed to load financial data</p>
+        <p className="text-sm text-white/40">{financialError instanceof Error ? financialError.message : 'Unable to load financial data. Please try again.'}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Retry
         </Button>
@@ -279,177 +319,292 @@ const FinancialTabContent = memo(function FinancialTabContent() {
 
   // Determine if we have budget data for a trend line
   const hasBudgetTrendData = costTrendData.some(d => d.budget != null && d.budget > 0)
-  const trendDataKeys = hasBudgetTrendData ? ['actual', 'budget'] : ['actual']
-  const trendColors = hasBudgetTrendData
-    ? ['hsl(var(--chart-2))', '#10B981']
-    : ['hsl(var(--chart-2))']
+
+  // Build sparkline data arrays for the hero banner
+  const spendSparkData = costTrendData.map(d => ({ v: d.actual }))
+  const budgetSparkData = costTrendData.filter(d => d.budget != null).map(d => ({ v: d.budget! }))
+
+  const bannerMetrics: BannerMetric[] = [
+    {
+      label: 'Total Budget',
+      value: budgetTotal > 0 ? formatCurrency(budgetTotal) : '--',
+      icon: Wallet,
+      sparkData: budgetSparkData.length > 1 ? budgetSparkData : undefined,
+    },
+    {
+      label: 'Actual Spend',
+      value: spentTotal > 0 ? formatCurrency(spentTotal) : '--',
+      icon: DollarSign,
+      trend: 'up',
+      change: spentTotal > 0 && budgetTotal > 0 ? Math.round((spentTotal / budgetTotal) * 100 - 100) : undefined,
+      sparkData: spendSparkData.length > 1 ? spendSparkData : undefined,
+    },
+    {
+      label: 'Cost Per Mile',
+      value: costPerMile > 0 ? formatCurrency(costPerMile) : '--',
+      icon: DollarSign,
+    },
+    {
+      label: isOverBudget ? 'Budget Overrun' : 'Savings YTD',
+      value: budgetTotal > 0 ? formatCurrency(Math.abs(budgetDelta)) : '$0',
+      icon: isOverBudget ? TrendingDown : Target,
+      trend: isOverBudget ? 'down' : (budgetDelta > 0 ? 'up' : 'neutral'),
+      change: budgetTotal > 0 ? Math.round((budgetDelta / budgetTotal) * 100) : undefined,
+    },
+  ]
+
+  // Max value for horizontal breakdown bars
+  const breakdownMax = breakdownData.length > 0 ? breakdownData[0].value : 1
 
   return (
-    <div className="flex flex-col gap-3 p-4">
-      {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-3">
-        {/* P0-2 & P0-3: Fix budget label and add period description */}
-        <StatCard
-          title="Total Budget"
-          value={budgetTotal > 0 ? formatCurrency(budgetTotal) : '--'}
-          icon={Wallet}
-          description="Total allocated"
-        />
-        <StatCard
-          title="Actual Spend"
-          value={spentTotal > 0 ? formatCurrency(spentTotal) : '--'}
-          icon={DollarSign}
-          description="Last 6 months"
-        />
-        {/* P1-7: Fix Cost Per Mile icon to DollarSign */}
-        <StatCard
-          title="Cost Per Mile"
-          value={costPerMile > 0 ? formatCurrency(costPerMile) : 'No data'}
-          icon={DollarSign}
-          description={costSummary?.target_cost_per_mile
-            ? `Target ${formatCurrency(Number(costSummary.target_cost_per_mile))}`
-            : "Computed from fleet totals"
-          }
-        />
-        {/* P0-4: Show budget overruns with negative styling */}
-        <StatCard
-          title={isOverBudget ? "Budget Overrun" : "Savings YTD"}
-          value={budgetTotal > 0 ? formatCurrency(Math.abs(budgetDelta)) : '$0'}
-          icon={isOverBudget ? TrendingDown : Target}
-          trend={isOverBudget ? 'down' : (budgetDelta > 0 ? 'up' : 'neutral')}
-          description={isOverBudget ? "Over budget" : (budgetTotal > 0 ? "Under budget" : "No budget allocations")}
-          className={isOverBudget ? "border-rose-500/20" : ""}
-        />
-      </div>
+    <div className="flex flex-col gap-4">
+      {/* Hero Banner */}
+      <HeroBanner metrics={bannerMetrics} />
 
-      {/* Main Content: Charts + Transactions */}
-      <div className="grid grid-cols-2 gap-3">
-        {/* Left Column: Cost Trend + Cost Breakdown */}
-        <div className="flex flex-col gap-3 min-h-0">
-          <Section
-            title="Cost Trend"
-            description={hasBudgetTrendData ? "Actual vs budget" : "Monthly actual costs"}
-            icon={<BarChart className="h-4 w-4" />}
-            className="flex-1 min-h-0"
-          >
-            {/* P0-5: Add budget comparison line to chart */}
+      {/* 3-column layout: Cost Trend (40%) | Cost Breakdown (30%) | Recent Transactions (30%) */}
+      <div className="grid gap-4" style={{ gridTemplateColumns: '4fr 3fr 3fr' }}>
+        {/* Column 1: Cost Trend AreaChart */}
+        <div
+          className="rounded-xl p-4 flex flex-col"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-semibold text-white">Cost Trend</h3>
+              <p className="text-[11px] text-white/30 mt-0.5">
+                {hasBudgetTrendData ? 'Actual vs budget' : 'Monthly actual costs'}
+              </p>
+            </div>
+            <BarChart className="h-4 w-4 text-white/20" />
+          </div>
+          <div className="flex-1 min-h-0" style={{ minHeight: 220 }}>
             {costTrendData.length > 0 ? (
-              <ResponsiveBarChart
-                title="Actual Costs"
-                data={costTrendData}
-                dataKeys={trendDataKeys}
-                colors={trendColors}
-                height={140}
-                compact
-              />
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={costTrendData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                  <defs>
+                    <linearGradient id="costFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                    {hasBudgetTrendData && (
+                      <linearGradient id="budgetFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#6b7280" stopOpacity={0.15} />
+                        <stop offset="100%" stopColor="#6b7280" stopOpacity={0.02} />
+                      </linearGradient>
+                    )}
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+                    width={48}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: '#1a1a1a',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: 8,
+                      fontSize: 12,
+                      color: '#fff',
+                    }}
+                    formatter={(value: number) => [formatCurrency(value), undefined]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="actual"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    fill="url(#costFill)"
+                    name="Actual"
+                  />
+                  {hasBudgetTrendData && (
+                    <Area
+                      type="monotone"
+                      dataKey="budget"
+                      stroke="#6b7280"
+                      strokeWidth={1.5}
+                      strokeDasharray="4 4"
+                      fill="url(#budgetFill)"
+                      name="Budget"
+                    />
+                  )}
+                </AreaChart>
+              </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-full text-white/25 text-sm">No cost trend data</div>
             )}
-          </Section>
-          <Section
-            title="Cost Breakdown"
-            description="Distribution of fleet expenses"
-            icon={<PieChart className="h-4 w-4" />}
-            className="flex-1 min-h-0"
-          >
-            {breakdownData.length > 0 ? (
-              <div style={{ minHeight: 160 }}>
-                <ResponsivePieChart
-                  title="Cost Breakdown by Category"
-                  data={breakdownData}
-                  height={160}
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-            )}
-          </Section>
+          </div>
         </div>
 
-        {/* Right Column: Recent Transactions + WO Costs + Dept Costs */}
-        <div className="flex flex-col gap-3 min-h-0">
-          <Section
-            title="Recent Transactions"
-            description="Latest fleet expenses"
-            icon={<Receipt className="h-4 w-4" />}
-            className="flex-1 min-h-0"
-          >
-            {/* P1-11: Removed inner overflow-y-auto */}
-            <div className="flex-1 min-h-0">
-              {recentTransactions.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-              ) : (
-                <div className="flex flex-col gap-1">
-                  {recentTransactions.map((transaction, index) => (
-                    <div key={index} className="flex items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{transaction.description}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatEnum(transaction.category)} · {formatDate(transaction.date)}
-                        </p>
-                      </div>
-                      <p className="text-sm font-semibold text-foreground">{formatCurrency(transaction.amount)}</p>
-                    </div>
-                  ))}
+        {/* Column 2: Cost Breakdown - Horizontal bar chart */}
+        <div
+          className="rounded-xl p-4 flex flex-col"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-semibold text-white">Cost Breakdown</h3>
+              <p className="text-[11px] text-white/30 mt-0.5">By category, sorted by amount</p>
+            </div>
+            <PieChart className="h-4 w-4 text-white/20" />
+          </div>
+          <div className="flex-1 min-h-0 flex flex-col gap-2.5 justify-center">
+            {breakdownData.length > 0 ? (
+              breakdownData.slice(0, 8).map((item) => (
+                <div key={item.name} className="flex items-center gap-2">
+                  <span className="text-[11px] text-white/50 w-24 truncate shrink-0" title={item.name}>
+                    {item.name}
+                  </span>
+                  <div className="flex-1 h-4 rounded bg-white/[0.04] overflow-hidden">
+                    <div
+                      className="h-full rounded"
+                      style={{
+                        width: `${Math.max((item.value / breakdownMax) * 100, 2)}%`,
+                        background: 'linear-gradient(90deg, rgba(16,185,129,0.6) 0%, rgba(16,185,129,0.3) 100%)',
+                      }}
+                    />
+                  </div>
+                  <span className="text-[11px] text-white/60 w-20 text-right tabular-nums shrink-0">
+                    {formatCurrency(item.value)}
+                  </span>
                 </div>
-              )}
-            </div>
-          </Section>
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-32 text-white/25 text-sm">No breakdown data</div>
+            )}
+          </div>
+        </div>
 
-          <Section
-            title="Work Order Costs"
-            description="Parts and labor costs"
-            icon={<Tag className="h-4 w-4" />}
-            className="flex-none"
-          >
-            <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 text-center">
-                <p className="text-xs text-[var(--text-secondary)]">Parts</p>
-                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalPartsCost)}</p>
-              </div>
-              <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 text-center">
-                <p className="text-xs text-[var(--text-secondary)]">Labor</p>
-                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalLaborCost)}</p>
-              </div>
-              <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 text-center">
-                <p className="text-xs text-[var(--text-secondary)]">Total</p>
-                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalWoCost)}</p>
-              </div>
+        {/* Column 3: Recent Transactions */}
+        <div
+          className="rounded-xl p-4 flex flex-col"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-semibold text-white">Recent Transactions</h3>
+              <p className="text-[11px] text-white/30 mt-0.5">Latest fleet expenses</p>
             </div>
-          </Section>
-
-          {/* P1-8: Department cost bars with percentage */}
-          <Section
-            title="Cost by Department"
-            description="Work order costs by department"
-            icon={<Building className="h-4 w-4" />}
-            className="flex-1 min-h-0"
-          >
-            {/* P1-11: Removed inner overflow-y-auto */}
-            <div className="flex-1 min-h-0">
-              {departmentCosts.length > 0 ? (
-                <div className="flex flex-col gap-3">
-                  {departmentCosts.map((dept) => (
-                    <div key={dept.department} className="flex items-center gap-2">
-                      <span className="text-xs text-[var(--text-primary)] w-24 truncate" title={dept.department}>{dept.department}</span>
-                      <div className="flex-1 h-1.5 rounded-full bg-white/[0.06]">
-                        <div
-                          className="h-full rounded-full bg-emerald-500/60"
-                          style={{ width: `${totalDeptCost > 0 ? (dept.cost / totalDeptCost * 100) : 0}%` }}
-                        />
-                      </div>
-                      <span className="text-xs text-[var(--text-secondary)] w-16 text-right">{formatCurrency(dept.cost)}</span>
-                      <span className="text-[10px] text-[var(--text-tertiary)] w-8 text-right">
-                        {totalDeptCost > 0 ? `${Math.round(dept.cost / totalDeptCost * 100)}%` : '0%'}
+            <Receipt className="h-4 w-4 text-white/20" />
+          </div>
+          <div className="flex-1 min-h-0 flex flex-col gap-1.5">
+            {recentTransactions.length === 0 ? (
+              <div className="flex items-center justify-center h-32 text-white/25 text-sm">No recent transactions</div>
+            ) : (
+              recentTransactions.map((transaction, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between rounded-lg px-3 py-2.5"
+                  style={{
+                    background: 'rgba(255,255,255,0.02)',
+                    border: '1px solid rgba(255,255,255,0.04)',
+                  }}
+                >
+                  <div className="min-w-0 flex-1 mr-3">
+                    <p className="text-[13px] font-medium text-white truncate">{transaction.description}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] text-white/30">{formatDate(transaction.date)}</span>
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded-full"
+                        style={{
+                          background: 'rgba(16,185,129,0.1)',
+                          color: 'rgba(16,185,129,0.7)',
+                        }}
+                      >
+                        {formatEnum(transaction.category)}
                       </span>
                     </div>
-                  ))}
+                  </div>
+                  <span className="text-[13px] font-semibold text-white tabular-nums shrink-0">
+                    {formatCurrency(transaction.amount)}
+                  </span>
                 </div>
-              ) : (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-              )}
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Work Order Costs + Department Costs row */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Work Order Costs */}
+        <div
+          className="rounded-xl p-4"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Tag className="h-4 w-4 text-white/20" />
+            <h3 className="text-sm font-semibold text-white">Work Order Costs</h3>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-lg p-3 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Parts</p>
+              <p className="text-lg font-bold text-white mt-1 tabular-nums">{formatCurrency(workOrderCosts.totalPartsCost)}</p>
             </div>
-          </Section>
+            <div className="rounded-lg p-3 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Labor</p>
+              <p className="text-lg font-bold text-white mt-1 tabular-nums">{formatCurrency(workOrderCosts.totalLaborCost)}</p>
+            </div>
+            <div className="rounded-lg p-3 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Total</p>
+              <p className="text-lg font-bold text-white mt-1 tabular-nums">{formatCurrency(workOrderCosts.totalWoCost)}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Department Costs */}
+        <div
+          className="rounded-xl p-4"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Building className="h-4 w-4 text-white/20" />
+            <h3 className="text-sm font-semibold text-white">Cost by Department</h3>
+          </div>
+          <div className="flex flex-col gap-2">
+            {departmentCosts.length > 0 ? (
+              departmentCosts.map((dept) => (
+                <div key={dept.department} className="flex items-center gap-2">
+                  <span className="text-[11px] text-white/50 w-24 truncate" title={dept.department}>{dept.department}</span>
+                  <div className="flex-1 h-1.5 rounded-full bg-white/[0.06]">
+                    <div
+                      className="h-full rounded-full bg-emerald-500/60"
+                      style={{ width: `${totalDeptCost > 0 ? (dept.cost / totalDeptCost * 100) : 0}%` }}
+                    />
+                  </div>
+                  <span className="text-[11px] text-white/50 w-16 text-right tabular-nums">{formatCurrency(dept.cost)}</span>
+                  <span className="text-[10px] text-white/25 w-8 text-right">
+                    {totalDeptCost > 0 ? `${Math.round(dept.cost / totalDeptCost * 100)}%` : '0%'}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-20 text-white/25 text-sm">No department cost data</div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -510,14 +665,9 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
     return status && !['delivered', 'closed', 'cancelled', 'complete'].includes(status)
   })
 
-  // P1-9: Open PO Value KPI
   const openPoValue = openOrders.reduce((sum: number, po: any) =>
     sum + Number(po.totalAmount || po.total_amount || 0), 0
   )
-
-  const avgVendorRating = vendors.length > 0
-    ? (vendors.reduce((sum: number, v: any) => sum + Number(v.rating || 0), 0) / vendors.length).toFixed(1)
-    : null
 
   const ordersByVendor = (() => {
     const map = new Map<string, number>()
@@ -529,7 +679,6 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
     return map
   })()
 
-  // P1-9: Increase vendor list from 4 to 8
   const topVendors: { id: string; name: string; category: string; orders: number; rating: number; woCost: number }[] = (() => {
     return vendors
       .map((vendor: any) => {
@@ -559,7 +708,6 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
     }))
   })()
 
-  // P1-9: Comprehensive PO status badge color mapping
   const statusVariant = (status: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
     switch (status?.toLowerCase()) {
       case 'delivered': return 'default'
@@ -574,8 +722,8 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
   if (procurementError) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-destructive font-medium">Failed to load procurement data</p>
-        <p className="text-sm text-muted-foreground">{procurementError instanceof Error ? procurementError.message : 'Unable to load procurement data. Please try again.'}</p>
+        <p className="text-rose-400 font-medium">Failed to load procurement data</p>
+        <p className="text-sm text-white/40">{procurementError instanceof Error ? procurementError.message : 'Unable to load procurement data. Please try again.'}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Retry
         </Button>
@@ -584,58 +732,67 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4">
+    <div className="flex flex-col gap-3">
       {/* KPI Row */}
       <div className="grid grid-cols-4 gap-3">
-        <StatCard
-          title="Active Vendors"
+        <InlineStat
+          label="Active Vendors"
           value={activeVendors.length}
           icon={Building}
-          description="Approved suppliers"
+          detail="Approved suppliers"
         />
-        <StatCard
-          title="Open Purchase Orders"
+        <InlineStat
+          label="Open Purchase Orders"
           value={openOrders.length}
           icon={ShoppingCart}
-          description="Pending delivery"
+          detail="Pending delivery"
         />
-        {/* P1-9: Add Open PO Value KPI */}
-        <StatCard
-          title="Open PO Value"
+        <InlineStat
+          label="Open PO Value"
           value={formatCurrency(openPoValue)}
           icon={CreditCard}
-          description="Non-delivered PO total"
+          detail="Non-delivered PO total"
         />
-        {/* P1-9: Rename "WO Vendor Spend" to "Vendor Maintenance Spend" */}
-        <StatCard
-          title="Vendor Maintenance Spend"
+        <InlineStat
+          label="Vendor Maintenance Spend"
           value={(() => {
             let total = 0
             vendorWoCosts.forEach((v) => { total += v.totalCost })
             return formatCurrency(total)
           })()}
           icon={Wrench}
-          description="Work order vendor costs"
+          detail="Work order vendor costs"
         />
       </div>
 
       {/* Main Content: Vendors + Purchase Orders */}
       <div className="grid grid-cols-2 gap-3">
         {/* Left: Top Vendors */}
-        <Section
-          title="Top Vendors"
-          description="Most frequently used suppliers"
-          icon={<Building className="h-4 w-4" />}
-          className="min-h-0"
+        <div
+          className="rounded-xl p-4 flex flex-col"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
         >
-          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex items-center gap-2 mb-3">
+            <Building className="h-4 w-4 text-white/20" />
+            <div>
+              <h3 className="text-sm font-semibold text-white">Top Vendors</h3>
+              <p className="text-[11px] text-white/30 mt-0.5">Most frequently used suppliers</p>
+            </div>
+          </div>
           <div className="flex-1 min-h-0">
             {displayedVendors.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {displayedVendors.map((vendor) => (
                   <div
                     key={vendor.id}
-                    className="flex items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 cursor-pointer"
+                    className="flex items-center justify-between rounded-lg px-3 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.04]"
+                    style={{
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.04)',
+                    }}
                     onClick={() => push({
                       id: vendor.id,
                       type: 'vendor',
@@ -658,10 +815,10 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                     aria-label={`View details for vendor ${vendor.name}`}
                   >
                     <div className="flex items-center gap-2">
-                      <Building className="h-4 w-4 text-[var(--text-tertiary)]" />
+                      <Building className="h-4 w-4 text-white/20" />
                       <div>
-                        <p className="text-sm font-medium text-foreground">{vendor.name}</p>
-                        <p className="text-xs text-[var(--text-secondary)]">
+                        <p className="text-[13px] font-medium text-white">{vendor.name}</p>
+                        <p className="text-[11px] text-white/40">
                           {formatEnum(vendor.category)} · {vendor.orders} {vendor.orders === 1 ? 'order' : 'orders'}
                           {vendor.woCost > 0 && (
                             <span className="ml-1">· WO: {formatCurrency(vendor.woCost)}</span>
@@ -669,16 +826,12 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                         </p>
                       </div>
                     </div>
-                    <div
-                      className="flex items-center gap-1"
-                      title="Based on delivery performance"
-                    >
-                      <Award className="h-4 w-4 text-[var(--text-tertiary)]" />
-                      <span className="text-sm font-medium text-foreground">{vendor.rating ? `${vendor.rating}/5` : '--'}</span>
+                    <div className="flex items-center gap-1" title="Based on delivery performance">
+                      <Award className="h-4 w-4 text-white/20" />
+                      <span className="text-[13px] font-medium text-white">{vendor.rating ? `${vendor.rating}/5` : '--'}</span>
                     </div>
                   </div>
                 ))}
-                {/* P1-9: View All Vendors button */}
                 {topVendors.length > 4 && !showAllVendors && (
                   <Button
                     variant="outline"
@@ -701,26 +854,37 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-white/25 text-sm">No records found</div>
             )}
           </div>
-        </Section>
+        </div>
 
         {/* Right: Purchase Orders */}
-        <Section
-          title="Recent Purchase Orders"
-          description="Latest procurement requests"
-          icon={<ShoppingCart className="h-4 w-4" />}
-          className="min-h-0"
+        <div
+          className="rounded-xl p-4 flex flex-col"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
         >
-          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex items-center gap-2 mb-3">
+            <ShoppingCart className="h-4 w-4 text-white/20" />
+            <div>
+              <h3 className="text-sm font-semibold text-white">Recent Purchase Orders</h3>
+              <p className="text-[11px] text-white/30 mt-0.5">Latest procurement requests</p>
+            </div>
+          </div>
           <div className="flex-1 min-h-0">
             {recentPurchaseOrders.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {recentPurchaseOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 cursor-pointer"
+                    className="flex items-center justify-between rounded-lg px-3 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.04]"
+                    style={{
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.04)',
+                    }}
                     onClick={() => push({
                       id: order.id,
                       type: 'purchase-order',
@@ -743,32 +907,30 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                     aria-label={`View details for purchase order ${order.number || order.id}`}
                   >
                     <div>
-                      <p className="text-sm font-medium text-foreground">{order.number || String(order.id).slice(0, 8)}</p>
-                      <p className="text-xs text-[var(--text-secondary)]">{order.vendor}</p>
+                      <p className="text-[13px] font-medium text-white">{order.number || String(order.id).slice(0, 8)}</p>
+                      <p className="text-[11px] text-white/40">{order.vendor}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      {/* P1-9: Use comprehensive status badge mapping */}
                       <Badge variant={statusVariant(order.status)}>
                         {formatEnum(order.status) || '--'}
                       </Badge>
-                      <p className="text-sm font-semibold text-foreground">{formatCurrency(order.amount)}</p>
+                      <p className="text-[13px] font-semibold text-white tabular-nums">{formatCurrency(order.amount)}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-white/25 text-sm">No records found</div>
             )}
           </div>
-        </Section>
+        </div>
       </div>
     </div>
   )
 })
 
 /**
- * Analytics Tab - Real business analytics (P0-6: Complete replacement)
- * Shows fleet utilization, cost metrics, performance trends, and action items
+ * Analytics Tab - Fleet utilization, cost metrics, performance trends, action items
  */
 const AnalyticsTabContent = memo(function AnalyticsTabContent() {
   const {
@@ -793,7 +955,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
     { shouldRetryOnError: false }
   )
 
-  // P0-1: Loading state for Analytics tab
+  // Loading state for Analytics tab
   const isLoading = fleetLoading && vehicles.length === 0
   if (isLoading) {
     return <TabLoadingSkeleton />
@@ -801,7 +963,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
 
   if (fleetError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-white/40 text-sm">
         {fleetError instanceof Error ? fleetError.message : 'Failed to load analytics data.'}
       </div>
     )
@@ -949,45 +1111,53 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
   })()
 
   return (
-    <div className="flex flex-col gap-3 p-4">
+    <div className="flex flex-col gap-3">
       {/* KPI Row */}
       <div className="grid grid-cols-4 gap-3">
-        <StatCard
-          title="Fleet Utilization"
+        <InlineStat
+          label="Fleet Utilization"
           value={`${fleetUtilization}%`}
           icon={Activity}
-          description={`${activeVehicles} of ${totalVehicles} vehicles active`}
+          detail={`${activeVehicles} of ${totalVehicles} vehicles active`}
           trend={fleetUtilization >= 80 ? 'up' : fleetUtilization >= 60 ? 'neutral' : 'down'}
         />
-        <StatCard
-          title="Avg Cost Per Vehicle"
+        <InlineStat
+          label="Avg Cost Per Vehicle"
           value={avgCostPerVehicle > 0 ? formatCurrency(avgCostPerVehicle) : '--'}
           icon={DollarSign}
-          description={`${totalVehicles} vehicles, ${fleetWorkOrders.length} work orders`}
+          detail={`${totalVehicles} vehicles, ${fleetWorkOrders.length} work orders`}
         />
-        <StatCard
-          title="Fuel Efficiency"
+        <InlineStat
+          label="Fuel Efficiency"
           value={fuelEfficiency > 0 ? `${formatNumber(fuelEfficiency, 1)} MPG` : 'No data'}
           icon={Gauge}
-          description={fuelTransactions.length > 0 ? `From ${fuelTransactions.length} transactions` : 'No fuel data available'}
+          detail={fuelTransactions.length > 0 ? `From ${fuelTransactions.length} transactions` : 'No fuel data available'}
         />
-        <StatCard
-          title="Maintenance Ratio"
+        <InlineStat
+          label="Maintenance Ratio"
           value={`${maintenanceRatio}%`}
           icon={Wrench}
-          description="Maintenance as % of total spend"
+          detail="Maintenance as % of total spend"
           trend={maintenanceRatio > 60 ? 'down' : 'neutral'}
         />
       </div>
 
       {/* Chart Row */}
       <div className="grid grid-cols-2 gap-3">
-        <Section
-          title="Cost Trend"
-          description="Monthly fleet costs over 6 months"
-          icon={<BarChart className="h-4 w-4" />}
-          className="min-h-0"
+        <div
+          className="rounded-xl p-4 flex flex-col"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
         >
+          <div className="flex items-center gap-2 mb-3">
+            <BarChart className="h-4 w-4 text-white/20" />
+            <div>
+              <h3 className="text-sm font-semibold text-white">Cost Trend</h3>
+              <p className="text-[11px] text-white/30 mt-0.5">Monthly fleet costs over 6 months</p>
+            </div>
+          </div>
           {costTrendData.length > 0 ? (
             <ResponsiveBarChart
               title="Fleet Costs"
@@ -998,16 +1168,24 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-32 text-[var(--text-tertiary)] text-sm">No cost trend data available</div>
+            <div className="flex items-center justify-center h-32 text-white/25 text-sm">No cost trend data available</div>
           )}
-        </Section>
+        </div>
 
-        <Section
-          title="Cost Per Vehicle"
-          description="Monthly cost per vehicle trend"
-          icon={<LineChart className="h-4 w-4" />}
-          className="min-h-0"
+        <div
+          className="rounded-xl p-4 flex flex-col"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
         >
+          <div className="flex items-center gap-2 mb-3">
+            <LineChart className="h-4 w-4 text-white/20" />
+            <div>
+              <h3 className="text-sm font-semibold text-white">Cost Per Vehicle</h3>
+              <p className="text-[11px] text-white/30 mt-0.5">Monthly cost per vehicle trend</p>
+            </div>
+          </div>
           {fleetPerformanceData.length > 0 ? (
             <ResponsiveLineChart
               title="Cost Per Vehicle"
@@ -1018,38 +1196,53 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-32 text-[var(--text-tertiary)] text-sm">No performance data available</div>
+            <div className="flex items-center justify-center h-32 text-white/25 text-sm">No performance data available</div>
           )}
-        </Section>
+        </div>
       </div>
 
       {/* Bottom Row: Action Items + Top Cost Drivers */}
       <div className="grid grid-cols-2 gap-3">
-        <Section
-          title="Action Items"
-          description="Items requiring attention"
-          icon={<AlertCircle className="h-4 w-4" />}
-          className="min-h-0"
+        <div
+          className="rounded-xl p-4 flex flex-col"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
         >
+          <div className="flex items-center gap-2 mb-3">
+            <AlertCircle className="h-4 w-4 text-white/20" />
+            <div>
+              <h3 className="text-sm font-semibold text-white">Action Items</h3>
+              <p className="text-[11px] text-white/30 mt-0.5">Items requiring attention</p>
+            </div>
+          </div>
           <div className="flex-1 min-h-0">
             {actionItems.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {actionItems.map((item, index) => (
-                  <div key={index} className="flex items-start gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2">
-                    <div className={`mt-0.5 h-2 w-2 rounded-full shrink-0 ${
+                  <div
+                    key={index}
+                    className="flex items-start gap-2 rounded-lg px-3 py-2.5"
+                    style={{
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.04)',
+                    }}
+                  >
+                    <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${
                       item.severity === 'high' ? 'bg-rose-500' :
                       item.severity === 'medium' ? 'bg-amber-500' :
                       'bg-emerald-500'
                     }`} />
                     <div>
-                      <p className="text-sm font-medium text-foreground">{item.label}</p>
-                      <p className="text-xs text-[var(--text-tertiary)]">{item.detail}</p>
+                      <p className="text-[13px] font-medium text-white">{item.label}</p>
+                      <p className="text-[11px] text-white/30">{item.detail}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-[var(--text-tertiary)] text-sm">
+              <div className="flex items-center justify-center h-32 text-white/25 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-emerald-500" />
                   <span>No action items -- fleet is in good shape</span>
@@ -1057,14 +1250,22 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
               </div>
             )}
           </div>
-        </Section>
+        </div>
 
-        <Section
-          title="Top Cost Drivers"
-          description="Vehicles with highest maintenance costs"
-          icon={<TrendingUp className="h-4 w-4" />}
-          className="min-h-0"
+        <div
+          className="rounded-xl p-4 flex flex-col"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
         >
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp className="h-4 w-4 text-white/20" />
+            <div>
+              <h3 className="text-sm font-semibold text-white">Top Cost Drivers</h3>
+              <p className="text-[11px] text-white/30 mt-0.5">Vehicles with highest maintenance costs</p>
+            </div>
+          </div>
           <div className="flex-1 min-h-0">
             {topCostDrivers.length > 0 ? (
               <div className="flex flex-col gap-1">
@@ -1072,25 +1273,25 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
                   const maxCost = topCostDrivers[0]?.cost || 1
                   return (
                     <div key={index} className="flex items-center gap-2">
-                      <span className="text-xs text-[var(--text-secondary)] w-6 text-right">{index + 1}.</span>
-                      <span className="text-xs text-[var(--text-primary)] w-32 truncate" title={vehicle.name}>{vehicle.name}</span>
+                      <span className="text-[11px] text-white/40 w-6 text-right">{index + 1}.</span>
+                      <span className="text-[11px] text-white/60 w-32 truncate" title={vehicle.name}>{vehicle.name}</span>
                       <div className="flex-1 h-1.5 rounded-full bg-white/[0.06]">
                         <div
                           className="h-full rounded-full bg-emerald-500/60"
                           style={{ width: `${(vehicle.cost / maxCost * 100)}%` }}
                         />
                       </div>
-                      <span className="text-xs text-[var(--text-secondary)] w-16 text-right">{formatCurrency(vehicle.cost)}</span>
-                      <span className="text-[10px] text-[var(--text-tertiary)] w-12 text-right">{vehicle.woCount} WOs</span>
+                      <span className="text-[11px] text-white/50 w-16 text-right tabular-nums">{formatCurrency(vehicle.cost)}</span>
+                      <span className="text-[10px] text-white/25 w-12 text-right">{vehicle.woCount} WOs</span>
                     </div>
                   )
                 })}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-[var(--text-tertiary)] text-sm">No cost data available</div>
+              <div className="flex items-center justify-center h-32 text-white/25 text-sm">No cost data available</div>
             )}
           </div>
-        </Section>
+        </div>
       </div>
     </div>
   )
@@ -1126,7 +1327,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
 
   const reportsError = reportTemplatesError || scheduledReportsError || reportHistoryError || customReportsError
 
-  // P0-1: Loading state for Reports tab
+  // Loading state for Reports tab
   const isLoading = !reportTemplates && !reportTemplatesError && !reportHistory && !reportHistoryError
   if (isLoading) {
     return <TabLoadingSkeleton />
@@ -1191,64 +1392,78 @@ const ReportsTabContent = memo(function ReportsTabContent() {
 
   if (reportsError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-white/40 text-sm">
         Unable to load reports data. Please try again.
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4">
+    <div className="flex flex-col gap-3">
       {/* KPI Row */}
       <div className="grid grid-cols-4 gap-3">
-        <StatCard
-          title="Available Reports"
+        <InlineStat
+          label="Available Reports"
           value={templates.length}
           icon={FileText}
-          description="Report templates"
+          detail="Report templates"
         />
-        <StatCard
-          title="Generated This Month"
+        <InlineStat
+          label="Generated This Month"
           value={generatedThisMonth}
           icon={Download}
-          description="Report instances"
+          detail="Report instances"
         />
-        <StatCard
-          title="Scheduled Reports"
+        <InlineStat
+          label="Scheduled Reports"
           value={schedules.length}
           icon={Calendar}
-          description="Auto-generated"
+          detail="Auto-generated"
         />
-        <StatCard
-          title="Custom Dashboards"
+        <InlineStat
+          label="Custom Dashboards"
           value={custom.length}
           icon={BarChart}
-          description="User created"
+          detail="User created"
         />
       </div>
 
       {/* Main Content: Report Library + Recent Reports */}
       <div className="grid grid-cols-2 gap-3">
         {/* Left: Report Library */}
-        <Section
-          title="Report Library"
-          description="Available reports and templates"
-          icon={<FileText className="h-4 w-4" />}
-          className="min-h-0"
+        <div
+          className="rounded-xl p-4 flex flex-col"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
         >
-          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex items-center gap-2 mb-3">
+            <FileText className="h-4 w-4 text-white/20" />
+            <div>
+              <h3 className="text-sm font-semibold text-white">Report Library</h3>
+              <p className="text-[11px] text-white/30 mt-0.5">Available reports and templates</p>
+            </div>
+          </div>
           <div className="flex-1 min-h-0">
             {templates.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-white/25 text-sm">No records found</div>
             ) : (
               <div className="flex flex-col gap-1">
                 {templates.map((report: any) => (
-                  <div key={report.id} className="flex items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2">
+                  <div
+                    key={report.id}
+                    className="flex items-center justify-between rounded-lg px-3 py-2.5"
+                    style={{
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.04)',
+                    }}
+                  >
                     <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-[var(--text-tertiary)]" />
+                      <FileText className="h-4 w-4 text-white/20" />
                       <div>
-                        <p className="text-sm font-medium text-foreground">{report.title}</p>
-                        <p className="text-xs text-[var(--text-secondary)]">
+                        <p className="text-[13px] font-medium text-white">{report.title}</p>
+                        <p className="text-[11px] text-white/40">
                           {formatEnum(report.category || report.domain) || 'General'} · {report.isCore ? 'Core' : 'Custom'}
                         </p>
                       </div>
@@ -1266,26 +1481,40 @@ const ReportsTabContent = memo(function ReportsTabContent() {
               </div>
             )}
           </div>
-        </Section>
+        </div>
 
         {/* Right: Recently Generated */}
-        <Section
-          title="Recently Generated"
-          description="Latest report outputs"
-          icon={<Clock className="h-4 w-4" />}
-          className="min-h-0"
+        <div
+          className="rounded-xl p-4 flex flex-col"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
         >
-          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex items-center gap-2 mb-3">
+            <Clock className="h-4 w-4 text-white/20" />
+            <div>
+              <h3 className="text-sm font-semibold text-white">Recently Generated</h3>
+              <p className="text-[11px] text-white/30 mt-0.5">Latest report outputs</p>
+            </div>
+          </div>
           <div className="flex-1 min-h-0">
             {history.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-white/25 text-sm">No records found</div>
             ) : (
               <div className="flex flex-col gap-1">
                 {history.map((item: any) => (
-                  <div key={item.id} className="flex items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2">
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between rounded-lg px-3 py-2.5"
+                    style={{
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.04)',
+                    }}
+                  >
                     <div>
-                      <p className="text-sm font-medium text-foreground">{item.title}</p>
-                      <p className="text-xs text-[var(--text-secondary)]">
+                      <p className="text-[13px] font-medium text-white">{item.title}</p>
+                      <p className="text-[11px] text-white/40">
                         Generated by {item.generatedBy || 'System'} · {formatDate(item.generatedAt)}
                       </p>
                     </div>
@@ -1302,11 +1531,22 @@ const ReportsTabContent = memo(function ReportsTabContent() {
               </div>
             )}
           </div>
-        </Section>
+        </div>
       </div>
     </div>
   )
 })
+
+// ============================================================================
+// TAB DEFINITIONS
+// ============================================================================
+
+const tabs = [
+  { id: 'financial', label: 'Financial', icon: DollarSign },
+  { id: 'procurement', label: 'Procurement', icon: ShoppingCart },
+  { id: 'analytics', label: 'Analytics', icon: BarChart },
+  { id: 'reports', label: 'Reports', icon: FileText },
+] as const
 
 // ============================================================================
 // MAIN COMPONENT
@@ -1317,58 +1557,58 @@ export default function BusinessManagementHub() {
   const { user } = useAuth()
 
   return (
-    <HubPage
-      className="cta-hub cta-business-hub"
-      title="Business Management"
-      description="Financial oversight, procurement, analytics, and comprehensive reporting"
-      icon={<BarChart className="h-5 w-5" />}
-    >
-      <div className="flex flex-col h-full gap-3 overflow-hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="financial" className="flex items-center gap-2" data-testid="hub-tab-financial" aria-label="Financial">
-              <DollarSign className="h-4 w-4" />
-              <span className="hidden sm:inline">Financial</span>
-            </TabsTrigger>
-            <TabsTrigger value="procurement" className="flex items-center gap-2" data-testid="hub-tab-procurement" aria-label="Procurement">
-              <ShoppingCart className="h-4 w-4" />
-              <span className="hidden sm:inline">Procurement</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2" data-testid="hub-tab-analytics" aria-label="Analytics">
-              <BarChart className="h-4 w-4" />
-              <span className="hidden sm:inline">Analytics</span>
-            </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2" data-testid="hub-tab-reports" aria-label="Reports">
-              <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Reports</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="financial" className="flex-1 min-h-0 overflow-y-auto">
-            <QueryErrorBoundary>
-              <FinancialTabContent />
-            </QueryErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="procurement" className="flex-1 min-h-0 overflow-y-auto">
-            <QueryErrorBoundary>
-              <ProcurementTabContent />
-            </QueryErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="analytics" className="flex-1 min-h-0 overflow-y-auto">
-            <QueryErrorBoundary>
-              <AnalyticsTabContent />
-            </QueryErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="reports" className="flex-1 min-h-0 overflow-y-auto">
-            <QueryErrorBoundary>
-              <ReportsTabContent />
-            </QueryErrorBoundary>
-          </TabsContent>
-        </Tabs>
+    <div className="flex flex-col h-full bg-[#111] overflow-hidden">
+      {/* Header bar */}
+      <div className="flex items-center justify-between px-6 py-3 border-b border-white/[0.06]">
+        <div className="flex items-center gap-3">
+          <div
+            className="h-8 w-8 rounded-lg flex items-center justify-center"
+            style={{ background: 'rgba(16,185,129,0.1)' }}
+          >
+            <DollarSign className="h-4 w-4 text-emerald-400" />
+          </div>
+          <div>
+            <h1 className="text-base font-semibold text-white leading-tight">Business Management</h1>
+            <p className="text-[11px] text-white/30">Financial oversight, procurement, analytics, and reporting</p>
+          </div>
+        </div>
       </div>
-    </HubPage>
+
+      {/* Horizontal Tabs */}
+      <div className="flex items-center gap-1 px-6 pt-3 pb-0">
+        {tabs.map((tab) => {
+          const Icon = tab.icon
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isActive
+                  ? 'bg-white/[0.08] text-white'
+                  : 'text-white/40 hover:text-white/60 hover:bg-white/[0.03]'
+              }`}
+              data-testid={`hub-tab-${tab.id}`}
+              aria-label={tab.label}
+              role="tab"
+              aria-selected={isActive}
+            >
+              <Icon className="h-4 w-4" />
+              <span>{tab.label}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Tab Content */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4">
+        <QueryErrorBoundary>
+          {activeTab === 'financial' && <FinancialTabContent />}
+          {activeTab === 'procurement' && <ProcurementTabContent />}
+          {activeTab === 'analytics' && <AnalyticsTabContent />}
+          {activeTab === 'reports' && <ReportsTabContent />}
+        </QueryErrorBoundary>
+      </div>
+    </div>
   )
 }
