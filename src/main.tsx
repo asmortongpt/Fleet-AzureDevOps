@@ -194,7 +194,7 @@ validateStartupConfiguration().then(async () => {
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <MsalProvider instance={msalInstance}>
-          <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
+          <ThemeProvider defaultTheme="dark" storageKey="ctafleet-theme">
             <MuiThemeProvider theme={muiTheme}>
             <SentryErrorBoundary level="page">
               <BrandingProvider>
