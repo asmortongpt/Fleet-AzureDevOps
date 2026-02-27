@@ -23,10 +23,11 @@
  * ```
  */
 
+import { CheckCircle, AlertTriangle } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { CheckCircle, AlertTriangle } from 'lucide-react'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -38,8 +39,8 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
 import { useViolationMutations, type HOSViolation } from '@/hooks/use-hos-data'
+import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 // ============================================================================
@@ -212,7 +213,7 @@ export function ViolationResolutionDialog({
               <p className="text-xs text-muted-foreground">
                 <strong>Occurred:</strong>{' '}
                 <time dateTime={violation.violation_datetime}>
-                  {new Date(violation.violation_datetime).toLocaleString()}
+                  {formatDateTime(violation.violation_datetime)}
                 </time>
               </p>
             </div>

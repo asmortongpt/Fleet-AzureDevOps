@@ -29,8 +29,7 @@
  * ```
  */
 
-import { ChevronUp, ChevronDown, ChevronsUpDown, Search, Columns, X, ChevronsUpDown as CaretUpDown } from 'lucide-react'
-import { Download } from 'lucide-react'
+import { ChevronUp, ChevronDown, Search, Columns, X, ChevronsUpDown as CaretUpDown , Download } from 'lucide-react'
 import { useState, useMemo, useCallback, ReactNode } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -57,6 +56,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useDebounce } from '@/hooks/useDebounce'
 import { useBreakpoints } from '@/hooks/useMediaQuery'
 import { cn } from '@/lib/utils'
+import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers'
 
 // ============================================================================
 // TYPES
@@ -149,17 +149,13 @@ function formatCellValue(value: any, type?: CellType): ReactNode {
 
   switch (type) {
     case 'currency':
-      return `$${Number(value).toFixed(2)}`
+      return formatCurrency(Number(value))
     case 'percentage':
       return `${Number(value).toFixed(1)}%`
     case 'date':
-      return new Date(value).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
+      return formatDate(value)
     case 'number':
-      return Number(value).toLocaleString()
+      return formatNumber(Number(value))
     default:
       return String(value)
   }
@@ -504,6 +500,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                   size="sm"
                   onClick={() => setGlobalFilter('')}
                   className="h-9 px-2 shrink-0"
+                  aria-label="Clear search"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -516,7 +513,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
             {enableColumnVisibility && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="min-h-[44px] sm:min-h-0">
+                  <Button variant="outline" size="sm" className="min-h-[44px] sm:min-h-0" aria-label="Toggle columns">
                     <Columns className="w-4 h-4 mr-2" />
                     {!isMobile && "Columns"}
                   </Button>
@@ -559,7 +556,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
             {enableExport && sortedData.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="min-h-[44px] sm:min-h-0">
+                  <Button variant="outline" size="sm" className="min-h-[44px] sm:min-h-0" aria-label="Export data">
                     <Download className="w-4 h-4 mr-2" />
                     {!isMobile && "Export"}
                   </Button>
@@ -777,9 +774,12 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                       >
                         {column.aggregate && aggregates[column.key] !== undefined ? (
                           <div className="text-primary">
-                            {column.type === 'currency' && '$'}
-                            {aggregates[column.key].toLocaleString()}
-                            {column.type === 'percentage' && '%'}
+                            {column.type === 'currency' ? formatCurrency(aggregates[column.key]) : (
+                              <>
+                                {formatNumber(aggregates[column.key])}
+                                {column.type === 'percentage' && '%'}
+                              </>
+                            )}
                           </div>
                         ) : null}
                       </td>

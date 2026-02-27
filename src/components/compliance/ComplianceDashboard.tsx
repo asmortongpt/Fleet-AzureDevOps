@@ -13,7 +13,8 @@ import {
   AlertCircle,
   XCircle
 } from 'lucide-react'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
+import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
@@ -28,10 +29,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { cn } from '@/lib/utils'
+import { formatDateTime } from '@/utils/format-helpers'
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' }).then((res) => res.json())
+const fetcher = apiFetcher
 
 /**
  * Compliance Dashboard Component
@@ -96,7 +98,7 @@ const ComplianceScorecard: React.FC<{ metrics: ComplianceMetric[] }> = ({ metric
 
   const getScoreColor = (score: number) => {
     if (score >= 95) return 'text-green-600'
-    if (score >= 85) return 'text-blue-800'
+    if (score >= 85) return 'text-emerald-600'
     if (score >= 75) return 'text-yellow-600'
     return 'text-red-600'
   }
@@ -188,7 +190,7 @@ const AlertPanel: React.FC<{ alerts: ComplianceAlert[] }> = ({ alerts }) => {
       case 'critical': return <XCircle className="h-5 w-5 text-red-600" />
       case 'high': return <AlertTriangle className="h-5 w-5 text-orange-600" />
       case 'medium': return <AlertCircle className="h-5 w-5 text-yellow-600" />
-      case 'low': return <Bell className="h-5 w-5 text-blue-800" />
+      case 'low': return <Bell className="h-5 w-5 text-emerald-400" />
       default: return <Bell className="h-5 w-5" />
     }
   }
@@ -198,8 +200,8 @@ const AlertPanel: React.FC<{ alerts: ComplianceAlert[] }> = ({ alerts }) => {
       case 'critical': return 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-900'
       case 'high': return 'bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-900'
       case 'medium': return 'bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-900'
-      case 'low': return 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-900'
-      default: return 'bg-gray-50 dark:bg-gray-950'
+      case 'low': return 'bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-900'
+      default: return 'bg-white/[0.03] dark:bg-[#09090b]'
     }
   }
 
@@ -247,7 +249,7 @@ const AlertPanel: React.FC<{ alerts: ComplianceAlert[] }> = ({ alerts }) => {
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {new Date(alert.timestamp).toLocaleString()}
+                        {formatDateTime(alert.timestamp)}
                       </span>
                       {alert.dueDate && (
                         <span className="flex items-center gap-1">
@@ -292,8 +294,8 @@ const TimelineView: React.FC<{ events: ComplianceEvent[] }> = ({ events }) => {
       case 'completed': return 'text-green-600'
       case 'pending': return 'text-yellow-600'
       case 'failed': return 'text-red-600'
-      case 'expired': return 'text-slate-700'
-      default: return 'text-slate-700'
+      case 'expired': return 'text-white/40'
+      default: return 'text-white/40'
     }
   }
 
@@ -343,7 +345,7 @@ const TimelineView: React.FC<{ events: ComplianceEvent[] }> = ({ events }) => {
                   <p className="text-sm text-muted-foreground mb-2">{event.description}</p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
-                    {new Date(event.timestamp).toLocaleString()}
+                    {formatDateTime(event.timestamp)}
                   </div>
                 </div>
               </div>
@@ -384,6 +386,25 @@ const ReportingPanel: React.FC = () => {
     }
   ]
 
+  const handleDownloadReport = useCallback((reportId: string, reportName: string) => {
+    const toastId = toast.loading(`Generating ${reportName}...`)
+    const rows = [
+      ['Report', 'Type', 'Generated At', 'Status'],
+      [reportName, reportId, new Date().toISOString(), 'Generated'],
+    ]
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${reportId}-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    toast.success(`${reportName} downloaded`, { id: toastId })
+  }, [])
+
   return (
     <Card data-testid="compliance-reporting">
       <CardHeader>
@@ -408,7 +429,7 @@ const ReportingPanel: React.FC = () => {
                       <p className="text-sm text-muted-foreground">{report.description}</p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => handleDownloadReport(report.id, report.name)}>
                     <Download className="h-4 w-4" />
                   </Button>
                 </div>
@@ -427,6 +448,23 @@ export function ComplianceDashboard() {
   const metrics: ComplianceMetric[] = data?.metrics || []
   const alerts: ComplianceAlert[] = data?.alerts || []
   const events: ComplianceEvent[] = data?.events || []
+
+  const handleExportAll = useCallback(() => {
+    const toastId = toast.loading('Exporting compliance data...')
+    const header = ['Category', 'Score', 'Target', 'Trend', 'Violations', 'Inspections Due', 'Status']
+    const rows = metrics.map(m => [m.category, m.score, m.target, m.trend, m.violations, m.inspectionsDue, m.status])
+    const csv = [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `compliance-export-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    toast.success('Compliance data exported', { id: toastId })
+  }, [metrics])
 
   if (error) {
     return (
@@ -447,7 +485,7 @@ export function ComplianceDashboard() {
               Monitor compliance metrics, alerts, and reporting
             </p>
           </div>
-          <Button>
+          <Button onClick={handleExportAll}>
             <Download className="h-4 w-4 mr-2" />
             Export All Data
           </Button>

@@ -20,14 +20,16 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { setTenantContext } from '../middleware/tenant-context'
 
+import { flexUuid } from '../middleware/validation'
+
 // SECURITY: Input validation schemas
 const createAlertRuleSchema = z.object({
   rule_name: z.string().min(1).max(200),
   rule_type: z.enum(['maintenance_due', 'fuel_threshold', 'geofence_violation', 'speed_violation', 'idle_time', 'custom']),
-  conditions: z.record(z.string(), z.any()),
+  conditions: z.record(z.string(), z.unknown()),
   severity: z.enum(['info', 'warning', 'critical', 'emergency']),
   channels: z.array(z.enum(['in_app', 'email', 'sms', 'push'])).optional(),
-  recipients: z.array(z.string().uuid()).optional(),
+  recipients: z.array(flexUuid).optional(),
   is_enabled: z.boolean().optional(),
   cooldown_minutes: z.number().int().min(0).max(1440).optional()
 })
@@ -102,7 +104,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
     const userId = req.user?.id
 
     // Use req.dbClient which has tenant context set
-    const client = (req as any).dbClient
+    const client = req.dbClient
     if (!client) {
       logger.error('dbClient not available - tenant context middleware not run')
       return res.status(500).json({
@@ -122,31 +124,31 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       WHERE a.tenant_id = $1
     `
 
-    const params: any[] = [tenantId]
+    const params: (string | number | undefined)[] = [tenantId]
     let paramCount = 1
 
     if (status) {
       paramCount++
       query += ` AND a.status = $${paramCount}`
-      params.push(status)
+      params.push(status as string)
     }
 
     if (severity) {
       paramCount++
       query += ` AND a.severity = $${paramCount}`
-      params.push(severity)
+      params.push(severity as string)
     }
 
     if (from_date) {
       paramCount++
       query += ` AND a.created_at >= $${paramCount}`
-      params.push(from_date)
+      params.push(from_date as string)
     }
 
     if (to_date) {
       paramCount++
       query += ` AND a.created_at <= $${paramCount}`
-      params.push(to_date)
+      params.push(to_date as string)
     }
 
     query += ` ORDER BY
@@ -158,7 +160,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       END,
       a.created_at DESC
       LIMIT $${paramCount + 1}`
-    params.push(limit)
+    params.push(limit as number)
 
     const result = await client.query(query, params)
 
@@ -195,7 +197,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
     const tenantId = req.user?.tenant_id
 
     // Use req.dbClient which has tenant context set
-    const client = (req as any).dbClient
+    const client = req.dbClient
     if (!client) {
       logger.error('dbClient not available - tenant context middleware not run')
       return res.status(500).json({
@@ -289,7 +291,7 @@ router.post('/:id/acknowledge', csrfProtection, requirePermission('report:view:g
     const tenantId = req.user?.tenant_id
 
     // Use req.dbClient which has tenant context set
-    const client = (req as any).dbClient
+    const client = req.dbClient
     if (!client) {
       logger.error('dbClient not available - tenant context middleware not run')
       return res.status(500).json({
@@ -366,7 +368,7 @@ router.post('/:id/resolve', csrfProtection, requirePermission('report:view:globa
     const tenantId = req.user?.tenant_id
 
     // Use req.dbClient which has tenant context set
-    const client = (req as any).dbClient
+    const client = req.dbClient
     if (!client) {
       logger.error('dbClient not available - tenant context middleware not run')
       return res.status(500).json({
@@ -422,7 +424,7 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
     const tenantId = req.user?.tenant_id
 
     // Use req.dbClient which has tenant context set
-    const client = (req as any).dbClient
+    const client = req.dbClient
     if (!client) {
       logger.error('dbClient not available - tenant context middleware not run')
       return res.status(500).json({
@@ -521,7 +523,7 @@ router.post('/rules', csrfProtection, requirePermission('report:generate:global'
     const userId = req.user?.id
 
     // Use req.dbClient which has tenant context set
-    const client = (req as any).dbClient
+    const client = req.dbClient
     if (!client) {
       logger.error('dbClient not available - tenant context middleware not run')
       return res.status(500).json({
@@ -604,7 +606,7 @@ router.put('/rules/:id', csrfProtection, requirePermission('report:generate:glob
     const tenantId = req.user?.tenant_id
 
     // Use req.dbClient which has tenant context set
-    const client = (req as any).dbClient
+    const client = req.dbClient
     if (!client) {
       logger.error('dbClient not available - tenant context middleware not run')
       return res.status(500).json({
@@ -614,22 +616,24 @@ router.put('/rules/:id', csrfProtection, requirePermission('report:generate:glob
     }
 
     const setClauses: string[] = []
-    const values: any[] = []
+    const values: unknown[] = []
     let paramCount = 1
 
     const allowedFields = [
       'rule_name', 'rule_type', 'conditions', 'severity',
       'channels', 'recipients', 'is_enabled', 'cooldown_minutes'
-    ]
+    ] as const
 
+    type UpdateKey = keyof typeof updates
     Object.keys(updates).forEach(key => {
-      if (allowedFields.includes(key) && (updates as any)[key] !== undefined) {
+      const typedKey = key as UpdateKey
+      if (allowedFields.includes(key as typeof allowedFields[number]) && updates[typedKey] !== undefined) {
         setClauses.push(`${key} = $${paramCount}`)
         // Stringify objects for JSONB fields
         if (key === `conditions`) {
-          values.push(JSON.stringify((updates as any)[key]))
+          values.push(JSON.stringify(updates[typedKey]))
         } else {
-          values.push((updates as any)[key])
+          values.push(updates[typedKey])
         }
         paramCount++
       }
@@ -695,7 +699,7 @@ router.delete('/rules/:id', csrfProtection, requirePermission('report:generate:g
     const tenantId = req.user?.tenant_id
 
     // Use req.dbClient which has tenant context set
-    const client = (req as any).dbClient
+    const client = req.dbClient
     if (!client) {
       logger.error('dbClient not available - tenant context middleware not run')
       return res.status(500).json({
@@ -759,7 +763,7 @@ router.get('/notifications', requirePermission('report:view:global'), async (req
     const tenantId = req.user?.tenant_id
 
     // Use req.dbClient which has tenant context set
-    const client = (req as any).dbClient
+    const client = req.dbClient
     if (!client) {
       logger.error('dbClient not available - tenant context middleware not run')
       return res.status(500).json({
@@ -774,7 +778,7 @@ router.get('/notifications', requirePermission('report:view:global'), async (req
       WHERE n.user_id = $1 AND n.tenant_id = $2
     `
 
-    const params: any[] = [userId, tenantId]
+    const params: (string | number | boolean | undefined)[] = [userId, tenantId]
     let paramCount = 2
 
     if (is_read !== undefined) {
@@ -784,7 +788,7 @@ router.get('/notifications', requirePermission('report:view:global'), async (req
     }
 
     query += ` ORDER BY n.created_at DESC LIMIT $${paramCount + 1}`
-    params.push(limit)
+    params.push(limit as number)
 
     const result = await client.query(query, params)
 
@@ -829,7 +833,7 @@ router.post('/notifications/:id/read', csrfProtection, requirePermission('report
     const userId = req.user?.id
 
     // Use req.dbClient which has tenant context set
-    const client = (req as any).dbClient
+    const client = req.dbClient
     if (!client) {
       logger.error('dbClient not available - tenant context middleware not run')
       return res.status(500).json({
@@ -881,7 +885,7 @@ router.post('/notifications/read-all', csrfProtection, requirePermission('report
     const userId = req.user?.id
 
     // Use req.dbClient which has tenant context set
-    const client = (req as any).dbClient
+    const client = req.dbClient
     if (!client) {
       logger.error('dbClient not available - tenant context middleware not run')
       return res.status(500).json({

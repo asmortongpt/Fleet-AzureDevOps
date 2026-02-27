@@ -9,6 +9,7 @@ import { doubleCsrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { tenantSafeQuery } from '../utils/dbHelpers'
 import { applyFieldMasking } from '../utils/fieldMasking'
+import { logger } from '../utils/logger'
 
 
 const router = express.Router()
@@ -26,18 +27,20 @@ const createDriverSchema = z.object({
   last_name: z.string().optional(),
   email: z.string().email(),
   phone: z.string().min(7),
-  employee_number: z.string().optional(),
+  user_id: z.string().uuid().optional(),
   license_number: z.string().min(1),
   license_state: z.string().length(2).optional(),
-  license_expiry_date: z.string(),
-  status: z.enum(['active', 'inactive', 'suspended', 'terminated', 'on_leave', 'training']).optional(),
-  department: z.string().optional()
+  license_expiration: z.string(),
+  cdl_class: z.string().optional(),
+  status: z.enum(['active', 'inactive', 'suspended', 'terminated', 'on_leave', 'training']).optional()
 })
 
 const updateDriverSchema = createDriverSchema.partial()
 
 const splitDriverName = (name?: string) => {
-  if (!name) return { firstName: '', lastName: '' }
+  if (!name) {
+return { firstName: '', lastName: '' }
+}
   const parts = name.trim().split(/\s+/)
   const firstName = parts.shift() || ''
   const lastName = parts.join(' ')
@@ -55,29 +58,48 @@ router.get(
       const { page = 1, limit = 50 } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
-      // Simplified: Return all drivers for the tenant
-      // TODO: Implement role-based filtering when user role/permission system is expanded
+      // Query drivers with user info from JOIN
       const result = await tenantSafeQuery(
         `SELECT
-          id,
-          tenant_id,
-          email,
-          first_name,
-          last_name,
-          phone,
-          employee_number,
-          license_number,
-          license_state,
-          license_expiry_date,
-          performance_score,
-          cdl,
-          status,
-          metadata,
-          created_at,
-          updated_at
-        FROM drivers
-        WHERE tenant_id = $1
-        ORDER BY created_at DESC
+          d.id,
+          d.tenant_id,
+          d.user_id,
+          d.license_number,
+          d.license_state,
+          d.license_expiration,
+          d.cdl_class,
+          d.cdl_endorsements,
+          d.hire_date,
+          d.termination_date,
+          d.status,
+          d.safety_score,
+          d.emergency_contact_name,
+          d.emergency_contact_phone,
+          u.first_name,
+          u.last_name,
+          u.email,
+          u.phone,
+          u.role,
+          d.created_at,
+          d.updated_at,
+          d.employment_classification,
+          d.last_drug_test_date,
+          d.last_drug_test_result,
+          d.last_alcohol_test_date,
+          d.last_alcohol_test_result,
+          d.background_check_date,
+          d.background_check_status,
+          d.mvr_check_date,
+          d.mvr_status,
+          d.medical_card_expiration,
+          d.address,
+          d.city,
+          d.state,
+          d.zip_code
+        FROM drivers d
+        LEFT JOIN users u ON d.user_id = u.id
+        WHERE d.tenant_id = $1
+        ORDER BY d.created_at DESC
         LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id!, limit, offset],
         req.user!.tenant_id!
@@ -99,7 +121,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get drivers error:`, error)
+      logger.error(`Get drivers error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -113,31 +135,31 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'drivers' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      // Simplified: Return all active drivers for the tenant
-      // TODO: Add active_trips count when trips table is implemented
+      // Query active drivers with user info from JOIN
       const result = await tenantSafeQuery(
         `SELECT
           d.id,
           d.tenant_id,
-          d.email,
-          d.first_name,
-          d.last_name,
-          d.phone,
-          d.employee_number,
+          d.user_id,
           d.license_number,
           d.license_state,
-          d.license_expiry_date,
-          d.performance_score,
-          d.cdl,
+          d.license_expiration,
+          d.cdl_class,
           d.status,
-          d.metadata,
+          d.safety_score,
+          u.first_name,
+          u.last_name,
+          u.email,
+          u.phone,
+          u.role,
           d.created_at,
           d.updated_at,
           0 as active_trips
         FROM drivers d
+        LEFT JOIN users u ON d.user_id = u.id
         WHERE d.tenant_id = $1
           AND d.status = 'active'
-        ORDER BY d.first_name, d.last_name`,
+        ORDER BY u.first_name, u.last_name`,
         [req.user!.tenant_id!],
         req.user!.tenant_id!
       )
@@ -147,7 +169,7 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      console.error(`Get active drivers error:`, error)
+      logger.error(`Get active drivers error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -168,7 +190,7 @@ router.get(
           COUNT(CASE WHEN status = 'active' THEN 1 END) as active_drivers,
           COUNT(CASE WHEN status = 'inactive' THEN 1 END) as inactive_drivers,
           COUNT(CASE WHEN status = 'suspended' THEN 1 END) as suspended_drivers,
-          AVG(performance_score) as avg_performance_score
+          AVG(safety_score) as avg_performance_score
         FROM drivers d
         WHERE tenant_id = $1`,
         [req.user!.tenant_id!],
@@ -193,23 +215,75 @@ router.get(
         })
       }
 
-      // TODO: Get trip statistics when trips table is implemented
+      // Get trip statistics from the trips table
+      const tripStatsResult = await tenantSafeQuery(
+        `SELECT
+          COUNT(DISTINCT driver_id) as drivers_with_trips,
+          COUNT(*) as total_trips,
+          COALESCE(SUM(distance_miles), 0) as total_miles,
+          COALESCE(AVG(driver_score), 0) as avg_driver_score
+        FROM trips
+        WHERE tenant_id = $1
+          AND start_time >= NOW() - INTERVAL '30 days'`,
+        [req.user!.tenant_id!],
+        req.user!.tenant_id!
+      )
+
+      const tripStats = tripStatsResult.rows[0] || {}
+
       res.json({
         data: {
           total_drivers: parseInt(stats.total_drivers) || 0,
           active_drivers: parseInt(stats.active_drivers) || 0,
           inactive_drivers: parseInt(stats.inactive_drivers) || 0,
           suspended_drivers: parseInt(stats.suspended_drivers) || 0,
-          avg_performance_score: stats.avg_performance_score != null ? parseFloat(stats.avg_performance_score) : 0,
-          drivers_with_trips_last_30_days: 0,
-          total_trips_last_30_days: 0,
-          total_miles_last_30_days: 0,
-          avg_driver_score_last_30_days: 0
+          avg_performance_score: stats.avg_performance_score !== null && stats.avg_performance_score !== undefined ? parseFloat(stats.avg_performance_score) : 0,
+          drivers_with_trips_last_30_days: parseInt(tripStats.drivers_with_trips) || 0,
+          total_trips_last_30_days: parseInt(tripStats.total_trips) || 0,
+          total_miles_last_30_days: parseFloat(tripStats.total_miles) || 0,
+          avg_driver_score_last_30_days: parseFloat(tripStats.avg_driver_score) || 0
         }
       })
     } catch (error) {
-      console.error(`Get driver statistics error:`, error)
+      logger.error(`Get driver statistics error:`, error)
       res.status(500).json({ error: `Internal server error` })
+    }
+  }
+)
+
+// GET /drivers/performance-trend - Monthly driver performance trend data (MUST be before /:id)
+router.get(
+  '/performance-trend',
+  requirePermission('driver:view:team'),
+  auditLog({ action: 'READ', resourceType: 'driver_scores_history' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const tenantId = req.user!.tenant_id!
+
+      const result = await tenantSafeQuery(
+        `SELECT
+          TO_CHAR(DATE_TRUNC('month', date), 'Mon YY') as month_label,
+          DATE_TRUNC('month', date) as month,
+          ROUND(AVG(safety_score)) as avg_score,
+          SUM(harsh_events_count + speeding_events_count) as violations
+        FROM driver_scores_history
+        WHERE tenant_id = $1
+        GROUP BY DATE_TRUNC('month', date)
+        ORDER BY month`,
+        [tenantId],
+        tenantId
+      )
+
+      const data = result.rows.map((row: any) => ({
+        date: row.month_label,
+        avgScore: row.avg_score !== null ? Number(row.avg_score) : 0,
+        violations: row.violations !== null ? Number(row.violations) : 0
+      }))
+
+      res.json({ success: true, data })
+    } catch (error) {
+      logger.error('Get driver performance trend error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -224,24 +298,41 @@ router.get(
     try {
       const result = await tenantSafeQuery(
         `SELECT
-          id,
-          tenant_id,
-          email,
-          first_name,
-          last_name,
-          phone,
-          employee_number,
-          license_number,
-          license_state,
-          license_expiry_date,
-          performance_score,
-          cdl,
-          status,
-          metadata,
-          created_at,
-          updated_at
-        FROM drivers
-        WHERE id = $1 AND tenant_id = $2`,
+          d.id,
+          d.tenant_id,
+          d.user_id,
+          d.license_number,
+          d.license_state,
+          d.license_expiration,
+          d.cdl_class,
+          d.cdl_endorsements,
+          d.hire_date,
+          d.termination_date,
+          d.status,
+          d.safety_score,
+          d.total_miles_driven,
+          d.total_hours_driven,
+          d.incidents_count,
+          d.violations_count,
+          d.emergency_contact_name,
+          d.emergency_contact_phone,
+          d.notes,
+          d.address,
+          d.city,
+          d.state,
+          d.zip_code,
+          d.medical_card_expiration,
+          d.employment_classification,
+          u.first_name,
+          u.last_name,
+          u.email,
+          u.phone,
+          u.role,
+          d.created_at,
+          d.updated_at
+        FROM drivers d
+        LEFT JOIN users u ON d.user_id = u.id
+        WHERE d.id = $1 AND d.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id!],
         req.user!.tenant_id!
       )
@@ -255,7 +346,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get driver error:`, error)
+      logger.error(`Get driver error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -346,7 +437,7 @@ router.get(
 
       res.json(performanceData)
     } catch (error) {
-      console.error(`Get driver performance error:`, error)
+      logger.error(`Get driver performance error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -435,7 +526,7 @@ router.get(
 
       res.json(trips)
     } catch (error) {
-      console.error(`Get driver trips error:`, error)
+      logger.error(`Get driver trips error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -458,69 +549,75 @@ router.post(
         return res.status(400).json({ error: 'first_name and last_name are required' })
       }
 
-      const licenseExpiry = new Date(payload.license_expiry_date)
+      const licenseExpiry = new Date(payload.license_expiration)
       if (Number.isNaN(licenseExpiry.getTime())) {
-        return res.status(400).json({ error: 'license_expiry_date must be a valid date' })
+        return res.status(400).json({ error: 'license_expiration must be a valid date' })
       }
 
-      const metadata: Record<string, any> = {}
-      if (payload.department) {
-        metadata.department = payload.department
+      let userId = payload.user_id || null
+
+      // If no user_id provided, find or create a user record
+      if (!userId) {
+        const existingUser = await tenantSafeQuery(
+          `SELECT id FROM users WHERE email = $1 AND tenant_id = $2`,
+          [payload.email.toLowerCase(), req.user!.tenant_id!],
+          req.user!.tenant_id!
+        )
+
+        if (existingUser.rows.length > 0) {
+          userId = existingUser.rows[0].id
+        } else {
+          const newUser = await tenantSafeQuery(
+            `INSERT INTO users (tenant_id, first_name, last_name, email, phone, role)
+             VALUES ($1, $2, $3, $4, $5, 'User')
+             RETURNING id`,
+            [req.user!.tenant_id!, firstName, lastName, payload.email.toLowerCase(), payload.phone],
+            req.user!.tenant_id!
+          )
+          userId = newUser.rows[0].id
+        }
       }
 
       const result = await tenantSafeQuery(
         `INSERT INTO drivers (
           tenant_id,
-          first_name,
-          last_name,
-          email,
-          phone,
-          employee_number,
+          user_id,
           license_number,
           license_state,
-          license_expiry_date,
-          status,
-          metadata
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+          license_expiration,
+          cdl_class,
+          status
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7)
         RETURNING
           id,
           tenant_id,
-          email,
-          first_name,
-          last_name,
-          phone,
-          employee_number,
+          user_id,
           license_number,
           license_state,
-          license_expiry_date,
-          performance_score,
-          cdl,
+          license_expiration,
+          cdl_class,
+          safety_score,
           status,
-          metadata,
           created_at,
           updated_at`,
         [
           req.user!.tenant_id!,
-          firstName,
-          lastName,
-          payload.email.toLowerCase(),
-          payload.phone,
-          payload.employee_number || null,
+          userId,
           payload.license_number,
           payload.license_state || null,
           licenseExpiry.toISOString(),
-          payload.status || 'active',
-          metadata
+          payload.cdl_class || null,
+          payload.status || 'active'
         ],
         req.user!.tenant_id!
       )
 
       res.status(201).json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid driver data', details: error.issues })
       }
-      console.error('Create driver error:', error)
+      logger.error('Create driver error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -539,34 +636,50 @@ router.put(
       const firstName = payload.first_name || nameParts.firstName
       const lastName = payload.last_name || nameParts.lastName
 
+      // Update user fields (first_name, last_name, email, phone) on the users table
+      const userFields: string[] = []
+      const userValues: any[] = []
+      let userIndex = 1
+
+      if (payload.email) {
+        userFields.push(`email = $${userIndex++}`)
+        userValues.push(payload.email.toLowerCase())
+      }
+      if (firstName) {
+        userFields.push(`first_name = $${userIndex++}`)
+        userValues.push(firstName)
+      }
+      if (lastName) {
+        userFields.push(`last_name = $${userIndex++}`)
+        userValues.push(lastName)
+      }
+      if (payload.phone) {
+        userFields.push(`phone = $${userIndex++}`)
+        userValues.push(payload.phone)
+      }
+
+      if (userFields.length > 0) {
+        // Get user_id from the driver record
+        const driverLookup = await tenantSafeQuery(
+          `SELECT user_id FROM drivers WHERE id = $1 AND tenant_id = $2`,
+          [req.params.id, req.user!.tenant_id!],
+          req.user!.tenant_id!
+        )
+        if (driverLookup.rows.length > 0 && driverLookup.rows[0].user_id) {
+          const userWhereId = userIndex++
+          userValues.push(driverLookup.rows[0].user_id)
+          await tenantSafeQuery(
+            `UPDATE users SET ${userFields.join(', ')} WHERE id = $${userWhereId}`,
+            userValues,
+            req.user!.tenant_id!
+          )
+        }
+      }
+
+      // Update driver fields on the drivers table
       const fields: string[] = []
       const values: any[] = []
       let index = 1
-
-      if (payload.email) {
-        fields.push(`email = $${index++}`)
-        values.push(payload.email.toLowerCase())
-      }
-
-      if (firstName) {
-        fields.push(`first_name = $${index++}`)
-        values.push(firstName)
-      }
-
-      if (lastName) {
-        fields.push(`last_name = $${index++}`)
-        values.push(lastName)
-      }
-
-      if (payload.phone) {
-        fields.push(`phone = $${index++}`)
-        values.push(payload.phone)
-      }
-
-      if (payload.employee_number !== undefined) {
-        fields.push(`employee_number = $${index++}`)
-        values.push(payload.employee_number)
-      }
 
       if (payload.license_number) {
         fields.push(`license_number = $${index++}`)
@@ -578,13 +691,18 @@ router.put(
         values.push(payload.license_state)
       }
 
-      if (payload.license_expiry_date) {
-        const licenseExpiry = new Date(payload.license_expiry_date)
+      if (payload.license_expiration) {
+        const licenseExpiry = new Date(payload.license_expiration)
         if (Number.isNaN(licenseExpiry.getTime())) {
-          return res.status(400).json({ error: 'license_expiry_date must be a valid date' })
+          return res.status(400).json({ error: 'license_expiration must be a valid date' })
         }
-        fields.push(`license_expiry_date = $${index++}`)
+        fields.push(`license_expiration = $${index++}`)
         values.push(licenseExpiry.toISOString())
+      }
+
+      if (payload.cdl_class !== undefined) {
+        fields.push(`cdl_class = $${index++}`)
+        values.push(payload.cdl_class)
       }
 
       if (payload.status) {
@@ -592,17 +710,27 @@ router.put(
         values.push(payload.status)
       }
 
-      const metadataPatch: Record<string, any> = {}
-      if (payload.department !== undefined) {
-        metadataPatch.department = payload.department
-      }
-      if (Object.keys(metadataPatch).length > 0) {
-        fields.push(`metadata = COALESCE(metadata, '{}'::jsonb) || $${index++}::jsonb`)
-        values.push(JSON.stringify(metadataPatch))
+      if (fields.length === 0 && userFields.length === 0) {
+        return res.status(400).json({ error: 'No valid fields provided for update' })
       }
 
+      // If no driver-specific fields to update, just return the current record
       if (fields.length === 0) {
-        return res.status(400).json({ error: 'No valid fields provided for update' })
+        const currentResult = await tenantSafeQuery(
+          `SELECT d.id, d.tenant_id, d.user_id, d.license_number, d.license_state,
+                  d.license_expiration, d.cdl_class, d.safety_score, d.status,
+                  d.created_at, d.updated_at,
+                  u.first_name, u.last_name, u.email, u.phone
+           FROM drivers d
+           LEFT JOIN users u ON d.user_id = u.id
+           WHERE d.id = $1 AND d.tenant_id = $2`,
+          [req.params.id, req.user!.tenant_id!],
+          req.user!.tenant_id!
+        )
+        if (currentResult.rows.length === 0) {
+          return res.status(404).json({ error: 'Driver not found' })
+        }
+        return res.json(currentResult.rows[0])
       }
 
       const whereIdIndex = index++
@@ -616,18 +744,13 @@ router.put(
          RETURNING
           id,
           tenant_id,
-          email,
-          first_name,
-          last_name,
-          phone,
-          employee_number,
+          user_id,
           license_number,
           license_state,
-          license_expiry_date,
-          performance_score,
-          cdl,
+          license_expiration,
+          cdl_class,
+          safety_score,
           status,
-          metadata,
           created_at,
           updated_at`,
         values,
@@ -639,11 +762,11 @@ router.put(
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid driver data', details: error.issues })
       }
-      console.error('Update driver error:', error)
+      logger.error('Update driver error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -667,9 +790,9 @@ router.delete(
         return res.status(404).json({ error: 'Driver not found' })
       }
 
-      res.json({ message: 'Driver deleted successfully' })
+      res.json({ success: true, message: 'Driver deleted successfully' })
     } catch (error) {
-      console.error('Delete driver error:', error)
+      logger.error('Delete driver error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

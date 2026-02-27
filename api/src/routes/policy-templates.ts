@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import { pool } from '../config/database';
 import { NotFoundError } from '../errors/app-error'
@@ -6,7 +7,85 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const createPolicyTemplateSchema = z.object({
+  policy_code: z.string(),
+  policy_name: z.string(),
+  policy_category: z.string().optional(),
+  sub_category: z.string().optional(),
+  policy_objective: z.string().optional(),
+  policy_scope: z.string().optional(),
+  policy_content: z.string().optional(),
+  procedures: z.union([z.string(), z.array(z.unknown())]).optional(),
+  regulatory_references: z.union([z.string(), z.array(z.unknown())]).optional(),
+  industry_standards: z.union([z.string(), z.array(z.unknown())]).optional(),
+  responsible_roles: z.union([z.string(), z.array(z.string())]).optional(),
+  approval_required_from: z.string().optional(),
+  version: z.union([z.string(), z.number()]).optional(),
+  effective_date: z.string().optional(),
+  review_cycle_months: z.number().optional(),
+  next_review_date: z.string().optional(),
+  expiration_date: z.string().nullable().optional(),
+  supersedes_policy_id: z.union([z.string(), z.number()]).nullable().optional(),
+  status: z.string().optional(),
+  is_mandatory: z.boolean().optional(),
+  applies_to_roles: z.array(z.string()).optional(),
+  requires_training: z.boolean().optional(),
+  requires_test: z.boolean().optional(),
+  test_questions: z.unknown().optional(),
+  related_forms: z.unknown().optional(),
+  attachments: z.unknown().optional(),
+}).passthrough()
+
+const createPolicyViolationSchema = z.object({
+  policy_id: z.union([z.string(), z.number()]),
+  employee_id: z.union([z.string(), z.number()]),
+  violation_date: z.string().optional(),
+  severity: z.string().optional(),
+  description: z.string().optional(),
+  corrective_action: z.string().optional(),
+  status: z.string().optional(),
+}).passthrough()
+
+const createPolicyComplianceAuditSchema = z.object({
+  policy_id: z.union([z.string(), z.number()]),
+  audit_date: z.string().optional(),
+  auditor: z.string().optional(),
+  findings: z.string().optional(),
+  recommendations: z.string().optional(),
+  status: z.string().optional(),
+}).passthrough()
+
+const updatePolicyTemplateSchema = z.object({
+  policy_code: z.string().optional(),
+  policy_name: z.string().optional(),
+  policy_category: z.string().optional(),
+  sub_category: z.string().optional(),
+  policy_objective: z.string().optional(),
+  policy_scope: z.string().optional(),
+  policy_content: z.string().optional(),
+  procedures: z.union([z.string(), z.array(z.unknown())]).optional(),
+  regulatory_references: z.union([z.string(), z.array(z.unknown())]).optional(),
+  industry_standards: z.union([z.string(), z.array(z.unknown())]).optional(),
+  responsible_roles: z.union([z.string(), z.array(z.string())]).optional(),
+  approval_required_from: z.string().optional(),
+  version: z.union([z.string(), z.number()]).optional(),
+  effective_date: z.string().optional(),
+  review_cycle_months: z.number().optional(),
+  next_review_date: z.string().optional(),
+  expiration_date: z.string().nullable().optional(),
+  supersedes_policy_id: z.union([z.string(), z.number()]).nullable().optional(),
+  status: z.string().optional(),
+  is_mandatory: z.boolean().optional(),
+  applies_to_roles: z.array(z.string()).optional(),
+  requires_training: z.boolean().optional(),
+  requires_test: z.boolean().optional(),
+  test_questions: z.unknown().optional(),
+  related_forms: z.unknown().optional(),
+  attachments: z.unknown().optional(),
+}).passthrough()
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -61,7 +140,7 @@ router.get(
       updated_by,
       approved_at,
       approved_by FROM policy_templates WHERE 1=1`
-      const params: any[] = []
+      const params: unknown[] = []
       let paramIndex = 1
 
       if (category) {
@@ -94,7 +173,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policy templates error:', error)
+      logger.error('Get policy templates error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -153,7 +232,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get policy template error:', error)
+      logger.error('Get policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -166,10 +245,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'policy_templates' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createPolicyTemplateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         ['created_by'],
         1
       )
@@ -181,7 +263,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create policy template error:', error)
+      logger.error('Create policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -195,7 +277,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'policy_templates' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = updatePolicyTemplateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
@@ -212,7 +298,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update policy template error:', error)
+      logger.error('Update policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -242,7 +328,7 @@ router.get(
 
       res.json({ data: result.rows })
     } catch (error) {
-      console.error('Get policy acknowledgments error:', error)
+      logger.error('Get policy acknowledgments error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -302,7 +388,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create policy acknowledgment error:', error)
+      logger.error('Create policy acknowledgment error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -344,7 +430,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get employee compliance error:', error)
+      logger.error('Get employee compliance error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -374,7 +460,7 @@ router.get(
         JOIN drivers d ON pv.employee_id = d.id
         WHERE d.tenant_id = $1
       `
-      const params: any[] = [req.user!.tenant_id]
+      const params: unknown[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       if (employee_id) {
@@ -418,7 +504,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policy violations error:', error)
+      logger.error('Get policy violations error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -431,10 +517,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'policy_violations' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createPolicyViolationSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         ['created_by'],
         1
       )
@@ -446,7 +535,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create policy violation error:', error)
+      logger.error('Create policy violation error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -500,9 +589,9 @@ router.delete(
         return res.status(404).json({ error: 'Policy template not found' })
       }
 
-      res.json({ message: 'Policy template deleted successfully', policy: result.rows[0] })
+      res.json({ success: true, message: 'Policy template deleted successfully', policy: result.rows[0] })
     } catch (error) {
-      console.error('Delete policy template error:', error)
+      logger.error('Delete policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -539,7 +628,7 @@ router.post(
         policy: result.rows[0]
       })
     } catch (error) {
-      console.error('Activate policy template error:', error)
+      logger.error('Activate policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -572,7 +661,7 @@ router.post(
         policy: result.rows[0]
       })
     } catch (error) {
-      console.error('Deactivate policy template error:', error)
+      logger.error('Deactivate policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -618,7 +707,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policy violations error:', error)
+      logger.error('Get policy violations error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -653,9 +742,9 @@ router.post(
         policy_name: policy.policy_name,
         evaluated_at: new Date().toISOString(),
         context,
-        checks: [] as any[],
+        checks: [] as { check: string; passed: boolean; message: string; data?: unknown; applies?: boolean }[],
         compliant: true,
-        violations: [] as any[]
+        violations: [] as { violation_type: string; severity: string; message: string }[]
       }
 
       // Example policy checks (customize based on your needs)
@@ -734,7 +823,7 @@ router.post(
         evaluation: evaluationResult
       })
     } catch (error) {
-      console.error('Execute policy template error:', error)
+      logger.error('Execute policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -761,7 +850,7 @@ router.get(
         JOIN policy_templates pt ON pca.policy_id = pt.id
         WHERE 1=1
       `
-      const params: any[] = []
+      const params: unknown[] = []
       let paramIndex = 1
 
       if (policy_id) {
@@ -788,7 +877,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policy compliance audits error:', error)
+      logger.error('Get policy compliance audits error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -802,10 +891,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'policy_compliance_audits' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createPolicyComplianceAuditSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         ['created_by'],
         1
       )
@@ -817,7 +909,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create policy compliance audit error:', error)
+      logger.error('Create policy compliance audit error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -875,7 +967,7 @@ router.get(
         violations: violationsResult.rows
       })
     } catch (error) {
-      console.error('Get policy templates dashboard error:', error)
+      logger.error('Get policy templates dashboard error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

@@ -25,28 +25,40 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: TypeScript Type Checking (Frontend)
-        run: npm run typecheck || echo "TypeScript errors found - continuing build"
-        continue-on-error: true
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: npm run typecheck
+        continue-on-error: false
 
       - name: TypeScript Type Checking (API)
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
         run: |
           cd api
           npm ci --legacy-peer-deps
-          npm run build || echo "API type check completed"
-        continue-on-error: true
+          npm run typecheck
+        continue-on-error: false
 
       - name: ESLint Code Quality
-        run: npm run lint || echo "Lint warnings found - continuing build"
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: npm run lint
         continue-on-error: true
 
       - name: Run Unit Tests
-        run: npm test -- --run --passWithNoTests
+        run: npx vitest run --passWithNoTests
 
       - name: Generate Coverage Report
-        run: npm run test:coverage -- --run --passWithNoTests
+        run: npx vitest run --coverage --passWithNoTests
 
-      - name: Security Audit
-        run: npm audit --audit-level=high || echo "Security vulnerabilities found"
+      - name: Security Audit (Frontend)
+        run: npm audit --audit-level=moderate --production
+        continue-on-error: true
+
+      - name: Security Audit (Backend)
+        run: |
+          cd api
+          npm audit --audit-level=moderate --production
         continue-on-error: true
 
       - name: Build Verification

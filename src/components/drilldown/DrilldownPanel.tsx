@@ -93,7 +93,7 @@ export function DrilldownPanel({
     <div
       data-testid="drilldown-panel"
       className={cn(
-        "fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-50 overflow-auto",
+        "fixed inset-0 bg-[#0e0e0e] z-50 overflow-auto",
         className
       )}
       role="dialog"
@@ -101,18 +101,18 @@ export function DrilldownPanel({
       aria-labelledby={title ? "drilldown-panel-title" : undefined}
     >
       {/* Sticky Header */}
-      <div className="sticky top-0 bg-slate-800 border-b border-slate-700 shadow-sm z-10">
+      <div className="sticky top-0 bg-[#1a1a1a] border-b border-white/[0.04] z-10">
         <div className="flex items-center justify-between p-2 gap-2">
           {/* Left: Back button + Title */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             {showBackButton && canGoBack && (
               <button
                 onClick={handleBack}
-                className="shrink-0 p-2 hover:bg-slate-700 rounded-lg transition-colors"
+                className="shrink-0 p-2 hover:bg-white/[0.08] rounded-lg transition-colors"
                 aria-label="Go back"
                 data-testid="back-button"
               >
-                <ArrowLeft className="w-3 h-3 text-slate-700" />
+                <ArrowLeft className="w-3 h-3 text-white/40" />
               </button>
             )}
 
@@ -126,7 +126,7 @@ export function DrilldownPanel({
                 </h2>
               )}
               {subtitle && (
-                <p className="text-sm text-slate-700 mt-0.5 truncate">
+                <p className="text-sm text-white/40 mt-0.5 truncate">
                   {subtitle}
                 </p>
               )}
@@ -144,10 +144,10 @@ export function DrilldownPanel({
           <button
             data-testid="close-drilldown"
             onClick={handleClose}
-            className="shrink-0 p-2 hover:bg-slate-700 rounded-lg transition-colors"
+            className="shrink-0 p-2 hover:bg-white/[0.08] rounded-lg transition-colors"
             aria-label="Close panel"
           >
-            <X className="w-3 h-3 text-slate-700" />
+            <X className="w-3 h-3 text-white/40" />
           </button>
         </div>
       </div>

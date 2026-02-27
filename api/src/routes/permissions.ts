@@ -3,6 +3,7 @@ import express, { Response } from 'express'
 import { pool } from '../db/connection';
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { getUserPermissions } from '../middleware/permissions'
+import { logger } from '../utils/logger'
 
 
 const router = express.Router()
@@ -58,7 +59,7 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
       }
     })
   } catch (error) {
-    console.error('Get user permissions error:', error)
+    logger.error('Get user permissions error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -81,7 +82,7 @@ router.get('/check/:permission', async (req: AuthRequest, res: Response) => {
       granted: hasPermission
     })
   } catch (error) {
-    console.error('Check permission error:', error)
+    logger.error('Check permission error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -112,7 +113,7 @@ router.get('/roles', async (req: AuthRequest, res: Response) => {
 
     res.json({ data: result.rows })
   } catch (error) {
-    console.error(`List roles error:`, error)
+    logger.error(`List roles error:`, error)
     res.status(500).json({ error: `Internal server error` })
   }
 })
@@ -139,7 +140,7 @@ router.get('/roles/:roleId/permissions', async (req: AuthRequest, res: Response)
 
     res.json({ data: result.rows })
   } catch (error) {
-    console.error(`Get role permissions error:`, error)
+    logger.error(`Get role permissions error:`, error)
     res.status(500).json({ error: `Internal server error` })
   }
 })

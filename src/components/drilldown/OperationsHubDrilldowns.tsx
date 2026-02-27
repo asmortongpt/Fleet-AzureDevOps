@@ -17,14 +17,12 @@ import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/Dril
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate } from '@/utils/format-helpers'
 
 
 // Note: Button component removed as it's not used in this file
-
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => r.json())
-    .then((data) => data?.data ?? data)
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -72,7 +70,7 @@ interface TaskData {
   id: string
   title: string
   description?: string
-  status: 'open' | 'in-progress' | 'completed' | 'blocked'
+  status: 'pending' | 'in_progress' | 'completed' | 'blocked' | 'cancelled'
   priority?: 'high' | 'medium' | 'low'
   assignedToId?: string
   assignedToName?: string
@@ -87,28 +85,30 @@ interface TaskData {
 export function JobListView({ filter }: { filter?: string }) {
   const { data: jobs } = useSWR<JobData[]>(
     filter ? `/api/jobs?filter=${filter}` : '/api/jobs',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
   )
 
+  const safeJobs = Array.isArray(jobs) ? jobs : []
+
   const filteredJobs = useMemo(() => {
-    if (!filter || !jobs) return jobs || []
+    if (!filter || !safeJobs.length) return safeJobs
 
     switch (filter) {
       case 'active':
-        return jobs.filter(j => j.status === 'active')
+        return safeJobs.filter(j => j.status === 'active')
       case 'pending':
-        return jobs.filter(j => j.status === 'pending')
+        return safeJobs.filter(j => j.status === 'pending')
       case 'completed':
-        return jobs.filter(j => j.status === 'completed')
+        return safeJobs.filter(j => j.status === 'completed')
       case 'delayed':
-        return jobs.filter(j => j.status === 'delayed')
+        return safeJobs.filter(j => j.status === 'delayed')
       default:
-        return jobs
+        return safeJobs
     }
-  }, [jobs, filter])
+  }, [safeJobs, filter])
 
   const getStatusColor = (status: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
     switch (status) {
@@ -196,13 +196,13 @@ export function JobListView({ filter }: { filter?: string }) {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-blue-900/30 border-blue-700/50">
+        <Card className="bg-white/[0.04] border-emerald-700/50">
           <CardContent className="p-2 text-center">
-            <Package className="w-4 h-4 text-blue-700 mx-auto mb-1" />
-            <div className="text-sm font-bold text-blue-700">
+            <Package className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
+            <div className="text-sm font-bold text-emerald-400">
               {filteredJobs.filter(j => j.status === 'active').length}
             </div>
-            <div className="text-xs text-slate-700">Active Jobs</div>
+            <div className="text-xs text-white/40">Active Jobs</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -211,7 +211,7 @@ export function JobListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-amber-400">
               {filteredJobs.filter(j => j.status === 'pending').length}
             </div>
-            <div className="text-xs text-slate-700">Pending</div>
+            <div className="text-xs text-white/40">Pending</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -220,7 +220,7 @@ export function JobListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-red-400">
               {filteredJobs.filter(j => j.status === 'delayed').length}
             </div>
-            <div className="text-xs text-slate-700">Delayed</div>
+            <div className="text-xs text-white/40">Delayed</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -229,16 +229,16 @@ export function JobListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-green-400">
               {filteredJobs.filter(j => j.status === 'completed').length}
             </div>
-            <div className="text-xs text-slate-700">Completed</div>
+            <div className="text-xs text-white/40">Completed</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Job Table */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Package className="w-3 h-3 text-blue-700" />
+            <Package className="w-3 h-3 text-emerald-400" />
             {filter ? `${filter.charAt(0).toUpperCase() + filter.slice(1)} Jobs (${filteredJobs.length})` : `All Jobs (${filteredJobs.length})`}
           </CardTitle>
         </CardHeader>
@@ -266,26 +266,28 @@ export function JobListView({ filter }: { filter?: string }) {
 export function RouteListView({ filter }: { filter?: string }) {
   const { data: routes } = useSWR<RouteData[]>(
     filter ? `/api/routes?filter=${filter}` : '/api/routes',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
   )
 
+  const safeRoutes = Array.isArray(routes) ? routes : []
+
   const filteredRoutes = useMemo(() => {
-    if (!filter || !routes) return routes || []
+    if (!filter || !safeRoutes.length) return safeRoutes
 
     switch (filter) {
       case 'active':
-        return routes.filter(r => r.status === 'active')
+        return safeRoutes.filter(r => r.status === 'active')
       case 'planned':
-        return routes.filter(r => r.status === 'planned')
+        return safeRoutes.filter(r => r.status === 'planned')
       case 'optimized':
-        return routes.filter(r => r.optimized)
+        return safeRoutes.filter(r => r.optimized)
       default:
-        return routes
+        return safeRoutes
     }
-  }, [routes, filter])
+  }, [safeRoutes, filter])
 
   const columns: DrilldownColumn<RouteData>[] = [
     {
@@ -344,13 +346,13 @@ export function RouteListView({ filter }: { filter?: string }) {
     <div className="space-y-2">
       {/* Summary */}
       <div className="grid grid-cols-3 gap-3">
-        <Card className="bg-blue-900/30 border-blue-700/50">
+        <Card className="bg-white/[0.04] border-emerald-700/50">
           <CardContent className="p-2 text-center">
-            <Navigation className="w-4 h-4 text-blue-700 mx-auto mb-1" />
-            <div className="text-sm font-bold text-blue-700">
+            <Navigation className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
+            <div className="text-sm font-bold text-emerald-400">
               {filteredRoutes.filter(r => r.status === 'active').length}
             </div>
-            <div className="text-xs text-slate-700">Active Routes</div>
+            <div className="text-xs text-white/40">Active Routes</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -359,25 +361,25 @@ export function RouteListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-green-400">
               {filteredRoutes.filter(r => r.optimized).length}
             </div>
-            <div className="text-xs text-slate-700">Optimized</div>
+            <div className="text-xs text-white/40">Optimized</div>
           </CardContent>
         </Card>
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-[#111111] border-white/[0.04]">
           <CardContent className="p-2 text-center">
-            <MapPin className="w-4 h-4 text-slate-700 mx-auto mb-1" />
+            <MapPin className="w-4 h-4 text-white/40 mx-auto mb-1" />
             <div className="text-sm font-bold text-white">
               {filteredRoutes.reduce((sum, r) => sum + (r.stops || 0), 0)}
             </div>
-            <div className="text-xs text-slate-700">Total Stops</div>
+            <div className="text-xs text-white/40">Total Stops</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Route Table */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Navigation className="w-3 h-3 text-blue-700" />
+            <Navigation className="w-3 h-3 text-emerald-400" />
             Routes ({filteredRoutes.length})
           </CardTitle>
         </CardHeader>
@@ -405,35 +407,38 @@ export function RouteListView({ filter }: { filter?: string }) {
 export function TaskListView({ filter }: { filter?: string }) {
   const { data: tasks } = useSWR<TaskData[]>(
     filter ? `/api/tasks?filter=${filter}` : '/api/tasks',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
   )
 
+  const safeTasks = Array.isArray(tasks) ? tasks : []
+
   const filteredTasks = useMemo(() => {
-    if (!filter || !tasks) return tasks || []
+    if (!filter || !safeTasks.length) return safeTasks
 
     switch (filter) {
       case 'open':
-        return tasks.filter(t => t.status === 'open')
+        return safeTasks.filter(t => t.status === 'pending')
       case 'in-progress':
-        return tasks.filter(t => t.status === 'in-progress')
+        return safeTasks.filter(t => t.status === 'in_progress')
       case 'overdue':
-        return tasks.filter(t => t.dueDate && new Date(t.dueDate) < new Date())
+        return safeTasks.filter(t => t.dueDate && new Date(t.dueDate) < new Date())
       case 'blocked':
-        return tasks.filter(t => t.status === 'blocked')
+        return safeTasks.filter(t => t.status === 'blocked')
       default:
-        return tasks
+        return safeTasks
     }
-  }, [tasks, filter])
+  }, [safeTasks, filter])
 
   const getStatusColor = (status: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
     switch (status) {
-      case 'open': return 'default'
-      case 'in-progress': return 'outline'
+      case 'pending': return 'default'
+      case 'in_progress': return 'outline'
       case 'completed': return 'secondary'
       case 'blocked': return 'destructive'
+      case 'cancelled': return 'outline'
       default: return 'outline'
     }
   }
@@ -450,7 +455,7 @@ export function TaskListView({ filter }: { filter?: string }) {
       sortable: true,
       render: (task) => (
         <Badge variant={getStatusColor(task.status)}>
-          {task.status}
+          {formatEnum(task.status)}
         </Badge>
       ),
     },
@@ -483,7 +488,7 @@ export function TaskListView({ filter }: { filter?: string }) {
       key: 'dueDate',
       header: 'Due Date',
       sortable: true,
-      render: (task) => task.dueDate ? new Date(task.dueDate).toLocaleString() : '-',
+      render: (task) => task.dueDate ? formatDate(task.dueDate) : '-',
     },
   ]
 
@@ -491,22 +496,22 @@ export function TaskListView({ filter }: { filter?: string }) {
     <div className="space-y-2">
       {/* Summary */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-blue-900/30 border-blue-700/50">
+        <Card className="bg-white/[0.04] border-emerald-700/50">
           <CardContent className="p-2 text-center">
-            <ListChecks className="w-4 h-4 text-blue-700 mx-auto mb-1" />
-            <div className="text-sm font-bold text-blue-700">
-              {filteredTasks.filter(t => t.status === 'open').length}
+            <ListChecks className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
+            <div className="text-sm font-bold text-emerald-400">
+              {filteredTasks.filter(t => t.status === 'pending').length}
             </div>
-            <div className="text-xs text-slate-700">Open Tasks</div>
+            <div className="text-xs text-white/40">Open Tasks</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
           <CardContent className="p-2 text-center">
             <Clock className="w-4 h-4 text-amber-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-amber-400">
-              {filteredTasks.filter(t => t.status === 'in-progress').length}
+              {filteredTasks.filter(t => t.status === 'in_progress').length}
             </div>
-            <div className="text-xs text-slate-700">In Progress</div>
+            <div className="text-xs text-white/40">In Progress</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -515,7 +520,7 @@ export function TaskListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-red-400">
               {filteredTasks.filter(t => t.status === 'blocked').length}
             </div>
-            <div className="text-xs text-slate-700">Blocked</div>
+            <div className="text-xs text-white/40">Blocked</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -524,16 +529,16 @@ export function TaskListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-green-400">
               {filteredTasks.filter(t => t.status === 'completed').length}
             </div>
-            <div className="text-xs text-slate-700">Completed</div>
+            <div className="text-xs text-white/40">Completed</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Task Table */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <ListChecks className="w-3 h-3 text-blue-700" />
+            <ListChecks className="w-3 h-3 text-emerald-400" />
             Tasks ({filteredTasks.length})
           </CardTitle>
         </CardHeader>

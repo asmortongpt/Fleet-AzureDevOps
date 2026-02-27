@@ -11,6 +11,7 @@ import {
   Layers
 } from 'lucide-react'
 import React, { useState, useMemo, useCallback } from 'react'
+import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import { UnifiedFleetMap } from '@/components/Maps/UnifiedFleetMap'
@@ -26,13 +27,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useVehicles, useFacilities } from '@/hooks/use-api'
+import { apiFetcher } from '@/lib/api-fetcher'
 import type { Vehicle, GISFacility } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import logger from '@/utils/logger';
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' }).then((res) => res.json())
+const fetcher = apiFetcher
 
 /**
  * Compliance Map View - Map-First Architecture
@@ -65,14 +66,16 @@ interface ComplianceZone {
 const ComplianceDetailsPanel: React.FC<{
   selectedZone: ComplianceZone | null
   onViewDetails: (zoneId: string) => void
-}> = ({ selectedZone, onViewDetails }) => {
+  onGenerateReport: (zone: ComplianceZone) => void
+  onTakeAction: (zone: ComplianceZone) => void
+}> = ({ selectedZone, onViewDetails, onGenerateReport, onTakeAction }) => {
   const getSeverityColor = (severity: string) => {
     switch(severity) {
-      case 'low': return 'text-green-600'
-      case 'medium': return 'text-yellow-600'
-      case 'high': return 'text-orange-600'
-      case 'critical': return 'text-red-600'
-      default: return 'text-slate-700'
+      case 'low': return 'text-emerald-400'
+      case 'medium': return 'text-amber-400'
+      case 'high': return 'text-orange-400'
+      case 'critical': return 'text-rose-400'
+      default: return 'text-white/40'
     }
   }
 
@@ -88,17 +91,17 @@ const ComplianceDetailsPanel: React.FC<{
 
   const getStatusIcon = (status: string) => {
     switch(status) {
-      case 'compliant': return <CheckCircle2 className="h-5 w-5 text-green-600" />
-      case 'warning': return <Clock className="h-5 w-5 text-yellow-600" />
-      case 'violation': return <AlertTriangle className="h-5 w-5 text-red-600" />
-      case 'expired': return <AlertTriangle className="h-5 w-5 text-red-600" />
+      case 'compliant': return <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+      case 'warning': return <Clock className="h-5 w-5 text-amber-400" />
+      case 'violation': return <AlertTriangle className="h-5 w-5 text-rose-400" />
+      case 'expired': return <AlertTriangle className="h-5 w-5 text-rose-400" />
       default: return <Shield className="h-5 w-5" />
     }
   }
 
   if (!selectedZone) {
     return (
-      <div className="p-3 text-center text-muted-foreground">
+      <div className="p-3 text-center text-white/40">
         <MapPin className="h-9 w-12 mx-auto mb-3 opacity-50" />
         <p className="text-sm">Select a compliance zone on the map to view details</p>
       </div>
@@ -115,7 +118,7 @@ const ComplianceDetailsPanel: React.FC<{
               {getStatusIcon(selectedZone.status)}
               <div>
                 <h3 className="font-semibold">{selectedZone.name}</h3>
-                <p className="text-sm text-muted-foreground capitalize">
+                <p className="text-sm text-white/40 capitalize">
                   {selectedZone.type} Zone
                 </p>
               </div>
@@ -136,24 +139,24 @@ const ComplianceDetailsPanel: React.FC<{
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <div className="text-muted-foreground">Severity</div>
+                <div className="text-white/40">Severity</div>
                 <div className={cn("font-semibold capitalize", getSeverityColor(selectedZone.severity))}>
                   {selectedZone.severity}
                 </div>
               </div>
               <div>
-                <div className="text-muted-foreground">Vehicles</div>
+                <div className="text-white/40">Vehicles</div>
                 <div className="font-semibold">{selectedZone.vehicles.length}</div>
               </div>
               {selectedZone.jurisdiction && (
                 <div className="col-span-2">
-                  <div className="text-muted-foreground">Jurisdiction</div>
+                  <div className="text-white/40">Jurisdiction</div>
                   <div className="font-medium">{selectedZone.jurisdiction}</div>
                 </div>
               )}
               {selectedZone.dueDate && (
                 <div className="col-span-2">
-                  <div className="text-muted-foreground flex items-center gap-1">
+                  <div className="text-white/40 flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     Due Date
                   </div>
@@ -165,7 +168,7 @@ const ComplianceDetailsPanel: React.FC<{
             <Separator />
 
             <div>
-              <div className="text-sm text-muted-foreground mb-1">Description</div>
+              <div className="text-sm text-white/40 mb-1">Description</div>
               <p className="text-sm">{selectedZone.description}</p>
             </div>
           </CardContent>
@@ -181,9 +184,9 @@ const ComplianceDetailsPanel: React.FC<{
               {selectedZone.vehicles.map((vehicleId, index) => (
                 <div
                   key={vehicleId}
-                  className="flex items-center justify-between p-2 rounded-md bg-muted/50"
+                  className="flex items-center justify-between p-2 rounded-md bg-white/[0.03]"
                 >
-                  <div className="text-sm font-medium">Vehicle #{index + 1}</div>
+                  <div className="text-sm font-medium">{vehicleId ? `Vehicle ${vehicleId}` : `Vehicle ${index + 1}`}</div>
                   <Badge variant="outline" className="text-xs">
                     {selectedZone.type}
                   </Badge>
@@ -202,12 +205,12 @@ const ComplianceDetailsPanel: React.FC<{
             <Eye className="h-4 w-4 mr-2" />
             View Full Details
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={() => onGenerateReport(selectedZone)}>
             <FileText className="h-4 w-4 mr-2" />
             Generate Report
           </Button>
-          {selectedZone.status === 'violation' || selectedZone.status === 'expired' && (
-            <Button variant="destructive" className="w-full">
+          {(selectedZone.status === 'violation' || selectedZone.status === 'expired') && (
+            <Button variant="destructive" className="w-full" onClick={() => onTakeAction(selectedZone)}>
               <AlertTriangle className="h-4 w-4 mr-2" />
               Take Action
             </Button>
@@ -223,6 +226,7 @@ export function ComplianceMapView() {
   const [selectedZone, setSelectedZone] = useState<ComplianceZone | null>(null)
   const [filterType, setFilterType] = useState<string>('all')
   const [filterStatus, setFilterStatus] = useState<string>('all')
+  const { push } = useDrilldown()
 
   // API hooks
   const { data: vehicles = [] } = useVehicles()
@@ -230,7 +234,7 @@ export function ComplianceMapView() {
   const { data: zonesResponse } = useSWR('/api/geofences', fetcher)
 
   const complianceZones: ComplianceZone[] = useMemo(() => {
-    const zones = zonesResponse?.data || []
+    const zones = Array.isArray(zonesResponse) ? zonesResponse : []
     return zones.map((zone: any) => {
       const meta = zone.metadata || {}
       return {
@@ -277,9 +281,42 @@ export function ComplianceMapView() {
   }, [complianceZones])
 
   const handleViewDetails = useCallback((zoneId: string) => {
-    logger.info('View details for zone:', zoneId)
-    // In production, this would navigate to detailed compliance view
+    const zone = complianceZones.find(z => z.id === zoneId)
+    push({
+      id: zoneId,
+      type: 'compliance-zone',
+      label: zone?.name || `Zone ${zoneId}`,
+      data: { zoneId, zoneType: zone?.type, status: zone?.status, severity: zone?.severity },
+    })
+  }, [complianceZones, push])
+
+  const handleGenerateReport = useCallback((zone: ComplianceZone) => {
+    const toastId = toast.loading('Generating compliance report...')
+    const rows = [
+      ['Zone', 'Type', 'Status', 'Severity', 'Vehicles', 'Due Date', 'Description'],
+      [zone.name, zone.type, zone.status, zone.severity, zone.vehicles.join('; '), zone.dueDate || '', zone.description],
+    ]
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `compliance-zone-${zone.name.replace(/\s+/g, '-').toLowerCase()}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    toast.success('Report downloaded', { id: toastId })
   }, [])
+
+  const handleTakeAction = useCallback((zone: ComplianceZone) => {
+    push({
+      id: zone.id,
+      type: 'compliance-zone',
+      label: `Action: ${zone.name}`,
+      data: { zoneId: zone.id, zoneType: zone.type, status: zone.status, severity: zone.severity, action: 'resolve' },
+    })
+  }, [push])
 
   return (
     <div className="h-screen flex flex-col" data-testid="compliance-map-view">
@@ -288,7 +325,7 @@ export function ComplianceMapView() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-sm font-bold">Compliance Map</h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-white/40">
               Monitor compliance zones, inspections, and violations
             </p>
           </div>
@@ -340,7 +377,7 @@ export function ComplianceMapView() {
 
           {/* Zone Statistics Overlay */}
           <div
-            className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg p-2 shadow-sm z-10"
+            className="absolute top-4 left-4 bg-[#111111] border border-white/[0.04] rounded-lg p-2 z-10"
             data-testid="compliance-stats-overlay"
           >
             <h3 className="font-semibold mb-3 flex items-center gap-2">
@@ -379,8 +416,8 @@ export function ComplianceMapView() {
           </div>
 
           {/* Zone Markers on Map */}
-          <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur rounded-lg p-3 shadow-sm z-10">
-            <div className="text-xs text-muted-foreground mb-2">Active Zones</div>
+          <div className="absolute bottom-4 left-4 bg-[#111111] border border-white/[0.04] rounded-lg p-3 z-10">
+            <div className="text-xs text-white/40 mb-2">Active Zones</div>
             <div className="flex flex-wrap gap-2">
               {filteredZones.map(zone => (
                 <Button
@@ -399,10 +436,12 @@ export function ComplianceMapView() {
         </div>
 
         {/* RIGHT: Details Panel (30%) */}
-        <div className="bg-background" data-testid="compliance-details-panel">
+        <div className="bg-[#0a0a0a]" data-testid="compliance-details-panel">
           <ComplianceDetailsPanel
             selectedZone={selectedZone}
             onViewDetails={handleViewDetails}
+            onGenerateReport={handleGenerateReport}
+            onTakeAction={handleTakeAction}
           />
         </div>
       </div>

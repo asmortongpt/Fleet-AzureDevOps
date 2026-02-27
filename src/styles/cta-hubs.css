@@ -1,0 +1,230 @@
+/* ==========================================================================
+   CTA FLEET — Tesla/Rivian Minimal Design System
+
+   Principles:
+   - Spacious: generous padding, breathing room between elements
+   - Minimal: no unnecessary borders, decorations, or chrome
+   - Typography-driven: large numbers, clear hierarchy, weight contrast
+   - Monochrome: dark surfaces, white text, one accent for status only
+   - Intentional: every element earns its place
+   ========================================================================== */
+
+.cta-hub {
+  /* Surface scale — pure charcoal, no blue/purple undertones */
+  --surface-0: #0a0a0a;
+  --surface-1: #111111;
+  --surface-2: #161616;
+  --surface-3: #1c1c1c;
+  --surface-4: #222222;
+  --surface-5: #2a2a2a;
+
+  /* Text scale */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-tertiary: rgba(255, 255, 255, 0.35);
+  --text-ghost: rgba(255, 255, 255, 0.15);
+
+  /* Accent — used sparingly, only for interactive/status */
+  --accent: #FDC016;
+  --accent-dim: rgba(253, 192, 22, 0.12);
+
+  /* Status colors */
+  --status-good: #22c55e;
+  --status-warn: #f59e0b;
+  --status-bad: #ef4444;
+  --status-info: #10b981;
+
+  /* Semantic tokens for shadcn/Tailwind */
+  --background: var(--surface-1);
+  --foreground: var(--text-primary);
+  --card: var(--surface-2);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-3);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--text-primary);
+  --primary-foreground: var(--surface-0);
+  --secondary: var(--surface-3);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-3);
+  --muted-foreground: var(--text-secondary);
+  --accent-color: var(--accent);
+  --accent-foreground: var(--surface-0);
+  --destructive: var(--status-bad);
+  --destructive-foreground: var(--text-primary);
+  --border: rgba(255, 255, 255, 0.06);
+  --input: var(--surface-3);
+  --ring: rgba(255, 255, 255, 0.2);
+
+  /* Tailwind v4 --color-* overrides */
+  --color-background: var(--surface-1);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--surface-2);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--surface-3);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--text-primary);
+  --color-primary-foreground: var(--surface-0);
+  --color-secondary: var(--surface-3);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--surface-3);
+  --color-muted-foreground: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--surface-0);
+  --color-destructive: var(--status-bad);
+  --color-destructive-foreground: var(--text-primary);
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-input: var(--surface-3);
+  --color-ring: rgba(255, 255, 255, 0.2);
+
+  font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-primary);
+  background: var(--surface-0);
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY — Large, clean, weight-driven hierarchy
+   ========================================================================== */
+.cta-hub h1 { font-weight: 600; letter-spacing: -0.02em; }
+.cta-hub h2 { font-weight: 600; letter-spacing: -0.01em; }
+.cta-hub h3 { font-weight: 500; }
+
+/* ==========================================================================
+   HUB HEADER — Minimal, spacious
+   ========================================================================== */
+.cta-hub [data-testid="hub-header"] {
+  background: var(--surface-0);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ==========================================================================
+   CARDS — Minimal borders, spacing-driven separation
+   ========================================================================== */
+.cta-hub .cta-card {
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 20px 24px;
+  transition: background 0.2s ease;
+}
+
+.cta-hub .cta-card:hover {
+  background: var(--surface-3);
+}
+
+.cta-hub .cta-stat {
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 20px 24px;
+  transition: background 0.2s ease;
+}
+
+.cta-hub .cta-stat:hover {
+  background: var(--surface-3);
+}
+
+.cta-hub .cta-hero {
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 20px;
+  padding: 28px 32px;
+}
+
+/* ==========================================================================
+   TABS — Minimal underline style
+   ========================================================================== */
+.cta-hub [data-slot="tabs-list"] {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+.cta-hub [data-slot="tabs-trigger"] {
+  color: var(--text-tertiary);
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.cta-hub [data-slot="tabs-trigger"]:hover {
+  color: var(--text-secondary);
+}
+
+.cta-hub [data-slot="tabs-trigger"][data-state="active"] {
+  color: var(--text-primary);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* Tab content — always dark */
+.cta-hub [data-slot="tabs-content"] {
+  background: var(--surface-0);
+}
+
+/* Custom pill tabs */
+.cta-hub .cta-tabs {
+  border: none;
+  background: transparent;
+  gap: 4px;
+}
+
+.cta-hub .cta-tab {
+  border: none;
+  color: var(--text-tertiary);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.cta-hub .cta-tab:hover {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cta-hub .cta-tab--active,
+.cta-hub .cta-pill {
+  color: var(--text-primary);
+  background: var(--surface-3);
+  border: none;
+}
+
+/* ==========================================================================
+   EMPTY STATE
+   ========================================================================== */
+.cta-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  color: var(--text-tertiary);
+  text-align: center;
+  gap: 12px;
+}
+
+.cta-empty-state svg { opacity: 0.3; }
+
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
+.cta-hub .cta-danger { color: var(--status-bad); }
+.cta-hub .cta-success { color: var(--status-good); }
+.cta-hub .cta-accent { color: var(--accent); }
+.cta-hub .cta-subtitle { color: var(--text-tertiary); font-size: 0.875rem; }
+
+.cta-hub .grid > .animate-fade-in-up { opacity: 1; animation: none; }
+
+.cta-hub svg circle[stroke-dasharray] {
+  animation: ring-fill 1.2s ease-out forwards;
+}
+
+@keyframes ring-fill { from { stroke-dasharray: 0 263.9; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-hub .grid > .animate-fade-in-up { animation: none; opacity: 1; }
+}

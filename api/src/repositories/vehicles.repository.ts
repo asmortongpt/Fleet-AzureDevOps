@@ -8,6 +8,14 @@ import { BaseRepository, PaginationParams } from './base/BaseRepository';
 
 import { CacheService, CacheKeys } from '../services/cache.service'
 
+/**
+ * VehiclesRepository - BACKEND-17
+ * All queries use parameterized statements ($1, $2, $3) for SQL injection prevention
+ * All operations enforce tenant isolation
+ * Includes Redis caching layer with cache invalidation on mutations
+ */
+import { TYPES } from '../types';
+
 export interface Vehicle {
   id: string
   vin: string
@@ -25,19 +33,18 @@ export interface Vehicle {
   fuelType?: string
   latitude?: number
   longitude?: number
+  // Convenience location object for frontend compatibility
+  location?: {
+    lat: number | null
+    lng: number | null
+    address: string
+  }
+  locationAddress?: string
   assignedDriverId?: string
   assignedFacilityId?: string
   createdAt: Date
   updatedAt: Date
 }
-
-/**
- * VehiclesRepository - BACKEND-17
- * All queries use parameterized statements ($1, $2, $3) for SQL injection prevention
- * All operations enforce tenant isolation
- * Includes Redis caching layer with cache invalidation on mutations
- */
-import { TYPES } from '../types';
 
 export class VehiclesRepository extends BaseRepository<Vehicle> {
   private cache: CacheService
@@ -46,6 +53,45 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     super(pool, 'vehicles');
     this.cache = container.get<CacheService>(TYPES.CacheService)
   }
+
+  private static readonly selectColumns = `
+    id,
+    vin,
+    make,
+    model,
+    year,
+    license_plate AS "licensePlate",
+    vehicle_type AS "vehicleType",
+    fuel_type AS "fuelType",
+    status,
+    odometer::float8 AS odometer,
+    engine_hours::numeric(10,2) AS "engineHours",
+    latitude::float8 AS latitude,
+    longitude::float8 AS longitude,
+    jsonb_build_object(
+      'lat', latitude::float8,
+      'lng', longitude::float8
+    ) AS location,
+    speed::float8 AS speed,
+    heading::float8 AS heading,
+    last_gps_update AS "lastGpsUpdate",
+    assigned_driver_id AS "assignedDriverId",
+    assigned_facility_id AS "assignedFacilityId",
+    tenant_id AS "tenantId",
+    created_at AS "createdAt",
+    updated_at AS "updatedAt",
+    purchase_date AS "purchaseDate",
+    purchase_price::numeric(12,2) AS "purchasePrice",
+    current_value::numeric(12,2) AS "currentValue",
+    telematics_data AS "telematicsData",
+    health_score::float8 AS health_score,
+    estimated_range_miles::float8 AS "estimatedRangeMiles",
+    battery_capacity_kwh::float8 AS "batteryCapacityKwh",
+    battery_health_percent::float8 AS "batteryHealthPercent",
+    registration_expiry_date AS "registrationExpiryDate",
+    gps_device_id AS "gpsDeviceId",
+    notes
+  `
 
   /**
    * Find vehicle by ID with tenant isolation (cached)
@@ -60,7 +106,10 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
       cacheKey,
       async () => {
         const result = await this.pool.query(
-          'SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, fuel_level AS "fuelLevel", fuel_type AS "fuelType", latitude, longitude, assigned_driver_id AS "assignedDriverId", assigned_facility_id AS "assignedFacilityId", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles WHERE id = $1 AND tenant_id = $2',
+          `SELECT
+             ${VehiclesRepository.selectColumns}
+           FROM vehicles
+           WHERE id = $1 AND tenant_id = $2`,
           [id, tenantId]
         )
         return result.rows[0] || null
@@ -88,13 +137,76 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     const safeSortOrder = sortOrder?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'
 
     const result = await this.pool.query(
-      `SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, fuel_level AS "fuelLevel", fuel_type AS "fuelType", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles 
-       WHERE tenant_id = $1 
-       ORDER BY ${safeSortBy} ${safeSortOrder} 
+      `SELECT
+         ${VehiclesRepository.selectColumns}
+       FROM vehicles
+       WHERE tenant_id = $1 AND status != 'retired'
+       ORDER BY ${safeSortBy} ${safeSortOrder}
        LIMIT $2 OFFSET $3`,
       [tenantId, limit, offset]
     )
     return result.rows
+  }
+
+  /**
+   * List vehicles for a tenant with optional filters + pagination, including total count.
+   * This is the preferred API for production list endpoints.
+   */
+  async listByTenant(
+    tenantId: string,
+    opts: { page?: number; limit?: number; search?: string; status?: string; sortBy?: string; sortOrder?: string } = {}
+  ): Promise<{ data: Vehicle[]; total: number }> {
+    const page = Number(opts.page ?? 1) || 1
+    const limit = Number(opts.limit ?? 20) || 20
+    const offset = (page - 1) * limit
+
+    const allowedSortColumns = ['id', 'vin', 'make', 'model', 'year', 'created_at', 'updated_at', 'status', 'odometer', 'name', 'number']
+    const requestedSortBy = String(opts.sortBy ?? 'created_at')
+    const safeSortBy = allowedSortColumns.includes(requestedSortBy) ? requestedSortBy : 'created_at'
+    const safeSortOrder = String(opts.sortOrder ?? 'desc').toUpperCase() === 'ASC' ? 'ASC' : 'DESC'
+
+    const clauses: string[] = ['tenant_id = $1', "status != 'retired'"]
+    const params: any[] = [tenantId]
+    let idx = 2
+
+    if (opts.status) {
+      clauses.push(`status = $${idx}`)
+      params.push(opts.status)
+      idx += 1
+    }
+
+    if (opts.search) {
+      const q = `%${opts.search}%`
+      clauses.push(`(
+        make ILIKE $${idx} OR
+        model ILIKE $${idx} OR
+        vin ILIKE $${idx} OR
+        license_plate ILIKE $${idx} OR
+        name ILIKE $${idx} OR
+        number ILIKE $${idx}
+      )`)
+      params.push(q)
+      idx += 1
+    }
+
+    const where = `WHERE ${clauses.join(' AND ')}`
+
+    const countResult = await this.pool.query(
+      `SELECT COUNT(*)::int AS count FROM vehicles ${where}`,
+      params
+    )
+    const total = Number(countResult.rows?.[0]?.count ?? 0) || 0
+
+    const dataResult = await this.pool.query(
+      `SELECT ${VehiclesRepository.selectColumns}
+       FROM vehicles
+       ${where}
+       ORDER BY ${safeSortBy} ${safeSortOrder}
+       LIMIT $${idx} OFFSET $${idx + 1}`,
+      [...params, limit, offset]
+    )
+
+    return { data: dataResult.rows, total }
   }
 
   /**
@@ -105,7 +217,10 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
    */
   async findByVIN(vin: string, tenantId: string): Promise<Vehicle | null> {
     const result = await this.pool.query(
-      'SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles WHERE vin = $1 AND tenant_id = $2',
+      `SELECT
+         ${VehiclesRepository.selectColumns}
+       FROM vehicles
+       WHERE vin = $1 AND tenant_id = $2`,
       [vin, tenantId]
     )
     return result.rows[0] || null
@@ -122,7 +237,11 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     tenantId: string
   ): Promise<Vehicle[]> {
     const result = await this.pool.query(
-      'SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles WHERE status = $1 AND tenant_id = $2 ORDER BY created_at DESC',
+      `SELECT
+         ${VehiclesRepository.selectColumns}
+       FROM vehicles
+       WHERE status = $1 AND tenant_id = $2
+       ORDER BY created_at DESC`,
       [status, tenantId]
     )
     return result.rows
@@ -258,7 +377,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
    */
   async countByTenant(tenantId: string): Promise<number> {
     const result = await this.pool.query(
-      'SELECT COUNT(*) FROM vehicles WHERE tenant_id = $1',
+      "SELECT COUNT(*) FROM vehicles WHERE tenant_id = $1 AND status != 'retired'",
       [tenantId]
     )
     return parseInt(result.rows[0].count, 10)
@@ -275,6 +394,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     const result = await this.pool.query(
       `SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles
        WHERE tenant_id = $1
+       AND status != 'retired'
        AND (
          make ILIKE $2 OR
          model ILIKE $2 OR
@@ -333,7 +453,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
         d.email as driver_email
       FROM vehicles v
       LEFT JOIN drivers d ON v.assigned_driver_id = d.id AND d.tenant_id = $1
-      WHERE v.tenant_id = $1
+      WHERE v.tenant_id = $1 AND v.status != 'retired'
       ORDER BY ${safeSortBy} ${safeSortOrder}
       LIMIT $2 OFFSET $3`,
       [tenantId, limit, offset]
@@ -384,8 +504,8 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
       FROM vehicles v
       LEFT JOIN drivers d ON v.assigned_driver_id = d.id
       LEFT JOIN LATERAL (
-        SELECT * FROM work_orders
-        WHERE vehicle_id = v.id 
+        SELECT id, vehicle_id, type, description, status, actual_end_date, actual_cost FROM work_orders
+        WHERE vehicle_id = v.id
         ORDER BY actual_end_date DESC
         LIMIT 5
       ) m ON true
@@ -405,7 +525,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
         d.id as driver_id, d.first_name || ' ' || d.last_name as driver_name
       FROM vehicles v
       LEFT JOIN drivers d ON v.assigned_driver_id = d.id
-      WHERE v.tenant_id = $1
+      WHERE v.tenant_id = $1 AND v.status != 'retired'
       ORDER BY v.created_at DESC
     `;
     const result = await this.pool.query(query, [tenantId]);

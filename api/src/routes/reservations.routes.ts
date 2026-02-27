@@ -30,7 +30,8 @@ import logger from '../config/logger';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import ReservationsService, { UserContext } from '../services/reservations.service';
-import { getErrorMessage } from '../utils/error-handler';
+
+import { flexUuid } from '../middleware/validation'
 
 const router = express.Router();
 
@@ -48,7 +49,7 @@ export function setDatabasePool(dbPool: Pool) {
 // ============================================
 
 const createReservationSchema = z.object({
-  vehicle_id: z.string().uuid('Invalid vehicle ID'),
+  vehicle_id: flexUuid,
   start_datetime: z.string().datetime('Invalid start datetime format'),
   end_datetime: z.string().datetime('Invalid end datetime format'),
   // @ts-expect-error - Build compatibility fix
@@ -114,8 +115,10 @@ function getUserContext(req: AuthRequest): UserContext {
  */
 router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
-    const tenantId = (req.user as any)?.tenant_id || (req.user as any)?.tenantId;
-    if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' });
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
+    if (!tenantId) {
+return res.status(401).json({ success: false, error: 'Missing tenant context' });
+}
 
     const {
       limit = '50',
@@ -129,7 +132,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
     const lim = Math.min(Math.max(parseInt(limit as string, 10) || 50, 1), 500);
 
     const where: string[] = ['r.tenant_id = $1'];
-    const params: any[] = [tenantId];
+    const params: unknown[] = [tenantId];
     let p = 1;
 
     if (status) {
@@ -144,13 +147,19 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
       params.push(driver_id);
       where.push(`r.driver_id = $${++p}`);
     }
-    if (start_date) {
-      params.push(start_date);
-      where.push(`r.start_time >= $${++p}`);
-    }
-    if (end_date) {
+    if (start_date && end_date) {
+      // Overlap: reservation overlaps with the requested window
+      // A reservation overlaps if it starts before the window ends AND ends after the window starts
       params.push(end_date);
-      where.push(`r.end_time <= $${++p}`);
+      where.push(`r.start_time < ($${++p})::timestamp`);
+      params.push(start_date);
+      where.push(`r.end_time > ($${++p})::timestamp`);
+    } else if (start_date) {
+      params.push(start_date);
+      where.push(`r.start_time >= ($${++p})::timestamp`);
+    } else if (end_date) {
+      params.push(end_date);
+      where.push(`r.end_time <= ($${++p})::timestamp`);
     }
 
     params.push(lim);
@@ -184,11 +193,10 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
       success: true,
       reservations: result.rows,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching reservations:', error);
     res.status(500).json({
       error: 'Failed to fetch reservations',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -201,25 +209,25 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
 router.get('/pending', authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
     const userContext = getUserContext(req);
-    const pendingReservations = await reservationsService.getPendingApprovals(userContext);
+    const pendingReservations = await reservationsService!.getPendingApprovals(userContext);
 
     res.json({
       pending_reservations: pendingReservations,
       count: pendingReservations.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching pending reservations:', error);
-    
-    if (error.message.includes('permission')) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+    if (errMsg.includes('permission')) {
       return res.status(403).json({
         error: 'Forbidden',
-        message: error.message,
+        message: 'You do not have permission to view pending reservations',
       });
     }
 
     res.status(500).json({
       error: 'Failed to fetch pending reservations',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -234,20 +242,20 @@ router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userContext = getUserContext(req);
 
-    const reservation = await reservationsService.getReservationById(id, userContext);
+    const reservation = await reservationsService!.getReservationById(id, userContext);
     res.json(reservation);
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching reservation:', error);
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
 
-    if (error.message.includes('not found') || error.message.includes('access denied')) {
+    if (errMsg.includes('not found') || errMsg.includes('access denied')) {
       return res.status(404).json({
-        error: error.message,
+        error: 'Reservation not found',
       });
     }
 
     res.status(500).json({
       error: 'Failed to fetch reservation',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -267,7 +275,7 @@ router.post('/', csrfProtection, authenticateJWT, async (req: AuthRequest, res: 
     try {
       await client.query('BEGIN');
 
-      const result = await reservationsService.createReservation(data, userContext, client);
+      const result = await reservationsService!.createReservation(data, userContext, client);
 
       await client.query('COMMIT');
 
@@ -282,7 +290,7 @@ router.post('/', csrfProtection, authenticateJWT, async (req: AuthRequest, res: 
     } finally {
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error creating reservation:', error);
 
     if (error instanceof z.ZodError) {
@@ -292,22 +300,23 @@ router.post('/', csrfProtection, authenticateJWT, async (req: AuthRequest, res: 
       });
     }
 
-    if (error.message.includes('not found')) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+    if (errMsg.includes('not found')) {
       return res.status(404).json({
-        error: error.message,
+        error: 'Vehicle or resource not found',
       });
     }
 
-    if (error.message.includes('conflict') || error.message.includes('reserved')) {
+    if (errMsg.includes('conflict') || errMsg.includes('reserved')) {
       return res.status(409).json({
         error: 'Reservation conflict',
-        message: error.message,
+        message: 'The requested vehicle is already reserved for this time period',
       });
     }
 
     res.status(500).json({
       error: 'Failed to create reservation',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -327,7 +336,7 @@ router.put('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, res
     try {
       await client.query('BEGIN');
 
-      const updatedReservation = await reservationsService.updateReservation(
+      const updatedReservation = await reservationsService!.updateReservation(
         id,
         data,
         userContext,
@@ -346,7 +355,7 @@ router.put('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, res
     } finally {
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating reservation:', error);
 
     if (error instanceof z.ZodError) {
@@ -356,22 +365,23 @@ router.put('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, res
       });
     }
 
-    if (error.message.includes('not found') || error.message.includes('access denied')) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+    if (errMsg.includes('not found') || errMsg.includes('access denied')) {
       return res.status(404).json({
-        error: error.message,
+        error: 'Reservation not found',
       });
     }
 
-    if (error.message.includes('Only pending') || error.message.includes('conflict')) {
+    if (errMsg.includes('Only pending') || errMsg.includes('conflict')) {
       return res.status(400).json({
         error: 'Cannot update reservation',
-        message: error.message,
+        message: 'Only pending reservations can be updated',
       });
     }
 
     res.status(500).json({
       error: 'Failed to update reservation',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -390,7 +400,7 @@ router.delete('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, 
     try {
       await client.query('BEGIN');
 
-      await reservationsService.cancelReservation(id, userContext, client);
+      await reservationsService!.cancelReservation(id, userContext, client);
 
       await client.query('COMMIT');
 
@@ -403,18 +413,18 @@ router.delete('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, 
     } finally {
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error cancelling reservation:', error);
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
 
-    if (error.message.includes('not found') || error.message.includes('access denied')) {
+    if (errMsg.includes('not found') || errMsg.includes('access denied')) {
       return res.status(404).json({
-        error: error.message,
+        error: 'Reservation not found',
       });
     }
 
     res.status(500).json({
       error: 'Failed to cancel reservation',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -434,7 +444,7 @@ router.post('/:id/approve', csrfProtection, authenticateJWT, async (req: AuthReq
     try {
       await client.query('BEGIN');
 
-      const updatedReservation = await reservationsService.approveReservation(
+      const updatedReservation = await reservationsService!.approveReservation(
         id,
         data.action,
         userContext,
@@ -453,7 +463,7 @@ router.post('/:id/approve', csrfProtection, authenticateJWT, async (req: AuthReq
     } finally {
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error processing approval:', error);
 
     if (error instanceof z.ZodError) {
@@ -463,29 +473,30 @@ router.post('/:id/approve', csrfProtection, authenticateJWT, async (req: AuthReq
       });
     }
 
-    if (error.message.includes('permission')) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+    if (errMsg.includes('permission')) {
       return res.status(403).json({
         error: 'Forbidden',
-        message: error.message,
+        message: 'You do not have permission to approve reservations',
       });
     }
 
-    if (error.message.includes('not found')) {
+    if (errMsg.includes('not found')) {
       return res.status(404).json({
-        error: error.message,
+        error: 'Reservation not found',
       });
     }
 
-    if (error.message.includes('Only pending')) {
+    if (errMsg.includes('Only pending')) {
       return res.status(400).json({
         error: 'Invalid status',
-        message: error.message,
+        message: 'Only pending reservations can be approved or rejected',
       });
     }
 
     res.status(500).json({
       error: 'Failed to process approval',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -508,7 +519,7 @@ router.get('/vehicles/:vehicleId/availability', authenticateJWT, async (req: Aut
     }
 
     const userContext = getUserContext(req);
-    const availability = await reservationsService.getVehicleAvailability(
+    const availability = await reservationsService!.getVehicleAvailability(
       vehicleId,
       start_date as string,
       end_date as string,
@@ -521,11 +532,10 @@ router.get('/vehicles/:vehicleId/availability', authenticateJWT, async (req: Aut
       end_date,
       availability,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error checking vehicle availability:', error);
     res.status(500).json({
       error: 'Failed to check vehicle availability',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -547,7 +557,7 @@ router.get('/vehicles/:vehicleId/reservations', authenticateJWT, async (req: Aut
       end_date: end_date as string | undefined,
     };
 
-    const reservations = await reservationsService.getVehicleReservations(
+    const reservations = await reservationsService!.getVehicleReservations(
       vehicleId,
       filters,
       userContext
@@ -557,11 +567,10 @@ router.get('/vehicles/:vehicleId/reservations', authenticateJWT, async (req: Aut
       vehicle_id: vehicleId,
       reservations,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching vehicle reservations:', error);
     res.status(500).json({
       error: 'Failed to fetch vehicle reservations',
-      details: getErrorMessage(error),
     });
   }
 });

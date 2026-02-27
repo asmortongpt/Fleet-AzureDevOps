@@ -26,6 +26,8 @@ import { AssignmentNotificationService } from '../services/assignment-notificati
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 
 let pool: Pool = dbPool;
@@ -41,7 +43,7 @@ export function setDatabasePool(newPool: Pool) {
 // =====================================================
 
 const callbackTripSchema = z.object({
-  on_call_period_id: z.string().uuid(),
+  on_call_period_id: flexUuid,
   trip_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   trip_start_time: z.string().optional(),
   trip_end_time: z.string().optional(),
@@ -59,7 +61,7 @@ const callbackTripSchema = z.object({
 });
 
 const reimbursementRequestSchema = z.object({
-  callback_trip_id: z.string().uuid(),
+  callback_trip_id: flexUuid,
   amount: z.number().positive(),
   mileage_rate: z.number().positive(),
   receipt_photo: z.string().optional(), // Base64 or URL
@@ -77,7 +79,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const user_id = req.user!.id;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
 
       // Get driver record for this user
       const driverQuery = `
@@ -174,7 +176,7 @@ router.get(
           pending_reimbursement_amount: parseFloat(reimbursementResult.rows[0].pending_amount) || 0,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching mobile employee dashboard:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch employee dashboard',
@@ -196,7 +198,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       // Verify this on-call period belongs to the user
@@ -233,7 +235,7 @@ router.post(
         message: 'On-call period acknowledged successfully',
         period: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error acknowledging on-call period:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to acknowledge on-call period',
@@ -255,7 +257,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = callbackTripSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       // Get driver_id for this user
@@ -321,7 +323,7 @@ router.post(
         trip: result.rows[0],
         estimated_reimbursement: reimbursementAmount,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error logging callback trip:', error) // Wave 31: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -348,7 +350,7 @@ router.get(
   requirePermission('vehicle_assignment:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
       const team_driver_ids = req.user!.team_driver_ids || [];
 
@@ -447,7 +449,7 @@ router.get(
           active_on_call_count: onCallResult.rows.length,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching manager mobile dashboard:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch manager dashboard',
@@ -470,7 +472,7 @@ router.post(
     try {
       const { id } = req.params;
       const { action, notes } = req.body;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       if (!['approve', 'deny'].includes(action)) {
@@ -525,7 +527,7 @@ router.post(
         message: `Assignment ${action}d successfully from mobile`,
         assignment: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error processing mobile approval:`, error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to process approval',
@@ -547,7 +549,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const user_id = req.user!.id;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
 
       // Get driver_id
       const driverQuery = `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`;
@@ -594,7 +596,7 @@ router.get(
         offline_data: offlineData,
         ttl_hours: 24, // Data valid for 24 hours
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching offline data:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch offline data',

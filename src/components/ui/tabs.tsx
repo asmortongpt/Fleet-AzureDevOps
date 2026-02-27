@@ -26,8 +26,8 @@ function TabsList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "bg-muted/50 text-muted-foreground inline-flex min-h-8 h-auto w-fit items-center justify-center rounded-md p-1 gap-0.5",
-        "backdrop-blur-sm border border-border/30",
+        "bg-[var(--surface-glass)] text-[var(--text-tertiary)] inline-flex min-h-8 h-auto w-fit items-center justify-center rounded-lg p-1 gap-0.5",
+        "border border-[var(--border-subtle)]",
         className
       )}
       {...props}
@@ -48,10 +48,10 @@ function TabsTrigger({
         "text-sm font-medium whitespace-nowrap",
         "transition-all duration-200 ease-out",
         // Default state
-        "text-muted-foreground hover:text-foreground hover:bg-background/50",
+        "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-glass)]",
         // Active state
-        "data-[state=active]:bg-background data-[state=active]:text-foreground",
-        "data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border/50",
+        "data-[state=active]:bg-[var(--surface-3)] data-[state=active]:text-[var(--text-primary)]",
+        "data-[state=active]:border data-[state=active]:border-[var(--border-subtle)]",
         // Focus state
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         // Disabled state
@@ -92,7 +92,7 @@ function TabsListUnderline({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "inline-flex h-9 items-center gap-2 border-b border-border/50",
+        "inline-flex h-9 items-center gap-2 border-b border-[var(--border-subtle)]",
         "overflow-x-auto no-scrollbar",
         className
       )}
@@ -114,12 +114,12 @@ function TabsTriggerUnderline({
         "text-sm font-medium whitespace-nowrap",
         "transition-colors duration-200",
         // Default state
-        "text-muted-foreground hover:text-foreground",
+        "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]",
         // Active state
-        "data-[state=active]:text-foreground",
-        // Underline indicator
+        "data-[state=active]:text-[var(--text-primary)]",
+        // Underline indicator — emerald accent
         "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5",
-        "after:bg-primary after:rounded-full after:transition-transform after:duration-200",
+        "after:bg-emerald-500 after:rounded-full after:transition-transform after:duration-200",
         "after:scale-x-0 data-[state=active]:after:scale-x-100",
         // Focus state
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded-md",
@@ -143,7 +143,7 @@ function TabsListPill({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "inline-flex items-center gap-1 p-1 rounded-full bg-muted/30",
+        "inline-flex items-center gap-1 p-1 rounded-full bg-white/[0.04]",
         className
       )}
       {...props}
@@ -166,7 +166,7 @@ function TabsTriggerPill({
         // Default state
         "text-muted-foreground hover:text-foreground",
         // Active state
-        "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+        "data-[state=active]:bg-white/[0.08] data-[state=active]:text-white",
         // Focus state
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         // Disabled state

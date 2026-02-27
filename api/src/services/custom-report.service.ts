@@ -11,6 +11,7 @@ import nodemailer from 'nodemailer'
 import { Pool } from 'pg'
 
 import pool from '../config/database'
+import logger from '../config/logger'
 
 import excelExportService, { ExportOptions } from './excel-export.service'
 
@@ -276,6 +277,7 @@ export class CustomReportService {
 
   /**
    * Create a new custom report (JSONB-based with RLS)
+   * Throws a descriptive error if the custom_reports table does not exist
    */
   async createReport(
     organizationId: string,
@@ -285,6 +287,14 @@ export class CustomReportService {
     const client = await this.db.connect()
 
     try {
+      // Check if the custom_reports table exists before inserting
+      const tableCheck = await client.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'custom_reports')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        throw new Error('Custom reports feature is not yet available. The custom_reports table has not been created.')
+      }
+
       await client.query('BEGIN')
 
       // Set RLS context
@@ -315,8 +325,8 @@ export class CustomReportService {
 
       return this.mapReportRow(result.rows[0])
     } catch (error) {
-      await client.query('ROLLBACK')
-      console.error('Error creating report:', error)
+      await client.query('ROLLBACK').catch(() => {}) // Ignore rollback errors if no transaction started
+      logger.error('Error creating report', { error: error instanceof Error ? error.message : String(error) })
       throw error
     } finally {
       client.release()
@@ -325,6 +335,7 @@ export class CustomReportService {
 
   /**
    * Update a custom report (JSONB-based with RLS)
+   * Throws a descriptive error if the custom_reports table does not exist
    */
   async updateReport(
     reportId: string,
@@ -335,6 +346,14 @@ export class CustomReportService {
     const client = await this.db.connect()
 
     try {
+      // Check if the custom_reports table exists
+      const tableCheck = await client.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'custom_reports')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        throw new Error('Custom reports feature is not yet available. The custom_reports table has not been created.')
+      }
+
       await client.query('BEGIN')
 
       // Set RLS context
@@ -375,8 +394,8 @@ export class CustomReportService {
 
       return this.mapReportRow(result.rows[0])
     } catch (error) {
-      await client.query('ROLLBACK')
-      console.error('Error updating report:', error)
+      await client.query('ROLLBACK').catch(() => {})
+      logger.error('Error updating report', { error: error instanceof Error ? error.message : String(error) })
       throw error
     } finally {
       client.release()
@@ -385,11 +404,20 @@ export class CustomReportService {
 
   /**
    * Delete a custom report (soft delete with RLS)
+   * Throws a descriptive error if the custom_reports table does not exist
    */
   async deleteReport(reportId: string, organizationId: string, userId: string): Promise<void> {
     const client = await this.db.connect()
 
     try {
+      // Check if the custom_reports table exists
+      const tableCheck = await client.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'custom_reports')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        throw new Error('Custom reports feature is not yet available. The custom_reports table has not been created.')
+      }
+
       // Set RLS context
       await client.query('SET LOCAL app.current_user_org_id = $1', [organizationId])
       await client.query('SET LOCAL app.current_user_id = $2', [userId])
@@ -410,11 +438,20 @@ export class CustomReportService {
 
   /**
    * Get report by ID (JSONB-based with RLS)
+   * Returns null if custom_reports table does not exist
    */
   async getReportById(reportId: string, organizationId: string): Promise<CustomReport | null> {
     const client = await this.db.connect()
 
     try {
+      // Check if the custom_reports table exists before querying
+      const tableCheck = await client.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'custom_reports')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return null
+      }
+
       // Set RLS context
       await client.query('SET LOCAL app.current_user_org_id = $1', [organizationId])
 
@@ -439,6 +476,11 @@ export class CustomReportService {
       )
 
       return result.rows.length > 0 ? this.mapReportRow(result.rows[0]) : null
+    } catch (error) {
+      logger.warn('getReportById: returning null due to error', {
+        error: error instanceof Error ? error.message : String(error)
+      })
+      return null
     } finally {
       client.release()
     }
@@ -446,40 +488,60 @@ export class CustomReportService {
 
   /**
    * List user's reports (JSONB-based with RLS)
+   * Gracefully returns empty array if custom_reports table does not exist yet
    */
   async listReports(organizationId: string, userId: string): Promise<CustomReport[]> {
     const client = await this.db.connect()
 
     try {
+      // Check if the custom_reports table exists before querying
+      const tableCheck = await client.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'custom_reports')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return []
+      }
+
       // Set RLS context
       await client.query('SET LOCAL app.current_user_org_id = $1', [organizationId])
 
-      // Query will automatically filter by organization via RLS policy
-      const result = await client.query(
-        `SELECT
-        id,
-        organization_id,
-        created_by_user_id,
-        title,
-        description,
-        domain,
-        category,
-        definition,
-        is_template,
-        is_active,
-        version,
-        created_at,
-        updated_at
-        FROM custom_reports
-        WHERE is_active = true
-        AND (created_by_user_id = $1 OR id IN (
-          SELECT report_id FROM report_shares WHERE shared_with_user_id = $1
-        ))
-        ORDER BY domain, category, title`,
-        [userId]
+      // Check if report_shares table exists for the subquery
+      const sharesTableCheck = await client.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'report_shares')`
       )
+      const hasSharesTable = sharesTableCheck.rows[0].exists
 
+      let query: string
+      if (hasSharesTable) {
+        query = `SELECT
+          id, organization_id, created_by_user_id, title, description,
+          domain, category, definition, is_template, is_active, version,
+          created_at, updated_at
+          FROM custom_reports
+          WHERE is_active = true
+          AND (created_by_user_id = $1 OR id IN (
+            SELECT report_id FROM report_shares WHERE shared_with_user_id = $1
+          ))
+          ORDER BY domain, category, title`
+      } else {
+        query = `SELECT
+          id, organization_id, created_by_user_id, title, description,
+          domain, category, definition, is_template, is_active, version,
+          created_at, updated_at
+          FROM custom_reports
+          WHERE is_active = true
+          AND created_by_user_id = $1
+          ORDER BY domain, category, title`
+      }
+
+      const result = await client.query(query, [userId])
       return result.rows.map(row => this.mapReportRow(row))
+    } catch (error) {
+      // If the table doesn't exist or any DB error, return empty array
+      logger.warn('listReports: returning empty array due to error', {
+        error: error instanceof Error ? error.message : String(error)
+      })
+      return []
     } finally {
       client.release()
     }
@@ -487,6 +549,7 @@ export class CustomReportService {
 
   /**
    * Execute a report and return data
+   * Handles missing report_executions table gracefully
    */
   async executeReport(
     reportId: string,
@@ -502,16 +565,25 @@ export class CustomReportService {
       throw new Error('Report not found')
     }
 
-    // Create execution record
-    const executionResult = await this.db.query(
-      `INSERT INTO report_executions (
-        report_id, executed_by, format, status
-      ) VALUES ($1, $2, $3, 'running')
-      RETURNING id`,
-      [reportId, userId, format]
+    // Check if report_executions table exists
+    const tableCheck = await this.db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'report_executions')`
     )
+    const hasExecutionsTable = tableCheck.rows[0].exists
 
-    const executionId = executionResult.rows[0].id
+    let executionId = 'no-tracking'
+
+    if (hasExecutionsTable) {
+      // Create execution record
+      const executionResult = await this.db.query(
+        `INSERT INTO report_executions (
+          report_id, executed_by, format, status
+        ) VALUES ($1, $2, $3, 'running')
+        RETURNING id`,
+        [reportId, userId, format]
+      )
+      executionId = executionResult.rows[0].id
+    }
 
     try {
       // Build and execute query
@@ -534,7 +606,7 @@ export class CustomReportService {
       // Export to file
       const exportOptions: ExportOptions = {
         title: report.title,
-        columns: report.definition.columns.map(col => ({
+        columns: report.definition.columns.map((col: { field: string; label: string; type: string }) => ({
           field: col.field,
           label: col.label,
           type: col.type
@@ -553,32 +625,36 @@ export class CustomReportService {
       const fileStats = await excelExportService.getFileStats(filePath)
       const duration = Date.now() - startTime
 
-      // Update execution record
-      await this.db.query(
-        `UPDATE report_executions SET
-          status = 'completed',
-          execution_duration_ms = $1,
-          row_count = $2,
-          file_url = $3,
-          file_size_bytes = $4
-        WHERE id = $5`,
-        [duration, data.length, filePath, fileStats?.size || 0, executionId]
-      )
+      // Update execution record if table exists
+      if (hasExecutionsTable) {
+        await this.db.query(
+          `UPDATE report_executions SET
+            status = 'completed',
+            execution_duration_ms = $1,
+            row_count = $2,
+            file_url = $3,
+            file_size_bytes = $4
+          WHERE id = $5`,
+          [duration, data.length, filePath, fileStats?.size || 0, executionId]
+        )
+      }
 
       return {
         executionId,
         filePath,
         rowCount: data.length
       }
-    } catch (error: any) {
-      // Update execution record with error
-      await this.db.query(
-        `UPDATE report_executions SET
-          status = 'failed',
-          error_message = $1
-        WHERE id = $2`,
-        [error.message, executionId]
-      )
+    } catch (error: unknown) {
+      // Update execution record with error if table exists
+      if (hasExecutionsTable) {
+        await this.db.query(
+          `UPDATE report_executions SET
+            status = 'failed',
+            error_message = $1
+          WHERE id = $2`,
+          [error instanceof Error ? error.message : 'An unexpected error occurred', executionId]
+        ).catch(() => {}) // Ignore tracking errors
+      }
 
       throw error
     }
@@ -713,18 +789,20 @@ export class CustomReportService {
         params.push(filter.value, filter.value2)
         paramCount = 2
         break
-      case 'in':
+      case 'in': {
         const inPlaceholders = filter.value.map((_: any, i: number) => `$${paramIndex + i}`).join(`, `)
         sql = `${filter.field} IN (${inPlaceholders})`
         params.push(...filter.value)
         paramCount = filter.value.length
         break
-      case 'not_in':
+      }
+      case 'not_in': {
         const notInPlaceholders = filter.value.map((_: any, i: number) => `$${paramIndex + i}`).join(`, `)
         sql = `${filter.field} NOT IN (${notInPlaceholders})`
         params.push(...filter.value)
         paramCount = filter.value.length
         break
+      }
       case 'is_null':
         sql = `${filter.field} IS NULL`
         paramCount = 0
@@ -742,61 +820,99 @@ export class CustomReportService {
 
   /**
    * Get report execution history
+   * Returns empty array if report_executions or custom_reports table does not exist
    */
   async getExecutionHistory(
     reportId: string,
     tenantId: string
   ): Promise<any[]> {
-    const result = await this.db.query(
-      `SELECT re.*, u.first_name, u.last_name
-       FROM report_executions re
-       LEFT JOIN users u ON re.executed_by = u.id
-       JOIN custom_reports cr ON re.report_id = cr.id
-       WHERE re.report_id = $1 AND cr.tenant_id = $2
-       ORDER BY re.execution_time DESC
-       LIMIT 50`,
-      [reportId, tenantId]
-    )
+    try {
+      // Check if the report_executions table exists
+      const tableCheck = await this.db.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'report_executions')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return []
+      }
 
-    return result.rows
+      const result = await this.db.query(
+        `SELECT re.*, u.first_name, u.last_name
+         FROM report_executions re
+         LEFT JOIN users u ON re.executed_by = u.id
+         JOIN custom_reports cr ON re.report_id = cr.id
+         WHERE re.report_id = $1 AND cr.organization_id = $2
+         ORDER BY re.execution_time DESC
+         LIMIT 50`,
+        [reportId, tenantId]
+      )
+
+      return result.rows
+    } catch (error) {
+      logger.warn('getExecutionHistory: returning empty array due to error', {
+        error: error instanceof Error ? error.message : String(error)
+      })
+      return []
+    }
   }
 
   /**
    * Get report templates
+   * Queries the actual report_templates table schema:
+   *   id, tenant_id, title, domain, category, description, definition, is_core, popularity, last_used_at, created_at, updated_at
+   * Maps to the frontend-expected format: { id, template_name, description, category, config }
    */
   async getTemplates(tenantId?: string): Promise<any[]> {
-    let query = `SELECT 
-      id,
-      tenant_id,
-      template_name,
-      description,
-      category,
-      preview_image,
-      config,
-      is_system_template,
-      usage_count,
-      created_by,
-      created_at,
-      updated_at FROM report_templates WHERE is_system_template = true`
-    const params: any[] = []
+    try {
+      let query = `SELECT
+        id,
+        tenant_id,
+        title,
+        domain,
+        category,
+        description,
+        definition,
+        is_core,
+        popularity,
+        last_used_at,
+        created_at,
+        updated_at FROM report_templates WHERE is_core = true`
+      const params: any[] = []
 
-    if (tenantId) {
-      query += ' OR tenant_id = $1'
-      params.push(tenantId)
+      if (tenantId) {
+        query += ' OR tenant_id = $1'
+        params.push(tenantId)
+      }
+
+      query += ' ORDER BY category, title'
+
+      const result = await this.db.query(query, params)
+
+      // Map to frontend-expected format
+      return result.rows.map(row => ({
+        id: row.id,
+        tenant_id: row.tenant_id,
+        template_name: row.title,
+        description: row.description,
+        category: row.category,
+        preview_image: null,
+        config: row.definition,
+        is_system_template: row.is_core,
+        usage_count: row.popularity,
+        created_by: null,
+        created_at: row.created_at,
+        updated_at: row.updated_at
+      }))
+    } catch (error) {
+      logger.warn('getTemplates: returning empty array due to error', {
+        error: error instanceof Error ? error.message : String(error)
+      })
+      return []
     }
-
-    query += ' ORDER BY category, template_name'
-
-    const result = await this.db.query(query, params)
-
-    return result.rows.map(row => ({
-      ...row,
-      config: row.config
-    }))
   }
 
   /**
    * Create report from template
+   * Uses actual report_templates column names: title, definition (not template_name, config)
    */
   async createFromTemplate(
     templateId: string,
@@ -805,19 +921,10 @@ export class CustomReportService {
     reportName: string
   ): Promise<CustomReport> {
     const template = await this.db.query(
-      `SELECT 
-      id,
-      tenant_id,
-      template_name,
-      description,
-      category,
-      preview_image,
-      config,
-      is_system_template,
-      usage_count,
-      created_by,
-      created_at,
-      updated_at FROM report_templates WHERE id = $1`,
+      `SELECT
+      id, tenant_id, title, domain, category, description,
+      definition, is_core, popularity, last_used_at, created_at, updated_at
+      FROM report_templates WHERE id = $1`,
       [templateId]
     )
 
@@ -825,34 +932,37 @@ export class CustomReportService {
       throw new Error('Template not found')
     }
 
-    const config = template.rows[0].config
+    const definition = template.rows[0].definition
 
     return this.createReport(tenantId, userId, {
       title: reportName,
       description: template.rows[0].description,
-      // @ts-expect-error - Build compatibility fix
-      data_sources: config.data_sources,
-      columns: config.columns,
-      filters: config.filters || [],
-      grouping: config.grouping || [],
-      sorting: config.sorting || [],
-      joins: config.joins || [],
-      aggregations: config.aggregations || [],
-      is_public: false,
+      domain: template.rows[0].domain,
+      category: template.rows[0].category,
+      definition: definition,
       is_template: false
     })
   }
 
   /**
    * Send report via email
+   * Handles missing report_executions table gracefully
    */
   async sendReportEmail(
     executionId: string,
     recipients: string[],
     reportName: string
   ): Promise<void> {
+    // Check if report_executions table exists
+    const tableCheck = await this.db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'report_executions')`
+    )
+    if (!tableCheck.rows[0].exists) {
+      throw new Error('Report executions feature is not yet available.')
+    }
+
     const execution = await this.db.query(
-      `SELECT 
+      `SELECT
       id,
       report_id,
       schedule_id,
@@ -876,7 +986,7 @@ export class CustomReportService {
     const filePath = execution.rows[0].file_url
 
     if (!process.env.SMTP_HOST) {
-      console.warn('SMTP not configured. Skipping email send.')
+      logger.warn('SMTP not configured. Skipping email send.')
       return
     }
 

@@ -43,9 +43,13 @@ export interface MockLogger {
  * Creates a mock Pool instance with common methods
  */
 export function createMockPool(): MockPool {
+  const mockClient: MockPoolClient = {
+    query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0, command: 'SELECT', oid: 0, fields: [] }),
+    release: vi.fn(),
+  };
   return {
-    connect: vi.fn(),
-    query: vi.fn(),
+    connect: vi.fn().mockResolvedValue(mockClient),
+    query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0, command: 'SELECT', oid: 0, fields: [] }),
     end: vi.fn(),
   };
 }
@@ -55,7 +59,7 @@ export function createMockPool(): MockPool {
  */
 export function createMockPoolClient(): MockPoolClient {
   return {
-    query: vi.fn(),
+    query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0, command: 'SELECT', oid: 0, fields: [] }),
     release: vi.fn(),
   };
 }
@@ -65,7 +69,7 @@ export function createMockPoolClient(): MockPoolClient {
  */
 export function createMockDatabase(): MockDatabase {
   return {
-    query: vi.fn(),
+    query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0, command: 'SELECT', oid: 0, fields: [] }),
     transaction: vi.fn(),
   };
 }

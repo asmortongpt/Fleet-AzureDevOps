@@ -19,9 +19,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { useAuth } from "@/hooks/useAuth"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { useAuth } from "@/hooks/useAuth"
 import { MileageReimbursement as MileageReimbursementType } from "@/lib/types"
+import { formatCurrency } from "@/utils/format-helpers"
 
 
 const REIMBURSEMENT_RATE = 0.655
@@ -136,7 +137,7 @@ export function MileageReimbursement() {
               </div>
               <p className="text-sm font-medium text-muted-foreground">Submitted</p>
             </div>
-            <p className="text-sm font-semibold metric-number">${(totalSubmitted ?? 0).toFixed(2)}</p>
+            <p className="text-sm font-semibold metric-number">{formatCurrency(totalSubmitted ?? 0)}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {requests.filter(r => r.status === "submitted").length} requests
             </p>
@@ -151,7 +152,7 @@ export function MileageReimbursement() {
               </div>
               <p className="text-sm font-medium text-muted-foreground">Approved</p>
             </div>
-            <p className="text-sm font-semibold metric-number">${(totalApproved ?? 0).toFixed(2)}</p>
+            <p className="text-sm font-semibold metric-number">{formatCurrency(totalApproved ?? 0)}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {requests.filter(r => r.status === "approved").length} requests
             </p>
@@ -166,7 +167,7 @@ export function MileageReimbursement() {
               </div>
               <p className="text-sm font-medium text-muted-foreground">Paid</p>
             </div>
-            <p className="text-sm font-semibold metric-number">${(totalPaid ?? 0).toFixed(2)}</p>
+            <p className="text-sm font-semibold metric-number">{formatCurrency(totalPaid ?? 0)}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {requests.filter(r => r.status === "paid").length} requests
             </p>
@@ -278,7 +279,7 @@ export function MileageReimbursement() {
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">Estimated Reimbursement:</p>
                   <p className="text-sm font-semibold metric-number">
-                    ${((parseFloat(miles) || 0) * REIMBURSEMENT_RATE).toFixed(2)}
+                    {formatCurrency((parseFloat(miles) || 0) * REIMBURSEMENT_RATE)}
                   </p>
                 </div>
               </div>
@@ -340,7 +341,7 @@ export function MileageReimbursement() {
                     </div>
                   </div>
                   <div className="text-right space-y-2">
-                    <p className="text-base font-semibold metric-number">${(request?.amount ?? 0).toFixed(2)}</p>
+                    <p className="text-base font-semibold metric-number">{formatCurrency(request?.amount ?? 0)}</p>
                     <Badge variant="outline" className={getStatusColor(request.status)}>
                       {request.status}
                     </Badge>

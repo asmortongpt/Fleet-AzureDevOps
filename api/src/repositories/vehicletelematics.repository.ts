@@ -27,8 +27,8 @@ export class VehicleTelematicsRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, [tenantId]);
       return result.rows;
-    } catch (error: any) {
-      throw new Error(`Failed to fetch vehicle telematics data: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Failed to fetch vehicle telematics data: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -37,8 +37,8 @@ export class VehicleTelematicsRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error: any) {
-      throw new Error(`Failed to fetch vehicle telematics data by ID: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Failed to fetch vehicle telematics data by ID: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -48,8 +48,8 @@ export class VehicleTelematicsRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, values);
       return result.rows[0];
-    } catch (error: any) {
-      throw new Error(`Failed to create vehicle telematics data: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Failed to create vehicle telematics data: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -60,8 +60,8 @@ export class VehicleTelematicsRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, values);
       return result.rows[0] || null;
-    } catch (error: any) {
-      throw new Error(`Failed to update vehicle telematics data: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Failed to update vehicle telematics data: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -70,8 +70,8 @@ export class VehicleTelematicsRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error: any) {
-      throw new Error(`Failed to soft delete vehicle telematics data: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Failed to soft delete vehicle telematics data: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 }

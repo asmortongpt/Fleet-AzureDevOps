@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import { pool } from '../db/connection'
 import { NotFoundError } from '../errors/app-error'
@@ -6,7 +7,22 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const chargingStationSchema = z.object({
+  name: z.string().min(1).max(200),
+  location: z.string().max(500).optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
+  status: z.enum(['active', 'inactive', 'maintenance', 'offline']).optional(),
+  connector_type: z.string().max(100).optional(),
+  power_output_kw: z.number().min(0).max(1000).optional(),
+  network_provider: z.string().max(200).optional(),
+  cost_per_kwh: z.number().min(0).optional(),
+  max_vehicles: z.number().int().min(1).max(100).optional(),
+  notes: z.string().max(2000).optional()
+}).passthrough()
 
 
 const router = express.Router()
@@ -65,7 +81,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get charging-stations error:`, error)
+      logger.error(`Get charging-stations error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -110,7 +126,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get charging-stations error:', error)
+      logger.error('Get charging-stations error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -119,11 +135,15 @@ router.get(
 // POST /charging-stations
 router.post(
   '/',
-  csrfProtection, csrfProtection, requirePermission('charging_station:create:fleet'),
+  csrfProtection, requirePermission('charging_station:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = chargingStationSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
         [`tenant_id`],
@@ -137,7 +157,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create charging-stations error:`, error)
+      logger.error(`Create charging-stations error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -150,7 +170,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = chargingStationSchema.partial().safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
@@ -164,7 +188,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update charging-stations error:`, error)
+      logger.error(`Update charging-stations error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -173,7 +197,7 @@ router.put(
 // DELETE /charging-stations/:id
 router.delete(
   '/:id',
-  csrfProtection, csrfProtection, requirePermission('charging_station:delete:fleet'),
+  csrfProtection, requirePermission('charging_station:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -186,9 +210,9 @@ router.delete(
         throw new NotFoundError("ChargingStations not found")
       }
 
-      res.json({ message: 'ChargingStations deleted successfully' })
+      res.json({ success: true, message: 'ChargingStations deleted successfully' })
     } catch (error) {
-      console.error('Delete charging-stations error:', error)
+      logger.error('Delete charging-stations error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

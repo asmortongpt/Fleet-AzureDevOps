@@ -14,7 +14,7 @@ export interface FraudDetection {
   updated_at: Date;
 }
 
-export class FraudDetectionRepository extends BaseRepository<any> {
+export class FraudDetectionRepository extends BaseRepository<FraudDetection> {
 
 
   constructor(pool: Pool) {
@@ -57,11 +57,11 @@ export class FraudDetectionRepository extends BaseRepository<any> {
     // Handle array serialization if reasons is updated
     const values = [id, tenantId];
     for (const key of Object.keys(data)) {
-      let val = (data as any)[key];
+      let val = (data as Record<string, unknown>)[key];
       if (key === 'reasons' && Array.isArray(val)) {
         val = JSON.stringify(val);
       }
-      values.push(val);
+      values.push(val as number);
     }
 
     const query = `UPDATE fraud_detection SET ${setClause}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`;

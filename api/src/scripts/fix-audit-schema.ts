@@ -38,7 +38,7 @@ async function fixAuditSchema() {
         // 3. Fix Admin Password
         console.log('🔐 Fixing admin password hash...');
         const email = 'admin@fleet.local';
-        const password = 'Fleet@2026';
+        const password = process.env.ADMIN_PASSWORD || 'Fleet@2026';
 
         // Hash password using FIPS service
         const passwordHash = await FIPSCryptoService.hashPassword(password);
@@ -80,4 +80,4 @@ async function fixAuditSchema() {
     }
 }
 
-fixAuditSchema();
+void fixAuditSchema();

@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { Request, Response, NextFunction } from 'express'
 
 import telemetryService from '../monitoring/applicationInsights'
+import { logger } from '../utils/logger'
 import { sanitizeForLog } from '../utils/logSanitizer'
 
 /**
@@ -47,7 +48,7 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
   req.telemetry = {
     startTime: Date.now(),
     correlationId: crypto.randomUUID(),
-    userId: (req as any).user?.id
+    userId: req.user?.id ? String(req.user.id) : undefined
   }
 
   // Track request start
@@ -67,7 +68,7 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
   // SECURITY FIX (P0): Sanitize request details to prevent log injection (CWE-117)
   // Fingerprint: d8e4f2a7c9b3d6e8
   if (process.env.NODE_ENV === 'development') {
-    console.log('📊 Request started', {
+    logger.info('📊 Request started', {
       correlationId: req.telemetry.correlationId,
       method: req.method,
       path: sanitizeForLog(req.path, 100)
@@ -75,7 +76,7 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
   }
 
   // Override res.end to capture response metrics
-  const originalEnd = res.end
+  const originalEnd = res.end.bind(res)
   res.end = function(...args: any[]): Response {
     // Calculate request duration
     const duration = Date.now() - req.telemetry!.startTime
@@ -134,11 +135,11 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
                          res.statusCode >= 400 ? '⚠️' :
                          res.statusCode >= 300 ? '↪️' :
                          '✅'
-      console.log(`${statusEmoji} [${req.telemetry!.correlationId}] ${res.statusCode} in ${duration}ms`)
+      logger.info(`${statusEmoji} [${req.telemetry!.correlationId}] ${res.statusCode} in ${duration}ms`)
     }
 
     // Call original end
-    return originalEnd.apply(res, args)
+    return originalEnd(...args as unknown as [chunk: unknown, encoding: BufferEncoding, cb?: () => void])
   }
 
   next()
@@ -241,7 +242,7 @@ export function errorTelemetryMiddleware(err: Error, req: Request, res: Response
     method: req.method,
     path: req.path,
     statusCode: res.statusCode || 500,
-    userId: (req as any).user?.id,
+    userId: req.user?.id ? String(req.user.id) : undefined,
     correlationId: (req as TelemetryRequest).telemetry?.correlationId
   })
 

@@ -18,6 +18,8 @@ import ragEngineService from '../services/rag-engine.service'
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
@@ -83,7 +85,7 @@ router.get(
       action_at,
       expires_at,
       created_at FROM cognition_insights WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
+      const params: any[] = [req.user!.tenant_id ?? '']
       let paramCount = 1
 
       if (severity) {
@@ -112,7 +114,7 @@ router.get(
         insights: result.rows,
         count: result.rows.length
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({ error: `Failed to retrieve insights`, message: getErrorMessage(error) })
     }
   }
@@ -135,14 +137,14 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'ai_insights' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const insights = await fleetCognitionService.generateFleetInsights(req.user!.tenant_id)
+      const insights = await fleetCognitionService.generateFleetInsights(req.user!.tenant_id ?? '')
 
       res.json({
         insights,
         count: insights.length,
         generated_at: new Date().toISOString()
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to generate insights', message: getErrorMessage(error) })
     }
   }
@@ -165,9 +167,9 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'ai_insights' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const healthScore = await fleetCognitionService.getFleetHealthScore(req.user!.tenant_id)
+      const healthScore = await fleetCognitionService.getFleetHealthScore(req.user!.tenant_id ?? '')
       res.json(healthScore)
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to calculate health score', message: getErrorMessage(error) })
     }
   }
@@ -190,10 +192,10 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'ai_insights' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const context = (req.query.context as any) || 'all'
+      const context = (req.query.context as string | undefined) || 'all'
       const recommendations = await fleetCognitionService.getRecommendations(
-        req.user!.tenant_id,
-        context
+        req.user!.tenant_id ?? '',
+        context as 'all' | 'maintenance' | 'safety' | 'cost' | 'efficiency'
       )
 
       res.json({
@@ -201,7 +203,7 @@ router.get(
         context,
         count: recommendations.length
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to get recommendations', message: getErrorMessage(error) })
     }
   }
@@ -229,14 +231,14 @@ router.get(
          WHERE tenant_id = $1 AND is_monitored = true
          ORDER BY occurrence_count DESC, last_detected_at DESC
          LIMIT 50`,
-        [req.user!.tenant_id]
+        [req.user!.tenant_id ?? '']
       )
 
       res.json({
         patterns: result.rows,
         count: result.rows.length
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({ error: `Failed to retrieve patterns`, message: getErrorMessage(error) })
     }
   }
@@ -262,7 +264,7 @@ router.get(
       const { resolved, severity } = req.query
 
       let query = `SELECT id, tenant_id, anomaly_type, entity_type, entity_id, metric_name, expected_value, actual_value, deviation_score, severity, description, detection_method, model_id, root_cause_analysis, recommended_action, is_false_positive, is_resolved, resolved_by, resolved_at, resolution_notes, detected_at, created_at FROM anomalies WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
+      const params: any[] = [req.user!.tenant_id ?? '']
       let paramCount = 1
 
       if (resolved !== undefined) {
@@ -285,7 +287,7 @@ router.get(
         anomalies: result.rows,
         count: result.rows.length
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({ error: `Failed to retrieve anomalies`, message: getErrorMessage(error) })
     }
   }
@@ -296,7 +298,7 @@ router.get(
 // ============================================================================
 
 const MaintenancePredictionSchema = z.object({
-  vehicle_id: z.string().uuid()
+  vehicle_id: flexUuid
 })
 
 /**
@@ -318,13 +320,13 @@ router.post(
       const { vehicle_id } = MaintenancePredictionSchema.parse(req.body)
 
       const prediction = await mlDecisionEngineService.predictMaintenance(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         vehicle_id
       )
 
       res.json(prediction)
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) })
@@ -333,7 +335,7 @@ router.post(
 )
 
 const DriverBehaviorScoreSchema = z.object({
-  driver_id: z.string().uuid(),
+  driver_id: flexUuid,
   period: z.enum(['7d', '30d', '90d']).optional().default('30d')
 })
 
@@ -356,14 +358,14 @@ router.post(
       const { driver_id, period } = DriverBehaviorScoreSchema.parse(req.body)
 
       const score = await mlDecisionEngineService.scoreDriverBehavior(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         driver_id,
         period
       )
 
       res.json(score)
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'Scoring failed', message: getErrorMessage(error) })
@@ -395,14 +397,14 @@ router.post(
       const { entity_type, entity_id } = IncidentRiskSchema.parse(req.body)
 
       const prediction = await mlDecisionEngineService.predictIncidentRisk(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         entity_type,
         entity_id
       )
 
       res.json(prediction)
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) })
@@ -433,13 +435,13 @@ router.post(
       const { forecast_period } = CostForecastSchema.parse(req.body)
 
       const forecast = await mlDecisionEngineService.forecastCosts(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         forecast_period
       )
 
       res.json(forecast)
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'Forecasting failed', message: getErrorMessage(error) })
@@ -467,13 +469,13 @@ router.put(
 
       await mlDecisionEngineService.recordActualOutcome(
         req.params.id,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         actual_outcome,
         req.user!.id
       )
 
-      res.json({ message: 'Outcome recorded successfully' })
-    } catch (error: any) {
+      res.json({ success: true, message: 'Outcome recorded successfully' })
+    } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to record outcome', message: getErrorMessage(error) })
     }
   }
@@ -510,14 +512,14 @@ router.post(
       const queryData = RAGQuerySchema.parse(req.body)
 
       const response = await ragEngineService.query(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         queryData
       )
 
       res.json(response)
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'RAG query failed', message: getErrorMessage(error) })
@@ -552,14 +554,14 @@ router.post(
     try {
       const document = IndexDocumentSchema.parse(req.body)
 
-      const result = await ragEngineService.indexDocument(req.user!.tenant_id, document)
+      const result = await ragEngineService.indexDocument(req.user!.tenant_id ?? '', document)
 
       res.json({
         message: 'Document indexed successfully',
         ...result
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'Indexing failed', message: getErrorMessage(error) })
@@ -587,13 +589,13 @@ router.post(
 
       await ragEngineService.provideFeedback(
         query_id,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         was_helpful,
         feedback
       )
 
-      res.json({ message: 'Feedback recorded' })
-    } catch (error: any) {
+      res.json({ success: true, message: 'Feedback recorded' })
+    } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) })
     }
   }
@@ -615,9 +617,9 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'rag_stats' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const stats = await ragEngineService.getStatistics(req.user!.tenant_id)
+      const stats = await ragEngineService.getStatistics(req.user!.tenant_id ?? '')
       res.json(stats)
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to retrieve stats', message: getErrorMessage(error) })
     }
   }
@@ -646,7 +648,7 @@ router.get(
       const { model_type, is_active } = req.query
 
       let query = `SELECT id, tenant_id, model_name, model_type, version, algorithm, framework, hyperparameters, feature_importance, training_data_size, training_duration_seconds, model_artifacts_url, model_binary, status, is_active, deployed_at, created_by, created_at, updated_at FROM ml_models WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
+      const params: any[] = [req.user!.tenant_id ?? '']
       let paramCount = 1
 
       if (model_type) {
@@ -669,7 +671,7 @@ router.get(
         models: result.rows,
         count: result.rows.length
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({ error: `Failed to retrieve models`, message: getErrorMessage(error) })
     }
   }
@@ -693,14 +695,14 @@ router.get(
     try {
       const performance = await mlTrainingService.getModelPerformanceHistory(
         req.params.id,
-        req.user!.tenant_id
+        req.user!.tenant_id ?? ''
       )
 
       res.json({
         model_id: req.params.id,
         performance_history: performance
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to retrieve performance', message: getErrorMessage(error) })
     }
   }
@@ -722,10 +724,10 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'ml_model' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      await mlTrainingService.deployModel(req.params.id, req.user!.tenant_id, req.user!.id)
+      await mlTrainingService.deployModel(req.params.id, req.user!.tenant_id ?? '', req.user!.id)
 
-      res.json({ message: 'Model deployed successfully' })
-    } catch (error: any) {
+      res.json({ success: true, message: 'Model deployed successfully' })
+    } catch (error: unknown) {
       res.status(500).json({ error: 'Deployment failed', message: getErrorMessage(error) })
     }
   }
@@ -752,14 +754,14 @@ router.get(
          WHERE tenant_id = $1
          ORDER BY created_at DESC
          LIMIT 50`,
-        [req.user!.tenant_id]
+        [req.user!.tenant_id ?? '']
       )
 
       res.json({
         jobs: result.rows,
         count: result.rows.length
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({ error: `Failed to retrieve jobs`, message: getErrorMessage(error) })
     }
   }

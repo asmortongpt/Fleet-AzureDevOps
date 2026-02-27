@@ -21,15 +21,15 @@ const safeLog = (
   message: string,
   meta: Record<string, unknown>
 ) => {
-  const logger: any = securityLogger as any
+  const logger = securityLogger as unknown as Record<string, unknown>
   const logFn =
-    (logger && (logger[level] as any)) ||
-    (logger && (logger.incident as any)) ||
-    (logger && (logger.warn as any)) ||
+    (logger && (logger[level])) ||
+    (logger && (logger.incident)) ||
+    (logger && (logger.warn)) ||
     null
 
   if (typeof logFn === 'function') {
-    logFn.call(logger, message, meta)
+    (logFn as (message: string, meta: Record<string, unknown>) => void).call(logger, message, meta)
   }
 }
 
@@ -38,7 +38,7 @@ const safeLog = (
  */
 const DANGEROUS_PATTERNS = {
   // XSS patterns
-  script: /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+  script: /<script\b[\s\S]*?<\/script>/gi,
   onEvent: /\son\w+\s*=\s*["'][^"']*["']/gi,
   javascript: /javascript:/gi,
 
@@ -46,8 +46,8 @@ const DANGEROUS_PATTERNS = {
   noSqlOperators: /(\$where|\$ne|\$gt|\$lt|\$gte|\$lte|\$in|\$nin|\$regex)/gi,
 
   // Path traversal
-  pathTraversal: /\.\.[\/\\]/g,
-  absolutePath: /^[\/\\]|^[a-zA-Z]:[\/\\]/,
+  pathTraversal: /\.\.[/\\]/g,
+  absolutePath: /^[/\\]|^[a-zA-Z]:[/\\]/,
 
   // Command injection
   commandChars: /[;&|`$()]/g,
@@ -251,7 +251,7 @@ function sanitizeString(value: string, config: SanitizationConfig, fieldName?: s
 /**
  * Sanitize any value recursively
  */
-function sanitizeValue(value: any, config: SanitizationConfig, fieldName?: string): any {
+function sanitizeValue(value: unknown, config: SanitizationConfig, fieldName?: string): unknown {
   if (typeof value === `string`) {
     // Skip if in skip fields
     if (fieldName && config.skipFields?.includes(fieldName)) {
@@ -262,15 +262,15 @@ function sanitizeValue(value: any, config: SanitizationConfig, fieldName?: strin
   }
 
   if (Array.isArray(value)) {
-    return value.map((item, index) =>
+    return value.map((item: unknown, index: number) =>
       sanitizeValue(item, config, `${fieldName}[${index}]`)
     )
   }
 
-  if (value && typeof value === `object` && value.constructor === Object) {
-    const sanitized: any = {}
+  if (value && typeof value === `object` && (value).constructor === Object) {
+    const sanitized: Record<string, unknown> = {}
 
-    for (const [key, val] of Object.entries(value)) {
+    for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
       const newFieldName = fieldName ? `${fieldName}.${key}` : key
 
       // Sanitize the key itself
@@ -319,12 +319,12 @@ export function sanitizeRequest(config: SanitizationConfig = {}) {
 
       // Sanitize query parameters
       if (req.query) {
-        req.query = sanitizeValue(req.query, fullConfig, 'query')
+        req.query = sanitizeValue(req.query, fullConfig, 'query') as typeof req.query
       }
 
       // Sanitize URL parameters
       if (req.params) {
-        req.params = sanitizeValue(req.params, fullConfig, 'params')
+        req.params = sanitizeValue(req.params, fullConfig, 'params') as typeof req.params
       }
 
       next()
@@ -378,11 +378,11 @@ export function sanitizeFields(...fields: string[]) {
       }
 
       if (req.query && req.query[field] !== undefined) {
-        req.query[field] = sanitizeValue(req.query[field], config, field)
+        (req.query as Record<string, unknown>)[field] = sanitizeValue(req.query[field], config, field)
       }
 
       if (req.params && req.params[field] !== undefined) {
-        req.params[field] = sanitizeValue(req.params[field], config, field)
+        (req.params as Record<string, string>)[field] = sanitizeValue(req.params[field], config, field) as string
       }
     }
 
@@ -397,7 +397,7 @@ export const sanitizationUtils = {
   /**
    * Manually sanitize a value
    */
-  sanitize: (value: any, config?: SanitizationConfig) =>
+  sanitize: (value: unknown, config?: SanitizationConfig) =>
     sanitizeValue(value, { ...DEFAULT_CONFIG, ...config }),
 
   /**

@@ -10,7 +10,8 @@ import { setTenantContext } from '../middleware/tenant-context';
 import { QueryContext } from '../repositories/BaseRepository';
 import { PersonalUsePoliciesRepository } from '../repositories/PersonalUsePoliciesRepository';
 import { TYPES } from '../types';
-import { ApprovalWorkflow, DriverUsageLimits } from '../types/trip-usage';
+import { ApprovalWorkflow, DriverUsageLimits, PaymentMethod } from '../types/trip-usage';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 router.use(authenticateJWT);
@@ -20,13 +21,15 @@ router.use(setTenantContext);
 const repository = container.get<PersonalUsePoliciesRepository>(TYPES.PersonalUsePoliciesRepository);
 
 function getTenantId(req: AuthRequest): string {
-  const tenantId = (req.user as any)?.tenant_id || (req.user as any)?.tenantId || (req as any)?.tenantId;
-  if (!tenantId || typeof tenantId !== 'string') return '';
+  const tenantId = req.user?.tenant_id || req.user?.tenantId || req.tenantId;
+  if (!tenantId || typeof tenantId !== 'string') {
+return '';
+}
   return tenantId;
 }
 
 function requireTenantDbClient(req: AuthRequest) {
-  const client = (req as any).dbClient;
+  const client = req.dbClient;
   if (!client) {
     // setTenantContext should always attach a tenant-scoped transaction client.
     // If it's missing, we must fail closed to avoid RLS casting errors on pooled connections.
@@ -69,57 +72,57 @@ const createPolicySchema = z.object({
 router.get(
   '/',
   requirePermission('policy:view:global'),
-	async (req: AuthRequest, res: Response) => {
-	    try {
-	      const tenantId = getTenantId(req);
-	      if (!tenantId) {
-	        return res.status(403).json({ error: 'Invalid authentication token', code: 'MISSING_TENANT_ID' });
-	      }
-	      const client = requireTenantDbClient(req);
-	      const result = await client.query(
-	        `SELECT *
-	         FROM personal_use_policies
-	         WHERE tenant_id = $1 AND is_active = true
-	         ORDER BY effective_date DESC NULLS LAST, created_at DESC
-	         LIMIT 1`,
-	        [tenantId]
-	      );
-	      const policy = result.rows[0] || null;
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return res.status(403).json({ error: 'Invalid authentication token', code: 'MISSING_TENANT_ID' });
+      }
+      const client = requireTenantDbClient(req);
+      const result = await client.query(
+        `SELECT *
+         FROM personal_use_policies
+         WHERE tenant_id = $1 AND is_active = true
+         ORDER BY effective_date DESC NULLS LAST, created_at DESC
+         LIMIT 1`,
+        [tenantId]
+      );
+      const policy = result.rows[0] || null;
 
-	      if (!policy) {
-	        // Return default policy if none exists
-	        return res.json({
-	          success: true,
-	          data: {
-	            tenant_id: tenantId,
-	            allow_personal_use: false,
-	            require_approval: true,
-	            charge_personal_use: false,
-	            reporting_required: true,
-	            approval_workflow: ApprovalWorkflow.MANAGER,
-	            notification_settings: {
-	              notify_at_percentage: 80,
-	              notify_manager_on_exceed: true,
-	              notify_driver_on_limit: true,
-	              email_notifications: true
-	            },
-	            effective_date: new Date().toISOString().split('T')[0],
-	            is_default: true
-	          },
-	          message: 'No policy configured - using defaults. Create a policy to customize.'
-	        });
-	      }
+      if (!policy) {
+        // Return default policy if none exists
+        return res.json({
+          success: true,
+          data: {
+            tenant_id: tenantId,
+            allow_personal_use: false,
+            require_approval: true,
+            charge_personal_use: false,
+            reporting_required: true,
+            approval_workflow: ApprovalWorkflow.MANAGER,
+            notification_settings: {
+              notify_at_percentage: 80,
+              notify_manager_on_exceed: true,
+              notify_driver_on_limit: true,
+              email_notifications: true
+            },
+            effective_date: new Date().toISOString().split('T')[0],
+            is_default: true
+          },
+          message: 'No policy configured - using defaults. Create a policy to customize.'
+        });
+      }
 
-	      res.json({
-	        success: true,
-	        data: policy
-	      });
-	    } catch (error: any) {
-	      console.error('Get policy error:', error);
-	      res.status(500).json({ error: 'Failed to retrieve personal use policy' });
-	    }
-	  }
-	);
+      res.json({
+        success: true,
+        data: policy
+      });
+    } catch (error: unknown) {
+      logger.error('Get policy error:', error);
+      res.status(500).json({ error: 'Failed to retrieve personal use policy' });
+    }
+  }
+);
 
 /**
  * PUT /api/personal-use-policies/:tenant_id
@@ -183,8 +186,8 @@ router.put(
           ? 'Personal use policy updated successfully'
           : 'Personal use policy created successfully'
       });
-    } catch (error: any) {
-      console.error('Update policy error:', error);
+    } catch (error: unknown) {
+      logger.error('Update policy error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.issues });
       }
@@ -263,7 +266,7 @@ router.get(
           allow_personal_use: policy?.allow_personal_use ?? false,
           require_approval: policy?.require_approval ?? true,
           charge_personal_use: policy?.charge_personal_use ?? false,
-          payment_method: (policy?.payment_method as any) || 'payroll_deduction'
+          payment_method: (policy?.payment_method || 'payroll_deduction') as PaymentMethod
         }
       };
 
@@ -296,8 +299,8 @@ router.get(
         success: true,
         data: response
       });
-    } catch (error: any) {
-      console.error('Get usage limits error:', error);
+    } catch (error: unknown) {
+      logger.error('Get usage limits error:', error);
       res.status(500).json({ error: 'Failed to calculate usage limits' });
     }
   }
@@ -317,7 +320,7 @@ router.get(
 
       const context: QueryContext = {
         userId: req.user!.id,
-        tenantId: req.user!.tenant_id
+        tenantId: req.user!.tenant_id ?? ''
       };
 
       // Get policy
@@ -350,8 +353,8 @@ router.get(
           monthly_limit: policy.max_personal_miles_per_month
         }
       });
-    } catch (error: any) {
-      console.error('Get drivers at limit error:', error);
+    } catch (error: unknown) {
+      logger.error('Get drivers at limit error:', error);
       res.status(500).json({ error: 'Failed to retrieve drivers at limit' });
     }
   }

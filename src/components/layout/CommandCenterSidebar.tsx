@@ -5,8 +5,8 @@ import {
     ChevronRight
 } from 'lucide-react';
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 
+import { CTAFleetLogo } from '@/components/branding';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useNavigation } from '@/contexts/NavigationContext';
@@ -19,7 +19,6 @@ interface CommandCenterSidebarProps {
 }
 
 export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNavigate }: CommandCenterSidebarProps) {
-    const navigate = useNavigate();
     const { activeModule, navigateTo, visibleNavItems } = useNavigation();
 
     // Group items by section for better organization
@@ -44,35 +43,41 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 variant="ghost"
                 onClick={handleClick}
                 className={cn(
-                    "w-full justify-start h-10 rounded-lg transition-all duration-200 group/navbtn relative overflow-hidden",
+                    "w-full justify-start h-11 rounded-lg transition-all duration-200 group/navbtn relative overflow-hidden font-semibold",
                     isSidebarOpen ? "px-3 gap-3" : "px-0 justify-center",
                     isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary"
+                        ? "bg-white/10 text-white border-l-4 border-l-white"
+                        : "text-white/40 hover:text-white hover:bg-white/[0.04]"
                 )}
                 style={{ animationDelay: `${index * 30}ms` }}
                 aria-label={item.label}
                 aria-current={isActive ? "page" : undefined}
             >
-                {/* Active indicator */}
+                {/* Active indicator with gradient */}
                 <div className={cn(
-                    "absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-3 rounded-r-full bg-primary transition-all duration-200",
+                    "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full transition-all duration-200",
                     isActive ? "opacity-100" : "opacity-0"
-                )} />
+                )}
+                style={{
+                    background: isActive ? '#ffffff' : 'transparent',
+                }}
+                />
 
                 <div className={cn(
-                    "w-4 h-4 flex items-center justify-center shrink-0 transition-colors duration-200",
-                    isActive ? "text-primary" : "text-minimalist-secondary group-hover/navbtn:text-foreground"
-                )}>
+                    "w-5 h-5 flex items-center justify-center shrink-0 transition-all duration-200 nav-icon"
+                )}
+                style={{
+                    color: isActive ? '#ffffff' : 'inherit',
+                }}>
                     {item.icon}
                 </div>
                 {isSidebarOpen && (
                     <>
-                        <span className="font-medium text-sm truncate flex-1 text-left">{item.label}</span>
+                        <span className="font-semibold text-sm truncate flex-1 text-left">{item.label}</span>
                         <ChevronRight className={cn(
-                            "w-3.5 h-3.5 opacity-0 -translate-x-1 transition-all duration-200",
+                            "w-4 h-4 opacity-0 -translate-x-1 transition-all duration-200",
                             "group-hover/navbtn:opacity-50 group-hover/navbtn:translate-x-0",
-                            isActive && "opacity-30"
+                            isActive && "opacity-50"
                         )} />
                     </>
                 )}
@@ -107,7 +112,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 {isSidebarOpen && (
                     <h3 className={cn(
                         "px-3 py-1.5 text-xs font-bold uppercase tracking-wider",
-                        accentColor === "primary" ? "text-primary/80" : "text-minimalist-tertiary"
+                        accentColor === "primary" ? "text-white/60" : "text-white/35"
                     )}>
                         {title}
                     </h3>
@@ -124,27 +129,19 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             <div
                 aria-label="Application sidebar"
                 className={cn(
-                    "z-20 flex flex-col h-full backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-r border-white/20 dark:border-slate-800/20 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-pro",
+                    "z-20 flex flex-col h-full bg-[#0e0e0e] border-r border-white/[0.04] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
                     isSidebarOpen ? "w-56" : "w-16"
                 )}
             >
                 {/* Logo Area */}
-                <div className="h-14 flex items-center justify-between px-4 border-b border-minimalist-subtle shrink-0">
-                    <div className="flex items-center gap-2 min-w-0">
-                        {isSidebarOpen ? (
-                            <img
-                                src="/logos/logo-horizontal.svg"
-                                alt="Fleet Management"
-                                className="h-7 w-auto object-contain"
-                            />
-                        ) : (
-                            <img
-                                src="/logos/logo-horizontal.svg"
-                                alt="Fleet Management"
-                                className="h-8 w-8 object-contain"
-                            />
-                        )}
-                    </div>
+                <div className="h-14 flex items-center justify-between px-4 border-b border-white/[0.04] shrink-0">
+                    {isSidebarOpen ? (
+                        <CTAFleetLogo variant="full" showAnimation />
+                    ) : (
+                        <div className="flex justify-center w-full">
+                            <CTAFleetLogo variant="compact" />
+                        </div>
+                    )}
                 </div>
 
                 {/* Nav Links */}
@@ -156,7 +153,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 </nav>
 
                 {/* Bottom Actions */}
-                <div className="p-2 border-t border-minimalist-subtle shrink-0 space-y-2">
+                <div className="p-2 border-t border-white/[0.04] shrink-0 space-y-2">
                     {/* Settings Button */}
                     {!isSidebarOpen ? (
                         <Tooltip delayDuration={0}>
@@ -164,10 +161,10 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                 <Button
                                     variant="ghost"
                                     onClick={() => {
-                                        navigate('/settings');
+                                        navigateTo('settings');
                                         onNavigate?.();
                                     }}
-                                    className="w-full justify-center h-10 rounded-lg text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary"
+                                    className="w-full justify-center h-10 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.04]"
                                     aria-label="Settings"
                                 >
                                     <Settings className="w-4 h-4" />
@@ -181,10 +178,10 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                         <Button
                             variant="ghost"
                             onClick={() => {
-                                navigate('/settings');
+                                navigateTo('settings');
                                 onNavigate?.();
                             }}
-                            className="w-full justify-start h-10 rounded-lg text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary px-3 gap-3"
+                            className="w-full justify-start h-10 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.04] px-3 gap-3"
                             aria-label="Settings"
                         >
                             <Settings className="w-4 h-4 shrink-0" />
@@ -201,7 +198,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                     size="sm"
                                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                                     className={cn(
-                                        "w-full h-9 rounded-lg text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary transition-all duration-200",
+                                        "w-full h-9 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.04] transition-all duration-200",
                                         isSidebarOpen ? "justify-start px-3 gap-2" : "justify-center"
                                     )}
                                     aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}

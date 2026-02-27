@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import logger from '../config/logger';
 import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 import { asyncHandler } from '../middleware/errorHandler';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { validateBody } from '../middleware/validate';
@@ -43,7 +44,8 @@ async function executeInternalRequest(
 ): Promise<{ success: boolean; status: number; data?: any; error?: string }> {
   try {
     // Parse URL to extract endpoint
-    const urlMatch = batchReq.url.match(/^\/api\/v1\/(.+?)(\?.*)?$/);
+    // eslint-disable-next-line security/detect-unsafe-regex -- anchored URL parser, safe
+    const urlMatch = batchReq.url.match(/^\/api\/v1\/([^?]+)(?:\?.*)?$/);
     if (!urlMatch) {
       return {
         success: false,
@@ -59,7 +61,7 @@ async function executeInternalRequest(
     const { container } = require('../container');
 
     // Get tenant ID from authenticated user
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     if (!tenantId) {
       return {
         success: false,
@@ -177,17 +179,17 @@ async function executeInternalRequest(
       status,
       data
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[Batch] Internal request failed:', {
       url: batchReq.url,
-      error: error.message,
-      stack: error.stack
+      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      stack: error instanceof Error ? error.stack : undefined
     });
 
     return {
       success: false,
       status: 500,
-      error: error.message || 'Internal server error'
+      error: 'An internal error occurred'
     };
   }
 }
@@ -217,6 +219,7 @@ async function executeInternalRequest(
 router.post(
   '/',
   authenticateJWT,
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
     permissions: [PERMISSIONS.VEHICLE_READ], // Base permission, each sub-request validates further
@@ -226,8 +229,8 @@ router.post(
   validateBody(batchRequestSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { requests } = req.body;
-    const tenantId = (req as any).user?.tenant_id;
-    const userId = (req as any).user?.id;
+    const tenantId = req.user?.tenant_id;
+    const userId = req.user?.id;
 
     logger.info('[Batch] Processing batch request', {
       tenantId,
@@ -239,7 +242,7 @@ router.post(
 
     // Execute all requests in parallel
     const results = await Promise.all(
-      requests.map((batchReq: any) => executeInternalRequest(req, batchReq))
+      requests.map((batchReq: { method: string; url: string; body?: unknown; headers?: Record<string, string> }) => executeInternalRequest(req, batchReq))
     );
 
     const duration = Date.now() - startTime;

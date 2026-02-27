@@ -29,7 +29,7 @@ export const StatusChip: React.FC<{status: Status; label?: string}> = ({status, 
     padding:'6px 10px',
     borderRadius:999,
     border:'1px solid var(--border)',
-    background:'rgba(255,255,255,0.03)',
+    background:'hsl(var(--muted) / 0.2)',
     color: colorMap[status],
     fontSize:12
   }}>

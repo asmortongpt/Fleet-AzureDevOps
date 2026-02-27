@@ -19,6 +19,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatDate } from '@/utils/format-helpers'
 
 interface VehicleTripsListProps {
   vehicleId: string
@@ -38,14 +40,14 @@ interface Trip {
   fuel_used?: number
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
 export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListProps) {
   const { push } = useDrilldown()
   const { data: trips, error, isLoading, mutate } = useSWR<Trip[]>(
     `/api/vehicles/${vehicleId}/trips`,
-    fetcher
+    apiFetcher
   )
+
+  const tripsArr = Array.isArray(trips) ? trips : []
 
   const handleViewTelemetry = (trip: Trip) => {
     push({
@@ -58,7 +60,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {trips && (
+      {trips !== undefined && (
         <div className="space-y-2">
           {/* Header */}
           <div>
@@ -66,12 +68,12 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
               Trip History {vehicleName && `for ${vehicleName}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {trips.length} trip{trips.length !== 1 ? 's' : ''} found
+              {tripsArr.length} trip{tripsArr.length !== 1 ? 's' : ''} found
             </p>
           </div>
 
           {/* Trip List */}
-          {trips.length === 0 ? (
+          {tripsArr.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <Route className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
@@ -80,10 +82,10 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
             </Card>
           ) : (
             <div className="space-y-3">
-              {trips.map((trip) => (
+              {tripsArr.map((trip) => (
                 <Card
                   key={trip.id}
-                  className="hover:shadow-md transition-shadow cursor-pointer group"
+                  className="hover:border-white/[0.12] transition-colors cursor-pointer group"
                   onClick={() => handleViewTelemetry(trip)}
                 >
                   <CardContent className="p-2">
@@ -114,12 +116,10 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                         <div className="flex items-center gap-2 text-sm">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
                           <span>
-                            {trip.start_time
-                              ? new Date(trip.start_time).toLocaleDateString()
-                              : 'N/A'}
+                            {formatDate(trip.start_time)}
                           </span>
                           <Clock className="h-4 w-4 text-muted-foreground ml-2" />
-                          <span>{trip.duration || 'N/A'}</span>
+                          <span>{trip.duration || '—'}</span>
                         </div>
 
                         {/* Route */}
@@ -129,13 +129,13 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                             <div className="flex items-center gap-2">
                               <span className="font-medium">From:</span>
                               <span className="text-muted-foreground truncate">
-                                {trip.start_location || 'Unknown'}
+                                {trip.start_location || '—'}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="font-medium">To:</span>
                               <span className="text-muted-foreground truncate">
-                                {trip.end_location || 'Unknown'}
+                                {trip.end_location || '—'}
                               </span>
                             </div>
                           </div>
@@ -146,19 +146,19 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                           <div>
                             <p className="text-xs text-muted-foreground">Distance</p>
                             <p className="font-medium">
-                              {trip.distance ? `${trip.distance.toFixed(1)} mi` : 'N/A'}
+                              {trip.distance ? `${trip.distance.toFixed(1)} mi` : '—'}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Avg Speed</p>
                             <p className="font-medium">
-                              {trip.avg_speed ? `${trip.avg_speed.toFixed(0)} mph` : 'N/A'}
+                              {trip.avg_speed ? `${trip.avg_speed.toFixed(0)} mph` : '—'}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Fuel Used</p>
                             <p className="font-medium">
-                              {trip.fuel_used ? `${trip.fuel_used.toFixed(1)} gal` : 'N/A'}
+                              {trip.fuel_used ? `${trip.fuel_used.toFixed(1)} gal` : '—'}
                             </p>
                           </div>
                         </div>
@@ -180,7 +180,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
           )}
 
           {/* Load More */}
-          {trips.length > 0 && trips.length % 20 === 0 && (
+          {tripsArr.length > 0 && tripsArr.length % 20 === 0 && (
             <Button variant="outline" className="w-full">
               Load More Trips
             </Button>

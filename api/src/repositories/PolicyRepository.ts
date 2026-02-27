@@ -17,7 +17,7 @@ export class PolicyRepository extends BaseRepository<Policy> {
 
   async findByTenantId(tenantId: number): Promise<Policy[]> {
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT id, tenant_id, created_at, updated_at FROM ${this.tableName}
       WHERE tenant_id = $1
       ORDER BY created_at DESC
     `
@@ -26,7 +26,7 @@ export class PolicyRepository extends BaseRepository<Policy> {
 
   async findByIdAndTenant(id: number, tenantId: number): Promise<Policy | null> {
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT id, tenant_id, created_at, updated_at FROM ${this.tableName}
       WHERE id = $1 AND tenant_id = $2
     `
     const results = await this.query(query, [id, tenantId])

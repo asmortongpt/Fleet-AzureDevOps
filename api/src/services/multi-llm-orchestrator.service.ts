@@ -21,6 +21,8 @@
 
 import OpenAI from 'openai';
 
+import logger from '../config/logger';
+
 // Type definitions
 export interface LLMRequest {
   prompt: string;
@@ -56,7 +58,7 @@ export interface ReportGenerationResponse {
  * Intelligently routes requests to the most appropriate LLM
  */
 export class MultiLLMOrchestrator {
-  private openai: OpenAI;
+  private openai: OpenAI | null;
   private grokApiKey: string;
   private geminiApiKey: string;
   private cache: Map<string, { response: string; timestamp: number }>;
@@ -64,10 +66,16 @@ export class MultiLLMOrchestrator {
 
   constructor() {
     // Initialize API clients with keys from environment
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-      dangerouslyAllowBrowser: false // Server-side only
-    });
+    this.openai = process.env.OPENAI_API_KEY
+      ? new OpenAI({
+          apiKey: process.env.OPENAI_API_KEY,
+          dangerouslyAllowBrowser: false // Server-side only
+        })
+      : null;
+
+    if (!this.openai) {
+      logger.warn('[MultiLLMOrchestrator] OpenAI API key not configured - GPT-4 features disabled');
+    }
 
     this.grokApiKey = process.env.XAI_API_KEY || '';
     this.geminiApiKey = process.env.GEMINI_API_KEY || '';
@@ -116,7 +124,7 @@ export class MultiLLMOrchestrator {
 
       return response;
     } catch (error) {
-      console.error(`Error with ${modelChoice}:`, error);
+      logger.error('LLM routing error', { modelChoice, error: error instanceof Error ? error.message : String(error) });
       // Fallback to GPT-4 if primary model fails
       if (modelChoice !== 'gpt-4-turbo') {
         return await this.callGPT4(request);
@@ -204,6 +212,10 @@ Requirements:
 - Include a detailed data table
 - Apply RBAC rules based on user role`;
 
+    if (!this.openai) {
+      throw new Error('OpenAI API key not configured - report generation unavailable');
+    }
+
     try {
       const completion = await this.openai.chat.completions.create({
         model: 'gpt-4-turbo-preview',
@@ -233,7 +245,7 @@ Requirements:
         modelUsed: 'gpt-4-turbo'
       };
     } catch (error) {
-      console.error('Report generation error:', error);
+      logger.error('Report generation error', { error: error instanceof Error ? error.message : String(error) });
       throw new Error('Failed to generate report definition');
     }
   }
@@ -291,6 +303,10 @@ Be concise, accurate, and helpful. Use bullet points for clarity.`;
    * Call GPT-4 Turbo (OpenAI)
    */
   private async callGPT4(request: LLMRequest): Promise<LLMResponse> {
+    if (!this.openai) {
+      throw new Error('OpenAI API key not configured - GPT-4 is unavailable');
+    }
+
     const completion = await this.openai.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
@@ -352,7 +368,7 @@ Be concise, accurate, and helpful. Use bullet points for clarity.`;
         cost: this.calculateCost('grok', tokens)
       };
     } catch (error) {
-      console.error('Grok API error:', error);
+      logger.error('Grok API error', { error: error instanceof Error ? error.message : String(error) });
       // Fallback to GPT-4
       return await this.callGPT4(request);
     }
@@ -400,7 +416,7 @@ Be concise, accurate, and helpful. Use bullet points for clarity.`;
         cost: this.calculateCost('gemini', tokens)
       };
     } catch (error) {
-      console.error('Gemini API error:', error);
+      logger.error('Gemini API error', { error: error instanceof Error ? error.message : String(error) });
       // Fallback to GPT-4
       return await this.callGPT4(request);
     }
@@ -431,7 +447,9 @@ Be concise, accurate, and helpful. Use bullet points for clarity.`;
    */
   private getFromCache(key: string): string | null {
     const cached = this.cache.get(key);
-    if (!cached) return null;
+    if (!cached) {
+return null;
+}
 
     const age = Date.now() - cached.timestamp;
     if (age > this.CACHE_TTL) {

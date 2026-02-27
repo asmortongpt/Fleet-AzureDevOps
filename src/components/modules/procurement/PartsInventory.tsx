@@ -35,6 +35,8 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Part } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatCurrency } from "@/utils/format-helpers"
 
 
 export function PartsInventory() {
@@ -60,9 +62,9 @@ export function PartsInventory() {
     manufacturer: "",
     compatibleVehicles: [],
     quantityOnHand: 0,
-    minStockLevel: 10,
-    maxStockLevel: 100,
-    reorderPoint: 20,
+    minStockLevel: 0,
+    maxStockLevel: 0,
+    reorderPoint: 0,
     unitCost: 0,
     location: ""
   })
@@ -130,7 +132,7 @@ export function PartsInventory() {
   const getStockStatus = (part: Part) => {
     if (part.quantityOnHand === 0) return { label: "Out of Stock", color: "bg-red-100 text-red-700" }
     if (part.quantityOnHand <= part.reorderPoint) return { label: "Low Stock", color: "bg-yellow-100 text-yellow-700" }
-    if (part.quantityOnHand >= part.maxStockLevel) return { label: "Overstocked", color: "bg-blue-100 text-blue-700" }
+    if (part.quantityOnHand >= part.maxStockLevel) return { label: "Overstocked", color: "bg-emerald-500/10 text-emerald-700" }
     return { label: "In Stock", color: "bg-green-100 text-green-700" }
   }
 
@@ -318,7 +320,7 @@ export function PartsInventory() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Inventory Value</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold">${totalInventoryValue.toLocaleString()}</div>
+            <div className="text-sm font-bold">{formatCurrency(totalInventoryValue)}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <TrendingUp className="w-3 h-3" />
               Total assets
@@ -428,7 +430,7 @@ export function PartsInventory() {
                           <div className="text-xs text-muted-foreground">{part.manufacturer}</div>
                         </div>
                       </TableCell>
-                      <TableCell className="capitalize">{part.category}</TableCell>
+                      <TableCell>{formatEnum(part.category)}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{part.location || "-"}</TableCell>
                       <TableCell>
                         <div className="space-y-1">
@@ -442,7 +444,7 @@ export function PartsInventory() {
                         <span className="font-semibold">{part.quantityOnHand}</span>
                         <span className="text-muted-foreground text-sm"> units</span>
                       </TableCell>
-                      <TableCell>${part.unitCost.toFixed(2)}</TableCell>
+                      <TableCell>{formatCurrency(part.unitCost)}</TableCell>
                       <TableCell>
                         <Badge className={status.color} variant="secondary">
                           {status.label}

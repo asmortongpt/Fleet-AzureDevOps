@@ -26,6 +26,8 @@ import Redis from 'ioredis';
 import { Pool } from 'pg';
 import { z } from 'zod';
 
+import logger from '../../config/logger';
+
 // ============================================================================
 // Types and Enums
 // ============================================================================
@@ -239,8 +241,8 @@ export class ConfigurationManagementService {
     } else {
       // Generate a random key (should be persisted in production)
       this.encryptionKey = crypto.randomBytes(32);
-      console.warn(
-        '[ConfigService] No encryption key provided, generated random key. ' +
+      logger.warn(
+        'No encryption key provided, generated random key. ' +
         'Set CONFIG_ENCRYPTION_KEY env var in production!'
       );
     }
@@ -413,7 +415,7 @@ export class ConfigurationManagementService {
           requestedBy: userId,
           justification: comment || 'Configuration change',
           impactLevel
-        } as any);
+        });
 
         throw new Error(
           `This change requires approval. Change request created: ${requestId}`
@@ -544,7 +546,7 @@ export class ConfigurationManagementService {
 
       return result.rows;
     } catch (error) {
-      console.error('[ConfigService] getHistory error:', error);
+      logger.error('ConfigService getHistory error', { error });
       throw error;
     }
   }
@@ -623,8 +625,8 @@ export class ConfigurationManagementService {
       throw new Error('One or both versions not found');
     }
 
-    const valueA = result.rows.find((r: any) => r.version === versionA)?.value;
-    const valueB = result.rows.find((r: any) => r.version === versionB)?.value;
+    const valueA = result.rows.find((r: { version: string; value: unknown }) => r.version === versionA)?.value;
+    const valueB = result.rows.find((r: { version: string; value: unknown }) => r.version === versionB)?.value;
 
     return this.calculateDiff(valueA, valueB);
   }
@@ -642,7 +644,7 @@ export class ConfigurationManagementService {
    */
   async approveChange(requestId: string, userId: string, comment?: string): Promise<void> {
     // Placeholder implementation
-    console.log(`[ConfigService] Change request ${requestId} approved by ${userId}`);
+    logger.info(`Change request ${requestId} approved by ${userId}`);
   }
 
   /**
@@ -650,7 +652,7 @@ export class ConfigurationManagementService {
    */
   async rejectChange(requestId: string, userId: string, reason: string): Promise<void> {
     // Placeholder implementation
-    console.log(`[ConfigService] Change request ${requestId} rejected by ${userId}: ${reason}`);
+    logger.info(`Change request ${requestId} rejected by ${userId}: ${reason}`);
   }
 
   /**
@@ -679,13 +681,19 @@ export class ConfigurationManagementService {
 
         switch (condition.operator) {
           case 'equals':
-            if (attrValue !== condition.value) return false;
+            if (attrValue !== condition.value) {
+return false;
+}
             break;
           case 'in':
-            if (!condition.values?.includes(attrValue)) return false;
+            if (!condition.values?.includes(attrValue)) {
+return false;
+}
             break;
           case 'notIn':
-            if (condition.values?.includes(attrValue)) return false;
+            if (condition.values?.includes(attrValue)) {
+return false;
+}
             break;
         }
       }
@@ -769,7 +777,7 @@ export class ConfigurationManagementService {
       try {
         await this.getConfig(key);
       } catch (error) {
-        console.error(`[ConfigService] Failed to preload ${key}:`, error);
+        logger.error(`Failed to preload config key ${key}`, { error });
       }
     }
   }
@@ -894,19 +902,27 @@ export class ConfigurationManagementService {
     try {
       schema.parse(value);
       return { valid: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
+        return {
+          valid: false,
+          errors: error.issues.map((e) => ({
+            path: e.path.join('.'),
+            message: e.message
+          }))
+        };
+      }
       return {
         valid: false,
-        errors: error.errors?.map((e: any) => ({
-          path: e.path.join('.'),
-          message: e.message
-        })) || []
+        errors: [{ path: '', message: error instanceof Error ? error.message : 'An unexpected error occurred' }]
       };
     }
   }
 
   private async invalidateCache(key: string): Promise<void> {
-    if (!this.redis) return;
+    if (!this.redis) {
+return;
+}
 
     const pattern = `config:${key}:*`;
     const keys = await this.redis.keys(pattern);
@@ -923,7 +939,7 @@ export class ConfigurationManagementService {
     metadata?: Record<string, any>
   ): Promise<void> {
     // Audit logging implementation
-    console.log(`[ConfigService] ${operation} ${key}`, { userId, success, metadata });
+    logger.info(`ConfigService ${operation} ${key}`, { userId, success, metadata });
   }
 
   private async requestChange(request: Partial<ChangeRequest>): Promise<string> {

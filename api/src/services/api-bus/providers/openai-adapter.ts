@@ -5,6 +5,7 @@
 
 import OpenAI from 'openai'
 
+import logger from '../../../config/logger'
 import type { AIProviderAdapter, AICompletionRequest, AICompletionResponse } from '../types'
 
 export class OpenAIAdapter implements AIProviderAdapter {
@@ -19,6 +20,10 @@ export class OpenAIAdapter implements AIProviderAdapter {
   }
 
   async initialize(): Promise<void> {
+    if (!this.apiKey) {
+      logger.warn('[OpenAI] API key not provided - OpenAI adapter will not be available')
+      return
+    }
     this.client = new OpenAI({
       apiKey: this.apiKey,
     })
@@ -38,7 +43,7 @@ export class OpenAIAdapter implements AIProviderAdapter {
       await this.client!.models.list()
       return true
     } catch (error) {
-      console.error('[OpenAI] Availability check failed:', error)
+      logger.error('[OpenAI] Availability check failed:', { error: error instanceof Error ? error.message : String(error) })
       return false
     }
   }
@@ -77,8 +82,8 @@ export class OpenAIAdapter implements AIProviderAdapter {
         finishReason: this.mapFinishReason(choice.finish_reason),
         timestamp: new Date(),
       }
-    } catch (error: any) {
-      throw new Error(`[OpenAI] Completion failed: ${error.message}`)
+    } catch (error: unknown) {
+      throw new Error(`[OpenAI] Completion failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`)
     }
   }
 
@@ -105,8 +110,8 @@ export class OpenAIAdapter implements AIProviderAdapter {
           yield content
         }
       }
-    } catch (error: any) {
-      throw new Error(`[OpenAI] Streaming failed: ${error.message}`)
+    } catch (error: unknown) {
+      throw new Error(`[OpenAI] Streaming failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`)
     }
   }
 

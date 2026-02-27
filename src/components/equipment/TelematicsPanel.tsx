@@ -25,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { apiClient } from '@/lib/api-client'
 import { isSuccessResponse } from '@/lib/schemas/responses'
 import type { ApiResponse } from '@/lib/schemas/responses'
+import { formatDateTime, formatTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 interface TelematicsData {
@@ -125,7 +126,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 Live Telematics
               </CardTitle>
               <CardDescription>
-                Last updated: {lastUpdate.toLocaleTimeString()}
+                Last updated: {formatTime(lastUpdate)}
               </CardDescription>
             </div>
             <Badge variant={health.color === 'green' ? 'default' : health.color === 'yellow' ? 'secondary' : 'destructive'}>
@@ -154,7 +155,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm font-bold">{telematicsData.engine_hours.toFixed(1)}</div>
+                <div className="text-sm font-bold">{(telematicsData.engine_hours ?? 0).toFixed(1)}</div>
                 <Progress value={(telematicsData.engine_hours % 100)} className="mt-2" />
               </CardContent>
             </Card>
@@ -235,7 +236,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm">Current Rate</span>
-                    <span className="font-semibold">{telematicsData.fuel_consumption_rate.toFixed(2)} gal/hr</span>
+                    <span className="font-semibold">{(telematicsData.fuel_consumption_rate ?? 0).toFixed(2)} gal/hr</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm">Fuel Level</span>
@@ -266,8 +267,8 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {telematicsData.diagnostic_codes.map((code, index) => (
-                    <div key={index} className="flex items-center gap-2 p-2 bg-yellow-50 rounded">
+                  {telematicsData.diagnostic_codes.map((code) => (
+                    <div key={code} className="flex items-center gap-2 p-2 bg-yellow-50 rounded">
                       <Badge variant="secondary">{code}</Badge>
                       <span className="text-sm">Active diagnostic code</span>
                     </div>
@@ -290,11 +291,11 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
             <CardContent className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-sm">Latitude</span>
-                <span className="font-mono">{telematicsData.latitude.toFixed(6)}</span>
+                <span className="font-mono">{(telematicsData.latitude ?? 0).toFixed(6)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Longitude</span>
-                <span className="font-mono">{telematicsData.longitude.toFixed(6)}</span>
+                <span className="font-mono">{(telematicsData.longitude ?? 0).toFixed(6)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Altitude</span>
@@ -322,7 +323,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 <Card key={alert.id} className={
                   alert.severity === 'critical' ? 'border-red-200 bg-red-50' :
                   alert.severity === 'warning' ? 'border-yellow-200 bg-yellow-50' :
-                  'border-blue-200 bg-blue-50'
+                  'border-emerald-500/20 bg-emerald-500/5'
                 }>
                   <CardContent className="p-2">
                     <div className="flex items-start justify-between">
@@ -330,12 +331,12 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                         <AlertTriangle className={`w-3 h-3 mt-0.5 ${
                           alert.severity === 'critical' ? 'text-red-600' :
                           alert.severity === 'warning' ? 'text-yellow-600' :
-                          'text-blue-800'
+                          'text-emerald-800'
                         }`} />
                         <div>
                           <p className="font-medium">{alert.message}</p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {new Date(alert.timestamp).toLocaleString()}
+                            {formatDateTime(alert.timestamp)}
                           </p>
                         </div>
                       </div>

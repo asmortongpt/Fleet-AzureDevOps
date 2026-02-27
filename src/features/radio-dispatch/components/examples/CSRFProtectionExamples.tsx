@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 
-import { CSRFInput, useCSRFToken } from '../CSRFInput';
-import { api } from "@/lib/api";
 import { useMutation } from '../../lib/hooks/useMutation';
+import { CSRFInput, useCSRFToken } from '../CSRFInput';
+
+import { api } from "@/lib/api";
+import logger from '@/utils/logger';
 
 /**
  * CSRF Protection Examples
@@ -42,15 +44,14 @@ export function CreateIncidentExample() {
   const createIncident = useMutation<Incident, CreateIncidentInput>(
     (data: CreateIncidentInput) => api.post('/api/incidents', data),
     {
-      onSuccess: (incident: Incident) => {
-        console.log('Incident created successfully:', incident.id);
+      onSuccess: () => {
         // Clear form
         setTitle('');
         setDescription('');
         setPriority('medium');
       },
       onError: (error: Error) => {
-        console.error('Failed to create incident:', error.message);
+        logger.error('Failed to create incident:', error.message);
       },
     }
   );
@@ -67,6 +68,7 @@ export function CreateIncidentExample() {
       });
     } catch (error) {
       // Error already handled by onError callback
+      logger.warn('Create incident mutation threw unexpectedly', { error: String(error) })
     }
   };
 
@@ -115,7 +117,7 @@ export function CreateIncidentExample() {
         <button
           type="submit"
           disabled={createIncident.loading}
-          className="px-2 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          className="px-2 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:opacity-50"
         >
           {createIncident.loading ? 'Creating...' : 'Create Incident'}
         </button>
@@ -208,11 +210,9 @@ export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
   const deleteIncident = useMutation<void, string>(
     (id: string) => api.delete(`/api/incidents/${id}`),
     {
-      onSuccess: () => {
-        console.log('Incident deleted successfully');
-      },
+      onSuccess: () => {},
       onError: (error: Error) => {
-        console.error('Failed to delete incident:', error.message);
+        logger.error('Failed to delete incident:', error.message);
       },
     }
   );
@@ -224,6 +224,7 @@ export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
         await deleteIncident.mutate(incidentId);
       } catch (error) {
         // Error already handled by onError callback
+        logger.warn('Delete incident mutation threw unexpectedly', { error: String(error) })
       }
     }
   };
@@ -292,7 +293,7 @@ export function HTMLFormExample() {
 
         <button
           type="submit"
-          className="px-2 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+          className="px-2 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
         >
           Submit Form
         </button>
@@ -314,15 +315,15 @@ export function CSRFTokenDisplay() {
         Example 5: Display CSRF Token
       </h3>
       <div className="space-y-2">
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-white/70">
           Current CSRF Token (for debugging):
         </p>
         {csrfToken ? (
-          <code className="block p-2 bg-gray-100 rounded text-xs break-all">
+          <code className="block p-2 bg-white/[0.05] rounded text-xs break-all">
             {csrfToken}
           </code>
         ) : (
-          <p className="text-sm text-gray-600">Loading token...</p>
+          <p className="text-sm text-white/40">Loading token...</p>
         )}
       </div>
     </div>
@@ -365,19 +366,19 @@ export function BatchOperationsExample() {
       </h3>
       <div className="space-y-2">
         <div>
-          <p className="text-sm text-slate-700 mb-2">
+          <p className="text-sm text-white/70 mb-2">
             Selected incidents: {selectedIds.length}
           </p>
           <div className="space-x-2">
             <button
               onClick={() => setSelectedIds(['1', '2', '3'])}
-              className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+              className="px-3 py-1 text-sm bg-white/[0.06] rounded hover:bg-white/[0.08]"
             >
               Select 3 incidents
             </button>
             <button
               onClick={() => setSelectedIds([])}
-              className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+              className="px-3 py-1 text-sm bg-white/[0.06] rounded hover:bg-white/[0.08]"
             >
               Clear selection
             </button>
@@ -410,7 +411,7 @@ export function CSRFProtectionExamples() {
   return (
     <div className="container mx-auto p-3">
       <h1 className="text-base font-bold mb-2">CSRF Protection Examples</h1>
-      <p className="text-slate-700 mb-3">
+      <p className="text-white/70 mb-3">
         All examples automatically include CSRF tokens. No manual token handling required!
       </p>
 
@@ -423,7 +424,7 @@ export function CSRFProtectionExamples() {
         <BatchOperationsExample />
       </div>
 
-      <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
+      <div className="mt-3 p-2 bg-emerald-500/5 border border-emerald-500/20 rounded">
         <h2 className="font-semibold mb-2">How It Works</h2>
         <ul className="list-disc list-inside space-y-1 text-sm">
           <li>CSRF token is fetched when the app loads (in Providers component)</li>

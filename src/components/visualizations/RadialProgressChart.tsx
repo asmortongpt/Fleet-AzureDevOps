@@ -4,10 +4,10 @@
  * Perfect for displaying safety scores, completion rates, and KPIs
  */
 
-import { motion } from 'framer-motion'
+// motion removed - React 19 incompatible
 import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from 'recharts'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 
 interface RadialProgressChartProps {
   title: string
@@ -40,20 +40,17 @@ export function RadialProgressChart({
   showPercentage = true,
   size = 'md',
 }: RadialProgressChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const percentage = Math.min((value / maxValue) * 100, 100)
   const sizeConfig = SIZE_CONFIG[size]
 
   // Determine color based on value if not provided
   const getColor = () => {
     if (color) return color
-    if (percentage >= 90) return '#10b981' // green
-    if (percentage >= 75) return '#3b82f6' // blue
-    if (percentage >= 60) return '#f59e0b' // amber
-    if (percentage >= 40) return '#ff6b6b' // orange
-    return '#ef4444' // red
+    if (percentage >= 90) return '#10B981' // green
+    if (percentage >= 75) return '#10b981' // emerald
+    if (percentage >= 60) return '#F59E0B' // amber
+    if (percentage >= 40) return '#F97316' // orange
+    return '#EF4444' // red
   }
 
   const progressColor = getColor()
@@ -67,13 +64,8 @@ export function RadialProgressChart({
   ]
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-      whileHover={{ scale: 1.02 }}
-    >
-      <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <div>
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <CardTitle className="text-xl font-bold">{title}</CardTitle>
           {description && <CardDescription className="text-sm">{description}</CardDescription>}
@@ -81,7 +73,7 @@ export function RadialProgressChart({
         <CardContent className="flex items-center justify-center">
           {loading ? (
             <div
-              className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-full"
+              className="w-full bg-white/[0.04] animate-pulse rounded-full"
               style={{ height, aspectRatio: '1' }}
             />
           ) : (
@@ -110,7 +102,7 @@ export function RadialProgressChart({
                   </defs>
                   <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
                   <RadialBar
-                    background={{ fill: isDark ? '#374151' : '#e5e7eb' }}
+                    background={{ fill: 'var(--muted)' }}
                     dataKey="value"
                     cornerRadius={10}
                     animationDuration={1500}
@@ -118,11 +110,8 @@ export function RadialProgressChart({
                   />
                 </RadialBarChart>
               </ResponsiveContainer>
-              <motion.div
+              <div
                 className="absolute inset-0 flex flex-col items-center justify-center"
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
               >
                 <div
                   className="font-bold"
@@ -138,11 +127,11 @@ export function RadialProgressChart({
                     {label}
                   </div>
                 )}
-              </motion.div>
+              </div>
             </div>
           )}
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }

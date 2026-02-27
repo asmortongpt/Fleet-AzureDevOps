@@ -19,6 +19,8 @@ import {
 import React, { useState } from 'react';
 import { LineChart, Line, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
+import { formatCurrency } from '@/utils/format-helpers';
+
 
 const BudgetFinanceSystem: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -49,7 +51,13 @@ const BudgetFinanceSystem: React.FC = () => {
     { month: 'Jun', budget: 250000, actual: 248000 }
   ];
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+  const COLORS = [
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-5))',
+    'hsl(var(--chart-4))'
+  ];
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -69,7 +77,7 @@ const BudgetFinanceSystem: React.FC = () => {
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>Monthly Budget</Typography>
-                <Typography variant="h4">${monthlyBudget.total.toLocaleString()}</Typography>
+                <Typography variant="h4">{formatCurrency(monthlyBudget.total)}</Typography>
                 <LinearProgress variant="determinate" value={(monthlyBudget.spent/monthlyBudget.total)*100} />
                 <Typography variant="body2">{((monthlyBudget.spent/monthlyBudget.total)*100).toFixed(1)}% Used</Typography>
               </CardContent>
@@ -80,7 +88,7 @@ const BudgetFinanceSystem: React.FC = () => {
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>Total Spent</Typography>
-                <Typography variant="h4">${monthlyBudget.spent.toLocaleString()}</Typography>
+                <Typography variant="h4">{formatCurrency(monthlyBudget.spent)}</Typography>
                 <Typography variant="body2" color="success.main">Under budget by $36,500</Typography>
               </CardContent>
             </Card>
@@ -115,10 +123,10 @@ const BudgetFinanceSystem: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
-                    <Tooltip formatter={(value: any) => `$${value.toLocaleString()}`} />
+                    <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
                     <Legend />
-                    <Line type="monotone" dataKey="budget" stroke="#8884d8" name="Budget" />
-                    <Line type="monotone" dataKey="actual" stroke="#82ca9d" name="Actual" />
+                    <Line type="monotone" dataKey="budget" stroke="hsl(var(--chart-4))" name="Budget" />
+                    <Line type="monotone" dataKey="actual" stroke="hsl(var(--chart-2))" name="Actual" />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -138,14 +146,14 @@ const BudgetFinanceSystem: React.FC = () => {
                       labelLine={false}
                       label={(entry: any) => entry.category}
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill="hsl(var(--chart-4))"
                       dataKey="spent"
                     >
                       {expenseCategories.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: any) => `$${value.toLocaleString()}`} />
+                    <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
                   </RePieChart>
                 </ResponsiveContainer>
               </CardContent>

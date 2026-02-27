@@ -68,14 +68,11 @@ interface BackoffConfig {
  * Database SSL configuration helper
  */
 function getDatabaseSSLConfig(): boolean | { rejectUnauthorized: boolean; ca?: string } {
-  if (process.env.DATABASE_SSL === 'true') {
-    if (process.env.NODE_ENV === 'production') {
-      return {
-        rejectUnauthorized: true,
-        ca: process.env.DB_SSL_CA
-      };
-    }
-    return { rejectUnauthorized: false };
+  if (process.env.DATABASE_SSL !== 'false') {
+    return {
+      rejectUnauthorized: process.env.NODE_ENV === 'production',
+      ...(process.env.DB_SSL_CA ? { ca: process.env.DB_SSL_CA } : {})
+    };
   }
   return false;
 }
@@ -415,7 +412,7 @@ export class DatabaseConnectionManager {
 
         // Trigger reconnection for webapp pool
         if (poolType === PoolType.WEBAPP) {
-          this.attemptReconnection(poolType);
+          void this.attemptReconnection(poolType);
         }
       }
     }, interval);
@@ -550,11 +547,11 @@ export class DatabaseConnectionManager {
           lastError: null,
           reconnectAttempts: state.reconnectAttempts
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
         status[poolType] = {
           healthy: false,
           initialized: state.initialized,
-          error: error.message,
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
           lastError: state.lastError?.message || null,
           lastErrorTime: state.lastErrorTime?.toISOString() || null,
           reconnectAttempts: state.reconnectAttempts
@@ -615,6 +612,7 @@ export class DatabaseConnectionManager {
               console.log(`[${poolType}] Pool closed successfully`);
               state.pool = null;
               state.initialized = false;
+              return undefined;
             })
             .catch((error) => {
               console.error(`[${poolType}] Error closing pool:`, error);

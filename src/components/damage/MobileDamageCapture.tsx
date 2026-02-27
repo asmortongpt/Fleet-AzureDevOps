@@ -9,6 +9,7 @@ import {
   Info
 } from 'lucide-react';
 import React, { useState, useRef, useCallback } from 'react';
+import { toast } from 'sonner';
 
 import { Alert, AlertDescription } from '../ui/alert';
 import { Button } from '../ui/button';
@@ -142,7 +143,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
       setCaptureMode(null);
     } catch (error) {
       logger.error('Error analyzing photos:', error);
-      alert('Failed to analyze photos. Please try again.');
+      toast.error('Failed to analyze photos. Please try again.');
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(0);
@@ -188,7 +189,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
       setCaptureMode(null);
     } catch (error) {
       logger.error('Error analyzing video:', error);
-      alert('Failed to analyze video. Please try again.');
+      toast.error('Failed to analyze video. Please try again.');
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(0);
@@ -204,16 +205,16 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
           <div className="space-y-1">
             <p className="font-medium">Device Capabilities Detected:</p>
             <ul className="list-disc list-inside text-sm space-y-1">
-              <li className={deviceCapabilities.hasCamera ? 'text-green-600' : 'text-gray-700'}>
+              <li className={deviceCapabilities.hasCamera ? 'text-green-600' : 'text-white/40'}>
                 {deviceCapabilities.hasCamera ? '✓' : '✗'} Camera
               </li>
-              <li className={deviceCapabilities.hasVideo ? 'text-green-600' : 'text-gray-700'}>
+              <li className={deviceCapabilities.hasVideo ? 'text-green-600' : 'text-white/40'}>
                 {deviceCapabilities.hasVideo ? '✓' : '✗'} Video Recording
               </li>
-              <li className={deviceCapabilities.hasDepth ? 'text-green-600' : 'text-gray-700'}>
+              <li className={deviceCapabilities.hasDepth ? 'text-green-600' : 'text-white/40'}>
                 {deviceCapabilities.hasDepth ? '✓' : '✗'} Depth Sensing
               </li>
-              <li className={deviceCapabilities.hasLiDAR ? 'text-green-600' : 'text-gray-700'}>
+              <li className={deviceCapabilities.hasLiDAR ? 'text-green-600' : 'text-white/40'}>
                 {deviceCapabilities.hasLiDAR ? '✓' : '✗'} LiDAR Scanner
               </li>
             </ul>
@@ -225,18 +226,18 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
       {!captureMode && !isAnalyzing && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <Card
-            className="cursor-pointer hover:border-blue-500 transition-colors"
+            className="cursor-pointer hover:border-emerald-500 transition-colors"
             onClick={() => setCaptureMode('photo')}
           >
             <CardHeader>
-              <Camera className="h-8 w-8 mb-2 text-blue-800" />
+              <Camera className="h-8 w-8 mb-2 text-emerald-800" />
               <CardTitle>Photo Analysis</CardTitle>
               <CardDescription>
                 Capture multiple photos from different angles. Best for detailed damage assessment.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="text-sm space-y-1 text-slate-700">
+              <ul className="text-sm space-y-1 text-white/70">
                 <li>• 5-10 photos recommended</li>
                 <li>• Front, rear, sides, and closeups</li>
                 {deviceCapabilities.hasDepth && <li>• Includes depth data</li>}
@@ -256,7 +257,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="text-sm space-y-1 text-slate-700">
+              <ul className="text-sm space-y-1 text-white/70">
                 <li>• 30-60 seconds recommended</li>
                 <li>• Walk around entire vehicle</li>
                 <li>• Hold steady for best results</li>
@@ -265,13 +266,13 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
           </Card>
 
           <Card
-            className={`cursor-pointer hover:border-purple-500 transition-colors ${
+            className={`cursor-pointer hover:border-amber-500 transition-colors ${
               !deviceCapabilities.hasLiDAR ? 'opacity-50' : ''
             }`}
             onClick={() => deviceCapabilities.hasLiDAR && setCaptureMode('lidar')}
           >
             <CardHeader>
-              <Scan className="h-8 w-8 mb-2 text-purple-500" />
+              <Scan className="h-8 w-8 mb-2 text-amber-500" />
               <CardTitle>LiDAR Scan</CardTitle>
               <CardDescription>
                 {deviceCapabilities.hasLiDAR
@@ -281,7 +282,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
             </CardHeader>
             <CardContent>
               {deviceCapabilities.hasLiDAR ? (
-                <ul className="text-sm space-y-1 text-slate-700">
+                <ul className="text-sm space-y-1 text-white/70">
                   <li>• Millimeter-level accuracy</li>
                   <li>• 3D depth map included</li>
                   <li>• Best for insurance claims</li>
@@ -323,7 +324,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
               <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-2">
                   {capturedFiles.map((file, index) => (
-                    <div key={index} className="relative aspect-video rounded-md overflow-hidden">
+                    <div key={file.name} className="relative aspect-video rounded-md overflow-hidden">
                       <img
                         src={URL.createObjectURL(file)}
                         alt={`Captured ${index + 1}`}
@@ -465,7 +466,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
           <CardContent className="space-y-2">
             <Progress value={analysisProgress} className="w-full" />
             <div className="flex justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
+              <Loader2 className="h-8 w-8 animate-spin text-emerald-800" />
             </div>
             <Alert>
               <AlertCircle className="h-4 w-4" />

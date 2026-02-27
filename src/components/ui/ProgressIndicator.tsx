@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+// motion removed - React 19 incompatible
 
 import { cn } from "@/lib/utils";
 
@@ -46,7 +46,7 @@ export function LinearProgress({
   className,
 }: LinearProgressProps) {
   const variantColors = {
-    primary: "bg-blue-500",
+    primary: "bg-neutral-500",
     success: "bg-green-500",
     warning: "bg-yellow-500",
     danger: "bg-red-500",
@@ -59,65 +59,43 @@ export function LinearProgress({
     <div className={cn("relative w-full", className)}>
       {/* Background track */}
       <div
-        className="w-full bg-gray-200 rounded-full overflow-hidden relative"
+        className="w-full bg-white/[0.06] rounded-full overflow-hidden relative"
         style={{ height: `${height}px` }}
       >
         {/* Buffer (if provided) */}
         {bufferPercentage !== undefined && (
-          <motion.div
-            className="absolute top-0 left-0 h-full bg-gray-300 rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${bufferPercentage}%` }}
-            transition={{ duration: 0.3 }}
+          <div
+            className="absolute top-0 left-0 h-full bg-white/[0.10] rounded-full transition-all duration-300"
+            style={{ width: `${bufferPercentage}%` }}
           />
         )}
 
         {/* Progress bar */}
         {indeterminate ? (
-          <motion.div
-            className={cn("absolute top-0 h-full rounded-full", variantColors[variant])}
+          <div
+            className={cn("absolute top-0 h-full rounded-full animate-[indeterminate_1.5s_ease-in-out_infinite]", variantColors[variant])}
             style={{ width: "30%" }}
-            animate={{
-              left: ["-30%", "100%"],
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
           />
         ) : (
-          <motion.div
-            className={cn("h-full rounded-full relative overflow-hidden", variantColors[variant])}
-            initial={{ width: 0 }}
-            animate={{ width: `${percentage}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+          <div
+            className={cn("h-full rounded-full relative overflow-hidden transition-all duration-500 ease-out", variantColors[variant])}
+            style={{ width: `${percentage}%` }}
           >
-            {/* Shine effect */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30"
-              animate={{
-                x: ["-100%", "200%"],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "linear",
-              }}
+            {/* Subtle highlight */}
+            <div
+              className="absolute inset-0 bg-white/[0.06]"
             />
-          </motion.div>
+          </div>
         )}
       </div>
 
       {/* Label */}
       {showLabel && !indeterminate && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="absolute -top-5 right-0 text-xs font-semibold text-gray-700"
+        <div
+          className="absolute -top-5 right-0 text-xs font-semibold text-white/60"
         >
           {Math.round(percentage)}%
-        </motion.div>
+        </div>
       )}
     </div>
   );
@@ -151,7 +129,7 @@ export function CircularProgress({
   className,
 }: CircularProgressProps) {
   const variantColors = {
-    primary: "#3b82f6",
+    primary: "#10b981",
     success: "#22c55e",
     warning: "#eab308",
     danger: "#ef4444",
@@ -172,13 +150,13 @@ export function CircularProgress({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#e5e7eb"
+          stroke="rgba(255,255,255,0.06)"
           strokeWidth={strokeWidth}
         />
 
         {/* Progress circle */}
         {indeterminate ? (
-          <motion.circle
+          <circle
             cx={size / 2}
             cy={size / 2}
             r={radius}
@@ -187,18 +165,11 @@ export function CircularProgress({
             strokeWidth={strokeWidth}
             strokeLinecap="round"
             strokeDasharray={circumference}
-            animate={{
-              strokeDashoffset: [circumference, 0],
-              rotate: [0, 360],
-            }}
-            transition={{
-              strokeDashoffset: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
-              rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-            }}
+            className="animate-spin origin-center"
             style={{ transformOrigin: "50% 50%" }}
           />
         ) : (
-          <motion.circle
+          <circle
             cx={size / 2}
             cy={size / 2}
             r={radius}
@@ -207,23 +178,20 @@ export function CircularProgress({
             strokeWidth={strokeWidth}
             strokeLinecap="round"
             strokeDasharray={circumference}
-            initial={{ strokeDashoffset: circumference }}
-            animate={{ strokeDashoffset: offset }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            strokeDashoffset={offset}
+            className="transition-all duration-500 ease-out"
           />
         )}
       </svg>
 
       {/* Center label */}
       {showLabel && !indeterminate && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
+        <div
           className="absolute inset-0 flex items-center justify-center text-sm font-semibold"
           style={{ color }}
         >
           {Math.round(percentage)}%
-        </motion.div>
+        </div>
       )}
     </div>
   );
@@ -253,8 +221,8 @@ export function StepProgress({
   const isHorizontal = orientation === "horizontal";
 
   const statusConfig = {
-    pending: { bg: "bg-gray-200", text: "text-gray-700", border: "border-gray-300" },
-    active: { bg: "bg-blue-500", text: "text-white", border: "border-blue-500" },
+    pending: { bg: "bg-white/[0.06]", text: "text-white/35", border: "border-white/[0.04]" },
+    active: { bg: "bg-neutral-500", text: "text-white", border: "border-emerald-500" },
     completed: { bg: "bg-green-500", text: "text-white", border: "border-green-500" },
     error: { bg: "bg-red-500", text: "text-white", border: "border-red-500" },
   };
@@ -281,11 +249,7 @@ export function StepProgress({
             )}
           >
             {/* Step circle */}
-            <motion.button
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              whileHover={onStepClick ? { scale: 1.1 } : {}}
-              whileTap={onStepClick ? { scale: 0.95 } : {}}
+            <button
               onClick={() => onStepClick?.(step.id)}
               disabled={!onStepClick}
               className={cn(
@@ -298,22 +262,19 @@ export function StepProgress({
               )}
             >
               {step.status === "completed" ? (
-                <motion.svg
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.3 }}
+                <svg
                   className="w-3 h-3"
                   viewBox="0 0 20 20"
                   fill="none"
                 >
-                  <motion.path
+                  <path
                     d="M6 10L9 13L14 7"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
-                </motion.svg>
+                </svg>
               ) : step.status === "error" ? (
                 "✕"
               ) : (
@@ -322,41 +283,35 @@ export function StepProgress({
 
               {/* Active pulse */}
               {step.status === "active" && (
-                <motion.div
-                  className="absolute inset-0 rounded-full bg-blue-500"
-                  animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                <div
+                  className="absolute inset-0 rounded-full bg-neutral-500 animate-ping opacity-50"
                 />
               )}
-            </motion.button>
+            </button>
 
             {/* Step label */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+            <div
               className={cn(
                 "text-sm font-medium",
                 isHorizontal ? "ml-2" : "text-center",
-                step.status === "active" ? "text-blue-800" : "text-slate-700"
+                step.status === "active" ? "text-emerald-400" : "text-white/60"
               )}
             >
               {step.label}
-            </motion.div>
+            </div>
 
             {/* Connector line */}
             {!isLast && (
               <div
                 className={cn(
-                  "bg-gray-300 relative overflow-hidden",
+                  "bg-white/[0.06] relative overflow-hidden",
                   isHorizontal ? "flex-1 h-0.5 mx-2" : "w-0.5 h-8 mx-auto"
                 )}
               >
                 {step.status === "completed" && (
-                  <motion.div
+                  <div
                     className="absolute inset-0 bg-green-500"
-                    initial={isHorizontal ? { width: 0 } : { height: 0 }}
-                    animate={isHorizontal ? { width: "100%" } : { height: "100%" }}
-                    transition={{ duration: 0.3, delay: 0.2 }}
+                    style={{ width: isHorizontal ? "100%" : undefined, height: !isHorizontal ? "100%" : undefined }}
                   />
                 )}
               </div>
@@ -405,20 +360,17 @@ export function UploadProgress({
   const uploadedBytes = (fileSize * percentage) / 100;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className={cn("border rounded-lg p-2 bg-white shadow-sm", className)}
+    <div
+      className={cn("border border-white/[0.04] rounded-lg p-2 bg-[#111111]", className)}
     >
       <div className="flex items-start gap-3">
         {/* File icon */}
         <div
           className={cn(
             "w-10 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
-            status === "success" && "bg-green-100 text-green-600",
-            status === "error" && "bg-red-100 text-red-600",
-            status === "uploading" && "bg-blue-100 text-blue-800"
+            status === "success" && "bg-green-500/10 text-green-400",
+            status === "error" && "bg-red-500/10 text-red-400",
+            status === "uploading" && "bg-white/[0.06] text-white/60"
           )}
         >
           {status === "success" ? "✓" : status === "error" ? "✕" : "📄"}
@@ -428,8 +380,8 @@ export function UploadProgress({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{fileName}</p>
-              <p className="text-xs text-gray-700 mt-0.5">
+              <p className="text-sm font-medium text-white truncate">{fileName}</p>
+              <p className="text-xs text-white/60 mt-0.5">
                 {formatBytes(uploadedBytes)} / {formatBytes(fileSize)}
                 {speed && status === "uploading" && ` • ${formatSpeed(speed)}`}
               </p>
@@ -437,16 +389,14 @@ export function UploadProgress({
 
             {/* Cancel button */}
             {onCancel && status === "uploading" && (
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+              <button
                 onClick={onCancel}
-                className="text-gray-700 hover:text-slate-700 p-1"
+                className="text-white/35 hover:text-white/60 p-1"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-              </motion.button>
+              </button>
             )}
           </div>
 
@@ -459,26 +409,22 @@ export function UploadProgress({
 
           {/* Status message */}
           {status === "success" && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-xs text-green-600 font-medium mt-2"
+            <p
+              className="text-xs text-green-400 font-medium mt-2"
             >
               Upload complete
-            </motion.p>
+            </p>
           )}
           {status === "error" && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-xs text-red-600 font-medium mt-2"
+            <p
+              className="text-xs text-red-400 font-medium mt-2"
             >
               Upload failed
-            </motion.p>
+            </p>
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -493,15 +439,14 @@ interface LoadingSpinnerProps extends BaseProgressProps {
 
 export function LoadingSpinner({
   size = 24,
-  color = "#3b82f6",
+  color = "#10b981",
   label,
   className,
 }: LoadingSpinnerProps) {
   return (
     <div className={cn("flex flex-col items-center gap-2", className)}>
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+      <div
+        className="animate-spin"
         style={{ width: size, height: size }}
       >
         <svg viewBox="0 0 24 24" fill="none">
@@ -526,15 +471,13 @@ export function LoadingSpinner({
             strokeDasharray="15 45"
           />
         </svg>
-      </motion.div>
+      </div>
       {label && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-sm text-slate-700"
+        <p
+          className="text-sm text-white/60"
         >
           {label}
-        </motion.p>
+        </p>
       )}
     </div>
   );
@@ -547,18 +490,10 @@ export function PulsingDots({ className }: BaseProgressProps) {
   return (
     <div className={cn("flex gap-1", className)}>
       {[0, 1, 2].map((i) => (
-        <motion.div
+        <div
           key={i}
-          className="w-2 h-2 bg-blue-500 rounded-full"
-          animate={{
-            scale: [1, 1.5, 1],
-            opacity: [0.3, 1, 0.3],
-          }}
-          transition={{
-            duration: 1,
-            repeat: Infinity,
-            delay: i * 0.2,
-          }}
+          className="w-2 h-2 bg-neutral-500 rounded-full animate-pulse"
+          style={{ animationDelay: `${i * 0.2}s` }}
         />
       ))}
     </div>

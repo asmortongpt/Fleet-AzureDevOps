@@ -13,6 +13,7 @@ import { getTelemetryConfig } from '../config/telemetry';
 import { analytics } from '../services/analytics';
 import analyticsService from '../utils/analytics';
 
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 interface TelemetryEvent {
   name: string;
@@ -195,10 +196,10 @@ export const TelemetryDashboard: React.FC = () => {
             <div style={styles.metricsGrid}>
               <MetricCard label="Total Events" value={metrics.totalEvents} />
               <MetricCard label="Sessions" value={metrics.uniqueSessions} />
-              <MetricCard label="Errors" value={metrics.errorCount} color="#ef4444" />
+              <MetricCard label="Errors" value={metrics.errorCount} color="hsl(var(--chart-6))" />
               <MetricCard
                 label="Avg Response"
-                value={`${metrics.avgResponseTime.toFixed(0)}ms`}
+                value={`${(metrics.avgResponseTime ?? 0).toFixed(0)}ms`}
               />
             </div>
           </div>
@@ -221,11 +222,11 @@ export const TelemetryDashboard: React.FC = () => {
             <div style={styles.errorsSection}>
               <h3 style={styles.sectionTitle}>Recent Errors</h3>
               <div style={styles.errorsList}>
-                {metrics.recentErrors.map((error, idx) => (
-                  <div key={idx} style={styles.errorItem}>
+                {metrics.recentErrors.map((error) => (
+                  <div key={`${error.name}-${error.timestamp}`} style={styles.errorItem}>
                     <div style={styles.errorName}>{error.name}</div>
                     <div style={styles.errorTime}>
-                      {new Date(error.timestamp).toLocaleTimeString()}
+                      {formatTime(new Date(error.timestamp))}
                     </div>
                   </div>
                 ))}
@@ -264,8 +265,8 @@ export const TelemetryDashboard: React.FC = () => {
               Recent Events ({filteredEvents.length})
             </h3>
             <div style={styles.eventsList}>
-              {filteredEvents.slice(-50).reverse().map((event, idx) => (
-                <EventItem key={idx} event={event} />
+              {filteredEvents.slice(-50).reverse().map((event) => (
+                <EventItem key={`${event.name}-${event.timestamp}`} event={event} />
               ))}
             </div>
           </div>
@@ -282,7 +283,7 @@ const MetricCard: React.FC<{
   label: string;
   value: string | number;
   color?: string;
-}> = ({ label, value, color = '#3b82f6' }) => (
+}> = ({ label, value, color = 'hsl(var(--chart-1))' }) => (
   <div style={styles.metricCard}>
     <div style={{ ...styles.metricValue, color }}>{value}</div>
     <div style={styles.metricLabel}>{label}</div>
@@ -300,9 +301,12 @@ const EventItem: React.FC<{ event: TelemetryEvent }> = ({ event }) => {
       <div
         style={styles.eventHeader}
         onClick={() => setIsExpanded(!isExpanded)}
+        onKeyDown={(e) => e.key === 'Enter' && setIsExpanded(!isExpanded)}
+        role="button"
+        tabIndex={0}
       >
         <span style={styles.eventTimestamp}>
-          {new Date(event.timestamp).toLocaleTimeString()}
+          {formatTime(new Date(event.timestamp))}
         </span>
         <span style={styles.eventNameBadge}>{event.name}</span>
         <span style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
@@ -332,11 +336,11 @@ const styles: Record<string, React.CSSProperties> = {
     height: 50,
     borderRadius: '50%',
     border: 'none',
-    backgroundColor: '#3b82f6',
-    color: 'white',
+    backgroundColor: 'hsl(var(--primary))',
+    color: 'hsl(var(--primary-foreground))',
     fontSize: 24,
     cursor: 'pointer',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 4px 6px hsl(var(--foreground) / 0.1)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -347,17 +351,17 @@ const styles: Record<string, React.CSSProperties> = {
     right: 20,
     bottom: 20,
     width: 500,
-    backgroundColor: 'white',
+    backgroundColor: 'hsl(var(--card))',
     borderRadius: 8,
-    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+    boxShadow: '0 10px 25px hsl(var(--foreground) / 0.2)',
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
   },
   header: {
     padding: 16,
-    backgroundColor: '#1f2937',
-    color: 'white',
+    backgroundColor: 'hsl(var(--card))',
+    color: 'hsl(var(--foreground))',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -370,7 +374,7 @@ const styles: Record<string, React.CSSProperties> = {
   closeButton: {
     background: 'none',
     border: 'none',
-    color: 'white',
+    color: 'hsl(var(--foreground))',
     fontSize: 28,
     cursor: 'pointer',
     padding: 0,
@@ -382,13 +386,13 @@ const styles: Record<string, React.CSSProperties> = {
   },
   configSection: {
     padding: 16,
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid hsl(var(--border))',
   },
   sectionTitle: {
     margin: '0 0 12px 0',
     fontSize: 14,
     fontWeight: 600,
-    color: '#374151',
+    color: 'hsl(var(--foreground))',
   },
   configGrid: {
     display: 'grid',
@@ -402,14 +406,14 @@ const styles: Record<string, React.CSSProperties> = {
   },
   configLabel: {
     fontWeight: 600,
-    color: '#6b7280',
+    color: 'hsl(var(--muted-foreground))',
   },
   statusEnabled: {
-    color: '#10b981',
+    color: 'hsl(var(--chart-2))',
     fontWeight: 600,
   },
   statusDisabled: {
-    color: '#ef4444',
+    color: 'hsl(var(--chart-6))',
     fontWeight: 600,
   },
   sessionId: {
@@ -418,7 +422,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   metricsSection: {
     padding: 16,
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid hsl(var(--border))',
   },
   metricsGrid: {
     display: 'grid',
@@ -427,7 +431,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   metricCard: {
     padding: 12,
-    backgroundColor: '#f9fafb',
+    backgroundColor: 'hsl(var(--muted))',
     borderRadius: 6,
     textAlign: 'center',
   },
@@ -438,11 +442,11 @@ const styles: Record<string, React.CSSProperties> = {
   },
   metricLabel: {
     fontSize: 12,
-    color: '#6b7280',
+    color: 'hsl(var(--muted-foreground))',
   },
   topEventsSection: {
     padding: 16,
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid hsl(var(--border))',
     maxHeight: 200,
     overflowY: 'auto',
   },
@@ -456,22 +460,22 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 6,
-    backgroundColor: '#f9fafb',
+    backgroundColor: 'hsl(var(--muted))',
     borderRadius: 4,
     fontSize: 12,
   },
   eventName: {
     fontFamily: 'monospace',
-    color: '#374151',
+    color: 'hsl(var(--foreground))',
   },
   eventCount: {
     fontWeight: 600,
-    color: '#3b82f6',
+    color: 'hsl(var(--chart-1))',
   },
   errorsSection: {
     padding: 16,
-    borderBottom: '1px solid #e5e7eb',
-    backgroundColor: '#fef2f2',
+    borderBottom: '1px solid hsl(var(--border))',
+    backgroundColor: 'hsl(var(--destructive) / 0.1)',
   },
   errorsList: {
     display: 'flex',
@@ -483,21 +487,21 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 6,
-    backgroundColor: 'white',
+    backgroundColor: 'hsl(var(--card))',
     borderRadius: 4,
     fontSize: 12,
   },
   errorName: {
-    color: '#ef4444',
+    color: 'hsl(var(--destructive))',
     fontWeight: 600,
   },
   errorTime: {
-    color: '#6b7280',
+    color: 'hsl(var(--muted-foreground))',
     fontSize: 11,
   },
   controls: {
     padding: 16,
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid hsl(var(--border))',
     display: 'flex',
     gap: 8,
     alignItems: 'center',
@@ -505,7 +509,7 @@ const styles: Record<string, React.CSSProperties> = {
   filterInput: {
     flex: 1,
     padding: '6px 12px',
-    border: '1px solid #d1d5db',
+    border: '1px solid hsl(var(--border))',
     borderRadius: 4,
     fontSize: 13,
   },
@@ -518,8 +522,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   actionButton: {
     padding: '6px 12px',
-    backgroundColor: '#3b82f6',
-    color: 'white',
+    backgroundColor: 'hsl(var(--primary))',
+    color: 'hsl(var(--primary-foreground))',
     border: 'none',
     borderRadius: 4,
     fontSize: 13,
@@ -528,8 +532,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   dangerButton: {
     padding: '6px 12px',
-    backgroundColor: '#ef4444',
-    color: 'white',
+    backgroundColor: 'hsl(var(--destructive))',
+    color: 'hsl(var(--destructive-foreground))',
     border: 'none',
     borderRadius: 4,
     fontSize: 13,
@@ -547,7 +551,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 8,
   },
   eventItem: {
-    border: '1px solid #e5e7eb',
+    border: '1px solid hsl(var(--border))',
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -557,28 +561,28 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: 8,
     cursor: 'pointer',
-    backgroundColor: '#f9fafb',
+    backgroundColor: 'hsl(var(--muted))',
   },
   eventTimestamp: {
     fontSize: 11,
-    color: '#6b7280',
+    color: 'hsl(var(--muted-foreground))',
     fontFamily: 'monospace',
   },
   eventNameBadge: {
     flex: 1,
     fontSize: 12,
     fontFamily: 'monospace',
-    color: '#374151',
+    color: 'hsl(var(--foreground))',
   },
   expandIcon: {
     fontSize: 10,
-    color: '#9ca3af',
+    color: 'hsl(var(--muted-foreground))',
   },
   eventProperties: {
     margin: 0,
     padding: 12,
-    backgroundColor: '#1f2937',
-    color: '#e5e7eb',
+    backgroundColor: 'hsl(var(--card))',
+    color: 'hsl(var(--foreground))',
     fontSize: 11,
     fontFamily: 'monospace',
     overflow: 'auto',

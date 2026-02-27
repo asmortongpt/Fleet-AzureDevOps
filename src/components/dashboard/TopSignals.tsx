@@ -4,6 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface Signal {
@@ -41,16 +42,19 @@ export function TopSignals({ className }: TopSignalsProps) {
   React.useEffect(() => {
     const fetchTopSignals = async () => {
       try {
-        const [dashboardStats, maintenanceAlerts, costsData] = await Promise.all([
+        const [dashboardStats, maintenanceAlerts, costsData, healthData] = await Promise.all([
           fetch('/api/dashboard/stats', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null),
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch dashboard stats for signals', { error: String(err) }); return null; }),
           fetch('/api/dashboard/maintenance/alerts', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null),
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch maintenance alerts for signals', { error: String(err) }); return null; }),
           fetch('/api/dashboard/costs/summary?period=monthly', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null)
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch cost summary for signals', { error: String(err) }); return null; }),
+          fetch('/api/health', { credentials: 'include' })
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch system health for signals', { error: String(err) }); return null; })
         ]);
 
         const detectedSignals: Signal[] = [];
@@ -149,9 +153,9 @@ export function TopSignals({ className }: TopSignalsProps) {
               id: 'cost-efficiency',
               priority: 2,
               title: 'Operating below cost targets',
-              reason: `Cost per mile $${costPerMile.toFixed(2)} vs target $${targetCostPerMile.toFixed(2)}`,
+              reason: `Cost per mile ${formatCurrency(costPerMile)} vs target ${formatCurrency(targetCostPerMile)}`,
               impact: 'Exceeding financial efficiency goals',
-              metrics: `Fuel: $${costsData.fuel_cost?.toLocaleString() || 0}, Maintenance: $${costsData.maintenance_cost?.toLocaleString() || 0}`,
+              metrics: `Fuel: ${formatCurrency(costsData.fuel_cost || 0)}, Maintenance: ${formatCurrency(costsData.maintenance_cost || 0)}`,
               icon: <TrendingUp className="h-5 w-5" />,
               color: 'text-emerald-600 dark:text-emerald-700'
             });
@@ -162,24 +166,36 @@ export function TopSignals({ className }: TopSignalsProps) {
               title: 'Rising operational costs',
               reason: `Fuel ${fuelTrend > 0 ? 'up' : 'down'} ${Math.abs(fuelTrend)}%, Maintenance ${maintenanceTrend > 0 ? 'up' : 'down'} ${Math.abs(maintenanceTrend)}%`,
               impact: 'Budget pressure and margin erosion',
-              metrics: `Cost per mile: $${costPerMile.toFixed(2)}`,
+              metrics: `Cost per mile: ${formatCurrency(costPerMile)}`,
               icon: <AlertTriangle className="h-5 w-5" />,
               color: 'text-orange-600 dark:text-orange-400'
             });
           }
         }
 
-        // Signal 5: System Stability
-        detectedSignals.push({
-          id: 'system-stability',
-          priority: 4,
-          title: 'Platform operating normally',
-          reason: 'All critical systems responding within SLA',
-          impact: 'Uninterrupted operations and data accuracy',
-          metrics: 'Database: <20ms, API: 0% errors, Cache: 87% hit rate',
-          icon: <Activity className="h-5 w-5" />,
-          color: 'text-blue-600 dark:text-blue-700'
-        });
+        // Signal 5: System Stability (from live health checks)
+        if (healthData && healthData.checks) {
+          const dbLatency = healthData.checks.database?.latency || 'unknown'
+          const redisStatus = healthData.checks.redis?.status || 'unknown'
+          const memoryPct = healthData.checks.memory?.systemMemoryPercentage
+          const diskPct = healthData.checks.disk?.usedPercentage
+          const status = healthData.status || 'unknown'
+
+          detectedSignals.push({
+            id: 'system-stability',
+            priority: 4,
+            title: status === 'healthy' ? 'Platform operating normally' : 'Platform health degraded',
+            reason: status === 'healthy'
+              ? 'All critical systems responding within thresholds'
+              : `Health status: ${status}`,
+            impact: status === 'healthy'
+              ? 'Uninterrupted operations and data accuracy'
+              : 'Potential performance or availability risk',
+            metrics: `DB: ${dbLatency}, Redis: ${redisStatus}, Memory: ${memoryPct ?? 'n/a'}%, Disk: ${diskPct ?? 'n/a'}%`,
+            icon: <Activity className="h-5 w-5" />,
+            color: status === 'healthy' ? 'text-emerald-400 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'
+          });
+        }
 
         // Sort by priority and take top 5
         const topSignals = detectedSignals
@@ -236,16 +252,15 @@ export function TopSignals({ className }: TopSignalsProps) {
               {signals.map((signal, index) => (
                 <div
                   key={signal.id}
-                  className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
+                  className="p-4 rounded-lg border bg-card transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                       <div className={cn(
-                        'p-2 rounded-lg bg-gradient-to-br',
-                        signal.color.includes('emerald') && 'from-emerald-50 to-emerald-100 dark:from-emerald-950 dark:to-emerald-900',
-                        signal.color.includes('orange') && 'from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900',
-                        signal.color.includes('red') && 'from-red-50 to-red-100 dark:from-red-950 dark:to-red-900',
-                        signal.color.includes('blue') && 'from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900'
+                        'p-2 rounded-lg',
+                        signal.color.includes('emerald') && 'bg-emerald-500/10 dark:bg-emerald-950',
+                        signal.color.includes('orange') && 'bg-orange-500/10 dark:bg-orange-950',
+                        signal.color.includes('red') && 'bg-red-500/10 dark:bg-red-950'
                       )}>
                         <div className={signal.color}>
                           {signal.icon}
@@ -255,7 +270,7 @@ export function TopSignals({ className }: TopSignalsProps) {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-neutral-100 dark:bg-[#1a1a1a] text-white/40 dark:text-white/80">
                           #{index + 1}
                         </span>
                       </div>

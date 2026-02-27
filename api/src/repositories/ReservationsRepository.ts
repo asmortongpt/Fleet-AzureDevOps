@@ -505,7 +505,8 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
   ): Promise<any[]> {
     try {
       const pool = this.getPool(context);
-      const query = 'SELECT * FROM get_vehicle_availability(, ::DATE, ::DATE)';
+      /* TODO: replace with explicit columns from get_vehicle_availability() function return type */
+      const query = 'SELECT date, is_available, reservation_id, reservation_status FROM get_vehicle_availability(, ::DATE, ::DATE)';
       const result = await pool.query(query, [vehicleId, startDate, endDate]);
       return result.rows;
     } catch (error) {
@@ -567,7 +568,8 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
   async getPendingApprovals(context: QueryContext): Promise<ReservationWithDetails[]> {
     try {
       const pool = this.getPool(context);
-      const query = 'SELECT * FROM pending_approval_reservations WHERE tenant_id =  ORDER BY created_at ASC';
+      /* TODO: replace with explicit columns from pending_approval_reservations view */
+      const query = 'SELECT id, tenant_id, vehicle_id, user_id, start_datetime, end_datetime, status, purpose, approved_by, created_at, updated_at FROM pending_approval_reservations WHERE tenant_id =  ORDER BY created_at ASC';
       const result = await pool.query(query, [context.tenantId]);
       return result.rows;
     } catch (error) {

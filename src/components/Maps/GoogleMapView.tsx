@@ -16,6 +16,8 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { Spinner } from '@/components/ui/spinner'
 import { Vehicle } from '@/types/Vehicle'
+import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 
 // ============================================================================
@@ -86,9 +88,8 @@ const MapComponent: React.FC<MapComponentProps> = ({ center, zoom, children }) =
     <>
       <div ref={ref} className="w-full h-full" />
       {React.Children.map(children, (child) => {
-        if (React.isValidElement(child)) {
-          // @ts-ignore
-          return React.cloneElement(child, { map })
+        if (React.isValidElement<{ map?: google.maps.Map }>(child)) {
+          return React.cloneElement(child, { map: map ?? undefined })
         }
       })}
     </>
@@ -105,6 +106,30 @@ interface VehicleMarkerProps {
   onClick?: (vehicle: Vehicle) => void
 }
 
+const resolveVehiclePosition = (vehicle: Vehicle) => {
+  const lat =
+    (vehicle as any)?.location?.lat ??
+    (vehicle as any)?.location?.latitude ??
+    (vehicle as any)?.latitude ??
+    (vehicle as any)?.current_latitude ??
+    (vehicle as any)?.lat
+  const lng =
+    (vehicle as any)?.location?.lng ??
+    (vehicle as any)?.location?.longitude ??
+    (vehicle as any)?.longitude ??
+    (vehicle as any)?.current_longitude ??
+    (vehicle as any)?.lng
+
+  const latNum = typeof lat === 'string' ? parseFloat(lat) : Number(lat)
+  const lngNum = typeof lng === 'string' ? parseFloat(lng) : Number(lng)
+
+  if (!Number.isFinite(latNum) || !Number.isFinite(lngNum)) {
+    return null
+  }
+
+  return { lat: latNum, lng: lngNum }
+}
+
 const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) => {
   const markerRef = useRef<google.maps.Marker | null>(null)
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
@@ -113,19 +138,19 @@ const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) 
   const getMarkerColor = (status: Vehicle['status']): string => {
     switch (status) {
       case 'active':
-        return '#10b981' // green
+        return 'hsl(var(--chart-2))'
       case 'idle':
-        return '#3b82f6' // blue
+        return 'hsl(var(--chart-1))'
       case 'charging':
-        return '#f59e0b' // amber
+        return 'hsl(var(--chart-3))'
       case 'service':
-        return '#ef4444' // red
+        return 'hsl(var(--chart-6))'
       case 'emergency':
-        return '#dc2626' // dark red
+        return 'hsl(var(--chart-6))'
       case 'offline':
-        return '#6b7280' // gray
+        return 'hsl(var(--muted-foreground))'
       default:
-        return '#6b7280'
+        return 'hsl(var(--muted-foreground))'
     }
   }
 
@@ -137,8 +162,8 @@ const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) 
     const svg = `
       <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
         <path d="M20 0C8.954 0 0 8.954 0 20c0 14.5 20 30 20 30s20-15.5 20-30C40 8.954 31.046 0 20 0z"
-              fill="${color}" stroke="#ffffff" stroke-width="2"/>
-        <circle cx="20" cy="20" r="12" fill="#ffffff"/>
+              fill="${color}" stroke="hsl(var(--background))" stroke-width="2"/>
+        <circle cx="20" cy="20" r="12" fill="hsl(var(--background))"/>
         <text x="20" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="${color}">
           ${type === 'truck' ? '🚛' : type === 'van' ? '🚐' : type === 'bus' ? '🚌' : '🚗'}
         </text>
@@ -155,10 +180,8 @@ const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) 
   useEffect(() => {
     if (!map || markerRef.current) return
 
-    const position = {
-      lat: vehicle.location.lat || vehicle.location.latitude || 0,
-      lng: vehicle.location.lng || vehicle.location.longitude || 0
-    }
+    const position = resolveVehiclePosition(vehicle)
+    if (!position) return
 
     // Create marker
     const marker = new google.maps.Marker({
@@ -173,16 +196,16 @@ const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) 
     const infoWindow = new google.maps.InfoWindow({
       content: `
         <div style="padding: 12px; min-width: 200px;">
-          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #1f2937;">
+          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: hsl(var(--foreground));">
             ${vehicle.name || `Vehicle ${vehicle.number}`}
           </h3>
-          <div style="font-size: 14px; color: #6b7280; line-height: 1.6;">
-            <div><strong>Status:</strong> <span style="color: ${getMarkerColor(vehicle.status)}; text-transform: capitalize;">${vehicle.status}</span></div>
+          <div style="font-size: 14px; color: hsl(var(--muted-foreground)); line-height: 1.6;">
+            <div><strong>Status:</strong> <span style="color: ${getMarkerColor(vehicle.status)};">${formatEnum(vehicle.status)}</span></div>
             <div><strong>Type:</strong> ${vehicle.type}</div>
-            <div><strong>Make:</strong> ${vehicle.make} ${vehicle.model}</div>
-            <div><strong>Driver:</strong> ${vehicle.assignedDriver || vehicle.driver || 'Unassigned'}</div>
+            <div><strong>Make:</strong> ${formatVehicleName(vehicle)}</div>
+            <div><strong>Driver:</strong> ${vehicle.assignedDriver || vehicle.driver || '—'}</div>
             <div><strong>Fuel:</strong> ${vehicle.fuelLevel}%</div>
-            <div><strong>Location:</strong> ${vehicle.location.address}</div>
+            <div><strong>Location:</strong> ${vehicle.location?.address || (vehicle as any).location_address || '—'}</div>
           </div>
         </div>
       `
@@ -206,14 +229,13 @@ const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) 
   // Update marker position when vehicle moves
   useEffect(() => {
     if (markerRef.current) {
-      const position = {
-        lat: vehicle.location.lat || vehicle.location.latitude || 0,
-        lng: vehicle.location.lng || vehicle.location.longitude || 0
+      const position = resolveVehiclePosition(vehicle)
+      if (position) {
+        markerRef.current.setPosition(position)
       }
-      markerRef.current.setPosition(position)
       markerRef.current.setIcon(createMarkerIcon(vehicle.status, vehicle.type))
     }
-  }, [vehicle.location.lat, vehicle.location.lng, vehicle.location.latitude, vehicle.location.longitude, vehicle.status, vehicle.type])
+  }, [vehicle])
 
   return null
 }
@@ -267,7 +289,7 @@ interface RoutePolylineProps {
   color?: string
 }
 
-const RoutePolyline: React.FC<RoutePolylineProps> = ({ map, path, color = '#3b82f6' }) => {
+const RoutePolyline: React.FC<RoutePolylineProps> = ({ map, path, color = 'hsl(var(--chart-1))' }) => {
   const polylineRef = useRef<google.maps.Polyline | null>(null)
 
   useEffect(() => {
@@ -297,21 +319,21 @@ const RoutePolyline: React.FC<RoutePolylineProps> = ({ map, path, color = '#3b82
 // ============================================================================
 
 const LoadingComponent: React.FC = () => (
-  <div className="flex items-center justify-center w-full h-full bg-slate-900">
+  <div className="flex items-center justify-center w-full h-full bg-[#0a0a0a]">
     <div className="text-center">
-      <Spinner className="w-4 h-4 text-blue-800 mb-2" />
-      <p className="text-slate-700">Loading Google Maps...</p>
+      <Spinner className="w-4 h-4 text-primary mb-2" />
+      <p className="text-white/60">Loading Google Maps...</p>
     </div>
   </div>
 )
 
 const ErrorComponent: React.FC<{ error: Error }> = ({ error }) => (
-  <div className="flex items-center justify-center w-full h-full bg-slate-900">
-    <div className="text-center max-w-md p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
+  <div className="flex items-center justify-center w-full h-full bg-[#0a0a0a]">
+    <div className="text-center max-w-md p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
       <AlertCircle className="w-12 h-9 text-red-500 mx-auto mb-2" />
       <h3 className="text-base font-bold text-white mb-2">Map Loading Error</h3>
-      <p className="text-sm text-slate-700 mb-2">{error.message}</p>
-      <p className="text-xs text-slate-500">
+      <p className="text-sm text-white/60 mb-2">{error.message}</p>
+      <p className="text-xs text-white/35">
         Please check your Google Maps API key configuration.
       </p>
     </div>
@@ -347,7 +369,7 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
   routes = [],
   className = ''
 }) => {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
 
   // Calculate center from vehicles if not provided
   const mapCenter = center || (vehicles.length > 0 ? {
@@ -384,29 +406,29 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
           )}
           {showRoutes && routes.map((route, index) => (
             <RoutePolyline
-              key={index}
+              key={`route-${route[0]?.lat}-${route[0]?.lng}-${route.length}`}
               path={route}
-              color={index % 2 === 0 ? '#3b82f6' : '#8b5cf6'}
+              color={index % 2 === 0 ? 'hsl(var(--chart-1))' : 'hsl(var(--chart-4))'}
             />
           ))}
         </MapComponent>
       </Wrapper>
 
       {/* Map Controls Overlay */}
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-lg shadow-sm p-3 space-y-2">
+      <div className="absolute top-4 left-4 bg-[#111111] rounded-lg p-3 space-y-2 border border-white/[0.04]">
         <div className="flex items-center gap-2">
-          <Navigation className="w-4 h-4 text-blue-800" />
-          <span className="text-sm font-medium text-gray-900">
+          <Navigation className="w-4 h-4 text-emerald-400" />
+          <span className="text-sm font-medium text-white">
             {vehicles.length} Vehicle{vehicles.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <div className="space-y-1 text-xs text-slate-700">
+        <div className="space-y-1 text-xs text-white/60">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500" />
             <span>Active ({vehicles.filter(v => v.status === 'active').length})</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-500" />
+            <div className="w-3 h-3 rounded-full bg-emerald-500" />
             <span>Idle ({vehicles.filter(v => v.status === 'idle').length})</span>
           </div>
           <div className="flex items-center gap-2">

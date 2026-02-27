@@ -85,16 +85,16 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
         if (!active || !payload) return null
 
         return (
-            <div className="bg-slate-800/95 border border-slate-700 rounded-lg p-2 shadow-sm">
-                <p className="text-slate-300 font-medium mb-2">{label}</p>
-                {payload.map((entry: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between gap-2 text-sm">
+            <div className="bg-[#1a1a1a]/95 border border-white/[0.15] rounded-lg p-2">
+                <p className="text-white/60 font-medium mb-2">{label}</p>
+                {payload.map((entry: any) => (
+                    <div key={entry.name} className="flex items-center justify-between gap-2 text-sm">
                         <span className="flex items-center gap-2">
                             <div
                                 className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: entry.color }}
                             />
-                            <span className="text-slate-700">{entry.name}:</span>
+                            <span className="text-white/70">{entry.name}:</span>
                         </span>
                         <span className="font-semibold text-white">
                             {formatCurrency(entry.value)}
@@ -114,15 +114,15 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
             case 'line':
                 return (
                     <LineChart data={data} {...chartConfig}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
-                        <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-                        <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatCurrency} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                        <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={formatCurrency} />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend wrapperStyle={{ fontSize: '12px' }} />
                         <Line
                             type="monotone"
                             dataKey="fuel"
-                            stroke="#3b82f6"
+                            stroke="hsl(var(--chart-1))"
                             strokeWidth={2}
                             dot={{ r: 4 }}
                             activeDot={{ r: 6 }}
@@ -131,7 +131,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                         <Line
                             type="monotone"
                             dataKey="maintenance"
-                            stroke="#f59e0b"
+                            stroke="hsl(var(--chart-3))"
                             strokeWidth={2}
                             dot={{ r: 4 }}
                             name="Maintenance"
@@ -139,7 +139,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                         <Line
                             type="monotone"
                             dataKey="insurance"
-                            stroke="#8b5cf6"
+                            stroke="hsl(var(--chart-4))"
                             strokeWidth={2}
                             dot={{ r: 4 }}
                             name="Insurance"
@@ -147,7 +147,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                         <Line
                             type="monotone"
                             dataKey="total"
-                            stroke="#10b981"
+                            stroke="hsl(var(--chart-2))"
                             strokeWidth={3}
                             dot={{ r: 5 }}
                             name="Total"
@@ -156,7 +156,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                             <Line
                                 type="monotone"
                                 dataKey="budget"
-                                stroke="#ef4444"
+                                stroke="hsl(var(--chart-6))"
                                 strokeWidth={2}
                                 strokeDasharray="5 5"
                                 dot={false}
@@ -169,17 +169,17 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
             case 'area':
                 return (
                     <AreaChart data={data} {...chartConfig}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
-                        <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-                        <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatCurrency} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                        <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={formatCurrency} />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend wrapperStyle={{ fontSize: '12px' }} />
                         <Area
                             type="monotone"
                             dataKey="fuel"
                             stackId="1"
-                            stroke="#3b82f6"
-                            fill="#3b82f6"
+                            stroke="hsl(var(--chart-1))"
+                            fill="hsl(var(--chart-1))"
                             fillOpacity={0.6}
                             name="Fuel"
                         />
@@ -187,8 +187,8 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                             type="monotone"
                             dataKey="maintenance"
                             stackId="1"
-                            stroke="#f59e0b"
-                            fill="#f59e0b"
+                            stroke="hsl(var(--chart-3))"
+                            fill="hsl(var(--chart-3))"
                             fillOpacity={0.6}
                             name="Maintenance"
                         />
@@ -196,8 +196,8 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                             type="monotone"
                             dataKey="insurance"
                             stackId="1"
-                            stroke="#8b5cf6"
-                            fill="#8b5cf6"
+                            stroke="hsl(var(--chart-4))"
+                            fill="hsl(var(--chart-4))"
                             fillOpacity={0.6}
                             name="Insurance"
                         />
@@ -205,8 +205,8 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                             type="monotone"
                             dataKey="depreciation"
                             stackId="1"
-                            stroke="#64748b"
-                            fill="#64748b"
+                            stroke="hsl(var(--chart-5))"
+                            fill="hsl(var(--chart-5))"
                             fillOpacity={0.6}
                             name="Depreciation"
                         />
@@ -216,15 +216,15 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
             case 'bar':
                 return (
                     <BarChart data={data} {...chartConfig}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
-                        <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-                        <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatCurrency} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                        <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={formatCurrency} />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend wrapperStyle={{ fontSize: '12px' }} />
-                        <Bar dataKey="fuel" fill="#3b82f6" name="Fuel" />
-                        <Bar dataKey="maintenance" fill="#f59e0b" name="Maintenance" />
-                        <Bar dataKey="insurance" fill="#8b5cf6" name="Insurance" />
-                        <Bar dataKey="depreciation" fill="#64748b" name="Depreciation" />
+                        <Bar dataKey="fuel" fill="hsl(var(--chart-1))" name="Fuel" />
+                        <Bar dataKey="maintenance" fill="hsl(var(--chart-3))" name="Maintenance" />
+                        <Bar dataKey="insurance" fill="hsl(var(--chart-4))" name="Insurance" />
+                        <Bar dataKey="depreciation" fill="hsl(var(--chart-5))" name="Depreciation" />
                     </BarChart>
                 )
 
@@ -232,18 +232,18 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
             default:
                 return (
                     <ComposedChart data={data} {...chartConfig}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
-                        <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-                        <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatCurrency} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                        <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={formatCurrency} />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend wrapperStyle={{ fontSize: '12px' }} />
-                        <Bar dataKey="fuel" fill="#3b82f6" name="Fuel" />
-                        <Bar dataKey="maintenance" fill="#f59e0b" name="Maintenance" />
-                        <Bar dataKey="insurance" fill="#8b5cf6" name="Insurance" />
+                        <Bar dataKey="fuel" fill="hsl(var(--chart-1))" name="Fuel" />
+                        <Bar dataKey="maintenance" fill="hsl(var(--chart-3))" name="Maintenance" />
+                        <Bar dataKey="insurance" fill="hsl(var(--chart-4))" name="Insurance" />
                         <Line
                             type="monotone"
                             dataKey="total"
-                            stroke="#10b981"
+                            stroke="hsl(var(--chart-2))"
                             strokeWidth={3}
                             dot={{ r: 5 }}
                             name="Total"
@@ -252,7 +252,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                             <Line
                                 type="monotone"
                                 dataKey="budget"
-                                stroke="#ef4444"
+                                stroke="hsl(var(--chart-6))"
                                 strokeWidth={2}
                                 strokeDasharray="5 5"
                                 dot={false}
@@ -266,7 +266,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
 
     if (!data || data.length === 0) {
         return (
-            <div className="flex items-center justify-center h-full text-slate-700">
+            <div className="flex items-center justify-center h-full text-white/70">
                 <p>No cost data available</p>
             </div>
         )
@@ -277,8 +277,8 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
             {/* Summary Stats */}
             {stats && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
                             <DollarSign className="w-4 h-4" />
                             <span>Total Cost</span>
                         </div>
@@ -286,24 +286,24 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                             {formatCurrency(stats.totalCost)}
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
                             <span>Average</span>
                         </div>
                         <p className="text-sm font-bold text-white">
                             {formatCurrency(stats.avgCost)}
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
                             <span>Peak</span>
                         </div>
                         <p className="text-sm font-bold text-white">
                             {formatCurrency(stats.maxCost)}
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
                             {stats.trend === 'up' ? (
                                 <TrendingUp className="w-4 h-4 text-red-400" />
                             ) : (
@@ -319,7 +319,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
             )}
 
             {/* Chart */}
-            <div className="bg-slate-800/40 rounded-lg p-3">
+            <div className="bg-[#1a1a1a]/40 rounded-lg p-3">
                 <ResponsiveContainer width="100%" height={400}>
                     {renderChart()}
                 </ResponsiveContainer>

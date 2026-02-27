@@ -36,7 +36,7 @@ export class MaintenanceRepository extends BaseRepository<any> {
 
   async findByTenant(tenantId: number): Promise<MaintenanceSchedule[]> {
     const query = `
-      SELECT * FROM maintenance_schedules
+      SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules
       WHERE tenant_id = $1 AND deleted_at IS NULL
       ORDER BY scheduled_date DESC
     `;
@@ -110,7 +110,7 @@ export class MaintenanceRepository extends BaseRepository<any> {
 
     // Data
     const dataQuery = `
-      SELECT * FROM maintenance_schedules
+      SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules
       ${whereClause}
       ORDER BY scheduled_date DESC
       LIMIT ${limit} OFFSET ${offset}
@@ -139,7 +139,7 @@ export class MaintenanceRepository extends BaseRepository<any> {
     const finalKeys = Object.keys(finalData);
     const finalCols = finalKeys.join(', ');
     const finalPlaceholders = finalKeys.map((_, i) => `$${i + 1}`).join(', ');
-    const finalValues = finalKeys.map(k => (finalData as any)[k]);
+    const finalValues = finalKeys.map(k => (finalData as Record<string, unknown>)[k]);
 
     const query = `
       INSERT INTO maintenance_schedules (${finalCols})
@@ -164,7 +164,7 @@ return null;
       WHERE id = $1 AND tenant_id = $2
       RETURNING *
     `;
-    const values = [id, tenantId, ...keys.map(k => (data as any)[k])];
+    const values = [id, tenantId, ...keys.map(k => (data as Record<string, unknown>)[k])];
     const result = await this.pool.query(query, values);
     return result.rows[0] || null;
   }
@@ -176,19 +176,19 @@ return null;
   }
 
   async findByIdAndTenant(id: number, tenantId: number): Promise<MaintenanceSchedule | null> {
-    const query = `SELECT * FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`;
+    const query = `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`;
     const result = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }
 
   async findByVehicle(tenantId: number, vehicleId: number): Promise<MaintenanceSchedule[]> {
-    const query = `SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND vehicle_id = $2 AND deleted_at IS NULL ORDER BY scheduled_date DESC`;
+    const query = `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules WHERE tenant_id = $1 AND vehicle_id = $2 AND deleted_at IS NULL ORDER BY scheduled_date DESC`;
     const result = await this.pool.query(query, [tenantId, vehicleId]);
     return result.rows;
   }
 
   async findByStatus(tenantId: number, status: string): Promise<MaintenanceSchedule[]> {
-    const query = `SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND status = $2 AND deleted_at IS NULL ORDER BY scheduled_date DESC`;
+    const query = `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules WHERE tenant_id = $1 AND status = $2 AND deleted_at IS NULL ORDER BY scheduled_date DESC`;
     const result = await this.pool.query(query, [tenantId, status]);
     return result.rows;
   }

@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 
 import { api } from "@/lib/api";
+import logger from '@/utils/logger';
 
 interface VehicleFormData {
   fleet_number: string;
@@ -62,9 +63,26 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
     setIsSubmitting(true);
     setError(null);
 
+    // Validation
+    if (formData.vin && formData.vin.trim().length !== 17) {
+      setError('VIN must be exactly 17 characters');
+      setIsSubmitting(false);
+      return;
+    }
+    const currentYear = new Date().getFullYear();
+    if (formData.year < 1900 || formData.year > currentYear + 2) {
+      setError(`Year must be between 1900 and ${currentYear + 2}`);
+      setIsSubmitting(false);
+      return;
+    }
+    if (formData.mileage !== undefined && formData.mileage < 0) {
+      setError('Mileage cannot be negative');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const vehicle = await api.post('/vehicles', formData);
-      // console.log('✅ Vehicle created in database:', vehicle);
 
       if (onSuccess) {
         onSuccess(vehicle);
@@ -87,16 +105,16 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create vehicle');
-      console.error('❌ Vehicle creation failed:', err);
+      logger.error('Vehicle creation failed:', err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-white p-3 rounded-lg shadow-sm max-w-2xl mx-auto">
-      <h2 className="text-sm font-bold mb-3 text-gray-800">Add New Vehicle</h2>
-      <p className="text-sm text-slate-700 mb-2">
+    <div className="bg-white p-3 rounded-lg max-w-2xl mx-auto">
+      <h2 className="text-sm font-bold mb-3 text-white/60">Add New Vehicle</h2>
+      <p className="text-sm text-white/70 mb-2">
         🔄 Real Database Entry - Data will be saved to SQLite database
       </p>
 
@@ -109,7 +127,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
       <form onSubmit={handleSubmit} className="space-y-2">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div>
-            <label htmlFor="fleet_number" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="fleet_number" className="block text-sm font-medium text-white/40 mb-1">
               Fleet Number *
             </label>
             <input
@@ -119,13 +137,13 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               value={formData.fleet_number}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
               placeholder="e.g., FL-001"
             />
           </div>
 
           <div>
-            <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="vin" className="block text-sm font-medium text-white/40 mb-1">
               VIN *
             </label>
             <input
@@ -136,13 +154,13 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               onChange={handleChange}
               required
               maxLength={17}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
               placeholder="17-character VIN"
             />
           </div>
 
           <div>
-            <label htmlFor="make" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="make" className="block text-sm font-medium text-white/40 mb-1">
               Make *
             </label>
             <input
@@ -152,13 +170,13 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               value={formData.make}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
               placeholder="e.g., Ford"
             />
           </div>
 
           <div>
-            <label htmlFor="model" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="model" className="block text-sm font-medium text-white/40 mb-1">
               Model *
             </label>
             <input
@@ -168,13 +186,13 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               value={formData.model}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
               placeholder="e.g., F-150"
             />
           </div>
 
           <div>
-            <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="year" className="block text-sm font-medium text-white/40 mb-1">
               Year *
             </label>
             <input
@@ -186,12 +204,12 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               required
               min={1990}
               max={new Date().getFullYear() + 1}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
 
           <div>
-            <label htmlFor="license_plate" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="license_plate" className="block text-sm font-medium text-white/40 mb-1">
               License Plate *
             </label>
             <input
@@ -201,13 +219,13 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               value={formData.license_plate}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
               placeholder="e.g., ABC-123"
             />
           </div>
 
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="type" className="block text-sm font-medium text-white/40 mb-1">
               Vehicle Type *
             </label>
             <select
@@ -216,7 +234,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               value={formData.type}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               <option value="sedan">Sedan</option>
               <option value="suv">SUV</option>
@@ -228,7 +246,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
           </div>
 
           <div>
-            <label htmlFor="fuel_type" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="fuel_type" className="block text-sm font-medium text-white/40 mb-1">
               Fuel Type *
             </label>
             <select
@@ -237,7 +255,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               value={formData.fuel_type}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               <option value="gas">Gasoline</option>
               <option value="diesel">Diesel</option>
@@ -247,7 +265,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
           </div>
 
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="status" className="block text-sm font-medium text-white/40 mb-1">
               Status *
             </label>
             <select
@@ -256,7 +274,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               value={formData.status}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               <option value="active">Active</option>
               <option value="maintenance">In Maintenance</option>
@@ -266,7 +284,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
           </div>
 
           <div>
-            <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="department" className="block text-sm font-medium text-white/40 mb-1">
               Department *
             </label>
             <select
@@ -275,7 +293,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               value={formData.department}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               <option value="Operations">Operations</option>
               <option value="Administration">Administration</option>
@@ -290,7 +308,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
           </div>
 
           <div>
-            <label htmlFor="mileage" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="mileage" className="block text-sm font-medium text-white/40 mb-1">
               Current Mileage
             </label>
             <input
@@ -300,13 +318,13 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               value={formData.mileage}
               onChange={handleChange}
               min={0}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
               placeholder="0"
             />
           </div>
 
           <div>
-            <label htmlFor="fuel_level" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="fuel_level" className="block text-sm font-medium text-white/40 mb-1">
               Fuel Level (%)
             </label>
             <input
@@ -317,7 +335,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
               onChange={handleChange}
               min={0}
               max={100}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
               placeholder="100"
             />
           </div>
@@ -327,7 +345,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 bg-blue-600 text-white py-2 px-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-emerald-600 text-white py-2 px-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Creating Vehicle...' : 'Create Vehicle'}
           </button>
@@ -336,7 +354,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 bg-gray-300 text-gray-700 py-2 px-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              className="flex-1 bg-white/[0.08] text-white/40 py-2 px-2 rounded-md hover:bg-white/[0.10] focus:outline-none focus:ring-2 focus:ring-gray-500"
             >
               Cancel
             </button>

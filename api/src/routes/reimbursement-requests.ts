@@ -9,14 +9,17 @@ import {
   ReimbursementStatus
 } from '../types/trip-usage'
 import { getErrorMessage } from '../utils/error-handler'
+import { logger } from '../utils/logger'
 
+
+import { flexUuid } from '../middleware/validation'
 
 const router = express.Router()
 router.use(authenticateJWT)
 
 // Validation schemas
 const createReimbursementSchema = z.object({
-  charge_id: z.string().uuid(),
+  charge_id: flexUuid,
   request_amount: z.number().positive(),
   description: z.string().optional(),
   expense_date: z.string(),
@@ -28,6 +31,15 @@ const reviewReimbursementSchema = z.object({
   status: z.enum([ReimbursementStatus.APPROVED, ReimbursementStatus.REJECTED]),
   approved_amount: z.number().positive().optional(),
   reviewer_notes: z.string().optional()
+})
+
+const approveReimbursementSchema = z.object({
+  approved_amount: z.number().min(0).optional(),
+  reviewer_notes: z.string().max(2000).optional(),
+})
+
+const rejectReimbursementSchema = z.object({
+  reviewer_notes: z.string().min(1).max(2000),
 })
 
 const processPaymentSchema = z.object({
@@ -68,7 +80,7 @@ router.post(
       // Verify charge exists and belongs to driver
       const chargeResult = await pool.query(
         `SELECT c.*, p.auto_approve_under_amount, p.require_receipt_upload, p.receipt_required_over_amount
-         FROM personal_use_charges c
+         FROM personal_use_data c
          LEFT JOIN personal_use_policies p ON c.tenant_id = p.tenant_id
          WHERE c.id = $1 AND c.tenant_id = $2`,
         [charge_id, req.user!.tenant_id]
@@ -149,7 +161,7 @@ router.post(
       // Update charge with reimbursement link
       if (shouldAutoApprove) {
         await pool.query(
-          `UPDATE personal_use_charges
+          `UPDATE personal_use_data
            SET is_reimbursement = true,
                reimbursement_requested_at = NOW(),
                reimbursement_approved_at = NOW(),
@@ -159,7 +171,7 @@ router.post(
         )
       } else {
         await pool.query(
-          `UPDATE personal_use_charges
+          `UPDATE personal_use_data
            SET is_reimbursement = true,
                reimbursement_requested_at = NOW()
            WHERE id = $1`,
@@ -174,8 +186,8 @@ router.post(
           ? `Auto-approved - reimbursement of $${request_amount} approved`
           : 'Reimbursement request submitted for review'
       })
-    } catch (error: any) {
-      console.error('Create reimbursement error:', error)
+    } catch (error: unknown) {
+      logger.error('Create reimbursement error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to create reimbursement request',
@@ -205,14 +217,12 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     let query = `
       SELECT
         r.*,
-        d.name as driver_name,
+        CONCAT(d.first_name, ' ', d.last_name) as driver_name,
         d.email as driver_email,
-        rev.name as reviewed_by_name,
-        c.charge_period, c.miles_charged
+        CONCAT(rev.first_name, ' ', rev.last_name) as reviewed_by_name
       FROM reimbursement_requests r
       LEFT JOIN users d ON r.driver_id = d.id
       LEFT JOIN users rev ON r.reviewed_by_user_id = rev.id
-      LEFT JOIN personal_use_charges c ON r.charge_id = c.id
       WHERE r.tenant_id = $1
     `
 
@@ -289,8 +299,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
           parseInt(offset as string) + result.rows.length
       }
     })
-  } catch (error: any) {
-    console.error('List reimbursements error:', error)
+  } catch (error: unknown) {
+    logger.error('List reimbursements error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement requests',
@@ -308,14 +318,14 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     const result = await pool.query(
       `SELECT
         r.*,
-        d.name as driver_name,
+        CONCAT(d.first_name, ' ', d.last_name) as driver_name,
         d.email as driver_email,
-        rev.name as reviewed_by_name,
+        CONCAT(rev.first_name, ' ', rev.last_name) as reviewed_by_name,
         c.charge_period, c.miles_charged, c.total_charge
       FROM reimbursement_requests r
       LEFT JOIN users d ON r.driver_id = d.id
       LEFT JOIN users rev ON r.reviewed_by_user_id = rev.id
-      LEFT JOIN personal_use_charges c ON r.charge_id = c.id
+      LEFT JOIN personal_use_data c ON r.charge_id = c.id
       WHERE r.id = $1 AND r.tenant_id = $2`,
       [req.params.id, req.user!.tenant_id]
     )
@@ -343,8 +353,8 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       success: true,
       data: result.rows[0]
     })
-  } catch (error: any) {
-    console.error('Get reimbursement error:', error)
+  } catch (error: unknown) {
+    logger.error('Get reimbursement error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement request',
@@ -363,7 +373,15 @@ router.patch(
   auditLog({ action: 'APPROVE', resourceType: 'reimbursement_requests' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { approved_amount, reviewer_notes } = req.body
+      const parsed = approveReimbursementSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
+      }
+
+      const { approved_amount, reviewer_notes } = parsed.data
 
       // Get current request
       const currentResult = await pool.query(
@@ -426,7 +444,7 @@ router.patch(
 
       // Update linked charge
       await pool.query(
-        `UPDATE personal_use_charges
+        `UPDATE personal_use_data
          SET reimbursement_approved_at = NOW(),
          reimbursement_approved_by = $1
          WHERE id = $2`,
@@ -438,8 +456,8 @@ router.patch(
         data: result.rows[0],
         message: `Reimbursement approved for $${finalApprovedAmount}`
       })
-    } catch (error: any) {
-      console.error('Approve reimbursement error:', error)
+    } catch (error: unknown) {
+      logger.error('Approve reimbursement error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to approve reimbursement request',
@@ -460,14 +478,15 @@ router.patch(
   auditLog({ action: 'REJECT', resourceType: 'reimbursement_requests' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { reviewer_notes } = req.body
-
-      if (!reviewer_notes) {
+      const parsed = rejectReimbursementSchema.safeParse(req.body)
+      if (!parsed.success) {
         return res.status(400).json({
-          success: false,
-          error: 'Rejection reason is required'
+          error: 'Validation failed',
+          details: parsed.error.flatten()
         })
       }
+
+      const { reviewer_notes } = parsed.data
 
       // Get current request
       const currentResult = await pool.query(
@@ -513,7 +532,7 @@ router.patch(
 
       // Update linked charge
       await pool.query(
-        `UPDATE personal_use_charges
+        `UPDATE personal_use_data
          SET reimbursement_rejected_at = NOW(),
              reimbursement_rejection_reason = $1
          WHERE id = $2`,
@@ -525,8 +544,8 @@ router.patch(
         data: result.rows[0],
         message: 'Reimbursement request rejected'
       })
-    } catch (error: any) {
-      console.error('Reject reimbursement error:', error)
+    } catch (error: unknown) {
+      logger.error('Reject reimbursement error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to reject reimbursement request',
@@ -602,7 +621,7 @@ router.patch(
 
       // Update linked charge
       await pool.query(
-        `UPDATE personal_use_charges
+        `UPDATE personal_use_data
          SET reimbursement_paid_at = $1,
              reimbursement_payment_reference = $2,
              charge_status = 'paid'
@@ -615,8 +634,8 @@ router.patch(
         data: result.rows[0],
         message: `Payment of $${current.approved_amount} processed`
       })
-    } catch (error: any) {
-      console.error('Process payment error:', error)
+    } catch (error: unknown) {
+      logger.error('Process payment error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to process payment',
@@ -665,8 +684,8 @@ router.get(
         data: result.rows,
         summary: statsResult.rows[0]
       })
-    } catch (error: any) {
-      console.error('Get pending queue error:', error)
+    } catch (error: unknown) {
+      logger.error('Get pending queue error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve pending reimbursements',
@@ -711,8 +730,8 @@ router.get('/summary/driver/:driver_id', async (req: AuthRequest, res: Response)
       success: true,
       data: result.rows
     })
-  } catch (error: any) {
-    console.error('Get reimbursement summary error:', error)
+  } catch (error: unknown) {
+    logger.error('Get reimbursement summary error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement summary',

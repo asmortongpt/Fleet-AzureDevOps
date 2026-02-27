@@ -13,8 +13,16 @@ import { Router, Request, Response } from 'express';
 import logger from '../config/logger';
 import { pool } from '../db/connection';
 import { asyncHandler } from '../middleware/async-handler';
+import { authenticateJWT } from '../middleware/auth';
+import { requireRole, Role } from '../middleware/rbac';
 
 const router = Router();
+
+// Protect database health telemetry from unauthenticated disclosure.
+router.use(
+  authenticateJWT,
+  requireRole([Role.SUPERADMIN, Role.ADMIN, Role.SECURITY_ADMIN, Role.ANALYST])
+);
 
 /**
  * GET /api/database/health
@@ -56,9 +64,9 @@ router.get('/health',
       // Get additional database statistics
       const dbStats = await pool.query(`
         SELECT
-          (SELECT COUNT(*) FROM vehicles) as vehicle_count,
+          (SELECT COUNT(*) FROM vehicles WHERE status != 'retired') as vehicle_count,
           (SELECT COUNT(*) FROM drivers) as driver_count,
-          (SELECT COUNT(*) FROM maintenance_records) as maintenance_count,
+          (SELECT COUNT(*) FROM maintenance_requests) as maintenance_count,
           (SELECT pg_database_size(current_database())) as database_size
       `);
 
@@ -92,7 +100,7 @@ router.get('/health',
       const statusCode = status === 'healthy' ? 200 : status === 'degraded' ? 200 : 503;
       return res.status(statusCode).json(response);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Database health check failed:', error);
 
       return res.status(503).json({
@@ -100,7 +108,7 @@ router.get('/health',
         timestamp: new Date().toISOString(),
         database: {
           connected: false,
-          error: error.message || 'Database connection failed'
+          error: 'Database connection failed'
         }
       });
     }
@@ -131,13 +139,13 @@ router.get('/ping',
         timestamp: new Date().toISOString(),
         latency: `${latency}ms`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Database ping failed:', error);
 
       return res.status(503).json({
         status: 'error',
         timestamp: new Date().toISOString(),
-        error: error.message
+        error: 'An unexpected error occurred'
       });
     }
   })

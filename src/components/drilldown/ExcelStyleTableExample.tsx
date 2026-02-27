@@ -10,6 +10,8 @@ import { useState } from 'react'
 import { ExcelStyleTable, ColumnDef } from './ExcelStyleTable'
 
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatCurrency, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // EXAMPLE 1: Vehicle Fleet Table
@@ -88,7 +90,7 @@ export function VehicleFleetTableExample() {
     {
       id: 'vehicle',
       header: 'Make/Model',
-      accessor: (row) => `${row.year} ${row.make} ${row.model}`,
+      accessor: (row) => formatVehicleName(row),
       type: 'string',
       width: 200,
       sortable: true,
@@ -117,7 +119,7 @@ export function VehicleFleetTableExample() {
           active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
           idle: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
           service: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-          offline: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+          offline: 'bg-white/[0.05] text-white/60 dark:bg-white/[0.03] dark:text-white/40',
         }
         return (
           <span className={`px-2 py-1 text-xs rounded-full ${statusColors[value as keyof typeof statusColors]}`}>
@@ -134,7 +136,7 @@ export function VehicleFleetTableExample() {
       width: 120,
       sortable: true,
       filterable: true,
-      format: (value) => `${value.toLocaleString()} mi`,
+      format: (value) => `${formatNumber(value)} mi`,
     },
     {
       id: 'fuelLevel',
@@ -146,7 +148,7 @@ export function VehicleFleetTableExample() {
       filterable: true,
       render: (value) => (
         <div className="flex items-center gap-2">
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-white/[0.08] rounded-full h-2">
             <div
               className={`h-2 rounded-full ${value > 50 ? 'bg-green-500' : value > 25 ? 'bg-yellow-500' : 'bg-red-500'}`}
               style={{ width: `${value}%` }}
@@ -209,7 +211,7 @@ export function VehicleFleetTableExample() {
     push({
       id: `vehicle-${vehicle.id}`,
       type: 'vehicle',
-      label: `${vehicle.number} - ${vehicle.make} ${vehicle.model}`,
+      label: formatVehicleName(vehicle),
       data: {
         vehicleId: vehicle.id,
         ...vehicle,
@@ -346,10 +348,10 @@ export function WorkOrderTableExample() {
       filterable: true,
       render: (value) => {
         const statusColors = {
-          open: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+          open: 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
           'in-progress': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
           completed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-          cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+          cancelled: 'bg-white/[0.05] text-white/60 dark:bg-white/[0.03] dark:text-white/40',
         }
         return (
           <span className={`px-2 py-1 text-xs rounded-full ${statusColors[value as keyof typeof statusColors]}`}>
@@ -435,7 +437,7 @@ export function WorkOrderTableExample() {
       width: 120,
       sortable: true,
       filterable: true,
-      format: (value) => `$${value.toFixed(2)}`,
+      format: (value) => formatCurrency(value),
     },
     {
       id: 'category',
@@ -523,7 +525,7 @@ export function VirtualizedTableExample() {
       width: 150,
       sortable: true,
       filterable: true,
-      format: (value) => `$${value.toFixed(2)}`,
+      format: (value) => formatCurrency(value),
     },
     {
       id: 'date',

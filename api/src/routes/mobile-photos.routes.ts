@@ -29,13 +29,6 @@ import PhotoProcessingService from '../services/photo-processing.service';
 
 
 
-const getErrorMessage = (error: unknown): string => {
-  if (error instanceof Error) {
-return error.message;
-}
-  return String(error);
-};
-
 const router = express.Router();
 const photoProcessingService = new PhotoProcessingService(pool);
 
@@ -139,8 +132,8 @@ router.post(
         });
       }
 
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
       const priority = req.body.priority || 'normal';
 
       // Parse metadata if provided
@@ -200,9 +193,9 @@ router.post(
 
       // Add to processing queue
       await photoProcessingService.addToQueue(
-        tenantId,
-        userId,
-        photo.id,
+        Number(tenantId),
+        Number(userId),
+        Number(photo.id),
         blobUrl,
         priority as 'high' | 'normal' | 'low'
       );
@@ -216,11 +209,10 @@ router.post(
           uploadedAt: photo.created_at,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Photo upload error:', error);
       res.status(500).json({
         error: 'Failed to upload photo',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -276,11 +268,11 @@ router.post(
         });
       }
 
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
 
       // Parse metadata array if provided
-      let metadataArray: any[] = [];
+      let metadataArray: Record<string, unknown>[] = [];
       if (req.body.metadata) {
         try {
           metadataArray = JSON.parse(req.body.metadata);
@@ -294,8 +286,8 @@ router.post(
       const containerClient = blobServiceClient.getContainerClient('mobile-photos');
       await containerClient.createIfNotExists({ access: 'blob' });
 
-      const results: any[] = [];
-      const errors: any[] = [];
+      const results: { success: boolean; photo: { id: number; url: string; fileName: string } }[] = [];
+      const errors: { index: number; fileName: string; error: string }[] = [];
 
       // Upload each photo
       for (let i = 0; i < req.files.length; i++) {
@@ -344,11 +336,11 @@ router.post(
 
           // Add to processing queue
           await photoProcessingService.addToQueue(
-            tenantId,
-            userId,
-            photo.id,
+            Number(tenantId),
+            Number(userId),
+            Number(photo.id),
             blobUrl,
-            metadata.priority || 'normal'
+            (((metadata).priority as string) || 'normal') as 'high' | 'normal' | 'low'
           );
 
           results.push({
@@ -359,12 +351,12 @@ router.post(
               fileName: photo.file_name,
             },
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
           logger.error(`Failed to upload photo ${i}:`, error);
           errors.push({
             index: i,
             fileName: file.originalname,
-            error: getErrorMessage(error),
+            error: 'Failed to upload photo',
           });
         }
       }
@@ -377,11 +369,10 @@ router.post(
         results,
         errors,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Batch upload error:`, error);
       res.status(500).json({
-        error: `Failed to upload photos`,
-        details: getErrorMessage(error),
+        error: 'Failed to upload photos',
       });
     }
   }
@@ -411,8 +402,8 @@ router.get(
   requirePermission('driver:view:global'),
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
       const since = req.query.since ? new Date(req.query.since as string) : null;
 
       let query = `
@@ -432,7 +423,7 @@ router.get(
         WHERE mp.tenant_id = $1 AND mp.user_id = $2
       `;
 
-      const params: any[] = [tenantId, userId];
+      const params: (string | number | Date)[] = [tenantId as string, userId as string | number];
 
       if (since) {
         params.push(since);
@@ -448,11 +439,10 @@ router.get(
         photos: result.rows,
         count: result.rows.length,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Sync queue error:`, error);
       res.status(500).json({
         error: 'Failed to get sync queue',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -493,8 +483,8 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const validated = SyncCompleteSchema.parse(req.body);
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
 
       // Update mobile_photos to mark as synced
       const result = await pool.query(
@@ -513,11 +503,10 @@ router.post(
         syncedCount: result.rowCount,
         syncedIds: result.rows.map(r => r.id),
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Sync complete error:`, error);
       res.status(400).json({
         error: 'Failed to mark photos as synced',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -547,7 +536,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const photoId = parseInt(req.params.id);
-      const tenantId = (req as any).user.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       const result = await pool.query(
         `SELECT
@@ -574,11 +563,10 @@ router.get(
         success: true,
         photo: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get status error:', error);
       res.status(500).json({
         error: 'Failed to get photo status',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -608,10 +596,10 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const photoId = parseInt(req.params.id);
-      const tenantId = (req as any).user.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       const result = await pool.query(
-        `SELECT 
+        `SELECT
       id,
       tenant_id,
       user_id,
@@ -633,11 +621,10 @@ router.get(
         success: true,
         photo: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get photo error:', error);
       res.status(500).json({
         error: 'Failed to get photo',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -668,8 +655,8 @@ router.delete(
   async (req: Request, res: Response) => {
     try {
       const photoId = parseInt(req.params.id);
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
 
       // Get photo details first
       const photoResult = await pool.query(
@@ -694,7 +681,7 @@ router.delete(
       const photo = photoResult.rows[0];
 
       // Check if user owns the photo or is admin
-      const userRole = (req as any).user.role;
+      const userRole = req.user?.role;
       if (photo.user_id !== userId && userRole !== 'admin' && userRole !== 'fleet_manager') {
         return res.status(403).json({
           error: 'Unauthorized to delete this photo',
@@ -714,11 +701,10 @@ router.delete(
         success: true,
         message: 'Photo deleted successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Delete photo error:', error);
       res.status(500).json({
         error: 'Failed to delete photo',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -741,25 +727,24 @@ router.get(
   requirePermission('driver:view:global'),
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user.tenant_id;
-      const userRole = (req as any).user.role;
+      const tenantId = req.user?.tenant_id;
+      const userRole = req.user?.role;
 
       // Only admins can see global stats
       const statsForTenant = userRole === 'admin' || userRole === 'fleet_manager'
         ? tenantId
         : undefined;
 
-      const stats = await photoProcessingService.getQueueStats(statsForTenant);
+      const stats = await photoProcessingService.getQueueStats(statsForTenant ? Number(statsForTenant) : undefined);
 
       res.json({
         success: true,
         stats,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get stats error:', error);
       res.status(500).json({
         error: 'Failed to get processing stats',
-        details: getErrorMessage(error),
       });
     }
   }

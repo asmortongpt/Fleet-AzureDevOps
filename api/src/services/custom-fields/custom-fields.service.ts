@@ -134,7 +134,7 @@ export class CustomFieldsService {
       if (camelKey in updates) {
         setClauses.push(`${snakeKey} = $${paramCount}`)
 
-        let value = (updates as any)[camelKey]
+        let value = (updates as Record<string, unknown>)[camelKey]
         if (['options', 'validation', 'conditional'].includes(snakeKey)) {
           value = JSON.stringify(value)
         }
@@ -379,7 +379,7 @@ export class CustomFieldsService {
 
         // Email validation
         if (field.fieldType === 'email') {
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{1,63}$/
           if (!emailRegex.test(value)) {
             throw new Error(`Field "${field.fieldLabel}" must be a valid email`)
           }

@@ -1,4 +1,7 @@
 import React from "react";
+import { toast } from 'sonner';
+
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface Vehicle {
   id: string;
@@ -38,7 +41,7 @@ const VehicleShowroomView: React.FC<VehicleShowroomViewProps> = ({
     if (selectedVehicle) {
       setShowReservationModal(true);
     } else {
-      alert('Please select a vehicle first');
+      toast.info('Please select a vehicle first');
     }
   };
 
@@ -98,7 +101,7 @@ const VehicleShowroomView: React.FC<VehicleShowroomViewProps> = ({
           <option value="">Choose a vehicle</option>
           {availableVehicles.map((vehicle) => (
             <option key={vehicle.id} value={vehicle.id}>
-              {vehicle.id} - {vehicle.make} {vehicle.model} ({vehicle.year})
+              {formatVehicleName(vehicle)}
             </option>
           ))}
         </select>
@@ -137,7 +140,7 @@ const VehicleShowroomView: React.FC<VehicleShowroomViewProps> = ({
             }}
           >
             <h3 style={{ margin: '0 0 16px 0', color: currentTheme.text }}>
-              {selectedVehicle.make} {selectedVehicle.model} ({selectedVehicle.year})
+              {formatVehicleName(selectedVehicle)}
             </h3>
             <p style={{ color: currentTheme.text, opacity: 0.7 }}>
               Vehicle ID: {selectedVehicle.id}

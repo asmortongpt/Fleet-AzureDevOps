@@ -119,14 +119,14 @@ export const defaultBrandingConfig: BrandingConfig = {
   },
 
   colors: {
-    primary: '#1e40af', // Blue-700
-    secondary: '#64748b', // Slate-500
-    accent: '#0ea5e9', // Sky-500
-    headerBackground: '#1e293b', // Slate-800
-    headerText: '#ffffff',
-    footerBackground: '#f1f5f9', // Slate-100
-    footerText: '#475569', // Slate-600
-    linkColor: '#0ea5e9'
+    primary: 'hsl(var(--primary))', // Emerald-700
+    secondary: 'hsl(var(--muted-foreground))', // Slate-500
+    accent: 'hsl(var(--primary))', // Sky-500
+    headerBackground: 'hsl(var(--card))', // Slate-800
+    headerText: 'hsl(var(--foreground))',
+    footerBackground: 'hsl(var(--muted))', // Slate-100
+    footerText: 'hsl(var(--muted-foreground))', // Slate-600
+    linkColor: 'hsl(var(--primary))'
   },
 
   typography: {
@@ -244,14 +244,14 @@ export function generateDocumentNumber(
 export const brandingTemplates: Record<string, Partial<BrandingConfig>> = {
   municipal: {
     colors: {
-      primary: '#1e40af',
-      secondary: '#64748b',
-      accent: '#0ea5e9',
-      headerBackground: '#1e293b',
-      headerText: '#ffffff',
-      footerBackground: '#f1f5f9',
-      footerText: '#475569',
-      linkColor: '#0ea5e9'
+      primary: 'hsl(var(--primary))',
+      secondary: 'hsl(var(--muted-foreground))',
+      accent: 'hsl(var(--primary))',
+      headerBackground: 'hsl(var(--card))',
+      headerText: 'hsl(var(--foreground))',
+      footerBackground: 'hsl(var(--muted))',
+      footerText: 'hsl(var(--muted-foreground))',
+      linkColor: 'hsl(var(--primary))'
     },
     footer: {
       showPageNumbers: true,
@@ -263,14 +263,14 @@ export const brandingTemplates: Record<string, Partial<BrandingConfig>> = {
 
   corporate: {
     colors: {
-      primary: '#059669', // Emerald-600
-      secondary: '#6b7280', // Gray-500
-      accent: '#10b981', // Emerald-500
-      headerBackground: '#065f46', // Emerald-800
-      headerText: '#ffffff',
-      footerBackground: '#ecfdf5', // Emerald-50
-      footerText: '#047857', // Emerald-700
-      linkColor: '#059669'
+      primary: 'hsl(var(--success))', // Emerald-600
+      secondary: 'hsl(var(--muted-foreground))', // Gray-500
+      accent: 'hsl(var(--success))', // Emerald-500
+      headerBackground: 'hsl(var(--success))', // Emerald-800
+      headerText: 'hsl(var(--foreground))',
+      footerBackground: 'hsl(var(--success) / 0.1)', // Emerald-50
+      footerText: 'hsl(var(--success))', // Emerald-700
+      linkColor: 'hsl(var(--success))'
     },
     footer: {
       showPageNumbers: true,
@@ -282,14 +282,14 @@ export const brandingTemplates: Record<string, Partial<BrandingConfig>> = {
 
   educational: {
     colors: {
-      primary: '#7c3aed', // Violet-600
-      secondary: '#8b5cf6', // Violet-500
-      accent: '#a78bfa', // Violet-400
-      headerBackground: '#5b21b6', // Violet-800
-      headerText: '#ffffff',
-      footerBackground: '#f5f3ff', // Violet-50
-      footerText: '#6d28d9', // Violet-700
-      linkColor: '#7c3aed'
+      primary: 'hsl(var(--accent))', // Accent-600
+      secondary: 'hsl(var(--accent))', // Accent-500
+      accent: 'hsl(var(--accent))', // Accent-400
+      headerBackground: 'hsl(var(--accent))', // Accent-800
+      headerText: 'hsl(var(--foreground))',
+      footerBackground: 'hsl(var(--accent) / 0.1)', // Accent-50
+      footerText: 'hsl(var(--accent))', // Accent-700
+      linkColor: 'hsl(var(--accent))'
     },
     watermark: {
       enabled: true,
@@ -302,14 +302,14 @@ export const brandingTemplates: Record<string, Partial<BrandingConfig>> = {
 
   safety: {
     colors: {
-      primary: '#dc2626', // Red-600
-      secondary: '#f59e0b', // Amber-500
-      accent: '#ef4444', // Red-500
-      headerBackground: '#991b1b', // Red-800
-      headerText: '#ffffff',
-      footerBackground: '#fef2f2', // Red-50
-      footerText: '#b91c1c', // Red-700
-      linkColor: '#dc2626'
+      primary: 'hsl(var(--destructive))', // Red-600
+      secondary: 'hsl(var(--warning))', // Amber-500
+      accent: 'hsl(var(--destructive))', // Red-500
+      headerBackground: 'hsl(var(--destructive))', // Red-800
+      headerText: 'hsl(var(--foreground))',
+      footerBackground: 'hsl(var(--destructive) / 0.1)', // Red-50
+      footerText: 'hsl(var(--destructive))', // Red-700
+      linkColor: 'hsl(var(--destructive))'
     },
     footer: {
       showPageNumbers: true,

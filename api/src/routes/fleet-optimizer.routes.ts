@@ -22,7 +22,7 @@ router.get(
       const { periodStart, periodEnd } = req.query
 
       const heatmap = await fleetOptimizerService.getUtilizationHeatmap(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         periodStart ? new Date(periodStart as string) : undefined,
         periodEnd ? new Date(periodEnd as string) : undefined
       )
@@ -51,7 +51,7 @@ router.get(
 
       const utilization = await fleetOptimizerService.analyzeVehicleUtilization(
         vehicleId,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         new Date(periodStart as string),
         new Date(periodEnd as string)
       )
@@ -76,7 +76,7 @@ router.get(
 
       const forecast = await fleetOptimizerService.predictUtilization(
         vehicleId,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         parseInt(months as string)
       )
 
@@ -98,7 +98,7 @@ router.get(
       const { status } = req.query
 
       const recommendations = await fleetOptimizerService.getRecommendations(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         status as string | undefined
       )
 
@@ -124,7 +124,7 @@ router.post(
       }
 
       const recommendations = await fleetOptimizerService.generateRecommendations(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         new Date(periodStart),
         new Date(periodEnd)
       )
@@ -147,7 +147,7 @@ router.get(
       const { avgDailyDemand = '50' } = req.query
 
       const result = await fleetOptimizerService.calculateOptimalFleetSize(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         parseFloat(avgDailyDemand as string)
       )
 
@@ -173,12 +173,12 @@ router.post(
       }
 
       await fleetOptimizerService.analyzeAllVehicles(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         new Date(periodStart),
         new Date(periodEnd)
       )
 
-      res.json({ message: 'Analysis started for all vehicles' })
+      res.json({ success: true, message: 'Analysis started for all vehicles' })
     } catch (error) {
       logger.error('Analyze all vehicles error:', error) // Wave 30: Winston logger
       res.status(500).json({ error: 'Internal server error' })

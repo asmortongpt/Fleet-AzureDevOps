@@ -132,7 +132,7 @@ export function MobileFilterSheet({
                 variant="ghost"
                 size="sm"
                 onClick={handleReset}
-                className="text-blue-800"
+                className="text-emerald-800"
                 data-testid="reset-filters-btn"
               >
                 <RotateCcw className="h-4 w-4 mr-1" />
@@ -355,7 +355,7 @@ export function ActiveFilterChips({
           <span className="mr-1.5">{filter.label}</span>
           <button
             onClick={() => onRemoveFilter(filter.groupId, filter.value)}
-            className="ml-1 hover:bg-slate-200 rounded-full p-0.5 touch-manipulation"
+            className="ml-1 hover:bg-white/[0.08] rounded-full p-0.5 touch-manipulation"
             aria-label={`Remove ${filter.label} filter`}
             data-testid={`remove-filter-${filter.groupId}-${filter.value}`}
           >

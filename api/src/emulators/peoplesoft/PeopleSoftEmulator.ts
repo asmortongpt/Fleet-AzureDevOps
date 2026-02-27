@@ -16,6 +16,8 @@
 import { Router, Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
+import logger from '../../config/logger'
+
 // ==================== TYPE DEFINITIONS ====================
 
 export interface Chartfield {
@@ -168,7 +170,9 @@ export class PeopleSoftEmulator {
 
     // Load all valid City of Tallahassee chartfield combinations
     TALLAHASSEE_CHARTFIELDS.forEach((tallyChartfield: any) => {
-      if (!tallyChartfield.is_active) return
+      if (!tallyChartfield.is_active) {
+return
+}
 
       const chartfield: Chartfield = {
         business_unit: tallyChartfield.business_unit,
@@ -186,7 +190,7 @@ export class PeopleSoftEmulator {
       this.chartfields.set(key, chartfield)
     })
 
-    console.log(`[PeopleSoft Emulator] Loaded ${this.chartfields.size} City of Tallahassee chartfield combinations`)
+    logger.info(`[PeopleSoft Emulator] Loaded ${this.chartfields.size} City of Tallahassee chartfield combinations`)
   }
 
   private initializeScenarios(): void {
@@ -393,14 +397,16 @@ export class PeopleSoftEmulator {
 
   private completeAsyncJournal(journal_id: string, request: JournalPostRequest): void {
     const journal = this.journals.get(journal_id)
-    if (!journal) return
+    if (!journal) {
+return
+}
 
     journal.status = 'POSTED'
     journal.posted_timestamp = new Date().toISOString()
 
     // TODO: Send callback to AMS
     // This would be configured via environment variable for AMS_BASE_URL
-    console.log(`[PeopleSoft Emulator] Journal ${journal_id} posted - callback would be sent to AMS`)
+    logger.info(`[PeopleSoft Emulator] Journal ${journal_id} posted - callback would be sent to AMS`)
   }
 
   getJournalStatus(journal_id: string): JournalStatus | null {

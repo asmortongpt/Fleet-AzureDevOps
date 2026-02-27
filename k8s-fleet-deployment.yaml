@@ -12,6 +12,13 @@ data:
   NODE_ENV: "production"
   API_URL: "http://fleet-api"
 ---
+# Create the secret before deploying:
+#   kubectl create secret generic fleet-postgres-credentials \
+#     --namespace=fleet \
+#     --from-literal=POSTGRES_USER=fleet_user \
+#     --from-literal=POSTGRES_PASSWORD=<your-secure-password> \
+#     --from-literal=POSTGRES_DB=fleet_db
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32,11 +39,20 @@ spec:
         image: postgres:16-alpine
         env:
         - name: POSTGRES_USER
-          value: "fleet_user"
+          valueFrom:
+            secretKeyRef:
+              name: fleet-postgres-credentials
+              key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
-          value: "fleet_password"
+          valueFrom:
+            secretKeyRef:
+              name: fleet-postgres-credentials
+              key: POSTGRES_PASSWORD
         - name: POSTGRES_DB
-          value: "fleet_db"
+          valueFrom:
+            secretKeyRef:
+              name: fleet-postgres-credentials
+              key: POSTGRES_DB
         ports:
         - containerPort: 5432
         volumeMounts:

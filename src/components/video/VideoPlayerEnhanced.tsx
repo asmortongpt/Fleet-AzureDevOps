@@ -39,7 +39,7 @@ interface EventAnnotation {
 }
 
 const severityColors: Record<string, string> = {
-  minor: 'bg-blue-500',
+  minor: 'bg-emerald-500/50',
   moderate: 'bg-yellow-500',
   severe: 'bg-orange-500',
   critical: 'bg-red-500'
@@ -212,7 +212,7 @@ export default function VideoPlayerEnhanced({
 
         {/* Loading Overlay */}
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
             <div className="text-white text-sm">Loading video...</div>
           </div>
         )}
@@ -245,11 +245,11 @@ export default function VideoPlayerEnhanced({
           <div className="absolute bottom-24 left-4 right-4 space-y-2">
             {annotations
               .filter(a => Math.abs(a.timestamp - currentTime) < 2)
-              .map((annotation, idx) => (
+              .map((annotation) => (
                 <div
-                  key={idx}
+                  key={`${annotation.timestamp}-${annotation.text}`}
                   className={cn(
-                    'px-2 py-2 rounded-lg text-white text-sm font-medium shadow-sm',
+                    'px-2 py-2 rounded-lg text-white text-sm font-medium',
                     annotation.color
                   )}
                 >
@@ -260,7 +260,7 @@ export default function VideoPlayerEnhanced({
         )}
 
         {/* Controls Overlay - Shows on hover */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
           {/* Timeline with Event Markers */}
           <div className="relative mb-2">
             {/* Event Markers */}
@@ -305,6 +305,7 @@ export default function VideoPlayerEnhanced({
                 size="icon"
                 className="text-white hover:bg-white/20"
                 onClick={togglePlay}
+                aria-label={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? (
                   <Pause className="h-5 w-5" />
@@ -320,6 +321,7 @@ export default function VideoPlayerEnhanced({
                   size="icon"
                   className="text-white hover:bg-white/20"
                   onClick={toggleMute}
+                  aria-label={isMuted ? 'Unmute' : 'Mute'}
                 >
                   {isMuted ? (
                     <VolumeX className="h-5 w-5" />
@@ -374,6 +376,7 @@ export default function VideoPlayerEnhanced({
                 size="icon"
                 className="text-white hover:bg-white/20"
                 onClick={downloadVideo}
+                aria-label="Download video"
               >
                 <Download className="h-5 w-5" />
               </Button>
@@ -384,6 +387,7 @@ export default function VideoPlayerEnhanced({
                 size="icon"
                 className="text-white hover:bg-white/20"
                 onClick={toggleFullscreen}
+                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
               >
                 {isFullscreen ? (
                   <Minimize className="h-5 w-5" />
@@ -397,13 +401,13 @@ export default function VideoPlayerEnhanced({
 
         {/* Event Timeline Below Video */}
         {events.length > 0 && (
-          <div className="p-2 border-t">
-            <h4 className="font-semibold mb-3">Safety Events in Video</h4>
+          <div className="p-2 border-t border-white/[0.04]">
+            <h4 className="font-semibold mb-3 text-white">Safety Events in Video</h4>
             <div className="space-y-2">
               {events.map((event) => (
                 <div
                   key={event.id}
-                  className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                  className="flex items-center justify-between p-2 hover:bg-white/[0.03] rounded-lg cursor-pointer"
                   onClick={() => jumpToEvent(event)}
                 >
                   <div className="flex items-center gap-3">
@@ -412,12 +416,12 @@ export default function VideoPlayerEnhanced({
                     </Badge>
                     <div>
                       <div className="font-medium">{event.eventType}</div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-white/60">
                         {event.description}
                       </div>
                     </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-white/60">
                     {formatTime(event.timestamp)}
                   </div>
                 </div>

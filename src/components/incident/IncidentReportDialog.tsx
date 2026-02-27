@@ -21,11 +21,12 @@
  * ```
  */
 
+import { AlertTriangle, Navigation, MapPin } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { AlertTriangle, Navigation, MapPin } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -34,9 +35,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -44,15 +44,16 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Textarea } from '@/components/ui/textarea'
+import { useVehicles, useDrivers } from '@/hooks/use-api'
 import {
   useIncidentMutations,
   type CreateIncidentInput,
   type IncidentSeverity,
   type IncidentType
 } from '@/hooks/use-reactive-incident-data'
-import { useVehicles, useDrivers } from '@/hooks/use-api'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -424,7 +425,7 @@ export function IncidentReportDialog({
                     <SelectItem value="">None</SelectItem>
                     {vehicles.map(v => (
                       <SelectItem key={v.id} value={v.id.toString()}>
-                        {v.number} - {v.year} {v.make} {v.model}
+                        {formatVehicleName(v)}
                       </SelectItem>
                     ))}
                   </SelectContent>

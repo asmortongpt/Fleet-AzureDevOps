@@ -7,6 +7,7 @@
 import { Express } from 'express'
 
 import { documentSystemConfig } from '../config/document-system.config'
+import { logger } from '../utils/logger'
 
 // Import all document-related routes
 import aiChatRoutes from './ai-chat'
@@ -23,43 +24,43 @@ import storageAdminRoutes from './storage-admin'
  * @param app Express application
  */
 export function registerDocumentSystemRoutes(app: Express): void {
-  console.log('📄 Registering Document System routes...')
+  logger.info('📄 Registering Document System routes...')
 
   // OCR Routes (if enabled)
   if (documentSystemConfig.features.enableOCR) {
     app.use('/api/ocr', ocrRoutes)
-    console.log('   ✓ OCR routes registered at /api/ocr')
+    logger.info('   ✓ OCR routes registered at /api/ocr')
   }
 
   // AI Search Routes (if enabled)
   if (documentSystemConfig.features.enableAI && documentSystemConfig.features.enableRAG) {
     app.use('/api/ai-search', aiSearchRoutes)
-    console.log('   ✓ AI Search routes registered at /api/ai-search')
+    logger.info('   ✓ AI Search routes registered at /api/ai-search')
   }
 
   // AI Chat Routes (if enabled)
   if (documentSystemConfig.features.enableAI) {
     app.use('/api/ai-chat', aiChatRoutes)
-    console.log('   ✓ AI Chat routes registered at /api/ai-chat')
+    logger.info('   ✓ AI Chat routes registered at /api/ai-chat')
   }
 
   // Geospatial Document Routes (if enabled)
   if (documentSystemConfig.features.enableGeospatial) {
     app.use('/api/documents/geo', documentGeoRoutes)
-    console.log('   ✓ Document Geo routes registered at /api/documents/geo')
+    logger.info('   ✓ Document Geo routes registered at /api/documents/geo')
   }
 
   // Advanced Search Routes
   app.use('/api/search', searchRoutes)
-  console.log('   ✓ Search routes registered at /api/search')
+  logger.info('   ✓ Search routes registered at /api/search')
 
   // Storage Admin Routes (if external storage enabled)
   if (documentSystemConfig.features.enableExternalStorage) {
     app.use('/api/storage', storageAdminRoutes)
-    console.log('   ✓ Storage Admin routes registered at /api/storage')
+    logger.info('   ✓ Storage Admin routes registered at /api/storage')
   }
 
-  console.log('📄 Document System routes registered successfully')
+  logger.info('📄 Document System routes registered successfully')
 }
 
 /**

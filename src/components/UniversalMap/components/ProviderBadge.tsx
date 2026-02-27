@@ -5,7 +5,7 @@ interface ProviderBadgeProps {
 }
 
 export function ProviderBadge({ provider }: ProviderBadgeProps) {
-  if (process.env.NODE_ENV !== "development") {
+  if (import.meta.env.MODE !== "development") {
     return null
   }
 

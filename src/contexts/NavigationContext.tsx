@@ -28,7 +28,7 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
         if (moduleParam) return moduleParam;
 
         const cleanPath = path.substring(1);
-        return cleanPath === '' ? 'fleet-hub-consolidated' : cleanPath;
+        return cleanPath === '' ? 'live-fleet-dashboard' : cleanPath;
     };
 
     const [activeModule, setActiveModuleState] = useState(getModuleFromPath(location.pathname, location.search));

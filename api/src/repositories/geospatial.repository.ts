@@ -44,7 +44,7 @@ export class GeospatialRepository {
     maxResults: number = 10
   ): Promise<NearestVehicle[]> {
     const query = `
-      SELECT *
+      SELECT vehicle_id, vin, make, model, distance_meters, latitude, longitude
       FROM find_nearest_vehicles($1, $2, $3, $4, $5)
     `;
 
@@ -68,7 +68,7 @@ export class GeospatialRepository {
     targetLng: number
   ): Promise<NearestFacility | null> {
     const query = `
-      SELECT *
+      SELECT facility_id, facility_name, facility_type, distance_meters, address, city, state
       FROM find_nearest_facility($1, $2, $3)
     `;
 
@@ -113,7 +113,7 @@ export class GeospatialRepository {
     maxResults: number = 5
   ): Promise<NearestChargingStation[]> {
     const query = `
-      SELECT *
+      SELECT station_id, station_name, station_type, distance_meters, is_operational, number_of_ports, power_output_kw, cost_per_kwh
       FROM find_nearest_charging_station($1, $2, $3, $4, $5)
     `;
 
@@ -135,7 +135,7 @@ export class GeospatialRepository {
     geofenceId: string
   ): Promise<VehicleInGeofence[]> {
     const query = `
-      SELECT *
+      SELECT vehicle_id, vin, make, model, latitude, longitude, distance_from_center
       FROM find_vehicles_in_circular_geofence($1)
     `;
 
@@ -150,7 +150,7 @@ export class GeospatialRepository {
     tenantId: string
   ): Promise<VehicleWithLocation[]> {
     const query = `
-      SELECT *
+      SELECT id, tenant_id, vin, make, model, year, status, latitude, longitude, speed, heading, odometer, last_update, driver_license, driver_name
       FROM v_vehicles_with_location
       WHERE tenant_id = $1
       ORDER BY last_update DESC

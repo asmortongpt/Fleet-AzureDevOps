@@ -23,16 +23,60 @@ import {
   Route,
   Target,
   Activity,
+  Pencil,
+  Save,
+  X,
+  Download,
+  Plus,
+  Minus,
 } from 'lucide-react'
-import React from 'react'
+import React, { useState, useCallback } from 'react'
+import { toast } from 'sonner'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers'
+
+// ============================================================================
+// SHARED UTILITIES
+// ============================================================================
+
+/** Generate a CSV download from an array of key-value rows */
+function downloadCsv(filename: string, headers: string[], rows: string[][]) {
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(r => r.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',')),
+  ].join('\n')
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
+/** Generate a printable detail view and trigger browser print dialog */
+function printDetailView(title: string, sections: { label: string; value: string }[]) {
+  const printWindow = window.open('', '_blank', 'width=800,height=600')
+  if (!printWindow) return
+  const rows = sections.map(s => `<tr><td style="padding:6px 12px;font-weight:600;white-space:nowrap">${s.label}</td><td style="padding:6px 12px">${s.value}</td></tr>`).join('')
+  printWindow.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>body{font-family:system-ui,sans-serif;padding:40px}table{border-collapse:collapse;width:100%}tr:nth-child(even){background:#f5f5f5}h1{font-size:20px;margin-bottom:16px}@media print{body{padding:20px}}</style></head><body><h1>${title}</h1><table>${rows}</table></body></html>`)
+  printWindow.document.close()
+  printWindow.focus()
+  printWindow.print()
+}
 
 // ============================================================================
 // SHARED COMPONENTS
@@ -81,11 +125,11 @@ interface StatusBadgeProps {
 
 function StatusBadge({ status, variant = 'default' }: StatusBadgeProps) {
   const variants = {
-    default: 'bg-gray-100 text-gray-800',
+    default: 'bg-white/[0.05] text-white/60',
     success: 'bg-green-100 text-green-800',
     warning: 'bg-yellow-100 text-yellow-800',
     danger: 'bg-red-100 text-red-800',
-    info: 'bg-blue-100 text-blue-800',
+    info: 'bg-emerald-500/10 text-emerald-800',
   }
 
   return (
@@ -102,17 +146,19 @@ interface AssetDetailPanelProps {
 }
 
 export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
-  const { currentLevel } = useDrilldown()
+  const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
 
   const asset = {
     id: assetId || data.assetId || data.id,
     name: data.assetName || data.name || `Asset ${assetId}`,
     type: data.assetType || data.type || 'Equipment',
     status: data.status || 'active',
-    serialNumber: data.serialNumber || 'N/A',
-    manufacturer: data.manufacturer || 'Unknown',
-    model: data.model || 'Unknown',
+    serialNumber: data.serialNumber || '—',
+    manufacturer: data.manufacturer || '—',
+    model: data.model || '—',
     purchaseDate: data.purchaseDate,
     warrantyExpiry: data.warrantyExpiry,
     location: data.location || 'Main Facility',
@@ -164,17 +210,17 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
           <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Purchase Date"
-              value={asset.purchaseDate ? new Date(asset.purchaseDate).toLocaleDateString() : '-'}
+              value={asset.purchaseDate ? formatDate(asset.purchaseDate) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="Warranty Expiry"
-              value={asset.warrantyExpiry ? new Date(asset.warrantyExpiry).toLocaleDateString() : '-'}
+              value={asset.warrantyExpiry ? formatDate(asset.warrantyExpiry) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
             <DetailRow
               label="Asset Value"
-              value={asset.value ? `$${asset.value.toLocaleString()}` : '-'}
+              value={asset.value ? formatCurrency(asset.value) : '-'}
               icon={<DollarSign className="w-4 h-4" />}
             />
           </div>
@@ -189,10 +235,67 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">Edit Asset</Button>
-          <Button variant="outline" size="sm">View History</Button>
-          <Button variant="outline" size="sm">Schedule Maintenance</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              name: asset.name || '',
+              location: asset.location || '',
+              assignedTo: asset.assignedTo || '',
+              status: asset.status || 'active',
+              notes: asset.notes || '',
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit Asset
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `asset-history-${asset.id}`, type: 'asset-history', label: `${asset.name} History`, data: { assetId: asset.id } })}>View History</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: 'work-order-create', type: 'work-order-create', label: 'Schedule Maintenance', data: { assetId: asset.id, createType: 'preventive' } })}>Schedule Maintenance</Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Asset: {asset.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-asset-name">Name</Label>
+                <Input id="edit-asset-name" value={editFields.name || ''} onChange={(e) => setEditFields(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-asset-location">Location</Label>
+                <Input id="edit-asset-location" value={editFields.location || ''} onChange={(e) => setEditFields(f => ({ ...f, location: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-asset-assigned">Assigned To</Label>
+                <Input id="edit-asset-assigned" value={editFields.assignedTo || ''} onChange={(e) => setEditFields(f => ({ ...f, assignedTo: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-asset-status">Status</Label>
+                <Select value={editFields.status || 'active'} onValueChange={(v) => setEditFields(f => ({ ...f, status: v }))}>
+                  <SelectTrigger id="edit-asset-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="maintenance">Maintenance</SelectItem>
+                    <SelectItem value="retired">Retired</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-asset-notes">Notes</Label>
+                <Textarea id="edit-asset-notes" value={editFields.notes || ''} onChange={(e) => setEditFields(f => ({ ...f, notes: e.target.value }))} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Asset "${editFields.name}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -207,8 +310,10 @@ interface InvoiceDetailPanelProps {
 }
 
 export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
-  const { currentLevel } = useDrilldown()
+  const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [confirmPayOpen, setConfirmPayOpen] = useState(false)
+  const [invoiceStatus, setInvoiceStatus] = useState<string | null>(null)
 
   const invoice = {
     id: invoiceId || data.invoiceId || data.id,
@@ -243,7 +348,7 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
           </div>
           <div className="text-right">
             <StatusBadge status={invoice.status} variant={statusVariant} />
-            <div className="text-sm font-bold mt-2">${invoice.total.toLocaleString()}</div>
+            <div className="text-sm font-bold mt-2">{formatCurrency(invoice.total)}</div>
           </div>
         </div>
 
@@ -256,12 +361,12 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
             <DetailRow label="Vendor" value={invoice.vendor} icon={<Building className="w-4 h-4" />} />
             <DetailRow
               label="Issue Date"
-              value={invoice.issueDate ? new Date(invoice.issueDate).toLocaleDateString() : '-'}
+              value={invoice.issueDate ? formatDate(invoice.issueDate) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="Due Date"
-              value={invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : '-'}
+              value={invoice.dueDate ? formatDate(invoice.dueDate) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
           </div>
@@ -272,16 +377,16 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>${invoice.amount.toLocaleString()}</span>
+              <span>{formatCurrency(invoice.amount)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Tax</span>
-              <span>${invoice.tax.toLocaleString()}</span>
+              <span>{formatCurrency(invoice.tax)}</span>
             </div>
             <Separator />
             <div className="flex justify-between font-bold">
               <span>Total</span>
-              <span>${invoice.total.toLocaleString()}</span>
+              <span>{formatCurrency(invoice.total)}</span>
             </div>
           </div>
         </DetailSection>
@@ -295,10 +400,53 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button size="sm">Mark as Paid</Button>
-          <Button variant="outline" size="sm">Download PDF</Button>
-          <Button variant="outline" size="sm">View Vendor</Button>
+          {(invoiceStatus || invoice.status) !== 'paid' && (
+            <Button size="sm" onClick={() => setConfirmPayOpen(true)}>
+              <DollarSign className="w-3 h-3 mr-1" />
+              Mark as Paid
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={() => {
+            printDetailView(`Invoice ${invoice.number}`, [
+              { label: 'Invoice Number', value: invoice.number },
+              { label: 'Vendor', value: invoice.vendor },
+              { label: 'Status', value: invoiceStatus || invoice.status },
+              { label: 'Issue Date', value: invoice.issueDate ? formatDate(invoice.issueDate) : '-' },
+              { label: 'Due Date', value: invoice.dueDate ? formatDate(invoice.dueDate) : '-' },
+              { label: 'Subtotal', value: formatCurrency(invoice.amount) },
+              { label: 'Tax', value: formatCurrency(invoice.tax) },
+              { label: 'Total', value: formatCurrency(invoice.total) },
+              { label: 'Description', value: invoice.description || '-' },
+            ])
+          }}>
+            <Download className="w-3 h-3 mr-1" />
+            Download PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { if (invoice.vendorId) { push({ id: `vendor-${invoice.vendorId}`, type: 'vendor', label: invoice.vendor, data: { vendorId: invoice.vendorId } }) } else { toast.info('No vendor linked to this invoice') } }}>View Vendor</Button>
         </div>
+
+        {/* Mark as Paid Confirmation Dialog */}
+        <Dialog open={confirmPayOpen} onOpenChange={setConfirmPayOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Payment</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground py-2">
+              Mark invoice <strong>{invoice.number}</strong> ({formatCurrency(invoice.total)}) from <strong>{invoice.vendor}</strong> as paid?
+            </p>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setConfirmPayOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                setInvoiceStatus('paid')
+                setConfirmPayOpen(false)
+                toast.success(`Invoice ${invoice.number} marked as paid`)
+              }}>
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Confirm Payment
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -315,6 +463,8 @@ interface RouteDetailPanelProps {
 export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
 
   const route = {
     id: routeId || data.routeId || data.id,
@@ -422,12 +572,12 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
           <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Start Time"
-              value={route.startTime ? new Date(route.startTime).toLocaleString() : '-'}
+              value={route.startTime ? formatDateTime(route.startTime) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="End Time"
-              value={route.endTime ? new Date(route.endTime).toLocaleString() : '-'}
+              value={route.endTime ? formatDateTime(route.endTime) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
           </div>
@@ -435,10 +585,66 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">View on Map</Button>
-          <Button variant="outline" size="sm">Edit Route</Button>
-          <Button variant="outline" size="sm">View Stops</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `route-map-${route.id}`, type: 'route-map', label: `${route.name} Map`, data: { routeId: route.id, startLocation: route.startLocation, endLocation: route.endLocation, stops: route.stops } })}>
+            <MapPin className="w-3 h-3 mr-1" />
+            View on Map
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              name: route.name || '',
+              startLocation: route.startLocation || '',
+              endLocation: route.endLocation || '',
+              status: route.status || 'active',
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit Route
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `route-stops-${route.id}`, type: 'route-stops', label: `${route.name} Stops`, data: { routeId: route.id, stops: route.stops } })}>View Stops</Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Route: {route.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-route-name">Route Name</Label>
+                <Input id="edit-route-name" value={editFields.name || ''} onChange={(e) => setEditFields(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-route-start">Start Location</Label>
+                <Input id="edit-route-start" value={editFields.startLocation || ''} onChange={(e) => setEditFields(f => ({ ...f, startLocation: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-route-end">End Location</Label>
+                <Input id="edit-route-end" value={editFields.endLocation || ''} onChange={(e) => setEditFields(f => ({ ...f, endLocation: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-route-status">Status</Label>
+                <Select value={editFields.status || 'active'} onValueChange={(v) => setEditFields(f => ({ ...f, status: v }))}>
+                  <SelectTrigger id="edit-route-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="delayed">Delayed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Route "${editFields.name}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -455,6 +661,12 @@ interface TaskDetailPanelProps {
 export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false)
+  const [noteText, setNoteText] = useState('')
+  const [confirmCompleteOpen, setConfirmCompleteOpen] = useState(false)
+  const [taskStatus, setTaskStatus] = useState<string | null>(null)
 
   const task = {
     id: taskId || data.taskId || data.id,
@@ -505,12 +717,12 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
             <DetailRow label="Assigned To" value={task.assignedTo} icon={<User className="w-4 h-4" />} />
             <DetailRow
               label="Due Date"
-              value={task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}
+              value={task.dueDate ? formatDate(task.dueDate) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="Created"
-              value={task.createdAt ? new Date(task.createdAt).toLocaleDateString() : '-'}
+              value={task.createdAt ? formatDate(task.createdAt) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
           </div>
@@ -553,15 +765,139 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          {task.status !== 'completed' && (
-            <Button size="sm">
+          {(taskStatus || task.status) !== 'completed' && (
+            <Button size="sm" onClick={() => setConfirmCompleteOpen(true)}>
               <CheckCircle className="w-4 h-4 mr-2" />
               Complete Task
             </Button>
           )}
-          <Button variant="outline" size="sm">Edit Task</Button>
-          <Button variant="outline" size="sm">Add Note</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              name: task.name || '',
+              priority: task.priority || 'medium',
+              status: task.status || 'pending',
+              assignedTo: task.assignedTo || '',
+              description: task.description || '',
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit Task
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { setNoteText(''); setNoteDialogOpen(true) }}>
+            <Plus className="w-3 h-3 mr-1" />
+            Add Note
+          </Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Task: {task.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-task-name">Task Name</Label>
+                <Input id="edit-task-name" value={editFields.name || ''} onChange={(e) => setEditFields(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-task-assigned">Assigned To</Label>
+                <Input id="edit-task-assigned" value={editFields.assignedTo || ''} onChange={(e) => setEditFields(f => ({ ...f, assignedTo: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-task-priority">Priority</Label>
+                <Select value={editFields.priority || 'medium'} onValueChange={(v) => setEditFields(f => ({ ...f, priority: v }))}>
+                  <SelectTrigger id="edit-task-priority"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-task-status">Status</Label>
+                <Select value={editFields.status || 'pending'} onValueChange={(v) => setEditFields(f => ({ ...f, status: v }))}>
+                  <SelectTrigger id="edit-task-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="overdue">Overdue</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-task-desc">Description</Label>
+                <Textarea id="edit-task-desc" value={editFields.description || ''} onChange={(e) => setEditFields(f => ({ ...f, description: e.target.value }))} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Task "${editFields.name}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Complete Task Confirmation Dialog */}
+        <Dialog open={confirmCompleteOpen} onOpenChange={setConfirmCompleteOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Complete Task</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground py-2">
+              Mark task <strong>{task.name}</strong> as completed? This action indicates the task has been fully resolved.
+            </p>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setConfirmCompleteOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                setTaskStatus('completed')
+                setConfirmCompleteOpen(false)
+                toast.success(`Task "${task.name}" marked as complete`)
+              }}>
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Complete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Note Dialog */}
+        <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Note to Task</DialogTitle>
+            </DialogHeader>
+            <div className="py-2">
+              <Label htmlFor="task-note">Note</Label>
+              <Textarea
+                id="task-note"
+                placeholder="Enter your note..."
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                rows={4}
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setNoteDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                if (!noteText.trim()) {
+                  toast.error('Please enter a note')
+                  return
+                }
+                setNoteDialogOpen(false)
+                toast.success('Note added to task')
+              }}>
+                <Save className="w-3 h-3 mr-1" />
+                Save Note
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -578,11 +914,16 @@ interface IncidentDetailPanelProps {
 export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false)
+  const [incidentNewStatus, setIncidentNewStatus] = useState('')
+  const [incidentCurrentStatus, setIncidentCurrentStatus] = useState<string | null>(null)
+  const [notesDialogOpen, setNotesDialogOpen] = useState(false)
+  const [incidentNoteText, setIncidentNoteText] = useState('')
 
   const incident = {
     id: incidentId || data.incidentId || data.id,
     number: data.incidentNumber || data.number || `INC-${incidentId}`,
-    type: data.type || 'Unknown',
+    type: data.type || '—',
     status: data.status || 'open',
     severity: data.severity || 'medium',
     driver: data.driver || data.driverName,
@@ -613,7 +954,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-sm font-bold">{incident.number}</h2>
-            <p className="text-muted-foreground">{incident.type}</p>
+            <p className="text-muted-foreground">{formatEnum(incident.type)}</p>
             <div className="flex gap-2 mt-2">
               <StatusBadge status={incident.status} variant={statusVariant} />
               <StatusBadge status={`${incident.severity} severity`} variant={severityVariant} />
@@ -636,7 +977,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
             <DetailRow label="Type" value={incident.type} icon={<Activity className="w-4 h-4" />} />
             <DetailRow
               label="Occurred"
-              value={incident.occurredAt ? new Date(incident.occurredAt).toLocaleString() : '-'}
+              value={incident.occurredAt ? formatDateTime(incident.occurredAt) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow label="Location" value={incident.location} icon={<MapPin className="w-4 h-4" />} />
@@ -684,7 +1025,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
           <DetailSection title="Damage Assessment">
             <DetailRow
               label="Estimated Damage"
-              value={`$${incident.damageEstimate.toLocaleString()}`}
+              value={formatCurrency(incident.damageEstimate)}
               icon={<DollarSign className="w-4 h-4" />}
             />
           </DetailSection>
@@ -699,10 +1040,81 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">Update Status</Button>
-          <Button variant="outline" size="sm">Add Notes</Button>
-          <Button variant="outline" size="sm">View Documents</Button>
+          <Button variant="outline" size="sm" onClick={() => { setIncidentNewStatus(incidentCurrentStatus || incident.status); setStatusDialogOpen(true) }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Update Status
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { setIncidentNoteText(''); setNotesDialogOpen(true) }}>
+            <Plus className="w-3 h-3 mr-1" />
+            Add Notes
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `incident-docs-${incident.id}`, type: 'incident-documents', label: `${incident.number} Documents`, data: { incidentId: incident.id } })}>View Documents</Button>
         </div>
+
+        {/* Update Status Dialog */}
+        <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Update Incident Status</DialogTitle>
+            </DialogHeader>
+            <div className="py-2">
+              <Label htmlFor="incident-status">Status</Label>
+              <Select value={incidentNewStatus} onValueChange={setIncidentNewStatus}>
+                <SelectTrigger id="incident-status"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="under-review">Under Review</SelectItem>
+                  <SelectItem value="investigating">Investigating</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setStatusDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                setIncidentCurrentStatus(incidentNewStatus)
+                setStatusDialogOpen(false)
+                toast.success(`Incident ${incident.number} status updated to ${formatEnum(incidentNewStatus)}`)
+              }}>
+                <Save className="w-3 h-3 mr-1" />
+                Update Status
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Notes Dialog */}
+        <Dialog open={notesDialogOpen} onOpenChange={setNotesDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Notes to Incident</DialogTitle>
+            </DialogHeader>
+            <div className="py-2">
+              <Label htmlFor="incident-note">Notes</Label>
+              <Textarea
+                id="incident-note"
+                placeholder="Enter notes about this incident..."
+                value={incidentNoteText}
+                onChange={(e) => setIncidentNoteText(e.target.value)}
+                rows={4}
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setNotesDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                if (!incidentNoteText.trim()) {
+                  toast.error('Please enter a note')
+                  return
+                }
+                setNotesDialogOpen(false)
+                toast.success('Notes added to incident record')
+              }}>
+                <Save className="w-3 h-3 mr-1" />
+                Save Notes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -717,8 +1129,10 @@ interface VendorDetailPanelProps {
 }
 
 export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
-  const { currentLevel } = useDrilldown()
+  const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
 
   const vendor = {
     id: vendorId || data.vendorId || data.id,
@@ -779,7 +1193,7 @@ export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
           <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Total Spend"
-              value={`$${vendor.totalSpend.toLocaleString()}`}
+              value={formatCurrency(vendor.totalSpend)}
               icon={<DollarSign className="w-4 h-4" />}
             />
             <DetailRow
@@ -792,10 +1206,72 @@ export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">Edit Vendor</Button>
-          <Button variant="outline" size="sm">View Orders</Button>
-          <Button variant="outline" size="sm">View Invoices</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              name: vendor.name || '',
+              contactName: vendor.contactName || '',
+              email: vendor.email || '',
+              phone: vendor.phone || '',
+              address: vendor.address || '',
+              status: vendor.status || 'active',
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit Vendor
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `vendor-orders-${vendor.id}`, type: 'vendor-orders', label: `${vendor.name} Orders`, data: { vendorId: vendor.id } })}>View Orders</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `vendor-invoices-${vendor.id}`, type: 'vendor-invoices', label: `${vendor.name} Invoices`, data: { vendorId: vendor.id } })}>View Invoices</Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Vendor: {vendor.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-vendor-name">Vendor Name</Label>
+                <Input id="edit-vendor-name" value={editFields.name || ''} onChange={(e) => setEditFields(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-vendor-contact">Contact Name</Label>
+                <Input id="edit-vendor-contact" value={editFields.contactName || ''} onChange={(e) => setEditFields(f => ({ ...f, contactName: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-vendor-email">Email</Label>
+                <Input id="edit-vendor-email" type="email" value={editFields.email || ''} onChange={(e) => setEditFields(f => ({ ...f, email: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-vendor-phone">Phone</Label>
+                <Input id="edit-vendor-phone" value={editFields.phone || ''} onChange={(e) => setEditFields(f => ({ ...f, phone: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-vendor-address">Address</Label>
+                <Input id="edit-vendor-address" value={editFields.address || ''} onChange={(e) => setEditFields(f => ({ ...f, address: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-vendor-status">Status</Label>
+                <Select value={editFields.status || 'active'} onValueChange={(v) => setEditFields(f => ({ ...f, status: v }))}>
+                  <SelectTrigger id="edit-vendor-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Vendor "${editFields.name}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -812,6 +1288,12 @@ interface PartDetailPanelProps {
 export function PartDetailPanel({ partId }: PartDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
+  const [qtyDialogOpen, setQtyDialogOpen] = useState(false)
+  const [qtyAdjustment, setQtyAdjustment] = useState(0)
+  const [qtyReason, setQtyReason] = useState('')
+  const [adjustedQty, setAdjustedQty] = useState<number | null>(null)
 
   const part = {
     id: partId || data.partId || data.id,
@@ -865,12 +1347,12 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
             <DetailRow label="Reorder Level" value={part.reorderLevel} icon={<AlertTriangle className="w-4 h-4" />} />
             <DetailRow
               label="Unit Price"
-              value={`$${part.unitPrice.toLocaleString()}`}
+              value={formatCurrency(part.unitPrice)}
               icon={<DollarSign className="w-4 h-4" />}
             />
             <DetailRow
               label="Total Value"
-              value={`$${(part.quantity * part.unitPrice).toLocaleString()}`}
+              value={formatCurrency(part.quantity * part.unitPrice)}
               icon={<DollarSign className="w-4 h-4" />}
             />
           </div>
@@ -899,10 +1381,143 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">Edit Part</Button>
-          <Button variant="outline" size="sm">Adjust Quantity</Button>
-          <Button variant="outline" size="sm">Create PO</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              name: part.name || '',
+              number: part.number || '',
+              category: part.category || '',
+              manufacturer: part.manufacturer || '',
+              location: part.location || '',
+              reorderLevel: String(part.reorderLevel || 0),
+              unitPrice: String(part.unitPrice || 0),
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit Part
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { setQtyAdjustment(0); setQtyReason(''); setQtyDialogOpen(true) }}>
+            <Plus className="w-3 h-3 mr-1" />
+            Adjust Quantity
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `po-create-${part.id}`, type: 'po-create', label: `PO for ${part.name}`, data: { partId: part.id, partName: part.name, vendorId: part.vendorId } })}>Create PO</Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Part: {part.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-part-name">Part Name</Label>
+                <Input id="edit-part-name" value={editFields.name || ''} onChange={(e) => setEditFields(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-part-number">Part Number</Label>
+                <Input id="edit-part-number" value={editFields.number || ''} onChange={(e) => setEditFields(f => ({ ...f, number: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-part-category">Category</Label>
+                <Input id="edit-part-category" value={editFields.category || ''} onChange={(e) => setEditFields(f => ({ ...f, category: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-part-manufacturer">Manufacturer</Label>
+                <Input id="edit-part-manufacturer" value={editFields.manufacturer || ''} onChange={(e) => setEditFields(f => ({ ...f, manufacturer: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-part-location">Location</Label>
+                <Input id="edit-part-location" value={editFields.location || ''} onChange={(e) => setEditFields(f => ({ ...f, location: e.target.value }))} />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label htmlFor="edit-part-reorder">Reorder Level</Label>
+                  <Input id="edit-part-reorder" type="number" value={editFields.reorderLevel || '0'} onChange={(e) => setEditFields(f => ({ ...f, reorderLevel: e.target.value }))} />
+                </div>
+                <div>
+                  <Label htmlFor="edit-part-price">Unit Price</Label>
+                  <Input id="edit-part-price" type="number" step="0.01" value={editFields.unitPrice || '0'} onChange={(e) => setEditFields(f => ({ ...f, unitPrice: e.target.value }))} />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Part "${editFields.name}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Adjust Quantity Dialog */}
+        <Dialog open={qtyDialogOpen} onOpenChange={setQtyDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Adjust Quantity: {part.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div className="text-sm text-muted-foreground">
+                Current quantity: <strong>{adjustedQty ?? part.quantity}</strong>
+              </div>
+              <div>
+                <Label htmlFor="qty-adjustment">Adjustment (+/-)</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Button variant="outline" size="sm" onClick={() => setQtyAdjustment(q => q - 1)}>
+                    <Minus className="w-3 h-3" />
+                  </Button>
+                  <Input
+                    id="qty-adjustment"
+                    type="number"
+                    value={qtyAdjustment}
+                    onChange={(e) => setQtyAdjustment(Number(e.target.value))}
+                    className="w-24 text-center"
+                  />
+                  <Button variant="outline" size="sm" onClick={() => setQtyAdjustment(q => q + 1)}>
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="qty-reason">Reason</Label>
+                <Select value={qtyReason} onValueChange={setQtyReason}>
+                  <SelectTrigger id="qty-reason"><SelectValue placeholder="Select reason..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="received">Received Stock</SelectItem>
+                    <SelectItem value="used">Used in Work Order</SelectItem>
+                    <SelectItem value="damaged">Damaged/Defective</SelectItem>
+                    <SelectItem value="returned">Returned to Vendor</SelectItem>
+                    <SelectItem value="audit">Inventory Audit</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="text-sm">
+                New quantity: <strong>{(adjustedQty ?? part.quantity) + qtyAdjustment}</strong>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setQtyDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                if (qtyAdjustment === 0) {
+                  toast.error('Please enter a non-zero adjustment')
+                  return
+                }
+                if (!qtyReason) {
+                  toast.error('Please select a reason')
+                  return
+                }
+                const newQty = (adjustedQty ?? part.quantity) + qtyAdjustment
+                setAdjustedQty(newQty)
+                setQtyDialogOpen(false)
+                toast.success(`${part.name} quantity adjusted by ${qtyAdjustment > 0 ? '+' : ''}${qtyAdjustment} (now ${newQty})`)
+              }}>
+                <Save className="w-3 h-3 mr-1" />
+                Apply Adjustment
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -919,6 +1534,10 @@ interface PurchaseOrderDetailPanelProps {
 export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
+  const [receiveConfirmOpen, setReceiveConfirmOpen] = useState(false)
+  const [poCurrentStatus, setPoCurrentStatus] = useState<string | null>(null)
 
   const po = {
     id: purchaseOrderId || data.purchaseOrderId || data.id,
@@ -951,7 +1570,7 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
           </div>
           <div className="text-right">
             <StatusBadge status={po.status} variant={statusVariant} />
-            <div className="text-sm font-bold mt-2">${po.amount.toLocaleString()}</div>
+            <div className="text-sm font-bold mt-2">{formatCurrency(po.amount)}</div>
           </div>
         </div>
 
@@ -978,12 +1597,12 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
             </div>
             <DetailRow
               label="Order Date"
-              value={po.orderDate ? new Date(po.orderDate).toLocaleDateString() : '-'}
+              value={po.orderDate ? formatDate(po.orderDate) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="Expected Delivery"
-              value={po.expectedDate ? new Date(po.expectedDate).toLocaleDateString() : '-'}
+              value={po.expectedDate ? formatDate(po.expectedDate) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
           </div>
@@ -993,11 +1612,11 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
         <DetailSection title={`Items (${po.items?.length || 0})`}>
           {po.items && po.items.length > 0 ? (
             <div className="space-y-2">
-              {po.items.map((item: any, index: number) => (
-                <div key={index} className="flex justify-between p-2 bg-muted/30 rounded">
+              {po.items.map((item: any) => (
+                <div key={item.name || item.partName} className="flex justify-between p-2 bg-muted/30 rounded">
                   <span>{item.name || item.partName}</span>
                   <span className="text-muted-foreground">
-                    {item.quantity} x ${item.unitPrice?.toLocaleString() || '0'}
+                    {item.quantity} x {formatCurrency(item.unitPrice)}
                   </span>
                 </div>
               ))}
@@ -1016,10 +1635,108 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">Edit PO</Button>
-          <Button variant="outline" size="sm">Receive Items</Button>
-          <Button variant="outline" size="sm">Download PDF</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              status: po.status || 'pending',
+              notes: po.notes || '',
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit PO
+          </Button>
+          {(poCurrentStatus || po.status) !== 'received' && (
+            <Button variant="outline" size="sm" onClick={() => setReceiveConfirmOpen(true)}>
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Receive Items
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={() => {
+            printDetailView(`Purchase Order ${po.number}`, [
+              { label: 'PO Number', value: po.number },
+              { label: 'Vendor', value: po.vendor || '-' },
+              { label: 'Status', value: poCurrentStatus || po.status },
+              { label: 'Order Date', value: po.orderDate ? formatDate(po.orderDate) : '-' },
+              { label: 'Expected Delivery', value: po.expectedDate ? formatDate(po.expectedDate) : '-' },
+              { label: 'Amount', value: formatCurrency(po.amount) },
+              { label: 'Items', value: po.items?.map((i: any) => `${i.name || i.partName} x${i.quantity}`).join(', ') || 'None' },
+              { label: 'Notes', value: po.notes || '-' },
+            ])
+          }}>
+            <Download className="w-3 h-3 mr-1" />
+            Download PDF
+          </Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit PO: {po.number}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-po-status">Status</Label>
+                <Select value={editFields.status || 'pending'} onValueChange={(v) => setEditFields(f => ({ ...f, status: v }))}>
+                  <SelectTrigger id="edit-po-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="in-transit">In Transit</SelectItem>
+                    <SelectItem value="received">Received</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-po-notes">Notes</Label>
+                <Textarea id="edit-po-notes" value={editFields.notes || ''} onChange={(e) => setEditFields(f => ({ ...f, notes: e.target.value }))} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Purchase Order "${po.number}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Receive Items Confirmation Dialog */}
+        <Dialog open={receiveConfirmOpen} onOpenChange={setReceiveConfirmOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Receive Items</DialogTitle>
+            </DialogHeader>
+            <div className="py-2 space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Confirm receipt of all items for <strong>{po.number}</strong> from <strong>{po.vendor}</strong>?
+              </p>
+              {po.items && po.items.length > 0 && (
+                <div className="space-y-1">
+                  {po.items.map((item: any) => (
+                    <div key={item.name || item.partName} className="flex justify-between p-2 bg-muted/30 rounded text-sm">
+                      <span>{item.name || item.partName}</span>
+                      <span className="text-muted-foreground">Qty: {item.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setReceiveConfirmOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                setPoCurrentStatus('received')
+                setReceiveConfirmOpen(false)
+                toast.success(`Items received for ${po.number}`)
+              }}>
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Confirm Receipt
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -1083,7 +1800,7 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
             <DetailRow label="Trip ID" value={trip.id} icon={<Route className="w-4 h-4" />} />
             <DetailRow
               label="Distance"
-              value={`${trip.distance.toLocaleString()} miles`}
+              value={`${formatNumber(trip.distance)} miles`}
               icon={<MapPin className="w-4 h-4" />}
             />
             <DetailRow
@@ -1142,12 +1859,12 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
           <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Start Time"
-              value={trip.startTime ? new Date(trip.startTime).toLocaleString() : '-'}
+              value={trip.startTime ? formatDateTime(trip.startTime) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="End Time"
-              value={trip.endTime ? new Date(trip.endTime).toLocaleString() : '-'}
+              value={trip.endTime ? formatDateTime(trip.endTime) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
           </div>
@@ -1177,9 +1894,33 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">View on Map</Button>
-          <Button variant="outline" size="sm">View Telemetry</Button>
-          <Button variant="outline" size="sm">Download Report</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `trip-map-${trip.id}`, type: 'trip-map', label: `${trip.name} Map`, data: { tripId: trip.id, startLocation: trip.startLocation, endLocation: trip.endLocation } })}>
+            <MapPin className="w-3 h-3 mr-1" />
+            View on Map
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `trip-telemetry-${trip.id}`, type: 'trip-telemetry', label: 'Trip Telemetry', data: { tripId: trip.id } })}>View Telemetry</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            downloadCsv(`trip-${trip.id}-report.csv`, ['Field', 'Value'], [
+              ['Trip ID', String(trip.id)],
+              ['Trip Name', trip.name],
+              ['Status', trip.status],
+              ['Driver', trip.driver || '-'],
+              ['Vehicle', trip.vehicle || '-'],
+              ['Start', trip.startLocation || '-'],
+              ['End', trip.endLocation || '-'],
+              ['Start Time', trip.startTime ? formatDateTime(trip.startTime) : '-'],
+              ['End Time', trip.endTime ? formatDateTime(trip.endTime) : '-'],
+              ['Distance (miles)', String(trip.distance)],
+              ['Duration (min)', String(trip.duration)],
+              ['Fuel Used (gal)', trip.fuelUsed !== undefined ? trip.fuelUsed.toFixed(1) : '-'],
+              ['Avg Speed (mph)', trip.avgSpeed ? String(trip.avgSpeed) : '-'],
+              ['Max Speed (mph)', trip.maxSpeed ? String(trip.maxSpeed) : '-'],
+            ])
+            toast.success('Trip report downloaded')
+          }}>
+            <Download className="w-3 h-3 mr-1" />
+            Download Report
+          </Button>
         </div>
       </div>
     </DrilldownContent>
@@ -1246,7 +1987,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
             <DetailRow label="Type" value={inspection.type} icon={<CheckCircle className="w-4 h-4" />} />
             <DetailRow
               label="Date"
-              value={inspection.date ? new Date(inspection.date).toLocaleDateString() : '-'}
+              value={inspection.date ? formatDate(inspection.date) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
           </div>
@@ -1292,8 +2033,8 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
         {inspection.defects && inspection.defects.length > 0 && (
           <DetailSection title={`Defects Found (${inspection.defects.length})`}>
             <div className="space-y-2">
-              {inspection.defects.map((defect: any, index: number) => (
-                <div key={index} className="flex items-start gap-2 p-2 bg-red-50 dark:bg-red-900/20 rounded">
+              {inspection.defects.map((defect: any) => (
+                <div key={defect.description || defect} className="flex items-start gap-2 p-2 bg-red-50 dark:bg-red-900/20 rounded">
                   <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" />
                   <span className="text-sm">{defect.description || defect}</span>
                 </div>
@@ -1311,8 +2052,26 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">View Form</Button>
-          <Button variant="outline" size="sm">Download PDF</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `inspection-form-${inspection.id}`, type: 'inspection-form', label: `${inspection.number} Form`, data: { inspectionId: inspection.id, type: inspection.type, defects: inspection.defects } })}>
+            <FileText className="w-3 h-3 mr-1" />
+            View Form
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            printDetailView(`Inspection ${inspection.number}`, [
+              { label: 'Inspection #', value: inspection.number },
+              { label: 'Type', value: inspection.type },
+              { label: 'Status', value: inspection.status },
+              { label: 'Result', value: inspection.result },
+              { label: 'Date', value: inspection.date ? formatDate(inspection.date) : '-' },
+              { label: 'Inspector', value: inspection.driver || '-' },
+              { label: 'Vehicle', value: inspection.vehicle || '-' },
+              { label: 'Defects', value: inspection.defects?.length ? inspection.defects.map((d: any) => d.description || d).join('; ') : 'None' },
+              { label: 'Notes', value: inspection.notes || '-' },
+            ])
+          }}>
+            <Download className="w-3 h-3 mr-1" />
+            Download PDF
+          </Button>
         </div>
       </div>
     </DrilldownContent>

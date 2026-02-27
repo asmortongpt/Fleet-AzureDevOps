@@ -3,8 +3,10 @@
  * Smooth animated number counter for KPI values
  */
 
-import { useEffect, useState } from 'react'
-import { motion, useSpring, useTransform } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+
+import { formatNumber } from '@/utils/format-helpers'
+// motion removed - React 19 incompatible
 
 interface AnimatedCounterProps {
   value: number
@@ -13,6 +15,7 @@ interface AnimatedCounterProps {
   prefix?: string
   suffix?: string
   className?: string
+  useLocale?: boolean
 }
 
 export function AnimatedCounter({
@@ -22,28 +25,44 @@ export function AnimatedCounter({
   prefix = '',
   suffix = '',
   className = '',
+  useLocale = false,
 }: AnimatedCounterProps) {
   const [displayValue, setDisplayValue] = useState(0)
-
-  const spring = useSpring(0, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  })
+  const previousValue = useRef(0)
 
   useEffect(() => {
-    spring.set(value)
-  }, [spring, value])
+    const start = previousValue.current
+    const end = value
+    const startTime = performance.now()
+    const durationMs = duration * 1000
 
-  useEffect(() => {
-    const unsubscribe = spring.on('change', (latest) => {
-      setDisplayValue(latest)
-    })
+    let animationFrame: number
 
-    return unsubscribe
-  }, [spring])
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / durationMs, 1)
 
-  const formatted = displayValue.toFixed(decimals)
+      // Ease-out cubic for smooth deceleration
+      const eased = 1 - Math.pow(1 - progress, 3)
+      const current = start + (end - start) * eased
+
+      setDisplayValue(current)
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate)
+      } else {
+        previousValue.current = end
+      }
+    }
+
+    animationFrame = requestAnimationFrame(animate)
+
+    return () => cancelAnimationFrame(animationFrame)
+  }, [value, duration])
+
+  const formatted = useLocale
+    ? formatNumber(displayValue, decimals)
+    : displayValue.toFixed(decimals)
 
   return (
     <span className={className}>
@@ -85,5 +104,5 @@ export function AnimatedCurrency({
   className?: string
   currency?: string
 }) {
-  return <AnimatedCounter value={value} decimals={decimals} prefix={currency} className={className} />
+  return <AnimatedCounter value={value} decimals={decimals} prefix={currency} className={className} useLocale />
 }

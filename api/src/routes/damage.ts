@@ -1,5 +1,6 @@
 import express, { Response } from 'express'
 import multer from 'multer'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection';
@@ -18,6 +19,8 @@ import { OpenAIVisionService } from '../services/openaiVisionService'
 import { getErrorMessage } from '../utils/error-handler'
 import { validateFileContent, validateFileSize } from '../utils/file-validation'
 
+
+import { flexUuid } from '../middleware/validation'
 
 const router = express.Router()
 
@@ -78,7 +81,7 @@ const upload = multer({
  */
 router.post(
   '/analyze-photo',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   createRateLimiter({ max: 20, windowMs: 60000 }), // 20 requests per minute
   upload.single('photo'),
@@ -98,7 +101,7 @@ router.post(
       }
 
       // Validate file size for images (10MB limit for damage analysis photos)
-      const sizeValidation = validateFileSize(req.file.size, contentValidation.mimeType!)
+      const sizeValidation = validateFileSize(req.file.size, contentValidation.mimeType)
       if (!sizeValidation.valid) {
         return res.status(400).json({
           error: 'File size validation failed',
@@ -163,7 +166,7 @@ router.post(
  */
 router.post(
   '/analyze-lidar',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   createRateLimiter({ max: 10, windowMs: 60000 }), // 10 requests per minute (more intensive)
   upload.array('photos', 10),
@@ -235,7 +238,7 @@ router.post(
  */
 router.post(
   '/analyze-video',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   createRateLimiter({ max: 5, windowMs: 60000 }), // 5 requests per minute (very intensive)
   upload.single('video'),
@@ -252,7 +255,6 @@ router.post(
       })
 
       // In production, upload video to Azure Blob Storage and process asynchronously
-      // For now, we`ll return a placeholder response
       const videoData: VideoAnalysisData = {
         videoUrl: `temp://${req.file.originalname}`,
         metadata: {
@@ -267,7 +269,7 @@ router.post(
         },
       }
 
-      // Extract key frames from video (placeholder - would use FFmpeg in production)
+      // Extract key frames from video (would use FFmpeg in production)
       const frameInterval = parseFloat(req.body.frameInterval || '1')
       const analysis = await getMobileDamageService().analyzeVideoWalkthrough(
         videoData,
@@ -300,7 +302,7 @@ router.post(
  */
 router.post(
   '/comprehensive-analysis',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   createRateLimiter({ max: 5, windowMs: 60000 }), // 5 requests per minute (very intensive)
   upload.array('photos', 20),
@@ -393,6 +395,30 @@ router.post(
   }
 )
 
+// Validation schema for saving damage records
+const saveDamageSchema = z.object({
+  vehicleId: flexUuid,
+  damages: z.array(z.object({
+    position: z.object({
+      x: z.number(),
+      y: z.number(),
+      z: z.number(),
+    }).optional(),
+    normal: z.object({
+      x: z.number(),
+      y: z.number(),
+      z: z.number(),
+    }).optional(),
+    severity: z.string().min(1).max(50),
+    type: z.string().min(1).max(100),
+    part: z.string().min(1).max(100),
+    description: z.string().max(2000).optional(),
+    costEstimate: z.number().min(0).optional(),
+  })).min(1).max(100),
+  photoUrls: z.array(z.string().url().max(2048)).max(50).optional(),
+  analysisMetadata: z.record(z.string(), z.unknown()).optional(),
+})
+
 /**
  * POST /api/damage/save
  * Save confirmed damage to database
@@ -400,23 +426,27 @@ router.post(
  */
 router.post(
   '/save',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('damage:create'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { vehicleId, damages, photoUrls, analysisMetadata } = req.body
-
-      if (!vehicleId || !damages || damages.length === 0) {
-        throw new ValidationError("vehicleId and damages are required")
+      const parsed = saveDamageSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
       }
 
+      const { vehicleId, damages, photoUrls, analysisMetadata } = parsed.data
+
       // Validate vehicle belongs to user's tenant
-      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id)
+      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id ?? '')
       if (!hasAccess) {
         logger.warn('Unauthorized vehicle access attempt', {
           vehicleId,
           userId: req.user!.id,
-          tenantId: req.user!.tenant_id,
+          tenantId: req.user!.tenant_id ?? '',
         })
         return res.status(403).json({ error: 'Access denied: Vehicle not found or not accessible' })
       }
@@ -425,7 +455,7 @@ router.post(
         vehicleId,
         damageCount: damages.length,
         userId: req.user!.id,
-        tenantId: req.user!.tenant_id,
+        tenantId: req.user!.tenant_id ?? '',
       })
 
       const client = await pool.connect()
@@ -513,12 +543,12 @@ router.get(
       const { vehicleId } = req.params
 
       // Validate vehicle belongs to user's tenant
-      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id)
+      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id ?? '')
       if (!hasAccess) {
         logger.warn('Unauthorized vehicle access attempt', {
           vehicleId,
           userId: req.user!.id,
-          tenantId: req.user!.tenant_id,
+          tenantId: req.user!.tenant_id ?? '',
         })
         return res.status(403).json({ error: 'Access denied: Vehicle not found or not accessible' })
       }
@@ -526,7 +556,7 @@ router.get(
       logger.info('Fetching damage records', {
         vehicleId,
         userId: req.user!.id,
-        tenantId: req.user!.tenant_id,
+        tenantId: req.user!.tenant_id ?? '',
       })
 
       const result = await pool.query(
@@ -581,12 +611,12 @@ router.get(
       const { vehicleId } = req.params
 
       // Validate vehicle belongs to user's tenant
-      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id)
+      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id ?? '')
       if (!hasAccess) {
         logger.warn('Unauthorized vehicle access attempt', {
           vehicleId,
           userId: req.user!.id,
-          tenantId: req.user!.tenant_id,
+          tenantId: req.user!.tenant_id ?? '',
         })
         return res.status(403).json({ error: 'Access denied: Vehicle not found or not accessible' })
       }
@@ -594,12 +624,12 @@ router.get(
       logger.info('Fetching damage summary', {
         vehicleId,
         userId: req.user!.id,
-        tenantId: req.user!.tenant_id,
+        tenantId: req.user!.tenant_id ?? '',
       })
 
       const result = await pool.query(
         'SELECT vehicle_id, damage_type, severity, repair_cost, incident_date FROM v_vehicle_damage_summary WHERE tenant_id = $1 AND vehicle_id = $2',
-        [req.user!.tenant_id, vehicleId]
+        [req.user!.tenant_id ?? '', vehicleId]
       )
 
       if (result.rows.length === 0) {

@@ -160,7 +160,7 @@ export function createChromeMaterial(options: MaterialOptions = {}): THREE.MeshS
  * Create glass material for windows
  */
 export function createGlassMaterial(options: MaterialOptions = {}): THREE.MeshPhysicalMaterial {
-  const { quality = 'medium', color = '#88ccff', opacity = 0.3 } = options;
+  const { quality = 'medium', color = '#e0e0e0', opacity = 0.3 } = options;
 
   const qualitySettings = {
     low: {
@@ -379,6 +379,12 @@ export function applyVehicleMaterials(
         child.castShadow = true;
         child.receiveShadow = true;
       }
+      else {
+        // Fallback: apply paint to any unmatched mesh (common with generic GLB models)
+        child.material = paintMaterial;
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
     }
   });
 }
@@ -433,7 +439,7 @@ export const VEHICLE_COLORS = {
   blue: '#0066CC',
   navy: '#000080',
   sky_blue: '#87CEEB',
-  royal_blue: '#4169E1',
+  ocean_teal: '#0D9488',
 
   // Reds
   red: '#FF0000',

@@ -29,7 +29,7 @@ export function MobileCard({
   const content = (
     <Card
       className={cn(
-        "md:hidden hover:shadow-md transition-shadow touch-target",
+        "md:hidden hover:border-white/[0.12] transition-colors touch-target",
         onClick && "cursor-pointer",
         className
       )}
@@ -50,8 +50,8 @@ export function MobileCard({
 
         {/* Fields */}
         <div className="grid grid-cols-2 gap-3">
-          {fields.map((field, index) => (
-            <div key={index} className="space-y-1">
+          {fields.map((field) => (
+            <div key={field.label} className="space-y-1">
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 {field.icon && (
                   <span className="flex-shrink-0">{field.icon}</span>

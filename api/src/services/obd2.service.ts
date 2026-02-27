@@ -13,6 +13,11 @@
 
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
+
+// Export singleton instance
+import { pool } from '../db'
+
 export interface OBD2Adapter {
   id: number
   tenant_id: number
@@ -599,14 +604,11 @@ export class OBD2ServiceBackend {
         )
       }
     } catch (error) {
-      console.error(`Error creating work order for DTC:`, error)
+      logger.error('Error creating work order for DTC:', { error: error instanceof Error ? error.message : String(error) })
       // Don't throw - work order creation is optional
     }
   }
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const obd2ServiceBackend = new OBD2ServiceBackend(pool)
 
 export default obd2ServiceBackend

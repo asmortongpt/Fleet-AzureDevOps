@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { flexUuid } from '../middleware/validation';
+
 /**
  * Comprehensive Zod validation schemas for Vehicles
  * Implements CRIT-B-003: Input validation across all API endpoints
@@ -17,7 +19,17 @@ const vehicleStatusEnum = z.enum([
   'maintenance',
   'sold',
   'retired',
-  'out_of_service'
+  'out_of_service',
+  'idle',
+  'charging',
+  'service',
+  'emergency',
+  'offline',
+  'assigned',
+  'dispatched',
+  'en_route',
+  'on_site',
+  'completed'
 ]);
 
 // Fuel type enum
@@ -57,7 +69,7 @@ export const vehicleCreateSchema = z.object({
   vehicleNumber: z.string()
     .min(1, 'Vehicle number is required')
     .max(50, 'Vehicle number must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'Vehicle number can only contain letters, numbers, and hyphens'),
+    .regex(/^[A-Z0-9-]+$/i, 'Vehicle number can only contain letters, numbers, and hyphens'),
 
   make: z.string()
     .min(1, 'Make is required')
@@ -82,7 +94,7 @@ export const vehicleCreateSchema = z.object({
   licensePlate: z.string()
     .min(2, 'License plate must be at least 2 characters')
     .max(20, 'License plate must be 20 characters or less')
-    .regex(/^[A-Z0-9\s\-]+$/i, 'Invalid license plate format')
+    .regex(/^[A-Z0-9\s-]+$/i, 'Invalid license plate format')
     .transform(val => val.toUpperCase()),
 
   status: vehicleStatusEnum.default('active'),
@@ -158,11 +170,11 @@ export const vehicleCreateSchema = z.object({
 
   isRoadLegal: z.boolean().optional(),
 
-  locationId: z.string().uuid('Invalid location ID format').optional(),
+  locationId: flexUuid.optional(),
 
-  groupId: z.string().uuid('Invalid group ID format').optional(),
+  groupId: flexUuid.optional(),
 
-  fleetId: z.string().uuid('Invalid fleet ID format').optional(),
+  fleetId: flexUuid.optional(),
 }).refine(data => {
   // Validate that nextServiceDate is after lastServiceDate if both provided
   if (data.lastServiceDate && data.nextServiceDate) {
@@ -181,7 +193,7 @@ export const vehicleUpdateSchema = z.object({
   vehicleNumber: z.string()
     .min(1, 'Vehicle number cannot be empty')
     .max(50, 'Vehicle number must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'Vehicle number can only contain letters, numbers, and hyphens')
+    .regex(/^[A-Z0-9-]+$/i, 'Vehicle number can only contain letters, numbers, and hyphens')
     .optional(),
 
   make: z.string()
@@ -205,7 +217,7 @@ export const vehicleUpdateSchema = z.object({
   licensePlate: z.string()
     .min(2, 'License plate must be at least 2 characters')
     .max(20, 'License plate must be 20 characters or less')
-    .regex(/^[A-Z0-9\s\-]+$/i, 'Invalid license plate format')
+    .regex(/^[A-Z0-9\s-]+$/i, 'Invalid license plate format')
     .transform(val => val.toUpperCase())
     .optional(),
 
@@ -291,11 +303,11 @@ export const vehicleUpdateSchema = z.object({
 
   isRoadLegal: z.boolean().optional(),
 
-  locationId: z.string().uuid('Invalid location ID format').nullable().optional(),
+  locationId: flexUuid.nullable().optional(),
 
-  groupId: z.string().uuid('Invalid group ID format').nullable().optional(),
+  groupId: flexUuid.nullable().optional(),
 
-  fleetId: z.string().uuid('Invalid fleet ID format').nullable().optional(),
+  fleetId: flexUuid.nullable().optional(),
 });
 
 /**
@@ -303,16 +315,17 @@ export const vehicleUpdateSchema = z.object({
  */
 export const vehicleQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(50),
+  // UI frequently requests 200 for drilldowns; cap to 200 for safety.
+  limit: z.coerce.number().int().positive().max(200).default(50),
   asset_category: assetCategoryEnum.optional(),
   asset_type: z.string().optional(),
   power_type: powerTypeEnum.optional(),
   operational_status: z.string().optional(),
   primary_metric: z.string().optional(),
   is_road_legal: z.enum(['true', 'false']).optional(),
-  location_id: z.string().uuid().optional(),
-  group_id: z.string().uuid().optional(),
-  fleet_id: z.string().uuid().optional(),
+  location_id: flexUuid.optional(),
+  group_id: flexUuid.optional(),
+  fleet_id: flexUuid.optional(),
   status: vehicleStatusEnum.optional(),
   fuel_type: fuelTypeEnum.optional(),
   sort: z.string().optional(),
@@ -323,7 +336,7 @@ export const vehicleQuerySchema = z.object({
  * Vehicle ID parameter schema
  */
 export const vehicleIdSchema = z.object({
-  id: z.string().uuid('Invalid vehicle ID format')
+  id: flexUuid
 });
 
 // Type exports

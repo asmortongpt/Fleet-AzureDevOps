@@ -108,7 +108,7 @@ class AIIntakeService {
           }
         })
 
-        this.requestQueue.on('error', (error) => {
+        this.requestQueue.on('error', (error: Error) => {
           this.logger.error('AI Request Queue Error:', error)
         })
 
@@ -229,14 +229,14 @@ class AIIntakeService {
         estimated_wait_seconds: estimatedWait,
         message: 'Request queued for processing'
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('Failed to submit AI request:', error)
 
-      if (error.name === 'ZodError') {
+      if (error instanceof z.ZodError) {
         return {
           request_id: '',
           status: 'failed',
-          message: `Validation error: ${error.issues.map((e: any) => e.message).join(`, `)}`
+          message: `Validation error: ${error.issues.map((e) => e.message).join(`, `)}`
         }
       }
 

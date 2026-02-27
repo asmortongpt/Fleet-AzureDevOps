@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 16: Add Winston logger
 import { pool } from '../db/connection';
@@ -9,24 +10,46 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+const createPolicySchema = z.object({
+  policy_name: z.string(),
+  policy_type: z.string().optional(),
+  description: z.string().optional(),
+  rules: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
+  is_active: z.boolean().optional(),
+  priority: z.number().optional(),
+}).passthrough()
+
+const updatePolicySchema = z.object({
+  policy_name: z.string().optional(),
+  policy_type: z.string().optional(),
+  description: z.string().optional(),
+  rules: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
+  is_active: z.boolean().optional(),
+  priority: z.number().optional(),
+}).passthrough()
+
 
 const router = express.Router()
 router.use(authenticateJWT)
 
-const parsePolicyContent = (content: any) => {
-  if (!content) return {}
-  if (typeof content === 'string') {
+const parsePolicyRules = (rules: unknown): Record<string, unknown> => {
+  if (!rules) {
+return {}
+}
+  if (typeof rules === 'string') {
     try {
-      return JSON.parse(content)
+      return JSON.parse(rules)
     } catch {
       return {}
     }
   }
-  if (typeof content === 'object') return content
+  if (typeof rules === 'object') {
+return rules as Record<string, unknown>
+}
   return {}
 }
 
-const evaluateCondition = (actual: any, operator: string, expected: any): boolean => {
+const evaluateCondition = (actual: unknown, operator: string, expected: unknown): boolean => {
   const op = operator?.toLowerCase()
   switch (op) {
     case 'equals':
@@ -52,8 +75,12 @@ const evaluateCondition = (actual: any, operator: string, expected: any): boolea
     case 'in':
       return Array.isArray(expected) ? expected.includes(actual) : false
     case 'contains':
-      if (Array.isArray(actual)) return actual.includes(expected)
-      if (typeof actual === 'string') return actual.includes(String(expected))
+      if (Array.isArray(actual)) {
+return actual.includes(expected)
+}
+      if (typeof actual === 'string') {
+return actual.includes(String(expected))
+}
       return false
     default:
       return false
@@ -71,16 +98,15 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        `SELECT 
+        `SELECT
       id,
       tenant_id,
-      name,
+      policy_name,
+      policy_type,
       description,
-      category,
-      content,
-      version,
+      rules,
       is_active,
-      effective_date,
+      priority,
       created_by,
       created_at,
       updated_at FROM policies WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
@@ -103,6 +129,10 @@ router.get(
       })
     } catch (error) {
       logger.error(`Get policies error:`, error) // Wave 16: Winston logger
+      // In dev/demo environments the policies table may not exist; return empty data instead of 500
+      if ((error as any)?.code === '42P01') {
+        return res.json({ data: [], pagination: { page: Number(req.query.page || 1), limit: Number(req.query.limit || 50), total: 0, pages: 0 } })
+      }
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -119,13 +149,12 @@ router.get(
         `SELECT
       id,
       tenant_id,
-      name,
+      policy_name,
+      policy_type,
       description,
-      category,
-      content,
-      version,
+      rules,
       is_active,
-      effective_date,
+      priority,
       created_by,
       created_at,
       updated_at FROM policies WHERE id = $1 AND tenant_id = $2`,
@@ -139,6 +168,9 @@ router.get(
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Get policies error:', error) // Wave 16: Winston logger
+      if ((error as any)?.code === '42P01') {
+        return res.status(404).json({ error: 'Policy not found' })
+      }
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -163,18 +195,18 @@ router.post(
       }
 
       const policy = result.rows[0]
-      const content = parsePolicyContent(policy.content)
-      const status = String(content.status ?? (policy.is_active ? 'active' : 'draft')).toLowerCase()
+      const rulesContent = parsePolicyRules(policy.rules)
+      const status = String(rulesContent.status ?? (policy.is_active ? 'active' : 'draft')).toLowerCase()
       const isActive = status === 'active' || policy.is_active === true
 
       const evaluation = {
         policy_id: policy.id,
-        policy_name: policy.name,
+        policy_name: policy.policy_name,
         evaluated_at: new Date().toISOString(),
         context,
-        checks: [] as any[],
+        checks: [] as Record<string, unknown>[],
         compliant: true,
-        violations: [] as any[]
+        violations: [] as Record<string, unknown>[]
       }
 
       evaluation.checks.push({
@@ -192,7 +224,7 @@ router.post(
         })
       }
 
-      const applicableRoles = content.appliesToRoles || content.roles
+      const applicableRoles = rulesContent.appliesToRoles || rulesContent.roles
       if (Array.isArray(applicableRoles) && context.employee_role) {
         const applies = applicableRoles.includes(context.employee_role)
         evaluation.checks.push({
@@ -205,16 +237,16 @@ router.post(
         })
       }
 
-      const conditions = Array.isArray(content.conditions) ? content.conditions : []
+      const conditions = Array.isArray(rulesContent.conditions) ? rulesContent.conditions : []
       if (conditions.length > 0) {
-        const failedConditions: any[] = []
+        const failedConditions: Record<string, unknown>[] = []
 
-        conditions.forEach((condition: any, index: number) => {
+        conditions.forEach((condition: Record<string, unknown>, index: number) => {
           const field = condition.field ?? condition.key ?? condition.attribute
           const operator = condition.operator ?? condition.op ?? 'equals'
           const expected = condition.value
-          const actual = field ? context[field] : undefined
-          const passed = evaluateCondition(actual, operator, expected)
+          const actual = field ? context[field as string] : undefined
+          const passed = evaluateCondition(actual, operator as string, expected)
 
           evaluation.checks.push({
             check: `condition_${index + 1}`,
@@ -260,10 +292,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'policies' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createPolicySchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         [`tenant_id`],
         1
       )
@@ -288,7 +323,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'policies' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = updatePolicySchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
@@ -324,7 +363,7 @@ router.delete(
         throw new NotFoundError("Policies not found")
       }
 
-      res.json({ message: 'Policies deleted successfully' })
+      res.json({ success: true, message: 'Policies deleted successfully' })
     } catch (error) {
       logger.error('Delete policies error:', error) // Wave 16: Winston logger
       res.status(500).json({ error: 'Internal server error' })

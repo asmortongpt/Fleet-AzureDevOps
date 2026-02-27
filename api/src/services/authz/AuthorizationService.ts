@@ -203,11 +203,11 @@ export class AuthorizationService {
   ) {
     this.cacheEnabled = enableCache;
     if (this.cacheEnabled) {
-      this.initializeRedis();
+      void this.initializeRedis();
     }
 
     // Metrics reporting interval
-    setInterval(() => this.reportMetrics(), 60000); // Every minute
+    setInterval(() => void this.reportMetrics(), 60000); // Every minute
   }
 
   /**
@@ -1114,7 +1114,7 @@ export class AuthorizationService {
       const cached = await this.redisClient.get(cacheKey);
 
       if (cached) {
-        return JSON.parse(typeof cached === 'string' ? cached : cached.toString(), (key, value) => {
+        return JSON.parse(cached, (key, value) => {
           // Revive Date objects
           if (key === 'timestamp' || key.endsWith('At')) {
             return new Date(value);

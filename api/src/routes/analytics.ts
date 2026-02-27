@@ -8,7 +8,9 @@ import { createClient } from 'redis'
 
 import { db } from '../db'
 import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import { tenantSafeQuery } from '../utils/dbHelpers'
+import { logger } from '../utils/logger'
 
 const router = Router()
 
@@ -25,6 +27,7 @@ router.get('/fleet-summary', async (req: Request, res: Response) => {
                 COUNT(*) as total,
                 COUNT(*) FILTER (WHERE status = 'active') as active
             FROM vehicles
+            WHERE status != 'retired'
         `)
 
         const driverCountResult = await db.query(`
@@ -76,8 +79,8 @@ router.get('/fleet-summary', async (req: Request, res: Response) => {
             model: 'gpt-4' // Placeholder for future AI integration
         })
     } catch (error) {
-        console.error('Error generating fleet summary:', error)
-        res.status(500).json({ error: 'Internal server error', details: String(error) })
+        logger.error('Error generating fleet summary:', error)
+        res.status(500).json({ error: 'An internal error occurred' })
     }
 })
 
@@ -89,7 +92,7 @@ const redisClient = createClient({
     url: process.env.REDIS_URL || 'redis://localhost:6379',
 })
 
-redisClient.on('error', (err) => console.error('Redis Client Error', err))
+redisClient.on('error', (err) => logger.error('Redis Client Error', err))
 
 // Initialize Redis connection
 const initRedis = async () => {
@@ -101,14 +104,14 @@ const initRedis = async () => {
 // Cache middleware
 const CACHE_TTL = 300 // 5 minutes
 const cacheMiddleware = (keyPrefix: string) => {
-    return async (req: Request, res: Response, next: Function) => {
+    return async (req: Request, res: Response, next: () => void) => {
         try {
             await initRedis()
             const cacheKey = `${keyPrefix}:${JSON.stringify(req.query)}`
             const cached = await redisClient.get(cacheKey)
 
             if (cached) {
-                const data = JSON.parse(typeof cached === 'string' ? cached : cached.toString())
+                const data = JSON.parse(String(cached))
                 return res.json({
                     ...data,
                     metadata: {
@@ -123,20 +126,184 @@ const cacheMiddleware = (keyPrefix: string) => {
             const originalJson = res.json.bind(res)
 
             // Override json function to cache response
-            res.json = function (body: any) {
+            res.json = function (body: unknown) {
                 if (res.statusCode === 200) {
-                    redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(body)).catch(console.error)
+                    redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(body)).catch((err) => logger.error(err))
                 }
                 return originalJson(body)
-            } as any
+            } as typeof res.json
 
             next()
         } catch (error) {
-            console.error('Cache middleware error:', error)
+            logger.error('Cache middleware error:', error)
             next()
         }
     }
 }
+
+/**
+ * GET /analytics/dashboard
+ * Returns fleet-wide KPIs for the analytics dashboard (DB-backed).
+ *
+ * Query params:
+ * - days: number (default 30) lookback window
+ */
+router.get('/dashboard', cacheMiddleware('analytics:dashboard'), async (req: Request, res: Response) => {
+    try {
+        const tenantId = req.user?.tenant_id ?? ''
+        if (!tenantId) {
+return res.status(401).json({ error: 'Unauthorized' })
+}
+
+        const daysRaw = Array.isArray(req.query.days) ? req.query.days[0] : req.query.days
+        const days = Math.max(1, Math.min(365, parseInt(String(daysRaw ?? '30'), 10) || 30))
+        const end = new Date()
+        const start = new Date(end.getTime() - days * 24 * 60 * 60 * 1000)
+
+        const [fleetResult, driversResult, tripsResult, fuelResult, maintenanceResult, byFuelTypeResult] = await Promise.all([
+            db.query(
+                `
+                SELECT
+                    COUNT(*)::int AS total_vehicles,
+                    COUNT(*) FILTER (WHERE status = 'active')::int AS active_vehicles,
+                    COUNT(*) FILTER (WHERE status IN ('maintenance', 'service'))::int AS in_maintenance
+                FROM vehicles
+                WHERE tenant_id = $1 AND status != 'retired'
+                `,
+                [tenantId]
+            ),
+            db.query(
+                `
+                SELECT
+                    COUNT(*)::int AS total_drivers,
+                    COUNT(*) FILTER (WHERE status = 'active')::int AS active_drivers
+                FROM drivers
+                WHERE tenant_id = $1
+                `,
+                [tenantId]
+            ),
+            db.query(
+                `
+                SELECT
+                    COUNT(*)::int AS total_trips,
+                    COALESCE(SUM(distance_miles), 0)::numeric AS total_miles,
+                    COALESCE(AVG(distance_miles), 0)::numeric AS avg_trip_distance
+                FROM mobile_trips
+                WHERE tenant_id = $1
+                  AND start_time >= $2
+                `,
+                [tenantId, start]
+            ),
+            db.query(
+                `
+                SELECT
+                    COALESCE(SUM(total_cost), 0)::numeric AS total_cost,
+                    COALESCE(SUM(gallons), 0)::numeric AS total_gallons,
+                    COALESCE(AVG(cost_per_gallon), 0)::numeric AS avg_price_per_gallon,
+                    COUNT(*)::int AS transactions
+                FROM fuel_transactions
+                WHERE tenant_id = $1
+                  AND transaction_date >= $2
+                `,
+                [tenantId, start]
+            ),
+            db.query(
+                `
+                SELECT
+                    COALESCE(SUM(COALESCE(actual_cost, estimated_cost, 0)), 0)::numeric AS total_cost,
+                    COUNT(*)::int AS total_records
+                FROM work_orders
+                WHERE tenant_id = $1
+                  AND created_at >= $2
+                `,
+                [tenantId, start]
+            ),
+            db.query(
+                `
+                SELECT
+                    fuel_type AS fuel_type,
+                    COUNT(*)::int AS count
+                FROM vehicles
+                WHERE tenant_id = $1 AND status != 'retired'
+                GROUP BY fuel_type
+                ORDER BY count DESC
+                `,
+                [tenantId]
+            ),
+        ])
+
+        const fleetRow = fleetResult.rows[0] || { total_vehicles: 0, active_vehicles: 0, in_maintenance: 0 }
+        const driversRow = driversResult.rows[0] || { total_drivers: 0, active_drivers: 0 }
+        const tripsRow = tripsResult.rows[0] || { total_trips: 0, total_miles: 0, avg_trip_distance: 0 }
+        const fuelRow = fuelResult.rows[0] || { total_cost: 0, total_gallons: 0, avg_price_per_gallon: 0, transactions: 0 }
+        const maintRow = maintenanceResult.rows[0] || { total_cost: 0, total_records: 0 }
+
+        const totalVehicles = Number(fleetRow.total_vehicles || 0)
+        const activeVehicles = Number(fleetRow.active_vehicles || 0)
+        const inMaintenance = Number(fleetRow.in_maintenance || 0)
+        const utilizationRate = totalVehicles > 0 ? (activeVehicles / totalVehicles) * 100 : 0
+
+        const totalTrips = Number(tripsRow.total_trips || 0)
+        const totalMiles = Number(tripsRow.total_miles || 0)
+        const avgTripDistance = Number(tripsRow.avg_trip_distance || 0)
+
+        const fuelTotalCost = Number(fuelRow.total_cost || 0)
+        const fuelTotalGallons = Number(fuelRow.total_gallons || 0)
+        const avgPricePerGallon = Number(fuelRow.avg_price_per_gallon || 0)
+        const fuelTransactions = Number(fuelRow.transactions || 0)
+
+        const maintenanceTotalCost = Number(maintRow.total_cost || 0)
+        const maintenanceTotalRecords = Number(maintRow.total_records || 0)
+
+        const totalOperatingCost = fuelTotalCost + maintenanceTotalCost
+        const costPerMile = totalMiles > 0 ? totalOperatingCost / totalMiles : 0
+
+        res.json({
+            fleet: {
+                totalVehicles,
+                activeVehicles,
+                inMaintenance,
+                utilizationRate: Number(utilizationRate.toFixed(1)),
+            },
+            drivers: {
+                totalDrivers: Number(driversRow.total_drivers || 0),
+                activeDrivers: Number(driversRow.active_drivers || 0),
+            },
+            trips: {
+                totalTrips,
+                totalMiles: Number(totalMiles.toFixed(1)),
+                avgTripDistance: Number(avgTripDistance.toFixed(1)),
+            },
+            fuel: {
+                totalCost: Number(fuelTotalCost.toFixed(2)),
+                totalGallons: Number(fuelTotalGallons.toFixed(3)),
+                avgPricePerGallon: Number(avgPricePerGallon.toFixed(3)),
+                transactions: fuelTransactions,
+            },
+            maintenance: {
+                totalCost: Number(maintenanceTotalCost.toFixed(2)),
+                totalRecords: maintenanceTotalRecords,
+            },
+            financials: {
+                costPerMile: Number(costPerMile.toFixed(3)),
+                totalOperatingCost: Number(totalOperatingCost.toFixed(2)),
+            },
+            vehiclesByFuelType: (byFuelTypeResult.rows || []).map((r: Record<string, unknown>) => ({
+                fuelType: r.fuel_type,
+                count: Number(r.count || 0),
+            })),
+            period: {
+                start: start.toISOString(),
+                end: end.toISOString(),
+                days,
+            },
+            generatedAt: new Date().toISOString(),
+        })
+    } catch (error) {
+        logger.error('Error generating analytics dashboard:', error)
+        res.status(500).json({ error: 'An internal error occurred' })
+    }
+})
 
 /**
  * GET /analytics/cost
@@ -145,28 +312,28 @@ const cacheMiddleware = (keyPrefix: string) => {
 router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, vehicleIds } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let whereClause = 'WHERE tenant_id = $1'
-        const params: any[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
             whereClause += ` AND period_end >= $${paramIndex}`
-            params.push(startDate)
+            params.push(startDate as string)
             paramIndex++
         }
 
         if (endDate) {
             whereClause += ` AND period_end <= $${paramIndex}`
-            params.push(endDate)
+            params.push(endDate as string)
             paramIndex++
         }
 
         if (vehicleIds && typeof vehicleIds === 'string') {
             const ids = vehicleIds.split(',')
             whereClause += ` AND entity_id = ANY($${paramIndex})`
-            params.push(ids)
+            params.push(ids as unknown as string)
             paramIndex++
         }
 
@@ -193,7 +360,7 @@ router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res:
         const data = result.rows
 
         res.json({
-            data: data.map((row: any) => ({
+            data: data.map((row: Record<string, string>) => ({
                 date: new Date(row.date).toISOString().split('T')[0],
                 fuel: parseFloat(row.fuel),
                 maintenance: parseFloat(row.maintenance),
@@ -210,7 +377,7 @@ router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res:
             },
         })
     } catch (error) {
-        console.error('Error fetching cost analytics:', error)
+        logger.error('Error fetching cost analytics:', error)
         res.status(500).json({ error: 'Failed to fetch cost analytics' })
     }
 })
@@ -222,24 +389,24 @@ router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res:
 router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, vehicleIds } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let tripWhere = 'WHERE tenant_id = $1'
         let fuelWhere = 'WHERE tenant_id = $1'
-        const params: any[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
             tripWhere += ` AND period_end >= $${paramIndex}`
             fuelWhere += ` AND transaction_date >= $${paramIndex}`
-            params.push(startDate)
+            params.push(startDate as string)
             paramIndex++
         }
 
         if (endDate) {
             tripWhere += ` AND period_end <= $${paramIndex}`
             fuelWhere += ` AND transaction_date <= $${paramIndex}`
-            params.push(endDate)
+            params.push(endDate as string)
             paramIndex++
         }
 
@@ -247,7 +414,7 @@ router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: R
             const ids = vehicleIds.split(',')
             tripWhere += ` AND vehicle_id = ANY($${paramIndex})`
             fuelWhere += ` AND vehicle_id = ANY($${paramIndex})`
-            params.push(ids)
+            params.push(ids as unknown as string)
             paramIndex++
         }
 
@@ -289,7 +456,7 @@ router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: R
         const data = result.rows
 
         res.json({
-            data: data.map((row: any) => {
+            data: data.map((row: Record<string, string>) => {
                 const miles = parseFloat(row.miles || '0')
                 const hours = parseFloat(row.hours || '0')
                 const gallons = parseFloat(row.gallons || '0')
@@ -315,7 +482,7 @@ router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: R
             },
         })
     } catch (error) {
-        console.error('Error fetching efficiency analytics:', error)
+        logger.error('Error fetching efficiency analytics:', error)
         res.status(500).json({ error: 'Failed to fetch efficiency analytics' })
     }
 })
@@ -327,20 +494,20 @@ router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: R
 router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let dateFilter = ''
-        const params: any[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
-            params.push(startDate)
+            params.push(startDate as string)
             dateFilter += ` AND period_end >= $${paramIndex}`
             paramIndex++
         }
 
         if (endDate) {
-            params.push(endDate)
+            params.push(endDate as string)
             dateFilter += ` AND period_end <= $${paramIndex}`
             paramIndex++
         }
@@ -353,7 +520,7 @@ router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res:
                     COUNT(*) as total_vehicles,
                     COUNT(*) FILTER (WHERE status = 'active') as active_vehicles
                 FROM vehicles
-                WHERE tenant_id = $1
+                WHERE tenant_id = $1 AND status != 'retired'
                 `,
                 [tenantId],
                 tenantId
@@ -448,7 +615,7 @@ router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res:
             },
         })
     } catch (error) {
-        console.error('Error fetching fleet KPIs:', error)
+        logger.error('Error fetching fleet KPIs:', error)
         res.status(500).json({ error: 'Failed to fetch fleet KPIs' })
     }
 })
@@ -460,20 +627,20 @@ router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res:
 router.get('/overview', cacheMiddleware('analytics:overview'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let dateFilter = ''
-        const params: any[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
-            params.push(startDate)
+            params.push(startDate as string)
             dateFilter += ` AND period_end >= $${paramIndex}`
             paramIndex++
         }
 
         if (endDate) {
-            params.push(endDate)
+            params.push(endDate as string)
             dateFilter += ` AND period_end <= $${paramIndex}`
             paramIndex++
         }
@@ -488,7 +655,7 @@ router.get('/overview', cacheMiddleware('analytics:overview'), async (req: Reque
                     COUNT(*) FILTER (WHERE status = 'maintenance') as maintenance_vehicles,
                     COUNT(*) FILTER (WHERE status = 'idle') as idle_vehicles
                 FROM vehicles
-                WHERE tenant_id = $1
+                WHERE tenant_id = $1 AND status != 'retired'
                 `,
                 [tenantId],
                 tenantId
@@ -600,7 +767,7 @@ router.get('/overview', cacheMiddleware('analytics:overview'), async (req: Reque
             },
         })
     } catch (error) {
-        console.error('Error fetching analytics overview:', error)
+        logger.error('Error fetching analytics overview:', error)
         res.status(500).json({ error: 'Failed to fetch analytics overview' })
     }
 })
@@ -612,24 +779,24 @@ router.get('/overview', cacheMiddleware('analytics:overview'), async (req: Reque
 router.get('/performance', cacheMiddleware('analytics:performance'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, vehicleIds } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let tripWhere = 'WHERE tenant_id = $1'
         let fuelWhere = 'WHERE tenant_id = $1'
-        const params: any[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
             tripWhere += ` AND period_end >= $${paramIndex}`
             fuelWhere += ` AND transaction_date >= $${paramIndex}`
-            params.push(startDate)
+            params.push(startDate as string)
             paramIndex++
         }
 
         if (endDate) {
             tripWhere += ` AND period_end <= $${paramIndex}`
             fuelWhere += ` AND transaction_date <= $${paramIndex}`
-            params.push(endDate)
+            params.push(endDate as string)
             paramIndex++
         }
 
@@ -637,7 +804,7 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
             const ids = vehicleIds.split(',')
             tripWhere += ` AND vehicle_id = ANY($${paramIndex})`
             fuelWhere += ` AND vehicle_id = ANY($${paramIndex})`
-            params.push(ids)
+            params.push(ids as unknown as string)
             paramIndex++
         }
 
@@ -685,7 +852,7 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
                     COUNT(*) FILTER (WHERE status = 'active') as active_count,
                     COUNT(*) FILTER (WHERE status = 'maintenance') as maintenance_count
                 FROM vehicles
-                WHERE tenant_id = $1
+                WHERE tenant_id = $1 AND status != 'retired'
                 `,
                 [tenantId],
                 tenantId
@@ -695,7 +862,7 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
         const performanceData = efficiencyResult.rows
 
         const performance = {
-            timeSeries: performanceData.map((row: any) => ({
+            timeSeries: performanceData.map((row: Record<string, string>) => ({
                 date: new Date(row.date).toISOString().split('T')[0],
                 avgMPG: row.gallons ? parseFloat((parseFloat(row.miles || '0') / parseFloat(row.gallons || '1')).toFixed(2)) : 0,
                 avgUtilization: row.vehicle_count ? parseFloat((Math.min(100, (parseFloat(row.hours || '0') / (parseInt(row.vehicle_count || '1', 10) * 24)) * 100)).toFixed(2)) : 0,
@@ -727,7 +894,7 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
             },
         })
     } catch (error) {
-        console.error('Error fetching performance analytics:', error)
+        logger.error('Error fetching performance analytics:', error)
         res.status(500).json({ error: 'Failed to fetch performance analytics' })
     }
 })
@@ -739,27 +906,27 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
 router.get('/costs/trends', cacheMiddleware('analytics:costs:trends'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, interval = 'day', vehicleIds } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let whereClause = 'WHERE tenant_id = $1'
-        const params: any[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
-            params.push(startDate)
+            params.push(startDate as string)
             whereClause += ` AND period_end >= $${paramIndex}`
             paramIndex++
         }
 
         if (endDate) {
-            params.push(endDate)
+            params.push(endDate as string)
             whereClause += ` AND period_end <= $${paramIndex}`
             paramIndex++
         }
 
         if (vehicleIds && typeof vehicleIds === 'string') {
             const ids = vehicleIds.split(',')
-            params.push(ids)
+            params.push(ids as unknown as string)
             whereClause += ` AND entity_id = ANY($${paramIndex})`
             paramIndex++
         }
@@ -792,7 +959,7 @@ router.get('/costs/trends', cacheMiddleware('analytics:costs:trends'), async (re
         const trends = result.rows
 
         // Calculate period-over-period changes
-        const trendsWithChanges = trends.map((row: any, index: number) => {
+        const trendsWithChanges = trends.map((row: Record<string, string>, index: number) => {
             const current = parseFloat(row.total_cost)
             const previous = index < trends.length - 1 ? parseFloat(trends[index + 1].total_cost) : current
 
@@ -821,7 +988,7 @@ router.get('/costs/trends', cacheMiddleware('analytics:costs:trends'), async (re
             },
         })
     } catch (error) {
-        console.error('Error fetching cost trends:', error)
+        logger.error('Error fetching cost trends:', error)
         res.status(500).json({ error: 'Failed to fetch cost trends' })
     }
 })
@@ -830,7 +997,7 @@ router.get('/costs/trends', cacheMiddleware('analytics:costs:trends'), async (re
  * DELETE /analytics/cache
  * Clear analytics cache
  */
-router.delete('/cache', async (req: Request, res: Response) => {
+router.delete('/cache', csrfProtection, async (req: Request, res: Response) => {
     try {
         await initRedis()
         const keys = await redisClient.keys('analytics:*')
@@ -844,7 +1011,7 @@ router.delete('/cache', async (req: Request, res: Response) => {
             message: `Cleared ${keys.length} cache entries`,
         })
     } catch (error) {
-        console.error('Error clearing cache:', error)
+        logger.error('Error clearing cache:', error)
         res.status(500).json({ error: 'Failed to clear cache' })
     }
 })

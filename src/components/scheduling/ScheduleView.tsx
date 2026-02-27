@@ -7,6 +7,7 @@ import { format, isWithinInterval, isSameDay } from 'date-fns'
 import { Calendar, CheckCircle, Clock, MoreVertical, Truck, User, Wrench, XCircle } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
+import { EmailButton } from '@/components/email/EmailButton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -25,6 +26,7 @@ import { Vehicle, Driver, Technician } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, MaintenanceAppointment } from '@/types/scheduling'
 import logger from '@/utils/logger'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 interface ScheduleViewProps {
   reservations?: VehicleReservation[]
@@ -49,17 +51,17 @@ type FilterStatus = 'all' | 'pending' | 'confirmed' | 'active' | 'scheduled' | '
 const STATUS_COLORS = {
   // Reservations
   pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  confirmed: 'bg-blue-100 text-blue-800 border-blue-300',
+  confirmed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   active: 'bg-green-100 text-green-800 border-green-300',
-  completed: 'bg-gray-100 text-slate-700 border-gray-300',
+  completed: 'bg-white/[0.05] text-white/70 border-white/[0.08]',
   cancelled: 'bg-red-100 text-red-800 border-red-300',
   // Maintenance
-  scheduled: 'bg-purple-100 text-purple-800 border-purple-300',
+  scheduled: 'bg-amber-100 text-amber-800 border-amber-300',
   in_progress: 'bg-orange-100 text-orange-800 border-orange-300',
 }
 
 const PRIORITY_COLORS = {
-  low: 'bg-blue-500',
+  low: 'bg-emerald-500',
   medium: 'bg-yellow-500',
   high: 'bg-orange-500',
   urgent: 'bg-red-500',
@@ -223,14 +225,14 @@ export function ScheduleView({
   }
 
   const renderReservationCard = (reservation: VehicleReservation) => (
-    <Card key={reservation.id} className="hover:shadow-md transition-shadow">
+    <Card key={reservation.id} className="hover:border-white/[0.12] transition-colors">
       <CardContent className="p-2">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Truck className="h-4 w-4 text-blue-800" />
+              <Truck className="h-4 w-4 text-emerald-500" />
               <h4 className="font-semibold">
-                {reservation.make} {reservation.model}
+                {formatVehicleShortName(reservation)}
               </h4>
               <Badge variant="outline" className={cn('ml-2', STATUS_COLORS[reservation.status as keyof typeof STATUS_COLORS])}>
                 {reservation.status}
@@ -295,6 +297,19 @@ export function ScheduleView({
               <DropdownMenuItem onClick={() => handleQuickAction('view', 'reservation', reservation.id)}>
                 View Details
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <EmailButton
+                  context={{
+                    type: 'schedule_notification',
+                    entityName: formatVehicleShortName(reservation),
+                    recipientName: reservation.driver_name || reservation.reserved_by_name,
+                    details: `Reservation: ${format(new Date(reservation.start_time), 'MMM d, h:mm a')} - ${format(new Date(reservation.end_time), 'h:mm a')}. Purpose: ${reservation.purpose || 'General use'}.`,
+                  }}
+                  label="Send Email"
+                  variant="ghost"
+                  className="w-full justify-start h-8 px-2 py-1.5 text-sm font-normal cursor-default"
+                />
+              </DropdownMenuItem>
               {reservation.approval_status === 'pending' && onApproveReservation && (
                 <>
                   <DropdownMenuItem
@@ -337,12 +352,12 @@ export function ScheduleView({
   )
 
   const renderMaintenanceCard = (appointment: MaintenanceAppointment) => (
-    <Card key={appointment.id} className="hover:shadow-md transition-shadow">
+    <Card key={appointment.id} className="hover:border-white/[0.12] transition-colors">
       <CardContent className="p-2">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Wrench className="h-4 w-4 text-purple-600" />
+              <Wrench className="h-4 w-4 text-amber-600" />
               <h4 className="font-semibold">{appointment.appointment_type || 'Maintenance'}</h4>
               <Badge variant="outline" className={cn('ml-2', STATUS_COLORS[appointment.status as keyof typeof STATUS_COLORS])}>
                 {appointment.status}
@@ -367,7 +382,7 @@ export function ScheduleView({
                 <div className="flex items-center gap-2">
                   <Truck className="h-3 w-3" />
                   <span>
-                    {appointment.make} {appointment.model}
+                    {formatVehicleShortName(appointment)}
                   </span>
                 </div>
               )}
@@ -385,6 +400,18 @@ export function ScheduleView({
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => handleQuickAction('view', 'maintenance', appointment.id)}>
                 View Details
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <EmailButton
+                  context={{
+                    type: 'maintenance_reminder',
+                    entityName: formatVehicleShortName(appointment),
+                    details: `Appointment: ${format(new Date(appointment.scheduled_start), 'MMM d, h:mm a')} - ${format(new Date(appointment.scheduled_end), 'h:mm a')}. Type: ${appointment.appointment_type || 'Maintenance'}.`,
+                  }}
+                  label="Send Email"
+                  variant="ghost"
+                  className="w-full justify-start h-8 px-2 py-1.5 text-sm font-normal cursor-default"
+                />
               </DropdownMenuItem>
               {appointment.status !== 'cancelled' && appointment.status !== 'completed' && (
                 <>

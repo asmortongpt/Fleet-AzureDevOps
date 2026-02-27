@@ -7,13 +7,15 @@ import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac'
 import { validateQuery } from '../middleware/validate'
 import { tenantSafeQuery } from '../utils/dbHelpers'
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router()
 
 // All routes require authentication
 router.use(authenticateJWT)
 
 const querySchema = z.object({
-  facility_id: z.string().uuid().optional(),
+  facility_id: flexUuid.optional(),
   active: z.string().optional(),
 })
 
@@ -35,11 +37,11 @@ router.get(
   }),
   validateQuery(querySchema),
   asyncHandler(async (req, res) => {
-    const tenantId = (req as any).user?.tenant_id
-    const { facility_id, active } = req.query as any
+    const tenantId = req.user?.tenant_id
+    const { facility_id, active } = req.query as { facility_id?: string; active?: string }
 
     let where = 'WHERE sb.tenant_id = $1'
-    const params: any[] = [tenantId]
+    const params: unknown[] = [tenantId]
     let idx = 2
 
     if (facility_id) {
@@ -47,8 +49,12 @@ router.get(
       params.push(facility_id)
     }
 
-    if (active === 'true') where += ` AND sb.is_active = true`
-    if (active === 'false') where += ` AND sb.is_active = false`
+    if (active === 'true') {
+where += ` AND sb.is_active = true`
+}
+    if (active === 'false') {
+where += ` AND sb.is_active = false`
+}
 
     const q = `
       SELECT
@@ -91,9 +97,28 @@ router.get(
       ORDER BY f.name ASC, sb.bay_number ASC
     `
 
-    const result = await tenantSafeQuery(q, params, tenantId)
+    const result = await tenantSafeQuery(q, params as (string | number | boolean | null)[], tenantId ?? '')
 
-    const bays = result.rows.map((r: any) => {
+    interface ServiceBayRow {
+      id: string;
+      facility_id: string;
+      facility_name: string;
+      facility_code: string;
+      bay_name: string;
+      bay_number: number;
+      bay_type: string;
+      is_active: boolean;
+      metadata: { status?: string } | null;
+      occupancy_status: string | null;
+      occupancy_start: string | null;
+      occupancy_end: string | null;
+      occupancy_vehicle_id: string | null;
+      occupancy_vehicle_number: string | null;
+      occupancy_technician_name: string | null;
+      occupancy_service_type: string | null;
+    }
+
+    const bays = result.rows.map((r: ServiceBayRow) => {
       const metaStatus = (r.metadata && typeof r.metadata === 'object') ? r.metadata.status : undefined
       const occupied = Boolean(r.occupancy_status)
 

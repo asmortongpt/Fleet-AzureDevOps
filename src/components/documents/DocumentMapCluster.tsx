@@ -47,7 +47,7 @@ function getClusterColor(count: number, maxCount: number): string {
 
   if (ratio > 0.7) return '#DC2626' // Red (high density)
   if (ratio > 0.4) return '#F59E0B' // Orange (medium-high)
-  if (ratio > 0.2) return '#3B82F6' // Blue (medium)
+  if (ratio > 0.2) return '#10b981' // Emerald (medium)
   return '#10B981' // Green (low)
 }
 
@@ -161,12 +161,12 @@ export function DocumentMapCluster({
                 <Popup maxWidth={400} minWidth={300}>
                   <div className="p-2">
                     {/* Cluster header */}
-                    <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-200">
+                    <div className="flex items-center justify-between mb-3 pb-3 border-b border-white/[0.08]">
                       <div>
-                        <h3 className="font-semibold text-gray-900 text-sm">
+                        <h3 className="font-semibold text-white/80 text-sm">
                           Cluster #{cluster.clusterId}
                         </h3>
-                        <p className="text-sm text-slate-700">
+                        <p className="text-sm text-white/70">
                           {cluster.documentCount} documents
                         </p>
                       </div>
@@ -183,7 +183,7 @@ export function DocumentMapCluster({
                       {cluster.documents.map(doc => (
                         <div
                           key={doc.documentId}
-                          className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                          className="p-3 bg-white/[0.03] rounded-lg hover:bg-white/[0.05] transition-colors cursor-pointer"
                           onClick={() => {
                             if (onDocumentClick) {
                               onDocumentClick(doc.documentId)
@@ -192,23 +192,23 @@ export function DocumentMapCluster({
                         >
                           <div className="flex items-start gap-2">
                             <svg
-                              className="w-3 h-3 text-blue-800 mt-0.5 flex-shrink-0"
+                              className="w-3 h-3 text-emerald-800 mt-0.5 flex-shrink-0"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                             >
                               <path d="M4 3C2.89543 3 2 3.89543 2 5V15C2 16.1046 2.89543 17 4 17H16C17.1046 17 18 16.1046 18 15V5C18 3.89543 17.1046 3 16 3H4ZM4 5H16V7H4V5ZM4 9H16V15H4V9Z" />
                             </svg>
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 text-sm truncate">
+                              <p className="font-medium text-white/80 text-sm truncate">
                                 {doc.fileName}
                               </p>
                               {doc.location?.address && (
-                                <p className="text-xs text-slate-700 mt-1 truncate">
+                                <p className="text-xs text-white/70 mt-1 truncate">
                                   {doc.location?.address}
                                 </p>
                               )}
                               {doc.location && (
-                                <p className="text-xs text-gray-700 mt-1 font-mono">
+                                <p className="text-xs text-white/40 mt-1 font-mono">
                                   {doc.location?.lat?.toFixed(4)}, {doc.location?.lng?.toFixed(4)}
                                 </p>
                               )}
@@ -219,8 +219,8 @@ export function DocumentMapCluster({
                     </div>
 
                     {/* Cluster center coordinates */}
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <p className="text-xs text-gray-700 font-mono">
+                    <div className="mt-3 pt-3 border-t border-white/[0.08]">
+                      <p className="text-xs text-white/40 font-mono">
                         Center: {cluster.centerLat.toFixed(4)}, {cluster.centerLng.toFixed(4)}
                       </p>
                     </div>
@@ -233,35 +233,35 @@ export function DocumentMapCluster({
       </div>
 
       {/* Legend */}
-      <div className="absolute bottom-4 right-4 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm z-[1000]">
-        <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-3">
+      <div className="absolute bottom-4 right-4 bg-white dark:bg-[#18181b] p-2 rounded-lg z-[1000]">
+        <h4 className="font-semibold text-white/80 dark:text-white/80 text-sm mb-3">
           Document Density
         </h4>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-[#DC2626]" />
-            <span className="text-xs text-slate-700 dark:text-gray-700">High (70%+)</span>
+            <span className="text-xs text-white/70 dark:text-white/40">High (70%+)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-[#F59E0B]" />
-            <span className="text-xs text-slate-700 dark:text-gray-700">Medium-High (40-70%)</span>
+            <span className="text-xs text-white/70 dark:text-white/40">Medium-High (40-70%)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#3B82F6]" />
-            <span className="text-xs text-slate-700 dark:text-gray-700">Medium (20-40%)</span>
+            <div className="w-4 h-4 rounded-full bg-[#10b981]" />
+            <span className="text-xs text-white/70 dark:text-white/40">Medium (20-40%)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-[#10B981]" />
-            <span className="text-xs text-slate-700 dark:text-gray-700">Low (&lt;20%)</span>
+            <span className="text-xs text-white/70 dark:text-white/40">Low (&lt;20%)</span>
           </div>
         </div>
       </div>
 
       {/* Total clusters badge */}
-      <div className="absolute bottom-4 left-4 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg shadow-sm text-sm z-[1000]">
+      <div className="absolute bottom-4 left-4 bg-white dark:bg-[#18181b] px-3 py-2 rounded-lg text-sm z-[1000]">
         <div className="flex items-center gap-2">
           <svg
-            className="w-4 h-4 text-blue-800"
+            className="w-4 h-4 text-emerald-800"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -273,7 +273,7 @@ export function DocumentMapCluster({
               d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
             />
           </svg>
-          <span className="font-medium text-gray-700 dark:text-gray-300">
+          <span className="font-medium text-white/40 dark:text-white/60">
             {clusters.length} {clusters.length === 1 ? 'cluster' : 'clusters'}
           </span>
         </div>

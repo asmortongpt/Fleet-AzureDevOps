@@ -33,9 +33,9 @@ export function DriverCard({ driver, onClick, compact = false }: DriverCardProps
         switch (status) {
             case 'active': return 'bg-green-500'
             case 'on_break': return 'bg-yellow-500'
-            case 'off_duty': return 'bg-gray-500'
+            case 'off_duty': return 'bg-white/[0.03]0'
             case 'inactive': return 'bg-red-500'
-            default: return 'bg-blue-500'
+            default: return 'bg-emerald-500'
         }
     }
 
@@ -109,7 +109,7 @@ export function DriverCard({ driver, onClick, compact = false }: DriverCardProps
                                     <MapPin className="w-3 h-3" />
                                     Location
                                 </p>
-                                <p className="font-medium truncate">{driver.location || "Unknown"}</p>
+                                <p className="font-medium truncate">{driver.location || "—"}</p>
                             </div>
                         </div>
                     </div>

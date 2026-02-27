@@ -8,6 +8,11 @@
 import OpenAI from 'openai'
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
+
+// Export singleton instance
+import { db } from '../db'
+
 const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null
@@ -101,15 +106,15 @@ class ExecutiveDashboardService {
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
     const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0)
 
-    // Get vehicle counts
+    // Get vehicle counts (exclude retired vehicles)
     const vehicleStats = await this.db.query(`
       SELECT
         COUNT(*) as total,
         COUNT(*) FILTER (WHERE status = 'active') as active,
         COUNT(*) FILTER (WHERE status = 'maintenance') as maintenance,
-        COUNT(*) FILTER (WHERE status IN ('out_of_service', 'sold', 'retired')) as inactive
+        COUNT(*) FILTER (WHERE status = 'offline') as inactive
       FROM vehicles
-      WHERE tenant_id = $1
+      WHERE tenant_id = $1 AND status != 'retired'
     `, [tenantId])
 
     const vStats = vehicleStats.rows[0]
@@ -153,10 +158,10 @@ class ExecutiveDashboardService {
     // Get maintenance costs
     const maintenanceCosts = await this.db.query(`
       SELECT
-        COALESCE(AVG(total_cost), 0) as avg_cost_per_vehicle
+        COALESCE(AVG(actual_cost), 0) as avg_cost_per_vehicle
       FROM work_orders
       WHERE tenant_id = $1
-        AND actual_end >= $2
+        AND actual_end_date >= $2
         AND status = 'completed'
     `, [tenantId, startOfMonth])
 
@@ -170,7 +175,7 @@ class ExecutiveDashboardService {
             ELSE 0
           END
         ), 0) as total_miles
-      FROM safety_incidents si
+      FROM incidents si
       LEFT JOIN vehicles v ON si.vehicle_id = v.id
       WHERE si.tenant_id = $1
         AND si.incident_date >= $2
@@ -225,12 +230,15 @@ class ExecutiveDashboardService {
     const alertResponse = await this.db.query(`
       SELECT
         COALESCE(AVG(
-          EXTRACT(EPOCH FROM (acknowledged_at - violation_time)) / 3600
+          CASE WHEN employee_acknowledged_date IS NOT NULL AND violation_date IS NOT NULL
+            THEN EXTRACT(EPOCH FROM (employee_acknowledged_date::timestamp - violation_date::timestamp)) / 3600
+            ELSE 0
+          END
         ), 0) as avg_hours
       FROM policy_violations
       WHERE tenant_id = $1
-        AND acknowledged = true
-        AND violation_time >= $2
+        AND employee_acknowledged = true
+        AND violation_date >= $2
     `, [tenantId, startOfMonth])
 
     return {
@@ -279,13 +287,13 @@ class ExecutiveDashboardService {
     // Daily cost trend
     const costTrend = await this.db.query(`
       SELECT
-        DATE(actual_end) as date,
-        SUM(total_cost) as value
+        DATE(actual_end_date) as date,
+        SUM(actual_cost) as value
       FROM work_orders
       WHERE tenant_id = $1
-        AND actual_end >= $2
+        AND actual_end_date >= $2
         AND status = 'completed'
-      GROUP BY DATE(actual_end)
+      GROUP BY DATE(actual_end_date)
       ORDER BY date ASC
     `, [tenantId, startDate])
 
@@ -294,7 +302,7 @@ class ExecutiveDashboardService {
       SELECT
         DATE(incident_date) as date,
         COUNT(*) as value
-      FROM safety_incidents
+      FROM incidents
       WHERE tenant_id = $1
         AND incident_date >= $2
       GROUP BY DATE(incident_date)
@@ -304,12 +312,12 @@ class ExecutiveDashboardService {
     // Maintenance schedule trend
     const maintenanceTrend = await this.db.query(`
       SELECT
-        DATE(actual_start) as date,
+        DATE(actual_start_date) as date,
         COUNT(*) as value
       FROM work_orders
       WHERE tenant_id = $1
-        AND actual_start >= $2
-      GROUP BY DATE(actual_start)
+        AND actual_start_date >= $2
+      GROUP BY DATE(actual_start_date)
       ORDER BY date ASC
     `, [tenantId, startDate])
 
@@ -353,14 +361,14 @@ class ExecutiveDashboardService {
           v.vin,
           v.make,
           v.model,
-          SUM(wo.total_cost) as total_cost,
+          SUM(wo.actual_cost) as total_cost,
           COUNT(wo.id) as work_order_count
         FROM vehicles v
         LEFT JOIN work_orders wo ON v.id = wo.vehicle_id
         WHERE v.tenant_id = $1
-          AND wo.actual_end >= NOW() - INTERVAL '90 days'
+          AND wo.actual_end_date >= NOW() - INTERVAL '90 days'
         GROUP BY v.id, v.vin, v.make, v.model
-        HAVING SUM(wo.total_cost) > 5000
+        HAVING SUM(wo.actual_cost) > 5000
         ORDER BY total_cost DESC
         LIMIT 5
       `, [tenantId])
@@ -390,7 +398,7 @@ class ExecutiveDashboardService {
           v.make,
           v.model,
           COUNT(*) as incident_count
-        FROM safety_incidents si
+        FROM incidents si
         JOIN vehicles v ON si.vehicle_id = v.id
         WHERE si.tenant_id = $1
           AND si.incident_date >= NOW() - INTERVAL '30 days'
@@ -472,7 +480,7 @@ class ExecutiveDashboardService {
       // Use OpenAI for advanced pattern detection if API key is available
       if (process.env.OPENAI_API_KEY && insights.length > 0) {
         try {
-          const aiAnalysis = await openai.chat.completions.create({
+          const aiAnalysis = await openai!.chat.completions.create({
             model: `gpt-4`,
             messages: [{
               role: 'system',
@@ -498,7 +506,7 @@ class ExecutiveDashboardService {
             })
           }
         } catch (aiError) {
-          console.error('OpenAI insight generation failed:', aiError)
+          logger.error('OpenAI insight generation failed:', { error: aiError instanceof Error ? aiError.message : String(aiError) })
         }
       }
 
@@ -513,7 +521,7 @@ class ExecutiveDashboardService {
       })
 
     } catch (error) {
-      console.error('Error generating AI insights:', error)
+      logger.error('Error generating AI insights:', { error: error instanceof Error ? error.message : String(error) })
       return insights
     }
   }
@@ -528,8 +536,8 @@ class ExecutiveDashboardService {
         COUNT(*) as count
       FROM policy_violations
       WHERE tenant_id = $1
-        AND acknowledged = false
-        AND violation_time >= NOW() - INTERVAL '7 days'
+        AND employee_acknowledged = false
+        AND violation_date >= NOW() - INTERVAL '7 days'
       GROUP BY severity
     `, [tenantId])
 
@@ -537,15 +545,15 @@ class ExecutiveDashboardService {
       SELECT
         pv.id,
         pv.severity,
-        pv.violation_time as timestamp,
+        pv.violation_date as timestamp,
         v.vin as vehicle_id,
-        p.policy_name as message
+        p.name as message
       FROM policy_violations pv
       LEFT JOIN vehicles v ON pv.vehicle_id = v.id
       LEFT JOIN policies p ON pv.policy_id = p.id
       WHERE pv.tenant_id = $1
-        AND pv.acknowledged = false
-      ORDER BY pv.violation_time DESC
+        AND pv.employee_acknowledged = false
+      ORDER BY pv.violation_date DESC
       LIMIT 10
     `, [tenantId])
 
@@ -706,17 +714,17 @@ class ExecutiveDashboardService {
 
     // Get maintenance costs
     const maintenanceCosts = await this.db.query(`
-      SELECT COALESCE(SUM(total_cost), 0) as total
+      SELECT COALESCE(SUM(actual_cost), 0) as total
       FROM work_orders
       WHERE tenant_id = $1
-        AND actual_end >= $2
+        AND actual_end_date >= $2
         AND status = 'completed'
     `, [tenantId, startOfMonth])
 
     // Get incident costs
     const incidentCosts = await this.db.query(`
-      SELECT COALESCE(SUM(vehicle_damage_cost + property_damage_cost), 0) as total
-      FROM safety_incidents
+      SELECT COALESCE(SUM(COALESCE(actual_cost, estimated_cost, 0)), 0) as total
+      FROM incidents
       WHERE tenant_id = $1
         AND incident_date >= $2
     `, [tenantId, startOfMonth])
@@ -778,10 +786,7 @@ class ExecutiveDashboardService {
     }
   }
 }
-
-// Export singleton instance
-import { db } from '../db'
-const executiveDashboardService = new ExecutiveDashboardService(db as any)
+const executiveDashboardService = new ExecutiveDashboardService(db as unknown as Pool)
 
 export { ExecutiveDashboardService }
 export default executiveDashboardService

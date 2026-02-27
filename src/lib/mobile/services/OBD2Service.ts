@@ -774,7 +774,7 @@ export class OBD2Service {
 
     this.isProcessingCommand = true
     const command = this.commandQueue.shift()
-    // Process command (mock)
+    // Process command
     this.isProcessingCommand = false
 
     if (this.commandQueue.length > 0) {

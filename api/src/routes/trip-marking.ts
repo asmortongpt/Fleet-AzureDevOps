@@ -15,6 +15,8 @@ import {
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
@@ -27,7 +29,7 @@ const markTripSchema = z.object({
 })
 
 const startPersonalTripSchema = z.object({
-  vehicle_id: z.string().uuid(),
+  vehicle_id: flexUuid,
   start_location: z.string().optional(),
   notes: z.string().optional()
 })
@@ -240,7 +242,7 @@ router.post(
           ? 'Trip marked and auto-approved'
           : 'Trip marked - pending approval'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Mark trip error:', error) // Wave 19: Winston logger
       res.status(500).json({
         success: false,
@@ -316,7 +318,7 @@ router.post(
         data: result.rows[0],
         message: 'Personal trip started'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Start personal trip error:', error) // Wave 19: Winston logger
       res.status(500).json({
         success: false,
@@ -448,7 +450,7 @@ router.patch(
         },
         message: 'Trip split successfully'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Split trip error:', error) // Wave 19: Winston logger
       res.status(500).json({
         success: false,
@@ -530,7 +532,7 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
         has_more: parseInt(countResult.rows[0].count) > parseInt(offset as string) + tripsWithCharges.length
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Get personal trips error:', error) // Wave 19: Winston logger
     res.status(500).json({
       success: false,
@@ -602,7 +604,7 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
         estimated_charge
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Get trip usage error:', error) // Wave 19: Winston logger
     res.status(500).json({
       success: false,

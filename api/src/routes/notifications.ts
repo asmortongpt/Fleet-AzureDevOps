@@ -20,8 +20,8 @@ router.get(
       const tenantId = req.user!.tenant_id
 
       let query = `
-        SELECT id, tenant_id, user_id, title, message, type, priority, related_entity_type,
-               related_entity_id, action_url, is_read, read_at, sent_at, metadata, created_at
+        SELECT id, tenant_id, user_id, notification_type as type, title, message, link as action_url,
+               is_read, read_at, priority, created_at
         FROM notifications
         WHERE tenant_id = $1
       `
@@ -36,7 +36,7 @@ router.get(
         params.push(category)
       }
 
-      query += ` ORDER BY sent_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`
+      query += ` ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
@@ -87,9 +87,9 @@ router.patch(
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message })
+        return res.status(404).json({ error: 'Resource not found' })
       }
       return res.status(500).json({ error: 'Failed to update notification' })
     }
@@ -110,7 +110,7 @@ router.patch(
         [req.user!.tenant_id]
       )
 
-      res.json({ message: 'All notifications marked as read', count: result.rowCount })
+      res.json({ success: true, message: 'All notifications marked as read', count: result.rowCount })
     } catch (error) {
       return res.status(500).json({ error: 'Failed to update notifications' })
     }
@@ -133,10 +133,10 @@ router.delete(
         throw new NotFoundError('Notification not found')
       }
 
-      res.json({ message: 'Notification deleted successfully' })
-    } catch (error: any) {
+      res.json({ success: true, message: 'Notification deleted successfully' })
+    } catch (error: unknown) {
       if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message })
+        return res.status(404).json({ error: 'Resource not found' })
       }
       return res.status(500).json({ error: 'Failed to delete notification' })
     }

@@ -42,7 +42,7 @@ router.get(
       const { periodStart, periodEnd, limit = '50' } = req.query
 
       const leaderboard = await driverScorecardService.getLeaderboard(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         periodStart ? new Date(periodStart as string) : undefined,
         periodEnd ? new Date(periodEnd as string) : undefined,
         parseInt(limit as string)
@@ -70,7 +70,7 @@ router.get(
       if (periodStart && periodEnd) {
         const score = await driverScorecardService.calculateDriverScore(
           driverId,
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
           new Date(periodStart as string),
           new Date(periodEnd as string)
         )
@@ -98,7 +98,7 @@ router.get(
 
       const history = await driverScorecardService.getDriverScoreHistory(
         driverId,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         parseInt(months as string)
       )
 
@@ -121,7 +121,7 @@ router.get(
 
       const achievements = await driverScorecardService.getDriverAchievements(
         driverId,
-        req.user!.tenant_id
+        req.user!.tenant_id ?? ''
       )
 
       res.json(achievements)
@@ -146,12 +146,12 @@ router.post(
       }
 
       await driverScorecardService.calculateAllDriverScores(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         new Date(periodStart),
         new Date(periodEnd)
       )
 
-      res.json({ message: 'Calculation started for all drivers' })
+      res.json({ success: true, message: 'Calculation started for all drivers' })
     } catch (error) {
       logger.error('Calculate all scores error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Internal server error' })

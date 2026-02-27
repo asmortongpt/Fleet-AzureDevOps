@@ -1,3 +1,5 @@
+import logger from '@/utils/logger';
+
 /**
  * Push Notifications Service
  *
@@ -61,7 +63,7 @@ export class PushNotificationService {
   private subscription: PushSubscription | null = null;
   private settings: NotificationSettings;
   private readonly VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
-  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
   private notificationQueue: NotificationPayload[] = [];
 
   constructor() {
@@ -74,26 +76,23 @@ export class PushNotificationService {
    */
   private async initializeServiceWorker(): Promise<void> {
     if (!('serviceWorker' in navigator)) {
-      console.warn('[PushNotificationService] Service Worker not supported');
       return;
     }
 
     try {
       this.registration = await navigator.serviceWorker.ready;
-      console.log('[PushNotificationService] Service Worker ready');
 
       // Check for existing subscription
       this.subscription = await this.registration.pushManager.getSubscription();
 
       if (this.subscription) {
-        console.log('[PushNotificationService] Existing subscription found');
         await this.sendSubscriptionToServer(this.subscription);
       }
 
       // Setup message listener for notifications from service worker
       navigator.serviceWorker.addEventListener('message', this.handleServiceWorkerMessage.bind(this));
     } catch (error) {
-      console.error('[PushNotificationService] Failed to initialize:', error);
+      logger.error('[PushNotificationService] Failed to initialize:', error);
     }
   }
 
@@ -102,7 +101,6 @@ export class PushNotificationService {
    */
   public async requestPermission(): Promise<boolean> {
     if (!('Notification' in window)) {
-      console.warn('[PushNotificationService] Notifications not supported');
       return false;
     }
 
@@ -110,18 +108,13 @@ export class PushNotificationService {
       const permission = await Notification.requestPermission();
 
       if (permission === 'granted') {
-        console.log('[PushNotificationService] Permission granted');
         await this.subscribe();
         return true;
-      } else if (permission === 'denied') {
-        console.warn('[PushNotificationService] Permission denied');
-        return false;
       } else {
-        console.log('[PushNotificationService] Permission dismissed');
         return false;
       }
     } catch (error) {
-      console.error('[PushNotificationService] Permission request failed:', error);
+      logger.error('[PushNotificationService] Permission request failed:', error);
       return false;
     }
   }
@@ -131,7 +124,7 @@ export class PushNotificationService {
    */
   public async subscribe(): Promise<PushSubscription | null> {
     if (!this.registration) {
-      console.error('[PushNotificationService] Service Worker not ready');
+      logger.error('[PushNotificationService] Service Worker not ready');
       return null;
     }
 
@@ -141,15 +134,14 @@ export class PushNotificationService {
         applicationServerKey: this.urlBase64ToUint8Array(this.VAPID_PUBLIC_KEY),
       };
 
-      this.subscription = await this.registration.pushManager.subscribe(subscribeOptions);
-      console.log('[PushNotificationService] Subscribed successfully');
+      this.subscription = await this.registration.pushManager.subscribe(subscribeOptions as PushSubscriptionOptionsInit);
 
       // Send subscription to server
       await this.sendSubscriptionToServer(this.subscription);
 
       return this.subscription;
     } catch (error) {
-      console.error('[PushNotificationService] Subscription failed:', error);
+      logger.error('[PushNotificationService] Subscription failed:', error);
       return null;
     }
   }
@@ -159,7 +151,6 @@ export class PushNotificationService {
    */
   public async unsubscribe(): Promise<boolean> {
     if (!this.subscription) {
-      console.log('[PushNotificationService] No active subscription');
       return false;
     }
 
@@ -167,10 +158,9 @@ export class PushNotificationService {
       await this.subscription.unsubscribe();
       await this.deleteSubscriptionFromServer(this.subscription);
       this.subscription = null;
-      console.log('[PushNotificationService] Unsubscribed successfully');
       return true;
     } catch (error) {
-      console.error('[PushNotificationService] Unsubscribe failed:', error);
+      logger.error('[PushNotificationService] Unsubscribe failed:', error);
       return false;
     }
   }
@@ -180,19 +170,16 @@ export class PushNotificationService {
    */
   public async showNotification(payload: NotificationPayload): Promise<void> {
     if (!this.settings.enabled) {
-      console.log('[PushNotificationService] Notifications disabled');
       return;
     }
 
     // Check category permissions
     if (payload.category && !this.settings.categories[payload.category]) {
-      console.log(`[PushNotificationService] Category ${payload.category} disabled`);
       return;
     }
 
     // Check Do Not Disturb
     if (this.isDoNotDisturbActive()) {
-      console.log('[PushNotificationService] Do Not Disturb active');
       this.queueNotification(payload);
       return;
     }
@@ -225,7 +212,7 @@ export class PushNotificationService {
       // Track notification
       this.trackNotification(payload);
     } catch (error) {
-      console.error('[PushNotificationService] Failed to show notification:', error);
+      logger.error('[PushNotificationService] Failed to show notification:', error);
     }
   }
 
@@ -255,7 +242,7 @@ export class PushNotificationService {
 
       return true;
     } catch (error) {
-      console.error('[PushNotificationService] Failed to send push notification:', error);
+      logger.error('[PushNotificationService] Failed to send push notification:', error);
       return false;
     }
   }
@@ -333,10 +320,8 @@ export class PushNotificationService {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-
-      console.log('[PushNotificationService] Subscription sent to server');
     } catch (error) {
-      console.error('[PushNotificationService] Failed to send subscription:', error);
+      logger.error('[PushNotificationService] Failed to send subscription:', error);
     }
   }
 
@@ -356,17 +341,13 @@ export class PushNotificationService {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-
-      console.log('[PushNotificationService] Subscription deleted from server');
     } catch (error) {
-      console.error('[PushNotificationService] Failed to delete subscription:', error);
+      logger.error('[PushNotificationService] Failed to delete subscription:', error);
     }
   }
 
   private handleServiceWorkerMessage(event: MessageEvent): void {
     if (event.data.type === 'NOTIFICATION_CLICK') {
-      console.log('[PushNotificationService] Notification clicked:', event.data);
-      // Handle notification click
       window.focus();
       if (event.data.url) {
         window.location.href = event.data.url;

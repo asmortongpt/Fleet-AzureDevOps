@@ -5,11 +5,16 @@
 import { Request, Response, NextFunction } from 'express';
 import Redis from 'ioredis';
 
+const devBypassEnabled = process.env.VITE_SKIP_AUTH === 'true' || process.env.DEV_BYPASS_SECURITY === 'true';
+
 export class RateLimitMiddleware {
   constructor(private redis: Redis) {}
 
   limit = (options: { windowMs: number; max: number; keyPrefix?: string }) => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      if (devBypassEnabled) {
+        return next();
+      }
       const key = `${options.keyPrefix || 'ratelimit'}:${req.ip || 'unknown'}`;
       const now = Date.now();
       const windowStart = now - options.windowMs;

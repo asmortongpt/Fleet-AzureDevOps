@@ -145,7 +145,7 @@ export function checkAccess(
   auditLogs.push(log);
 
   // Log to console in development
-  if (process.env.NODE_ENV === 'development' && !allowed) {
+  if (import.meta.env.MODE === 'development' && !allowed) {
     logger.warn('[RBAC] Access Denied:', log);
   }
 

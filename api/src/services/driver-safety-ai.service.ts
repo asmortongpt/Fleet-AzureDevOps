@@ -79,8 +79,8 @@ class DriverSafetyAIService {
       //   AZURE_COMPUTER_VISION_ENDPOINT
       // );
       logger.info('Azure Computer Vision initialized');
-    } catch (error: any) {
-      logger.error('Failed to initialize Azure Computer Vision:', error.message);
+    } catch (error: unknown) {
+      logger.error('Failed to initialize Azure Computer Vision:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 
@@ -252,8 +252,8 @@ class DriverSafetyAIService {
         overallRiskScore,
         confidenceScore
       };
-    } catch (error: any) {
-      logger.error(`AI analysis failed:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`AI analysis failed:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       throw error;
     }
   }
@@ -295,8 +295,8 @@ class DriverSafetyAIService {
 
       // Uncertain - default to not detected
       return { notWearing: true, confidence: 0.60 };
-    } catch (error: any) {
-      logger.error('Seatbelt detection failed:', error.message);
+    } catch (error: unknown) {
+      logger.error('Seatbelt detection failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
       return { notWearing: false, confidence: 0 };
     }
   }
@@ -354,7 +354,9 @@ class DriverSafetyAIService {
       // Check if hands are in typical steering wheel position
       const wheelArea = { x: 400, y: 400, width: 400, height: 300 }; // Typical steering wheel area
       const handsOnWheel = handObjects.some((obj: any) => {
-        if (!obj.rectangle) return false;
+        if (!obj.rectangle) {
+return false;
+}
         const rect = obj.rectangle;
         return rect.x >= wheelArea.x && rect.x <= wheelArea.x + wheelArea.width &&
                rect.y >= wheelArea.y && rect.y <= wheelArea.y + wheelArea.height;
@@ -404,8 +406,8 @@ class DriverSafetyAIService {
           });
         }
       }
-    } catch (error: any) {
-      logger.error('Additional behavior detection failed:', error.message);
+    } catch (error: unknown) {
+      logger.error('Additional behavior detection failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 
@@ -466,8 +468,8 @@ class DriverSafetyAIService {
         drowsinessScore,
         distractionScore
       };
-    } catch (error: any) {
-      logger.error(`Face analysis failed:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Face analysis failed:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       return null;
     }
   }
@@ -573,8 +575,8 @@ return 0;
       }
 
       logger.info(`AI analysis completed for event ${eventId}: ${analysis.detectedBehaviors.length} behaviors detected, risk score: ${analysis.overallRiskScore.toFixed(1)}`);
-    } catch (error: any) {
-      logger.error(`AI processing failed for event ${eventId}:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`AI processing failed for event ${eventId}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
 
       await this.db.query(
         `UPDATE video_safety_events
@@ -604,8 +606,8 @@ return 0;
       logger.warn(`Event ${eventId} escalated to critical due to: ${criticalBehaviors.map(b => b.behavior).join(`, `)}`);
 
       // Could send notifications here (email, SMS, etc.)
-    } catch (error: any) {
-      logger.error(`Failed to escalate event ${eventId}:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Failed to escalate event ${eventId}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 
@@ -629,8 +631,8 @@ return 0;
       try {
         await this.processVideoEvent(event.id);
         processed++;
-      } catch (error: any) {
-        logger.error(`Failed to process event ${event.id}:`, error.message);
+      } catch (error: unknown) {
+        logger.error(`Failed to process event ${event.id}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       }
     }
 

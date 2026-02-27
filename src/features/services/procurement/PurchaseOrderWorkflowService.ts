@@ -123,244 +123,27 @@ export interface WorkflowAnalytics {
   complianceMetrics: ComplianceMetrics;
 }
 
-// Mock data storage
+// Data storage (populated from API)
 let purchaseOrders: PurchaseOrder[] = [];
 
 class PurchaseOrderWorkflowService {
   async initializeData(): Promise<void> {
     try {
-      // Initialize mock purchase orders
-      purchaseOrders = [
-        {
-          id: 'po-001',
-          poNumber: 'PO-2025-001',
-          title: 'Office Furniture for New Building',
-          description: 'Desks, chairs, and filing cabinets for 50 employees',
-          requesterId: 'user001',
-          requesterName: 'John Smith',
-          department: 'Administration',
-          status: 'PENDING_APPROVAL',
-          priority: 'MEDIUM',
-          totalAmount: 45000,
-          currency: 'USD',
-          requestedDeliveryDate: '2025-03-15T00:00:00Z',
-          createdDate: '2025-01-20T10:00:00Z',
-          modifiedDate: '2025-01-25T14:30:00Z',
-          lineItems: [
-            {
-              id: 'li-001',
-              partNumber: 'DESK-001',
-              description: 'Executive Desk',
-              quantity: 50,
-              unitOfMeasure: 'EA',
-              unitPrice: 500,
-              totalPrice: 25000,
-              category: 'Furniture',
-            },
-            {
-              id: 'li-002',
-              partNumber: 'CHAIR-001',
-              description: 'Ergonomic Office Chair',
-              quantity: 50,
-              unitOfMeasure: 'EA',
-              unitPrice: 300,
-              totalPrice: 15000,
-              category: 'Furniture',
-            },
-            {
-              id: 'li-003',
-              partNumber: 'FILE-001',
-              description: 'Filing Cabinet',
-              quantity: 25,
-              unitOfMeasure: 'EA',
-              unitPrice: 200,
-              totalPrice: 5000,
-              category: 'Furniture',
-            },
-          ],
-          approvalChain: [
-            {
-              id: 'step-001',
-              stepNumber: 1,
-              approverId: 'user002',
-              approverName: 'Sarah Johnson',
-              approverRole: 'Department Supervisor',
-              status: 'APPROVED',
-              approvalDate: '2025-01-21T09:00:00Z',
-              comments: 'Approved - within budget allocation',
-            },
-            {
-              id: 'step-002',
-              stepNumber: 2,
-              approverId: 'user003',
-              approverName: 'Michael Chen',
-              approverRole: 'Budget Manager',
-              status: 'APPROVED',
-              approvalDate: '2025-01-23T11:30:00Z',
-              comments: 'Budget verified and approved',
-            },
-            {
-              id: 'step-003',
-              stepNumber: 3,
-              approverId: 'user004',
-              approverName: 'Emily Davis',
-              approverRole: 'Procurement Manager',
-              status: 'PENDING',
-              slaDeadline: '2025-02-05T23:59:59Z',
-            },
-          ],
-          workflow: {
-            currentStep: 3,
-            totalSteps: 3,
-            status: 'PENDING_APPROVAL',
-            initiatedDate: '2025-01-20T10:00:00Z',
-            slaDeadline: '2025-02-05T23:59:59Z',
-            escalationLevel: 0,
-          },
-          comments: [
-            {
-              id: 'comment-001',
-              userId: 'user001',
-              userName: 'John Smith',
-              comment: 'Urgent - needed for new building opening',
-              timestamp: '2025-01-20T10:05:00Z',
-            },
-          ],
-          budgetCode: 'ADM-2025-Q1',
-          vendorName: 'Office Depot',
-        },
-        {
-          id: 'po-002',
-          poNumber: 'PO-2025-002',
-          title: 'IT Equipment - Laptops and Monitors',
-          description: '20 laptops and 40 monitors for IT refresh',
-          requesterId: 'user005',
-          requesterName: 'David Lee',
-          department: 'IT',
-          status: 'PENDING_APPROVAL',
-          priority: 'HIGH',
-          totalAmount: 75000,
-          currency: 'USD',
-          requestedDeliveryDate: '2025-02-28T00:00:00Z',
-          createdDate: '2025-01-22T14:00:00Z',
-          modifiedDate: '2025-01-22T14:00:00Z',
-          lineItems: [
-            {
-              id: 'li-004',
-              partNumber: 'LAPTOP-PRO',
-              description: 'Professional Laptop 16GB RAM 512GB SSD',
-              quantity: 20,
-              unitOfMeasure: 'EA',
-              unitPrice: 2000,
-              totalPrice: 40000,
-              category: 'IT Equipment',
-            },
-            {
-              id: 'li-005',
-              partNumber: 'MONITOR-27',
-              description: '27" 4K Monitor',
-              quantity: 40,
-              unitOfMeasure: 'EA',
-              unitPrice: 500,
-              totalPrice: 20000,
-              category: 'IT Equipment',
-            },
-            {
-              id: 'li-006',
-              partNumber: 'DOCK-USB',
-              description: 'USB-C Docking Station',
-              quantity: 20,
-              unitOfMeasure: 'EA',
-              unitPrice: 250,
-              totalPrice: 5000,
-              category: 'IT Equipment',
-            },
-            {
-              id: 'li-007',
-              partNumber: 'KB-MOUSE',
-              description: 'Wireless Keyboard and Mouse Set',
-              quantity: 20,
-              unitOfMeasure: 'EA',
-              unitPrice: 100,
-              totalPrice: 2000,
-              category: 'IT Equipment',
-            },
-            {
-              id: 'li-008',
-              partNumber: 'CABLE-PACK',
-              description: 'Cable Management Pack',
-              quantity: 40,
-              unitOfMeasure: 'EA',
-              unitPrice: 50,
-              totalPrice: 2000,
-              category: 'IT Equipment',
-            },
-          ],
-          approvalChain: [
-            {
-              id: 'step-004',
-              stepNumber: 1,
-              approverId: 'user006',
-              approverName: 'Lisa Wang',
-              approverRole: 'IT Director',
-              status: 'APPROVED',
-              approvalDate: '2025-01-22T15:00:00Z',
-              comments: 'Critical for Q1 projects',
-            },
-            {
-              id: 'step-005',
-              stepNumber: 2,
-              approverId: 'user003',
-              approverName: 'Michael Chen',
-              approverRole: 'Budget Manager',
-              status: 'PENDING',
-              slaDeadline: '2025-01-30T23:59:59Z',
-            },
-            {
-              id: 'step-006',
-              stepNumber: 3,
-              approverId: 'user004',
-              approverName: 'Emily Davis',
-              approverRole: 'Procurement Manager',
-              status: 'PENDING',
-              slaDeadline: '2025-02-03T23:59:59Z',
-            },
-            {
-              id: 'step-007',
-              stepNumber: 4,
-              approverId: 'user007',
-              approverName: 'Robert Taylor',
-              approverRole: 'CFO',
-              status: 'PENDING',
-              slaDeadline: '2025-02-06T23:59:59Z',
-            },
-          ],
-          workflow: {
-            currentStep: 2,
-            totalSteps: 4,
-            status: 'PENDING_APPROVAL',
-            initiatedDate: '2025-01-22T14:00:00Z',
-            slaDeadline: '2025-02-06T23:59:59Z',
-            escalationLevel: 0,
-          },
-          comments: [
-            {
-              id: 'comment-002',
-              userId: 'user005',
-              userName: 'David Lee',
-              comment: 'Need approval by end of week for Q1 delivery',
-              timestamp: '2025-01-22T14:05:00Z',
-            },
-          ],
-          budgetCode: 'IT-2025-CAP',
-          vendorName: 'Dell Technologies',
-        },
-      ];
+      const response = await fetch('/api/purchase-orders?limit=200', {
+        credentials: 'include',
+      });
 
-      logger.info('Purchase order data initialized');
+      if (!response.ok) {
+        throw new Error(`Failed to load purchase orders: ${response.statusText}`);
+      }
+
+      const payload = await response.json();
+      purchaseOrders = payload?.data || payload || [];
+
+      logger.info('Purchase order data loaded', { count: purchaseOrders.length });
     } catch (error) {
-      logger.error('Error initializing purchase order data:', error);
-      throw error;
+      logger.error('Error loading purchase order data:', error);
+      purchaseOrders = [];
     }
   }
 
@@ -560,7 +343,7 @@ class PurchaseOrderWorkflowService {
 
   async getWorkflowAnalytics(): Promise<WorkflowAnalytics> {
     try {
-      // Calculate analytics from mock data
+      // Calculate analytics from current data
       const analytics: WorkflowAnalytics = {
         totalPOs: purchaseOrders.length,
         pendingApprovals: purchaseOrders.filter((po) => po.status === 'PENDING_APPROVAL').length,

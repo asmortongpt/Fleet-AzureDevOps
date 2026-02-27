@@ -3,6 +3,8 @@ import { Stream } from 'stream';
 import { BlobServiceClient } from '@azure/storage-blob';
 import sharp from 'sharp';
 
+import logger from '../config/logger';
+
 /**
  * Service for storing photos in Azure Blob Storage with WebP compression and thumbnail generation.
  */
@@ -42,7 +44,7 @@ class PhotoStorageService {
 
       return { originalUrl: originalBlobURL, thumbnailUrl: thumbnailBlobURL };
     } catch (error) {
-      console.error('Error uploading photo to Azure Blob Storage:', error);
+      logger.error('Error uploading photo to Azure Blob Storage:', { error: error instanceof Error ? error.message : String(error) });
       throw new Error('Failed to upload photo');
     }
   }

@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 interface Asset {
   id: string
@@ -50,7 +50,10 @@ export function useReactiveAssetsData() {
       const response = await fetch(`${API_BASE}/assets`, { credentials: 'include' })
       if (!response.ok) throw new Error('Failed to fetch assets')
       const payload = await response.json()
-      const rows = payload?.data ?? payload ?? []
+      // Handle nested response: { data: { data: [...] } }, { data: [...] }, or [...]
+      const rows = Array.isArray(payload?.data?.data) ? payload.data.data
+        : Array.isArray(payload?.data) ? payload.data
+        : Array.isArray(payload) ? payload : []
       return rows.map((row: any) => ({
         id: row.id,
         name: row.asset_name || row.name,
@@ -81,15 +84,18 @@ export function useReactiveAssetsData() {
       const response = await fetch(`${API_BASE}/inventory/items?limit=200`, { credentials: 'include' })
       if (!response.ok) throw new Error('Failed to fetch inventory')
       const payload = await response.json()
-      const rows = payload?.data ?? payload ?? []
+      // Handle nested response: { data: { data: [...] } }, { data: [...] }, or [...]
+      const rows = Array.isArray(payload?.data?.data) ? payload.data.data
+        : Array.isArray(payload?.data) ? payload.data
+        : Array.isArray(payload) ? payload : []
       return rows.map((row: any) => ({
         id: row.id,
         sku: row.sku,
         name: row.name,
         category: row.category,
-        quantity: Number(row.quantity_on_hand || 0),
-        reorderPoint: Number(row.reorder_point || 0),
-        unitCost: Number(row.unit_cost || 0),
+        quantity: Number(row.quantity_on_hand ?? row.quantity ?? 0),
+        reorderPoint: Number(row.reorder_point ?? row.reorderPoint ?? 0),
+        unitCost: Number(row.unit_cost ?? row.unitCost ?? 0),
         location: row.warehouse_location || row.bin_location || '',
         supplier: row.primary_supplier_name || row.primary_supplier_id,
         lastRestocked: row.last_restocked

@@ -1,9 +1,42 @@
-import { Zap, Route, DollarSign, Clock, TrendingUp, Settings } from "lucide-react"
+import { Zap, Route, DollarSign, Clock, TrendingUp, Settings, BarChart3 } from "lucide-react"
+import { useMemo } from "react"
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useFleetData } from "@/hooks/use-fleet-data"
+import { formatCurrency } from "@/utils/format-helpers"
 
 export function FleetOptimizer() {
+  const { vehicles, fuelTransactions } = useFleetData()
+
+  // Build performance trend data from fuel transactions grouped by month
+  const trendData = useMemo(() => {
+    if (!fuelTransactions || fuelTransactions.length === 0) return []
+
+    const monthMap = new Map<string, { gallons: number; cost: number; count: number }>()
+    fuelTransactions.forEach((t: any) => {
+      const date = t.transactionDate || t.created_at || t.date
+      if (!date) return
+      const d = new Date(date)
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+      const existing = monthMap.get(key) || { gallons: 0, cost: 0, count: 0 }
+      existing.gallons += t.quantity || 0
+      existing.cost += (t.quantity || 0) * (t.pricePerGallon || 0)
+      existing.count += 1
+      monthMap.set(key, existing)
+    })
+
+    return Array.from(monthMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-6)
+      .map(([month, data]) => ({
+        month: new Date(month + '-01').toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+        fuelCost: Math.round(data.cost),
+        efficiency: data.gallons > 0 ? Math.round((data.count / data.gallons) * 100) / 100 : 0,
+      }))
+  }, [fuelTransactions])
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -84,12 +117,12 @@ export function FleetOptimizer() {
               </div>
               <p className="text-sm text-yellow-700">Schedule preventive maintenance for 3 vehicles to avoid potential breakdowns</p>
             </div>
-            <div className="p-4 border rounded-lg bg-blue-50 border-blue-200">
+            <div className="p-4 border rounded-lg bg-emerald-500/5 border-emerald-500/20">
               <div className="flex items-center gap-2 mb-2">
-                <Route className="h-4 w-4 text-blue-600" />
-                <span className="font-medium text-blue-800">Quick Win</span>
+                <Route className="h-4 w-4 text-emerald-600" />
+                <span className="font-medium text-emerald-500">Quick Win</span>
               </div>
-              <p className="text-sm text-blue-700">Reassign Vehicle 003 to shorter routes to match its fuel efficiency profile</p>
+              <p className="text-sm text-emerald-400">Reassign Vehicle 003 to shorter routes to match its fuel efficiency profile</p>
             </div>
           </CardContent>
         </Card>
@@ -99,8 +132,27 @@ export function FleetOptimizer() {
             <CardTitle>Fleet Performance Trend</CardTitle>
             <CardDescription>Optimization score over time</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
-            Chart placeholder - Performance trend data
+          <CardContent className="h-[300px]">
+            {trendData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="month" className="text-xs" tick={{ fontSize: 12 }} />
+                  <YAxis className="text-xs" tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '6px', color: 'hsl(var(--foreground))' }}
+                    formatter={(value) => [formatCurrency(Number(value ?? 0)), 'Fuel Cost']}
+                  />
+                  <Area type="monotone" dataKey="fuelCost" stroke="#10b981" fill="#10b981" fillOpacity={0.15} name="Fuel Cost ($)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                <BarChart3 className="h-10 w-10 mb-2 opacity-40" />
+                <p className="text-sm">No performance data available</p>
+                <p className="text-xs mt-1">Fuel transaction data will appear here once available</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

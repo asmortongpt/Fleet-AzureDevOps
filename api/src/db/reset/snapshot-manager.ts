@@ -42,7 +42,9 @@ export class SnapshotManager {
   };
 
   constructor(databaseUrl?: string) {
-    this.databaseUrl = databaseUrl || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_dev';
+    this.databaseUrl = databaseUrl || process.env.DATABASE_URL || (process.env.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@localhost:5432/fleet_dev' : (() => {
+ throw new Error('DATABASE_URL must be set in production'); 
+})());
     this.snapshotDir = process.env.SNAPSHOT_DIR || path.join(process.cwd(), 'api/src/db/reset/snapshots');
     this.connectionParams = this.parseConnectionString(this.databaseUrl);
   }
@@ -154,9 +156,10 @@ export class SnapshotManager {
       );
 
       return metadata;
-    } catch (error: any) {
-      console.error('❌ Snapshot creation failed:', error.message);
-      throw new Error(`Snapshot creation failed: ${error.message}`);
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+      console.error('❌ Snapshot creation failed:', errMsg);
+      throw new Error(`Snapshot creation failed: ${errMsg}`);
     }
   }
 
@@ -230,14 +233,15 @@ export class SnapshotManager {
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
       console.log(`✅ Snapshot restored in ${duration}s using ${parallel} parallel jobs`);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
       // pg_restore may exit with error code even on success if --clean is used
-      if (options.clean && error.message.includes('already exists')) {
+      if (options.clean && errMsg.includes('already exists')) {
         const duration = ((Date.now() - startTime) / 1000).toFixed(2);
         console.log(`✅ Snapshot restored in ${duration}s (with warnings)`);
       } else {
-        console.error('❌ Snapshot restore failed:', error.message);
-        throw new Error(`Snapshot restore failed: ${error.message}`);
+        console.error('❌ Snapshot restore failed:', errMsg);
+        throw new Error(`Snapshot restore failed: ${errMsg}`);
       }
     }
   }

@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { MaintenanceRequest } from "@/lib/types"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface MaintenanceRequestDialogProps {
     open: boolean
@@ -117,7 +118,7 @@ export function MaintenanceRequestDialog({
                             <SelectContent>
                                 {vehicles.map(v => (
                                     <SelectItem key={v.id} value={v.id}>
-                                        {v.number} - {v.make} {v.model}
+                                        {formatVehicleName(v)}
                                     </SelectItem>
                                 ))}
                             </SelectContent>

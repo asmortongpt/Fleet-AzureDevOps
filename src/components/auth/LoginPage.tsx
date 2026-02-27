@@ -3,12 +3,12 @@
  *
  * Provides Azure AD authentication with MFA enforcement
  * Supports both redirect and popup flows
- * Updated with Premium ArchonY Design System
+ * Updated with Premium CTA Fleet Design System
  */
 
+import { Shield, Lock, Truck, ChevronRight, AlertCircle, Fingerprint } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Shield, Lock, Truck, ChevronRight, AlertCircle, Fingerprint } from 'lucide-react'
 
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -19,8 +19,8 @@ import {
   isAuthenticated,
   getUserProfile
 } from "@/lib/auth/index"
-import logger from '@/utils/logger'
 import { cn } from '@/lib/utils'
+import logger from '@/utils/logger'
 
 export const LoginPage = () => {
   const navigate = useNavigate()
@@ -39,7 +39,7 @@ export const LoginPage = () => {
         if (isAuthenticated()) {
           const user = getUserProfile()
           logger.info('User already authenticated', { user })
-          navigate('/dashboard')
+          navigate('/')
         }
       } catch (error) {
         logger.error('Failed to initialize authentication:', { error })
@@ -76,7 +76,7 @@ export const LoginPage = () => {
       })
 
       // Navigate to dashboard after successful login
-      navigate('/dashboard')
+      navigate('/')
     } catch (error: any) {
       logger.error('Login popup failed:', { error })
       setError(error.message || 'Login failed. Please try again.')
@@ -87,9 +87,9 @@ export const LoginPage = () => {
 
   if (!msalReady) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0A0E27] text-white">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-2xl flex flex-col items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#41B2E3] mb-4"></div>
+      <div className="flex items-center justify-center min-h-screen bg-[#09090b] text-white">
+        <div className="bg-[#111111] border border-white/[0.04] p-8 rounded-2xl flex flex-col items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white/60 mb-4"></div>
           <p className="text-white/60 text-sm tracking-wide">INITIALIZING SECURE SESSION</p>
         </div>
       </div>
@@ -97,28 +97,26 @@ export const LoginPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-[#0A0E27] relative overflow-hidden font-sans">
-      {/* Dynamic Background Elements */}
-      <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#41B2E3]/10 blur-[120px]" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#7342F9]/10 blur-[100px]" />
+    <div className="flex min-h-screen w-full bg-[#09090b] relative overflow-hidden font-sans">
+      {/* Minimal background */}
 
       <div className="w-full h-full flex items-center justify-center p-4 relative z-10">
-        <div className="w-full max-w-[1000px] grid md:grid-cols-2 gap-0 overflow-hidden rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] border border-white/10 bg-[#0F1535]/80 backdrop-blur-xl">
+        <div className="w-full max-w-[1000px] grid md:grid-cols-2 gap-0 overflow-hidden rounded-3xl border border-white/[0.04] bg-[#0e0e0e]">
 
           {/* Left Side - Brand & Info */}
-          <div className="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-[#1A1F45] to-[#0A0E27] relative overflow-hidden">
+          <div className="hidden md:flex flex-col justify-between p-10 bg-[#0a0a0a] relative overflow-hidden">
             {/* Overlay grid pattern */}
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
 
             {/* Glowing Accent */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903]" />
+            <div className="absolute top-0 left-0 w-full h-px bg-white/[0.04]" />
 
             <div>
-              <div className="inline-flex items-center gap-2 mb-2 p-1.5 pr-3 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
-                <div className="bg-[#41B2E3] rounded-full p-1">
-                  <Truck className="w-3.5 h-3.5 text-white" />
+              <div className="inline-flex items-center gap-2 mb-2 p-1.5 pr-3 bg-white/[0.03] rounded-full border border-white/[0.04]">
+                <div className="bg-white rounded-full p-1">
+                  <Truck className="w-3.5 h-3.5 text-[#09090b]" />
                 </div>
-                <span className="text-[10px] font-bold tracking-wider text-[#41B2E3] uppercase">Fleet Command</span>
+                <span className="text-[10px] font-bold tracking-wider text-white uppercase">Fleet Command</span>
               </div>
               <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
                 Capital Technology Alliance
@@ -130,28 +128,28 @@ export const LoginPage = () => {
 
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
-                  <Shield className="w-5 h-5 text-[#41B2E3]" />
+                <div className="w-10 h-10 rounded-xl bg-white/[0.03] flex items-center justify-center border border-white/[0.04] shrink-0">
+                  <Shield className="w-5 h-5 text-white/60" />
                 </div>
                 <div>
                   <h3 className="text-white text-sm font-semibold">Enterprise Security</h3>
-                  <p className="text-white/40 text-xs">MFA-enforced access control</p>
+                  <p className="text-white/35 text-xs">MFA-enforced access control</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
-                  <Fingerprint className="w-5 h-5 text-[#7342F9]" />
+                <div className="w-10 h-10 rounded-xl bg-white/[0.03] flex items-center justify-center border border-white/[0.04] shrink-0">
+                  <Fingerprint className="w-5 h-5 text-white/60" />
                 </div>
                 <div>
                   <h3 className="text-white text-sm font-semibold">Biometric Ready</h3>
-                  <p className="text-white/40 text-xs">Seamless FIDO2 integration</p>
+                  <p className="text-white/35 text-xs">Seamless FIDO2 integration</p>
                 </div>
               </div>
             </div>
 
             <div className="text-[10px] text-white/30 font-mono mt-8">
-              SYSTEM_ID: ARCHON-Y-2026<br />
+              SYSTEM_ID: CTA-FLEET-2026<br />
               SECURE_GATEWAY_V4.2
             </div>
           </div>
@@ -183,10 +181,10 @@ export const LoginPage = () => {
                 disabled={isLoading}
                 className={cn(
                   "w-full h-12 text-sm font-semibold relative overflow-hidden group transition-all duration-300",
-                  "bg-[#0078D4] hover:bg-[#006cbd] text-white border-none shadow-[0_0_20px_rgba(0,120,212,0.3)]"
+                  "bg-[#0078D4] hover:bg-[#006cbd] text-white border-none"
                 )}
               >
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                <div className="absolute inset-0 bg-white/[0.06] translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                 <div className="relative flex items-center justify-center gap-3">
                   <svg className="w-5 h-5" viewBox="0 0 215 215" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
                     <path d="M102.5 0H0V102.5H102.5V0Z" fill="#F25022" />
@@ -204,7 +202,7 @@ export const LoginPage = () => {
                   <span className="w-full border-t border-white/10" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-[#0F1535] px-2 text-white/30">Alternative Methods</span>
+                  <span className="bg-[#0e0e0e] px-2 text-white/35">Alternative Methods</span>
                 </div>
               </div>
 
@@ -212,15 +210,15 @@ export const LoginPage = () => {
                 onClick={handleLoginPopup}
                 disabled={isLoading}
                 variant="outline"
-                className="w-full h-12 border-white/10 bg-white/5 hover:bg-white/10 text-white hover:text-white"
+                className="w-full h-12 border-white/[0.04] bg-white/[0.03] hover:bg-white/[0.06] text-white hover:text-white"
               >
-                <Lock className="w-4 h-4 mr-2 text-white/40" />
+                <Lock className="w-4 h-4 mr-2 text-white/35" />
                 Use Browser Popup
               </Button>
             </div>
 
             <div className="mt-10 text-center">
-              <div className="flex items-center justify-center gap-2 text-[10px] text-white/20 uppercase tracking-widest hover:text-white/40 transition-colors cursor-help">
+              <div className="flex items-center justify-center gap-2 text-[10px] text-white/35 uppercase tracking-widest hover:text-white/60 transition-colors cursor-help">
                 <Shield className="w-3 h-3" />
                 <span>Protected by Azure Sentinel</span>
               </div>

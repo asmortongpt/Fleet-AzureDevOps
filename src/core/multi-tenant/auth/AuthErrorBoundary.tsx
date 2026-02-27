@@ -88,7 +88,7 @@ export class AuthErrorBoundary extends Component<Props, State> {
             <Typography variant="body1" color="text.secondary" paragraph>
               We encountered an issue with authentication. Please try refreshing the page or logging in again.
             </Typography>
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {import.meta.env.MODE === 'development' && this.state.error && (
               <Typography
                 variant="body2"
                 sx={{

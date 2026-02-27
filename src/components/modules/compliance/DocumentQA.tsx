@@ -1,3 +1,4 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   Bot,
   Send,
@@ -9,7 +10,6 @@ import {
   Book,
   MessageCircle
 } from "lucide-react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState, useEffect, useRef } from "react"
 import { toast } from "sonner"
 
@@ -26,6 +26,7 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { apiClient } from "@/lib/api-client"
+import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 interface QAMessage {
   id: string
@@ -373,9 +374,9 @@ export function DocumentQA() {
               {messages.length === 1 && (
                 <div className="flex flex-wrap gap-2">
                   <p className="w-full text-sm text-muted-foreground mb-1">Suggested questions:</p>
-                  {suggestedQuestions.map((question, idx) => (
+                  {suggestedQuestions.map((question) => (
                     <Button
-                      key={idx}
+                      key={question}
                       variant="outline"
                       size="sm"
                       onClick={() => setInputValue(question)}
@@ -441,7 +442,7 @@ export function DocumentQA() {
                       </p>
                       <div className="flex items-center justify-between mt-2">
                         <p className="text-xs text-muted-foreground">
-                          {new Date(query.created_at).toLocaleDateString()}
+                          {formatDate(query.created_at)}
                         </p>
                         {query.feedback_rating && (
                           <div className="flex items-center gap-1">

@@ -95,7 +95,7 @@ export class PBRMaterialSystem {
 
     // Glass Materials
     this.createGlassMaterial('windshield', {
-      albedo: '#87ceeb',
+      albedo: '#ffffff',
       metalness: 0.0,
       roughness: 0.0,
       transmission: 0.9,
@@ -360,7 +360,7 @@ export class PBRMaterialSystem {
     rig.keyLight.shadow.camera.bottom = -10
 
     // Fill light (sky)
-    rig.fillLight.color.setHex(0x87ceeb)
+    rig.fillLight.color.setHex(0xffffff)
     rig.fillLight.intensity = 1.0
     rig.fillLight.position.set(-5, 8, -5)
 
@@ -384,17 +384,17 @@ export class PBRMaterialSystem {
     rig.keyLight.shadow.mapSize.height = 1024
 
     // Fill light (ambient interior)
-    rig.fillLight.color.setHex(0x87ceeb)
+    rig.fillLight.color.setHex(0xffffff)
     rig.fillLight.intensity = 0.8
     rig.fillLight.position.set(-2, 1.5, -1)
 
     // Rim light (screen glow)
-    rig.rimLight.color.setHex(0x4da6ff)
+    rig.rimLight.color.setHex(0xffffff)
     rig.rimLight.intensity = 0.3
     rig.rimLight.position.set(0, 1.3, 0.5)
 
     // Ambient
-    rig.ambient.color.setHex(0x2c3e50)
+    rig.ambient.color.setHex(0x404040)
     rig.ambient.intensity = 0.6
   }
 
@@ -513,8 +513,8 @@ export class PBRMaterialSystem {
         gradient.addColorStop(1, '#c0c0c0')
         break
       case 'city':
-        gradient.addColorStop(0, '#87ceeb')
-        gradient.addColorStop(0.7, '#4682b4')
+        gradient.addColorStop(0, '#a0a0a0')
+        gradient.addColorStop(0.7, '#606060')
         gradient.addColorStop(1, '#2f4f4f')
         break
       case 'sunset':

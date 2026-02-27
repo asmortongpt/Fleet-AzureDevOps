@@ -15,10 +15,10 @@ export interface ApiResponse<T> {
 export function formatResponse(req: Request, res: Response, next: NextFunction) {
   const originalJson = res.json.bind(res);
 
-  res.json = function(body: any) {
+  res.json = function(body: Record<string, unknown>) {
     if (body && typeof body === 'object' && !body.success && !body.error) {
-      const requestId = (req as any).requestId || req.headers['x-request-id'] || '';
-      const formatted: ApiResponse<any> = {
+      const requestId = req.requestId || req.headers['x-request-id'] || '';
+      const formatted: ApiResponse<unknown> = {
         success: true,
         data: body,
         meta: {

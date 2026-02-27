@@ -1,5 +1,5 @@
 import { TrendingUp, TrendingDown, Minus } from "lucide-react"
-import { motion } from "framer-motion"
+// motion removed - React 19 incompatible
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -44,7 +44,7 @@ export function MetricCard({
   }
 
   return (
-    <Card className="hover:shadow-md transition-shadow duration-200 overflow-hidden">
+    <Card className="hover:border-white/[0.12] transition-colors duration-200 overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0.5 px-2 pt-2 gap-2">
         <CardTitle className="text-[10px] font-medium text-muted-foreground truncate min-w-0 flex-1" title={title}>
           {title}
@@ -56,15 +56,12 @@ export function MetricCard({
         )}
       </CardHeader>
       <CardContent className="px-2 pb-2">
-        <motion.div
+        <div
           className="text-base font-semibold metric-number truncate"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
           title={String(value)}
         >
           {value}
-        </motion.div>
+        </div>
         <div className="flex items-center gap-1 mt-0.5">
           {change !== undefined && (
             <Badge

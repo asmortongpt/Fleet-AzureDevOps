@@ -12,6 +12,7 @@
  */
 
 import { Configuration, PopupRequest, SilentRequest } from '@azure/msal-browser';
+
 import { getMsalConfig, getLoginRequest, getSilentRequest } from '@/config/auth-config';
 import logger from '@/utils/logger';
 
@@ -21,7 +22,7 @@ import logger from '@/utils/logger';
  * Generated from centralized auth-config.ts with environment-specific settings
  */
 export const msalConfig: Configuration = {
-  ...getMsalConfig(),
+  ...getMsalConfig() as any,
   system: {
     ...getMsalConfig().system,
     loggerOptions: {
@@ -58,7 +59,7 @@ export const msalConfig: Configuration = {
  * Prompt: select_account (user chooses which account to use)
  */
 export const loginRequest: PopupRequest = {
-  ...getLoginRequest(),
+  ...getLoginRequest() as any,
 };
 
 /**
@@ -68,5 +69,5 @@ export const loginRequest: PopupRequest = {
  * Includes offline_access for refresh token support
  */
 export const silentRequest: SilentRequest = {
-  ...getSilentRequest(),
+  ...getSilentRequest() as any,
 };

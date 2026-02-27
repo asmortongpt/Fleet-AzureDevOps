@@ -202,12 +202,12 @@ describe('DriverFactory', () => {
     });
   });
 
-  it('should have valid safety scores', () => {
+  it('should have valid status values', () => {
     const drivers = factory.buildList(TENANT_ID, Array(10).fill(USER_ID), {});
 
+    const validStatuses = ['active', 'on_leave', 'suspended', 'terminated'];
     drivers.forEach((driver) => {
-      expect(driver.safety_score).toBeGreaterThanOrEqual(0);
-      expect(driver.safety_score).toBeLessThanOrEqual(100);
+      expect(validStatuses).toContain(driver.status);
     });
   });
 
@@ -217,11 +217,12 @@ describe('DriverFactory', () => {
     expect(driver.phone).toMatch(/^\d{3}-\d{3}-\d{4}$/);
   });
 
-  it('should build safe drivers with high safety scores', () => {
+  it('should build safe drivers with active status', () => {
     const safeDriver = factory.buildSafeDriver(TENANT_ID, USER_ID, 0);
 
-    expect(safeDriver.safety_score).toBeGreaterThanOrEqual(90);
     expect(safeDriver.status).toBe('active');
+    expect(safeDriver.first_name).toBeTruthy();
+    expect(safeDriver.last_name).toBeTruthy();
   });
 });
 

@@ -13,6 +13,7 @@
 import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 
 import pool from '../config/database';
+import logger from '../config/logger';
 import { SqlValue, SqlParams } from '../types/database';
 
 import { monitoredQuery } from './query-monitor';
@@ -53,7 +54,7 @@ function validateTenantIsolation(query: string): void {
 
   // Additional check: ensure tenant_id is parameterized
   if (normalizedQuery.includes('tenant_id') && !normalizedQuery.match(/tenant_id\s*=\s*\$\d+/)) {
-    console.warn(
+    logger.warn(
       'WARNING: tenant_id filter may not be parameterized. ' +
       'Ensure you are using $N placeholders for tenant_id values.'
     );
@@ -94,7 +95,7 @@ export async function tenantSafeQuery<T extends QueryResultRow = any>(
 
   // Ensure tenant_id is in params
   if (!params.includes(tenantId)) {
-    console.warn(
+    logger.warn(
       'WARNING: tenant_id not found in parameters. ' +
       'Ensure tenant_id is passed as a parameter ($N) in the query.'
     );
@@ -103,7 +104,7 @@ export async function tenantSafeQuery<T extends QueryResultRow = any>(
   try {
     return await monitoredQuery<T>(pool, queryText, params);
   } catch (error) {
-    console.error('Tenant-safe query error:', {
+    logger.error('Tenant-safe query error', {
       query: queryText.substring(0, 200),
       error: error instanceof Error ? error.message : error,
       tenantId
@@ -188,7 +189,7 @@ export async function tenantSafeClientQuery<T extends QueryResultRow = any>(
   try {
     return await monitoredQuery<T>(client, queryText, params);
   } catch (error) {
-    console.error('Tenant-safe client query error:', {
+    logger.error('Tenant-safe client query error', {
       query: queryText.substring(0, 200),
       error: error instanceof Error ? error.message : error,
       tenantId

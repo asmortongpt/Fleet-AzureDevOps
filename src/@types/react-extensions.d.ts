@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-declare namespace React {
+declare module 'react' {
   // Add utility type for extracting props from component
   type ExtractProps<TComponentOrTProps> = TComponentOrTProps extends React.ComponentType<infer TProps>
     ? TProps
@@ -39,50 +39,6 @@ declare namespace React {
 
   // Add utility type for portal target
   type PortalTarget = Element | DocumentFragment | null;
-
-  // Extend React.JSX namespace for React 18+ new JSX transform
-  namespace JSX {
-    interface IntrinsicElements {
-      // Allow any JSX element (permissive for React Three Fiber and other libraries)
-      [elemName: string]: any;
-    }
-  }
-}
-
-// Also extend global JSX for backward compatibility
-declare global {
-  namespace JSX {
-    // Export JSX.Element type for React 18+
-    export type Element = React.ReactElement<any, any> | null;
-
-    interface IntrinsicElements {
-      // Index signature for any JSX element
-      [elemName: string]: any;
-
-      // Explicitly define React Three Fiber elements to avoid TS2339 errors
-      group: any;
-      mesh: any;
-      primitive: any;
-      boxGeometry: any;
-      sphereGeometry: any;
-      planeGeometry: any;
-      cylinderGeometry: any;
-      bufferGeometry: any;
-      meshStandardMaterial: any;
-      meshBasicMaterial: any;
-      meshPhysicalMaterial: any;
-      pointsMaterial: any;
-      ambientLight: any;
-      directionalLight: any;
-      spotLight: any;
-      pointLight: any;
-      hemisphereLight: any;
-      points: any;
-      instancedMesh: any;
-      bufferAttribute: any;
-      fog: any;
-    }
-  }
 }
 
 export {};

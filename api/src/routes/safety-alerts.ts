@@ -19,11 +19,13 @@ import { requireRBAC, Role, PERMISSIONS } from "../middleware/rbac";
 import { validateBody, validateParams, validateQuery } from "../middleware/validate";
 import { tenantSafeQuery } from "../utils/dbHelpers";
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router();
 
 // Validation schemas
 const idSchema = z.object({
-  id: z.string().uuid()
+  id: flexUuid
 });
 
 const safetyAlertSchema = z.object({
@@ -33,9 +35,9 @@ const safetyAlertSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().min(1),
   location: z.string().min(1),
-  facilityId: z.string().uuid().optional(),
-  vehicleId: z.string().uuid().optional(),
-  driverId: z.string().uuid().optional(),
+  facilityId: flexUuid.optional(),
+  vehicleId: flexUuid.optional(),
+  driverId: flexUuid.optional(),
   reportedBy: z.string().min(1),
   reportedAt: z.string().datetime(),
   status: z.enum(["active", "acknowledged", "investigating", "resolved", "closed"]).default("active"),
@@ -61,9 +63,9 @@ const querySchema = z.object({
   status: z.enum(["active", "acknowledged", "investigating", "resolved", "closed"]).optional(),
   type: z.enum(["injury", "near-miss", "hazard", "osha-violation", "equipment-failure", "environmental"]).optional(),
   oshaRecordable: z.string().transform(val => val === "true").optional(),
-  facilityId: z.string().uuid().optional(),
-  vehicleId: z.string().uuid().optional(),
-  driverId: z.string().uuid().optional(),
+  facilityId: flexUuid.optional(),
+  vehicleId: flexUuid.optional(),
+  driverId: flexUuid.optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   limit: z.string().transform(Number).optional(),
@@ -94,26 +96,46 @@ const safetyTypeMap: Record<string, string> = {
 };
 
 const normalizeSeverity = (severity?: string) => {
-  if (!severity) return 'medium';
+  if (!severity) {
+return 'medium';
+}
   const lower = severity.toLowerCase();
-  if (['critical', 'high', 'medium', 'low'].includes(lower)) return lower;
-  if (lower === 'emergency') return 'critical';
-  if (lower === 'warning') return 'high';
-  if (lower === 'info') return 'low';
+  if (['critical', 'high', 'medium', 'low'].includes(lower)) {
+return lower;
+}
+  if (lower === 'emergency') {
+return 'critical';
+}
+  if (lower === 'warning') {
+return 'high';
+}
+  if (lower === 'info') {
+return 'low';
+}
   return 'medium';
 };
 
 const normalizeStatus = (status?: string) => {
-  if (!status) return 'active';
+  if (!status) {
+return 'active';
+}
   const lower = status.toLowerCase();
-  if (['active', 'acknowledged', 'investigating', 'resolved', 'closed'].includes(lower)) return lower;
-  if (['pending', 'sent'].includes(lower)) return 'active';
+  if (['active', 'acknowledged', 'investigating', 'resolved', 'closed'].includes(lower)) {
+return lower;
+}
+  if (['pending', 'sent'].includes(lower)) {
+return 'active';
+}
   return 'active';
 };
 
 const parseMetadata = (value: any): Record<string, any> => {
-  if (!value) return {};
-  if (typeof value === 'object') return value;
+  if (!value) {
+return {};
+}
+  if (typeof value === 'object') {
+return value;
+}
   try {
     return JSON.parse(value);
   } catch {
@@ -122,9 +144,15 @@ const parseMetadata = (value: any): Record<string, any> => {
 };
 
 const ensureArray = (value: any): string[] => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.map(String);
-  if (typeof value === 'string') return [value];
+  if (!value) {
+return [];
+}
+  if (Array.isArray(value)) {
+return value.map(String);
+}
+  if (typeof value === 'string') {
+return [value];
+}
   return [];
 };
 
@@ -194,7 +222,7 @@ router.get(
       offset = 0
     } = req.query;
 
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
     let whereClause = `WHERE tenant_id = $1`;
     const params: any[] = [tenantId];
@@ -213,7 +241,7 @@ router.get(
     }
 
     if (type) {
-      const mappedType = safetyTypeMap[type] || type;
+      const mappedType = safetyTypeMap[type as string] || type;
       whereClause += ` AND alert_type = $${paramIndex}`;
       params.push(mappedType);
       paramIndex++;
@@ -298,7 +326,7 @@ router.get(
   validateParams(idSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
     const query = `SELECT * FROM alerts WHERE id = $1 AND tenant_id = $2`;
     const result = await tenantSafeQuery(query, [id, tenantId], tenantId);
@@ -333,7 +361,7 @@ router.post(
   validateBody(safetyAlertSchema),
   asyncHandler(async (req, res) => {
     const alertData = req.body;
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
     const reportedAt = alertData.reportedAt ? new Date(alertData.reportedAt) : new Date();
     const entityType = alertData.facilityId ? 'facility' : alertData.vehicleId ? 'vehicle' : alertData.driverId ? 'driver' : null;
@@ -415,7 +443,7 @@ router.put(
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
     const setClauses: string[] = [];
     const params: any[] = [];
@@ -480,21 +508,51 @@ router.put(
       paramIndex++;
     }
 
-    if (updates.reportedBy !== undefined) metadataPatch.reportedBy = updates.reportedBy;
-    if (updates.reportedAt !== undefined) metadataPatch.reportedAt = updates.reportedAt;
-    if (updates.location !== undefined) metadataPatch.location = updates.location;
-    if (updates.oshaRecordable !== undefined) metadataPatch.oshaRecordable = updates.oshaRecordable;
-    if (updates.oshaFormRequired !== undefined) metadataPatch.oshaFormRequired = updates.oshaFormRequired;
-    if (updates.daysAwayFromWork !== undefined) metadataPatch.daysAwayFromWork = updates.daysAwayFromWork;
-    if (updates.daysRestricted !== undefined) metadataPatch.daysRestricted = updates.daysRestricted;
-    if (updates.estimatedResolutionTime !== undefined) metadataPatch.estimatedResolutionTime = updates.estimatedResolutionTime;
-    if (updates.actualResolutionTime !== undefined) metadataPatch.actualResolutionTime = updates.actualResolutionTime;
-    if (updates.assignedTo !== undefined) metadataPatch.assignedTo = updates.assignedTo;
-    if (updates.witnesses !== undefined) metadataPatch.witnesses = updates.witnesses;
-    if (updates.photos !== undefined) metadataPatch.photos = updates.photos;
-    if (updates.rootCause !== undefined) metadataPatch.rootCause = updates.rootCause;
-    if (updates.correctiveActions !== undefined) metadataPatch.correctiveActions = updates.correctiveActions;
-    if (updates.preventiveMeasures !== undefined) metadataPatch.preventiveMeasures = updates.preventiveMeasures;
+    if (updates.reportedBy !== undefined) {
+metadataPatch.reportedBy = updates.reportedBy;
+}
+    if (updates.reportedAt !== undefined) {
+metadataPatch.reportedAt = updates.reportedAt;
+}
+    if (updates.location !== undefined) {
+metadataPatch.location = updates.location;
+}
+    if (updates.oshaRecordable !== undefined) {
+metadataPatch.oshaRecordable = updates.oshaRecordable;
+}
+    if (updates.oshaFormRequired !== undefined) {
+metadataPatch.oshaFormRequired = updates.oshaFormRequired;
+}
+    if (updates.daysAwayFromWork !== undefined) {
+metadataPatch.daysAwayFromWork = updates.daysAwayFromWork;
+}
+    if (updates.daysRestricted !== undefined) {
+metadataPatch.daysRestricted = updates.daysRestricted;
+}
+    if (updates.estimatedResolutionTime !== undefined) {
+metadataPatch.estimatedResolutionTime = updates.estimatedResolutionTime;
+}
+    if (updates.actualResolutionTime !== undefined) {
+metadataPatch.actualResolutionTime = updates.actualResolutionTime;
+}
+    if (updates.assignedTo !== undefined) {
+metadataPatch.assignedTo = updates.assignedTo;
+}
+    if (updates.witnesses !== undefined) {
+metadataPatch.witnesses = updates.witnesses;
+}
+    if (updates.photos !== undefined) {
+metadataPatch.photos = updates.photos;
+}
+    if (updates.rootCause !== undefined) {
+metadataPatch.rootCause = updates.rootCause;
+}
+    if (updates.correctiveActions !== undefined) {
+metadataPatch.correctiveActions = updates.correctiveActions;
+}
+    if (updates.preventiveMeasures !== undefined) {
+metadataPatch.preventiveMeasures = updates.preventiveMeasures;
+}
 
     if (Object.keys(metadataPatch).length > 0) {
       setClauses.push(`metadata = COALESCE(metadata, '{}'::jsonb) || $${paramIndex}::jsonb`);
@@ -553,7 +611,7 @@ router.delete(
   validateParams(idSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
     const metadataPatch = {
       deleted: true,
@@ -600,10 +658,10 @@ router.get(
   validateQuery(oshaMetricsQuerySchema),
   asyncHandler(async (req, res) => {
     const { year, startDate, endDate } = req.query;
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
-    let start = startDate ? new Date(startDate) : undefined;
-    let end = endDate ? new Date(endDate) : undefined;
+    let start = startDate ? new Date(startDate as string) : undefined;
+    let end = endDate ? new Date(endDate as string) : undefined;
 
     if (year) {
       start = new Date(`${year}-01-01T00:00:00.000Z`);
@@ -689,8 +747,8 @@ router.post(
   validateParams(idSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const tenantId = req.user?.tenant_id;
-    const userId = req.user?.id;
+    const tenantId = req.user?.tenant_id ?? '';
+    const userId = req.user?.id ?? '';
 
     const query = `
       UPDATE alerts
@@ -742,8 +800,8 @@ router.post(
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { rootCause, correctiveActions, preventiveMeasures } = req.body;
-    const tenantId = req.user?.tenant_id;
-    const userId = req.user?.id;
+    const tenantId = req.user?.tenant_id ?? '';
+    const userId = req.user?.id ?? '';
 
     const metadataPatch = {
       rootCause,

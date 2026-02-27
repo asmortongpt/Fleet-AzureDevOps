@@ -69,8 +69,8 @@ export function ActionableError({
             <div className="text-sm">
               <p className="font-medium mb-2">This might be due to:</p>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                {causes.map((cause, index) => (
-                  <li key={index}>{cause}</li>
+                {causes.map((cause) => (
+                  <li key={cause}>{cause}</li>
                 ))}
               </ul>
             </div>

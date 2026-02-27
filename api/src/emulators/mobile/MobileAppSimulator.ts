@@ -12,6 +12,8 @@ import { EventEmitter } from 'events'
 
 import { Pool } from 'pg'
 
+import logger from '../../config/logger'
+
 import { DamageReportGenerator, DamageReport } from './DamageReportGenerator'
 import { FuelReceiptGenerator, FuelTransaction } from './FuelReceiptGenerator'
 import { InspectionGenerator, VehicleInspection } from './InspectionGenerator'
@@ -71,7 +73,7 @@ export class MobileAppSimulator extends EventEmitter {
     this.inspectionGenerator = new InspectionGenerator()
     this.motionSimulator = new MotionSensorSimulator()
 
-    console.log('🚗 MobileAppSimulator initialized')
+    logger.info('MobileAppSimulator initialized')
   }
 
   /**
@@ -79,11 +81,11 @@ export class MobileAppSimulator extends EventEmitter {
    */
   public async start(): Promise<void> {
     if (this.isRunning) {
-      console.log('⚠️  MobileAppSimulator already running')
+      logger.info('MobileAppSimulator already running')
       return 
 }
 
-    console.log('🚀 Starting MobileAppSimulator...')
+    logger.info('Starting MobileAppSimulator...')
     this.isRunning = true
 
     // Start fuel receipt generation (every 4 hours)
@@ -104,8 +106,8 @@ export class MobileAppSimulator extends EventEmitter {
     const msUntilSixAM = nextSixAM.getTime() - now.getTime()
 
     setTimeout(() => {
-      this.generatePreTripInspections()
-      this.inspectionTimer = setInterval(() => this.generatePreTripInspections(), 24 * 60 * 60 * 1000)
+      void this.generatePreTripInspections()
+      this.inspectionTimer = setInterval(() => void this.generatePreTripInspections(), 24 * 60 * 60 * 1000)
     }, msUntilSixAM)
 
     // Start motion event generation (every hour)
@@ -115,7 +117,7 @@ export class MobileAppSimulator extends EventEmitter {
     // Generate some initial data
     await this.generateInitialData()
 
-    console.log('✅ MobileAppSimulator started successfully')
+    logger.info('MobileAppSimulator started successfully')
     this.emit('started')
   }
 
@@ -123,7 +125,7 @@ export class MobileAppSimulator extends EventEmitter {
    * Stop the simulator
    */
   public async stop(): Promise<void> {
-    console.log('🛑 Stopping MobileAppSimulator...')
+    logger.info('Stopping MobileAppSimulator...')
     this.isRunning = false
 
     if (this.fuelTimer) {
@@ -141,7 +143,7 @@ clearInterval(this.motionTimer)
 
     await this.pool.end()
 
-    console.log('✅ MobileAppSimulator stopped')
+    logger.info('MobileAppSimulator stopped')
     this.emit('stopped')
   }
 
@@ -149,14 +151,14 @@ clearInterval(this.motionTimer)
    * Generate initial data on startup
    */
   private async generateInitialData(): Promise<void> {
-    console.log('📊 Generating initial mobile app data...')
+    logger.info('Generating initial mobile app data...')
 
     try {
       await this.generateFuelReceipts()
       await this.generateDamageReports()
-      console.log('✅ Initial data generated')
+      logger.info('Initial data generated')
     } catch (error) {
-      console.error(`❌ Error generating initial data:`, error)
+      logger.error(`Error generating initial data:`, error)
     }
   }
 
@@ -179,11 +181,11 @@ clearInterval(this.motionTimer)
 
         await this.saveFuelTransaction(transaction)
 
-        console.log(`⛽ Generated fuel receipt for vehicle ${vehicle.id} at ${transaction.vendor}`)
+        logger.info(`Generated fuel receipt for vehicle ${vehicle.id} at ${transaction.vendor}`)
         this.emit('fuel-receipt-generated', transaction)
       }
     } catch (error) {
-      console.error(`❌ Error generating fuel receipts:`, error)
+      logger.error(`Error generating fuel receipts:`, error)
     }
   }
 
@@ -204,13 +206,13 @@ clearInterval(this.motionTimer)
 
         await this.saveDamageReport(report)
 
-        console.log(
-          `🔧 Generated ${report.damage_severity} damage report for vehicle ${vehicle.id}: ${report.damage_type}`
+        logger.info(
+          `Generated ${report.damage_severity} damage report for vehicle ${vehicle.id}: ${report.damage_type}`
         )
         this.emit('damage-report-generated', report)
       }
     } catch (error) {
-      console.error('❌ Error generating damage reports:', error)
+      logger.error('Error generating damage reports:', error)
     }
   }
 
@@ -234,13 +236,13 @@ clearInterval(this.motionTimer)
 
         await this.saveInspection(inspection)
 
-        console.log(
-          `✅ Generated pre-trip inspection for vehicle ${vehicle.id}: ${inspection.overall_result}`
+        logger.info(
+          `Generated pre-trip inspection for vehicle ${vehicle.id}: ${inspection.overall_result}`
         )
         this.emit('inspection-generated', inspection)
       }
     } catch (error) {
-      console.error(`❌ Error generating inspections:`, error)
+      logger.error(`Error generating inspections:`, error)
     }
   }
 
@@ -263,14 +265,14 @@ clearInterval(this.motionTimer)
 
           await this.saveMotionEvent(event)
 
-          console.log(
-            `📱 Generated motion event for vehicle ${vehicle.id}: ${event.event_type} (${event.severity})`
+          logger.info(
+            `Generated motion event for vehicle ${vehicle.id}: ${event.event_type} (${event.severity})`
           )
           this.emit('motion-event-generated', event)
         }
       }
     } catch (error) {
-      console.error('❌ Error generating motion events:', error)
+      logger.error('Error generating motion events:', error)
     }
   }
 
@@ -292,7 +294,7 @@ clearInterval(this.motionTimer)
         COALESCE(v.fuel_type, 'diesel') as fuel_type
       FROM vehicles v
       LEFT JOIN drivers d ON d.id = COALESCE(v.driver_id, v.assigned_driver_id)
-      WHERE v.status = 'active'
+      WHERE v.is_active = true AND v.status != 'retired'
       ORDER BY RANDOM()
       LIMIT $1
     `,

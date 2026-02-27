@@ -21,12 +21,18 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    setupFiles: ['./tests/integration/setup.ts'],
+    setupFiles: ['./tests/integration/setup.ts', './tests/integration/middleware-setup.ts'],
     // Only run our new integration tests
     include: [
       'tests/integration/auth.test.ts',
       'tests/integration/vehicles.test.ts',
-      'tests/integration/health.test.ts'
+      'tests/integration/health.test.ts',
+      'tests/integration/maintenance.routes.test.ts',
+      'tests/integration/telematics.routes.test.ts',
+      'tests/integration/alerts-compliance.routes.test.ts',
+      'tests/integration/analytics-settings-export.routes.test.ts',
+      'tests/integration/middleware/**/*.test.ts',
+      'tests/security/**/*.test.ts'
     ],
     // Exclude other integration tests that have different setup requirements
     exclude: [
@@ -68,7 +74,7 @@ export default defineConfig({
       JWT_SECRET: 'test-jwt-secret-at-least-32-characters-long-for-security',
       CSRF_SECRET: 'test-csrf-secret-at-least-32-characters-long-for-security',
       USE_MOCK_DATA: 'false',
-      DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/fleet_test'
+      DATABASE_URL: process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || ''
     },
     // Dependencies that should be bundled
     deps: {

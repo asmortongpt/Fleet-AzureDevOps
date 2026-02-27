@@ -112,7 +112,7 @@ export function requirePermissionWithContext(
       }
 
       // Attach decision to request for audit logging
-      (req as any).authzDecision = decision;
+      (req as Request & { authzDecision?: typeof decision }).authzDecision = decision;
       next();
     } catch (error) {
       console.error('Authorization check failed:', error);
@@ -164,8 +164,9 @@ export function requireResourcePermission(
       }
 
       // Attach resource to request
-      (req as any).resource = resource;
-      (req as any).authzDecision = decision;
+      const extReq = req as Request & { resource?: unknown; authzDecision?: typeof decision };
+      extReq.resource = resource;
+      extReq.authzDecision = decision;
       next();
     } catch (error) {
       console.error('Authorization check failed:', error);
@@ -351,11 +352,11 @@ export class RoleManagementController {
       );
 
       res.json({ success: true, message: 'Role assigned successfully' });
-    } catch (error: any) {
-      if (error.name === 'RoleAssignmentError') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'RoleAssignmentError') {
         return res.status(400).json({
           error: error.message,
-          details: error.details
+          details: (error as Record<string, unknown>).details
         });
       }
       throw error;
@@ -599,8 +600,8 @@ export async function safePermissionCheck(
       evaluationTime: decision.evaluationTimeMs,
       cached: decision.cacheHit
     };
-  } catch (error: any) {
-    if (error.name === 'PermissionDeniedError') {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'PermissionDeniedError') {
       return {
         granted: false,
         reason: error.message,
@@ -608,12 +609,12 @@ export async function safePermissionCheck(
       };
     }
 
-    if (error.name === 'AuthorizationError') {
+    if (error instanceof Error && error.name === 'AuthorizationError') {
       console.error('Authorization error:', error);
       return {
         granted: false,
         reason: 'Authorization check failed',
-        error: error.code
+        error: (error as Record<string, unknown>).code
       };
     }
 

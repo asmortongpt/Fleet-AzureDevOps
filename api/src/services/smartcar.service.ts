@@ -2,13 +2,16 @@
  * Smartcar Connected Vehicle Service
  * Supports 50+ car brands (Tesla, Ford, GM, Mercedes, BMW, etc.)
  * Remote control: lock/unlock, start/stop, locate, charge
+ * Full signal support: diagnostics, tires, oil, speed, compass, security, and more
  *
  * Security: Uses SSRF-protected HTTP client to prevent server-side request forgery
  */
 
 import { AxiosInstance } from 'axios'
 import { Pool } from 'pg'
+import querystring from 'querystring'
 
+import logger from '../config/logger'
 import { createSafeAxiosInstance, safePost, safeDelete } from '../utils/ssrf-protection'
 
 // Allowed domains for Smartcar requests
@@ -24,15 +27,44 @@ const SMARTCAR_CLIENT_SECRET = process.env.SMARTCAR_CLIENT_SECRET
 const SMARTCAR_REDIRECT_URI = process.env.SMARTCAR_REDIRECT_URI // Required - no default
 const SMARTCAR_MODE = process.env.SMARTCAR_MODE || 'live' // 'test' or 'live'
 
+// Full scope list for all supported signals
+const SMARTCAR_SCOPES = [
+  'required:read_vehicle_info',
+  'required:read_vin',
+  'required:read_location',
+  'required:read_odometer',
+  'read_speedometer',
+  'read_compass',
+  'required:read_battery',
+  'required:read_charge',
+  'required:control_charge',
+  'required:read_fuel',
+  'required:control_security',
+  'read_security',
+  'required:read_engine_oil',
+  'read_diagnostics',
+  'required:read_tires',
+  'read_climate',
+  'read_thermometer',
+  'read_alerts',
+  'read_service_history',
+  'read_user_profile',
+  'read_extended_vehicle_info',
+]
+
 // Validate required Smartcar configuration at runtime rather than module load
 // This prevents the server from crashing when SmartCar is not configured
 const isSmartcarConfigured = (): boolean => {
   if (SMARTCAR_CLIENT_ID && !SMARTCAR_REDIRECT_URI) {
-    console.warn('SMARTCAR_REDIRECT_URI not set - SmartCar integration will be disabled')
+    logger.warn('SMARTCAR_REDIRECT_URI not set - SmartCar integration will be disabled')
     return false
   }
   return !!(SMARTCAR_CLIENT_ID && SMARTCAR_CLIENT_SECRET && SMARTCAR_REDIRECT_URI)
 }
+
+// ---------------------------------------------------------------------------
+// Interfaces
+// ---------------------------------------------------------------------------
 
 interface SmartcarVehicle {
   id: string
@@ -72,6 +104,61 @@ interface SmartcarCharge {
   timestamp: string
 }
 
+interface SmartcarTirePressure {
+  frontLeft: number | null
+  frontRight: number | null
+  backLeft: number | null
+  backRight: number | null
+  timestamp: string
+}
+
+interface SmartcarEngineOil {
+  lifeRemaining: number | null
+  timestamp: string
+}
+
+interface SmartcarDiagnostics {
+  dtcCount: number
+  dtcCodes: string[]
+  milStatus: boolean | null
+  timestamp: string
+}
+
+interface SmartcarLockStatus {
+  isLocked: boolean | null
+  doors: Array<{ type: string; status: string }> | null
+  timestamp: string
+}
+
+interface SmartcarExtendedInfo {
+  make: string | null
+  model: string | null
+  year: number | null
+  trimLevel: string | null
+  exteriorColor: string | null
+  nickname: string | null
+  timestamp: string
+}
+
+export interface SmartcarAllSignals {
+  location: SmartcarLocation | null
+  odometer: SmartcarOdometer | null
+  speed: { speed: number; timestamp: string } | null
+  battery: SmartcarBattery | null
+  fuel: SmartcarFuel | null
+  charge: SmartcarCharge | null
+  tires: SmartcarTirePressure | null
+  oil: SmartcarEngineOil | null
+  diagnostics: SmartcarDiagnostics | null
+  lockStatus: SmartcarLockStatus | null
+  vehicleInfo: SmartcarExtendedInfo | null
+  vin: string | null
+}
+
+// ---------------------------------------------------------------------------
+// Service
+// ---------------------------------------------------------------------------
+
 class SmartcarService {
   private api: AxiosInstance | null = null
   private db: Pool
@@ -94,32 +181,30 @@ class SmartcarService {
     return this.configured
   }
 
+  getMode(): string {
+    return SMARTCAR_MODE
+  }
+
   private ensureConfigured(): void {
     if (!this.configured || !this.api) {
       throw new Error('SmartCar is not configured. Please set SMARTCAR_CLIENT_ID, SMARTCAR_CLIENT_SECRET, and SMARTCAR_REDIRECT_URI')
     }
   }
 
-  /**
-   * Generate OAuth authorization URL for user to connect their vehicle
-   */
+  private authHeaders(accessToken: string) {
+    return { Authorization: `Bearer ${accessToken}` }
+  }
+
+  // =========================================================================
+  // OAuth Flow
+  // =========================================================================
+
   getAuthUrl(state?: string): string {
     const params = new URLSearchParams({
       client_id: SMARTCAR_CLIENT_ID!,
       response_type: 'code',
       redirect_uri: SMARTCAR_REDIRECT_URI || '',
-      scope: [
-        'required:read_vehicle_info',
-        'required:read_location',
-        'required:read_odometer',
-        'required:control_security',
-        'required:read_battery',
-        'required:read_charge',
-        'required:control_charge',
-        'required:read_fuel',
-        'required:read_engine_oil',
-        'required:read_tires'
-      ].join(' '),
+      scope: SMARTCAR_SCOPES.join(' '),
       mode: SMARTCAR_MODE,
       ...(state && { state })
     } as Record<string, string>)
@@ -127,29 +212,27 @@ class SmartcarService {
     return `https://connect.smartcar.com/oauth/authorize?${params.toString()}`
   }
 
-  /**
-   * Exchange authorization code for access token
-   */
   async exchangeCode(code: string): Promise<{
     access_token: string
     refresh_token: string
     expires_in: number
     token_type: string
   }> {
+    // Smartcar OAuth endpoint requires form-urlencoded, not JSON
+    const data = querystring.stringify({
+      code,
+      grant_type: 'authorization_code',
+      redirect_uri: SMARTCAR_REDIRECT_URI,
+      client_id: SMARTCAR_CLIENT_ID,
+      client_secret: SMARTCAR_CLIENT_SECRET
+    })
+
     // SSRF Protection: Use safe HTTP client with domain allowlist
     const response = await safePost(
       `https://auth.smartcar.com/oauth/token`,
+      data,
       {
-        code,
-        grant_type: 'authorization_code',
-        redirect_uri: SMARTCAR_REDIRECT_URI,
-        client_id: SMARTCAR_CLIENT_ID,
-        client_secret: SMARTCAR_CLIENT_SECRET
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         allowedDomains: SMARTCAR_ALLOWED_DOMAINS,
       }
     )
@@ -157,27 +240,25 @@ class SmartcarService {
     return response.data
   }
 
-  /**
-   * Refresh access token using refresh token
-   */
   async refreshAccessToken(refreshToken: string): Promise<{
     access_token: string
     refresh_token: string
     expires_in: number
   }> {
+    // Smartcar OAuth endpoint requires form-urlencoded, not JSON
+    const data = querystring.stringify({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: SMARTCAR_CLIENT_ID,
+      client_secret: SMARTCAR_CLIENT_SECRET
+    })
+
     // SSRF Protection: Use safe HTTP client with domain allowlist
     const response = await safePost(
       'https://auth.smartcar.com/oauth/token',
+      data,
       {
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-        client_id: SMARTCAR_CLIENT_ID,
-        client_secret: SMARTCAR_CLIENT_SECRET
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         allowedDomains: SMARTCAR_ALLOWED_DOMAINS,
       }
     )
@@ -185,235 +266,337 @@ class SmartcarService {
     return response.data
   }
 
-  /**
-   * Get list of vehicle IDs accessible with this access token
-   */
+  // =========================================================================
+  // Vehicle Lists & Info
+  // =========================================================================
+
   async getVehicles(accessToken: string): Promise<string[]> {
     this.ensureConfigured()
     const response = await this.api!.get(`/vehicles`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+      headers: this.authHeaders(accessToken)
     })
-
     return response.data.vehicles
   }
 
-  /**
-   * Get vehicle information (make, model, year)
-   */
   async getVehicleInfo(vehicleId: string, accessToken: string): Promise<SmartcarVehicle> {
     this.ensureConfigured()
     const response = await this.api!.get(`/vehicles/${vehicleId}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+      headers: this.authHeaders(accessToken)
     })
-
     return response.data
   }
 
-  /**
-   * Get vehicle VIN
-   */
   async getVehicleVin(vehicleId: string, accessToken: string): Promise<string> {
+    this.ensureConfigured()
     const response = await this.api!.get(`/vehicles/${vehicleId}/vin`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+      headers: this.authHeaders(accessToken)
     })
-
     return response.data.vin
   }
 
-  /**
-   * Get vehicle location
-   */
-  async getLocation(vehicleId: string, accessToken: string): Promise<SmartcarLocation> {
-    const response = await this.api!.get(`/vehicles/${vehicleId}/location`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+  async getExtendedInfo(vehicleId: string, accessToken: string): Promise<SmartcarExtendedInfo> {
+    this.ensureConfigured()
+    const response = await this.api!.get(`/vehicles/${vehicleId}`, {
+      headers: this.authHeaders(accessToken)
     })
+    return {
+      make: response.data.make ?? null,
+      model: response.data.model ?? null,
+      year: response.data.year ?? null,
+      trimLevel: response.data.trim ?? null,
+      exteriorColor: response.data.color ?? null,
+      nickname: response.data.name ?? null,
+      timestamp: response.data.meta?.dataAge || new Date().toISOString(),
+    }
+  }
 
+  // =========================================================================
+  // Location & Movement
+  // =========================================================================
+
+  async getLocation(vehicleId: string, accessToken: string): Promise<SmartcarLocation> {
+    this.ensureConfigured()
+    const response = await this.api!.get(`/vehicles/${vehicleId}/location`, {
+      headers: this.authHeaders(accessToken)
+    })
     return {
       latitude: response.data.latitude,
       longitude: response.data.longitude,
-      timestamp: response.data.meta.dataAge
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
     }
   }
 
-  /**
-   * Get vehicle odometer reading
-   */
   async getOdometer(vehicleId: string, accessToken: string): Promise<SmartcarOdometer> {
+    this.ensureConfigured()
     const response = await this.api!.get(`/vehicles/${vehicleId}/odometer`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+      headers: this.authHeaders(accessToken)
     })
-
     // Convert km to miles
     const miles = response.data.distance * 0.621371
-
     return {
       distance: miles,
-      timestamp: response.data.meta.dataAge
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
     }
   }
 
-  /**
-   * Get EV battery level
-   */
-  async getBattery(vehicleId: string, accessToken: string): Promise<SmartcarBattery> {
-    const response = await this.api!.get(`/vehicles/${vehicleId}/battery`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+  async getSpeedometer(vehicleId: string, accessToken: string): Promise<{ speed: number; timestamp: string }> {
+    this.ensureConfigured()
+    const response = await this.api!.get(`/vehicles/${vehicleId}/speedometer`, {
+      headers: this.authHeaders(accessToken)
     })
+    // Convert km/h to mph
+    const mph = (response.data.speed ?? 0) * 0.621371
+    return {
+      speed: mph,
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
+    }
+  }
 
+  async getCompass(vehicleId: string, accessToken: string): Promise<{ heading: number; timestamp: string }> {
+    this.ensureConfigured()
+    const response = await this.api!.get(`/vehicles/${vehicleId}/compass`, {
+      headers: this.authHeaders(accessToken)
+    })
+    return {
+      heading: response.data.heading ?? 0,
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
+    }
+  }
+
+  // =========================================================================
+  // Battery, Fuel & Charging
+  // =========================================================================
+
+  async getBattery(vehicleId: string, accessToken: string): Promise<SmartcarBattery> {
+    this.ensureConfigured()
+    const response = await this.api!.get(`/vehicles/${vehicleId}/battery`, {
+      headers: this.authHeaders(accessToken)
+    })
     return {
       percentRemaining: response.data.percentRemaining,
       range: response.data.range * 0.621371, // Convert km to miles
-      timestamp: response.data.meta.dataAge
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
     }
   }
 
-  /**
-   * Get fuel tank level
-   */
   async getFuel(vehicleId: string, accessToken: string): Promise<SmartcarFuel> {
+    this.ensureConfigured()
     const response = await this.api!.get(`/vehicles/${vehicleId}/fuel`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+      headers: this.authHeaders(accessToken)
     })
-
     return {
       percentRemaining: response.data.percentRemaining,
       amountRemaining: response.data.amountRemaining,
       range: response.data.range * 0.621371, // Convert km to miles
-      timestamp: response.data.meta.dataAge
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
     }
   }
 
-  /**
-   * Get EV charge status
-   */
   async getChargeStatus(vehicleId: string, accessToken: string): Promise<SmartcarCharge> {
+    this.ensureConfigured()
     const response = await this.api!.get(`/vehicles/${vehicleId}/charge`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+      headers: this.authHeaders(accessToken)
     })
-
     return {
       isPluggedIn: response.data.isPluggedIn,
       state: response.data.state,
-      timestamp: response.data.meta.dataAge
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
     }
   }
 
-  /**
-   * Lock vehicle doors
-   */
+  // =========================================================================
+  // Diagnostics & Maintenance
+  // =========================================================================
+
+  async getDiagnostics(vehicleId: string, accessToken: string): Promise<SmartcarDiagnostics> {
+    this.ensureConfigured()
+    const response = await this.api!.get(`/vehicles/${vehicleId}/diagnostics`, {
+      headers: this.authHeaders(accessToken)
+    })
+    return {
+      dtcCount: response.data.diagnosticTroubleCodes?.length ?? 0,
+      dtcCodes: (response.data.diagnosticTroubleCodes ?? []).map((d: any) => d.code),
+      milStatus: response.data.milStatus ?? null,
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
+    }
+  }
+
+  async getEngineOil(vehicleId: string, accessToken: string): Promise<SmartcarEngineOil> {
+    this.ensureConfigured()
+    const response = await this.api!.get(`/vehicles/${vehicleId}/engine/oil`, {
+      headers: this.authHeaders(accessToken)
+    })
+    return {
+      lifeRemaining: response.data.lifeRemaining ?? null,
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
+    }
+  }
+
+  async getTirePressure(vehicleId: string, accessToken: string): Promise<SmartcarTirePressure> {
+    this.ensureConfigured()
+    const response = await this.api!.get(`/vehicles/${vehicleId}/tires/pressure`, {
+      headers: this.authHeaders(accessToken)
+    })
+    return {
+      frontLeft: response.data.frontLeft ?? null,
+      frontRight: response.data.frontRight ?? null,
+      backLeft: response.data.backLeft ?? null,
+      backRight: response.data.backRight ?? null,
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
+    }
+  }
+
+  // =========================================================================
+  // Security
+  // =========================================================================
+
+  async getLockStatus(vehicleId: string, accessToken: string): Promise<SmartcarLockStatus> {
+    this.ensureConfigured()
+    const response = await this.api!.get(`/vehicles/${vehicleId}/security`, {
+      headers: this.authHeaders(accessToken)
+    })
+    return {
+      isLocked: response.data.isLocked ?? null,
+      doors: response.data.doors ?? null,
+      timestamp: response.data.meta?.dataAge || new Date().toISOString()
+    }
+  }
+
   async lockDoors(vehicleId: string, accessToken: string): Promise<{ status: string; message: string }> {
+    this.ensureConfigured()
     const response = await this.api!.post(
       `/vehicles/${vehicleId}/security`,
       { action: 'LOCK' },
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': `application/json`
+          ...this.authHeaders(accessToken),
+          'Content-Type': 'application/json'
         }
       }
     )
-
     return {
       status: response.data.status,
-      message: response.data.message || `Doors locked successfully`
+      message: response.data.message || 'Doors locked successfully'
     }
   }
 
-  /**
-   * Unlock vehicle doors
-   */
   async unlockDoors(vehicleId: string, accessToken: string): Promise<{ status: string; message: string }> {
+    this.ensureConfigured()
     const response = await this.api!.post(
       `/vehicles/${vehicleId}/security`,
       { action: 'UNLOCK' },
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': `application/json`
+          ...this.authHeaders(accessToken),
+          'Content-Type': 'application/json'
         }
       }
     )
-
     return {
       status: response.data.status,
-      message: response.data.message || `Doors unlocked successfully`
+      message: response.data.message || 'Doors unlocked successfully'
     }
   }
 
-  /**
-   * Start EV charging
-   */
+  // =========================================================================
+  // Charging Control
+  // =========================================================================
+
   async startCharging(vehicleId: string, accessToken: string): Promise<{ status: string; message: string }> {
+    this.ensureConfigured()
     const response = await this.api!.post(
       `/vehicles/${vehicleId}/charge`,
       { action: 'START' },
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': `application/json`
+          ...this.authHeaders(accessToken),
+          'Content-Type': 'application/json'
         }
       }
     )
-
     return {
       status: response.data.status,
-      message: response.data.message || `Charging started successfully`
+      message: response.data.message || 'Charging started successfully'
     }
   }
 
-  /**
-   * Stop EV charging
-   */
   async stopCharging(vehicleId: string, accessToken: string): Promise<{ status: string; message: string }> {
+    this.ensureConfigured()
     const response = await this.api!.post(
       `/vehicles/${vehicleId}/charge`,
       { action: 'STOP' },
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          ...this.authHeaders(accessToken),
           'Content-Type': 'application/json'
         }
       }
     )
-
     return {
       status: response.data.status,
       message: response.data.message || 'Charging stopped successfully'
     }
   }
 
-  /**
-   * Disconnect Smartcar vehicle (revoke access)
-   */
+  // =========================================================================
+  // Batch: Get All Signals
+  // =========================================================================
+
+  async getAllSignals(vehicleId: string, accessToken: string): Promise<SmartcarAllSignals> {
+    this.ensureConfigured()
+
+    const results: SmartcarAllSignals = {
+      location: null,
+      odometer: null,
+      speed: null,
+      battery: null,
+      fuel: null,
+      charge: null,
+      tires: null,
+      oil: null,
+      diagnostics: null,
+      lockStatus: null,
+      vehicleInfo: null,
+      vin: null,
+    }
+
+    // Fetch all signals in parallel, catching individual failures
+    const fetchers = [
+      this.getLocation(vehicleId, accessToken).then(v => { results.location = v }).catch(() => {}),
+      this.getOdometer(vehicleId, accessToken).then(v => { results.odometer = v }).catch(() => {}),
+      this.getSpeedometer(vehicleId, accessToken).then(v => { results.speed = v }).catch(() => {}),
+      this.getBattery(vehicleId, accessToken).then(v => { results.battery = v }).catch(() => {}),
+      this.getFuel(vehicleId, accessToken).then(v => { results.fuel = v }).catch(() => {}),
+      this.getChargeStatus(vehicleId, accessToken).then(v => { results.charge = v }).catch(() => {}),
+      this.getTirePressure(vehicleId, accessToken).then(v => { results.tires = v }).catch(() => {}),
+      this.getEngineOil(vehicleId, accessToken).then(v => { results.oil = v }).catch(() => {}),
+      this.getDiagnostics(vehicleId, accessToken).then(v => { results.diagnostics = v }).catch(() => {}),
+      this.getLockStatus(vehicleId, accessToken).then(v => { results.lockStatus = v }).catch(() => {}),
+      this.getExtendedInfo(vehicleId, accessToken).then(v => { results.vehicleInfo = v }).catch(() => {}),
+      this.getVehicleVin(vehicleId, accessToken).then(v => { results.vin = v }).catch(() => {}),
+    ]
+
+    await Promise.allSettled(fetchers)
+
+    return results
+  }
+
+  // =========================================================================
+  // Disconnect
+  // =========================================================================
+
   async disconnectVehicle(accessToken: string): Promise<void> {
     // SSRF Protection: Use safe HTTP client with domain allowlist
     await safeDelete(`https://management.smartcar.com/oauth/token`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      },
+      headers: this.authHeaders(accessToken),
       allowedDomains: SMARTCAR_ALLOWED_DOMAINS,
     })
   }
 
-  /**
-   * Store vehicle connection in database
-   */
+  // =========================================================================
+  // Database Operations
+  // =========================================================================
+
   async storeVehicleConnection(
     vehicleId: number,
     smartcarVehicleId: string,
@@ -443,17 +626,19 @@ class SmartcarService {
     )
   }
 
-  /**
-   * Get vehicle connection from database
-   */
-  async getVehicleConnection(vehicleId: number): Promise<{
+  async getVehicleConnection(vehicleId: string | number): Promise<{
     external_vehicle_id: string
     access_token: string
     refresh_token: string
     token_expires_at: Date
+    metadata?: any
+    sync_status?: string
+    sync_error?: string
+    updated_at?: Date
   } | null> {
     const result = await this.db.query(
-      `SELECT external_vehicle_id, access_token, refresh_token, token_expires_at
+      `SELECT external_vehicle_id, access_token, refresh_token, token_expires_at,
+              metadata, sync_status, sync_error, updated_at
        FROM vehicle_telematics_connections
        WHERE vehicle_id = $1
        AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')
@@ -464,14 +649,36 @@ class SmartcarService {
     return result.rows.length > 0 ? result.rows[0] : null
   }
 
-  /**
-   * Refresh token if expired
-   */
-  async ensureValidToken(vehicleId: number): Promise<string> {
+  async getAllConnections(tenantId?: string): Promise<any[]> {
+    const query = tenantId
+      ? `SELECT vtc.*, v.name as vehicle_name, v.make, v.model, v.year, v.license_plate
+         FROM vehicle_telematics_connections vtc
+         JOIN vehicles v ON v.id = vtc.vehicle_id
+         WHERE vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')
+         AND v.tenant_id = $1
+         ORDER BY vtc.updated_at DESC`
+      : `SELECT vtc.*, v.name as vehicle_name, v.make, v.model, v.year, v.license_plate
+         FROM vehicle_telematics_connections vtc
+         JOIN vehicles v ON v.id = vtc.vehicle_id
+         WHERE vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')
+         ORDER BY vtc.updated_at DESC`
+
+    const result = await this.db.query(query, tenantId ? [tenantId] : [])
+    return result.rows
+  }
+
+  async ensureValidToken(vehicleId: string | number): Promise<string> {
     const connection = await this.getVehicleConnection(vehicleId)
 
     if (!connection) {
       throw new Error(`Vehicle not connected to Smartcar`)
+    }
+
+    // Check if using management token (test mode) - these don't expire
+    const isManagementToken = connection.metadata?.using_management_token === true
+    if (isManagementToken) {
+      logger.debug('Using Smartcar management token for test mode', { vehicleId })
+      return connection.access_token
     }
 
     // Check if token is expired or expiring soon (within 5 minutes)
@@ -480,9 +687,13 @@ class SmartcarService {
     const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000)
 
     if (expiresAt <= fiveMinutesFromNow) {
-      console.log(`Refreshing Smartcar token for vehicle ${vehicleId}`)
+      logger.info('Refreshing Smartcar token', { vehicleId })
 
-      // Refresh token
+      // Refresh token (only if not using management token)
+      if (!connection.refresh_token) {
+        throw new Error(`No refresh token available for vehicle ${vehicleId}`)
+      }
+
       const refreshed = await this.refreshAccessToken(connection.refresh_token)
 
       // Update database
@@ -501,16 +712,13 @@ class SmartcarService {
     return connection.access_token
   }
 
-  /**
-   * Sync vehicle data to telemetry table
-   */
-  async syncVehicleData(vehicleId: number): Promise<void> {
+  async syncVehicleData(vehicleId: string | number): Promise<void> {
     const accessToken = await this.ensureValidToken(vehicleId)
     const connection = await this.getVehicleConnection(vehicleId)
 
     if (!connection) {
-return
-}
+      return
+    }
 
     const smartcarVehicleId = connection.external_vehicle_id
 
@@ -530,30 +738,45 @@ return
         const battery = await this.getBattery(smartcarVehicleId, accessToken)
         batteryPercent = battery.percentRemaining
         range = battery.range
-      } catch (e) {
-        // Not an EV, try fuel
+      } catch (err: unknown) {
+        // Not an EV or no permission, try fuel
         try {
           const fuel = await this.getFuel(smartcarVehicleId, accessToken)
           fuelPercent = fuel.percentRemaining
           range = fuel.range
-        } catch (e2) {
-          // Neither available
+        } catch {
+          // Neither available or no permission - that's OK, we have location data
+          logger.debug('Battery and fuel data not available for vehicle', { smartcarVehicleId })
         }
       }
 
       // Insert telemetry record
+      // Round range to integer for estimated_range_miles column
+      const rangeRounded = range !== null ? Math.round(range) : null
+      // Round odometer to 2 decimal places for numeric column
+      const odometerRounded = Math.round(odometer.distance * 100) / 100
       await this.db.query(
         `INSERT INTO vehicle_telemetry
          (vehicle_id, provider_id, timestamp, latitude, longitude,
           odometer_miles, battery_percent, fuel_percent, estimated_range_miles)
          VALUES ($1, (SELECT id FROM telematics_providers WHERE name = 'smartcar'),
                  NOW(), $2, $3, $4, $5, $6, $7)`,
-        [vehicleId, location.latitude, location.longitude, odometer.distance, batteryPercent, fuelPercent, range]
+        [vehicleId, location.latitude, location.longitude, odometerRounded, batteryPercent, fuelPercent, rangeRounded]
       )
 
-      console.log(`✅ Synced Smartcar data for vehicle ${vehicleId}`)
-    } catch (error: any) {
-      console.error(`Error syncing Smartcar vehicle ${vehicleId}:`, error.message)
+      // Update last sync time
+      await this.db.query(
+        `UPDATE vehicle_telematics_connections
+         SET sync_status = 'active', sync_error = NULL, updated_at = NOW()
+         WHERE vehicle_id = $1
+         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')`,
+        [vehicleId]
+      )
+
+      logger.info('Synced Smartcar data for vehicle', { vehicleId })
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      logger.error('Error syncing Smartcar vehicle', { vehicleId, error: errorMessage })
 
       // Update connection status
       await this.db.query(
@@ -561,7 +784,7 @@ return
          SET sync_status = 'error', sync_error = $1
          WHERE vehicle_id = $2
          AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')`,
-        [error.message, vehicleId]
+        [errorMessage, vehicleId]
       )
     }
   }

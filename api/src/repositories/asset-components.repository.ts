@@ -46,14 +46,14 @@ export interface UpdateComponentInput {
 export class AssetComponentsRepository {
   static async listByAsset(assetId: number): Promise<AssetComponent[]> {
     const { rows } = await db.query(
-      `SELECT * FROM asset_components WHERE asset_id=$1 ORDER BY installed_date ASC, id ASC`,
+      `SELECT id, asset_id, name, category, installed_date, depreciation_start_date, cost_basis, salvage_value, useful_life_months, depreciation_method, disposed_date, disposed_amount, notes FROM asset_components WHERE asset_id=$1 ORDER BY installed_date ASC, id ASC`,
       [assetId]
     );
     return rows;
   }
 
   static async getById(id: number): Promise<AssetComponent | null> {
-    const { rows } = await db.query(`SELECT * FROM asset_components WHERE id=$1`, [id]);
+    const { rows } = await db.query(`SELECT id, asset_id, name, category, installed_date, depreciation_start_date, cost_basis, salvage_value, useful_life_months, depreciation_method, disposed_date, disposed_amount, notes FROM asset_components WHERE id=$1`, [id]);
     return rows[0] ?? null;
   }
 
@@ -86,17 +86,23 @@ export class AssetComponentsRepository {
 
   static async update(id: number, input: UpdateComponentInput, performedBy?: string | null): Promise<AssetComponent> {
     const before = await this.getById(id);
-    if (!before) throw new Error("Component not found");
+    if (!before) {
+throw new Error("Component not found");
+}
 
     const fields: string[] = [];
     const values: any[] = [];
     let i = 1;
     for (const [k,v] of Object.entries(input)) {
-      if (v === undefined) continue;
+      if (v === undefined) {
+continue;
+}
       fields.push(`${k}=$${i++}`);
       values.push(v);
     }
-    if (!fields.length) return before;
+    if (!fields.length) {
+return before;
+}
     values.push(id);
 
     const { rows } = await db.query(
@@ -110,7 +116,9 @@ export class AssetComponentsRepository {
 
   static async dispose(id: number, disposed_date: string, disposed_amount?: number, performedBy?: string | null): Promise<AssetComponent> {
     const before = await this.getById(id);
-    if (!before) throw new Error("Component not found");
+    if (!before) {
+throw new Error("Component not found");
+}
 
     const { rows } = await db.query(
       `UPDATE asset_components SET disposed_date=$1, disposed_amount=$2 WHERE id=$3 RETURNING *`,

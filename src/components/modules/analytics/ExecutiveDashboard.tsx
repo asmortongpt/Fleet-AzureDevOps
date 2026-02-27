@@ -1,14 +1,14 @@
-import { LineChart, TrendingUp, TrendingDown, AlertTriangle, DollarSign, Gauge, Truck, Flame, Download, RefreshCw, Brain, Zap } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { LineChart, TrendingUp, TrendingDown, AlertTriangle, DollarSign, Gauge, Truck, Flame, Download, RefreshCw, Brain, Zap } from 'lucide-react'
 import { useMemo } from 'react'
-
-
+import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatTime, formatNumber } from '@/utils/format-helpers'
 
 interface KPIData {
   totalVehicles: number
@@ -73,47 +73,53 @@ interface TrendData {
 }
 
 const COLORS = {
-  primary: '#3b82f6',
+  primary: '#10b981',
   success: '#10b981',
   warning: '#f59e0b',
   danger: '#ef4444',
-  purple: '#8b5cf6',
-  cyan: '#06b6d4'
+  amber: '#d97706',
+  cyan: '#10b981'
 }
 
-const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
+const PIE_COLORS = ['#10b981', '#10b981', '#f59e0b', '#ef4444', '#d97706', '#14b8a6']
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 // API fetcher functions for real API calls
+// API wraps responses as { success, data, meta } — unwrap the data field
 const fetchDashboardKpis = async (): Promise<KPIData> => {
   const response = await fetch(`${API_BASE}/executive-dashboard/kpis`)
   if (!response.ok) throw new Error('Failed to fetch KPI data')
-  return response.json()
+  const json = await response.json()
+  return json.data ?? json
 }
 
 const fetchDashboardHealth = async (): Promise<FleetHealth> => {
   const response = await fetch(`${API_BASE}/executive-dashboard/fleet-health`)
   if (!response.ok) throw new Error('Failed to fetch fleet health data')
-  return response.json()
+  const json = await response.json()
+  return json.data ?? json
 }
 
 const fetchDashboardCosts = async (): Promise<CostAnalysis> => {
   const response = await fetch(`${API_BASE}/executive-dashboard/cost-analysis`)
   if (!response.ok) throw new Error('Failed to fetch cost analysis data')
-  return response.json()
+  const json = await response.json()
+  return json.data ?? json
 }
 
 const fetchDashboardInsights = async (): Promise<AIInsight[]> => {
   const response = await fetch(`${API_BASE}/executive-dashboard/insights`)
   if (!response.ok) throw new Error('Failed to fetch insights')
-  return response.json()
+  const json = await response.json()
+  return json.data ?? json
 }
 
 const fetchDashboardTrends = async () => {
   const response = await fetch(`${API_BASE}/executive-dashboard/trends`)
   if (!response.ok) throw new Error('Failed to fetch trends')
-  return response.json()
+  const json = await response.json()
+  return json.data ?? json
 }
 
 export function ExecutiveDashboard() {
@@ -181,8 +187,7 @@ export function ExecutiveDashboard() {
   }
 
   const handleExportPDF = () => {
-    // In production, this would generate a PDF report
-    alert('PDF Export functionality - integrate with jsPDF or similar library')
+    window.print()
   }
 
   const getHealthColor = (score: number) => {
@@ -248,7 +253,7 @@ export function ExecutiveDashboard() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            Last updated: {lastUpdated.toLocaleTimeString()}
+            Last updated: {formatTime(lastUpdated)}
           </span>
           <Button
             variant="outline"
@@ -293,7 +298,7 @@ export function ExecutiveDashboard() {
             {fleetHealth.breakdown.map((item) => (
               <Card
                 key={item.category}
-                className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+                className="cursor-pointer hover:border-primary/50  transition-all"
                 onClick={() => push({
                   id: `health-${item.category.toLowerCase()}`,
                   type: item.category === 'Safety' ? 'safety-score' :
@@ -327,7 +332,7 @@ export function ExecutiveDashboard() {
       {/* Key Performance Indicators - All clickable with deep drilldown */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+          className="cursor-pointer hover:border-primary/50  transition-all"
           onClick={() => push({
             id: 'total-vehicles',
             type: 'fleet-overview',
@@ -350,7 +355,7 @@ export function ExecutiveDashboard() {
         </Card>
 
         <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+          className="cursor-pointer hover:border-primary/50  transition-all"
           onClick={() => push({
             id: 'fleet-utilization',
             type: 'utilization',
@@ -373,7 +378,7 @@ export function ExecutiveDashboard() {
         </Card>
 
         <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+          className="cursor-pointer hover:border-primary/50  transition-all"
           onClick={() => push({
             id: 'mileage-stats',
             type: 'performance-metrics',
@@ -385,7 +390,7 @@ export function ExecutiveDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Monthly Mileage</p>
-                <p className="text-sm font-bold">{kpis.totalMileageThisMonth.toLocaleString()}</p>
+                <p className="text-sm font-bold">{formatNumber(kpis.totalMileageThisMonth)}</p>
                 <div className="flex items-center gap-1 mt-1">
                   {kpis.mileageChange >= 0 ? (
                     <TrendingUp className="w-4 h-4 text-success" />
@@ -403,7 +408,7 @@ export function ExecutiveDashboard() {
         </Card>
 
         <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+          className="cursor-pointer hover:border-primary/50  transition-all"
           onClick={() => push({
             id: 'fuel-efficiency',
             type: 'fuel-stats',
@@ -487,7 +492,7 @@ export function ExecutiveDashboard() {
                   <p className="mt-2 text-sm">{insight.message}</p>
                   <div className="flex items-center justify-between mt-2">
                     <p className="text-xs text-muted-foreground">
-                      {new Date(insight.timestamp).toLocaleTimeString()}
+                      {formatTime(insight.timestamp)}
                     </p>
                     <span className="text-xs text-primary">Click to view details →</span>
                   </div>

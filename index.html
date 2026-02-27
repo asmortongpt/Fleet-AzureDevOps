@@ -25,11 +25,11 @@
     <meta http-equiv="Content-Security-Policy"
         content="
             default-src 'self';
-            script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com;
+            script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com;
             style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
             font-src 'self' data: https://fonts.gstatic.com;
             img-src 'self' data: blob: https:;
-            connect-src 'self' ws://localhost:* wss://localhost:* http://localhost:* https://localhost:* http://20.161.96.87 ws://20.161.96.87 https://api.fleet-management.com https://fleet.capitaltechalliance.com https://*.azure.com https://*.microsoft.com https://login.microsoftonline.com https://graph.microsoft.com https://maps.googleapis.com;
+            connect-src 'self' ws://localhost:* wss://localhost:* http://localhost:* https://localhost:* http://20.161.96.87 ws://20.161.96.87 https://api.fleet-management.com https://fleet.capitaltechalliance.com https://*.azure.com https://*.microsoft.com https://login.microsoftonline.com https://graph.microsoft.com https://maps.googleapis.com https://api.weather.gov;
             media-src 'self' blob:;
             object-src 'none';
             frame-src 'self' https://login.microsoftonline.com;
@@ -48,30 +48,47 @@
 
     <!-- PWA Meta Tags -->
     <meta name="description"
-        content="Comprehensive multi-tenant fleet management system with real-time tracking, predictive maintenance, and advanced analytics" />
-    <meta name="theme-color" content="#1e40af" />
+        content="CTA Fleet Command — Enterprise fleet management with real-time tracking, predictive maintenance, and advanced analytics. Powered by Capital Technology Alliance." />
+    <meta name="theme-color" content="#242424" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Fleet" />
-    <meta name="application-name" content="Fleet" />
-    <meta name="msapplication-TileColor" content="#1e40af" />
+    <meta name="apple-mobile-web-app-title" content="CTA Fleet" />
+    <meta name="application-name" content="CTA Fleet" />
+    <meta name="msapplication-TileColor" content="#242424" />
     <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="CTA Fleet Command — Capital Technology Alliance" />
+    <meta property="og:description" content="Intelligent Performance fleet management for modern logistics" />
+    <meta property="og:image" content="/logo-full.png" />
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- Favicons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/logos/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/logos/favicon-16.png" />
-    <link rel="icon" type="image/png" sizes="48x48" href="/logos/favicon-48.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/logos/apple-touch-icon-180.png" />
+    <!-- Favicons - CTA Branding -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="shortcut icon" href="/favicon.png" />
 
-    <title>ArchonY - Intelligent Performance</title>
+    <title>CTA Fleet Command</title>
+
+    <!-- Performance Optimization: Resource Hints -->
+    <!-- DNS Prefetch for external APIs -->
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="dns-prefetch" href="https://graph.microsoft.com">
+    <link rel="dns-prefetch" href="https://login.microsoftonline.com">
+
+    <!-- Preconnect to critical domains -->
+    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://login.microsoftonline.com" crossorigin>
 
     <!-- Google Maps API - Loaded dynamically by app to avoid exposing key in source -->
     <!-- API key injected at runtime from environment variable VITE_GOOGLE_MAPS_API_KEY -->
-    <!-- Note: Using system fonts (see index.css) for WCAG AAA compliance -->
+    <!-- Google Fonts preconnect for Cinzel + Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 
 <body>

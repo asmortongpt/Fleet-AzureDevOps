@@ -1,7 +1,8 @@
-import { Plus } from "lucide-react"
+import { Plus, ImagePlus } from "lucide-react"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
+import { VehiclePhotoCapture } from '@/components/garage/VehiclePhotoCapture'
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -23,6 +24,7 @@ import {
   supportsPTOTracking
 } from "@/types/asset.types"
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface AddVehicleDialogProps {
   onAdd: (vehicle: Vehicle) => Promise<void> | void
@@ -83,6 +85,9 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
     location_lng: ""
   })
 
+  const [capturedPhotos, setCapturedPhotos] = useState<File[]>([])
+  const [showPhotoCapture, setShowPhotoCapture] = useState(false)
+
   // Available asset types based on selected category
   const [availableAssetTypes, setAvailableAssetTypes] = useState<AssetType[]>([])
 
@@ -101,13 +106,27 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
   }, [formData.asset_category])
 
   const handleSubmit = async () => {
-    // Validate required fields
-    if (!formData.number || !formData.make || !formData.model || !formData.vin || !formData.licensePlate) {
+    // Validate required fields (with trim)
+    if (!formData.number?.trim() || !formData.make?.trim() || !formData.model?.trim() || !formData.vin?.trim() || !formData.licensePlate?.trim()) {
       toast.error("Please fill in all required fields")
       return
     }
 
-    if (!formData.location_address) {
+    // VIN must be 17 characters
+    if (formData.vin.trim().length !== 17) {
+      toast.error("VIN must be exactly 17 characters")
+      return
+    }
+
+    // Year range validation
+    const currentYear = new Date().getFullYear()
+    const yearNum = Number(formData.year)
+    if (formData.year && (yearNum < 1900 || yearNum > currentYear + 2)) {
+      toast.error(`Year must be between 1900 and ${currentYear + 2}`)
+      return
+    }
+
+    if (!formData.location_address?.trim()) {
       toast.error("Please enter a location address")
       return
     }
@@ -214,6 +233,27 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
 
     try {
       await onAdd(newVehicle)
+
+      // Upload captured photos if any
+      if (capturedPhotos.length > 0) {
+        try {
+          const csrf = await getCsrfToken()
+          const photoFormData = new FormData()
+          capturedPhotos.forEach((file, i) => {
+            photoFormData.append('photos', file, `angle-${i}-${file.name}`)
+          })
+          await fetch(`/api/vehicles/${newVehicle.id}/photos`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'X-CSRF-Token': csrf },
+            body: photoFormData
+          })
+        } catch {
+          // Photo upload failure shouldn't block vehicle creation
+          toast.error('Vehicle created but photo upload failed')
+        }
+      }
+
       toast.success(`Vehicle ${formData.number} added successfully`)
       setOpen(false)
     } catch (error) {
@@ -262,6 +302,8 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
       location_lat: "",
       location_lng: ""
     })
+    setCapturedPhotos([])
+    setShowPhotoCapture(false)
   }
 
   // Show/hide conditional sections
@@ -284,7 +326,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
         <div className="max-h-[calc(90vh-120px)] overflow-y-auto p-1">
           {/* Asset Classification Section */}
           <div className="mb-3">
-            <h3 className="text-sm font-semibold mb-3 text-blue-800 border-b pb-1">Asset Classification</h3>
+            <h3 className="text-sm font-semibold mb-3 text-white/60 border-b border-white/[0.04] pb-1">Asset Classification</h3>
             <div className="grid grid-cols-3 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="asset_category">Asset Category</Label>
@@ -342,7 +384,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
 
           {/* Basic Information Section */}
           <div className="mb-3">
-            <h3 className="text-sm font-semibold mb-3 text-blue-800 border-b pb-1">Basic Information</h3>
+            <h3 className="text-sm font-semibold mb-3 text-white/60 border-b border-white/[0.04] pb-1">Basic Information</h3>
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="number">Vehicle Number *</Label>
@@ -464,6 +506,16 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
                 />
               </div>
 
+              {/* Vehicle Name Preview */}
+              {(formData.make || formData.model || formData.number) && (
+                <div className="col-span-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2">
+                  <p className="text-[10px] text-emerald-400/60 uppercase tracking-wider font-medium">Display Name Preview</p>
+                  <p className="text-sm text-emerald-300 font-medium mt-0.5">
+                    {formatVehicleName({ year: parseInt(formData.year) || undefined, make: formData.make || undefined, model: formData.model || undefined, number: formData.number || undefined })}
+                  </p>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="fuelType">Fuel Type</Label>
                 <Select value={formData.fuelType} onValueChange={(v) => setFormData({ ...formData, fuelType: v as Vehicle["fuelType"] })}>
@@ -480,6 +532,41 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
                 </Select>
               </div>
             </div>
+          </div>
+
+          {/* Photos Section */}
+          <div className="mb-3">
+            <h3 className="text-sm font-semibold mb-3 text-white/60 border-b border-white/[0.04] pb-1 flex items-center gap-2">
+              <ImagePlus className="h-4 w-4" />
+              Vehicle Photos (Optional)
+            </h3>
+            {showPhotoCapture ? (
+              <div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3">
+                <VehiclePhotoCapture
+                  onCapture={(files) => {
+                    setCapturedPhotos(files)
+                    setShowPhotoCapture(false)
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowPhotoCapture(true)}
+                >
+                  <ImagePlus className="h-4 w-4 mr-1.5" />
+                  Capture 360° Photos
+                </Button>
+                {capturedPhotos.length > 0 && (
+                  <span className="text-xs text-emerald-400">
+                    {capturedPhotos.length} photo{capturedPhotos.length !== 1 ? 's' : ''} captured
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

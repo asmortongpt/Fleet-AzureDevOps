@@ -117,11 +117,11 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
         size: response.size,
         metadata: options?.metadata
       };
-    } catch (error: any) {
-      if (error.statusCode === 409) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).statusCode === 409) {
         throw new FileAlreadyExistsError(normalizedKey);
       }
-      throw new Error(`Failed to upload to SharePoint: ${error.message}`);
+      throw new Error(`Failed to upload to SharePoint: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -185,8 +185,8 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
       }
 
       throw new Error(`Upload session completed but no file metadata received`);
-    } catch (error: any) {
-      throw new Error(`Failed to upload to SharePoint via multipart: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Failed to upload to SharePoint via multipart: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -207,8 +207,8 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
         metadata,
         contentLength: metadata.size || 0
       };
-    } catch (error: any) {
-      if (error.statusCode === 404) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).statusCode === 404) {
         throw new FileNotFoundError(normalizedKey);
       }
       throw error;
@@ -224,8 +224,8 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
       await this.graphClient
         .api(`/drives/${this.driveId}/root:/${normalizedKey}`)
         .delete();
-    } catch (error: any) {
-      if (error.statusCode === 404) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).statusCode === 404) {
         throw new FileNotFoundError(normalizedKey);
       }
       throw error;
@@ -264,8 +264,8 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
         directories,
         isTruncated: !!response['@odata.nextLink']
       };
-    } catch (error: any) {
-      if (error.statusCode === 404) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).statusCode === 404) {
         return {
           files: [],
           directories: [],
@@ -304,8 +304,8 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
         size: metadata.size || 0,
         metadata
       };
-    } catch (error: any) {
-      if (error.statusCode === 404) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).statusCode === 404) {
         throw new FileNotFoundError(normalizedSource);
       }
       throw error;
@@ -329,8 +329,8 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
         createdAt: new Date(response.createdDateTime),
         updatedAt: new Date(response.lastModifiedDateTime)
       };
-    } catch (error: any) {
-      if (error.statusCode === 404) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).statusCode === 404) {
         throw new FileNotFoundError(normalizedKey);
       }
       throw error;
@@ -356,8 +356,8 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
         });
 
       return response.link.webUrl;
-    } catch (error: any) {
-      if (error.statusCode === 404) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).statusCode === 404) {
         throw new FileNotFoundError(normalizedKey);
       }
       throw error;

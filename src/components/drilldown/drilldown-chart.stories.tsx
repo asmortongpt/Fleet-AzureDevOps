@@ -12,7 +12,7 @@ const meta = {
     },
     tags: ['autodocs'],
     decorators: [
-        (Story) => (
+        (Story: any) => (
             <DrilldownProvider>
                 <div className="w-[800px] p-3 bg-background">
                     <Story />

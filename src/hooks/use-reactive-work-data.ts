@@ -145,8 +145,10 @@ export function useReactiveWorkData() {
       const tasksPayload = tasksResponse.ok ? await tasksResponse.json() : { data: [] };
       const usersPayload = usersResponse.ok ? await usersResponse.json() : { data: [] };
 
-      const taskRows = Array.isArray(tasksPayload) ? tasksPayload : tasksPayload.data || [];
-      const userRows = Array.isArray(usersPayload) ? usersPayload : usersPayload.data || [];
+      const tasksInnerData = tasksPayload?.data?.data ?? tasksPayload?.data ?? tasksPayload;
+      const taskRows = Array.isArray(tasksInnerData) ? tasksInnerData : [];
+      const usersInnerData = usersPayload?.data?.data ?? usersPayload?.data ?? usersPayload;
+      const userRows = Array.isArray(usersInnerData) ? usersInnerData : [];
 
       const statusMap: Record<string, WorkItem['status']> = {
         pending: 'todo',

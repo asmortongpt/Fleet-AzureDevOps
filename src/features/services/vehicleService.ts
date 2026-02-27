@@ -3,6 +3,7 @@
  */
 
 import { api } from '@/services/api';
+import logger from '@/utils/logger';
 
 export interface Vehicle {
   id: string;
@@ -36,7 +37,7 @@ class VehicleService {
       const data = response.data.data || [];
       return data.map(v => ({ ...v, id: String(v.id) }));
     } catch (error) {
-      console.error('Error fetching vehicles:', error);
+      logger.error('Error fetching vehicles:', error);
       throw error;
     }
   }
@@ -49,7 +50,7 @@ class VehicleService {
       const response = await api.get<Vehicle>(`/vehicles/${id}`);
       return { ...response.data, id: String(response.data.id) };
     } catch (error) {
-      console.error(`Error fetching vehicle ${id}:`, error);
+      logger.error(`Error fetching vehicle ${id}:`, error);
       return null;
     }
   }

@@ -37,9 +37,9 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
     formState: { errors, isSubmitting, touchedFields, dirtyFields: _dirtyFields },
     watch,
   } = useForm<VehicleFormData>({
-    resolver: zodResolver(vehicleSchema),
+    resolver: zodResolver(vehicleSchema) as any,
     mode: 'onBlur', // Validate on blur for real-time feedback
-    defaultValues: initialData,
+    defaultValues: { status: 'active' as const, gpsEnabled: false, ...initialData },
   })
 
   // Watch all fields for success indicators
@@ -51,7 +51,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 max-w-4xl mx-auto">
+    <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-2 max-w-4xl mx-auto">
       {/* Section 1: Basic Information */}
       <Card>
         <CardHeader>

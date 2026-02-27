@@ -38,7 +38,7 @@ export class DriverService {
     }
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{1,63}$/;
     if (!emailRegex.test(email)) {
       throw new Error('Invalid email format');
     }
@@ -65,7 +65,7 @@ export class DriverService {
     
     // Validate email if provided
     if (email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{1,63}$/;
       if (!emailRegex.test(email)) {
         throw new Error('Invalid email format');
       }
@@ -99,7 +99,7 @@ export class DriverService {
       RETURNING id
     `;
     const result = await this.db.query(query, [id, tenantId]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async getDriverAssignments(driverId: number, tenantId: number) {

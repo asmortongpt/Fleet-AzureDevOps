@@ -32,6 +32,8 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import AITaskPrioritizationService from '../services/ai-task-prioritization'
 
+import { flexUuid } from '../middleware/validation'
+
 const aiService = new AITaskPrioritizationService(pool)
 
 const router = Router()
@@ -61,33 +63,33 @@ const PrioritizeTaskSchema = z.object({
   priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
   due_date: z.string().optional(),
   estimated_hours: z.number().positive().optional(),
-  vehicle_id: z.string().uuid().optional(),
-  assigned_to: z.string().uuid().optional(),
-  parent_task_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
+  assigned_to: flexUuid.optional(),
+  parent_task_id: flexUuid.optional(),
   metadata: z.record(z.string(), z.any()).optional()
 })
 
 const AssignTaskSchema = z.object({
-  task_id: z.string().uuid().optional(),
+  task_id: flexUuid.optional(),
   task_title: z.string().min(1),
   task_type: z.string(),
   description: z.string().optional(),
   priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
   estimated_hours: z.number().positive().optional(),
-  vehicle_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
   consider_location: z.boolean().optional().default(true)
 })
 
 const DependencyAnalysisSchema = z.object({
-  task_id: z.string().uuid()
+  task_id: flexUuid
 })
 
 const ExecutionOrderSchema = z.object({
-  task_ids: z.array(z.string().uuid()).min(1)
+  task_ids: z.array(flexUuid).min(1)
 })
 
 const OptimizeResourcesSchema = z.object({
-  task_ids: z.array(z.string().uuid()).min(1)
+  task_ids: z.array(flexUuid).min(1)
 })
 
 const BatchPrioritizeSchema = z.object({
@@ -133,7 +135,7 @@ router.post(
           req.user?.id,
           'ai_priority_calculation',
           'task',
-          (validatedData as any).id || null,
+          null,
           JSON.stringify({
             task_title: taskData.task_title,
             score: priorityScore.score,

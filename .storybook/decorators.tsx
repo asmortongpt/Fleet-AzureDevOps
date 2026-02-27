@@ -6,7 +6,7 @@ import { BrowserRouter } from "react-router-dom"
  * Router decorator - wraps stories with React Router
  * Required for components that use routing
  */
-export const withRouter: Decorator = (Story) => (
+export const withRouter: Decorator = (Story: any) => (
   <BrowserRouter>
     <Story />
   </BrowserRouter>
@@ -28,7 +28,7 @@ const ThemeWrapper: React.FC<{ theme: string; children: React.ReactNode }> = ({ 
   return <>{children}</>
 }
 
-export const withTheme: Decorator = (Story, context) => {
+export const withTheme: Decorator = (Story: any, context: any) => {
   const theme = context.globals.theme || "light"
 
   return (
@@ -41,7 +41,7 @@ export const withTheme: Decorator = (Story, context) => {
 /**
  * Full page decorator - removes padding for full-page stories
  */
-export const withFullPage: Decorator = (Story) => (
+export const withFullPage: Decorator = (Story: any) => (
   <div style={{ margin: "-1rem", minHeight: "100vh" }}>
     <Story />
   </div>
@@ -50,7 +50,7 @@ export const withFullPage: Decorator = (Story) => (
 /**
  * Map container decorator - provides appropriate sizing for map components
  */
-export const withMapContainer: Decorator = (Story) => (
+export const withMapContainer: Decorator = (Story: any) => (
   <div style={{ width: "100%", height: "600px", position: "relative" }}>
     <Story />
   </div>

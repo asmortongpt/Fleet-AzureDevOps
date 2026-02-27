@@ -1,0 +1,78 @@
+# Prometheus Configuration for Fleet Management API
+# See documentation at https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+
+global:
+  scrape_interval: 15s          # Default scrape interval
+  evaluation_interval: 15s       # Default evaluation interval
+  external_labels:
+    cluster: 'fleet-management'
+    environment: 'production'
+    service: 'fleet-api'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            # - 'alertmanager:9093'
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - 'alerting-rules.yml'
+  - 'recording-rules.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Fleet API metrics
+  - job_name: 'fleet-api'
+    metrics_path: '/metrics'
+    scheme: 'http'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['localhost:3001']
+        labels:
+          service: 'fleet-api'
+          instance: 'fleet-api-primary'
+
+  # Database exporter (if using postgres_exporter)
+  # - job_name: 'postgres'
+  #   static_configs:
+  #     - targets: ['localhost:9187']
+  #       labels:
+  #         service: 'postgresql'
+
+  # Node exporter for system metrics
+  # - job_name: 'node'
+  #   static_configs:
+  #     - targets: ['localhost:9100']
+  #       labels:
+  #         service: 'system'
+
+  # Redis exporter (if using redis_exporter)
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets: ['localhost:9121']
+  #       labels:
+  #         service: 'redis'
+
+  # Service discovery for Kubernetes (if applicable)
+  # - job_name: 'kubernetes-apiservers'
+  #   kubernetes_sd_configs:
+  #     - role: 'endpoints'
+  #   scheme: 'https'
+  #   tls_config:
+  #     ca_file: '/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
+  #   bearer_token_file: '/var/run/secrets/kubernetes.io/serviceaccount/token'
+  #   relabel_configs:
+  #     - source_labels:
+  #         - __meta_kubernetes_namespace
+  #         - __meta_kubernetes_service_name
+  #         - __meta_kubernetes_endpoint_port_name
+  #       action: 'keep'
+  #       regex: 'default;kubernetes;https'

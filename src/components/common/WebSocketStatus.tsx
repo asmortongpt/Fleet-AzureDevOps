@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useWebSocketStatus, useReconnect } from '@/hooks/useWebSocketSubscriptions';
 import { cn } from '@/lib/utils';
+import { formatTime } from '@/utils/format-helpers';
 
 interface WebSocketStatusProps {
   variant?: 'badge' | 'button' | 'icon';
@@ -78,8 +79,8 @@ export function WebSocketStatus({
         };
       default:
         return {
-          color: 'bg-slate-500 hover:bg-slate-600',
-          textColor: 'text-slate-600',
+          color: 'bg-white/[0.1] hover:bg-white/[0.1]',
+          textColor: 'text-white/50',
           label: 'Offline',
           icon: <WifiOff className="h-3 w-3" />,
           variant: 'secondary' as const,
@@ -116,7 +117,7 @@ export function WebSocketStatus({
           <DropdownMenuSeparator />
           <div className="px-2 py-1.5 text-sm space-y-2">
             <div className="flex justify-between">
-              <span className="text-slate-500">Status:</span>
+              <span className="text-white/40">Status:</span>
               <span className={cn('font-medium', statusInfo.textColor)}>
                 {statusInfo.label}
               </span>
@@ -124,20 +125,20 @@ export function WebSocketStatus({
             {isConnected && (
               <>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Uptime:</span>
+                  <span className="text-white/40">Uptime:</span>
                   <span className="font-mono text-xs">
                     {formatUptime(stats.uptime)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Messages:</span>
+                  <span className="text-white/40">Messages:</span>
                   <span className="font-mono text-xs">
                     ↓{stats.messagesReceived} ↑{stats.messagesSent}
                   </span>
                 </div>
                 {stats.latency !== null && (
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Latency:</span>
+                    <span className="text-white/40">Latency:</span>
                     <span className="font-mono text-xs">{stats.latency}ms</span>
                   </div>
                 )}
@@ -146,11 +147,11 @@ export function WebSocketStatus({
             {!isConnected && (
               <>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Reconnects:</span>
+                  <span className="text-white/40">Reconnects:</span>
                   <span className="font-mono text-xs">{stats.reconnects}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Errors:</span>
+                  <span className="text-white/40">Errors:</span>
                   <span className="font-mono text-xs">{stats.errors}</span>
                 </div>
               </>
@@ -179,7 +180,7 @@ export function WebSocketStatus({
         {statusInfo.icon}
         <span className="text-xs font-medium">{statusInfo.label}</span>
         {showDetails && isConnected && (
-          <span className="text-xs font-mono text-slate-500">
+          <span className="text-xs font-mono text-white/40">
             {formatUptime(stats.uptime)}
           </span>
         )}
@@ -197,6 +198,10 @@ export function WebSocketStatus({
         className
       )}
       onClick={() => !isConnected && reconnect()}
+      onKeyDown={(e) => e.key === 'Enter' && !isConnected && reconnect()}
+      role="button"
+      tabIndex={0}
+      aria-label={`WebSocket ${statusInfo.label}`}
       title={`WebSocket ${statusInfo.label}`}
     >
       {statusInfo.icon}
@@ -240,9 +245,9 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
         };
       default:
         return {
-          color: 'text-slate-600',
-          bgColor: 'bg-slate-50',
-          borderColor: 'border-slate-200',
+          color: 'text-white/50',
+          bgColor: 'bg-white/[0.03]',
+          borderColor: 'border-white/[0.04]',
           label: 'Disconnected',
           icon: <WifiOff className="h-5 w-5" />,
         };
@@ -262,8 +267,8 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
         <div className="flex items-center gap-3">
           <div className={statusInfo.color}>{statusInfo.icon}</div>
           <div>
-            <h3 className="font-semibold text-slate-900">{statusInfo.label}</h3>
-            <p className="text-xs text-slate-500">Real-time connection status</p>
+            <h3 className="font-semibold text-white/90">{statusInfo.label}</h3>
+            <p className="text-xs text-white/40">Real-time connection status</p>
           </div>
         </div>
         {!isConnected && (
@@ -277,14 +282,14 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
         {isConnected && (
           <>
             <div>
-              <div className="text-slate-500 mb-1">Uptime</div>
-              <div className="font-mono text-sm font-semibold text-slate-900">
+              <div className="text-white/40 mb-1">Uptime</div>
+              <div className="font-mono text-sm font-semibold text-white/90">
                 {Math.floor(stats.uptime / 60)}m {stats.uptime % 60}s
               </div>
             </div>
             <div>
-              <div className="text-slate-500 mb-1">Messages</div>
-              <div className="font-mono text-sm font-semibold text-slate-900">
+              <div className="text-white/40 mb-1">Messages</div>
+              <div className="font-mono text-sm font-semibold text-white/90">
                 ↓{stats.messagesReceived} ↑{stats.messagesSent}
               </div>
             </div>
@@ -293,14 +298,14 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
         {!isConnected && (
           <>
             <div>
-              <div className="text-slate-500 mb-1">Reconnects</div>
-              <div className="font-mono text-sm font-semibold text-slate-900">
+              <div className="text-white/40 mb-1">Reconnects</div>
+              <div className="font-mono text-sm font-semibold text-white/90">
                 {stats.reconnects}
               </div>
             </div>
             <div>
-              <div className="text-slate-500 mb-1">Errors</div>
-              <div className="font-mono text-sm font-semibold text-slate-900">
+              <div className="text-white/40 mb-1">Errors</div>
+              <div className="font-mono text-sm font-semibold text-white/90">
                 {stats.errors}
               </div>
             </div>
@@ -309,11 +314,11 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
       </div>
 
       {stats.lastConnectedAt && (
-        <div className="mt-2 pt-2 border-t border-slate-200">
-          <div className="text-xs text-slate-500">
+        <div className="mt-2 pt-2 border-t border-white/[0.04]">
+          <div className="text-xs text-white/40">
             Last connected:{' '}
             <span className="font-mono">
-              {stats.lastConnectedAt.toLocaleTimeString()}
+              {formatTime(stats.lastConnectedAt)}
             </span>
           </div>
         </div>

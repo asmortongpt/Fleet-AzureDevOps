@@ -4,7 +4,6 @@
  * Integrates with OpenAI GPT-4 and MCP servers
  */
 
-// @ts-nocheck
 import { AIMessage, HumanMessage } from '@langchain/core/messages'
 import { StringOutputParser } from '@langchain/core/output_parsers'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
@@ -16,6 +15,9 @@ import { Pool } from 'pg'
 import { z } from 'zod'
 
 import logger from '../config/logger'
+
+// Export singleton instance
+import { pool } from '../db'
 
 
 export interface WorkflowContext {
@@ -159,9 +161,10 @@ class LangChainOrchestratorService {
         totalTokens,
         executionTimeMs: Date.now() - startTime
       }
-    } catch (error: any) {
-      this.logger.error('Maintenance planning chain failed', { error: error.message, context })
-      await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      this.logger.error('Maintenance planning chain failed', { error: errMsg, context })
+      await this.logWorkflowExecution(context, steps, totalTokens, 'error', errMsg)
 
       return {
         success: false,
@@ -169,7 +172,7 @@ class LangChainOrchestratorService {
         finalResult: null,
         totalTokens,
         executionTimeMs: Date.now() - startTime,
-        error: error.message
+        error: errMsg
       }
     }
   }
@@ -265,9 +268,10 @@ class LangChainOrchestratorService {
         totalTokens,
         executionTimeMs: Date.now() - startTime
       }
-    } catch (error: any) {
-      this.logger.error('Incident investigation chain failed', { error: error.message, context })
-      await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      this.logger.error('Incident investigation chain failed', { error: errMsg, context })
+      await this.logWorkflowExecution(context, steps, totalTokens, 'error', errMsg)
 
       return {
         success: false,
@@ -275,7 +279,7 @@ class LangChainOrchestratorService {
         finalResult: null,
         totalTokens,
         executionTimeMs: Date.now() - startTime,
-        error: error.message
+        error: errMsg
       }
     }
   }
@@ -381,9 +385,10 @@ class LangChainOrchestratorService {
         totalTokens,
         executionTimeMs: Date.now() - startTime
       }
-    } catch (error: any) {
-      this.logger.error('Route optimization chain failed', { error: error.message, context })
-      await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      this.logger.error('Route optimization chain failed', { error: errMsg, context })
+      await this.logWorkflowExecution(context, steps, totalTokens, 'error', errMsg)
 
       return {
         success: false,
@@ -391,7 +396,7 @@ class LangChainOrchestratorService {
         finalResult: null,
         totalTokens,
         executionTimeMs: Date.now() - startTime,
-        error: error.message
+        error: errMsg
       }
     }
   }
@@ -471,9 +476,10 @@ class LangChainOrchestratorService {
         totalTokens,
         executionTimeMs: Date.now() - startTime
       }
-    } catch (error: any) {
-      this.logger.error('Cost optimization chain failed', { error: error.message, context })
-      await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      this.logger.error('Cost optimization chain failed', { error: errMsg, context })
+      await this.logWorkflowExecution(context, steps, totalTokens, 'error', errMsg)
 
       return {
         success: false,
@@ -481,7 +487,7 @@ class LangChainOrchestratorService {
         finalResult: null,
         totalTokens,
         executionTimeMs: Date.now() - startTime,
-        error: error.message
+        error: errMsg
       }
     }
   }
@@ -563,8 +569,8 @@ class LangChainOrchestratorService {
         response,
         tokensUsed: this.estimateTokens(message + response)
       }
-    } catch (error: any) {
-      this.logger.error('Chat failed', { error: error.message, sessionId })
+    } catch (error: unknown) {
+      this.logger.error('Chat failed', { error: error instanceof Error ? error.message : 'An unexpected error occurred', sessionId })
       throw error
     }
   }
@@ -699,7 +705,7 @@ Provide a brief analysis of the vehicle condition and any immediate concerns.`
     return {
       vehicle,
       aiAnalysis: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -737,7 +743,7 @@ Generate a structured maintenance plan with:
 
     return {
       plan: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -809,7 +815,7 @@ Provide:
 
     return {
       analysis: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -832,7 +838,7 @@ Generate:
 
     return {
       recommendations: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -896,7 +902,7 @@ Provide optimized routes with:
 
     return {
       optimizedRoutes: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -934,7 +940,7 @@ Identify:
 
     return {
       savings: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -958,7 +964,7 @@ Generate prioritized recommendations with:
 
     return {
       recommendations: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -1020,30 +1026,8 @@ Generate prioritized recommendations with:
     return Array.from(this.sessions.keys())
   }
 
-  /**
-   * Chat method for conversational AI
-   */
-  async chat(context: WorkflowContext, message: string): Promise<any> {
-    const memory = this.getOrCreateMemory(context.sessionId)
-
-    // Add user message to memory
-    await memory.chatHistory.addMessage(new HumanMessage(message))
-
-    // Get AI response
-    const response = await this.model.invoke([new HumanMessage(message)])
-
-    // Add AI response to memory
-    await memory.chatHistory.addMessage(new AIMessage(response.content))
-
-    return {
-      response: response.content,
-      sessionId: context.sessionId
-    }
-  }
+  // Duplicate chat method removed - see chat() at line 495
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const langChainOrchestratorService = new LangChainOrchestratorService(pool)
 
 export default langChainOrchestratorService

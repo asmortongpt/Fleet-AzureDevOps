@@ -296,8 +296,8 @@ async function runQueryTest(pool: Pool, test: QueryTest): Promise<QueryResult> {
       sequentialScans,
       plan
     };
-  } catch (error: any) {
-    console.error(`Error running test "${test.name}":`, error.message);
+  } catch (error: unknown) {
+    console.error(`Error running test "${test.name}":`, error instanceof Error ? error.message : 'An unexpected error occurred');
     throw error;
   }
 }
@@ -359,8 +359,8 @@ async function runAllTests(pool: Pool, outputFile: string): Promise<void> {
       console.log(`   ✓ Indexes used: ${result.usedIndexes.length > 0 ? result.usedIndexes.join(', ') : 'None'}`);
       console.log(`   ✓ Sequential scans: ${result.sequentialScans}`);
       console.log('');
-    } catch (error: any) {
-      console.error(`   ✗ Failed: ${error.message}\n`);
+    } catch (error: unknown) {
+      console.error(`   ✗ Failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}\n`);
     }
   }
 
@@ -532,7 +532,7 @@ async function main() {
         await runAllTests(pool, path.join(resultsDir, 'performance-after.json'));
         break;
 
-      case '--compare':
+      case '--compare': {
         const beforeFile = path.join(resultsDir, 'performance-before.json');
         const afterFile = path.join(resultsDir, 'performance-after.json');
 
@@ -543,6 +543,7 @@ async function main() {
 
         compareResults(beforeFile, afterFile);
         break;
+      }
 
       default:
         console.log('Usage:');
@@ -562,7 +563,7 @@ async function main() {
 
 // Run if called directly
 if (require.main === module) {
-  main();
+  void main();
 }
 
 export { runQueryTest, runAllTests, compareResults, TEST_QUERIES };

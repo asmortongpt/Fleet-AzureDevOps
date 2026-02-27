@@ -118,185 +118,44 @@ export interface ComplianceReport {
   recallAnalytics: RecallAnalytics;
 }
 
-// Mock data storage
-const mockWarranties: Map<string, WarrantyInfo> = new Map();
-const mockRecalls: Map<string, RecallInfo> = new Map();
+// Data storage (populated from API)
+const warrantyStore: Map<string, WarrantyInfo> = new Map();
+const recallStore: Map<string, RecallInfo> = new Map();
 
-// Initialize mock data
-const initializeMockData = () => {
-  // Mock warranties
-  const warranties: WarrantyInfo[] = [
-    {
-      id: 'w1',
-      partId: 'p1',
-      partNumber: 'BRK-2024-001',
-      partName: 'Heavy Duty Brake Pads',
-      vendorId: 'v1',
-      vendorName: 'AutoParts Pro',
-      warrantyType: 'MANUFACTURER',
-      warrantyStartDate: '2024-01-15',
-      warrantyEndDate: '2025-01-15',
-      coverageDetails: 'Full replacement for manufacturing defects',
-      terms: '12-month coverage from date of purchase',
-      status: 'ACTIVE',
-      claimHistory: [
-        {
-          id: 'c1',
-          claimNumber: 'CLM-2024-001',
-          dateSubmitted: '2024-06-15',
-          issueDescription: 'Premature wear on front brake pads',
-          claimType: 'DEFECT',
-          status: 'RESOLVED',
-          resolution: 'Full replacement provided',
-          attachments: []
-        }
-      ],
-      notifications: [
-        {
-          id: 'n1',
-          type: 'EXPIRY_WARNING',
-          message: 'Warranty expiring in 30 days',
-          acknowledged: false,
-          date: '2024-12-15'
-        }
-      ]
-    },
-    {
-      id: 'w2',
-      partId: 'p2',
-      partNumber: 'ENG-2024-002',
-      partName: 'Engine Oil Filter',
-      vendorId: 'v2',
-      vendorName: 'FilterMax Industries',
-      warrantyType: 'PARTS',
-      warrantyStartDate: '2024-03-01',
-      warrantyEndDate: '2025-03-01',
-      coverageDetails: 'Replacement for defective filters',
-      terms: '12-month coverage',
-      status: 'ACTIVE',
-      claimHistory: [],
-      notifications: []
-    },
-    {
-      id: 'w3',
-      partId: 'p3',
-      partNumber: 'TIR-2024-003',
-      partName: 'All-Season Tires',
-      vendorId: 'v3',
-      vendorName: 'TireWorld Global',
-      warrantyType: 'COMPREHENSIVE',
-      warrantyStartDate: '2024-02-01',
-      warrantyEndDate: '2024-02-15',
-      coverageDetails: 'Full coverage including road hazards',
-      terms: '24-month or 50,000 mile coverage',
-      status: 'EXPIRED',
-      claimHistory: [
-        {
-          id: 'c2',
-          claimNumber: 'CLM-2024-002',
-          dateSubmitted: '2024-05-20',
-          issueDescription: 'Sidewall damage',
-          claimType: 'DAMAGE',
-          status: 'APPROVED',
-          resolution: 'Pro-rated replacement',
-          attachments: []
-        }
-      ],
-      notifications: []
-    }
-  ];
+async function loadWarranties(): Promise<WarrantyInfo[]> {
+  const response = await fetch('/api/warranty/warranties?limit=500', { credentials: 'include' });
+  if (!response.ok) {
+    throw new Error(`Failed to load warranties: ${response.statusText}`);
+  }
+  const payload = await response.json();
+  return payload?.data || payload || [];
+}
 
-  warranties.forEach(w => mockWarranties.set(w.id, w));
-
-  // Mock recalls
-  const recalls: RecallInfo[] = [
-    {
-      id: 'r1',
-      recallNumber: 'RCL-2024-001',
-      title: 'Brake Caliper Safety Recall',
-      description: 'Potential brake caliper mounting bolt loosening under extreme conditions',
-      severity: 'SAFETY',
-      urgency: 'IMMEDIATE',
-      issuedBy: 'NHTSA',
-      dateIssued: '2024-06-01',
-      effectiveDate: '2024-06-15',
-      complianceDeadline: '2024-09-01',
-      affectedParts: ['BRK-CAL-001', 'BRK-CAL-002', 'BRK-CAL-003'],
-      affectedInventory: [
-        {
-          partId: 'inv1',
-          partNumber: 'BRK-CAL-001',
-          location: 'Warehouse A',
-          actionRequired: 'REPLACE',
-          complianceStatus: 'PENDING'
-        },
-        {
-          partId: 'inv2',
-          partNumber: 'BRK-CAL-002',
-          location: 'Warehouse B',
-          actionRequired: 'INSPECT',
-          complianceStatus: 'COMPLETED'
-        }
-      ],
-      remedyDescription: 'Replace affected brake calipers with updated units. Inspect all mounting hardware.',
-      vendorContact: {
-        name: 'John Smith',
-        department: 'Safety Compliance',
-        email: 'jsmith@autopartspro.com',
-        phone: '555-123-4567'
-      },
-      status: 'ACTIVE'
-    },
-    {
-      id: 'r2',
-      recallNumber: 'RCL-2024-002',
-      title: 'Fuel Line Connector Quality Issue',
-      description: 'Some fuel line connectors may develop micro-cracks over time',
-      severity: 'QUALITY',
-      urgency: 'MODERATE',
-      issuedBy: 'Manufacturer',
-      dateIssued: '2024-07-15',
-      effectiveDate: '2024-08-01',
-      affectedParts: ['FUEL-CON-001'],
-      affectedInventory: [
-        {
-          partId: 'inv3',
-          partNumber: 'FUEL-CON-001',
-          location: 'Warehouse C',
-          actionRequired: 'INSPECT',
-          complianceStatus: 'IN_PROGRESS'
-        }
-      ],
-      remedyDescription: 'Inspect all fuel line connectors from affected batch. Replace if any damage found.',
-      vendorContact: {
-        name: 'Sarah Johnson',
-        department: 'Quality Assurance',
-        email: 'sjohnson@fuelparts.com',
-        phone: '555-987-6543'
-      },
-      status: 'ACTIVE'
-    }
-  ];
-
-  recalls.forEach(r => mockRecalls.set(r.id, r));
-};
+async function loadRecalls(): Promise<RecallInfo[]> {
+  const response = await fetch('/api/warranty/recalls?limit=500', { credentials: 'include' });
+  if (!response.ok) {
+    throw new Error(`Failed to load recalls: ${response.statusText}`);
+  }
+  const payload = await response.json();
+  return payload?.data || payload || [];
+}
 
 class WarrantyRecallServiceClass {
-  warranties: Map<string, WarrantyInfo> = mockWarranties;
-  recalls: Map<string, RecallInfo> = mockRecalls;
+  warranties: Map<string, WarrantyInfo> = warrantyStore;
+  recalls: Map<string, RecallInfo> = recallStore;
 
   async initializeWarranties(): Promise<void> {
-    if (mockWarranties.size === 0) {
-      initializeMockData();
-    }
-    this.warranties = mockWarranties;
+    const warranties = await loadWarranties();
+    warrantyStore.clear();
+    warranties.forEach(w => warrantyStore.set(w.id, w));
+    this.warranties = warrantyStore;
   }
 
   async initializeRecalls(): Promise<void> {
-    if (mockRecalls.size === 0) {
-      initializeMockData();
-    }
-    this.recalls = mockRecalls;
+    const recalls = await loadRecalls();
+    recallStore.clear();
+    recalls.forEach(r => recallStore.set(r.id, r));
+    this.recalls = recallStore;
   }
 
   async getAllWarranties(): Promise<WarrantyInfo[]> {
@@ -313,51 +172,52 @@ class WarrantyRecallServiceClass {
       const daysRemaining = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
       return daysRemaining > 0 && daysRemaining <= 30;
     }).length;
+    const expiringWithin90Days = warranties.filter(w => {
+      const endDate = new Date(w.warrantyEndDate);
+      const daysRemaining = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      return daysRemaining > 0 && daysRemaining <= 90;
+    }).length;
 
     const allClaims = warranties.flatMap(w => w.claimHistory);
     const approvedClaims = allClaims.filter(c => c.status === 'APPROVED' || c.status === 'RESOLVED').length;
 
+    const claimDurations = allClaims
+      .map((c: any) => {
+        const submitted = new Date(c.dateSubmitted || c.submitted_at || c.created_at);
+        const resolved = c.resolutionDate || c.resolved_at || c.updated_at;
+        if (!resolved) return null;
+        const resolvedDate = new Date(resolved);
+        return Math.max(0, resolvedDate.getTime() - submitted.getTime());
+      })
+      .filter((d: any) => d !== null) as number[];
+
+    const averageClaimProcessingTime = claimDurations.length > 0
+      ? Math.round(claimDurations.reduce((sum, d) => sum + d, 0) / claimDurations.length / (1000 * 60 * 60 * 24))
+      : 0;
+
+    const reasonCounts = allClaims.reduce<Record<string, number>>((acc, claim) => {
+      const reason = claim.claimType || (claim as any).reason || 'Unknown';
+      acc[reason] = (acc[reason] || 0) + 1;
+      return acc;
+    }, {});
+
+    const topClaimReasons = Object.entries(reasonCounts)
+      .map(([reason, count]) => ({ reason, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
     return {
       activeWarranties,
       expiringWithin30Days,
-      expiringWithin90Days: 5,
+      expiringWithin90Days,
       totalClaims: allClaims.length,
       pendingClaims: allClaims.filter(c => c.status === 'PENDING').length,
       approvedClaims,
       rejectedClaims: allClaims.filter(c => c.status === 'REJECTED').length,
       claimSuccessRate: allClaims.length > 0 ? (approvedClaims / allClaims.length) * 100 : 0,
-      averageClaimProcessingTime: 14,
-      topClaimReasons: [
-        { reason: 'Manufacturing Defect', count: 8 },
-        { reason: 'Premature Failure', count: 5 },
-        { reason: 'Performance Issue', count: 3 }
-      ],
-      vendorPerformance: [
-        {
-          vendorId: 'v1',
-          vendorName: 'AutoParts Pro',
-          totalWarranties: 15,
-          claimRate: 12.5,
-          averageResolutionTime: 10,
-          customerSatisfaction: 4.5
-        },
-        {
-          vendorId: 'v2',
-          vendorName: 'FilterMax Industries',
-          totalWarranties: 8,
-          claimRate: 5.0,
-          averageResolutionTime: 7,
-          customerSatisfaction: 4.8
-        },
-        {
-          vendorId: 'v3',
-          vendorName: 'TireWorld Global',
-          totalWarranties: 12,
-          claimRate: 18.0,
-          averageResolutionTime: 14,
-          customerSatisfaction: 3.9
-        }
-      ]
+      averageClaimProcessingTime,
+      topClaimReasons,
+      vendorPerformance: []
     };
   }
 

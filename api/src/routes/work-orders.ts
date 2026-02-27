@@ -34,6 +34,8 @@ import { applyFieldMasking } from '../utils/fieldMasking'
 import { preventTenantIdOverride, validateTenantReferences, injectTenantId } from '../utils/tenant-validator'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 
 // CRITICAL: Apply middleware in this exact order
@@ -42,18 +44,39 @@ router.use(setTenantContext)         // 2. Set PostgreSQL tenant context
 
 // Validation schema for work order creation
 const createWorkOrderSchema = z.object({
-  work_order_number: z.string(),
-  vehicle_id: z.string().uuid(),
-  facility_id: z.string().uuid().optional(),
-  assigned_technician_id: z.string().uuid().optional(),
-  type: z.enum(['preventive', 'corrective', 'inspection']),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
-  status: z.enum(['open', 'in_progress', 'on_hold', 'completed', 'cancelled']).default('open'),
+  work_order_number: z.string().optional(),
+  title: z.string().min(1).max(200).optional(),
+  vehicle_id: flexUuid,
+  facility_id: flexUuid.optional(),
+  assigned_technician_id: flexUuid.optional(),
+  type: z.enum(['preventive', 'corrective', 'inspection', 'recall', 'upgrade']),
+  priority: z.enum(['low', 'medium', 'high', 'critical', 'emergency']).default('medium'),
+  status: z.enum(['pending', 'in_progress', 'on_hold', 'completed', 'cancelled', 'failed']).default('pending'),
   description: z.string().min(1),
   odometer_reading: z.number().optional(),
   engine_hours_reading: z.number().optional(),
   scheduled_start: z.string().optional(),
   scheduled_end: z.string().optional(),
+  notes: z.string().optional()
+})
+
+// Validation schema for work order updates (all fields optional for partial update)
+const updateWorkOrderSchema = z.object({
+  status: z.enum(['pending', 'in_progress', 'on_hold', 'completed', 'cancelled', 'failed']).optional(),
+  priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+  description: z.string().min(1).optional(),
+  vehicle_id: flexUuid.optional(),
+  facility_id: flexUuid.optional(),
+  assigned_technician_id: flexUuid.optional(),
+  scheduled_start: z.string().optional(),
+  scheduled_end: z.string().optional(),
+  actual_start: z.string().optional(),
+  actual_end: z.string().optional(),
+  labor_hours: z.number().min(0).optional(),
+  labor_cost: z.number().min(0).optional(),
+  parts_cost: z.number().min(0).optional(),
+  odometer_reading: z.number().optional(),
+  engine_hours_reading: z.number().optional(),
   notes: z.string().optional()
 })
 
@@ -77,7 +100,7 @@ router.get(
       const isDevelopment = process.env.NODE_ENV === 'development'
 
       // Use req.dbClient which has tenant context set
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -89,41 +112,50 @@ router.get(
       // Build dynamic query
       // NOTE: In development mode, we need to filter by tenant_id since RLS is not active
       let whereClause = ''
-      const queryParams: any[] = []
+      const queryParams: unknown[] = []
 
       if (isDevelopment && req.user?.tenant_id) {
-        whereClause = 'WHERE tenant_id = $1'
+        whereClause = 'WHERE wo.tenant_id = $1'
         queryParams.push(req.user.tenant_id)
       }
 
       if (status) {
         queryParams.push(status)
-        whereClause += (whereClause ? ' AND' : 'WHERE') + ` status = $${queryParams.length}`
+        whereClause += (whereClause ? ' AND' : 'WHERE') + ` wo.status = $${queryParams.length}`
       }
       if (priority) {
         queryParams.push(priority)
-        whereClause += (whereClause ? ' AND' : 'WHERE') + ` priority = $${queryParams.length}`
+        whereClause += (whereClause ? ' AND' : 'WHERE') + ` wo.priority = $${queryParams.length}`
       }
-      // Note: facility_id filter removed - column doesn't exist in work_orders table
+      if (facility_id) {
+        queryParams.push(facility_id)
+        whereClause += (whereClause ? ' AND' : 'WHERE') + ` wo.facility_id = $${queryParams.length}`
+      }
 
       const result = await client.query(
-        `SELECT id, tenant_id, number as work_order_number, vehicle_id, title,
-                description, type, priority, status,
-                assigned_to_id as assigned_technician_id,
-                requested_by_id, approved_by_id,
-                scheduled_start_date as scheduled_start,
-                scheduled_end_date as scheduled_end,
-                actual_start_date as actual_start,
-                actual_end_date as actual_end,
-                labor_hours, estimated_cost, actual_cost,
-                odometer_at_start as odometer_reading,
-                notes, metadata, created_at, updated_at
-         FROM work_orders ${whereClause} ORDER BY created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
+        `SELECT wo.id, wo.tenant_id, wo.work_order_number, wo.vehicle_id,
+                wo.description, wo.type, wo.priority, wo.status,
+                wo.assigned_technician_id,
+                wo.scheduled_start,
+                wo.scheduled_end,
+                wo.actual_start,
+                wo.actual_end,
+                wo.labor_hours, wo.labor_cost, wo.parts_cost, wo.total_cost,
+                wo.odometer_reading,
+                wo.notes, wo.created_by, wo.created_at, wo.updated_at,
+                wo.facility_id,
+                wo.downtime_hours, wo.root_cause,
+                v.make as vehicle_make,
+                v.model as vehicle_model, v.year as vehicle_year,
+                CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name
+         FROM work_orders wo
+         LEFT JOIN vehicles v ON v.id = wo.vehicle_id AND v.tenant_id = wo.tenant_id
+         ${whereClause} ORDER BY wo.created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
         [...queryParams, limit, offset]
       )
 
       const countResult = await client.query(
-        `SELECT COUNT(*) FROM work_orders ${whereClause}`,
+        `SELECT COUNT(*) FROM work_orders wo ${whereClause}`,
         queryParams
       )
 
@@ -138,7 +170,7 @@ router.get(
       })
     } catch (error) {
       logger.error('Failed to fetch work orders', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: 'An internal error occurred',
         userId: req.user?.id,
         tenantId: req.user?.tenant_id
       })
@@ -160,25 +192,29 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
 
       // RLS automatically filters - if work order doesn't exist OR is in different tenant, returns nothing
       const result = await client.query(
-        `SELECT id, tenant_id, number as work_order_number, vehicle_id, title,
-                description, type, priority, status,
-                assigned_to_id as assigned_technician_id,
-                requested_by_id, approved_by_id,
-                scheduled_start_date as scheduled_start,
-                scheduled_end_date as scheduled_end,
-                actual_start_date as actual_start,
-                actual_end_date as actual_end,
-                labor_hours, estimated_cost, actual_cost,
-                odometer_at_start as odometer_reading,
-                odometer_at_end, notes, metadata, created_at, updated_at
-         FROM work_orders WHERE id = $1`,
+        `SELECT wo.id, wo.tenant_id, wo.work_order_number, wo.vehicle_id,
+                wo.description, wo.type, wo.priority, wo.status,
+                wo.assigned_technician_id,
+                wo.scheduled_start,
+                wo.scheduled_end,
+                wo.actual_start,
+                wo.actual_end,
+                wo.labor_hours, wo.labor_cost, wo.parts_cost, wo.total_cost,
+                wo.odometer_reading,
+                wo.notes, wo.created_by, wo.created_at, wo.updated_at,
+                CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
+                COALESCE(assigned_user.first_name || ' ' || assigned_user.last_name, assigned_user.email) as assigned_to_name
+         FROM work_orders wo
+         LEFT JOIN vehicles v ON v.id = wo.vehicle_id
+         LEFT JOIN users assigned_user ON assigned_user.id = wo.assigned_technician_id
+         WHERE wo.id = $1`,
         [req.params.id]
       )
 
@@ -189,7 +225,7 @@ router.get(
         })
       }
 
-      res.json({ data: result.rows[0] })
+      res.json(result.rows[0])
     } catch (error) {
       logger.error('Failed to fetch work order', {
         error,
@@ -228,7 +264,12 @@ router.post(
       // Validate request body
       const validated = createWorkOrderSchema.parse(req.body)
 
-      const client = (req as any).dbClient
+      // Auto-generate work order number if not provided
+      if (!validated.work_order_number) {
+        validated.work_order_number = `WO-${Date.now().toString(36).toUpperCase()}`
+      }
+
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
@@ -298,27 +339,51 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      // Validate request body against schema
+      const parsed = updateWorkOrderSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.issues
+        })
+      }
+
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
 
-      // Build dynamic UPDATE clause
-      const fields = []
-      const values = []
+      // Build dynamic UPDATE clause from validated data
+      const fields: string[] = []
+      const values: unknown[] = []
       let paramCount = 1
 
-      const allowedFields = [
-        'status', 'priority', 'description', 'vehicle_id', 'facility_id',
-        'assigned_technician_id', 'scheduled_start', 'scheduled_end',
-        'actual_start', 'actual_end', 'labor_hours', 'labor_cost',
-        'parts_cost', 'odometer_reading', 'engine_hours_reading', 'notes'
-      ]
+      const validatedData = parsed.data as Record<string, unknown>
 
-      for (const field of allowedFields) {
-        if (req.body[field] !== undefined) {
-          fields.push(`${field} = $${paramCount++}`)
-          values.push(req.body[field])
+      // Map from Zod schema field names to actual database column names
+      const fieldMapping: Record<string, string> = {
+        'status': 'status',
+        'priority': 'priority',
+        'description': 'description',
+        'vehicle_id': 'vehicle_id',
+        'facility_id': 'facility_id',
+        'assigned_technician_id': 'assigned_technician_id',
+        'scheduled_start': 'scheduled_start',
+        'scheduled_end': 'scheduled_end',
+        'actual_start': 'actual_start',
+        'actual_end': 'actual_end',
+        'labor_hours': 'labor_hours',
+        'labor_cost': 'labor_cost',
+        'parts_cost': 'parts_cost',
+        'odometer_reading': 'odometer_reading',
+        'engine_hours_reading': 'engine_hours_reading',
+        'notes': 'notes'
+      }
+
+      for (const [schemaField, dbColumn] of Object.entries(fieldMapping)) {
+        if (validatedData[schemaField] !== undefined) {
+          fields.push(`${dbColumn} = $${paramCount++}`)
+          values.push(validatedData[schemaField])
         }
       }
 
@@ -342,6 +407,9 @@ router.put(
 
       res.json({ data: result.rows[0] })
     } catch (error) {
+      if (error instanceof ValidationError || error instanceof NotFoundError) {
+        throw error
+      }
       logger.error('Failed to update work order', {
         error,
         workOrderId: req.params.id,
@@ -364,16 +432,17 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
 
       // RLS ensures DELETE only affects rows in current tenant
+      // Soft delete by setting status to 'cancelled'
       const result = await client.query(
         `UPDATE work_orders
-         SET deleted_at = CURRENT_TIMESTAMP
-         WHERE id = $1 AND deleted_at IS NULL
+         SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1 AND status != 'cancelled'
          RETURNING id`,
         [req.params.id]
       )
@@ -382,7 +451,7 @@ router.delete(
         throw new NotFoundError("Work order not found")
       }
 
-      res.json({ message: 'Work order deleted successfully' })
+      res.json({ success: true, message: 'Work order deleted successfully' })
     } catch (error) {
       logger.error('Failed to delete work order', {
         error,
@@ -410,7 +479,7 @@ router.get(
       const workOrderId = req.params.id
       const tenantId = req.user?.tenant_id
 
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
@@ -451,7 +520,7 @@ router.get(
       const workOrderId = req.params.id
       const tenantId = req.user?.tenant_id
 
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }

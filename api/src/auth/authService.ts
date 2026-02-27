@@ -7,6 +7,7 @@
 import crypto from 'crypto'
 
 import bcrypt from 'bcrypt'
+import logger from '../config/logger'
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
@@ -201,7 +202,7 @@ export class AuthService {
     }
 
     if (cleanedCount > 0) {
-      console.log(`[AuthService] Cleaned up ${cleanedCount} expired sessions`)
+      logger.info(`[AuthService] Cleaned up ${cleanedCount} expired sessions`)
     }
   }
 
@@ -245,7 +246,7 @@ export class AuthService {
       errors.push('Password must contain at least one number')
     }
 
-    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
+    if (!/[!@#$%^&*()_+=[\]{};':"\\|,.<>/?-]/.test(password)) {
       errors.push('Password must contain at least one special character')
     }
 
@@ -325,7 +326,7 @@ export class AuthService {
 
   public verifyRefreshToken(token: string): { userId: string; sessionId: string } | null {
     try {
-      const payload = jwt.verify(token, JWT_REFRESH_SECRET!) as any
+      const payload = jwt.verify(token, JWT_REFRESH_SECRET!) as { userId: string; sessionId: string; type: string }
       return {
         userId: payload.userId,
         sessionId: payload.sessionId
@@ -425,8 +426,7 @@ export class AuthService {
       metadata
     }
 
-    // In production, this would be sent to a logging service
-    console.log('AUTH_EVENT:', JSON.stringify(event, null, 2))
+    logger.info('AUTH_EVENT', event)
   }
 }
 

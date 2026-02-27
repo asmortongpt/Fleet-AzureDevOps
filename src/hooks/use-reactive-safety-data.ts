@@ -22,8 +22,8 @@ import { useState, useCallback, useMemo, useEffect } from 'react'
 import { z } from 'zod'
 
 import logger from '@/utils/logger';
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
-const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:3000'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:3001'
 
 // Zod schemas for runtime validation - FMCSA/DOT compliant
 const SafetyScoreSchema = z.object({
@@ -545,11 +545,45 @@ export function useReactiveSafetyData(options?: {
   const openIncidents = incidents.filter((i) => i.status !== 'closed')
   const criticalIncidents = incidents.filter((i) => i.severity === 'critical')
 
-  // Mock data for inspections (to be replaced with real data when backend is ready)
-  const inspections: Array<{ id: string; status: string; type: string }> = []
+  // Fetch inspections from backend
+  const { data: inspections = [] } = useQuery<Array<{ id: string; status: string; type: string }>>({
+    queryKey: ['safety-inspections', realTimeUpdate],
+    queryFn: async ({ signal }) => {
+      try {
+        const response = await fetch(`${API_BASE}/inspections?limit=200`, {
+          signal,
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' },
+          credentials: 'include',
+        })
+        if (!response.ok) return []
+        const data = await response.json()
+        const rows = Array.isArray(data) ? data : (data?.data ?? [])
+        return rows.map((r: any) => ({ id: String(r.id), status: String(r.status || ''), type: String(r.type || r.inspection_type || '') }))
+      } catch { return [] }
+    },
+    staleTime: 30000,
+    retry: 1,
+  })
 
-  // Mock data for certifications (to be replaced with real data when backend is ready)
-  const certifications: Array<{ id: string; status: string; type: string }> = []
+  // Fetch certifications from backend
+  const { data: certifications = [] } = useQuery<Array<{ id: string; status: string; type: string }>>({
+    queryKey: ['safety-certifications', realTimeUpdate],
+    queryFn: async ({ signal }) => {
+      try {
+        const response = await fetch(`${API_BASE}/certifications?limit=200`, {
+          signal,
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' },
+          credentials: 'include',
+        })
+        if (!response.ok) return []
+        const data = await response.json()
+        const rows = Array.isArray(data) ? data : (data?.data ?? [])
+        return rows.map((r: any) => ({ id: String(r.id), status: String(r.status || ''), type: String(r.type || r.certification_type || '') }))
+      } catch { return [] }
+    },
+    staleTime: 30000,
+    retry: 1,
+  })
   const expiringCertifications = certifications.filter((c) => c.status === 'expiring_soon')
   const expiredCertifications = certifications.filter((c) => c.status === 'expired')
 
@@ -561,6 +595,8 @@ export function useReactiveSafetyData(options?: {
     queryClient.invalidateQueries({ queryKey: ['vehicle-safety'] })
     queryClient.invalidateQueries({ queryKey: ['training-records'] })
     queryClient.invalidateQueries({ queryKey: ['safety-incidents'] })
+    queryClient.invalidateQueries({ queryKey: ['safety-inspections'] })
+    queryClient.invalidateQueries({ queryKey: ['safety-certifications'] })
   }, [queryClient])
 
   // Enhanced metrics with additional properties
@@ -736,18 +772,18 @@ function calculateOSHAIncidentRate(incidents: IncidentReport[], employeeCount: n
 
 // Export utility functions for component use
 export function getSafetyScoreColor(score: number): string {
-  if (score >= 90) return '#22c55e' // green
-  if (score >= 70) return '#eab308' // yellow
-  return '#ef4444' // red
+  if (score >= 90) return 'hsl(var(--chart-2))'
+  if (score >= 70) return 'hsl(var(--chart-3))'
+  return 'hsl(var(--chart-6))'
 }
 
 export function getSeverityColor(severity: 'minor' | 'moderate' | 'major' | 'severe' | 'critical'): string {
   const colors = {
-    minor: '#3b82f6',    // blue
-    moderate: '#eab308', // yellow
-    major: '#f97316',    // orange
-    severe: '#dc2626',   // red-600
-    critical: '#ef4444', // red
+    minor: 'hsl(var(--chart-1))',
+    moderate: 'hsl(var(--chart-3))',
+    major: 'hsl(var(--chart-5))',
+    severe: 'hsl(var(--chart-6))',
+    critical: 'hsl(var(--chart-6))',
   }
   return colors[severity]
 }
@@ -758,10 +794,10 @@ export function formatComplianceStatus(compliant: boolean): string {
 
 export function getInspectionStatusColor(status: 'current' | 'due_soon' | 'overdue' | 'out_of_service'): string {
   const colors = {
-    current: '#22c55e',       // green
-    due_soon: '#eab308',      // yellow
-    overdue: '#f97316',       // orange
-    out_of_service: '#ef4444' // red
+    current: 'hsl(var(--chart-2))',
+    due_soon: 'hsl(var(--chart-3))',
+    overdue: 'hsl(var(--chart-5))',
+    out_of_service: 'hsl(var(--chart-6))'
   }
   return colors[status]
 }

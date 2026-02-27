@@ -19,6 +19,9 @@ export interface VehicleRow extends EntityRef {
   healthScore: number;
   alerts: number;
   updatedAgo: string;
+  department?: string;
+  operationalStatus?: 'AVAILABLE' | 'IN_USE' | 'MAINTENANCE' | 'RESERVED' | string;
+  engineType?: string;
 }
 
 export interface RecordRow extends EntityRef {

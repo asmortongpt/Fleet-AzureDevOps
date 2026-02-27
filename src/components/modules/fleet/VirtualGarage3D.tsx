@@ -30,6 +30,8 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { brandColors } from '@/theme/designSystem'
+import { formatVehicleName } from '@/utils/vehicle-display'
 import {
   AssetCategory,
   AssetType,
@@ -90,13 +92,13 @@ interface OBD2Telemetry {
 async function fetchVehicles(): Promise<GarageVehicle[]> {
   try {
     // Try emulator API first
-    const res = await fetch('/api/emulator/vehicles')
+    const res = await fetch('/api/emulator/vehicles', { credentials: 'include' })
     if (res.ok) {
       const data = await res.json()
       if (data.success && Array.isArray(data.data) && data.data.length > 0) {
         return data.data.map((v: any) => ({
           id: v.id,
-          name: v.name || `${v.year} ${v.make} ${v.model}`,
+          name: v.name || formatVehicleName(v),
           make: v.make,
           model: v.model,
           year: v.year,
@@ -126,7 +128,7 @@ async function fetchVehicles(): Promise<GarageVehicle[]> {
 async function fetchTelemetry(vehicleId: string): Promise<OBD2Telemetry | null> {
   if (!vehicleId) return null
   try {
-    const res = await fetch(`/api/emulator/vehicles/${vehicleId}/telemetry`)
+    const res = await fetch(`/api/emulator/vehicles/${vehicleId}/telemetry`, { credentials: 'include' })
     if (res.ok) {
       const data = await res.json()
       if (data.success && data.data) {
@@ -165,8 +167,13 @@ function VehicleSelector({
             'border transition-all',
             selectedId === vehicle.id
               ? 'bg-primary text-primary-foreground border-primary'
-              : 'bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50'
+              : ''
           )}
+          style={selectedId !== vehicle.id ? {
+            backgroundColor: `${brandColors.archon.lightGray}`,
+            borderColor: `${brandColors.cta.charcoal}20`,
+            color: brandColors.archon.black
+          } : {}}
         >
           <Car className="w-3 h-3" />
           <div className="text-left">
@@ -185,7 +192,7 @@ function VehicleSelector({
 
 function Viewer3DFallback() {
   return (
-    <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className="flex items-center justify-center h-full bg-[#111111]">
       <div className="text-center text-white">
         <ArrowsClockwise className="w-12 h-9 mx-auto mb-3 animate-spin" />
         <p className="text-sm">Loading 3D viewer...</p>
@@ -271,9 +278,9 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
   }, [selectedVehicle, telemetry])
 
   return (
-    <div className="relative w-full h-[calc(100vh-200px)] min-h-[600px] bg-slate-950 rounded-md overflow-hidden">
+    <div className="relative w-full h-[calc(100vh-200px)] min-h-[600px] bg-[#0a0a0a] rounded-md overflow-hidden">
       {/* Header with vehicle selector */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-2 bg-gradient-to-b from-slate-950 to-transparent">
+      <div className="absolute top-0 left-0 right-0 z-20 p-2 bg-[#0a0a0a]/80">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <h2 className="text-base font-bold text-white">Virtual Garage</h2>
@@ -335,12 +342,22 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
               <VehicleHUD stats={vehicleStats} />
 
               {/* Deep Drilldowns Integration */}
-              <div className="space-y-3 pt-2 border-t border-slate-700/50">
-                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] px-1">Deep Intel</h4>
+              <div className="space-y-3 pt-2 border-t" style={{ borderColor: `${brandColors.cta.charcoal}20` }}>
+                <h4
+                  className="text-[10px] font-bold uppercase tracking-[0.2em] px-1"
+                  style={{ color: brandColors.archon.mediumGray }}
+                >
+                  Deep Intel
+                </h4>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="outline"
-                    className="h-14 bg-slate-900/60 border-slate-700 hover:bg-slate-800 flex flex-col items-center justify-center gap-1 group"
+                    className="h-14 flex flex-col items-center justify-center gap-1 group"
+                    style={{
+                      backgroundColor: `${brandColors.archon.lightGray}`,
+                      borderColor: `${brandColors.cta.charcoal}20`,
+                      color: brandColors.archon.black
+                    }}
                     onClick={() => {
                       if (selectedVehicle?.bayId) {
                         push({
@@ -352,12 +369,17 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
                       }
                     }}
                   >
-                    <ArrowsClockwise className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+                    <ArrowsClockwise className="w-4 h-4" style={{ color: brandColors.cta.orange }} />
                     <span className="text-[10px] font-bold uppercase tracking-wider">Bay Intel</span>
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-14 bg-slate-900/60 border-slate-700 hover:bg-slate-800 flex flex-col items-center justify-center gap-1 group"
+                    className="h-14 flex flex-col items-center justify-center gap-1 group"
+                    style={{
+                      backgroundColor: `${brandColors.archon.lightGray}`,
+                      borderColor: `${brandColors.cta.charcoal}20`,
+                      color: brandColors.archon.black
+                    }}
                     onClick={() => {
                       if (selectedVehicle?.id) {
                         push({
@@ -369,7 +391,7 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
                       }
                     }}
                   >
-                    <Car className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+                    <Car className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
                     <span className="text-[10px] font-bold uppercase tracking-wider">Asset Data</span>
                   </Button>
                 </div>
@@ -380,7 +402,7 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
       )}
 
       {/* Camera Controls Hint */}
-      <div className="absolute bottom-24 right-4 z-10 bg-slate-900/80 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-slate-400">
+      <div className="absolute bottom-24 right-4 z-10 bg-[#0e0e0e]/90 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-white/50">
         <div className="flex items-center gap-2">
           <Eye className="w-4 h-4" />
           <span>Drag to rotate | Scroll to zoom</span>
@@ -405,10 +427,10 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-950/80 z-30">
+        <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a]/80 z-30">
           <div className="text-center">
             <ArrowsClockwise className="w-4 h-4 mx-auto mb-2 animate-spin text-primary" />
-            <p className="text-sm text-slate-400">Loading garage...</p>
+            <p className="text-sm text-white/50">Loading garage...</p>
           </div>
         </div>
       )}

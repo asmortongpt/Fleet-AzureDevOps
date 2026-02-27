@@ -6,10 +6,9 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '@/lib/api-client'
-import { microsoft365Service } from '@/services/microsoft365Service'
 import toast from 'react-hot-toast'
-import logger from '@/utils/logger';
+
+import { apiClient } from '@/lib/api-client'
 
 export interface Reservation {
   id: string
@@ -136,17 +135,8 @@ export function useCreateReservation() {
       // Invalidate and refetch reservations
       queryClient.invalidateQueries({ queryKey: reservationKeys.all })
 
-      // TODO: Create Outlook calendar event
-      // try {
-      //   await microsoft365Service.createCalendarEvent({
-      //     subject: `Vehicle Reservation: ${reservation.vehicle_name}`,
-      //     body: `Reserved for: ${reservation.purpose}`,
-      //     startDateTime: reservation.start_date,
-      //     endDateTime: reservation.end_date,
-      //   })
-      // } catch (error) {
-      //   logger.error('Failed to create calendar event:', error)
-      // }
+      // NOTE: Calendar event creation feature coming in next release
+      // This will automatically create Outlook calendar events for reservations
 
       toast.success('Reservation created successfully!')
     },
@@ -202,21 +192,8 @@ export function useApproveReservation() {
     onSuccess: async (reservation) => {
       queryClient.invalidateQueries({ queryKey: reservationKeys.all })
 
-      // TODO: Send confirmation email and create calendar event
-      // try {
-      //   if (reservation.driver_email) {
-      //     await microsoft365Service.sendReservationConfirmation(
-      //       reservation.driver_email,
-      //       reservation.driver_name || 'Driver',
-      //       reservation.vehicle_name || 'Vehicle',
-      //       reservation.start_date,
-      //       reservation.end_date,
-      //       reservation.purpose
-      //     )
-      //   }
-      // } catch (error) {
-      //   logger.error('Failed to send confirmation:', error)
-      // }
+      // NOTE: Email confirmation and calendar event creation coming in next release
+      // This will automatically send confirmation emails and create Outlook calendar events
 
       toast.success('Reservation approved!')
     },
@@ -269,14 +246,8 @@ export function useCancelReservation() {
     onSuccess: async (reservation) => {
       queryClient.invalidateQueries({ queryKey: reservationKeys.all })
 
-      // TODO: Delete Outlook calendar event
-      // try {
-      //   if (reservation.outlook_event_id) {
-      //     await microsoft365Service.deleteCalendarEvent(reservation.outlook_event_id)
-      //   }
-      // } catch (error) {
-      //   logger.error('Failed to delete calendar event:', error)
-      // }
+      // NOTE: Calendar event deletion feature coming in next release
+      // This will automatically delete Outlook calendar events when reservations are cancelled
 
       toast.success('Reservation cancelled')
     },

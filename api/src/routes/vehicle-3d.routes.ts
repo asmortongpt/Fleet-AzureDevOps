@@ -5,7 +5,7 @@
  */
 
 
-import express, { Response } from 'express'
+import express, { NextFunction, Response } from 'express'
 import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 21: Add Winston logger
@@ -15,7 +15,7 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
-import VehicleModelsService from '../services/vehicle-models.service'
+import VehicleModelsService, { DamageMarker } from '../services/vehicle-models.service'
 import { getErrorMessage } from '../utils/error-handler'
 
 
@@ -26,11 +26,11 @@ router.use(authenticateJWT)
 const vehicleModelsService = new VehicleModelsService(pool)
 
 // Optional authentication - allow public access for some endpoints
-const optionalAuth = (req: AuthRequest, res: Response, next: any) => {
-  authenticateJWT(req, res, (err?: any) => {
+const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction) => {
+  void authenticateJWT(req, res, (() => {
     // Continue even if not authenticated
     next()
-  })
+  }) as NextFunction)
 }
 
 /**
@@ -48,7 +48,7 @@ router.get('/:id/3d-model', optionalAuth, async (req: AuthRequest, res: Response
     }
 
     res.json(modelData)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Get 3D model error:', error) // Wave 21: Winston logger;
     res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
@@ -85,7 +85,7 @@ router.get('/:id/ar-model', optionalAuth, async (req: AuthRequest, res: Response
         length: modelData.bbox_length_m,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Get AR model error:', error) // Wave 21: Winston logger;
     res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
@@ -121,7 +121,7 @@ router.post(
         message: 'Customization saved successfully',
         data: result,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Save customization error:', error) // Wave 21: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid customization data', details: error.issues })
@@ -150,7 +150,7 @@ router.get('/models', optionalAuth, async (req: AuthRequest, res: Response) => {
       data: models,
       count: models.length,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('List models error:', error) // Wave 21: Winston logger;
     res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
@@ -164,7 +164,7 @@ router.get('/models/catalog', optionalAuth, async (req: AuthRequest, res: Respon
   try {
     const catalog = await vehicleModelsService.getModelCatalog()
     res.json(catalog)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Get catalog error:', error) // Wave 21: Winston logger;
     res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
@@ -188,7 +188,7 @@ router.get(
         data: options,
         count: options.length,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get customization options error:', error) // Wave 21: Winston logger;
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
@@ -224,13 +224,13 @@ router.post(
 
       const damageMarkers = schema.parse(req.body)
 
-      await vehicleModelsService.updateDamageMarkers(vehicleId, damageMarkers as any)
+      await vehicleModelsService.updateDamageMarkers(vehicleId, damageMarkers as unknown as DamageMarker[])
 
       res.json({
         message: 'Damage markers updated successfully',
         count: damageMarkers.length,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Update damage markers error:', error) // Wave 21: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid damage marker data', details: error.issues })
@@ -272,7 +272,7 @@ router.post('/:id/ar-session',csrfProtection, optionalAuth, async (req: AuthRequ
       message: 'AR session tracked',
       sessionId,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Track AR session error:', error) // Wave 21: Winston logger;
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid session data', details: error.issues })
@@ -305,7 +305,7 @@ router.put('/ar-sessions/:sessionId',csrfProtection, optionalAuth, async (req: A
     res.json({
       message: 'AR session ended successfully',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('End AR session error:', error) // Wave 21: Winston logger;
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid update data', details: error.issues })
@@ -333,7 +333,7 @@ router.get(
         data: analytics,
         period_days: days,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get AR analytics error:', error) // Wave 21: Winston logger;
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
@@ -366,7 +366,7 @@ router.post(
       const renderData = schema.parse(req.body)
 
       const renderId = await vehicleModelsService.createRenderRequest({
-        vehicleId,
+        vehicleId: String(vehicleId),
         ...renderData,
       })
 
@@ -377,7 +377,7 @@ router.post(
         renderId,
         status: 'pending',
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Create render error:', error) // Wave 21: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid render data', details: error.issues })
@@ -402,7 +402,7 @@ router.get('/:id/renders', optionalAuth, async (req: AuthRequest, res: Response)
       data: renders,
       count: renders.length,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Get renders error:', error) // Wave 21: Winston logger;
     res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
@@ -439,7 +439,7 @@ router.post('/3d-performance',csrfProtection, optionalAuth, async (req: AuthRequ
     res.json({
       message: 'Performance metrics tracked',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Track performance error:', error) // Wave 21: Winston logger;
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid metrics data', details: error.issues })
@@ -464,7 +464,7 @@ router.get(
       res.json({
         data: summary,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get performance summary error:', error) // Wave 21: Winston logger;
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
@@ -496,7 +496,7 @@ router.post(
 
       const vehicle = vehicleResult.rows[0]
 
-      const instance = await vehicleModelsService.findOrCreateModelForVehicle(vehicleId, {
+      const instance = await vehicleModelsService.findOrCreateModelForVehicle(String(vehicleId), {
         make: vehicle.make,
         model: vehicle.model,
         year: vehicle.year,
@@ -506,11 +506,108 @@ router.post(
         message: '3D instance created',
         data: instance,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Create 3D instance error:', error) // Wave 21: Winston logger;
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
+
+// ─── AI Model Generation Stubs ────────────────────────────────────
+
+/** In-memory job store for AI model generation simulation */
+const generationJobs = new Map<string, { vehicleId: string; startedAt: number; resolvedModelUrl: string }>();
+
+/**
+ * POST /api/vehicle-3d/generate-model
+ * Start AI 3D model generation (stub — simulates progress over 30s)
+ */
+router.post('/generate-model', csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const schema = z.object({
+      vehicleId: z.string(),
+      referenceImageUrl: z.string().optional(),
+    });
+    const { vehicleId } = schema.parse(req.body);
+
+    const jobId = `gen-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    // Look up vehicle's local GLB to use as the "generated" model
+    const vehicleResult = await pool.query(
+      `SELECT make, model, type FROM vehicles WHERE id = $1`,
+      [vehicleId]
+    );
+    const v = vehicleResult.rows[0];
+    const localUrl = v
+      ? `/models/vehicles/trucks/sample_truck.glb`
+      : `/models/vehicles/trucks/sample_truck.glb`;
+
+    generationJobs.set(jobId, {
+      vehicleId,
+      startedAt: Date.now(),
+      resolvedModelUrl: localUrl,
+    });
+
+    // Auto-cleanup after 10 minutes
+    setTimeout(() => generationJobs.delete(jobId), 600_000);
+
+    res.json({
+      jobId,
+      status: 'queued',
+      estimatedTimeSeconds: 30,
+    });
+  } catch (error: unknown) {
+    logger.error('Start model generation error:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid request', details: error.issues });
+    }
+    res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
+  }
+});
+
+/**
+ * GET /api/vehicle-3d/generate-model/:jobId/status
+ * Poll AI model generation progress (simulates over 30s)
+ */
+router.get('/generate-model/:jobId/status', authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { jobId } = req.params;
+    const job = generationJobs.get(jobId);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    const elapsed = (Date.now() - job.startedAt) / 1000; // seconds
+    const TOTAL_DURATION = 30;
+
+    const stages = [
+      'Analyzing reference images',
+      'Building geometry',
+      'Applying textures',
+      'Optimizing mesh',
+    ];
+
+    if (elapsed >= TOTAL_DURATION) {
+      res.json({
+        status: 'complete',
+        progress: 100,
+        stage: stages[3],
+        modelUrl: job.resolvedModelUrl,
+      });
+    } else {
+      const progress = Math.min(95, Math.round((elapsed / TOTAL_DURATION) * 100));
+      const stageIdx = Math.min(3, Math.floor((elapsed / TOTAL_DURATION) * 4));
+      res.json({
+        status: 'processing',
+        progress,
+        stage: stages[stageIdx],
+      });
+    }
+  } catch (error: unknown) {
+    logger.error('Poll model generation error:', error);
+    res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
+  }
+});
 
 export default router

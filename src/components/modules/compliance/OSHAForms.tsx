@@ -24,8 +24,8 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { useAuth } from "@/hooks/useAuth"
 import { secureFetch } from "@/hooks/use-api"
+import { useAuth } from "@/hooks/useAuth"
 import logger from "@/utils/logger"
 
 
@@ -86,23 +86,23 @@ export function OSHAForms() {
 
   const mapStatusFromApi = (status?: string): OSHAForm["status"] => {
     const normalized = (status || '').toLowerCase()
-    if (normalized === 'open') return 'submitted'
-    if (normalized === 'investigating') return 'under-review'
-    if (normalized === 'closed') return 'closed'
+    if (normalized === 'pending') return 'submitted'
+    if (normalized === 'in_progress') return 'under-review'
+    if (normalized === 'completed' || normalized === 'closed') return 'closed'
     return 'draft'
   }
 
   const mapStatusToApi = (status: OSHAForm["status"]): string => {
     switch (status) {
       case 'submitted':
-        return 'open'
+        return 'pending'
       case 'under-review':
-        return 'investigating'
+        return 'in_progress'
       case 'approved':
       case 'closed':
-        return 'closed'
+        return 'completed'
       default:
-        return 'open'
+        return 'pending'
     }
   }
 
@@ -216,8 +216,20 @@ export function OSHAForms() {
   })
 
   const handleSaveForm = async () => {
-    if (!newForm.title || !newForm.incidentDate || !newForm.location) {
-      toast.error("Please fill in required fields")
+    if (!newForm.title?.trim()) {
+      toast.error("Please enter a form title")
+      return
+    }
+    if (!newForm.incidentDate) {
+      toast.error("Please select an incident date")
+      return
+    }
+    if (new Date(newForm.incidentDate) > new Date()) {
+      toast.error("Incident date cannot be in the future")
+      return
+    }
+    if (!newForm.location?.trim()) {
+      toast.error("Please enter the incident location")
       return
     }
     try {
@@ -352,11 +364,11 @@ export function OSHAForms() {
 
   const getStatusColor = (status: OSHAForm["status"]) => {
     const colors = {
-      draft: "bg-gray-100 text-gray-700",
-      submitted: "bg-blue-100 text-blue-700",
+      draft: "bg-white/[0.05] text-white/40",
+      submitted: "bg-emerald-500/10 text-emerald-700",
       "under-review": "bg-yellow-100 text-yellow-700",
       approved: "bg-green-100 text-green-700",
-      closed: "bg-purple-100 text-purple-700"
+      closed: "bg-amber-100 text-amber-700"
     }
     return colors[status]
   }

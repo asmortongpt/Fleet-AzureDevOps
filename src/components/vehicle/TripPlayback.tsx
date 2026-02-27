@@ -150,7 +150,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
 
   // Fetch trip breadcrumbs data
   const { data, error, isLoading } = useSWR<TripBreadcrumbsResponse>(
-    tripId ? `/api/v1/vehicles/trips/${tripId}/breadcrumbs` : null,
+    tripId ? `/api/vehicle-history/trips/${tripId}/breadcrumbs` : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -235,7 +235,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
         // Create polyline trail
         const coordinates = breadcrumbs.map(b => [b.latitude, b.longitude] as [number, number]);
         const polyline = leaflet.polyline(coordinates, {
-          color: '#3b82f6',
+          color: '#10b981',
           weight: 4,
           opacity: 0.7
         });
@@ -385,7 +385,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
       const popup = `
         <div class="p-2 min-w-[200px]">
           <p class="font-bold">${format(new Date(currentPoint.timestamp), 'h:mm:ss a')}</p>
-          <p class="text-sm">Speed: ${currentPoint.speed_mph?.toFixed(1) || 'N/A'} mph</p>
+          <p class="text-sm">Speed: ${currentPoint.speed_mph?.toFixed(1) || '—'} mph</p>
           ${currentPoint.engine_rpm ? `<p class="text-sm">RPM: ${currentPoint.engine_rpm}</p>` : ''}
           ${currentPoint.fuel_level_percent ? `<p class="text-sm">Fuel: ${currentPoint.fuel_level_percent}%</p>` : ''}
         </div>

@@ -17,6 +17,10 @@
 import OpenAI from 'openai'
 import { Pool } from 'pg'
 
+// Import dependencies for singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
 
 // Cohere SDK (optional)
 interface CohereClient {
@@ -90,7 +94,7 @@ export class EmbeddingService {
 
   constructor(
     private db: Pool,
-    private logger: any
+    private logger: import('winston').Logger
   ) {
     // Don't call async initialization in constructor
   }
@@ -107,7 +111,7 @@ return
       this.openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
       })
-      console.log('✓ OpenAI embedding provider initialized')
+      logger.info('OpenAI embedding provider initialized')
     }
 
     // Cohere initialization
@@ -117,16 +121,16 @@ return
         const { CohereClient } = await import('cohere-ai')
         this.cohere = new CohereClient({
           apiKey: process.env.COHERE_API_KEY,
-        }) as any
-        console.log('✓ Cohere embedding provider initialized')
+        }) as unknown as CohereClient
+        logger.info('Cohere embedding provider initialized')
       } catch (error) {
-        console.warn('Cohere SDK not available, skipping initialization')
+        logger.warn('Cohere SDK not available, skipping initialization')
       }
     }
 
     // Local model initialization
     if (process.env.ENABLE_LOCAL_EMBEDDINGS === 'true') {
-      console.log('ℹ Local embeddings enabled (requires transformers.js)')
+      logger.info('Local embeddings enabled (requires transformers.js)')
       // Note: Actual initialization would require transformers.js
       // For now, we'll use a fallback implementation
     }
@@ -249,9 +253,9 @@ return
         embedding: response.data[0].embedding,
         tokens: response.usage.total_tokens,
       }
-    } catch (error: any) {
-      console.error(`OpenAI embedding error:`, error)
-      throw new Error(`OpenAI embedding failed: ${error.message}`)
+    } catch (error: unknown) {
+      logger.error('OpenAI embedding error', { error })
+      throw new Error(`OpenAI embedding failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`)
     }
   }
 
@@ -277,9 +281,9 @@ return
         embedding: response.embeddings[0],
         tokens: this.estimateTokenCount(text),
       }
-    } catch (error: any) {
-      console.error(`Cohere embedding error:`, error)
-      throw new Error(`Cohere embedding failed: ${error.message}`)
+    } catch (error: unknown) {
+      logger.error('Cohere embedding error', { error })
+      throw new Error(`Cohere embedding failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`)
     }
   }
 
@@ -290,7 +294,7 @@ return
     text: string,
     model: string
   ): Promise<{ embedding: number[]; tokens: number }> {
-    console.warn(`Using mock local embeddings - configure transformers.js for production`)
+    logger.warn('Using mock local embeddings - configure transformers.js for production')
 
     // Mock embedding for development
     const dimensions = 384 // all-MiniLM-L6-v2 dimension
@@ -557,7 +561,8 @@ return 'cohere'
    * Calculate embedding cost
    */
   private calculateCost(provider: string, model: string, tokens: number): number {
-    const config = (this.providerConfigs as any)[provider]?.[model]
+    const providerConfig = this.providerConfigs[provider as keyof typeof this.providerConfigs] as Record<string, { dimensions: number; costPer1M: number }> | undefined
+    const config = providerConfig?.[model]
     if (!config) {
 return 0
 }
@@ -609,7 +614,9 @@ return 0
     // Limit cache size
     if (this.cache.size > 1000) {
       const firstKey = this.cache.keys().next().value
-      this.cache.delete(firstKey)
+      if (firstKey !== undefined) {
+this.cache.delete(firstKey)
+}
     }
   }
 
@@ -651,10 +658,6 @@ return 0
     return results.map(r => r.embedding)
   }
 }
-
-// Import dependencies for singleton instance
-import pool from '../config/database'
-import logger from '../config/logger'
 
 // Export singleton instance
 export const embeddingService = new EmbeddingService(pool, logger)

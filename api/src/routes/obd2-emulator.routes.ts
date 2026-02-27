@@ -138,9 +138,9 @@ router.post('/start', csrfProtection, (req: Request, res: Response) => {
       message: `Emulation session started`,
       wsUrl: `/ws/obd2/${sessionId}`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error starting emulation:`, error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -172,9 +172,9 @@ router.post('/stop/:sessionId', csrfProtection, (req: Request, res: Response) =>
       sessionId,
       message: 'Emulation session stopped'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error stopping emulation:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -204,9 +204,9 @@ router.get('/data/:sessionId', (req: Request, res: Response) => {
     }
 
     res.json(data)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting emulation data:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -230,9 +230,9 @@ router.get('/sessions', (_req: Request, res: Response) => {
     }))
 
     res.json(sessionDetails)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting sessions:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -258,9 +258,9 @@ router.get('/sample-data', (req: Request, res: Response) => {
     const data = obd2Emulator.generateSingleDataPoint(profile)
 
     res.json(data)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error generating sample data:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -285,9 +285,9 @@ router.get('/sample-dtcs', (req: Request, res: Response) => {
     const dtcs = obd2Emulator.getSampleDTCs(count)
 
     res.json(dtcs)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting sample DTCs:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -315,7 +315,7 @@ export function setupOBD2WebSocket(server: any): void {
     const sessionId = pathParts[pathParts.length - 1]
     const clientId = uuidv4()
 
-    console.log(`[OBD2 WebSocket] Client ${clientId} connected for session ${sessionId}`)
+    logger.info(`[OBD2 WebSocket] Client ${clientId} connected for session ${sessionId}`)
 
     // Register client
     obd2Emulator.registerWSClient(clientId, ws)
@@ -343,7 +343,7 @@ export function setupOBD2WebSocket(server: any): void {
         const data = JSON.parse(message.toString())
 
         switch (data.type) {
-          case 'subscribe':
+          case 'subscribe': {
             const subscribed = obd2Emulator.subscribeToSession(clientId, data.sessionId)
             ws.send(JSON.stringify({
               type: subscribed ? 'subscribed' : 'error',
@@ -351,12 +351,13 @@ export function setupOBD2WebSocket(server: any): void {
               message: subscribed ? 'Subscribed to session' : 'Session not found'
             }))
             break
+          }
 
           case 'ping':
             ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }))
             break
 
-          case 'get_data':
+          case 'get_data': {
             const sessionData = obd2Emulator.getSessionData(data.sessionId)
             ws.send(JSON.stringify({
               type: 'obd2_data',
@@ -364,6 +365,7 @@ export function setupOBD2WebSocket(server: any): void {
               data: sessionData
             }))
             break
+          }
 
           default:
             ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type' }))
@@ -376,7 +378,7 @@ export function setupOBD2WebSocket(server: any): void {
 
     // Handle disconnection
     ws.on(`close`, () => {
-      console.log(`[OBD2 WebSocket] Client ${clientId} disconnected`)
+      logger.info(`[OBD2 WebSocket] Client ${clientId} disconnected`)
       obd2Emulator.unregisterWSClient(clientId)
     })
 
@@ -394,7 +396,7 @@ export function setupOBD2WebSocket(server: any): void {
     }))
   })
 
-  console.log('[OBD2 Emulator] WebSocket server initialized')
+  logger.info('[OBD2 Emulator] WebSocket server initialized')
 }
 
 export default router

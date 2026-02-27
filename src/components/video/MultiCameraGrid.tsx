@@ -111,7 +111,7 @@ export const MultiCameraGrid: React.FC<MultiCameraGridProps> = ({
           return {
             vehicleId,
             cameraAngle: cam.angle,
-            videoUrl: matchingVideo?.url || `https://via.placeholder.com/640x360?text=${cam.label}+Camera`,
+            videoUrl: matchingVideo?.url || '',
             videoId: matchingVideo?.id,
             title: `${cam.label} Camera`,
             isActive: !!matchingVideo

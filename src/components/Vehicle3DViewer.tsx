@@ -9,12 +9,14 @@ import {
   Stats
 } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Suspense, useRef, useState, useEffect } from 'react';
+import { Suspense, useRef, useState, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 
+import { apiClient } from '@/services/api';
+import logger from '@/utils/logger';
 
 interface Vehicle3DViewerProps {
-  vehicleId: number;
+  vehicleId: string | number;
   modelUrl?: string;
   usdzUrl?: string;
   vehicleData?: {
@@ -87,7 +89,7 @@ function createChromeMaterial(quality: 'low' | 'medium' | 'high'): THREE.MeshSta
 // Glass Material for windows
 function createGlassMaterial(quality: 'low' | 'medium' | 'high'): THREE.MeshPhysicalMaterial {
   return new THREE.MeshPhysicalMaterial({
-    color: 0x88ccff,
+    color: 0xffffff,
     metalness: 0,
     roughness: quality === 'high' ? 0 : 0.05,
     transmission: quality === 'high' ? 0.95 : quality === 'medium' ? 0.8 : 0.5,  // Transparency
@@ -135,9 +137,8 @@ function VehicleModel({
   const groupRef = useRef<THREE.Group>(null);
   const [modelLoaded, setModelLoaded] = useState(false);
 
-  // Load GLTF model (placeholder for now)
-  // In production, this would load actual vehicle models
-  const { scene } = useGLTF(url || '/models/vehicles/sedans/default.glb', true);
+  // Load GLTF model (requires real model URL)
+  const { scene } = useGLTF(url, true);
 
   useEffect(() => {
     if (scene) {
@@ -210,9 +211,9 @@ function VehicleModel({
       <primitive object={scene} scale={1} position={[0, 0, 0]} />
 
       {/* Damage markers */}
-      {showDamage && damageMarkers.map((marker, index) => (
+      {showDamage && damageMarkers.map((marker) => (
         <DamageMarker
-          key={index}
+          key={`${marker.location?.x ?? 0}-${marker.location?.y ?? 0}-${marker.location?.z ?? 0}-${marker.severity}`}
           position={[marker.location?.x ?? 0, marker.location?.y ?? 0, marker.location?.z ?? 0]}
           severity={marker.severity}
           type={marker.type}
@@ -259,7 +260,7 @@ function DamageMarker({
         <Html distanceFactor={10}>
           <div className="bg-black/90 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap">
             <div className="font-semibold">{type}</div>
-            <div className="text-xs text-gray-300">{severity}</div>
+            <div className="text-xs text-white/60">{severity}</div>
             {description && <div className="text-xs mt-1">{description}</div>}
           </div>
         </Html>
@@ -368,7 +369,7 @@ function Scene({
       />
 
       {/* Rim Light */}
-      <pointLight position={[0, 5, -10]} intensity={0.8} color="#88ccff" />
+      <pointLight position={[0, 5, -10]} intensity={0.8} color="#ffffff" />
 
       {/* Ground Bounce Light */}
       <hemisphereLight
@@ -464,16 +465,17 @@ function Scene({
 // Loading Placeholder Component
 function LoadingPlaceholder() {
   return (
-    <mesh position={[0, 0, 0]}>
-      <boxGeometry args={[2, 1, 4]} />
-      <meshStandardMaterial color="#444444" />
-    </mesh>
+    <Html center>
+      <div className="rounded-md bg-[#111]/80 px-3 py-2 text-xs text-white/70">
+        Loading 3D model...
+      </div>
+    </Html>
   );
 }
 
 export default function Vehicle3DViewer({
   vehicleId,
-  modelUrl = '/models/vehicles/sedans/default.glb',
+  modelUrl,
   usdzUrl,
   vehicleData,
   onARView,
@@ -489,27 +491,81 @@ export default function Vehicle3DViewer({
     z: 5,
     target: { x: 0, y: 0.5, z: 0 }
   });
+  const [resolvedModelUrl, setResolvedModelUrl] = useState<string | null>(modelUrl || null);
+  const [resolvedUsdzUrl, setResolvedUsdzUrl] = useState<string | null>(usdzUrl || null);
+  const [resolvedExteriorColor, setResolvedExteriorColor] = useState<string>(vehicleData?.exteriorColor || '#ffffff');
+  const [resolvedDamageMarkers, setResolvedDamageMarkers] = useState(vehicleData?.damageMarkers || []);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (modelUrl) return;
+    let isActive = true;
+    const fetchModel = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiClient.get(`/api/vehicles/${vehicleId}/3d-model`);
+        const data = response.data;
+        if (!isActive) return;
+        setResolvedModelUrl(data?.glb_model_url || data?.glbModelUrl || null);
+        setResolvedUsdzUrl(data?.usdz_model_url || data?.usdzModelUrl || null);
+        setResolvedExteriorColor(data?.exterior_color_hex || data?.exteriorColorHex || vehicleData?.exteriorColor || '#ffffff');
+        setResolvedDamageMarkers(data?.damage_markers || data?.damageMarkers || vehicleData?.damageMarkers || []);
+        setLoadError(null);
+      } catch (error: any) {
+        if (!isActive) return;
+        const status = error?.response?.status;
+        setLoadError(status === 404 ? 'No 3D model available for this vehicle.' : 'Failed to load 3D model.');
+        logger.warn('Vehicle 3D model fetch failed', { vehicleId, error });
+      } finally {
+        if (isActive) setIsLoading(false);
+      }
+    };
+    fetchModel();
+    return () => {
+      isActive = false;
+    };
+  }, [vehicleId, modelUrl, vehicleData?.exteriorColor, vehicleData?.damageMarkers]);
+
+  const canRender3d = useMemo(() => !!resolvedModelUrl && !loadError, [resolvedModelUrl, loadError]);
 
   return (
     <div className={`relative w-full h-[500px] ${className || ''}`}>
-      <Canvas
-        shadows
-        camera={{ position: [5, 3, 5], fov: 60 }}
-        gl={{ antialias: quality === 'high', alpha: false }}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <Scene
-          modelUrl={modelUrl}
-          exteriorColor={vehicleData?.exteriorColor || '#ffffff'}
-          environment={environment}
-          showDamage={showDamage}
-          damageMarkers={vehicleData?.damageMarkers || []}
-          quality={quality}
-          cameraPreset={cameraPreset}
-          enablePostProcessing={quality !== 'low'}
-          showStats={false}
-        />
-      </Canvas>
+      {loadError && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[#0a0a0a]/80 text-sm text-white/70">
+          {loadError}
+        </div>
+      )}
+      {isLoading && !loadError && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[#0a0a0a]/50 text-sm text-white/70">
+          Loading 3D model...
+        </div>
+      )}
+      {!canRender3d && !isLoading && !loadError && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[#0a0a0a]/50 text-sm text-white/70">
+          No 3D model available.
+        </div>
+      )}
+      {canRender3d && (
+        <Canvas
+          shadows
+          camera={{ position: [5, 3, 5], fov: 60 }}
+          gl={{ antialias: quality === 'high', alpha: false }}
+          style={{ width: '100%', height: '100%' }}
+        >
+          <Scene
+            modelUrl={resolvedModelUrl as string}
+            exteriorColor={resolvedExteriorColor}
+            environment={environment}
+            showDamage={showDamage}
+            damageMarkers={resolvedDamageMarkers}
+            quality={quality}
+            cameraPreset={cameraPreset}
+            enablePostProcessing={quality !== 'low'}
+            showStats={false}
+          />
+        </Canvas>
+      )}
     </div>
   );
 }

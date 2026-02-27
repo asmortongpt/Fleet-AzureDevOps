@@ -1,6 +1,8 @@
-import { Configuration, PublicClientApplication, TokenCache } from "@azure/msal-node";
+import { Configuration, PublicClientApplication, TokenCache, LogLevel } from "@azure/msal-node";
 import axios from "axios";
 import { config as dotenvConfig } from "dotenv";
+
+import logger from '../../config/logger';
 
 dotenvConfig();
 
@@ -18,11 +20,11 @@ const config: Configuration = {
   },
   system: {
     loggerOptions: {
-      loggerCallback(loglevel: any, message: string, containsPii: boolean) {
-        console.log(message);
+      loggerCallback(loglevel: LogLevel, message: string, containsPii: boolean) {
+        logger.info(message);
       },
       piiLoggingEnabled: false,
-      logLevel: process.env.LOG_LEVEL as any,
+      logLevel: Number(process.env.LOG_LEVEL) as LogLevel,
     },
   },
 };
@@ -40,7 +42,7 @@ export async function getUserProfile(accessToken: string): Promise<UserProfile> 
 
     return response.data;
   } catch (error) {
-    console.error("Failed to fetch user profile", error);
+    logger.error("Failed to fetch user profile", { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
 }
@@ -57,7 +59,7 @@ export async function getToken(): Promise<string> {
 
     return response.accessToken;
   } catch (error) {
-    console.error("Failed to get token", error);
+    logger.error("Failed to get token", { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
 }

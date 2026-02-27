@@ -13,21 +13,23 @@ import {
   Wrench,
   Calendar,
   Package,
-  Warning,
   CheckCircle,
   Clock,
-  ListChecks,
-  CarSimple
+  ListChecks
 } from '@phosphor-icons/react';
-import { motion } from 'framer-motion';
-import React, { useState } from 'react';
-import { toast } from 'react-hot-toast';
+// motion removed - React 19 incompatible
+import { AlertTriangle, Car } from 'lucide-react';
+import React, { useMemo } from 'react';
+
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { useWorkOrders } from '@/hooks/use-api';
+import { useFleetData } from '@/hooks/use-fleet-data';
+import { useMaintenanceData } from '@/hooks/use-maintenance-data';
 import { cn } from '@/lib/utils';
 
-import { AlertTriangle, Car } from 'lucide-react';
 interface WorkOrderStats {
   open: number;
   in_progress: number;
@@ -57,104 +59,115 @@ interface PartsInventory {
 }
 
 export function MaintenanceManagerDashboard() {
-  const [workOrderStats, setWorkOrderStats] = useState<WorkOrderStats>({
-    open: 8,
-    in_progress: 5,
-    completed_this_week: 23,
-    avg_repair_time_hours: 4.2
-  });
+  const fleetData = useFleetData();
+  const vehicles = fleetData.vehicles || [];
+  const { data: workOrders } = useWorkOrders();
+  const { maintenanceRecords } = useMaintenanceData(vehicles);
 
-  const [overdueMaintenanceItems, setOverdueMaintenanceItems] = useState<MaintenanceItem[]>([
-    {
-      id: 1,
-      vehicle_id: 1042,
-      vehicle_name: 'Vehicle #1042',
-      maintenance_type: 'Oil Change',
-      days_overdue: 5,
-      status: 'overdue'
-    },
-    {
-      id: 2,
-      vehicle_id: 1089,
-      vehicle_name: 'Vehicle #1089',
-      maintenance_type: 'Tire Rotation',
-      days_overdue: 3,
-      status: 'overdue'
-    },
-    {
-      id: 3,
-      vehicle_id: 1103,
-      vehicle_name: 'Vehicle #1103',
-      maintenance_type: 'Brake Inspection',
-      days_overdue: 2,
-      status: 'overdue'
-    }
-  ]);
+  const workOrderStats = useMemo<WorkOrderStats>(() => {
+    const rows = Array.isArray(workOrders)
+      ? workOrders
+      : Array.isArray((workOrders as any)?.data)
+        ? (workOrders as any).data
+        : [];
 
-  const [upcomingSchedule, setUpcomingSchedule] = useState<UpcomingMaintenance[]>([
-    { date: 'Mon 1/15', count: 4 },
-    { date: 'Tue 1/16', count: 2 },
-    { date: 'Thu 1/18', count: 6 }
-  ]);
+    const open = rows.filter((order: any) => ['pending'].includes(String(order.status || '').toLowerCase())).length;
+    const in_progress = rows.filter((order: any) => ['in-progress', 'in_progress', 'active'].includes(String(order.status || '').toLowerCase())).length;
+    const completed_this_week = rows.filter((order: any) => {
+      const date = new Date(order.completedDate || order.completed_date || order.completed_at || order.updated_at || order.created_at || 0);
+      if (Number.isNaN(date.getTime())) return false;
+      const start = new Date();
+      start.setDate(start.getDate() - 7);
+      return date >= start && ['completed', 'closed'].includes(String(order.status || '').toLowerCase());
+    }).length;
+    const avg_repair_time_hours = rows.length === 0 ? 0 : Math.round((rows.reduce((sum: number, order: any) => {
+      const started = new Date(order.started_at || order.startedAt || order.created_at || 0).getTime();
+      const completed = new Date(order.completed_at || order.completedAt || Date.now()).getTime();
+      if (!started || !completed || Number.isNaN(started) || Number.isNaN(completed)) return sum;
+      return sum + (completed - started) / (1000 * 60 * 60);
+    }, 0) / Math.max(rows.length, 1)) * 10) / 10;
 
-  const [partsInventory, setPartsInventory] = useState<PartsInventory>({
-    total_items: 48,
-    below_reorder: 3,
-    in_stock: 45
-  });
+    return { open, in_progress, completed_this_week, avg_repair_time_hours };
+  }, [workOrders]);
 
-  // Quick actions
-  const handleCreateWorkOrder = (vehicleId?: number) => {
-    if (vehicleId) {
-      toast.success(`Creating work order for Vehicle #${vehicleId}...`);
-    } else {
-      toast.success('Opening work order creation form...');
-    }
-    // TODO: Open work order creation dialog
+  const overdueMaintenanceItems = useMemo<MaintenanceItem[]>(() => {
+    return maintenanceRecords
+      .filter((record) => record.status === 'overdue')
+      .slice(0, 6)
+      .map((record) => ({
+        id: Number(record.id),
+        vehicle_id: Number(record.vehicleNumber) || 0,
+        vehicle_name: record.vehicleName || record.vehicleNumber || 'Vehicle',
+        maintenance_type: record.serviceType,
+        days_overdue: record.date ? Math.max(1, Math.ceil((Date.now() - new Date(record.date).getTime()) / (1000 * 60 * 60 * 24))) : undefined,
+        status: 'overdue'
+      }));
+  }, [maintenanceRecords]);
+
+  const upcomingSchedule = useMemo<UpcomingMaintenance[]>(() => {
+    const upcoming = maintenanceRecords.filter((record) => record.status === 'upcoming');
+    const buckets = new Map<string, number>();
+    upcoming.forEach((record) => {
+      const date = record.date ? new Date(record.date) : null;
+      if (!date || Number.isNaN(date.getTime())) return;
+      const label = date.toLocaleDateString(undefined, { weekday: 'short', month: 'numeric', day: 'numeric' });
+      buckets.set(label, (buckets.get(label) || 0) + 1);
+    });
+    return Array.from(buckets.entries()).slice(0, 4).map(([date, count]) => ({ date, count }));
+  }, [maintenanceRecords]);
+
+  const partsInventory = useMemo<PartsInventory>(() => {
+    const inventory = (fleetData as any).inventory || (fleetData as any).partsInventory || [];
+    const rows = Array.isArray(inventory) ? inventory : [];
+    const total_items = rows.length;
+    const below_reorder = rows.filter((item: any) => Number(item.quantity_on_hand ?? item.quantityOnHand ?? 0) <= Number(item.reorder_point ?? item.reorderPoint ?? 0)).length;
+    const in_stock = rows.filter((item: any) => Number(item.quantity_on_hand ?? item.quantityOnHand ?? 0) > 0).length;
+    return { total_items, below_reorder, in_stock };
+  }, [fleetData]);
+
+  const { navigateTo } = useNavigation();
+
+  // Quick actions - Navigate to specific pages
+  const handleCreateWorkOrder = (_vehicleId?: number) => {
+    navigateTo('maintenance');
   };
 
   const handleSchedulePM = () => {
-    toast.success('Opening preventive maintenance scheduler...');
-    // TODO: Navigate to PM scheduler
+    navigateTo('maintenance');
   };
 
   const handleSearchParts = () => {
-    toast.success('Opening parts search interface...');
-    // TODO: Navigate to parts inventory
+    navigateTo('assets');
   };
 
   const handleAssignMechanic = () => {
-    toast('Opening mechanic assignment dialog...');
-    // TODO: Open mechanic assignment
+    navigateTo('maintenance');
   };
 
   const handleViewQueue = () => {
-    toast('Navigating to work order queue...');
-    // TODO: Navigate to work order page
+    navigateTo('maintenance');
   };
 
   const handleViewCalendar = () => {
-    toast('Opening maintenance calendar...');
-    // TODO: Navigate to calendar view
+    navigateTo('maintenance');
   };
 
   const handleReorderParts = () => {
-    toast.success('Opening parts reorder form...');
-    // TODO: Navigate to parts reorder
+    navigateTo('procurement');
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 p-2">
+    <div className="min-h-screen bg-[#111] p-2">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h1 className="text-sm font-bold text-white mb-1">Maintenance Dashboard</h1>
-          <p className="text-sm text-slate-700">Work Order Management & Preventive Maintenance</p>
+          <p className="text-sm text-white/40">Work Order Management & Preventive Maintenance</p>
         </div>
         <Button size="sm"
           onClick={handleViewCalendar}
           variant="outline"
-          className="border-violet-400 text-violet-400 hover:bg-violet-400/10"
+          className="border-amber-400 text-amber-400 hover:bg-amber-400/10"
         >
           <Calendar className="w-4 h-4 mr-2" />
           Schedule Calendar
@@ -162,7 +175,7 @@ export function MaintenanceManagerDashboard() {
       </div>
 
       {/* Work Queue Summary */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-amber-500/30 p-2 mb-3">
+      <Card className="bg-[#111111] border-amber-500/30 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <Wrench className="w-4 h-4 text-amber-400" />
           <h2 className="text-sm font-bold text-white">Work Queue</h2>
@@ -170,8 +183,7 @@ export function MaintenanceManagerDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* Open Work Orders */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          <div
             className="bg-red-950/30 rounded-md p-2 border border-red-500/30 hover:border-red-400/50 transition-all cursor-pointer"
             onClick={handleViewQueue}
           >
@@ -190,23 +202,21 @@ export function MaintenanceManagerDashboard() {
             >
               Assign Now
             </Button>
-          </motion.div>
+          </div>
 
           {/* In Progress */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="bg-blue-950/30 rounded-md p-2 border border-blue-500/30 hover:border-blue-400/50 transition-all"
+          <div
+            className="bg-white/[0.04] rounded-md p-2 border border-white/[0.04] hover:border-white/[0.12] transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Wrench className="w-4 h-4 text-blue-700" />
+              <Wrench className="w-4 h-4 text-emerald-400" />
               <span className="text-sm font-black text-white">{workOrderStats.in_progress}</span>
             </div>
-            <p className="text-blue-300 font-semibold">In Progress</p>
-          </motion.div>
+            <p className="text-emerald-300 font-semibold">In Progress</p>
+          </div>
 
           {/* Completed This Week */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          <div
             className="bg-green-950/30 rounded-md p-2 border border-green-500/30 hover:border-green-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
@@ -215,20 +225,19 @@ export function MaintenanceManagerDashboard() {
             </div>
             <p className="text-green-300 font-semibold">Completed</p>
             <p className="text-xs text-green-400/70 mt-1">This Week</p>
-          </motion.div>
+          </div>
 
           {/* Avg Repair Time */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="bg-violet-950/30 rounded-md p-2 border border-violet-500/30 hover:border-violet-400/50 transition-all"
+          <div
+            className="bg-amber-950/30 rounded-md p-2 border border-amber-500/30 hover:border-amber-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Clock className="w-4 h-4 text-violet-400" />
+              <Clock className="w-4 h-4 text-amber-400" />
               <span className="text-sm font-black text-white">{workOrderStats.avg_repair_time_hours}</span>
             </div>
-            <p className="text-violet-300 font-semibold">Avg Hours</p>
-            <p className="text-xs text-violet-400/70 mt-1">Per Repair</p>
-          </motion.div>
+            <p className="text-amber-300 font-semibold">Avg Hours</p>
+            <p className="text-xs text-amber-400/70 mt-1">Per Repair</p>
+          </div>
         </div>
       </Card>
 
@@ -236,21 +245,21 @@ export function MaintenanceManagerDashboard() {
       <div className="mb-3 flex flex-wrap gap-3">
         <Button size="sm"
           onClick={() => handleCreateWorkOrder()}
-          className="bg-cyan-600 hover:bg-cyan-700 text-white"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <Wrench className="w-4 h-4 mr-2" />
           Create Work Order
         </Button>
         <Button size="sm"
           onClick={handleSchedulePM}
-          className="bg-violet-600 hover:bg-violet-700 text-white"
+          className="bg-amber-600 hover:bg-amber-700 text-white"
         >
           <Calendar className="w-4 h-4 mr-2" />
           Schedule PM
         </Button>
         <Button size="sm"
           onClick={handleSearchParts}
-          className="bg-slate-600 hover:bg-slate-700 text-white"
+          className="bg-white/[0.15] hover:bg-white/[0.06] text-white"
         >
           <Package className="w-4 h-4 mr-2" />
           Parts Search
@@ -259,7 +268,7 @@ export function MaintenanceManagerDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Overdue Maintenance */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+        <Card className="bg-[#111111] border-white/[0.04] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-red-400" />
@@ -271,9 +280,8 @@ export function MaintenanceManagerDashboard() {
 
           <div className="space-y-3">
             {overdueMaintenanceItems.map((item) => (
-              <motion.div
+              <div
                 key={item.id}
-                whileHover={{ scale: 1.01 }}
                 className="bg-red-950/20 rounded-lg p-2 border border-red-500/30 hover:border-red-400/50 transition-all"
               >
                 <div className="flex items-start justify-between mb-2">
@@ -281,7 +289,7 @@ export function MaintenanceManagerDashboard() {
                     <Car className="w-4 h-4 text-red-400" />
                     <div>
                       <p className="font-bold text-white">{item.vehicle_name}</p>
-                      <p className="text-sm text-slate-300">{item.maintenance_type}</p>
+                      <p className="text-sm text-white/60">{item.maintenance_type}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -299,7 +307,7 @@ export function MaintenanceManagerDashboard() {
                   <Wrench className="w-4 h-4 mr-2" />
                   Create Work Order
                 </Button>
-              </motion.div>
+              </div>
             ))}
           </div>
         </Card>
@@ -307,30 +315,30 @@ export function MaintenanceManagerDashboard() {
         {/* Upcoming Maintenance & Parts Inventory */}
         <div className="space-y-2">
           {/* Upcoming Maintenance */}
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+          <Card className="bg-[#111111] border-white/[0.04] p-2">
             <div className="flex items-center gap-2 mb-3">
-              <Calendar className="w-4 h-4 text-cyan-400" />
+              <Calendar className="w-4 h-4 text-emerald-400" />
               <h2 className="text-sm font-bold text-white">Upcoming Maintenance (Next 7 Days)</h2>
             </div>
 
             <div className="space-y-3">
-              {upcomingSchedule.map((schedule, idx) => (
+              {upcomingSchedule.map((schedule) => (
                 <div
-                  key={idx}
-                  className="flex items-center justify-between bg-slate-900/50 rounded-lg p-3 border border-slate-700"
+                  key={schedule.date}
+                  className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-9 bg-cyan-950/50 rounded-lg flex items-center justify-center border border-cyan-500/30">
-                      <Calendar className="w-4 h-4 text-cyan-400" />
+                    <div className="w-12 h-9 bg-emerald-950/50 rounded-lg flex items-center justify-center border border-emerald-500/30">
+                      <Calendar className="w-4 h-4 text-emerald-400" />
                     </div>
                     <div>
                       <p className="font-bold text-white">{schedule.date}</p>
-                      <p className="text-sm text-slate-700">{schedule.count} vehicles scheduled</p>
+                      <p className="text-sm text-white/40">{schedule.count} vehicles scheduled</p>
                     </div>
                   </div>
                   <Button size="sm"
                     variant="outline"
-                    className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
+                    className="border-emerald-400 text-emerald-400 hover:bg-emerald-400/10"
                   >
                     View
                   </Button>
@@ -341,35 +349,34 @@ export function MaintenanceManagerDashboard() {
             <Button size="sm"
               onClick={handleViewCalendar}
               variant="outline"
-              className="w-full mt-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
+              className="w-full mt-2 border-emerald-400 text-emerald-400 hover:bg-emerald-400/10"
             >
               View Full Calendar
             </Button>
           </Card>
 
           {/* Parts Inventory Status */}
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+          <Card className="bg-[#111111] border-white/[0.04] p-2">
             <div className="flex items-center gap-2 mb-3">
-              <Package className="w-4 h-4 text-violet-400" />
+              <Package className="w-4 h-4 text-amber-400" />
               <h2 className="text-sm font-bold text-white">Parts Inventory Status</h2>
             </div>
 
             <div className="space-y-3">
               {/* Below Reorder Level */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
+              <div
                 className={cn(
                   "rounded-lg p-2 border transition-all cursor-pointer",
                   partsInventory.below_reorder > 0
                     ? "bg-amber-950/30 border-amber-500/30 hover:border-amber-400/50"
-                    : "bg-slate-900/50 border-slate-700"
+                    : "bg-white/[0.03] border-white/[0.04]"
                 )}
                 onClick={handleReorderParts}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-400" />
-                    <span className="text-sm text-slate-300">Below Reorder Level</span>
+                    <span className="text-sm text-white/60">Below Reorder Level</span>
                   </div>
                   <span className="text-sm font-bold text-white">
                     {partsInventory.below_reorder}
@@ -386,14 +393,14 @@ export function MaintenanceManagerDashboard() {
                     View & Reorder
                   </Button>
                 )}
-              </motion.div>
+              </div>
 
               {/* In Stock */}
               <div className="bg-green-950/30 rounded-lg p-2 border border-green-500/30">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-slate-300">In Stock</span>
+                    <span className="text-sm text-white/60">In Stock</span>
                   </div>
                   <span className="text-sm font-bold text-white">
                     {partsInventory.in_stock}
@@ -402,9 +409,9 @@ export function MaintenanceManagerDashboard() {
               </div>
 
               {/* Total Items */}
-              <div className="bg-slate-900/50 rounded-lg p-3 border border-slate-700">
+              <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-700 text-sm">Total Inventory Items</span>
+                  <span className="text-white/40 text-sm">Total Inventory Items</span>
                   <span className="text-sm font-bold text-white">
                     {partsInventory.total_items}
                   </span>
@@ -415,7 +422,7 @@ export function MaintenanceManagerDashboard() {
             <Button size="sm"
               onClick={handleSearchParts}
               variant="outline"
-              className="w-full mt-2 border-violet-400 text-violet-400 hover:bg-violet-400/10"
+              className="w-full mt-2 border-amber-400 text-amber-400 hover:bg-amber-400/10"
             >
               <Package className="w-4 h-4 mr-2" />
               Search Parts Inventory

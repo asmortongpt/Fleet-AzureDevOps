@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 
+import logger from '../config/logger';
 import { pool as sharedPool } from '../db';
 import { BaseRepository } from './base/BaseRepository';
 
@@ -35,7 +36,7 @@ export class VehicleGroupsRepository extends BaseRepository<any> {
       const result = await this.pool.query(query, [tenantId]);
       return result.rows;
     } catch (error) {
-      console.error('Error in findAll:', error);
+      logger.error('VehicleGroupsRepository.findAll failed', { error });
       throw new Error('Failed to fetch records');
     }
   }

@@ -17,7 +17,7 @@ import {
   AnalyticsTab,
   DataWorkbenchDialogs,
   type AdvancedSearchCriteria
-} from "./DataWorkbench.bak"
+} from "./DataWorkbenchParts"
 
 import { MetricCard } from "@/components/MetricCard"
 import { Button } from "@/components/ui/button"

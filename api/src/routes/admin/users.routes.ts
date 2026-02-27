@@ -10,12 +10,33 @@
  */
 
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { pool } from '../../db/connection';
 import { authenticateJWT } from '../../middleware/auth';
 import { requireRBAC, Role, PERMISSIONS } from '../../middleware/rbac';
 import { asyncHandler } from '../../middleware/errorHandler';
+import { csrfProtection } from '../../middleware/csrf';
 import logger from '../../config/logger';
-import { authenticateJWT } from '../middleware/auth'
+
+// --- Zod Schemas for input validation ---
+
+const validRoles = ['admin', 'manager', 'operator', 'viewer', 'driver', 'dispatcher', 'maintenance_manager', 'fleet_manager'] as const;
+
+const createUserSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(200),
+  email: z.string().email('Invalid email format').max(254),
+  role: z.enum(validRoles, { message: 'Invalid role' }),
+  department: z.string().max(100).optional(),
+  password: z.string().min(8).max(128).optional(),
+});
+
+const updateUserSchema = z.object({
+  name: z.string().min(1).max(200).optional(),
+  email: z.string().email('Invalid email format').max(254).optional(),
+  role: z.enum(validRoles, { message: 'Invalid role' }).optional(),
+  department: z.string().max(100).optional(),
+  status: z.enum(['active', 'inactive']).optional(),
+});
 
 const router = Router();
 
@@ -23,7 +44,7 @@ const router = Router();
 router.use(authenticateJWT);
 router.use(requireRBAC({
   roles: [Role.ADMIN],
-  permissions: [PERMISSIONS.USERS_MANAGE],
+  permissions: [PERMISSIONS.USER_MANAGE],
   enforceTenantIsolation: false
 }));
 
@@ -60,8 +81,8 @@ router.get('/',
     const status = req.query.status as string;
     const search = req.query.search as string;
 
-    let whereConditions: string[] = [];
-    let queryParams: any[] = [];
+    const whereConditions: string[] = [];
+    const queryParams: any[] = [];
     let paramCount = 1;
 
     // Build WHERE clause
@@ -80,7 +101,7 @@ router.get('/',
     }
 
     if (search) {
-      whereConditions.push(`(name ILIKE $${paramCount} OR email ILIKE $${paramCount})`);
+      whereConditions.push(`(CONCAT(first_name, ' ', last_name) ILIKE $${paramCount} OR email ILIKE $${paramCount})`);
       queryParams.push(`%${search}%`);
       paramCount++;
     }
@@ -100,10 +121,9 @@ router.get('/',
       const usersResult = await pool.query(
         `SELECT
           id,
-          name,
+          CONCAT(first_name, ' ', last_name) as name,
           email,
           role,
-          department,
           is_active as status,
           last_login_at as "lastLogin",
           created_at as "createdAt",
@@ -137,7 +157,7 @@ router.get('/',
       res.status(500).json({
         success: false,
         error: 'Failed to fetch users',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }
@@ -170,10 +190,9 @@ router.get('/:id',
       const result = await pool.query(
         `SELECT
           id,
-          name,
+          CONCAT(first_name, ' ', last_name) as name,
           email,
           role,
-          department,
           is_active as status,
           last_login_at as "lastLogin",
           created_at as "createdAt",
@@ -206,7 +225,7 @@ router.get('/:id',
       res.status(500).json({
         success: false,
         error: 'Failed to fetch user',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }
@@ -232,38 +251,19 @@ router.get('/:id',
  *   data: User
  * }
  */
-router.post('/',
+router.post('/', csrfProtection,
   asyncHandler(async (req: Request, res: Response) => {
-    const { name, email, role, department, password } = req.body;
-
-    // Validation
-    if (!name || !email || !role) {
+    const parsed = createUserSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: name, email, role',
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
         timestamp: new Date().toISOString()
       });
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid email format',
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Role validation
-    const validRoles = ['admin', 'manager', 'operator', 'viewer', 'driver', 'dispatcher', 'maintenance_manager', 'fleet_manager'];
-    if (!validRoles.includes(role)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid role',
-        timestamp: new Date().toISOString()
-      });
-    }
+    const { name, email, role, department, password } = parsed.data;
 
     try {
       // Check if email already exists
@@ -280,21 +280,25 @@ router.post('/',
         });
       }
 
+      // Parse name into first_name and last_name
+      const nameParts = name.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
       // Create user (password hashing would be done in production)
       const result = await pool.query(
-        `INSERT INTO users (name, email, role, department, is_active, created_at, updated_at)
+        `INSERT INTO users (first_name, last_name, email, role, is_active, created_at, updated_at)
         VALUES ($1, $2, $3, $4, true, NOW(), NOW())
         RETURNING
           id,
-          name,
+          CONCAT(first_name, ' ', last_name) as name,
           email,
           role,
-          department,
           is_active as status,
           last_login_at as "lastLogin",
           created_at as "createdAt",
           updated_at as "updatedAt"`,
-        [name, email, role, department || '']
+        [firstName, lastName, email, role]
       );
 
       const newUser = {
@@ -315,7 +319,7 @@ router.post('/',
       res.status(500).json({
         success: false,
         error: 'Failed to create user',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }
@@ -341,10 +345,9 @@ router.post('/',
  *   data: User
  * }
  */
-router.put('/:id',
+router.put('/:id', csrfProtection,
   asyncHandler(async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id);
-    const { name, email, role, department, status } = req.body;
 
     if (isNaN(userId)) {
       return res.status(400).json({
@@ -354,49 +357,42 @@ router.put('/:id',
       });
     }
 
+    const parsed = updateUserSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const { name, email, role, department, status } = parsed.data;
+
     // Build update query dynamically
     const updates: string[] = [];
     const values: any[] = [];
     let paramCount = 1;
 
     if (name !== undefined) {
-      updates.push(`name = $${paramCount}`);
-      values.push(name);
-      paramCount++;
+      // Parse name into first_name and last_name
+      const nameParts = name.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+      updates.push(`first_name = $${paramCount}`, `last_name = $${paramCount + 1}`);
+      values.push(firstName, lastName);
+      paramCount += 2;
     }
 
     if (email !== undefined) {
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid email format',
-          timestamp: new Date().toISOString()
-        });
-      }
       updates.push(`email = $${paramCount}`);
       values.push(email);
       paramCount++;
     }
 
     if (role !== undefined) {
-      const validRoles = ['admin', 'manager', 'operator', 'viewer', 'driver', 'dispatcher', 'maintenance_manager', 'fleet_manager'];
-      if (!validRoles.includes(role)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid role',
-          timestamp: new Date().toISOString()
-        });
-      }
       updates.push(`role = $${paramCount}`);
       values.push(role);
-      paramCount++;
-    }
-
-    if (department !== undefined) {
-      updates.push(`department = $${paramCount}`);
-      values.push(department);
       paramCount++;
     }
 
@@ -424,10 +420,9 @@ router.put('/:id',
         WHERE id = $${paramCount}
         RETURNING
           id,
-          name,
+          CONCAT(first_name, ' ', last_name) as name,
           email,
           role,
-          department,
           is_active as status,
           last_login_at as "lastLogin",
           created_at as "createdAt",
@@ -461,7 +456,7 @@ router.put('/:id',
       res.status(500).json({
         success: false,
         error: 'Failed to update user',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }
@@ -478,7 +473,7 @@ router.put('/:id',
  *   message: string
  * }
  */
-router.delete('/:id',
+router.delete('/:id', csrfProtection,
   asyncHandler(async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id);
 
@@ -519,7 +514,7 @@ router.delete('/:id',
       res.status(500).json({
         success: false,
         error: 'Failed to delete user',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }
@@ -586,7 +581,7 @@ router.get('/stats/summary',
       res.status(500).json({
         success: false,
         error: 'Failed to fetch user statistics',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }

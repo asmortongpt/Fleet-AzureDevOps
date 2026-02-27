@@ -14,6 +14,7 @@ import { StatusChip } from '@/shared/design-system/components/StatusChip'
 import { Table } from '@/shared/design-system/components/Table'
 import type { Column } from '@/shared/design-system/components/Table'
 import type { VehicleRow, Status, RecordRow } from '@/shared/design-system/types'
+import { formatNumber } from '@/utils/format-helpers'
 
 interface VehicleTableProps {
   vehicles: VehicleRow[]
@@ -40,15 +41,15 @@ export function VehicleTable({ vehicles, onRowClick, onRecordOpen }: VehicleTabl
     {
       key: 'avatar',
       header: '',
-      width: 60,
-      cellRenderer: (row) => <EntityAvatar entity={row} size={38} />
+      width: '60',
+      accessor: (row: VehicleRow) => <EntityAvatar entity={row} size={38} />
     },
     {
       key: 'displayName',
       header: 'Vehicle',
       sortable: true,
-      width: 180,
-      cellRenderer: (row) => (
+      width: '180',
+      accessor: (row: VehicleRow) => (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <span style={{ fontWeight: 600, color: 'var(--text)' }}>{row.displayName}</span>
           <span style={{ fontSize: 12, color: 'var(--muted)' }}>{row.kind}</span>
@@ -58,25 +59,25 @@ export function VehicleTable({ vehicles, onRowClick, onRecordOpen }: VehicleTabl
     {
       key: 'status',
       header: 'Status',
-      width: 120,
+      width: '120',
       filterable: true,
-      cellRenderer: (row) => <StatusChip status={row.status} />
+      accessor: (row: VehicleRow) => <StatusChip status={row.status} />
     },
     {
       key: 'odometer',
       header: 'Odometer',
       sortable: true,
-      width: 120,
-      cellRenderer: (row) => (
-        <span style={{ color: 'var(--text)' }}>{row.odometer.toLocaleString()} mi</span>
+      width: '120',
+      accessor: (row: VehicleRow) => (
+        <span style={{ color: 'var(--text)' }}>{formatNumber(row.odometer)} mi</span>
       )
     },
     {
       key: 'fuelPct',
       header: 'Fuel',
       sortable: true,
-      width: 100,
-      cellRenderer: (row) => {
+      width: '100',
+      accessor: (row: VehicleRow) => {
         const color = row.fuelPct > 50 ? 'var(--good)' : row.fuelPct > 25 ? 'var(--warn)' : 'var(--bad)'
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -107,18 +108,92 @@ export function VehicleTable({ vehicles, onRowClick, onRecordOpen }: VehicleTabl
       key: 'healthScore',
       header: 'Health',
       sortable: true,
-      width: 100,
-      cellRenderer: (row) => {
+      width: '100',
+      accessor: (row: VehicleRow) => {
         const status: Status = row.healthScore >= 85 ? 'good' : row.healthScore >= 60 ? 'warn' : 'bad'
         return <StatusChip status={status} label={`${row.healthScore}/100`} />
+      }
+    },
+    {
+      key: 'department',
+      header: 'Dept',
+      sortable: true,
+      width: '120',
+      filterable: true,
+      accessor: (row: VehicleRow) => {
+        if (!row.department) {
+          return <span style={{ color: 'var(--muted)', fontSize: 12 }}>--</span>
+        }
+        return (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center',
+            padding: '3px 8px', borderRadius: 6,
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(255,255,255,0.03)',
+            fontSize: 12, color: 'var(--muted)'
+          }}>
+            {row.department}
+          </span>
+        )
+      }
+    },
+    {
+      key: 'operationalStatus',
+      header: 'Op Status',
+      sortable: true,
+      width: '120',
+      filterable: true,
+      accessor: (row: VehicleRow) => {
+        if (!row.operationalStatus) {
+          return <span style={{ color: 'var(--muted)', fontSize: 12 }}>--</span>
+        }
+        const opMap: Record<string, { color: string; label: string }> = {
+          AVAILABLE: { color: '#10b981', label: 'Available' },
+          IN_USE: { color: '#10b981', label: 'In Use' },
+          MAINTENANCE: { color: '#f59e0b', label: 'Maintenance' },
+          RESERVED: { color: '#fbbf24', label: 'Reserved' },
+        }
+        const cfg = opMap[row.operationalStatus] || { color: '#9CA3AF', label: row.operationalStatus }
+        return (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            padding: '3px 8px', borderRadius: 999,
+            border: `1px solid ${cfg.color}30`,
+            background: `${cfg.color}15`,
+            color: cfg.color, fontSize: 12, fontWeight: 500
+          }}>
+            {cfg.label}
+          </span>
+        )
+      }
+    },
+    {
+      key: 'engineType',
+      header: 'Engine',
+      sortable: true,
+      width: '110',
+      accessor: (row: VehicleRow) => {
+        if (!row.engineType) {
+          return <span style={{ color: 'var(--muted)', fontSize: 12 }}>--</span>
+        }
+        const isEV = row.engineType.toLowerCase().includes('electric') || row.engineType.toLowerCase().includes('ev')
+        return (
+          <span style={{
+            fontSize: 12,
+            color: isEV ? '#10b981' : 'var(--text)',
+            fontWeight: isEV ? 600 : 400
+          }}>
+            {isEV ? '\u26A1 ' : ''}{row.engineType}
+          </span>
+        )
       }
     },
     {
       key: 'alerts',
       header: 'Alerts',
       sortable: true,
-      width: 80,
-      cellRenderer: (row) => {
+      width: '80',
+      accessor: (row: VehicleRow) => {
         if (row.alerts === 0) {
           return <span style={{ color: 'var(--muted)' }}>—</span>
         }
@@ -129,61 +204,60 @@ export function VehicleTable({ vehicles, onRowClick, onRecordOpen }: VehicleTabl
     {
       key: 'updatedAgo',
       header: 'Last Update',
-      width: 120,
-      cellRenderer: (row) => <span style={{ color: 'var(--muted)', fontSize: 12 }}>{row.updatedAgo}</span>
+      width: '120',
+      accessor: (row: VehicleRow) => <span style={{ color: 'var(--muted)', fontSize: 12 }}>{row.updatedAgo}</span>
     }
   ]
 
   const renderExpandedContent = (row: VehicleRow) => {
-    // Mock anomaly data - in production this would come from telemetry
-    const anomalies: { status: Status; label: string }[] = [
-      { status: 'good', label: 'Engine Temp Normal' },
-      { status: row.fuelPct < 25 ? 'warn' : 'good', label: `Fuel ${row.fuelPct}%` },
-      { status: row.healthScore < 60 ? 'bad' : 'good', label: `Health ${row.healthScore}/100` },
-      { status: 'info', label: `${row.odometer.toLocaleString()} mi` }
-    ]
+    const anomalies: { status: Status; label: string }[] = []
 
-    // Mock recent records - in production this would query actual maintenance/telemetry records
-    const recentRecords: Pick<RecordRow, 'id' | 'summary' | 'timestamp' | 'severity'>[] = [
-      {
-        id: `${row.id}-rec-1`,
-        summary: 'Routine inspection completed',
-        timestamp: '2h ago',
-        severity: 'good'
-      },
-      {
-        id: `${row.id}-rec-2`,
-        summary: row.fuelPct < 25 ? 'Low fuel warning' : 'Fuel level normal',
-        timestamp: '4h ago',
-        severity: row.fuelPct < 25 ? 'warn' : 'info'
-      },
-      {
-        id: `${row.id}-rec-3`,
-        summary: 'GPS location updated',
-        timestamp: row.updatedAgo,
-        severity: 'info'
-      }
-    ]
+    if (typeof row.fuelPct === 'number') {
+      anomalies.push({
+        status: row.fuelPct < 25 ? 'warn' : 'good',
+        label: `Fuel ${row.fuelPct}%`
+      })
+    }
+
+    if (typeof row.healthScore === 'number') {
+      anomalies.push({
+        status: row.healthScore < 60 ? 'bad' : 'good',
+        label: `Health ${row.healthScore}/100`
+      })
+    }
+
+    if (typeof row.odometer === 'number') {
+      anomalies.push({
+        status: 'info',
+        label: `${formatNumber(row.odometer)} mi`
+      })
+    }
+
+    const recentRecords: Pick<RecordRow, 'id' | 'summary' | 'timestamp' | 'severity'>[] =
+      (row as any).recentRecords || []
 
     return <RowExpandPanel anomalies={anomalies} records={recentRecords} onOpenRecord={onRecordOpen} />
   }
 
   return (
-    <Table
-      columns={columns}
-      data={vehicles}
-      onRowClick={(row) => {
-        toggleRowExpansion(row.id)
-        onRowClick?.(row)
-      }}
-      expandedRows={expandedRows}
-      renderExpandedContent={renderExpandedContent}
-      pagination={{
-        pageSize: 20,
-        showPageSizeOptions: true
-      }}
-      searchable
-      searchPlaceholder="Search vehicles..."
-    />
+    <div>
+      <Table
+        columns={columns}
+        data={vehicles}
+        onRowClick={(row) => {
+          toggleRowExpansion(row.id)
+          onRowClick?.(row)
+        }}
+        pagination={{
+          pageSize: 20,
+          showSizeOptions: true
+        }}
+      />
+      {vehicles.filter(v => expandedRows.has(v.id)).map(row => (
+        <div key={row.id}>
+          {renderExpandedContent(row)}
+        </div>
+      ))}
+    </div>
   )
 }

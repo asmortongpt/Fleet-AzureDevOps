@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { flexUuid } from '../middleware/validation';
+
 // Vehicle validation schemas
 export const vehicleCreateSchema = z.object({
   vin: z.string().length(17),
@@ -14,7 +16,7 @@ export const vehicleUpdateSchema = vehicleCreateSchema.partial();
 
 // Maintenance schemas
 export const maintenanceRecordSchema = z.object({
-  vehicleId: z.string().uuid(),
+  vehicleId: flexUuid,
   type: z.enum(['preventive', 'corrective', 'inspection']),
   description: z.string().min(1).max(1000),
   cost: z.number().positive().optional(),
@@ -36,8 +38,8 @@ export const driverUpdateSchema = driverCreateSchema.partial();
 
 // Fuel transaction schemas
 export const fuelTransactionSchema = z.object({
-  vehicleId: z.string().uuid(),
-  driverId: z.string().uuid().optional(),
+  vehicleId: flexUuid,
+  driverId: flexUuid.optional(),
   gallons: z.number().positive(),
   costPerGallon: z.number().positive(),
   totalCost: z.number().positive(),
@@ -48,7 +50,7 @@ export const fuelTransactionSchema = z.object({
 
 // Work order schemas
 export const workOrderSchema = z.object({
-  vehicleId: z.string().uuid(),
+  vehicleId: flexUuid,
   title: z.string().min(1).max(200),
   description: z.string().min(1).max(2000),
   priority: z.enum(['low', 'medium', 'high', 'critical']),
@@ -59,8 +61,8 @@ export const workOrderSchema = z.object({
 
 // Inspection schemas
 export const inspectionSchema = z.object({
-  vehicleId: z.string().uuid(),
-  inspectorId: z.string().uuid(),
+  vehicleId: flexUuid,
+  inspectorId: flexUuid,
   type: z.enum(['pre_trip', 'post_trip', 'annual', 'safety']),
   passedInspection: z.boolean(),
   notes: z.string().max(2000).optional(),
@@ -69,8 +71,8 @@ export const inspectionSchema = z.object({
 
 // Assignment schemas
 export const vehicleAssignmentSchema = z.object({
-  vehicleId: z.string().uuid(),
-  driverId: z.string().uuid(),
+  vehicleId: flexUuid,
+  driverId: flexUuid,
   startDate: z.string().datetime(),
   endDate: z.string().datetime().optional(),
   notes: z.string().max(500).optional(),

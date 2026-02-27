@@ -128,19 +128,19 @@ export function getDocumentIcon(type: DocumentType): string {
 export function getDocumentColor(type: DocumentType): string {
   const colors: Record<DocumentType, string> = {
     'pdf': 'text-red-500',
-    'image': 'text-blue-800',
-    'video': 'text-purple-500',
+    'image': 'text-emerald-800',
+    'video': 'text-amber-500',
     'audio': 'text-pink-500',
-    'document': 'text-blue-800',
+    'document': 'text-emerald-800',
     'spreadsheet': 'text-green-600',
     'presentation': 'text-orange-500',
-    'code': 'text-gray-700 dark:text-gray-300',
+    'code': 'text-white/40 dark:text-white/60',
     'archive': 'text-yellow-600',
-    '3d-model': 'text-indigo-500',
-    'other': 'text-gray-500',
+    '3d-model': 'text-emerald-500',
+    'other': 'text-white/40',
   };
 
-  return colors[type] || 'text-gray-500';
+  return colors[type] || 'text-white/40';
 }
 
 /**
@@ -336,9 +336,9 @@ export function generateTagColor(tagName: string): string {
     'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
     'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
     'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+    'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
     'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
   ];
 

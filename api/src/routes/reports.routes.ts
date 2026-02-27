@@ -22,7 +22,9 @@ import { body, validationResult } from 'express-validator';
 
 import { pool } from '../db/connection';
 import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 import { multiLLMOrchestrator } from '../services/multi-llm-orchestrator.service';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -49,11 +51,10 @@ const reportRateLimiter = rateLimit({
  */
 router.get(
   '/templates',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       const result = await pool.query(
         `SELECT id, title, domain, category, description,
                 is_core, popularity, last_used_at, created_at
@@ -77,7 +78,7 @@ router.get(
         }))
       })
     } catch (error) {
-      console.error('Get report templates error:', error)
+      logger.error('Get report templates error:', error)
       res.status(500).json({ error: 'Failed to load report templates' })
     }
   }
@@ -89,11 +90,10 @@ router.get(
  */
 router.get(
   '/scheduled',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       const result = await pool.query(
         `SELECT id, template_id, schedule, recipients, format, status, next_run, last_run
          FROM report_schedules
@@ -115,7 +115,7 @@ router.get(
         }))
       })
     } catch (error) {
-      console.error('Get scheduled reports error:', error)
+      logger.error('Get scheduled reports error:', error)
       res.status(500).json({ error: 'Failed to load scheduled reports' })
     }
   }
@@ -127,8 +127,8 @@ router.get(
  */
 router.post(
   '/scheduled',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
+  csrfProtection,
   reportRateLimiter,
   [
     body('templateId').isString().trim().notEmpty(),
@@ -143,12 +143,12 @@ router.post(
     }
 
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const { templateId, schedule, recipients, format } = req.body;
 
       const now = new Date();
       const normalized = String(schedule).toLowerCase();
-      let nextRun = new Date(now);
+      const nextRun = new Date(now);
 
       if (normalized.includes('daily')) {
         nextRun.setDate(nextRun.getDate() + 1);
@@ -181,7 +181,7 @@ router.post(
         }
       });
     } catch (error) {
-      console.error('Create report schedule error:', error);
+      logger.error('Create report schedule error:', error);
       res.status(500).json({ error: 'Failed to create report schedule' });
     }
   }
@@ -193,11 +193,10 @@ router.post(
  */
 router.get(
   '/history',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       const result = await pool.query(
         `SELECT id, template_id, title, generated_at, generated_by, format, size_bytes, status, download_url
          FROM report_generations
@@ -221,7 +220,7 @@ router.get(
         }))
       })
     } catch (error) {
-      console.error('Get report history error:', error)
+      logger.error('Get report history error:', error)
       res.status(500).json({ error: 'Failed to load report history' })
     }
   }
@@ -233,11 +232,10 @@ router.get(
  */
 router.get(
   '/definitions/:id',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       const result = await pool.query(
         `SELECT definition
          FROM report_templates
@@ -251,7 +249,7 @@ router.get(
 
       res.json(result.rows[0].definition)
     } catch (error) {
-      console.error('Get report definition error:', error)
+      logger.error('Get report definition error:', error)
       res.status(500).json({ error: 'Failed to load report definition' })
     }
   }
@@ -281,8 +279,8 @@ router.get(
  */
 router.post(
   '/execute',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
+  csrfProtection,
   reportRateLimiter,
   [
     body('reportId').isString().trim().notEmpty(),
@@ -297,7 +295,7 @@ router.post(
     }
 
     const { reportId, filters, drilldown, userId } = req.body;
-    const user = (req as any).user; // From JWT middleware
+    const user = req.user; // From JWT middleware
 
     try {
       const startTime = Date.now();
@@ -309,7 +307,7 @@ router.post(
       }
 
       // Apply RBAC - check if user has permission to access this report domain
-      const hasAccess = checkReportAccess(user, reportDefinition);
+      const hasAccess = await checkReportAccess(user, reportDefinition);
       if (!hasAccess) {
         return res.status(403).json({ error: 'Access denied to this report' });
       }
@@ -323,11 +321,11 @@ router.post(
         data,
         metadata: {
           executionTime,
-          rowCount: Object.values(data).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
+          rowCount: Object.values(data).reduce<number>((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
         }
       });
     } catch (error) {
-      console.error('Report execution error:', error);
+      logger.error('Report execution error:', error);
       return res.status(500).json({ error: 'Failed to execute report' });
     }
   }
@@ -356,8 +354,8 @@ router.post(
  */
 router.post(
   '/ai/generate',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
+  csrfProtection,
   aiRateLimiter,
   [
     body('prompt').isString().trim().isLength({ min: 10, max: 1000 }),
@@ -370,7 +368,7 @@ router.post(
     }
 
     const { prompt } = req.body;
-    const user = (req as any).user;
+    const user = req.user!;
 
     try {
       const result = await multiLLMOrchestrator.generateReport({
@@ -381,7 +379,7 @@ router.post(
 
       return res.json(result);
     } catch (error) {
-      console.error('AI generation error:', error);
+      logger.error('AI generation error:', error);
       return res.status(500).json({ error: 'Failed to generate report' });
     }
   }
@@ -412,8 +410,8 @@ router.post(
  */
 router.post(
   '/chat',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
+  csrfProtection,
   aiRateLimiter,
   [
     body('message').isString().trim().isLength({ min: 1, max: 500 }),
@@ -426,7 +424,7 @@ router.post(
     }
 
     const { message, history } = req.body;
-    const user = (req as any).user;
+    const user = req.user!;
 
     try {
       const response = await multiLLMOrchestrator.chat(message, {
@@ -441,7 +439,7 @@ router.post(
         reportData: null // Would be populated if chat generates data
       });
     } catch (error) {
-      console.error('Chat error:', error);
+      logger.error('Chat error:', error);
       return res.status(500).json({ error: 'Chat failed' });
     }
   }
@@ -468,8 +466,8 @@ router.post(
  */
 router.post(
   '/export',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
+  csrfProtection,
   reportRateLimiter,
   [
     body('reportId').isString().trim().notEmpty(),
@@ -483,7 +481,7 @@ router.post(
     }
 
     const { reportId, format, filters } = req.body;
-    const user = (req as any).user;
+    const user = req.user;
 
     try {
       // Load report definition
@@ -493,7 +491,7 @@ router.post(
       }
 
       // Check access
-      const hasAccess = checkReportAccess(user, reportDefinition);
+      const hasAccess = await checkReportAccess(user, reportDefinition);
       if (!hasAccess) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -517,7 +515,7 @@ router.post(
 
       return res.send(buffer);
     } catch (error) {
-      console.error('Export error:', error);
+      logger.error('Export error:', error);
       return res.status(500).json({ error: 'Export failed' });
     }
   }
@@ -533,8 +531,8 @@ router.post(
  */
 router.post(
   '/custom',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
+  csrfProtection,
   [
     body('definition').isObject(),
     body('name').isString().trim().isLength({ min: 1, max: 200 })
@@ -546,14 +544,14 @@ router.post(
     }
 
     const { definition, name } = req.body;
-    const user = (req as any).user;
+    const user = req.user!;
 
     try {
       const reportId = await saveCustomReport(user.id, name, definition);
 
       return res.json({ reportId });
     } catch (error) {
-      console.error('Save custom report error:', error);
+      logger.error('Save custom report error:', error);
       return res.status(500).json({ error: 'Failed to save report' });
     }
   }
@@ -565,17 +563,16 @@ router.post(
  */
 router.get(
   '/custom',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   async (req: Request, res: Response) => {
-    const user = (req as any).user;
+    const user = req.user!;
 
     try {
       const reports = await getUserCustomReports(user.id);
 
       return res.json({ reports });
     } catch (error) {
-      console.error('Get custom reports error:', error);
+      logger.error('Get custom reports error:', error);
       return res.status(500).json({ error: 'Failed to load custom reports' });
     }
   }
@@ -585,7 +582,7 @@ router.get(
 // HELPER FUNCTIONS (would be in separate service files in production)
 // ============================================================================
 
-async function loadReportDefinition(reportId: string): Promise<any> {
+async function loadReportDefinition(reportId: string): Promise<Record<string, unknown> | null> {
   const result = await pool.query(
     `SELECT definition
      FROM report_templates
@@ -596,26 +593,99 @@ async function loadReportDefinition(reportId: string): Promise<any> {
   return result.rows[0]?.definition || null
 }
 
-function checkReportAccess(user: any, reportDefinition: any): boolean {
-  // Check if user role has access to this report domain
-  // Implement RBAC logic here
-  return true; // Stub
+async function checkReportAccess(user: Express.Request['user'], reportDefinition: Record<string, unknown> | null): Promise<boolean> {
+  // SuperAdmin and admin bypass RBAC checks
+  if ((user as Record<string, unknown>)?.role === 'SuperAdmin' || (user as Record<string, unknown>)?.role === 'admin') {
+    return true;
+  }
+
+  const userId = (user as Record<string, unknown>)?.id as string | undefined;
+  const tenantId = (user as Record<string, unknown>)?.tenant_id as string | undefined;
+  if (!userId || !tenantId) {
+    return false;
+  }
+
+  const reportDomain = (reportDefinition?.domain as string) || 'general';
+
+  // Build the permission key for this report domain (e.g. "reports.read" or "maintenance.read")
+  const permissionKey = `${reportDomain}.read`;
+  const reportsPermissionKey = 'reports.read';
+
+  // Check user's role-based permissions from the roles/user_roles tables
+  // Also check direct user_permissions grants/denies
+  const result = await pool.query(
+    `SELECT EXISTS (
+       -- Check if user has the domain-specific permission via their role
+       SELECT 1
+       FROM user_roles ur
+       JOIN roles r ON ur.role_id = r.id
+       WHERE ur.user_id = $1
+         AND ur.is_active = TRUE
+         AND r.is_active = TRUE
+         AND r.tenant_id = $2
+         AND (
+           $3 = ANY(r.permissions)
+           OR $4 = ANY(r.permissions)
+           OR 'reports.admin' = ANY(r.permissions)
+           OR r.can_view_reports = TRUE
+         )
+     ) AS has_role_access,
+     EXISTS (
+       -- Check for explicit deny
+       SELECT 1
+       FROM user_permissions up
+       WHERE up.user_id = $1
+         AND up.tenant_id = $2
+         AND up.permission_key IN ($3, $4)
+         AND up.permission_type = 'deny'
+         AND up.is_active = TRUE
+     ) AS has_deny`,
+    [userId, tenantId, permissionKey, reportsPermissionKey]
+  );
+
+  const row = result.rows[0];
+  // If explicitly denied, reject access
+  if (row?.has_deny) {
+    return false;
+  }
+
+  // If role grants access, allow
+  if (row?.has_role_access) {
+    return true;
+  }
+
+  // Check for direct user permission grant as fallback
+  const grantResult = await pool.query(
+    `SELECT EXISTS (
+       SELECT 1
+       FROM user_permissions up
+       WHERE up.user_id = $1
+         AND up.tenant_id = $2
+         AND up.permission_key IN ($3, $4)
+         AND up.permission_type = 'grant'
+         AND up.is_active = TRUE
+     ) AS has_direct_grant`,
+    [userId, tenantId, permissionKey, reportsPermissionKey]
+  );
+
+  return grantResult.rows[0]?.has_direct_grant === true;
 }
 
 async function executeReport(
-  reportDefinition: any,
-  filters: any,
-  drilldown: any,
-  user: any
-): Promise<Record<string, any>> {
-  const tenantId = user?.tenant_id
-  const startDate = filters?.dateRange?.start ? new Date(filters.dateRange.start) : null
-  const endDate = filters?.dateRange?.end ? new Date(filters.dateRange.end) : null
+  reportDefinition: Record<string, unknown> | null,
+  filters: Record<string, unknown>,
+  drilldown: Record<string, unknown>,
+  user: Express.Request['user']
+): Promise<Record<string, unknown>> {
+  const tenantId = (user as Record<string, unknown>)?.tenant_id as string | undefined
+  const dateRange = filters?.dateRange as { start?: string; end?: string } | undefined
+  const startDate = dateRange?.start ? new Date(dateRange.start) : null
+  const endDate = dateRange?.end ? new Date(dateRange.end) : null
 
   const dateClause = startDate && endDate ? 'AND created_at BETWEEN $2 AND $3' : ''
   const dateParams = startDate && endDate ? [startDate, endDate] : []
 
-  const domain = reportDefinition?.domain || 'general'
+  const domain = (reportDefinition?.domain as string) || 'general'
 
   if (domain === 'maintenance') {
     const kpiResult = await pool.query(
@@ -632,7 +702,7 @@ async function executeReport(
         COUNT(*) FILTER (WHERE status = 'active') as active_count,
         COUNT(*) as total_count
        FROM vehicles
-       WHERE tenant_id = $1`,
+       WHERE tenant_id = $1 AND status != 'retired'`,
       [tenantId]
     )
 
@@ -834,16 +904,17 @@ async function executeReport(
 }
 
 async function generateExport(
-  reportDefinition: any,
-  data: any,
+  reportDefinition: Record<string, unknown> | null,
+  data: Record<string, unknown>,
   format: string
 ): Promise<Buffer> {
-  const rows = Array.isArray(data?.detail) ? data.detail : []
+  const detail = data?.detail
+  const rows: Record<string, unknown>[] = Array.isArray(detail) ? detail : []
   const headers = rows.length > 0 ? Object.keys(rows[0]) : []
 
   const csv = [
     headers.join(','),
-    ...rows.map((row: any) =>
+    ...rows.map((row: Record<string, unknown>) =>
       headers.map((h) => JSON.stringify(row[h] ?? '')).join(',')
     )
   ].join('\n')
@@ -851,7 +922,7 @@ async function generateExport(
   return Buffer.from(csv)
 }
 
-async function saveCustomReport(userId: string, name: string, definition: any): Promise<string> {
+async function saveCustomReport(userId: string, name: string, definition: Record<string, unknown>): Promise<string> {
   const userResult = await pool.query(
     `SELECT tenant_id FROM users WHERE id = $1`,
     [userId]
@@ -876,7 +947,7 @@ async function saveCustomReport(userId: string, name: string, definition: any): 
   return result.rows[0].id
 }
 
-async function getUserCustomReports(userId: string): Promise<any[]> {
+async function getUserCustomReports(userId: string): Promise<Record<string, unknown>[]> {
   const userResult = await pool.query(
     `SELECT tenant_id FROM users WHERE id = $1`,
     [userId]

@@ -453,7 +453,7 @@ class TeamsService {
    */
   getMentions(message: string): MentionInput[] {
     const mentions: MentionInput[] = []
-    const mentionRegex = /@\[([^\]]+)\]\(([^\)]+)\)/g
+    const mentionRegex = /@\[([^\]]+)\]\(([^)]+)\)/g
     let match
 
     // Match format: @[Display Name](userId)

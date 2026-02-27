@@ -6,10 +6,13 @@
 import { Users, Calendar } from 'lucide-react'
 import useSWR from 'swr'
 
+
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
 
 interface LaborDetailsViewProps {
   workOrderId: string
@@ -28,16 +31,15 @@ interface LaborEntry {
   date?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
 export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsViewProps) {
   const { data: labor, error, isLoading, mutate } = useSWR<LaborEntry[]>(
     `/api/work-orders/${workOrderId}/labor`,
-    fetcher
+    apiFetcher
   )
 
-  const totalHours = labor?.reduce((sum: number, entry: LaborEntry) => sum + (entry.hours || 0), 0) || 0
-  const totalCost = labor?.reduce((sum: number, entry: LaborEntry) => sum + ((entry.hours * entry.rate) || 0), 0) || 0
+  const laborArr = Array.isArray(labor) ? labor : []
+  const totalHours = laborArr.reduce((sum: number, entry: LaborEntry) => sum + (entry.hours || 0), 0)
+  const totalCost = laborArr.reduce((sum: number, entry: LaborEntry) => sum + ((entry.hours * entry.rate) || 0), 0)
 
   const getInitials = (name: string): string => {
     return name.split(' ').map((n) => n[0]).join('').toUpperCase()
@@ -45,18 +47,18 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {labor && (
+      {labor !== undefined && (
         <div className="space-y-2">
           <div>
             <h3 className="text-sm font-semibold">
               Labor Details {workOrderNumber && `for WO #${workOrderNumber}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {labor.length} technician{labor.length !== 1 ? 's' : ''} • {totalHours.toFixed(1)} hrs • ${totalCost.toFixed(2)}
+              {laborArr.length} technician{laborArr.length !== 1 ? 's' : ''} • {totalHours.toFixed(1)} hrs • {formatCurrency(totalCost)}
             </p>
           </div>
 
-          {labor.length === 0 ? (
+          {laborArr.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <Users className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
@@ -65,7 +67,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
             </Card>
           ) : (
             <div className="space-y-3">
-              {labor.map((entry: LaborEntry) => (
+              {laborArr.map((entry: LaborEntry) => (
                 <Card key={entry.id}>
                   <CardContent className="p-2">
                     <div className="space-y-3">
@@ -98,12 +100,12 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Rate</p>
-                          <p className="font-medium">${entry.rate?.toFixed(2) || '0.00'}/hr</p>
+                          <p className="font-medium">{formatCurrency(entry.rate)}/hr</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Total</p>
                           <p className="font-medium text-primary">
-                            ${((entry.hours * entry.rate) || 0).toFixed(2)}
+                            {formatCurrency((entry.hours * entry.rate) || 0)}
                           </p>
                         </div>
                       </div>
@@ -111,7 +113,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                       {entry.date && (
                         <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t">
                           <Calendar className="h-3 w-3" />
-                          <span>{new Date(entry.date).toLocaleDateString()}</span>
+                          <span>{formatDate(entry.date)}</span>
                         </div>
                       )}
                     </div>
@@ -131,7 +133,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                 <div className="flex items-center justify-between pt-2 border-t">
                   <span className="font-semibold">Total Labor Cost</span>
                   <span className="text-sm font-bold text-primary">
-                    ${totalCost.toFixed(2)}
+                    {formatCurrency(totalCost)}
                   </span>
                 </div>
               </div>

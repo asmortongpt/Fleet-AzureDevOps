@@ -10,11 +10,13 @@ import * as path from 'path'
 
 import { WebSocketServer, WebSocket } from 'ws'
 
+import logger from '../config/logger'
+
 // Dynamic config generator for realistic data
 import { telemetryService, TelemetryVehicle } from '../services/TelemetryService'
 
 import { DispatchEmulator } from './DispatchEmulator'
-import { InventoryEmulator } from './InventoryEmulator'
+import { InventoryEmulator, InventoryCategory } from './InventoryEmulator'
 import { generateVehiclesConfig, generateRoutesConfig, EmulatorVehicle, EmulatorRoute, EmulatorGeofence } from './config/generateDynamicConfig'
 import type { CostEmulator } from './cost/CostEmulator'
 import { DriverBehaviorEmulator } from './driver/DriverBehaviorEmulator'
@@ -111,9 +113,10 @@ export class EmulatorOrchestrator extends EventEmitter {
       this.loadRoutesFromService()
       this.loadScenarios() // Scenarios can stay as config for now
 
-      console.log(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles from database`)
+      logger.info(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles from database`)
+      return undefined
     }).catch((err) => {
-      console.warn('TelemetryService initialization failed, falling back to JSON files:', err)
+      logger.warn('TelemetryService initialization failed, falling back to JSON files:', err)
       // Fallback to JSON files
       this.loadVehicles()
       this.loadRoutes()
@@ -134,18 +137,20 @@ export class EmulatorOrchestrator extends EventEmitter {
     // Initialize Inventory Emulator (system-wide, not per-vehicle)
     this.initializeInventoryEmulator()
 
-    console.log(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles`)
+    logger.info(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles`)
   }
 
   /**
    * Initialize the TelemetryService for database integration
    */
   private async initializeTelemetryService(): Promise<void> {
-    if (this.telemetryServiceInitialized) return
+    if (this.telemetryServiceInitialized) {
+return
+}
 
     await telemetryService.initialize()
     this.telemetryServiceInitialized = true
-    console.log('TelemetryService initialized for EmulatorOrchestrator')
+    logger.info('TelemetryService initialized for EmulatorOrchestrator')
   }
 
   /**
@@ -160,7 +165,7 @@ export class EmulatorOrchestrator extends EventEmitter {
     }
 
     this.stats.totalVehicles = this.vehicles.size
-    console.log(`Loaded ${this.vehicles.size} vehicles from TelemetryService`)
+    logger.info(`Loaded ${this.vehicles.size} vehicles from TelemetryService`)
   }
 
   /**
@@ -172,7 +177,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       make: tv.make,
       model: tv.model,
       year: tv.year,
-      type: tv.type as any,
+      type: tv.type as Vehicle['type'],
       vin: tv.vin,
       licensePlate: tv.licensePlate,
       tankSize: tv.tankSize,
@@ -202,7 +207,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       this.geofences.set(id, geofence)
     }
 
-    console.log(`Loaded ${this.routes.size} routes and ${this.geofences.size} geofences from TelemetryService`)
+    logger.info(`Loaded ${this.routes.size} routes and ${this.geofences.size} geofences from TelemetryService`)
   }
 
   /**
@@ -236,7 +241,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       })
     })
 
-    console.log('Dispatch Radio Emulator initialized')
+    logger.info('Dispatch Radio Emulator initialized')
   }
 
   /**
@@ -260,7 +265,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       })
     })
 
-    console.log('Inventory Management Emulator initialized')
+    logger.info('Inventory Management Emulator initialized')
   }
 
   /**
@@ -278,10 +283,10 @@ export class EmulatorOrchestrator extends EventEmitter {
         this.vehicles.set(vehicle.id, vehicle as unknown as Vehicle);
       });
 
-      console.log(`[EmulatorOrchestrator] Dynamically generated ${dynamicConfig.vehicles.length} vehicles`);
+      logger.info(`[EmulatorOrchestrator] Dynamically generated ${dynamicConfig.vehicles.length} vehicles`);
     } catch (error) {
       // Fallback to static JSON file if dynamic generation fails
-      console.warn('[EmulatorOrchestrator] Dynamic vehicle generation failed, falling back to static config');
+      logger.warn('[EmulatorOrchestrator] Dynamic vehicle generation failed, falling back to static config');
       const vehiclesPath = path.join(__dirname, `config`, 'vehicles.json');
       const data = JSON.parse(fs.readFileSync(vehiclesPath, 'utf-8'));
 
@@ -313,10 +318,10 @@ export class EmulatorOrchestrator extends EventEmitter {
         this.geofences.set(geofence.id, geofence as unknown as Geofence);
       });
 
-      console.log(`[EmulatorOrchestrator] Dynamically generated ${dynamicConfig.routes.length} routes and ${dynamicConfig.geofences.length} geofences`);
+      logger.info(`[EmulatorOrchestrator] Dynamically generated ${dynamicConfig.routes.length} routes and ${dynamicConfig.geofences.length} geofences`);
     } catch (error) {
       // Fallback to static JSON file if dynamic generation fails
-      console.warn('[EmulatorOrchestrator] Dynamic route generation failed, falling back to static config');
+      logger.warn('[EmulatorOrchestrator] Dynamic route generation failed, falling back to static config');
       const routesPath = path.join(__dirname, 'config', 'routes.json');
       const data = JSON.parse(fs.readFileSync(routesPath, 'utf-8'));
 
@@ -337,11 +342,19 @@ export class EmulatorOrchestrator extends EventEmitter {
    */
   private loadScenarios(): void {
     const scenariosPath = path.join(__dirname, 'config', 'scenarios.json')
-    const data = JSON.parse(fs.readFileSync(scenariosPath, 'utf-8'))
+    if (!fs.existsSync(scenariosPath)) {
+      logger.warn(`[EmulatorOrchestrator] scenarios.json not found at ${scenariosPath} - skipping scenario load`)
+      return
+    }
 
-    Object.entries(data.scenarios).forEach(([key, scenario]) => {
-      this.scenarios.set(key, scenario as Scenario)
-    })
+    try {
+      const data = JSON.parse(fs.readFileSync(scenariosPath, 'utf-8'))
+      Object.entries(data.scenarios || {}).forEach(([key, scenario]) => {
+        this.scenarios.set(key, scenario as Scenario)
+      })
+    } catch (error) {
+      logger.warn(`[EmulatorOrchestrator] Failed to load scenarios:`, error)
+    }
   }
 
   /**
@@ -352,7 +365,7 @@ export class EmulatorOrchestrator extends EventEmitter {
     this.wss = new WebSocketServer({ port })
 
     this.wss.on('connection', (ws: WebSocket) => {
-      console.log('WebSocket client connected')
+      logger.info('WebSocket client connected')
       this.wsClients.add(ws)
 
       // Send initial state
@@ -367,17 +380,17 @@ export class EmulatorOrchestrator extends EventEmitter {
       }))
 
       ws.on('close', () => {
-        console.log('WebSocket client disconnected')
+        logger.info('WebSocket client disconnected')
         this.wsClients.delete(ws)
       })
 
       ws.on('error', (error) => {
-        console.error(`WebSocket error:`, error)
+        logger.error(`WebSocket error:`, error)
         this.wsClients.delete(ws)
       })
     })
 
-    console.log(`WebSocket server started on port ${port}`)
+    logger.info(`WebSocket server started on port ${port}`)
   }
 
   /**
@@ -412,7 +425,7 @@ export class EmulatorOrchestrator extends EventEmitter {
 
     // Persist to database if enabled
     if (this.config.persistence?.enabled) {
-      this.persistEvent(event).catch(console.error)
+      this.persistEvent(event).catch((err) => logger.error(err))
     }
   }
 
@@ -474,7 +487,7 @@ export class EmulatorOrchestrator extends EventEmitter {
           break
       }
     } catch (error) {
-      console.error(`Failed to persist ${event.type} event:`, error)
+      logger.error(`Failed to persist ${event.type} event:`, error)
     }
   }
 
@@ -488,12 +501,12 @@ export class EmulatorOrchestrator extends EventEmitter {
 
     const vehiclesToStart = vehicleIds || Array.from(this.vehicles.keys())
 
-    console.log(`Starting emulators for ${vehiclesToStart.length} vehicles...`)
+    logger.info(`Starting emulators for ${vehiclesToStart.length} vehicles...`)
 
     for (const vehicleId of vehiclesToStart) {
       const vehicle = this.vehicles.get(vehicleId)
       if (!vehicle) {
-        console.warn(`Vehicle ${vehicleId} not found`)
+        logger.warn(`Vehicle ${vehicleId} not found`)
         continue
       }
 
@@ -505,7 +518,7 @@ export class EmulatorOrchestrator extends EventEmitter {
         this.dispatchEmulator.registerVehicle({
           id: vehicle.id,
           unitNumber,
-          driverId: (vehicle as any).driver_id || (vehicle as any).driverId,
+          driverId: ((vehicle as unknown as Record<string, unknown>).driver_id as string | undefined) || ((vehicle as unknown as Record<string, unknown>).driverId as string | undefined),
           currentLocation: vehicle.startingLocation
         })
       }
@@ -533,7 +546,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       data: { status: 'running', timestamp: new Date() }
     })
 
-    console.log('All emulators started successfully')
+    logger.info('All emulators started successfully')
   }
 
   /**
@@ -821,7 +834,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       throw new Error('Emulators are not running')
     }
 
-    console.log('Stopping all emulators...')
+    logger.info('Stopping all emulators...')
 
     // Stop dispatch emulator
     if (this.dispatchEmulator) {
@@ -852,7 +865,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       data: { status: 'stopped', timestamp: new Date() }
     })
 
-    console.log('All emulators stopped successfully')
+    logger.info('All emulators stopped successfully')
   }
 
   /**
@@ -924,7 +937,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       throw new Error('Cannot pause: emulators not running or already paused')
     }
 
-    console.log('Pausing all emulators...')
+    logger.info('Pausing all emulators...')
 
     // Pause all emulators
     for (const emulator of this.gpsEmulators.values()) {
@@ -943,7 +956,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       data: { status: 'paused', timestamp: new Date() }
     })
 
-    console.log('All emulators paused')
+    logger.info('All emulators paused')
   }
 
   /**
@@ -954,7 +967,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       throw new Error('Cannot resume: emulators not paused')
     }
 
-    console.log('Resuming all emulators...')
+    logger.info('Resuming all emulators...')
 
     // Resume all emulators
     for (const emulator of this.gpsEmulators.values()) {
@@ -973,7 +986,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       data: { status: 'running', timestamp: new Date() }
     })
 
-    console.log(`All emulators resumed`)
+    logger.info(`All emulators resumed`)
   }
 
   /**
@@ -985,7 +998,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       throw new Error(`Scenario ${scenarioId} not found`)
     }
 
-    console.log(`Running scenario: ${scenario.name}`)
+    logger.info(`Running scenario: ${scenario.name}`)
 
     this.currentScenario = scenarioId
 
@@ -1013,7 +1026,7 @@ export class EmulatorOrchestrator extends EventEmitter {
   private applyScenarioModifiers(modifiers: Record<string, any>): void {
     // Apply modifiers to all active emulators
     // This would adjust speed, fuel consumption, etc.
-    console.log('Applying scenario modifiers:', modifiers)
+    logger.info('Applying scenario modifiers:', modifiers)
   }
 
   /**
@@ -1128,7 +1141,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       return []
     }
 
-    return this.inventoryEmulator.getItemsByCategory(category as any)
+    return this.inventoryEmulator.getItemsByCategory(category as InventoryCategory)
   }
 
   /**
@@ -1146,7 +1159,7 @@ export class EmulatorOrchestrator extends EventEmitter {
    * Cleanup and shutdown
    */
   public async shutdown(): Promise<void> {
-    console.log('Shutting down EmulatorOrchestrator...')
+    logger.info('Shutting down EmulatorOrchestrator...')
 
     if (this.isRunning) {
       await this.stop()
@@ -1158,7 +1171,7 @@ export class EmulatorOrchestrator extends EventEmitter {
 
     this.removeAllListeners()
 
-    console.log('EmulatorOrchestrator shutdown complete')
+    logger.info('EmulatorOrchestrator shutdown complete')
   }
 
   /**

@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { apiClient } from "@/lib/api-client"
 import { isSuccessResponse } from "@/lib/schemas/responses"
 import type { ApiResponse } from "@/lib/schemas/responses"
+import { formatEnum } from '@/utils/format-enum';
 import logger from '@/utils/logger';
 
 interface Equipment {
@@ -140,12 +141,12 @@ export function EquipmentDashboard() {
   const getStatusColor = (status: string) => {
     const colors = {
       available: "bg-green-100 text-green-700",
-      in_use: "bg-blue-100 text-blue-700",
+      in_use: "bg-emerald-500/10 text-emerald-700",
       maintenance: "bg-yellow-100 text-yellow-700",
       down: "bg-red-100 text-red-700",
-      rental: "bg-purple-100 text-purple-700"
+      rental: "bg-amber-100 text-amber-700"
     }
-    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-700"
+    return colors[status as keyof typeof colors] || "bg-white/[0.05] text-white/40"
   }
 
   const getPriorityColor = (priority: string) => {
@@ -153,9 +154,9 @@ export function EquipmentDashboard() {
       critical: "bg-red-100 text-red-700",
       high: "bg-orange-100 text-orange-700",
       medium: "bg-yellow-100 text-yellow-700",
-      low: "bg-blue-100 text-blue-700"
+      low: "bg-emerald-500/10 text-emerald-700"
     }
-    return colors[priority as keyof typeof colors] || "bg-gray-100 text-gray-700"
+    return colors[priority as keyof typeof colors] || "bg-white/[0.05] text-white/40"
   }
 
   return (
@@ -187,7 +188,7 @@ export function EquipmentDashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">In Use</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">{inUseEquipment}</div>
+            <div className="text-sm font-bold text-emerald-800">{inUseEquipment}</div>
             <div className="text-xs text-muted-foreground mt-1">
               {totalEquipment > 0 ? Math.round((inUseEquipment / totalEquipment) * 100) : 0}% utilization
             </div>
@@ -251,7 +252,7 @@ export function EquipmentDashboard() {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-emerald-500/50"></div>
                     <span className="text-sm">In Use</span>
                   </div>
                   <span className="font-semibold">{inUseEquipment}</span>
@@ -269,7 +270,7 @@ export function EquipmentDashboard() {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-amber-500"></div>
                     <span className="text-sm">Rental</span>
                   </div>
                   <span className="font-semibold">{rentalEquipment}</span>
@@ -297,7 +298,7 @@ export function EquipmentDashboard() {
                     .map(([type, count]) => (
                       <div key={type}>
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm capitalize">{type.replace('_', ' ')}</span>
+                          <span className="text-sm">{formatEnum(type)}</span>
                           <span className="font-semibold">{count}</span>
                         </div>
                         <Progress value={(count / totalEquipment) * 100} className="h-2" />
@@ -338,7 +339,7 @@ export function EquipmentDashboard() {
                       <TableRow key={eq.id}>
                         <TableCell className="font-mono text-sm font-medium">{eq.asset_tag}</TableCell>
                         <TableCell className="font-medium">{eq.asset_name}</TableCell>
-                        <TableCell className="capitalize">{eq.equipment_type?.replace('_', ' ')}</TableCell>
+                        <TableCell>{formatEnum(eq.equipment_type)}</TableCell>
                         <TableCell>{parseFloat(eq.engine_hours?.toString() || '0').toFixed(1)} hrs</TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(eq.availability_status)} variant="secondary">

@@ -22,6 +22,7 @@ import {
 } from 'recharts';
 
 import type { ReportDefinition, ReportVisual, ReportMeasure } from '../../services/ReportLoaderService';
+import { formatDate } from '@/utils/format-helpers';
 
 interface DynamicReportRendererProps {
   report: ReportDefinition;
@@ -32,14 +33,14 @@ interface DynamicReportRendererProps {
 }
 
 const CHART_COLORS = [
-  '#3B82F6', // blue-500
-  '#10B981', // green-500
-  '#F59E0B', // amber-500
-  '#EF4444', // red-500
-  '#8B5CF6', // violet-500
-  '#EC4899', // pink-500
-  '#06B6D4', // cyan-500
-  '#F97316', // orange-500
+  'hsl(var(--primary))', // primary
+  'hsl(var(--success))', // success/emerald
+  'hsl(var(--warning))', // warning/amber
+  'hsl(var(--destructive))', // destructive/red
+  'hsl(var(--accent))', // accent
+  'hsl(var(--accent))', // accent alt
+  'hsl(var(--primary))', // primary alt
+  'hsl(var(--warning))', // warning alt
 ];
 
 /**
@@ -59,13 +60,13 @@ const TableRenderer: React.FC<TableRendererProps> = ({ visual, data, formatValue
   const totalPages = Math.ceil(data.length / pageSize);
 
   return (
-    <div className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 mb-3">
+    <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] mb-3">
       <h3 className="text-base font-semibold text-white mb-3">{visual.title}</h3>
 
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-white/10">
+            <tr className="border-b border-white/[0.04]">
               {visual.columns!.map((col) => (
                 <th key={col.field} className="px-2 py-3 text-left text-sm font-semibold text-white/80">
                   {col.label}
@@ -75,7 +76,7 @@ const TableRenderer: React.FC<TableRendererProps> = ({ visual, data, formatValue
           </thead>
           <tbody>
             {paginatedData.map((row, idx) => (
-              <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+              <tr key={idx} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors">
                 {visual.columns!.map((col) => (
                   <td key={col.field} className="px-2 py-3 text-sm text-white/90">
                     {formatValue(row[col.field], col.format)}
@@ -88,7 +89,7 @@ const TableRenderer: React.FC<TableRendererProps> = ({ visual, data, formatValue
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/10">
+        <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/[0.04]">
           <div className="text-sm text-white/60">
             Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, data.length)} of {data.length}
           </div>
@@ -96,14 +97,14 @@ const TableRenderer: React.FC<TableRendererProps> = ({ visual, data, formatValue
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-2 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
+              className="px-2 py-2 bg-white/[0.06] hover:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
             >
               Previous
             </button>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-2 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
+              className="px-2 py-2 bg-white/[0.06] hover:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
             >
               Next
             </button>
@@ -151,7 +152,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
         }).format(value);
 
       case 'date':
-        return new Date(value).toLocaleDateString('en-US');
+        return formatDate(value);
 
       default:
         return String(value);
@@ -188,10 +189,8 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
         }
 
         // For more complex expressions, would need a proper math parser
-        console.warn(`Unsupported expression: ${measure.expression}`);
         return 0;
-      } catch (error) {
-        console.warn(`Failed to evaluate expression: ${measure.expression}`, error);
+      } catch {
         return 0;
       }
     }
@@ -239,7 +238,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
           return (
             <div
               key={measure.id}
-              className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 hover:border-white/20 transition-all"
+              className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] hover:border-white/20 transition-all"
             >
               <div className="text-sm text-white/60 mb-2">{measure.label}</div>
               <div className="text-base font-bold text-white">{formattedValue}</div>
@@ -260,23 +259,23 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
     if (!x || !y) return null;
 
     return (
-      <div className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 mb-3">
+      <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] mb-3">
         <h3 className="text-base font-semibold text-white mb-3">{visual.title}</h3>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-            <XAxis dataKey={x.field} stroke="rgba(255,255,255,0.6)" />
-            <YAxis stroke="rgba(255,255,255,0.6)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.1)" />
+            <XAxis dataKey={x.field} stroke="hsl(var(--muted-foreground) / 0.6)" />
+            <YAxis stroke="hsl(var(--muted-foreground) / 0.6)" />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(0,0,0,0.9)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                backgroundColor: 'hsl(var(--foreground) / 0.9)',
+                border: '1px solid hsl(var(--border) / 0.2)',
                 borderRadius: '12px',
                 padding: '12px'
               }}
-              labelStyle={{ color: '#fff' }}
+              labelStyle={{ color: 'hsl(var(--foreground))' }}
             />
-            <Legend wrapperStyle={{ color: '#fff' }} />
+            <Legend wrapperStyle={{ color: 'hsl(var(--foreground))' }} />
             {color ? (
               // Multiple lines by category
               Array.from(new Set(data.map(d => d[color.field]))).map((category, idx) => (
@@ -316,23 +315,23 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
     if (!x || !y) return null;
 
     return (
-      <div className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 mb-3">
+      <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] mb-3">
         <h3 className="text-base font-semibold text-white mb-3">{visual.title}</h3>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-            <XAxis dataKey={x.field} stroke="rgba(255,255,255,0.6)" />
-            <YAxis stroke="rgba(255,255,255,0.6)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.1)" />
+            <XAxis dataKey={x.field} stroke="hsl(var(--muted-foreground) / 0.6)" />
+            <YAxis stroke="hsl(var(--muted-foreground) / 0.6)" />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(0,0,0,0.9)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                backgroundColor: 'hsl(var(--foreground) / 0.9)',
+                border: '1px solid hsl(var(--border) / 0.2)',
                 borderRadius: '12px',
                 padding: '12px'
               }}
-              labelStyle={{ color: '#fff' }}
+              labelStyle={{ color: 'hsl(var(--foreground))' }}
             />
-            <Legend wrapperStyle={{ color: '#fff' }} />
+            <Legend wrapperStyle={{ color: 'hsl(var(--foreground))' }} />
             <Bar dataKey={y.field} fill={CHART_COLORS[0]} radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
@@ -365,7 +364,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
     }, [] as any[]);
 
     return (
-      <div className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 mb-3">
+      <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] mb-3">
         <h3 className="text-base font-semibold text-white mb-3">{visual.title}</h3>
         <ResponsiveContainer width="100%" height={400}>
           <PieChart>
@@ -376,7 +375,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
               labelLine={false}
               label={(entry) => entry.name}
               outerRadius={120}
-              fill="#8884d8"
+              fill="hsl(var(--accent))"
               dataKey="value"
             >
               {pieData.map((_entry: { name: string; value: number }, index: number) => (
@@ -385,11 +384,11 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(0,0,0,0.9)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                backgroundColor: 'hsl(var(--foreground) / 0.9)',
+                border: '1px solid hsl(var(--border) / 0.2)',
                 borderRadius: '12px',
                 padding: '12px',
-                color: '#fff'
+                color: 'hsl(var(--foreground))'
               }}
             />
           </PieChart>
@@ -428,7 +427,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
 
       default:
         return (
-          <div className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 mb-3">
+          <div className="bg-[#111111] rounded-lg p-3 border border-white/[0.04] mb-3">
             <div className="text-white/60">Unsupported visual type: {visual.type}</div>
           </div>
         );
@@ -443,11 +442,11 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
 
     return (
       <div className="flex gap-3 mb-3">
-        {report.exports.map((exp, idx) => (
+        {report.exports.map((exp) => (
           <button
-            key={idx}
+            key={exp.format}
             onClick={() => onExport(exp.format)}
-            className="flex items-center gap-2 px-2 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+            className="flex items-center gap-2 px-2 py-2 bg-white/[0.06] hover:bg-white/[0.08] rounded-lg text-white transition-colors"
           >
             {exp.format === 'pdf' ? (
               <FileText className="w-4 h-4" />
@@ -483,7 +482,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
 
       {/* No Data State */}
       {data.length === 0 && (
-        <div className="bg-white/5 backdrop-blur-xl rounded-lg p-12 border border-white/10 text-center">
+        <div className="bg-[#111111] rounded-lg p-12 border border-white/[0.04] text-center">
           <div className="text-white/60 text-sm">No data available for the selected filters</div>
         </div>
       )}

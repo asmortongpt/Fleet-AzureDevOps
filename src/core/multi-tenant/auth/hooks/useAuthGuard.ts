@@ -7,10 +7,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { useAuth, UserRole } from '@/contexts';
 import { AUTH_CONFIG } from '../config';
 import { Permission, GovernmentRole, AuditEventType } from '../types';
 
+import { useAuth, UserRole } from '@/contexts';
 import { logger } from '@/utils/logger';
 
 // Map GovernmentRole to UserRole for compatibility
@@ -250,8 +250,8 @@ export const useAuditLogger = () => {
       event_type: eventType,
       user_id: user?.id || 'anonymous',
       user_email: user?.email || 'unknown',
-      session_id: 'session_' + Date.now(), // Simplified for demo
-      ip_address: 'client_ip', // Would be populated by backend
+      session_id: (user as any)?.session_id || '',
+      ip_address: '',
       user_agent: navigator.userAgent,
       resource,
       action,
@@ -262,7 +262,7 @@ export const useAuditLogger = () => {
 
     try {
       // Log to console for development
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.MODE === 'development') {
         logger.debug('Audit Event:', auditEntry);
       }
 
@@ -293,9 +293,7 @@ export const useMFAGuard = () => {
   const navigate = useNavigate();
 
   const mfaRequired = AUTH_CONFIG.security?.requireMFA || false;
-  // MFA status would typically come from user profile - default to true if not available
-  // to avoid blocking users when MFA info isn't provided
-  const mfaEnabled = true; // Assume MFA is enabled if property doesn't exist
+  const mfaEnabled = Boolean((user as any)?.mfa_enabled ?? (user as any)?.mfaEnabled);
 
   const needsMFA = useMemo(() => {
     return mfaRequired && !mfaEnabled;
@@ -303,16 +301,8 @@ export const useMFAGuard = () => {
 
   useEffect(() => {
     if (needsMFA && user) {
-      // In a real implementation, this would redirect to MFA setup
       logger.debug('MFA setup required for user');
-
-      // For demo purposes, show a warning
-      if (window.confirm('Multi-Factor Authentication is required. Would you like to set it up now?')) {
-        navigate('/profile/security');
-      } else {
-        // Force logout if user refuses MFA setup
-        logout();
-      }
+      navigate('/profile/security');
     }
   }, [needsMFA, user, navigate, logout]);
 
@@ -325,7 +315,7 @@ export const useMFAGuard = () => {
 
 // Hook for IP-based access control
 export const useIPGuard = () => {
-  const [clientIP, setClientIP] = useState<string>('');
+  const [clientIP, setClientIP] = useState<string>('unknown');
   const [isAllowed, setIsAllowed] = useState(true);
   const { logout } = useAuth();
 
@@ -337,23 +327,29 @@ export const useIPGuard = () => {
         // would be handled on the server side
         const response = await fetch('/api/client-ip');
 
-        if (response.ok) {
-          const data = await response.json();
-          setClientIP(data.ip);
+        if (!response.ok) {
+          // Route may not exist (404) or server error — use fallback
+          logger.debug('Client IP endpoint unavailable, using fallback');
+          setClientIP('unknown');
+          return;
+        }
 
-          // Check if IP is in whitelist
-          if (AUTH_CONFIG.security.ipWhitelist) {
-            const allowed = AUTH_CONFIG.security.ipWhitelist.includes(data.ip);
-            setIsAllowed(allowed);
+        const data = await response.json();
+        setClientIP(data.ip || 'unknown');
 
-            if (!allowed) {
-              logger.error('IP not allowed:', data.ip);
-              logout();
-            }
+        // Check if IP is in whitelist
+        if (AUTH_CONFIG.security.ipWhitelist) {
+          const allowed = AUTH_CONFIG.security.ipWhitelist.includes(data.ip);
+          setIsAllowed(allowed);
+
+          if (!allowed) {
+            logger.error('IP not allowed:', data.ip);
+            logout();
           }
         }
       } catch (error) {
-        logger.error('IP check failed:', error);
+        logger.debug('IP check failed, using fallback:', { error: error instanceof Error ? error.message : String(error) });
+        setClientIP('unknown');
         // Don't block access if IP check fails (fail open for availability)
       }
     };

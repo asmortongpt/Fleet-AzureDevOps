@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 interface InsightMetric {
   id: string
@@ -151,11 +151,11 @@ export function useReactiveInsightsData() {
 
   // Category distribution for pie chart
   const categoryDistribution = [
-    { name: 'Cost Optimization', value: metricsByCategory.cost.length, fill: 'hsl(var(--chart-1))' },
-    { name: 'Efficiency', value: metricsByCategory.efficiency.length, fill: 'hsl(var(--chart-2))' },
-    { name: 'Safety', value: metricsByCategory.safety.length, fill: 'hsl(var(--chart-3))' },
-    { name: 'Maintenance', value: metricsByCategory.maintenance.length, fill: 'hsl(var(--chart-4))' },
-    { name: 'Utilization', value: metricsByCategory.utilization.length, fill: 'hsl(var(--chart-5))' },
+    { name: 'Cost Optimization', value: metricsByCategory.cost.length, fill: '#10b981' },
+    { name: 'Efficiency', value: metricsByCategory.efficiency.length, fill: '#10B981' },
+    { name: 'Safety', value: metricsByCategory.safety.length, fill: '#F59E0B' },
+    { name: 'Maintenance', value: metricsByCategory.maintenance.length, fill: '#D97706' },
+    { name: 'Utilization', value: metricsByCategory.utilization.length, fill: '#F97316' },
   ].filter((item) => item.value > 0)
 
   // Insight priority distribution

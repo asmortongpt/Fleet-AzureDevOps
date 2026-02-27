@@ -17,11 +17,9 @@ import {
     LinearProgress,
     Stack,
     CircularProgress,
-    useTheme,
-    Chip
+    useTheme
 } from '@mui/material';
 import React from 'react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 import type { Obd2Data } from '@/hooks/useObd2Socket';
 
@@ -259,8 +257,8 @@ export default function TelemetryGauges({ data }: TelemetryGaugesProps) {
                             { label: 'Throttle', value: `${data.throttlePosition}%`, icon: <TrendingUp fontSize="small" /> },
                             { label: 'Distance', value: `${Math.round(data.distanceTraveled * 10) / 10} mi`, icon: <Place fontSize="small" /> },
                             { label: 'Session ID', value: data.sessionId.split('-')[0], icon: <Settings fontSize="small" /> },
-                        ].map((stat, i) => (
-                            <Grid size={{ xs: 6, md: 3 }} key={i}>
+                        ].map((stat) => (
+                            <Grid size={{ xs: 6, md: 3 }} key={stat.label}>
                                 <Card variant="outlined">
                                     <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
                                         <Stack direction="row" spacing={2} alignItems="center">

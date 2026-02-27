@@ -1,6 +1,5 @@
 
 import QRCode from 'qrcode';
-// @ts-ignore
 import speakeasy from 'speakeasy';
 
 import { pool } from '../config/database';
@@ -19,7 +18,7 @@ export class MFAService {
     );
 
     // Generate QR code
-    const qrCode = await QRCode.toDataURL(secret.otpauth_url);
+    const qrCode = await QRCode.toDataURL(secret.otpauth_url!);
 
     return {
       secret: secret.base32,

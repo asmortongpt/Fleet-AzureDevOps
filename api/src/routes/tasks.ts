@@ -1,4 +1,5 @@
 import { Router, Response } from "express"
+import { z } from 'zod'
 
 import { pool } from '../config/database'
 import { csrfProtection } from '../middleware/csrf'
@@ -6,6 +7,23 @@ import { asyncHandler } from '../middleware/errorHandler'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { setTenantContext } from '../middleware/tenant-context'
 import logger from '../config/logger'
+
+import { flexUuid } from '../middleware/validation'
+
+const createTaskSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).optional(),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
+  assignedToId: flexUuid.optional(),
+  dueDate: z.string().optional(),
+  relatedEntityType: z.string().optional(),
+  relatedEntityId: flexUuid.optional(),
+  type: z.string().optional(),
+  notes: z.string().optional(),
+})
+
+const updateTaskSchema = createTaskSchema.partial()
 
 const router = Router()
 
@@ -15,7 +33,7 @@ router.use(setTenantContext)
 
 router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -25,7 +43,7 @@ router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
   const offset = (Number(page) - 1) * Number(limit)
 
   let whereClause = 'WHERE tenant_id = $1'
-  const params: any[] = [tenantId]
+  const params: (string | number | boolean | null | undefined)[] = [tenantId]
 
   if (status && typeof status === 'string') {
     params.push(status)
@@ -75,7 +93,7 @@ router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
 
 router.get("/:id", asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -102,17 +120,18 @@ router.get("/:id", asyncHandler(async (req: AuthRequest, res: Response) => {
 router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
   const userId = req.user?.id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
   }
 
-  const { title, description, type, priority, status, assignedToId, relatedEntityType, relatedEntityId, dueDate, notes } = req.body
-
-  if (!title) {
-    return res.status(400).json({ error: 'Task title is required' })
+  const parsed = createTaskSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
   }
+
+  const { title, description, type, priority, status, assignedToId, relatedEntityType, relatedEntityId, dueDate, notes } = parsed.data
 
   const result = await client.query(
     `INSERT INTO tasks (
@@ -132,13 +151,18 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
 
 router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
   }
 
-  const { title, description, priority, status, assignedToId, dueDate, notes } = req.body
+  const parsed = updateTaskSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+  }
+
+  const { title, description, priority, status, assignedToId, dueDate, notes } = parsed.data
 
   // Handle completed_at timestamp
   let completedAt = null
@@ -172,7 +196,7 @@ router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Re
 
 router.delete("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -188,7 +212,7 @@ router.delete("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res:
   }
 
   logger.info('Task deleted', { taskId: req.params.id, tenantId })
-  res.json({ message: "Task deleted successfully" })
+  res.json({ success: true, message: "Task deleted successfully" })
 }))
 
 export default router

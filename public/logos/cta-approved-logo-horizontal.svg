@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="160" viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background - Charcoal -->
+  <rect width="600" height="160" fill="#242424" rx="12"/>
+
+  <!-- CTA Letters - White -->
+  <text x="100" y="110" font-family="'Inter', 'Arial Black', sans-serif" font-size="100" font-weight="900" fill="white" letter-spacing="-3">CTA</text>
+
+  <!-- Company Name -->
+  <text x="220" y="70" font-family="'Inter', sans-serif" font-size="18" font-weight="600" fill="rgba(255,255,255,0.85)" letter-spacing="2">CAPITAL TECHNOLOGY</text>
+  <text x="220" y="100" font-family="'Inter', sans-serif" font-size="18" font-weight="600" fill="rgba(255,255,255,0.85)" letter-spacing="2">ALLIANCE</text>
+
+  <!-- Gold-to-Orange Accent Bar -->
+  <rect x="40" y="126" width="520" height="5" rx="2.5" fill="url(#goldBar)"/>
+  <defs>
+    <linearGradient id="goldBar" x1="40" y1="128" x2="560" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDC016"/>
+      <stop offset="0.5" stop-color="#FF8C00"/>
+      <stop offset="1" stop-color="#FF4300"/>
+    </linearGradient>
+  </defs>
+</svg>

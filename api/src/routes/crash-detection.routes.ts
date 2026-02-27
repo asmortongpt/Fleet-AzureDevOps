@@ -80,7 +80,7 @@ router.post('/crash',
 
     try {
       const validated = CrashReportSchema.parse(req.body)
-      const user = (req as any).user
+      const user = req.user!
       const tenantId = user.tenant_id
       const userId = user.id
 
@@ -124,7 +124,7 @@ router.post('/crash',
       }
 
       // Log the incident
-      console.log(`[CrashDetection] Crash incident reported by user ${userId}`, {
+      logger.info(`[CrashDetection] Crash incident reported by user ${userId}`, {
         incidentId: incident.id,
         acceleration: validated.maxAcceleration,
         userCanceled: validated.userCanceled,
@@ -137,7 +137,7 @@ router.post('/crash',
         incidentId: incident.id,
         emergencyResponseTriggered: isEmergency
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error saving crash report:', error)
       res.status(400).json({ error: getErrorMessage(error) })
     } finally {
@@ -170,7 +170,7 @@ router.get('/crash/history', async (req: Request, res: Response) => {
   const client = await pool.connect()
 
   try {
-    const user = (req as any).user
+    const user = req.user!
     const tenantId = user.tenant_id
     const userId = user.id
     const days = parseInt(req.query.days as string) || 90
@@ -194,7 +194,7 @@ router.get('/crash/history', async (req: Request, res: Response) => {
     )
 
     res.json({ incidents: result.rows })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching crash history:', error)
     res.status(500).json({ error: getErrorMessage(error) })
   } finally {
@@ -226,7 +226,7 @@ router.get('/crash/fleet', async (req: Request, res: Response) => {
   const client = await pool.connect()
 
   try {
-    const user = (req as any).user
+    const user = req.user!
     const tenantId = user.tenant_id
     const days = parseInt(req.query.days as string) || 30
 
@@ -267,7 +267,7 @@ router.get('/crash/fleet', async (req: Request, res: Response) => {
     }))
 
     res.json({ incidents })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching fleet crash incidents:', error)
     res.status(500).json({ error: getErrorMessage(error) })
   } finally {
@@ -278,7 +278,18 @@ router.get('/crash/fleet', async (req: Request, res: Response) => {
 /**
  * Trigger emergency response for a confirmed crash
  */
-async function triggerEmergencyResponse(incident: any, client: any) {
+interface CrashIncident {
+  id: string | number
+  tenant_id: string
+  user_id: string | number
+  driver_id: string | number
+  max_acceleration: number
+  latitude?: number
+  longitude?: number
+  timestamp: string
+}
+
+async function triggerEmergencyResponse(incident: CrashIncident, client: { query: (sql: string, params: unknown[]) => Promise<unknown> }) {
   try {
     // 1. Create high-priority alert
     await client.query(
@@ -350,7 +361,7 @@ async function triggerEmergencyResponse(incident: any, client: any) {
     )
 
     // 3. Log emergency response
-    console.log(`[CrashDetection] 🚨 EMERGENCY RESPONSE TRIGGERED for incident ${incident.id}`)
+    logger.info(`[CrashDetection] 🚨 EMERGENCY RESPONSE TRIGGERED for incident ${incident.id}`)
 
     // 4. In production, integrate with:
     // - Emergency dispatch system

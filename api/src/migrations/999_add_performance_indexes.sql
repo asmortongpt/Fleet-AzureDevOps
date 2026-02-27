@@ -37,9 +37,17 @@ CREATE INDEX IF NOT EXISTS idx_users_tenant_active ON users(tenant_id, is_active
 -- Foreign key indexes
 CREATE INDEX IF NOT EXISTS idx_vehicles_tenant_id ON vehicles(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_vehicles_assigned_driver_id ON vehicles(assigned_driver_id) WHERE assigned_driver_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_vehicles_location_id ON vehicles(location_id) WHERE location_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_vehicles_group_id ON vehicles(group_id) WHERE group_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_vehicles_fleet_id ON vehicles(fleet_id) WHERE fleet_id IS NOT NULL;
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='location_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_location_id ON vehicles(location_id) WHERE location_id IS NOT NULL;
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='group_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_group_id ON vehicles(group_id) WHERE group_id IS NOT NULL;
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='fleet_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_fleet_id ON vehicles(fleet_id) WHERE fleet_id IS NOT NULL;
+  END IF;
+END $$;
 
 -- Filter indexes for vehicle status and categories
 CREATE INDEX IF NOT EXISTS idx_vehicles_status ON vehicles(status);
@@ -48,7 +56,11 @@ CREATE INDEX IF NOT EXISTS idx_vehicles_asset_category ON vehicles(asset_categor
 CREATE INDEX IF NOT EXISTS idx_vehicles_asset_type ON vehicles(asset_type) WHERE asset_type IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_vehicles_power_type ON vehicles(power_type) WHERE power_type IS NOT NULL;
 -- CREATE INDEX IF NOT EXISTS idx_skipped_status IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_vehicles_is_road_legal ON vehicles(is_road_legal) WHERE is_road_legal IS NOT NULL;
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='is_road_legal') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_is_road_legal ON vehicles(is_road_legal) WHERE is_road_legal IS NOT NULL;
+  END IF;
+END $$;
 
 -- Composite indexes for common queries
 CREATE INDEX IF NOT EXISTS idx_vehicles_tenant_status ON vehicles(tenant_id, status);
@@ -64,7 +76,11 @@ CREATE INDEX IF NOT EXISTS idx_work_orders_tenant_id ON work_orders(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_work_orders_vehicle_id ON work_orders(vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_work_orders_facility_id ON work_orders(facility_id) WHERE facility_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_work_orders_assigned_to_id ON work_orders(assigned_to_id) WHERE assigned_to_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_work_orders_created_by ON work_orders(created_by) WHERE created_by IS NOT NULL;
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='created_by') THEN
+    CREATE INDEX IF NOT EXISTS idx_work_orders_created_by ON work_orders(created_by) WHERE created_by IS NOT NULL;
+  END IF;
+END $$;
 
 -- Filter indexes
 CREATE INDEX IF NOT EXISTS idx_work_orders_status ON work_orders(status);

@@ -5,7 +5,7 @@ import { IncidentTimelineRepository } from '../incident-timeline.repository';
 
 vi.mock('../../../../db', () => ({
   pool: {
-    query: vi.fn()
+    query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0, command: 'SELECT', oid: 0, fields: [] })
   }
 }));
 
@@ -13,7 +13,7 @@ describe('IncidentTimelineRepository', () => {
   let repository: IncidentTimelineRepository;
 
   beforeEach(() => {
-    repository = new IncidentTimelineRepository();
+    repository = new IncidentTimelineRepository(pool as any);
     vi.clearAllMocks();
   });
 

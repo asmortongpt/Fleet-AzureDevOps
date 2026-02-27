@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 16: Add Winston logger
 import { pool } from '../db/connection';
@@ -7,11 +8,42 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { setTenantContext } from '../middleware/tenant-context'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+import { flexUuid } from '../middleware/validation'
+
+const createCommunicationLogSchema = z.object({
+  communication_type: z.string().min(1),
+  subject: z.string().optional(),
+  body: z.string().optional(),
+  message_body: z.string().optional(),
+  from_user_id: flexUuid.optional(),
+  to_user_id: flexUuid.optional(),
+  sender_id: flexUuid.optional(),
+  sender_name: z.string().optional(),
+  from_address: z.string().optional(),
+  to_address: z.string().optional(),
+  direction: z.enum(['inbound', 'outbound']).optional(),
+  channel: z.string().optional(),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
+  status: z.string().optional(),
+  participants: z.unknown().optional(),
+  recipients: z.unknown().optional(),
+  related_entity_type: z.string().optional(),
+  related_entity_id: flexUuid.optional(),
+  follow_up_required: z.boolean().optional(),
+  follow_up_date: z.string().optional(),
+  follow_up_notes: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+})
+
+const updateCommunicationLogSchema = createCommunicationLogSchema.partial()
 
 
 const router = express.Router()
 router.use(authenticateJWT)
+router.use(setTenantContext)
 
 // GET /communication-logs
 router.get(
@@ -20,38 +52,32 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const db = req.dbClient || pool
       const { page = 1, limit = 50 } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
-      const result = await pool.query(
+      const result = await db.query(
         `SELECT id,
                 tenant_id,
                 communication_type,
                 direction,
                 from_user_id,
                 to_user_id,
-                from_address,
-                to_address,
+                vehicle_id,
                 subject,
-                message_body,
-                status,
-                sent_at,
-                delivered_at,
-                read_at,
-                related_entity_type,
-                related_entity_id,
-                external_message_id,
-                metadata,
-                created_at,
-                updated_at
+                body,
+                timestamp,
+                attachments,
+                notes,
+                created_at
          FROM communication_logs
          WHERE tenant_id = $1
-         ORDER BY sent_at DESC NULLS LAST, created_at DESC
+         ORDER BY created_at DESC
          LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
-      const countResult = await pool.query(
+      const countResult = await db.query(
         `SELECT COUNT(*) FROM communication_logs WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
@@ -79,7 +105,8 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
+      const db = req.dbClient || pool
+      const result = await db.query(
         `SELECT id,
                 tenant_id,
                 communication_type,
@@ -124,7 +151,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const db = req.dbClient || pool
+      const parsed = createCommunicationLogSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+
+      const data = parsed.data
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
@@ -132,7 +165,7 @@ router.post(
         1
       )
 
-      const result = await pool.query(
+      const result = await db.query(
         `INSERT INTO communication_logs (${columnNames}) VALUES (${placeholders}) RETURNING *`,
         [req.user!.tenant_id, ...values]
       )
@@ -152,10 +185,16 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const db = req.dbClient || pool
+      const parsed = updateCommunicationLogSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
-      const result = await pool.query(
+      const result = await db.query(
         `UPDATE communication_logs SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...values]
       )
@@ -179,7 +218,8 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
+      const db = req.dbClient || pool
+      const result = await db.query(
         'DELETE FROM communication_logs WHERE id = $1 AND tenant_id = $2 RETURNING id',
         [req.params.id, req.user!.tenant_id]
       )
@@ -188,7 +228,7 @@ router.delete(
         throw new NotFoundError("CommunicationLogs not found")
       }
 
-      res.json({ message: 'CommunicationLogs deleted successfully' })
+      res.json({ success: true, message: 'CommunicationLogs deleted successfully' })
     } catch (error) {
       logger.error('Delete communication-logs error:', error) // Wave 16: Winston logger
       res.status(500).json({ error: 'Internal server error' })

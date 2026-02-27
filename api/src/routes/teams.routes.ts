@@ -40,11 +40,17 @@ function resolveTeamsSource(req: AuthRequest): 'local' | 'graph' {
 }
 
 function getTenantId(req: AuthRequest): string | null {
-  const raw = (req.user as any)?.tenant_id || (req.user as any)?.tenantId
-  if (!raw) return null
+  const raw = req.user?.tenant_id || req.user?.tenantId
+  if (!raw) {
+return null
+}
   const s = String(raw).trim()
-  if (!s) return null
-  if (!/^[0-9a-fA-F-]{36}$/.test(s)) return null
+  if (!s) {
+return null
+}
+  if (!/^[0-9a-fA-F-]{36}$/.test(s)) {
+return null
+}
   return s
 }
 
@@ -93,8 +99,10 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
       const tenantId = getTenantId(req)
-      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
-      const client = (req as any).dbClient || pool
+      if (!tenantId) {
+return res.status(401).json({ success: false, error: 'Missing tenant context' })
+}
+      const client = req.dbClient || pool
       const result = await client.query(
         `SELECT id, name AS "displayName", description
          FROM teams
@@ -131,12 +139,16 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.get('/channels', async (req: AuthRequest, res: Response) => {
   try {
     const teamId = String(req.query.teamId || '')
-    if (!teamId) return res.status(400).json({ success: false, error: 'teamId is required' })
+    if (!teamId) {
+return res.status(400).json({ success: false, error: 'teamId is required' })
+}
 
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
       const tenantId = getTenantId(req)
-      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
+      if (!tenantId) {
+return res.status(401).json({ success: false, error: 'Missing tenant context' })
+}
       const result = await pool.query(
         `SELECT channel_id AS id, display_name AS "displayName", description
          FROM teams_channels
@@ -170,7 +182,9 @@ router.get('/messages', async (req: AuthRequest, res: Response) => {
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
       const tenantId = getTenantId(req)
-      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
+      if (!tenantId) {
+return res.status(401).json({ success: false, error: 'Missing tenant context' })
+}
       const result = await pool.query(
         `SELECT
            message_id AS id,
@@ -201,10 +215,12 @@ router.get('/messages', async (req: AuthRequest, res: Response) => {
 router.get('/files', async (req: AuthRequest, res: Response) => {
   try {
     const tenantId = getTenantId(req)
-    if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
+    if (!tenantId) {
+return res.status(401).json({ success: false, error: 'Missing tenant context' })
+}
 
     // Best-effort: surface recent documents for the tenant. This is DB-backed and avoids 5xx in demo mode.
-    const client = (req as any).dbClient || pool
+    const client = req.dbClient || pool
     const result = await client.query(
       `SELECT
          id,
@@ -261,8 +277,10 @@ router.get('/:teamId', async (req: AuthRequest, res: Response) => {
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
       const tenantId = getTenantId(req)
-      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
-      const client = (req as any).dbClient || pool
+      if (!tenantId) {
+return res.status(401).json({ success: false, error: 'Missing tenant context' })
+}
+      const client = req.dbClient || pool
       const result = await client.query(
         `SELECT id, name AS "displayName", description
          FROM teams
@@ -276,6 +294,98 @@ router.get('/:teamId', async (req: AuthRequest, res: Response) => {
       return res.json({ success: true, team: result.rows[0] })
     }
 
+    const team = await teamsService.getTeam(teamId)
+
+    res.json({
+      success: true,
+      team
+    })
+  } catch (error) {
+    logger.error('Error getting team', {
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
+      teamId: req.params.teamId,
+      userId: req.user?.id
+    })
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve team'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/teams/{teamId}:
+ *   get:
+ *     summary: Get a single team
+ *     tags:
+ *       - Teams
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: teamId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Team details
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.get('/:teamId', async (req: AuthRequest, res: Response) => {
+  try {
+    const { teamId } = req.params
+    const team = await teamsService.getTeam(teamId)
+
+    res.json({
+      success: true,
+      team
+    })
+  } catch (error) {
+    logger.error('Error getting team', {
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
+      teamId: req.params.teamId,
+      userId: req.user?.id
+    })
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve team'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/teams/{teamId}:
+ *   get:
+ *     summary: Get a single team
+ *     tags:
+ *       - Teams
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: teamId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Team details
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.get('/:teamId', async (req: AuthRequest, res: Response) => {
+  try {
+    const { teamId } = req.params
     const team = await teamsService.getTeam(teamId)
 
     res.json({
@@ -327,7 +437,9 @@ router.get('/:teamId/channels', async (req: AuthRequest, res: Response) => {
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
       const tenantId = getTenantId(req)
-      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
+      if (!tenantId) {
+return res.status(401).json({ success: false, error: 'Missing tenant context' })
+}
       const result = await pool.query(
         `SELECT channel_id AS id, display_name AS "displayName", description
          FROM teams_channels
@@ -399,7 +511,9 @@ router.get('/:teamId/channels/:channelId/messages', async (req: AuthRequest, res
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
       const tenantId = getTenantId(req)
-      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
+      if (!tenantId) {
+return res.status(401).json({ success: false, error: 'Missing tenant context' })
+}
       const result = await pool.query(
         `SELECT
            message_id AS id,

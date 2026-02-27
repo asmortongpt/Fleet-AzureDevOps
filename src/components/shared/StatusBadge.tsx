@@ -29,12 +29,12 @@ const statusConfig: Record<string, {
     label: "Active"
   },
   "in-transit": {
-    color: "bg-blue-500/10 text-blue-800 border-blue-500/20",
+    color: "bg-emerald-500/10 text-emerald-800 border-emerald-500/20",
     icon: <CheckCircle className="w-3 h-3" aria-hidden="true" />,
     label: "In Transit"
   },
   parked: {
-    color: "bg-slate-500/10 text-slate-500 border-slate-500/20",
+    color: "bg-white/[0.1]/10 text-white/40 border-white/[0.12]/20",
     icon: <Clock className="w-3 h-3" aria-hidden="true" />,
     label: "Parked"
   },

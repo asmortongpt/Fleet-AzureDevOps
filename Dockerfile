@@ -56,7 +56,7 @@ RUN echo 'proxy_temp_path /var/cache/nginx/proxy_temp; \
     add_header Content-Security-Policy "default-src '\''self'\''; script-src '\''self'\'' '\''unsafe-inline'\'' '\''unsafe-eval'\'' https://maps.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; style-src '\''self'\'' '\''unsafe-inline'\'' https://fonts.googleapis.com; font-src '\''self'\'' https://fonts.gstatic.com data:; img-src '\''self'\'' data: https: blob: https://api.dicebear.com https://maps.googleapis.com https://maps.gstatic.com; connect-src '\''self'\'' wss: ws: https://maps.googleapis.com https://api.dicebear.com https://*.azure.com https://*.windows.net; frame-src '\''self'\'' https://login.microsoftonline.com; worker-src '\''self'\'' blob:; object-src '\''none'\''; base-uri '\''self'\''; form-action '\''self'\''; frame-ancestors '\''none'\'';" always; \
     \
     # Enable HSTS for production (uncomment when serving over HTTPS) \
-    # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always; \
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always; \
     \
     # ================================================================ \
     # Application Routes \

@@ -3,8 +3,6 @@ import {
   Gauge,
   Fuel,
   Clock,
-  TrendingUp,
-  TrendingDown,
   MapPin,
   Filter,
   Download
@@ -19,6 +17,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { useVehicles } from '@/hooks/use-api';
+import { formatCurrency } from '@/utils/format-helpers';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 interface AnalyticsMapViewProps {
   analyticsType: 'heatmap' | 'routes' | 'performance' | 'fuel';
@@ -55,15 +55,35 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
   }, [vehicles, statusFilter]);
 
   const selectedVehicle = (vehicles as unknown as Vehicle[]).find((v: Vehicle) => v.id === selectedVehicleId) || (vehicles as unknown as Vehicle[])[0];
+  const getVehicleLabel = (vehicle?: Vehicle) =>
+    vehicle?.vehicleNumber || (vehicle as any)?.vehicle_number || (vehicle as any)?.number || vehicle?.id;
 
-  // Calculate aggregate metrics
+  // Calculate aggregate metrics from live vehicle data
   const metrics = useMemo((): VehicleMetrics => {
-    // Demo data - in production, fetch from telemetry API
+    const vehiclesList = filteredVehicles as unknown as Vehicle[];
+    const mpgValues = vehiclesList
+      .map((v: any) => Number(v.fuelEfficiency || v.fuel_efficiency || 0))
+      .filter((value) => Number.isFinite(value) && value > 0);
+    const avgMPG = mpgValues.length ? mpgValues.reduce((sum, value) => sum + value, 0) / mpgValues.length : 0;
+
+    const fuelCosts = vehiclesList
+      .map((v: any) => Number(v.fuelCost || v.fuel_cost || v.fuel_cost_per_gallon || 0))
+      .filter((value) => Number.isFinite(value) && value > 0);
+    const fuelCost = fuelCosts.length ? fuelCosts.reduce((sum, value) => sum + value, 0) / fuelCosts.length : 0;
+
+    const idleCount = vehiclesList.filter((v: any) => v.status === 'idle').length;
+    const idleTime = vehiclesList.length > 0 ? (idleCount / vehiclesList.length) * 100 : 0;
+
+    const speedViolations = vehiclesList
+      .map((v: any) => Number(v.speedViolations || v.speed_violations || 0))
+      .filter((value) => Number.isFinite(value) && value > 0)
+      .reduce((sum, value) => sum + value, 0);
+
     return {
-      avgMPG: 24.5,
-      idleTime: 12.3,
-      speedViolations: 3,
-      fuelCost: 3.45
+      avgMPG,
+      idleTime,
+      speedViolations,
+      fuelCost
     };
   }, [filteredVehicles, timeRange]);
 
@@ -98,7 +118,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
         <Card>
           <CardContent className="p-3">
             <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-blue-800" />
+              <Activity className="h-4 w-4 text-emerald-800" />
               <div>
                 <div className="text-sm font-semibold capitalize">{analyticsType} View</div>
                 <div className="text-xs text-muted-foreground">{getAnalyticsDescription()}</div>
@@ -117,7 +137,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <Gauge className="h-5 w-5 text-green-600" />
                 <div>
                   <div className="text-xs text-muted-foreground">Avg MPG</div>
-                  <div className="text-sm font-bold">{metrics.avgMPG}</div>
+                  <div className="text-sm font-bold">{metrics.avgMPG > 0 ? metrics.avgMPG.toFixed(1) : '—'}</div>
                 </div>
               </div>
             </CardContent>
@@ -128,7 +148,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <Clock className="h-5 w-5 text-amber-600" />
                 <div>
                   <div className="text-xs text-muted-foreground">Idle Time</div>
-                  <div className="text-sm font-bold">{metrics.idleTime}%</div>
+                  <div className="text-sm font-bold">{metrics.idleTime.toFixed(1)}%</div>
                 </div>
               </div>
             </CardContent>
@@ -145,7 +165,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <Fuel className="h-5 w-5 text-orange-600" />
                 <div>
                   <div className="text-xs text-muted-foreground">Avg Fuel Cost</div>
-                  <div className="text-sm font-bold">${metrics.fuelCost}/gal</div>
+                  <div className="text-sm font-bold">{metrics.fuelCost > 0 ? `${formatCurrency(metrics.fuelCost)}/gal` : '—'}</div>
                 </div>
               </div>
             </CardContent>
@@ -159,7 +179,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
   const sidePanel = (
     <div className="space-y-2" data-testid="analytics-filter-sidebar">
       <div>
-        <h2 className="text-sm font-bold text-slate-900">Analytics Filters</h2>
+        <h2 className="text-sm font-bold text-white/90">Analytics Filters</h2>
         <p className="text-sm text-muted-foreground mt-1">{getAnalyticsDescription()}</p>
       </div>
 
@@ -201,7 +221,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
 
       {/* Metrics Summary */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-slate-700">Key Metrics</h3>
+        <h3 className="text-sm font-semibold text-white/70">Key Metrics</h3>
 
         <Card>
           <CardContent className="p-3">
@@ -211,10 +231,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <span className="text-sm">Avg MPG</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="font-bold">{metrics.avgMPG}</span>
-                <Badge variant="default" className="text-xs">
-                  <TrendingUp className="h-3 w-3" />
-                </Badge>
+                <span className="font-bold">{metrics.avgMPG > 0 ? metrics.avgMPG.toFixed(1) : '—'}</span>
               </div>
             </div>
           </CardContent>
@@ -228,10 +245,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <span className="text-sm">Fuel Cost</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="font-bold">${metrics.fuelCost}</span>
-                <Badge variant="destructive" className="text-xs">
-                  <TrendingDown className="h-3 w-3" />
-                </Badge>
+                <span className="font-bold">{metrics.fuelCost > 0 ? formatCurrency(metrics.fuelCost) : '—'}</span>
               </div>
             </div>
           </CardContent>
@@ -244,7 +258,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">Idle Time</span>
               </div>
-              <span className="font-bold">{metrics.idleTime}%</span>
+              <span className="font-bold">{Number.isFinite(metrics.idleTime) ? `${metrics.idleTime.toFixed(1)}%` : '—'}</span>
             </div>
           </CardContent>
         </Card>
@@ -256,7 +270,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <Activity className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">Speed Violations</span>
               </div>
-              <Badge variant="secondary">{metrics.speedViolations}</Badge>
+              <Badge variant="secondary">{Number.isFinite(metrics.speedViolations) ? metrics.speedViolations : '—'}</Badge>
             </div>
           </CardContent>
         </Card>
@@ -267,11 +281,11 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
       {/* Selected Vehicle Info */}
       {selectedVehicle && (
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-slate-700">Selected Vehicle</h3>
+          <h3 className="text-sm font-semibold text-white/70">Selected Vehicle</h3>
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center justify-between">
-                <span>{selectedVehicle.vehicleNumber}</span>
+                <span>{getVehicleLabel(selectedVehicle)}</span>
                 <Badge variant={selectedVehicle.status === 'active' ? 'default' : 'secondary'}>
                   {selectedVehicle.status}
                 </Badge>
@@ -279,7 +293,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="text-sm">
-                <span className="font-medium">{selectedVehicle.make} {selectedVehicle.model}</span>
+                <span className="font-medium">{formatVehicleShortName(selectedVehicle)}</span>
               </div>
               {selectedVehicle.latitude && selectedVehicle.longitude && (
                 <div className="flex items-center text-xs text-muted-foreground">

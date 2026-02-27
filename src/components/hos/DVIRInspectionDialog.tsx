@@ -27,11 +27,12 @@
  * ```
  */
 
+import { FileText, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { FileText, Camera, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -50,7 +51,6 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
 import { useDVIRMutations, type InspectionType, type CreateDVIRInput, type DefectSeverity } from '@/hooks/use-hos-data'
 import logger from '@/utils/logger'
 
@@ -464,7 +464,7 @@ export function DVIRInspectionDialog({
 
                 {/* Standard Components */}
                 <div className="p-3">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                  <h4 className="text-sm font-semibold text-white/40 mb-2">
                     Standard Items
                   </h4>
                   {components
@@ -486,7 +486,7 @@ export function DVIRInspectionDialog({
             {/* Safe to Operate */}
             <div className="space-y-2">
               <Label className="text-base font-semibold">Vehicle Safety Status</Label>
-              <div className="flex items-center space-x-2 p-3 border rounded-lg bg-gray-50">
+              <div className="flex items-center space-x-2 p-3 border rounded-lg bg-white/[0.03]">
                 <Checkbox
                   id="vehicle_safe_to_operate"
                   checked={values.vehicle_safe_to_operate}

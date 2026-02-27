@@ -29,9 +29,10 @@ export function QuickAITest() {
   const testAI = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3000/api/ai/query', {
+      const res = await fetch('/api/ai/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ query: 'Analyze vehicle health status' }),
       });
       const data = await res.json();

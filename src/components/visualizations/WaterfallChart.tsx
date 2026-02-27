@@ -3,11 +3,12 @@
  * Visualizes sequential changes (e.g., budget vs actual, cost breakdown)
  */
 
-import { motion } from 'framer-motion'
+// motion removed - React 19 incompatible
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Skeleton } from '@/components/ui/skeleton'
+import { formatCurrency, formatCurrencyCompact } from '@/utils/format-helpers'
 
 interface WaterfallDataPoint {
   name: string
@@ -33,20 +34,17 @@ export function WaterfallChart({
   data,
   height = 400,
   loading = false,
-  positiveColor = 'hsl(142, 76%, 36%)',
-  negativeColor = 'hsl(0, 84%, 60%)',
-  totalColor = 'hsl(var(--primary))',
+  positiveColor = '#10B981',
+  negativeColor = '#EF4444',
+  totalColor = 'var(--primary)',
 }: WaterfallChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    grid: isDark ? '#374151' : '#e5e7eb',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#e5e7eb' : '#111827',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -70,7 +68,7 @@ export function WaterfallChart({
     const data = payload[0].payload
     return (
       <div
-        className="rounded-lg border shadow-lg p-3"
+        className="rounded-lg border p-3"
         style={{
           backgroundColor: chartColors.tooltip.background,
           borderColor: chartColors.tooltip.border,
@@ -79,10 +77,10 @@ export function WaterfallChart({
       >
         <p className="font-semibold mb-1">{data.name}</p>
         <p className="text-sm">
-          Value: <span className="font-mono">${data.value.toLocaleString()}</span>
+          Value: <span className="font-mono">{formatCurrency(data.value)}</span>
         </p>
         <p className="text-sm">
-          Total: <span className="font-mono">${data.end.toLocaleString()}</span>
+          Total: <span className="font-mono">{formatCurrency(data.end)}</span>
         </p>
       </div>
     )
@@ -103,12 +101,8 @@ export function WaterfallChart({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4 }}
-    >
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+    <div>
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}
@@ -128,9 +122,9 @@ export function WaterfallChart({
               <YAxis
                 stroke={chartColors.text}
                 tick={{ fill: chartColors.text, fontSize: 12 }}
-                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+                tickFormatter={(value) => formatCurrencyCompact(value)}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
               <ReferenceLine y={0} stroke={chartColors.text} strokeDasharray="3 3" />
 
               {/* Invisible bar for positioning */}
@@ -155,6 +149,6 @@ export function WaterfallChart({
           </ResponsiveContainer>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }

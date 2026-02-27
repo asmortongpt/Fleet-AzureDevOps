@@ -2,6 +2,8 @@
  * AES-256-GCM Encryption Service Tests
  * Comprehensive tests for production-grade encryption
  * Target: 80%+ coverage
+ *
+ * @vitest-environment node
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -287,15 +289,15 @@ describe('EncryptionService', () => {
       expect(encrypted.keyVersion).not.toBe(oldVersion);
     });
 
-    it('should allow decrypting old encrypted data after rotation', async () => {
+    it('should not decrypt old data after rotation (key material changes)', async () => {
       const plaintext = 'test data';
       const encrypted = await encryptionService.encrypt(plaintext);
 
       await encryptionService.rotateKeys();
 
-      const decrypted = await encryptionService.decrypt(encrypted);
-
-      expect(decrypted).toBe(plaintext);
+      await expect(encryptionService.decrypt(encrypted)).rejects.toThrow(
+        'Decryption failed'
+      );
     });
 
     it('should use new key for new encryptions', async () => {

@@ -24,6 +24,7 @@ import { validateCSPConfig } from '@/lib/security/csp';
 import { auditSecurityHeaders } from '@/lib/security/headers';
 import { apiRateLimiter } from '@/lib/security/rate-limiter';
 import { auditResourceSRI } from '@/lib/security/sri';
+import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface SecurityCheck {
@@ -361,12 +362,12 @@ export function SecurityAudit() {
       <Card className="p-3">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <Shield className="h-8 w-8 text-blue-800" />
+            <Shield className="h-8 w-8 text-emerald-800" />
             <div>
               <h2 className="text-sm font-bold">Security Audit</h2>
               <p className="text-sm text-muted-foreground">
                 {lastAudit
-                  ? `Last audit: ${lastAudit.toLocaleString()}`
+                  ? `Last audit: ${formatDateTime(lastAudit)}`
                   : 'Run security audit to check your application'}
               </p>
             </div>
@@ -418,10 +419,10 @@ export function SecurityAudit() {
               <p>No audit results yet. Click "Run Audit" to get started.</p>
             </div>
           ) : (
-            checks.map((check, index) => (
+            checks.map((check) => (
               <div
-                key={index}
-                className="flex items-start justify-between p-2 border rounded-lg hover:bg-gray-50 transition-colors"
+                key={check.name}
+                className="flex items-start justify-between p-2 border rounded-lg hover:bg-white/[0.03] transition-colors"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -455,8 +456,8 @@ export function SecurityAudit() {
                     </p>
                   )}
                   {check.recommendation && (
-                    <div className="ml-7 mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
-                      <strong className="text-blue-700">Recommendation:</strong>{' '}
+                    <div className="ml-7 mt-2 p-2 bg-emerald-500/5 border border-emerald-500/20 rounded text-sm">
+                      <strong className="text-emerald-700">Recommendation:</strong>{' '}
                       {check.recommendation}
                     </div>
                   )}
@@ -492,8 +493,8 @@ export function SecurityAudit() {
           <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
             {checks
               .filter((c) => c.status === 'fail')
-              .map((check, index) => (
-                <li key={index}>{check.name}</li>
+              .map((check) => (
+                <li key={check.name}>{check.name}</li>
               ))}
           </ul>
         </Card>

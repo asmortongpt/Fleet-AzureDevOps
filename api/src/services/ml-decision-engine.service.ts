@@ -10,6 +10,10 @@
 
 import { Pool } from 'pg'
 
+// Export singleton instance
+import logger from '../config/logger'
+import { pool } from '../db'
+
 
 export interface MaintenancePrediction {
   vehicle_id: string
@@ -52,10 +56,70 @@ export interface CostForecast {
   trend: 'increasing' | 'stable' | 'decreasing'
 }
 
+export interface OptimizedRouteResult {
+  recommended_departure_time: Date
+  estimated_duration: number
+  estimated_distance: number
+  confidence: number
+  traffic_considerations: string[]
+}
+
+interface VehicleFeatures {
+  id?: string
+  mileage?: number
+  year?: number
+  vehicle_age?: number
+  status?: string
+  total_work_orders?: number
+  recent_work_orders?: number
+  total_maintenance_cost?: number
+  last_maintenance_date?: Date
+}
+
+interface DriverTelemetryData {
+  driver_id?: string
+  total_trips?: number
+  avg_harsh_acceleration?: number
+  avg_harsh_braking?: number
+  avg_speeding?: number
+  safety_incidents?: number
+}
+
+interface EntityRiskFeatures {
+  entity_id: string
+  historical_incidents: number
+  recent_violations: number
+  maintenance_issues: number
+}
+
+interface MLModel {
+  id: string
+  tenant_id: string
+  model_name: string
+  model_type: string
+  version: string
+  status: string
+  accuracy: number
+  created_at: Date
+  updated_at: Date
+}
+
+interface HistoricalRouteData {
+  average_duration: number
+  average_distance: number
+  traffic_pattern: string
+}
+
+interface Logger {
+  info(message: string, meta?: Record<string, unknown>): void
+  error(message: string, meta?: Record<string, unknown>): void
+  warn(message: string, meta?: Record<string, unknown>): void
+}
+
 class MLDecisionEngineService {
   constructor(
     private db: Pool,
-    private logger: any
+    private logger: Logger
   ) { }
 
   /**
@@ -99,8 +163,8 @@ class MLDecisionEngineService {
       )
 
       return prediction
-    } catch (error: any) {
-      this.logger.error('Maintenance prediction error', { error: error.message, vehicleId })
+    } catch (error: unknown) {
+      this.logger.error('Maintenance prediction error', { error: error instanceof Error ? error.message : 'An unexpected error occurred', vehicleId })
       throw error
     }
   }
@@ -134,8 +198,8 @@ class MLDecisionEngineService {
       )
 
       return score
-    } catch (error: any) {
-      this.logger.error('Driver behavior scoring error', { error: error.message, driverId })
+    } catch (error: unknown) {
+      this.logger.error('Driver behavior scoring error', { error: error instanceof Error ? error.message : 'An unexpected error occurred', driverId })
       throw error
     }
   }
@@ -165,8 +229,8 @@ class MLDecisionEngineService {
       )
 
       return riskPrediction
-    } catch (error: any) {
-      this.logger.error('Incident risk prediction error', { error: error.message, entityType, entityId })
+    } catch (error: unknown) {
+      this.logger.error('Incident risk prediction error', { error: error instanceof Error ? error.message : 'An unexpected error occurred', entityType, entityId })
       throw error
     }
   }
@@ -198,8 +262,8 @@ class MLDecisionEngineService {
       )
 
       return forecast
-    } catch (error: any) {
-      this.logger.error('Cost forecasting error', { error: error.message, forecastPeriod })
+    } catch (error: unknown) {
+      this.logger.error('Cost forecasting error', { error: error instanceof Error ? error.message : 'An unexpected error occurred', forecastPeriod })
       throw error
     }
   }
@@ -211,8 +275,8 @@ class MLDecisionEngineService {
     tenantId: string,
     startLocation: { lat: number; lng: number },
     endLocation: { lat: number; lng: number },
-    constraints: Record<string, any>
-  ): Promise<any> {
+    constraints: Record<string, unknown>
+  ): Promise<OptimizedRouteResult> {
     try {
       // Get historical route data
       const routeData = await this.getRouteHistoricalData(tenantId, startLocation, endLocation)
@@ -233,8 +297,8 @@ class MLDecisionEngineService {
       )
 
       return optimizedRoute
-    } catch (error: any) {
-      this.logger.error(`Route optimization error`, { error: error.message })
+    } catch (error: unknown) {
+      this.logger.error(`Route optimization error`, { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
       throw error
     }
   }
@@ -245,7 +309,7 @@ class MLDecisionEngineService {
   async recordActualOutcome(
     predictionId: string,
     tenantId: string,
-    actualOutcome: any,
+    actualOutcome: Record<string, unknown>,
     userId: string
   ): Promise<void> {
     try {
@@ -313,8 +377,8 @@ class MLDecisionEngineService {
       )
 
       this.logger.info('Actual outcome recorded for prediction', { predictionId })
-    } catch (error: any) {
-      this.logger.error('Error recording actual outcome', { error: error.message, predictionId })
+    } catch (error: unknown) {
+      this.logger.error('Error recording actual outcome', { error: error instanceof Error ? error.message : 'An unexpected error occurred', predictionId })
       throw error
     }
   }
@@ -323,7 +387,7 @@ class MLDecisionEngineService {
   // PRIVATE HELPER METHODS
   // ============================================================================
 
-  private async getVehicleFeatures(tenantId: string, vehicleId: string): Promise<any> {
+  private async getVehicleFeatures(tenantId: string, vehicleId: string): Promise<VehicleFeatures> {
     const result = await this.db.query(
       `SELECT
         v.id,
@@ -345,7 +409,7 @@ class MLDecisionEngineService {
     return result.rows[0] || {}
   }
 
-  private calculateMaintenancePrediction(vehicleData: any): MaintenancePrediction {
+  private calculateMaintenancePrediction(vehicleData: VehicleFeatures): MaintenancePrediction {
     const mileage = vehicleData.mileage || 0
     const vehicleAge = vehicleData.vehicle_age || 0
     const recentWorkOrders = vehicleData.recent_work_orders || 0
@@ -405,7 +469,7 @@ riskScore += 15
     predictedDate.setDate(predictedDate.getDate() + daysUntilFailure)
 
     return {
-      vehicle_id: vehicleData.id,
+      vehicle_id: vehicleData.id ?? '',
       predicted_failure_date: predictedDate,
       failure_type: failureType,
       confidence,
@@ -419,7 +483,7 @@ riskScore += 15
     tenantId: string,
     driverId: string,
     period: string
-  ): Promise<any> {
+  ): Promise<DriverTelemetryData> {
     // SECURITY: Use parameterized interval to prevent SQL injection
     const days = period === '7d' ? 7 : period === '30d' ? 30 : 90
 
@@ -443,7 +507,7 @@ riskScore += 15
     return result.rows[0] || {}
   }
 
-  private calculateDriverBehaviorScore(driverData: any): DriverBehaviorScore {
+  private calculateDriverBehaviorScore(driverData: DriverTelemetryData): DriverBehaviorScore {
     // Calculate individual scores (0-100)
     const accelerationScore = Math.max(0, 100 - (driverData.avg_harsh_acceleration || 0) * 100)
     const brakingScore = Math.max(0, 100 - (driverData.avg_harsh_braking || 0) * 100)
@@ -482,7 +546,7 @@ improvementAreas.push('Speed limit adherence')
 }
 
     return {
-      driver_id: driverData.driver_id,
+      driver_id: driverData.driver_id ?? '',
       overall_score: Math.round(overallScore),
       acceleration_score: Math.round(accelerationScore),
       braking_score: Math.round(brakingScore),
@@ -499,7 +563,7 @@ improvementAreas.push('Speed limit adherence')
     tenantId: string,
     entityType: string,
     entityId: string
-  ): Promise<any> {
+  ): Promise<EntityRiskFeatures> {
     // Implementation would fetch relevant features based on entity type
     return {
       entity_id: entityId,
@@ -509,7 +573,7 @@ improvementAreas.push('Speed limit adherence')
     }
   }
 
-  private calculateIncidentRisk(entityType: string, features: any): IncidentRiskPrediction {
+  private calculateIncidentRisk(entityType: string, features: EntityRiskFeatures): IncidentRiskPrediction {
     const riskFactors = [
       { factor: 'Historical incidents', weight: features.historical_incidents * 0.3 },
       { factor: 'Recent violations', weight: features.recent_violations * 0.25 },
@@ -522,7 +586,7 @@ improvementAreas.push('Speed limit adherence')
     )
 
     return {
-      entity_type: entityType as any,
+      entity_type: entityType as 'vehicle' | 'driver' | 'route',
       entity_id: features.entity_id,
       risk_score: Math.round(riskScore * 10000) / 10000,
       risk_factors: riskFactors,
@@ -534,7 +598,7 @@ improvementAreas.push('Speed limit adherence')
     }
   }
 
-  private async getHistoricalCostData(tenantId: string, period: string): Promise<any> {
+  private async getHistoricalCostData(tenantId: string, period: string): Promise<Array<{ month: string; fuel_cost: string; maintenance_cost: string; total_cost: string }>> {
     // SECURITY: Use parameterized interval to prevent SQL injection
     const months = period === 'week' ? 1 : period === 'month' ? 3 : 12
 
@@ -571,7 +635,7 @@ improvementAreas.push('Speed limit adherence')
     return result.rows
   }
 
-  private calculateCostForecast(historicalData: any[], period: string): CostForecast {
+  private calculateCostForecast(historicalData: Array<{ month: string; fuel_cost: string; maintenance_cost: string; total_cost: string }>, period: string): CostForecast {
     if (historicalData.length === 0) {
       return {
         forecast_period: period,
@@ -619,9 +683,9 @@ trend = 'stable'
 
   private async getRouteHistoricalData(
     tenantId: string,
-    start: any,
-    end: any
-  ): Promise<any> {
+    start: { lat: number; lng: number },
+    end: { lat: number; lng: number }
+  ): Promise<HistoricalRouteData> {
     return {
       average_duration: 45,
       average_distance: 25,
@@ -629,7 +693,7 @@ trend = 'stable'
     }
   }
 
-  private calculateOptimalRoute(routeData: any, constraints: any): any {
+  private calculateOptimalRoute(routeData: HistoricalRouteData, constraints: Record<string, unknown>): OptimizedRouteResult {
     return {
       recommended_departure_time: new Date(Date.now() + 30 * 60000),
       estimated_duration: routeData.average_duration,
@@ -639,7 +703,7 @@ trend = 'stable'
     }
   }
 
-  private async getActiveModel(tenantId: string, modelType: string): Promise<any> {
+  private async getActiveModel(tenantId: string, modelType: string): Promise<MLModel | null> {
     const result = await this.db.query(
       `SELECT id, tenant_id, model_name, model_type, version, status, accuracy, created_at, updated_at FROM ml_models
        WHERE tenant_id = $1 AND model_type = $2 AND is_active = true
@@ -656,8 +720,8 @@ trend = 'stable'
     predictionType: string,
     entityType: string,
     entityId: string,
-    inputFeatures: any,
-    predictionValue: any,
+    inputFeatures: Record<string, unknown> | VehicleFeatures | DriverTelemetryData | EntityRiskFeatures,
+    predictionValue: Record<string, unknown> | MaintenancePrediction | DriverBehaviorScore | IncidentRiskPrediction | CostForecast | OptimizedRouteResult,
     confidence: number
   ): Promise<void> {
     await this.db.query(
@@ -696,20 +760,16 @@ trend = 'stable'
     return Math.round(baseCost * multiplier)
   }
 
-  private evaluatePredictionCorrectness(predictionId: string, actualOutcome: any): boolean {
+  private evaluatePredictionCorrectness(predictionId: string, actualOutcome: Record<string, unknown>): boolean {
     // Simplified evaluation - in production would be more sophisticated
     return true
   }
 
-  private calculateErrorMagnitude(predictionId: string, actualOutcome: any): number {
+  private calculateErrorMagnitude(predictionId: string, actualOutcome: Record<string, unknown>): number {
     // Simplified calculation - in production would compare predicted vs actual values
     return 0.05
   }
 }
-
-// Export singleton instance
-import logger from '../config/logger'
-import { pool } from '../db'
 const mlDecisionEngineService = new MLDecisionEngineService(pool, logger)
 
 export default mlDecisionEngineService

@@ -3,8 +3,10 @@
  * Rate limiting, user permissions, audit logging, and usage tracking for AI features
  */
 
-import Redis from 'ioredis'
+import type Redis from 'ioredis'
 import { Pool } from 'pg'
+
+import redisClient from '../config/redis'
 
 
 export interface RateLimitCheck {
@@ -61,23 +63,9 @@ class AIControlsService {
    */
   private initializeRedis(): void {
     try {
-      if (process.env.REDIS_URL) {
-        this.redis = new Redis(process.env.REDIS_URL, {
-          maxRetriesPerRequest: 3,
-          enableReadyCheck: true,
-          enableOfflineQueue: false
-        })
-
-        this.redis.on('error', (error) => {
-          this.logger.error('Redis connection error:', error)
-        })
-
-        this.redis.on('connect', () => {
-          this.logger.info('Redis connected for rate limiting')
-        })
-      } else {
-        this.logger.warn('Redis not configured - rate limiting will use database')
-      }
+      // Use shared Redis client from config/redis.ts (singleton)
+      this.redis = redisClient
+      this.logger.info('Using shared Redis client for rate limiting')
     } catch (error) {
       this.logger.error('Failed to initialize Redis:', error)
     }

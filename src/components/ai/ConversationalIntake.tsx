@@ -7,12 +7,15 @@
 import { Send, Loader2, AlertCircle, Sparkles } from 'lucide-react'
 import React, { useState, useRef, useEffect } from 'react'
 
+
 import { apiClient } from '../../lib/api'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Card } from '../ui/card'
 import { Input } from '../ui/input'
 import { Progress } from '../ui/progress'
+
+import { formatTime } from '@/utils/format-helpers'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -126,7 +129,7 @@ export function ConversationalIntake({
   const getIntentBadgeColor = (intent: string | null) => {
     if (!intent) return 'secondary'
     const colors: Record<string, string> = {
-      fuel_entry: 'bg-blue-500',
+      fuel_entry: 'bg-emerald-500/50',
       work_order: 'bg-orange-500',
       incident_report: 'bg-red-500',
       inspection: 'bg-green-500'
@@ -139,7 +142,7 @@ export function ConversationalIntake({
       {/* Header */}
       <div className="p-2 border-b flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-3 h-3 text-purple-500" />
+          <Sparkles className="w-3 h-3 text-amber-500" />
           <h3 className="font-semibold">AI Data Entry</h3>
         </div>
         <div className="flex items-center gap-2">
@@ -161,9 +164,9 @@ export function ConversationalIntake({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-2 space-y-2">
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <div
-            key={index}
+            key={`${message.role}-${message.timestamp.getTime()}`}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
@@ -175,7 +178,7 @@ export function ConversationalIntake({
             >
               <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               <p className="text-xs opacity-70 mt-1">
-                {message.timestamp.toLocaleTimeString()}
+                {formatTime(message.timestamp)}
               </p>
             </div>
           </div>
@@ -208,13 +211,13 @@ export function ConversationalIntake({
 
       {/* Suggestions */}
       {suggestions.length > 0 && (
-        <div className="px-2 py-2 border-t bg-blue-50">
-          <p className="text-xs font-semibold mb-2 text-blue-900">Suggestions:</p>
+        <div className="px-2 py-2 border-t bg-emerald-500/5">
+          <p className="text-xs font-semibold mb-2 text-emerald-900">Suggestions:</p>
           <div className="space-y-1">
-            {suggestions.map((suggestion, index) => (
-              <div key={index} className="text-xs text-blue-800">
+            {suggestions.map((suggestion) => (
+              <div key={suggestion.field} className="text-xs text-emerald-800">
                 <span className="font-medium">{suggestion.field}:</span> {String(suggestion.value)}
-                <span className="text-blue-800 ml-2">({suggestion.reason})</span>
+                <span className="text-emerald-800 ml-2">({suggestion.reason})</span>
               </div>
             ))}
           </div>
@@ -229,8 +232,8 @@ export function ConversationalIntake({
             <p className="text-xs font-semibold text-yellow-900">Warnings:</p>
           </div>
           <div className="space-y-1">
-            {context.validationWarnings.map((warning, index) => (
-              <p key={index} className="text-xs text-yellow-800">{warning}</p>
+            {context.validationWarnings.map((warning) => (
+              <p key={warning} className="text-xs text-yellow-800">{warning}</p>
             ))}
           </div>
         </div>
@@ -251,6 +254,7 @@ export function ConversationalIntake({
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             size="icon"
+            aria-label="Send message"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

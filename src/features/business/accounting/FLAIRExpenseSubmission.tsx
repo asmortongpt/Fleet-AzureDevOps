@@ -5,8 +5,11 @@
  */
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { useAuth } from '@/contexts';
+import { secureFetch } from '@/hooks/use-api';
+import { formatDateTime } from '@/utils/format-helpers';
 
 // FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
 export interface FLAIRExpenseEntry {
@@ -54,179 +57,19 @@ export interface FLAIRDocument {
   checksum: string;
 }
 
-// Mock FLAIR integration service until the actual service is implemented
-const flairIntegrationService = {
-  submitTravelMileageExpense: async (data: {
-    employeeId: string;
-    employeeName: string;
-    department: string;
-    originAddress: string;
-    destinationAddress: string;
-    mileage: number;
-    mileageRate: number;
-    travelDate: string;
-    purposeCode: string;
-    supportingDocuments: FLAIRDocument[];
-  }): Promise<FLAIRExpenseEntry> => {
-    return {
-      id: `FLAIR-${Date.now()}`,
-      employeeId: data.employeeId,
-      employeeName: data.employeeName,
-      department: data.department,
-      expenseType: 'travel_mileage',
-      amount: data.mileage * data.mileageRate,
-      transactionDate: data.travelDate,
-      description: `Travel from ${data.originAddress} to ${data.destinationAddress}`,
-      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '400', locationCode: '01' },
-      supportingDocuments: data.supportingDocuments,
-      travelDetails: {
-        originAddress: data.originAddress,
-        destinationAddress: data.destinationAddress,
-        mileage: data.mileage,
-        mileageRate: data.mileageRate,
-        purposeCode: data.purposeCode
-      },
-      approvalStatus: 'pending',
-      approvalHistory: []
-    };
-  },
-  submitFuelExpense: async (data: {
-    employeeId: string;
-    employeeName: string;
-    department: string;
-    vehicleId: string;
-    fuelAmount: number;
-    fuelCost: number;
-    transactionDate: string;
-    vendorName: string;
-    supportingDocuments: FLAIRDocument[];
-  }): Promise<FLAIRExpenseEntry> => {
-    return {
-      id: `FLAIR-${Date.now()}`,
-      employeeId: data.employeeId,
-      employeeName: data.employeeName,
-      department: data.department,
-      expenseType: 'fuel',
-      amount: data.fuelCost,
-      transactionDate: data.transactionDate,
-      description: `Fuel purchase: ${data.fuelAmount} gallons at ${data.vendorName}`,
-      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '401', locationCode: '01' },
-      supportingDocuments: data.supportingDocuments,
-      approvalStatus: 'pending',
-      approvalHistory: []
-    };
-  },
-  submitMaintenanceExpense: async (data: {
-    employeeId: string;
-    employeeName: string;
-    department: string;
-    vehicleId: string;
-    maintenanceType: string;
-    amount: number;
-    transactionDate: string;
-    vendorName: string;
-    workOrderNumber?: string;
-    supportingDocuments: FLAIRDocument[];
-  }): Promise<FLAIRExpenseEntry> => {
-    return {
-      id: `FLAIR-${Date.now()}`,
-      employeeId: data.employeeId,
-      employeeName: data.employeeName,
-      department: data.department,
-      expenseType: 'maintenance',
-      amount: data.amount,
-      transactionDate: data.transactionDate,
-      description: `${data.maintenanceType} - ${data.vendorName}`,
-      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '402', locationCode: '01' },
-      supportingDocuments: data.supportingDocuments,
-      approvalStatus: 'pending',
-      approvalHistory: []
-    };
-  },
-  submitVehicleRentalExpense: async (data: {
-    employeeId: string;
-    employeeName: string;
-    department: string;
-    rentalCompany: string;
-    vehicleType: string;
-    rentalPeriodStart: string;
-    rentalPeriodEnd: string;
-    dailyRate: number;
-    totalCost: number;
-    pickupLocation: string;
-    dropoffLocation: string;
-    purposeCode: string;
-    supportingDocuments: FLAIRDocument[];
-  }): Promise<FLAIRExpenseEntry> => {
-    return {
-      id: `FLAIR-${Date.now()}`,
-      employeeId: data.employeeId,
-      employeeName: data.employeeName,
-      department: data.department,
-      expenseType: 'vehicle_rental',
-      amount: data.totalCost,
-      transactionDate: data.rentalPeriodStart,
-      description: `Vehicle rental from ${data.rentalCompany}`,
-      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '403', locationCode: '01' },
-      supportingDocuments: data.supportingDocuments,
-      approvalStatus: 'pending',
-      approvalHistory: []
-    };
-  },
-  submitParkingExpense: async (data: {
-    employeeId: string;
-    employeeName: string;
-    department: string;
-    location: string;
-    amount: number;
-    transactionDate: string;
-    duration: string;
-    purposeCode: string;
-    supportingDocuments: FLAIRDocument[];
-  }): Promise<FLAIRExpenseEntry> => {
-    return {
-      id: `FLAIR-${Date.now()}`,
-      employeeId: data.employeeId,
-      employeeName: data.employeeName,
-      department: data.department,
-      expenseType: 'parking',
-      amount: data.amount,
-      transactionDate: data.transactionDate,
-      description: `Parking at ${data.location} for ${data.duration}`,
-      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '404', locationCode: '01' },
-      supportingDocuments: data.supportingDocuments,
-      approvalStatus: 'pending',
-      approvalHistory: []
-    };
-  },
-  submitTollExpense: async (data: {
-    employeeId: string;
-    employeeName: string;
-    department: string;
-    tollRoad: string;
-    amount: number;
-    transactionDate: string;
-    transponderNumber?: string;
-    originLocation: string;
-    destinationLocation: string;
-    purposeCode: string;
-    supportingDocuments: FLAIRDocument[];
-  }): Promise<FLAIRExpenseEntry> => {
-    return {
-      id: `FLAIR-${Date.now()}`,
-      employeeId: data.employeeId,
-      employeeName: data.employeeName,
-      department: data.department,
-      expenseType: 'tolls',
-      amount: data.amount,
-      transactionDate: data.transactionDate,
-      description: `Toll on ${data.tollRoad} from ${data.originLocation} to ${data.destinationLocation}`,
-      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '405', locationCode: '01' },
-      supportingDocuments: data.supportingDocuments,
-      approvalStatus: 'pending',
-      approvalHistory: []
-    };
+const submitFlairExpense = async (payload: Record<string, any>): Promise<FLAIRExpenseEntry> => {
+  const response = await secureFetch('/api/flair/expenses', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'FLAIR expense submission failed');
   }
+
+  const result = await response.json();
+  return result.data || result;
 };
 
 // Component props interface
@@ -306,7 +149,7 @@ const ExpenseTypeSelector: React.FC<{
 }> = ({ selectedType, onSelect }) => {
   return (
     <div className="space-y-3 sm:space-y-2">
-      <h3 className="text-base sm:text-sm font-semibold text-gray-900">Select Expense Type</h3>
+      <h3 className="text-base sm:text-sm font-semibold text-white/80">Select Expense Type</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-2">
         {Object.entries(EXPENSE_TYPES).map(([type, config]) => (
           <button
@@ -314,15 +157,15 @@ const ExpenseTypeSelector: React.FC<{
             onClick={() => onSelect(type as ExpenseType)}
             className={`p-3 sm:p-2 rounded-lg border-2 text-left transition-all ${
               selectedType === type
-                ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
-                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                ? 'border-emerald-500 bg-emerald-500/5 ring-2 ring-emerald-500/20'
+                : 'border-white/[0.08] hover:border-white/[0.08] hover:bg-white/[0.03]'
             }`}
           >
             <div className="flex items-start space-x-2 sm:space-x-3">
               <span className="text-base sm:text-sm">{config.icon}</span>
               <div className="min-w-0 flex-1">
-                <h4 className="font-medium text-gray-900 text-sm sm:text-base">{config.label}</h4>
-                <p className="text-xs sm:text-sm text-slate-700 mt-1">{config.description}</p>
+                <h4 className="font-medium text-white/80 text-sm sm:text-base">{config.label}</h4>
+                <p className="text-xs sm:text-sm text-white/70 mt-1">{config.description}</p>
                 <div className="flex flex-wrap gap-1 sm:gap-2 mt-2">
                   {config.requiresApproval && (
                     <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">
@@ -330,7 +173,7 @@ const ExpenseTypeSelector: React.FC<{
                     </span>
                   )}
                   {config.documentationRequired && (
-                    <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                    <span className="px-2 py-1 text-xs bg-emerald-500/10 text-emerald-400 rounded">
                       Documentation Required
                     </span>
                   )}
@@ -373,7 +216,7 @@ const FuelExpenseForm: React.FC<{
     <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white/40 mb-2">
             Vehicle ID/License Plate
           </label>
           <input
@@ -381,23 +224,23 @@ const FuelExpenseForm: React.FC<{
             value={formData.vehicleId}
             onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })}
             placeholder="e.g., FL-001 or ABC123"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Vendor Name</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Vendor Name</label>
           <input
             type="text"
             value={formData.vendorName}
             onChange={(e) => setFormData({ ...formData, vendorName: e.target.value })}
             placeholder="e.g., Shell, BP, Exxon"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white/40 mb-2">
             Fuel Amount (Gallons)
           </label>
           <input
@@ -406,34 +249,34 @@ const FuelExpenseForm: React.FC<{
             onChange={(e) => setFormData({ ...formData, fuelAmount: e.target.value })}
             step="0.01"
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Total Cost</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Total Cost</label>
           <input
             type="number"
             value={formData.fuelCost}
             onChange={(e) => setFormData({ ...formData, fuelCost: e.target.value })}
             step="0.01"
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Transaction Date</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Transaction Date</label>
           <input
             type="date"
             value={formData.transactionDate}
             onChange={(e) => setFormData({ ...formData, transactionDate: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white/40 mb-2">
             Fleet Card Number (Last 4 digits)
           </label>
           <input
@@ -442,32 +285,32 @@ const FuelExpenseForm: React.FC<{
             onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
             placeholder="****"
             maxLength={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+        <label className="block text-sm font-medium text-white/40 mb-2">Description</label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Additional notes about the fuel purchase"
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
       <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
         <button
           type="button"
           onClick={onCancel}
-          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-white/70 hover:text-white/60 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:bg-white/[0.08] disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Continue'}
         </button>
@@ -514,7 +357,7 @@ const MaintenanceExpenseForm: React.FC<{
     <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white/40 mb-2">
             Vehicle ID/License Plate
           </label>
           <input
@@ -522,16 +365,16 @@ const MaintenanceExpenseForm: React.FC<{
             value={formData.vehicleId}
             onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })}
             placeholder="e.g., FL-001 or ABC123"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Maintenance Type</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Maintenance Type</label>
           <select
             value={formData.maintenanceType}
             onChange={(e) => setFormData({ ...formData, maintenanceType: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           >
             <option value="">Select maintenance type</option>
@@ -543,57 +386,57 @@ const MaintenanceExpenseForm: React.FC<{
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Amount</label>
           <input
             type="number"
             value={formData.amount}
             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
             step="0.01"
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Service Date</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Service Date</label>
           <input
             type="date"
             value={formData.transactionDate}
             onChange={(e) => setFormData({ ...formData, transactionDate: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Service Provider</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Service Provider</label>
           <input
             type="text"
             value={formData.vendorName}
             onChange={(e) => setFormData({ ...formData, vendorName: e.target.value })}
             placeholder="e.g., Joe's Auto Shop"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Work Order Number</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Work Order Number</label>
           <input
             type="text"
             value={formData.workOrderNumber}
             onChange={(e) => setFormData({ ...formData, workOrderNumber: e.target.value })}
             placeholder="WO-2023-12345"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Description of Work</label>
+        <label className="block text-sm font-medium text-white/40 mb-2">Description of Work</label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Describe the maintenance work performed"
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
           required
         />
       </div>
@@ -601,14 +444,14 @@ const MaintenanceExpenseForm: React.FC<{
         <button
           type="button"
           onClick={onCancel}
-          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-white/70 hover:text-white/60 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:bg-white/[0.08] disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Continue'}
         </button>
@@ -658,77 +501,77 @@ const VehicleRentalForm: React.FC<{
     <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Rental Company</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Rental Company</label>
           <input
             type="text"
             value={formData.rentalCompany}
             onChange={(e) => setFormData({ ...formData, rentalCompany: e.target.value })}
             placeholder="e.g., Enterprise, Hertz, Avis"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Type</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Vehicle Type</label>
           <input
             type="text"
             value={formData.vehicleType}
             onChange={(e) => setFormData({ ...formData, vehicleType: e.target.value })}
             placeholder="e.g., Compact Car, SUV, Van"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Rental Start Date</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Rental Start Date</label>
           <input
             type="date"
             value={formData.rentalPeriodStart}
             onChange={(e) => setFormData({ ...formData, rentalPeriodStart: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Rental End Date</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Rental End Date</label>
           <input
             type="date"
             value={formData.rentalPeriodEnd}
             onChange={(e) => setFormData({ ...formData, rentalPeriodEnd: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Daily Rate</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Daily Rate</label>
           <input
             type="number"
             value={formData.dailyRate}
             onChange={(e) => setFormData({ ...formData, dailyRate: e.target.value })}
             step="0.01"
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Total Cost</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Total Cost</label>
           <input
             type="number"
             value={formData.totalCost}
             onChange={(e) => setFormData({ ...formData, totalCost: e.target.value })}
             step="0.01"
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Purpose Code</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Purpose Code</label>
           <select
             value={formData.purposeCode}
             onChange={(e) => setFormData({ ...formData, purposeCode: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           >
             <option value="">Select purpose</option>
@@ -740,50 +583,50 @@ const VehicleRentalForm: React.FC<{
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Pickup Location</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Pickup Location</label>
           <input
             type="text"
             value={formData.pickupLocation}
             onChange={(e) => setFormData({ ...formData, pickupLocation: e.target.value })}
             placeholder="Address or location"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Drop-off Location</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Drop-off Location</label>
           <input
             type="text"
             value={formData.dropoffLocation}
             onChange={(e) => setFormData({ ...formData, dropoffLocation: e.target.value })}
             placeholder="Address or location"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+        <label className="block text-sm font-medium text-white/40 mb-2">Description</label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Describe the purpose and details of the rental"
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
       <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
         <button
           type="button"
           onClick={onCancel}
-          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-white/70 hover:text-white/60 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:bg-white/[0.08] disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Continue'}
         </button>
@@ -828,55 +671,55 @@ const ParkingFeesForm: React.FC<{
     <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Parking Location</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Parking Location</label>
           <input
             type="text"
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
             placeholder="e.g., Downtown Parking Garage, Meter #123"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Amount</label>
           <input
             type="number"
             value={formData.amount}
             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
             step="0.01"
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Date</label>
           <input
             type="date"
             value={formData.transactionDate}
             onChange={(e) => setFormData({ ...formData, transactionDate: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Duration</label>
           <input
             type="text"
             value={formData.duration}
             onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
             placeholder="e.g., 2 hours, 30 minutes"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div className="sm:col-span-1 md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Purpose Code</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Purpose Code</label>
           <select
             value={formData.purposeCode}
             onChange={(e) => setFormData({ ...formData, purposeCode: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           >
             <option value="">Select purpose</option>
@@ -889,27 +732,27 @@ const ParkingFeesForm: React.FC<{
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+        <label className="block text-sm font-medium text-white/40 mb-2">Description</label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Additional details about the parking expense"
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
       <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
         <button
           type="button"
           onClick={onCancel}
-          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-white/70 hover:text-white/60 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:bg-white/[0.08] disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Continue'}
         </button>
@@ -956,7 +799,7 @@ const TollChargesForm: React.FC<{
     <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white/40 mb-2">
             Toll Road/Authority
           </label>
           <input
@@ -964,34 +807,34 @@ const TollChargesForm: React.FC<{
             value={formData.tollRoad}
             onChange={(e) => setFormData({ ...formData, tollRoad: e.target.value })}
             placeholder="e.g., Florida Turnpike, I-95 Express"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Amount</label>
           <input
             type="number"
             value={formData.amount}
             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
             step="0.01"
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Date</label>
           <input
             type="date"
             value={formData.transactionDate}
             onChange={(e) => setFormData({ ...formData, transactionDate: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white/40 mb-2">
             Transponder/SunPass Number
           </label>
           <input
@@ -999,37 +842,37 @@ const TollChargesForm: React.FC<{
             value={formData.transponderNumber}
             onChange={(e) => setFormData({ ...formData, transponderNumber: e.target.value })}
             placeholder="e.g., SP-123456789"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Origin</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Origin</label>
           <input
             type="text"
             value={formData.originLocation}
             onChange={(e) => setFormData({ ...formData, originLocation: e.target.value })}
             placeholder="Starting location"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Destination</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Destination</label>
           <input
             type="text"
             value={formData.destinationLocation}
             onChange={(e) => setFormData({ ...formData, destinationLocation: e.target.value })}
             placeholder="Ending location"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
         <div className="sm:col-span-1 md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Purpose Code</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Purpose Code</label>
           <select
             value={formData.purposeCode}
             onChange={(e) => setFormData({ ...formData, purposeCode: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           >
             <option value="">Select purpose</option>
@@ -1042,27 +885,27 @@ const TollChargesForm: React.FC<{
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+        <label className="block text-sm font-medium text-white/40 mb-2">Description</label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Additional details about the travel"
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
       <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
         <button
           type="button"
           onClick={onCancel}
-          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-white/70 hover:text-white/60 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:bg-white/[0.08] disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Continue'}
         </button>
@@ -1111,19 +954,19 @@ const TravelMileageForm: React.FC<{
     <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Origin Address</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Origin Address</label>
           <input
             type="text"
             value={formData.originAddress}
             onChange={(e) => setFormData({ ...formData, originAddress: e.target.value })}
             placeholder="e.g., 1317 Winewood Blvd, Tallahassee, FL 32399"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white/40 mb-2">
             Destination Address
           </label>
           <input
@@ -1131,13 +974,13 @@ const TravelMileageForm: React.FC<{
             value={formData.destinationAddress}
             onChange={(e) => setFormData({ ...formData, destinationAddress: e.target.value })}
             placeholder="e.g., 2555 Shumard Oak Blvd, Tallahassee, FL 32399"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Mileage</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Mileage</label>
           <input
             type="number"
             value={formData.mileage}
@@ -1145,13 +988,13 @@ const TravelMileageForm: React.FC<{
             placeholder="0.0"
             step="0.1"
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white/40 mb-2">
             Mileage Rate (per mile)
           </label>
           <input
@@ -1160,28 +1003,28 @@ const TravelMileageForm: React.FC<{
             onChange={(e) => setFormData({ ...formData, mileageRate: e.target.value })}
             step="0.01"
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Travel Date</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Travel Date</label>
           <input
             type="date"
             value={formData.travelDate}
             onChange={(e) => setFormData({ ...formData, travelDate: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Purpose Code</label>
+          <label className="block text-sm font-medium text-white/40 mb-2">Purpose Code</label>
           <select
             value={formData.purposeCode}
             onChange={(e) => setFormData({ ...formData, purposeCode: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           >
             <option value="">Select purpose</option>
@@ -1195,22 +1038,22 @@ const TravelMileageForm: React.FC<{
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+        <label className="block text-sm font-medium text-white/40 mb-2">Description</label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Brief description of the travel purpose"
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
 
       {/* Total amount display */}
       {totalAmount > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-blue-800">Total Reimbursement:</span>
-            <span className="text-sm font-bold text-blue-800">${totalAmount.toFixed(2)}</span>
+            <span className="text-sm font-medium text-emerald-400">Total Reimbursement:</span>
+            <span className="text-sm font-bold text-emerald-400">${totalAmount.toFixed(2)}</span>
           </div>
         </div>
       )}
@@ -1220,14 +1063,14 @@ const TravelMileageForm: React.FC<{
         <button
           type="button"
           onClick={onCancel}
-          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-white/70 hover:text-white/60 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting || totalAmount <= 0}
-          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:bg-white/[0.08] disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Submit to FLAIR'}
         </button>
@@ -1249,7 +1092,7 @@ const DocumentUpload: React.FC<{
     for (const file of Array.from(files)) {
       if (file.size > 10 * 1024 * 1024) {
         // 10MB limit
-        alert(`File ${file.name} is too large. Maximum size is 10MB.`);
+        toast.error(`File ${file.name} is too large. Maximum size is 10MB.`);
         continue;
       }
 
@@ -1290,14 +1133,14 @@ const DocumentUpload: React.FC<{
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h4 className="font-medium text-gray-900">Supporting Documents</h4>
+        <h4 className="font-medium text-white/80">Supporting Documents</h4>
         {required && <span className="text-sm text-red-600">* Required</span>}
       </div>
 
       {/* Upload area */}
       <div
         className={`border-2 border-dashed rounded-lg p-3 transition-colors ${
-          isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+          isDragging ? 'border-emerald-400 bg-emerald-500/5' : 'border-white/[0.08] hover:border-white/[0.08]'
         }`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -1308,9 +1151,9 @@ const DocumentUpload: React.FC<{
       >
         <div className="text-center">
           <div className="text-sm mb-2">📎</div>
-          <div className="text-sm text-slate-700 mb-2">
+          <div className="text-sm text-white/70 mb-2">
             Drag and drop files here, or{' '}
-            <label className="text-blue-800 hover:text-blue-700 cursor-pointer">
+            <label className="text-emerald-400 hover:text-emerald-300 cursor-pointer">
               browse
               <input
                 type="file"
@@ -1321,7 +1164,7 @@ const DocumentUpload: React.FC<{
               />
             </label>
           </div>
-          <div className="text-xs text-gray-700">
+          <div className="text-xs text-white/40">
             Supports PDF, images, and Office documents (max 10MB each)
           </div>
         </div>
@@ -1333,15 +1176,15 @@ const DocumentUpload: React.FC<{
           {documents.map((doc) => (
             <div
               key={doc.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg"
             >
               <div className="flex items-center space-x-3">
                 <span className="text-sm">📄</span>
                 <div>
                   <div className="font-medium text-sm">{doc.fileName}</div>
-                  <div className="text-xs text-gray-700">
+                  <div className="text-xs text-white/40">
                     {(doc.fileSize / 1024).toFixed(1)} KB • Uploaded{' '}
-                    {new Date(doc.uploadedAt).toLocaleString()}
+                    {formatDateTime(doc.uploadedAt)}
                   </div>
                 </div>
               </div>
@@ -1414,91 +1257,89 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
     setError('');
 
     try {
-      let expenseEntry: FLAIRExpenseEntry;
+      const employeeName = `${user.firstName} ${user.lastName}`.trim();
+      const department = user.tenantName || 'Fleet Management';
+      const basePayload = {
+        employee_id: user.id,
+        employee_name: employeeName,
+        department,
+        expense_type: selectedType,
+        supporting_documents: documents,
+        account_codes: formData.accountCodes || {},
+      } as Record<string, any>;
+
+      let payload: Record<string, any> = { ...basePayload };
 
       if (selectedType === 'travel_mileage') {
-        expenseEntry = await flairIntegrationService.submitTravelMileageExpense({
-          employeeId: user.id,
-          employeeName: `${user.firstName} ${user.lastName}`,
-          department: user.tenantName || 'Fleet Management',
-          originAddress: formData.originAddress,
-          destinationAddress: formData.destinationAddress,
-          mileage: formData.mileage,
-          mileageRate: formData.mileageRate,
-          travelDate: formData.travelDate,
-          purposeCode: formData.purposeCode,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.mileage || 0) * Number(formData.mileageRate || 0),
+          transaction_date: formData.travelDate,
+          description: `Travel from ${formData.originAddress} to ${formData.destinationAddress}`,
+          travel_details: {
+            originAddress: formData.originAddress,
+            destinationAddress: formData.destinationAddress,
+            mileage: formData.mileage,
+            mileageRate: formData.mileageRate,
+            purposeCode: formData.purposeCode
+          }
+        };
       } else if (selectedType === 'fuel') {
-        expenseEntry = await flairIntegrationService.submitFuelExpense({
-          employeeId: user.id,
-          employeeName: `${user.firstName} ${user.lastName}`,
-          department: user.tenantName || 'Fleet Management',
-          vehicleId: formData.vehicleId,
-          fuelAmount: formData.fuelAmount,
-          fuelCost: formData.fuelCost,
-          transactionDate: formData.transactionDate,
-          vendorName: formData.vendorName,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.fuelCost || 0),
+          transaction_date: formData.transactionDate,
+          description: `Fuel purchase: ${formData.fuelAmount} gallons at ${formData.vendorName}`,
+          travel_details: {},
+        };
       } else if (selectedType === 'maintenance') {
-        expenseEntry = await flairIntegrationService.submitMaintenanceExpense({
-          employeeId: user.id,
-          employeeName: `${user.firstName} ${user.lastName}`,
-          department: user.tenantName || 'Fleet Management',
-          vehicleId: formData.vehicleId,
-          maintenanceType: formData.maintenanceType,
-          amount: formData.amount,
-          transactionDate: formData.transactionDate,
-          vendorName: formData.vendorName,
-          workOrderNumber: formData.workOrderNumber,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.amount || 0),
+          transaction_date: formData.transactionDate,
+          description: `${formData.maintenanceType} - ${formData.vendorName}`,
+          travel_details: {},
+        };
       } else if (selectedType === 'vehicle_rental') {
-        expenseEntry = await flairIntegrationService.submitVehicleRentalExpense({
-          employeeId: user.id,
-          employeeName: `${user.firstName} ${user.lastName}`,
-          department: user.tenantName || 'Fleet Management',
-          rentalCompany: formData.rentalCompany,
-          vehicleType: formData.vehicleType,
-          rentalPeriodStart: formData.rentalPeriodStart,
-          rentalPeriodEnd: formData.rentalPeriodEnd,
-          dailyRate: formData.dailyRate,
-          totalCost: formData.totalCost,
-          pickupLocation: formData.pickupLocation,
-          dropoffLocation: formData.dropoffLocation,
-          purposeCode: formData.purposeCode,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.totalCost || 0),
+          transaction_date: formData.rentalPeriodStart,
+          description: `Vehicle rental from ${formData.rentalCompany}`,
+          travel_details: {
+            pickupLocation: formData.pickupLocation,
+            dropoffLocation: formData.dropoffLocation,
+            purposeCode: formData.purposeCode
+          }
+        };
       } else if (selectedType === 'parking') {
-        expenseEntry = await flairIntegrationService.submitParkingExpense({
-          employeeId: user.id,
-          employeeName: `${user.firstName} ${user.lastName}`,
-          department: user.tenantName || 'Fleet Management',
-          location: formData.location,
-          amount: formData.amount,
-          transactionDate: formData.transactionDate,
-          duration: formData.duration,
-          purposeCode: formData.purposeCode,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.amount || 0),
+          transaction_date: formData.transactionDate,
+          description: `Parking at ${formData.location} for ${formData.duration}`,
+          travel_details: {
+            purposeCode: formData.purposeCode
+          }
+        };
       } else if (selectedType === 'tolls') {
-        expenseEntry = await flairIntegrationService.submitTollExpense({
-          employeeId: user.id,
-          employeeName: `${user.firstName} ${user.lastName}`,
-          department: user.tenantName || 'Fleet Management',
-          tollRoad: formData.tollRoad,
-          amount: formData.amount,
-          transactionDate: formData.transactionDate,
-          transponderNumber: formData.transponderNumber,
-          originLocation: formData.originLocation,
-          destinationLocation: formData.destinationLocation,
-          purposeCode: formData.purposeCode,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.amount || 0),
+          transaction_date: formData.transactionDate,
+          description: `Toll on ${formData.tollRoad} from ${formData.originLocation} to ${formData.destinationLocation}`,
+          travel_details: {
+            originLocation: formData.originLocation,
+            destinationLocation: formData.destinationLocation,
+            transponderNumber: formData.transponderNumber,
+            purposeCode: formData.purposeCode
+          }
+        };
       } else {
         throw new Error('Unsupported expense type');
       }
+
+      const expenseEntry = await submitFlairExpense(payload);
 
       onSubmissionComplete?.(expenseEntry);
 
@@ -1587,14 +1428,14 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
             <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
               <button
                 onClick={() => setCurrentStep('form')}
-                className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+                className="px-2 py-2 text-white/70 hover:text-white/60 transition-colors"
               >
                 ← Back
               </button>
               <button
                 onClick={() => setCurrentStep('review')}
                 disabled={config.documentationRequired && documents.length === 0}
-                className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:bg-white/[0.08] disabled:cursor-not-allowed transition-colors"
               >
                 Continue to Review →
               </button>
@@ -1620,34 +1461,34 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
 
         return (
           <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-gray-900">Review Submission</h3>
+            <h3 className="text-sm font-semibold text-white/80">Review Submission</h3>
 
-            <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+            <div className="bg-white/[0.03] rounded-lg p-3 space-y-2">
               <div className="flex items-center space-x-3">
                 <span className="text-sm">{expenseConfig.icon}</span>
                 <div>
-                  <h4 className="font-medium text-gray-900">{expenseConfig.label}</h4>
-                  <p className="text-sm text-slate-700">{expenseConfig.description}</p>
+                  <h4 className="font-medium text-white/80">{expenseConfig.label}</h4>
+                  <p className="text-sm text-white/70">{expenseConfig.description}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="font-medium text-gray-700">Employee:</span>
+                  <span className="font-medium text-white/40">Employee:</span>
                   <div>{user ? `${user.firstName} ${user.lastName}` : ''}</div>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700">Department:</span>
+                  <span className="font-medium text-white/40">Department:</span>
                   <div>{user?.tenantName || 'Fleet Management'}</div>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700">Amount:</span>
+                  <span className="font-medium text-white/40">Amount:</span>
                   <div className="text-sm font-semibold text-green-600">
                     ${totalAmount.toFixed(2)}
                   </div>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700">Documents:</span>
+                  <span className="font-medium text-white/40">Documents:</span>
                   <div>{documents.length} attached</div>
                 </div>
               </div>
@@ -1668,14 +1509,14 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
             <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
               <button
                 onClick={() => setCurrentStep(documents.length > 0 ? 'documents' : 'form')}
-                className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+                className="px-2 py-2 text-white/70 hover:text-white/60 transition-colors"
               >
                 ← Back
               </button>
               <button
                 onClick={handleFinalSubmit}
                 disabled={isSubmitting}
-                className="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-white/[0.08] disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? 'Submitting to FLAIR...' : 'Submit to FLAIR'}
               </button>
@@ -1690,11 +1531,11 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
   };
 
   return (
-    <div className={`max-w-4xl mx-auto p-3 bg-white rounded-lg shadow-sm ${className}`}>
+    <div className={`max-w-4xl mx-auto p-3 bg-white rounded-lg ${className}`}>
       {/* Header */}
       <div className="mb-3">
-        <h2 className="text-sm font-bold text-gray-900 mb-2">FLAIR Expense Submission</h2>
-        <p className="text-slate-700">
+        <h2 className="text-sm font-bold text-white/80 mb-2">FLAIR Expense Submission</h2>
+        <p className="text-white/70">
           Submit fleet-related expenses to Florida's FLAIR accounting system
         </p>
       </div>

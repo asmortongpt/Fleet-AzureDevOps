@@ -28,8 +28,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useVehicles, useFacilities, useDrivers, useVehicleMutations } from "@/hooks/use-api"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
-import { cn } from "@/lib/utils"
 import type { Vehicle } from "@/lib/types"
+import { cn } from "@/lib/utils"
+import { formatEnum } from "@/utils/format-enum"
+import { formatNumber } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface FleetVehicle {
   id: string;
@@ -75,14 +78,14 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-sm font-semibold">
-              {vehicle.year} {vehicle.make} {vehicle.model}
+              {formatVehicleName(vehicle)}
             </h3>
             <p className="text-sm text-muted-foreground">
               VIN: {vehicle.vin} • Plate: {vehicle.licensePlate}
             </p>
           </div>
           <Badge variant={vehicle.status === 'active' ? 'default' : 'secondary'}>
-            {vehicle.status}
+            {formatEnum(vehicle.status)}
           </Badge>
         </div>
 
@@ -119,7 +122,7 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
                   <MapPin className="h-3 w-3 mr-1" />
                   Location
                 </div>
-                <div className="text-sm font-medium truncate">{telemetry?.location || "Unknown"}</div>
+                <div className="text-sm font-medium truncate">{telemetry?.location || "—"}</div>
               </div>
             </div>
 
@@ -144,7 +147,7 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
             {/* Odometer */}
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Odometer</span>
-              <span className="font-medium">{vehicle.mileage?.toLocaleString()} miles</span>
+              <span className="font-medium">{formatNumber(vehicle.mileage ?? 0)} miles</span>
             </div>
           </CardContent>
         </Card>
@@ -161,7 +164,7 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
                 <span className="text-sm">Driver</span>
               </div>
               <span className="text-sm font-medium">
-                {vehicle.driver || "Unassigned"}
+                {vehicle.driver || "—"}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -200,15 +203,15 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
             <div className="flex items-center justify-between">
               <span className="text-sm">Last Service</span>
               <span className="text-sm text-muted-foreground">
-                {vehicle.lastServiceDate || "N/A"}
+                {vehicle.lastServiceDate || "—"}
               </span>
             </div>
             {vehicle.maintenanceAlerts && vehicle.maintenanceAlerts.length > 0 && (
               <div className="space-y-2">
                 <Separator />
                 <div className="space-y-1">
-                  {vehicle.maintenanceAlerts.map((alert: string, i: number) => (
-                    <div key={i} className="flex items-center gap-2 text-sm">
+                  {vehicle.maintenanceAlerts.map((alert: string) => (
+                    <div key={alert} className="flex items-center gap-2 text-sm">
                       <AlertCircle className="h-3 w-3 text-yellow-500" />
                       <span>{alert}</span>
                     </div>
@@ -263,7 +266,7 @@ const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }: { vehicles: FleetV
       case 'active': return 'bg-green-500'
       case 'idle': return 'bg-yellow-500'
       case 'maintenance': return 'bg-red-500'
-      default: return 'bg-gray-500'
+      default: return 'bg-white/[0.03]0'
     }
   }
 
@@ -311,7 +314,7 @@ const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }: { vehicles: FleetV
                     <div className={cn("h-2 w-2 rounded-full", getStatusColor(vehicle.status))} />
                     <div>
                       <div className="font-medium">
-                        {vehicle.year} {vehicle.make} {vehicle.model}
+                        {formatVehicleName(vehicle)}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {vehicle.licensePlate} • {vehicle.department}
@@ -362,14 +365,37 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
     initialVehicles: vehicles as Vehicle[],
   })
 
+  // Map API vehicles to FleetVehicle shape
+  const mapToFleetVehicle = useCallback((v: Record<string, unknown>): FleetVehicle => ({
+    id: String(v.id || ''),
+    year: Number(v.year || 0),
+    make: String(v.make || ''),
+    model: String(v.model || ''),
+    vin: String(v.vin || ''),
+    licensePlate: String(v.licensePlate || v.license_plate || ''),
+    status: String(v.status || 'unknown'),
+    fuelType: String(v.fuelType || v.fuel_type || ''),
+    fuelLevel: Number(v.fuelLevel ?? v.fuel_level ?? 0),
+    mileage: Number(v.odometer || v.mileage || 0),
+    driver: v.assignedDriverId ? String(v.assignedDriverId) : undefined,
+    department: String(v.number || v.name || ''),
+    nextServiceMiles: Number(v.nextServiceMileage || v.next_service_mileage || 0),
+    lastServiceDate: v.lastServiceDate ? String(v.lastServiceDate) : undefined,
+    location: v.locationAddress ? String(v.locationAddress) : undefined,
+  }), [])
+
   // Use real-time vehicles if available, otherwise use static data
-  const displayVehicles = realtimeVehicles.length > 0 ? realtimeVehicles : vehicles as unknown as FleetVehicle[]
+  const rawVehicles = realtimeVehicles.length > 0 ? realtimeVehicles : vehicles
+  const displayVehicles = useMemo(() =>
+    (rawVehicles as unknown as Record<string, unknown>[]).map(mapToFleetVehicle),
+    [rawVehicles, mapToFleetVehicle]
+  )
 
   // Drilldown navigation
   const { push: _push } = useDrilldown()
 
   const handleVehicleSelect = useCallback((vehicleId: string) => {
-    const vehicle = (displayVehicles as unknown as FleetVehicle[]).find((v: FleetVehicle) => v.id === vehicleId)
+    const vehicle = (displayVehicles).find((v: FleetVehicle) => v.id === vehicleId)
     if (vehicle) {
       setSelectedVehicle(vehicle)
       setActivePanel('telemetry')
@@ -378,10 +404,10 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
 
   // Stats overlay data
   const stats = useMemo(() => ({
-    active: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'active').length,
-    idle: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'idle').length,
-    service: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'service').length,
-    offline: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'offline').length
+    active: displayVehicles.filter((v) => v.status === 'active').length,
+    idle: displayVehicles.filter((v) => v.status === 'idle').length,
+    service: displayVehicles.filter((v) => v.status === 'service' || v.status === 'maintenance').length,
+    offline: displayVehicles.filter((v) => v.status === 'offline').length
   }), [displayVehicles])
 
   return (
@@ -398,8 +424,99 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 grid grid-cols-[1fr_400px]">
-        {/* Main view content will be added here */}
+      <div className="flex-1 grid grid-cols-[1fr_350px] overflow-hidden">
+        {/* Left: Main view */}
+        <div className="overflow-hidden">
+          {activeView === 'grid' ? (
+            <VehicleInventoryPanel
+              vehicles={displayVehicles}
+              onVehicleSelect={setSelectedVehicle}
+            />
+          ) : activeView === '3d' ? (
+            <ScrollArea className="h-full">
+              <div className="p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Fleet Overview</h3>
+                  <div className="flex gap-2 text-sm text-muted-foreground">
+                    <span>{displayVehicles.length} vehicles</span>
+                  </div>
+                </div>
+                {/* Status summary cards */}
+                <div className="grid grid-cols-4 gap-3">
+                  <Card>
+                    <CardContent className="p-3 text-center">
+                      <div className="text-2xl font-bold text-green-500">{stats.active}</div>
+                      <div className="text-xs text-muted-foreground">Active</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-3 text-center">
+                      <div className="text-2xl font-bold text-yellow-500">{stats.idle}</div>
+                      <div className="text-xs text-muted-foreground">Idle</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-3 text-center">
+                      <div className="text-2xl font-bold text-red-500">{stats.service}</div>
+                      <div className="text-xs text-muted-foreground">In Service</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-3 text-center">
+                      <div className="text-2xl font-bold text-white/40">{stats.offline}</div>
+                      <div className="text-xs text-muted-foreground">Offline</div>
+                    </CardContent>
+                  </Card>
+                </div>
+                {/* Vehicle grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  {displayVehicles.slice(0, 30).map((vehicle: FleetVehicle) => (
+                    <Card
+                      key={vehicle.id}
+                      className="cursor-pointer hover:bg-accent transition-colors"
+                      onClick={() => {
+                        setSelectedVehicle(vehicle)
+                        setActivePanel('telemetry')
+                      }}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className={cn(
+                            "h-2.5 w-2.5 rounded-full",
+                            vehicle.status === 'active' ? 'bg-green-500' :
+                            vehicle.status === 'idle' ? 'bg-yellow-500' :
+                            vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-red-500' :
+                            'bg-white/[0.10]'
+                          )} />
+                          <span className="text-sm font-medium truncate">
+                            {formatVehicleName(vehicle)}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <div>{vehicle.licensePlate}</div>
+                          <div className="flex justify-between">
+                            <span>{vehicle.fuelType === 'electric' ? 'Battery' : 'Fuel'}: {vehicle.fuelLevel}%</span>
+                            <span>{(vehicle.mileage / 1000).toFixed(0)}k mi</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </ScrollArea>
+          ) : (
+            <VehicleInventoryPanel
+              vehicles={displayVehicles}
+              onVehicleSelect={setSelectedVehicle}
+            />
+          )}
+        </div>
+
+        {/* Right: Detail panel */}
+        <div className="border-l overflow-hidden">
+          <VehicleTelemetryPanel vehicle={selectedVehicle} telemetry={null} />
+        </div>
       </div>
     </div>
   )

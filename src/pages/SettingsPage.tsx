@@ -3,10 +3,11 @@
  * Tabbed interface with left sidebar navigation on desktop, top tabs on mobile
  */
 
-import { Settings, Palette, Bell, Car, ShieldCheck, Lock, Code, Save, Check } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { Settings, Palette, Bell, Car, ShieldCheck, Lock, Code, Save, Check } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { AdvancedSettings } from '@/components/settings/AdvancedSettings'
 import { AppearanceSettings } from '@/components/settings/AppearanceSettings'
 import { DataPrivacySettings } from '@/components/settings/DataPrivacySettings'
@@ -26,8 +27,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Section } from '@/components/ui/section'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { hasUnsavedChangesAtom } from '@/lib/reactive-state'
 
@@ -92,12 +93,29 @@ const settingsCategories: SettingsCategory[] = [
   },
 ]
 
+const validSettingsTabs = new Set<SettingsTab>(['general', 'appearance', 'notifications', 'fleet', 'security', 'privacy', 'advanced'])
+
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('general')
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    const hash = window.location.hash.replace('#', '') as SettingsTab
+    return validSettingsTabs.has(hash) ? hash : 'general'
+  })
   const [hasUnsavedChanges, setHasUnsavedChanges] = useAtom(hasUnsavedChangesAtom)
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
   const [pendingTab, setPendingTab] = useState<SettingsTab | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
+
+  // Sync from hash changes (e.g. navigated from AdminConfigurationHub with a hash)
+  useEffect(() => {
+    const onHashChange = () => {
+      const hash = window.location.hash.replace('#', '') as SettingsTab
+      if (validSettingsTabs.has(hash) && !hasUnsavedChanges) {
+        setActiveTab(hash)
+      }
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [hasUnsavedChanges])
 
   // Handle keyboard shortcuts (Cmd+S / Ctrl+S to save)
   useEffect(() => {
@@ -175,6 +193,7 @@ export default function SettingsPage() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -205,42 +224,41 @@ export default function SettingsPage() {
       {/* Desktop Layout: Sidebar + Content */}
       <div className="hidden md:flex gap-2">
         {/* Sidebar Navigation */}
-        <Card className="w-64 h-fit">
-          <CardHeader>
-            <CardTitle className="text-sm">Categories</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ScrollArea className="h-[calc(100vh-300px)]">
-              <div className="space-y-1 p-2">
-                {settingsCategories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => handleTabChange(category.id)}
-                    className={`w-full flex items-start gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
-                      activeTab === category.id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'hover:bg-accent hover:text-accent-foreground'
-                    }`}
-                  >
-                    <span className="mt-0.5">{category.icon}</span>
-                    <div className="flex-1 text-left">
-                      <div className="font-medium">{category.label}</div>
-                      <div
-                        className={`text-xs mt-0.5 ${
-                          activeTab === category.id
-                            ? 'text-primary-foreground/80'
-                            : 'text-muted-foreground'
-                        }`}
-                      >
-                        {category.description}
-                      </div>
+        <Section
+          title="Categories"
+          className="w-64 h-fit"
+          contentClassName="p-0"
+        >
+          <ScrollArea className="h-[calc(100vh-300px)]">
+            <div className="space-y-1 p-2">
+              {settingsCategories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => handleTabChange(category.id)}
+                  className={`w-full flex items-start gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                    activeTab === category.id
+                      ? 'bg-primary text-primary-foreground'
+                      : 'hover:bg-accent hover:text-accent-foreground'
+                  }`}
+                >
+                  <span className="mt-0.5">{category.icon}</span>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium">{category.label}</div>
+                    <div
+                      className={`text-xs mt-0.5 ${
+                        activeTab === category.id
+                          ? 'text-primary-foreground/80'
+                          : 'text-muted-foreground'
+                      }`}
+                    >
+                      {category.description}
                     </div>
-                  </button>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
+        </Section>
 
         {/* Content Area */}
         <div className="flex-1">
@@ -293,5 +311,6 @@ export default function SettingsPage() {
         Press <kbd className="px-2 py-1 bg-muted rounded">Cmd/Ctrl + S</kbd> to save changes
       </div>
     </div>
+    </ErrorBoundary>
   )
 }

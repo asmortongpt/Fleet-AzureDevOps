@@ -1,7 +1,10 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
 import { useCallback, useMemo } from 'react';
+import { z } from 'zod';
+
 import { sanitizeInput } from '../lib/security/sanitize';
+
+import logger from '@/utils/logger';
 
 // ============================================================================
 // Validation Schemas
@@ -316,7 +319,7 @@ export function useReactiveComplianceReportingData(filters: ComplianceFilters) {
       await queryClient.invalidateQueries({ queryKey: ['compliance-data'] });
       return { success: true };
     } catch (error) {
-      console.error('Failed to resolve violation:', error);
+      logger.error('Failed to resolve violation:', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }, [queryClient]);
@@ -332,7 +335,7 @@ export function useReactiveComplianceReportingData(filters: ComplianceFilters) {
       await queryClient.invalidateQueries({ queryKey: ['compliance-data'] });
       return { success: true };
     } catch (error) {
-      console.error('Failed to schedule audit:', error);
+      logger.error('Failed to schedule audit:', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }, [queryClient]);
@@ -347,7 +350,7 @@ export function useReactiveComplianceReportingData(filters: ComplianceFilters) {
       await queryClient.invalidateQueries({ queryKey: ['compliance-data'] });
       return { success: true, ...result };
     } catch (error) {
-      console.error('Failed to generate report:', error);
+      logger.error('Failed to generate report:', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }, [queryClient]);
@@ -378,21 +381,21 @@ export function useReactiveComplianceReportingData(filters: ComplianceFilters) {
 
 export function getComplianceStatusColor(status: string): string {
   switch (status) {
-    case 'COMPLIANT': return '#10b981';
-    case 'WARNING': return '#f59e0b';
-    case 'VIOLATION': return '#ef4444';
-    case 'PENDING': return '#6b7280';
-    default: return '#9ca3af';
+    case 'COMPLIANT': return 'hsl(var(--chart-2))';
+    case 'WARNING': return 'hsl(var(--chart-3))';
+    case 'VIOLATION': return 'hsl(var(--chart-6))';
+    case 'PENDING': return 'hsl(var(--muted-foreground))';
+    default: return 'hsl(var(--muted-foreground))';
   }
 }
 
 export function getSeverityBadgeClass(severity: string): string {
   switch (severity) {
-    case 'CRITICAL': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-    case 'HIGH': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
-    case 'MEDIUM': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-    case 'LOW': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-    default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+    case 'CRITICAL': return 'bg-[hsl(var(--chart-6)/0.15)] text-[hsl(var(--chart-6))]';
+    case 'HIGH': return 'bg-[hsl(var(--chart-6)/0.12)] text-[hsl(var(--chart-6))]';
+    case 'MEDIUM': return 'bg-[hsl(var(--chart-3)/0.15)] text-[hsl(var(--chart-3))]';
+    case 'LOW': return 'bg-[hsl(var(--chart-1)/0.15)] text-[hsl(var(--chart-1))]';
+    default: return 'bg-muted/40 text-muted-foreground';
   }
 }
 

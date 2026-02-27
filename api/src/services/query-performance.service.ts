@@ -9,6 +9,8 @@ import { EventEmitter } from 'events'
 
 import { Pool, QueryResult } from 'pg'
 
+import logger from '../config/logger'
+
 interface QueryMetrics {
   query: string
   params?: any[]
@@ -47,7 +49,7 @@ export class QueryPerformanceService extends EventEmitter {
       this.maxMetricsHistory = options.maxMetricsHistory
     }
 
-    console.log(`✅ Query Performance Monitoring initialized (slow query threshold: ${this.slowQueryThreshold}ms)`)
+    logger.info('Query Performance Monitoring initialized', { slowQueryThreshold: this.slowQueryThreshold })
   }
 
   /**
@@ -56,22 +58,23 @@ export class QueryPerformanceService extends EventEmitter {
   wrapPoolQuery(pool: Pool, poolType: string = `default`): Pool {
     const originalQuery = pool.query.bind(pool)
 
-    pool.query = (async (...args: any[]): Promise<QueryResult<any>> => {
+    pool.query = (async (...args: unknown[]): Promise<QueryResult<Record<string, unknown>>> => {
       const startTime = Date.now()
       let query: string = ''
-      let params: any[] | undefined
+      let params: unknown[] | undefined
 
       // Parse arguments (query can be string or QueryConfig)
       if (typeof args[0] === 'string') {
         query = args[0]
-        params = args[1]
-      } else if (typeof args[0] === 'object') {
-        query = args[0].text
-        params = args[0].values
+        params = Array.isArray(args[1]) ? args[1] : undefined
+      } else if (args[0] !== null && args[0] !== undefined && typeof args[0] === 'object') {
+        const queryConfig = args[0] as Record<string, unknown>
+        query = (queryConfig.text as string) || ''
+        params = Array.isArray(queryConfig.values) ? queryConfig.values : undefined
       }
 
       try {
-        const result = await (originalQuery as any)(...args)
+        const result = await (originalQuery as (...queryArgs: unknown[]) => Promise<QueryResult<Record<string, unknown>>>)(...args)
         const duration = Date.now() - startTime
 
         // Record metrics
@@ -93,11 +96,11 @@ export class QueryPerformanceService extends EventEmitter {
             poolType
           })
 
-          console.warn(`🐌 Slow query detected (${duration}ms, ${poolType}):`, this.sanitizeQuery(query).substring(0, 100))
+          logger.warn('Slow query detected', { duration, poolType, query: this.sanitizeQuery(query).substring(0, 100) })
         }
 
         return result
-      } catch (error: any) {
+      } catch (error: unknown) {
         const duration = Date.now() - startTime
 
         // Record error
@@ -107,13 +110,13 @@ export class QueryPerformanceService extends EventEmitter {
           duration,
           timestamp: new Date(),
           success: false,
-          error: error.message,
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
           poolType
         })
 
         throw error
       }
-    }) as any
+    }) as Pool['query']
 
     return pool
   }
@@ -284,10 +287,10 @@ export class QueryPerformanceService extends EventEmitter {
         plan: result.rows[0][`QUERY PLAN`],
         analysis: this.extractPlanInsights(result.rows[0]['QUERY PLAN'])
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       }
     }
   }
@@ -344,7 +347,7 @@ export class QueryPerformanceService extends EventEmitter {
    */
   clearMetrics(): void {
     this.queryMetrics = []
-    console.log(`Query metrics cleared`)
+    logger.info('Query metrics cleared')
   }
 
   /**
@@ -352,7 +355,7 @@ export class QueryPerformanceService extends EventEmitter {
    */
   setEnabled(enabled: boolean): void {
     this.enabled = enabled
-    console.log(`Query performance monitoring ${enabled ? 'enabled' : 'disabled'}`)
+    logger.info('Query performance monitoring status changed', { enabled })
   }
 
   /**

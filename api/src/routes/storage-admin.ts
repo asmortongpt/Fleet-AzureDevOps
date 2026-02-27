@@ -14,6 +14,7 @@
 
 import express, { Request, Response } from 'express';
 import multer from 'multer';
+import { z } from 'zod';
 
 import { loadStorageConfig, loadQuotaConfig, loadFailoverConfig, storageFeatures } from '../config/storage';
 import { ValidationError } from '../errors/app-error'
@@ -21,6 +22,8 @@ import { csrfProtection } from '../middleware/csrf'
 import StorageManager from '../services/StorageManager';
 import { getErrorMessage } from '../utils/error-handler'
 import { authenticateJWT } from '../middleware/auth'
+import { logger } from '../utils/logger'
+import { pool } from '../db/connection'
 
 
 const router = express.Router();
@@ -99,8 +102,8 @@ router.post('/upload', csrfProtection, upload.single('file'), async (req: Reques
         filename: req.file.originalname,
         mimeType: req.file.mimetype,
         size: req.file.size,
-        uploadedBy: (req as any).user?.id || 'anonymous'
-      } as any,
+        createdBy: req.user?.id ? String(req.user.id) : 'anonymous'
+      },
       contentType: req.file.mimetype,
       overwrite: req.body.overwrite === 'true'
     });
@@ -109,8 +112,8 @@ router.post('/upload', csrfProtection, upload.single('file'), async (req: Reques
       success: true,
       data: result
     });
-  } catch (error: any) {
-    console.error('Upload error:', error);
+  } catch (error: unknown) {
+    logger.error('Upload error:', error);
     res.status(500).json({
       error: 'Upload failed',
       message: getErrorMessage(error)
@@ -136,10 +139,11 @@ router.post('/upload', csrfProtection, upload.single('file'), async (req: Reques
  *       200:
  *         description: File content
  */
-router.get('/download/:key(*)', async (req: Request, res: Response) => {
+router.get('/download/{*key}', async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
-    const key = req.params.key;
+    // Express 5: wildcard params return an array of path segments
+    const key = Array.isArray(req.params.key) ? req.params.key.join('/') : req.params.key;
 
     const result = await manager.download(key, {
       onProgress: (progress) => {
@@ -157,9 +161,9 @@ router.get('/download/:key(*)', async (req: Request, res: Response) => {
 
     // Pipe stream to response
     result.stream.pipe(res);
-  } catch (error: any) {
-    console.error(`Download error:`, error);
-    res.status(error.statusCode || 500).json({
+  } catch (error: unknown) {
+    logger.error(`Download error:`, error);
+    res.status((error as Record<string, unknown>).statusCode as number || 500).json({
       error: 'Download failed',
       message: getErrorMessage(error)
     });
@@ -189,24 +193,25 @@ router.get('/download/:key(*)', async (req: Request, res: Response) => {
  *       200:
  *         description: Presigned URL
  */
-router.get('/url/:key(*)', async (req: Request, res: Response) => {
+router.get('/url/{*key}', async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
-    const key = req.params.key;
+    // Express 5: wildcard params return an array of path segments
+    const key = Array.isArray(req.params.key) ? req.params.key.join('/') : req.params.key;
     const expiresIn = parseInt(req.query.expiresIn as string) || 3600;
 
     const url = await manager.getUrl(key, {
       expiresIn,
-      contentDisposition: req.query.disposition as any
+      contentDisposition: req.query.disposition as 'inline' | 'attachment' | undefined
     });
 
     res.json({
       success: true,
       data: { url, expiresIn }
     });
-  } catch (error: any) {
-    console.error('Get URL error:', error);
-    res.status(error.statusCode || 500).json({
+  } catch (error: unknown) {
+    logger.error('Get URL error:', error);
+    res.status((error as Record<string, unknown>).statusCode as number || 500).json({
       error: 'Failed to generate URL',
       message: getErrorMessage(error)
     });
@@ -231,10 +236,11 @@ router.get('/url/:key(*)', async (req: Request, res: Response) => {
  *       200:
  *         description: File deleted successfully
  */
-router.delete('/delete/:key(*)', csrfProtection, csrfProtection, async (req: Request, res: Response) => {
+router.delete('/delete/{*key}', csrfProtection, async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
-    const key = req.params.key;
+    // Express 5: wildcard params return an array of path segments
+    const key = Array.isArray(req.params.key) ? req.params.key.join('/') : req.params.key;
 
     await manager.delete(key);
 
@@ -242,9 +248,9 @@ router.delete('/delete/:key(*)', csrfProtection, csrfProtection, async (req: Req
       success: true,
       message: 'File deleted successfully'
     });
-  } catch (error: any) {
-    console.error('Delete error:', error);
-    res.status(error.statusCode || 500).json({
+  } catch (error: unknown) {
+    logger.error('Delete error:', error);
+    res.status((error as Record<string, unknown>).statusCode as number || 500).json({
       error: 'Delete failed',
       message: getErrorMessage(error)
     });
@@ -298,8 +304,8 @@ router.get('/list', async (req: Request, res: Response) => {
       success: true,
       data: result
     });
-  } catch (error: any) {
-    console.error('List error:', error);
+  } catch (error: unknown) {
+    logger.error('List error:', error);
     res.status(500).json({
       error: 'List failed',
       message: getErrorMessage(error)
@@ -321,15 +327,36 @@ router.get('/list', async (req: Request, res: Response) => {
  */
 router.get('/stats', async (req: Request, res: Response) => {
   try {
-    const manager = await getStorageManager();
-    const stats = await manager.getUsageStats();
+    // Try StorageManager first, fall back to direct query
+    try {
+      const manager = await getStorageManager();
+      const stats = await manager.getUsageStats();
+      return res.json({ success: true, data: stats });
+    } catch {
+      // StorageManager may fail if storage_files schema differs
+    }
+
+    // Fallback: query storage_files table directly
+    const result = await pool.query(`
+      SELECT
+        COUNT(*)::int as total_files,
+        COALESCE(SUM(file_size_bytes), 0)::bigint as total_size_bytes,
+        COUNT(DISTINCT storage_provider) as providers,
+        COUNT(DISTINCT entity_type) as entity_types
+      FROM storage_files
+    `);
 
     res.json({
       success: true,
-      data: stats
+      data: {
+        totalFiles: result.rows[0]?.total_files || 0,
+        totalSizeBytes: Number(result.rows[0]?.total_size_bytes || 0),
+        providers: result.rows[0]?.providers || 0,
+        entityTypes: result.rows[0]?.entity_types || 0
+      }
     });
-  } catch (error: any) {
-    console.error('Stats error:', error);
+  } catch (error: unknown) {
+    logger.error('Stats error:', error);
     res.status(500).json({
       error: 'Failed to get stats',
       message: getErrorMessage(error)
@@ -362,22 +389,35 @@ router.get('/stats', async (req: Request, res: Response) => {
  *       200:
  *         description: Migration job created
  */
+// Validation schemas
+const migrateSchema = z.object({
+  sourceProvider: z.string().min(1).max(100),
+  targetProvider: z.string().min(1).max(100),
+  deleteSource: z.boolean().default(false),
+});
+
+const batchDeleteSchema = z.object({
+  keys: z.array(z.string().min(1).max(1024)).min(1).max(1000),
+});
+
 router.post('/migrate', csrfProtection, async (req: Request, res: Response) => {
   try {
-    const manager = await getStorageManager();
-    const { sourceProvider, targetProvider, deleteSource } = req.body;
-
-    if (!sourceProvider || !targetProvider) {
+    const parsed = migrateSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
-        error: 'sourceProvider and targetProvider are required'
+        error: 'Validation failed',
+        details: parsed.error.flatten()
       });
     }
+
+    const manager = await getStorageManager();
+    const { sourceProvider, targetProvider, deleteSource } = parsed.data;
 
     const job = await manager.migrateFiles(sourceProvider, targetProvider, {
       deleteSource,
       onProgress: (progress) => {
         // Could emit progress via WebSocket
-        console.log(`Migration progress: ${progress.completed}/${progress.total} - ${progress.current}`);
+        logger.info(`Migration progress: ${progress.completed}/${progress.total} - ${progress.current}`);
       }
     });
 
@@ -385,8 +425,8 @@ router.post('/migrate', csrfProtection, async (req: Request, res: Response) => {
       success: true,
       data: job
     });
-  } catch (error: any) {
-    console.error(`Migration error:`, error);
+  } catch (error: unknown) {
+    logger.error(`Migration error:`, error);
     res.status(500).json({
       error: 'Migration failed',
       message: getErrorMessage(error)
@@ -422,8 +462,8 @@ router.post('/tier/auto', csrfProtection, async (req: Request, res: Response) =>
       success: true,
       data: result
     });
-  } catch (error: any) {
-    console.error('Auto-tiering error:', error);
+  } catch (error: unknown) {
+    logger.error('Auto-tiering error:', error);
     res.status(500).json({
       error: 'Auto-tiering failed',
       message: getErrorMessage(error)
@@ -460,8 +500,8 @@ router.get('/config', async (req: Request, res: Response) => {
         allowedMimeTypes: config.allowedMimeTypes
       }
     });
-  } catch (error: any) {
-    console.error('Config error:', error);
+  } catch (error: unknown) {
+    logger.error('Config error:', error);
     res.status(500).json({
       error: 'Failed to get config',
       message: getErrorMessage(error)
@@ -502,8 +542,8 @@ router.get('/health', async (req: Request, res: Response) => {
       success: true,
       data: health
     });
-  } catch (error: any) {
-    console.error('Health check error:', error);
+  } catch (error: unknown) {
+    logger.error('Health check error:', error);
     res.status(500).json({
       success: false,
       status: 'unhealthy',
@@ -556,12 +596,12 @@ router.post('/batch/upload', csrfProtection, upload.array('files', 10), async (r
             filename: file.originalname,
             mimeType: file.mimetype,
             size: file.size,
-            uploadedBy: (req as any).user?.id || 'anonymous'
-          } as any,
+            createdBy: req.user?.id ? String(req.user.id) : 'anonymous'
+          },
           contentType: file.mimetype
         });
         results.push(result);
-      } catch (error: any) {
+      } catch (error: unknown) {
         errors.push({
           filename: file.originalname,
           error: getErrorMessage(error)
@@ -578,8 +618,8 @@ router.post('/batch/upload', csrfProtection, upload.array('files', 10), async (r
         errors
       }
     });
-  } catch (error: any) {
-    console.error('Batch upload error:', error);
+  } catch (error: unknown) {
+    logger.error('Batch upload error:', error);
     res.status(500).json({
       error: 'Batch upload failed',
       message: getErrorMessage(error)
@@ -611,11 +651,15 @@ router.post('/batch/upload', csrfProtection, upload.array('files', 10), async (r
  */
 router.post('/batch/delete', csrfProtection, async (req: Request, res: Response) => {
   try {
-    const { keys } = req.body;
-
-    if (!Array.isArray(keys) || keys.length === 0) {
-      throw new ValidationError("keys array is required");
+    const parsed = batchDeleteSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      });
     }
+
+    const { keys } = parsed.data;
 
     const manager = await getStorageManager();
     const results = [];
@@ -625,7 +669,7 @@ router.post('/batch/delete', csrfProtection, async (req: Request, res: Response)
       try {
         await manager.delete(key);
         results.push(key);
-      } catch (error: any) {
+      } catch (error: unknown) {
         errors.push({
           key,
           error: getErrorMessage(error)
@@ -642,8 +686,8 @@ router.post('/batch/delete', csrfProtection, async (req: Request, res: Response)
         errors
       }
     });
-  } catch (error: any) {
-    console.error('Batch delete error:', error);
+  } catch (error: unknown) {
+    logger.error('Batch delete error:', error);
     res.status(500).json({
       error: 'Batch delete failed',
       message: getErrorMessage(error)

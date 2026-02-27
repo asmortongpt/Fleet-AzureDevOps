@@ -1,4 +1,5 @@
 import { Router, Response } from "express"
+import { z } from 'zod'
 
 import { pool } from '../config/database'
 import { csrfProtection } from '../middleware/csrf'
@@ -6,6 +7,27 @@ import { asyncHandler } from '../middleware/errorHandler'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { setTenantContext } from '../middleware/tenant-context'
 import logger from '../config/logger'
+
+import { flexUuid } from '../middleware/validation'
+
+const createPartSchema = z.object({
+  partNumber: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  category: z.string().optional(),
+  manufacturer: z.string().optional(),
+  unitCost: z.number().optional(),
+  unitOfMeasure: z.string().optional(),
+  quantityOnHand: z.number().int().optional(),
+  reorderPoint: z.number().int().optional(),
+  reorderQuantity: z.number().int().optional(),
+  locationInWarehouse: z.string().optional(),
+  facilityId: flexUuid.optional(),
+})
+
+const updatePartSchema = createPartSchema.omit({ partNumber: true }).extend({
+  isActive: z.boolean().optional(),
+}).partial()
 
 const router = Router()
 
@@ -15,7 +37,7 @@ router.use(setTenantContext)
 
 router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -25,7 +47,7 @@ router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
   const offset = (Number(page) - 1) * Number(limit)
 
   let whereClause = 'WHERE tenant_id = $1'
-  const params: any[] = [tenantId]
+  const params: (string | number | boolean | null | undefined)[] = [tenantId]
 
   if (category && typeof category === 'string') {
     params.push(category)
@@ -66,7 +88,7 @@ router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
 
 router.get("/:id", asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -93,17 +115,18 @@ router.get("/:id", asyncHandler(async (req: AuthRequest, res: Response) => {
 
 router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
   }
 
-  const { partNumber, name, description, category, manufacturer, unitCost, unitOfMeasure, quantityOnHand, reorderPoint, reorderQuantity, locationInWarehouse, facilityId } = req.body
-
-  if (!partNumber || !name) {
-    return res.status(400).json({ error: 'Part number and name are required' })
+  const parsed = createPartSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
   }
+
+  const { partNumber, name, description, category, manufacturer, unitCost, unitOfMeasure, quantityOnHand, reorderPoint, reorderQuantity, locationInWarehouse, facilityId } = parsed.data
 
   const result = await client.query(
     `INSERT INTO parts_inventory (
@@ -123,13 +146,18 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
 
 router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
   }
 
-  const { name, description, category, manufacturer, unitCost, quantityOnHand, reorderPoint, isActive } = req.body
+  const parsed = updatePartSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+  }
+
+  const { name, description, category, manufacturer, unitCost, quantityOnHand, reorderPoint, isActive } = parsed.data
 
   const result = await client.query(
     `UPDATE parts_inventory 
@@ -157,7 +185,7 @@ router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Re
 
 router.delete("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -173,7 +201,7 @@ router.delete("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res:
   }
 
   logger.info('Part deleted', { partId: req.params.id, tenantId })
-  res.json({ message: "Part deleted successfully" })
+  res.json({ success: true, message: "Part deleted successfully" })
 }))
 
 export default router

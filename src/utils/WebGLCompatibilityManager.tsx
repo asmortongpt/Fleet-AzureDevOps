@@ -221,11 +221,11 @@ export function CompatibleCanvas({ children, fallback, ...props }: CompatibleCan
   
   if (!isSupported || !capabilities) {
     return (
-      <div className="flex items-center justify-center h-full bg-gray-100">
+      <div className="flex items-center justify-center h-full bg-white/[0.05]">
         {fallback || (
           <div className="text-center">
-            <div className="text-gray-700 mb-2">3D View Unavailable</div>
-            <div className="text-sm text-gray-600">WebGL is not supported</div>
+            <div className="text-white/40 mb-2">3D View Unavailable</div>
+            <div className="text-sm text-white/40">WebGL is not supported</div>
           </div>
         )}
       </div>
@@ -265,11 +265,11 @@ export function QualitySettingsPanel() {
       
       <div className="space-y-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Shadows</label>
+          <label className="block text-sm font-medium text-white/40 mb-1">Shadows</label>
           <select 
             value={settings.shadows} 
             onChange={(e) => updateSettings({ shadows: e.target.value as any })}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="block w-full rounded-md border-white/[0.08] focus:border-emerald-500 focus:ring-emerald-500"
           >
             <option value="off">Off</option>
             <option value="low">Low</option>
@@ -279,11 +279,11 @@ export function QualitySettingsPanel() {
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Reflections</label>
+          <label className="block text-sm font-medium text-white/40 mb-1">Reflections</label>
           <select 
             value={settings.reflections} 
             onChange={(e) => updateSettings({ reflections: e.target.value as any })}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="block w-full rounded-md border-white/[0.08] focus:border-emerald-500 focus:ring-emerald-500"
           >
             <option value="off">Off</option>
             <option value="low">Low</option>
@@ -293,11 +293,11 @@ export function QualitySettingsPanel() {
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Anti-aliasing</label>
+          <label className="block text-sm font-medium text-white/40 mb-1">Anti-aliasing</label>
           <select 
             value={settings.antialiasing} 
             onChange={(e) => updateSettings({ antialiasing: e.target.value as any })}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="block w-full rounded-md border-white/[0.08] focus:border-emerald-500 focus:ring-emerald-500"
           >
             <option value="off">Off</option>
             <option value="fxaa">FXAA</option>
@@ -312,15 +312,15 @@ export function QualitySettingsPanel() {
             type="checkbox"
             checked={settings.postProcessing}
             onChange={(e) => updateSettings({ postProcessing: e.target.checked })}
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+            className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-white/[0.08] rounded"
           />
-          <label htmlFor="postProcessing" className="ml-2 block text-sm text-gray-700">
+          <label htmlFor="postProcessing" className="ml-2 block text-sm text-white/40">
             Enable Post-processing Effects
           </label>
         </div>
       </div>
       
-      <div className="mt-2 text-xs text-gray-700">
+      <div className="mt-2 text-xs text-white/40">
         WebGL Version: {capabilities?.webgl2 ? '2.0' : '1.0'} | 
         Max Texture Size: {capabilities?.maxTextureSize}px
       </div>

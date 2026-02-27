@@ -15,7 +15,7 @@ export interface PaginationParams {
   page?: number
   pageSize?: number
   search?: string
-  [key: string]: any
+  [key: string]: string | number | boolean | undefined
 }
 
 /**
@@ -60,7 +60,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
   /**
    * Create a new resource
    */
-  function useCreate(mutationOptions?: Omit<UseMutationOptions<any, any, Partial<T>>, 'mutationFn'>) {
+  function useCreate(mutationOptions?: Omit<UseMutationOptions<T, Error, Partial<T>>, 'mutationFn'>) {
     const queryClient = useQueryClient()
 
     return useMutation({
@@ -78,13 +78,14 @@ export function createCrudHooks<T extends { id?: number | string }>(
   /**
    * Update an existing resource
    */
-  function useUpdate(mutationOptions?: Omit<UseMutationOptions<any, any, { id: number | string; data: Partial<T> }>, 'mutationFn'>) {
+  function useUpdate(mutationOptions?: Omit<UseMutationOptions<T, Error, { id: number | string; data: Partial<T> }>, 'mutationFn'>) {
     const queryClient = useQueryClient()
 
     return useMutation({
       mutationFn: async ({ id, data }: { id: number | string; data: Partial<T> }) => {
         const response = await axios.put<T>(`/${resourceName}/${id}`, data)
-        return (response as any)?.data || response as T
+        const result = response as T & { data?: T }
+        return result?.data || result as T
       },
       onSuccess: (_, variables) => {
         queryClient.invalidateQueries({ queryKey: [queryKey] })
@@ -97,7 +98,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
   /**
    * Delete a resource
    */
-  function useDelete(mutationOptions?: Omit<UseMutationOptions<any, any, number | string>, 'mutationFn'>) {
+  function useDelete(mutationOptions?: Omit<UseMutationOptions<void, Error, number | string>, 'mutationFn'>) {
     const queryClient = useQueryClient()
 
     return useMutation({

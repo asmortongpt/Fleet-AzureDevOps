@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { apiClient } from '@/lib/api-client'
+import { formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 interface Notification {
@@ -128,7 +129,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
         return 'text-yellow-600 dark:text-yellow-400'
       case 'info':
       default:
-        return 'text-blue-800 dark:text-blue-700'
+        return 'text-emerald-800 dark:text-emerald-700'
     }
   }
 
@@ -142,7 +143,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
         return 'bg-yellow-100 dark:bg-yellow-900/20'
       case 'info':
       default:
-        return 'bg-blue-100 dark:bg-blue-900/20'
+        return 'bg-emerald-500/10 dark:bg-emerald-900/20'
     }
   }
 
@@ -155,7 +156,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
     if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`
-    return date.toLocaleDateString()
+    return formatDate(date)
   }
 
   return (

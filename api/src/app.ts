@@ -21,6 +21,8 @@ import helmet from 'helmet';
 import Redis from 'ioredis';
 import { Pool } from 'pg';
 
+import { logger } from './utils/logger';
+
 // Services
 import { createAuthMiddleware } from './middleware/auth.middleware';
 import { createAuthzMiddleware } from './middleware/authz.middleware';
@@ -32,6 +34,8 @@ import { AuthenticationService } from './services/auth/AuthenticationService';
 import { AuthorizationService } from './services/authz/AuthorizationService';
 import { ConfigurationManagementService } from './services/config/ConfigurationManagementService';
 import { SecretsManagementService } from './services/secrets/SecretsManagementService';
+
+const devBypassEnabled = process.env.VITE_SKIP_AUTH === 'true' || process.env.DEV_BYPASS_SECURITY === 'true';
 
 // Middleware
 
@@ -55,7 +59,7 @@ export class FleetAPI {
     // Initialize database connection
     this.pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: true, ca: process.env.DB_SSL_CA } : (process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false),
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
@@ -108,6 +112,10 @@ export class FleetAPI {
       ? corsOrigin.split(',').map(origin => origin.trim()).filter(Boolean)
       : [];
 
+    if (allowedOrigins.some(origin => origin.includes('*'))) {
+      throw new Error('CORS_ORIGIN cannot contain wildcard entries when credentials are enabled');
+    }
+
     const defaultDevOrigins = [
       'http://localhost:5173',
       'http://127.0.0.1:5173',
@@ -127,8 +135,12 @@ export class FleetAPI {
     this.app.use(cors({
       origin: (origin, callback) => {
         // Allow same-origin or non-browser requests with no Origin header
-        if (!origin) return callback(null, true);
-        if (allowlist.includes(origin)) return callback(null, true);
+        if (!origin) {
+          return callback(null, true);
+        }
+        if (allowlist.includes(origin)) {
+          return callback(null, true);
+        }
         return callback(new Error(`CORS: Origin ${origin} not allowed`), false);
       },
       credentials: true, // requires explicit allowlist (no wildcard)
@@ -148,16 +160,20 @@ export class FleetAPI {
       next();
     });
 
-    // Rate limiting
-    const rateLimitMiddleware = createRateLimitMiddleware(this.redis);
-    this.app.use(rateLimitMiddleware.global);
+    // Rate limiting (disabled when dev bypass is active)
+    if (!devBypassEnabled) {
+      const rateLimitMiddleware = createRateLimitMiddleware(this.redis);
+      this.app.use(rateLimitMiddleware.global);
+    } else {
+      logger.warn('[RateLimit] Disabled in dev bypass mode');
+    }
 
     // Request logging
     this.app.use((req: Request, res: Response, next) => {
       const start = Date.now();
       res.on('finish', () => {
         const duration = Date.now() - start;
-        console.log(`${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
+        logger.info(`${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
       });
       next();
     });
@@ -371,52 +387,52 @@ export class FleetAPI {
     try {
       // Connect to Redis
       await this.redis.connect();
-      console.log('✓ Redis connected');
+      logger.info('Redis connected');
 
       // Initialize secrets service
       await this.secretsService.initialize();
-      console.log('✓ Secrets service initialized');
+      logger.info('Secrets service initialized');
 
       // Test database connection
       await this.pool.query('SELECT 1');
-      console.log('✓ Database connected');
+      logger.info('Database connected');
 
       // Start server
       this.app.listen(port, () => {
-        console.log(`✓ Fleet Management API running on port ${port}`);
-        console.log(`  Health: http://localhost:${port}/health`);
-        console.log(`  Environment: ${process.env.NODE_ENV || 'development'}`);
+        logger.info(`Fleet Management API running on port ${port}`);
+        logger.info(`  Health: http://localhost:${port}/health`);
+        logger.info(`  Environment: ${process.env.NODE_ENV || 'development'}`);
       });
 
       // Setup graceful shutdown
       this.setupGracefulShutdown();
     } catch (error) {
-      console.error('Failed to start server:', error);
+      logger.error('Failed to start server:', error);
       process.exit(1);
     }
   }
 
   private setupGracefulShutdown(): void {
     const shutdown = async (signal: string) => {
-      console.log(`\n${signal} received. Starting graceful shutdown...`);
+      logger.info(`${signal} received. Starting graceful shutdown...`);
 
       try {
         // Close Redis
         await this.redis.quit();
-        console.log('✓ Redis connection closed');
+        logger.info('Redis connection closed');
 
         // Close database pool
         await this.pool.end();
-        console.log('✓ Database pool closed');
+        logger.info('Database pool closed');
 
         // Shutdown secrets service
         await this.secretsService.shutdown();
-        console.log('✓ Secrets service shutdown complete');
+        logger.info('Secrets service shutdown complete');
 
-        console.log('✓ Graceful shutdown complete');
+        logger.info('Graceful shutdown complete');
         process.exit(0);
       } catch (error) {
-        console.error('Error during shutdown:', error);
+        logger.error('Error during shutdown:', error);
         process.exit(1);
       }
     };
@@ -434,7 +450,7 @@ export class FleetAPI {
 if (require.main === module) {
   const api = new FleetAPI();
   const port = parseInt(process.env.PORT || '3000', 10);
-  api.start(port);
+  void api.start(port);
 }
 
 export default FleetAPI;

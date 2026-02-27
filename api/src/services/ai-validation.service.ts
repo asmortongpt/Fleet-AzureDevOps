@@ -144,7 +144,7 @@ class AIValidationService {
         sanitizedPrompt,
         warnings: warnings.length > 0 ? warnings : undefined
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('Validation error:', error)
       return {
         isValid: false,
@@ -204,6 +204,7 @@ class AIValidationService {
     sanitized = sanitized.replace(/\0/g, '')
 
     // Remove control characters (except newlines and tabs)
+    // eslint-disable-next-line no-control-regex -- Intentionally matching control characters for sanitization
     sanitized = sanitized.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '')
 
     // Limit consecutive newlines

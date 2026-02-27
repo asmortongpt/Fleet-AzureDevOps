@@ -1,4 +1,5 @@
 import { Pool, PoolConfig } from 'pg';
+import logger from './logger';
 
 const poolConfig: PoolConfig = {
   max: 20,
@@ -13,9 +14,13 @@ const databaseUrl =
   process.env.DATABASE_URL ||
   // Safe local default for dev/demo environments.
   // Matches other parts of the codebase that assume a local `fleet_dev` database.
-  (process.env.DB_HOST || process.env.DB_NAME || process.env.DB_USER
-    ? undefined
-    : 'postgresql://postgres:postgres@localhost:5432/fleet_dev');
+  (process.env.NODE_ENV === 'production'
+    ? (() => {
+ throw new Error('DATABASE_URL must be set in production'); 
+})()
+    : (process.env.DB_HOST || process.env.DB_NAME || process.env.DB_USER
+        ? undefined
+        : 'postgresql://postgres:postgres@localhost:5432/fleet_dev'));
 
 export const pool = databaseUrl
   ? new Pool({
@@ -32,16 +37,16 @@ export const pool = databaseUrl
     });
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
+  logger.error('Unexpected error on idle client', { error: err.message });
   process.exit(-1);
 });
 
 pool.on('connect', () => {
-  console.log('New database connection established');
+  logger.info('New database connection established');
 });
 
 pool.on('remove', () => {
-  console.log('Database connection removed from pool');
+  logger.info('Database connection removed from pool');
 });
 
 export async function testConnection(): Promise<boolean> {
@@ -49,7 +54,7 @@ export async function testConnection(): Promise<boolean> {
     await pool.query('SELECT NOW()');
     return true;
   } catch (err) {
-    console.error('Database connection test failed:', err);
+    logger.error('Database connection test failed', { error: err });
     return false;
   }
 }

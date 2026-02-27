@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
+
 import { OperationsHubMap } from './OperationsHubMap';
 
 import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
@@ -22,7 +23,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useDrilldown } from '@/contexts/DrilldownContext';
-import { useVehicles, useDrivers, useWorkOrders } from '@/hooks/use-api';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { useVehicles, useDrivers, useWorkOrders, useRoutes } from '@/hooks/use-api';
+import { formatEnum } from '@/utils/format-enum';
+import { formatNumber, formatTime } from '@/utils/format-helpers';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 interface Vehicle {
   id: string;
@@ -39,18 +44,33 @@ interface WorkOrder {
   status: string;
   priority?: string;
   type?: string;
+  created_at?: string;
 }
 
 interface Driver {
   id: string;
   name?: string;
+  status?: string;
+}
+
+interface Route {
+  id: string;
+  status?: string;
+  assigned_vehicle_id?: string;
+  actual_end_time?: string;
+  updated_at?: string;
+  created_at?: string;
 }
 
 export function OperationsHub() {
+  const { navigateTo } = useNavigation();
   const { push } = useDrilldown();
-  const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
-  const { data: drivers = [] } = useDrivers();
-  const { data: workOrders = [] } = useWorkOrders();
+  const { data: vehicles = [], isLoading: vehiclesLoading, error: vehiclesError } = useVehicles();
+  const { data: drivers = [], isLoading: driversLoading, error: driversError } = useDrivers();
+  const { data: workOrders = [], isLoading: workOrdersLoading, error: workOrdersError } = useWorkOrders();
+  const { data: routes = [], isLoading: routesLoading, error: routesError } = useRoutes();
+  const isLoading = vehiclesLoading || driversLoading || workOrdersLoading || routesLoading;
+  const hasError = vehiclesError || driversError || workOrdersError || routesError;
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
@@ -58,19 +78,26 @@ export function OperationsHub() {
     push({ type: type as any, label, data: { filter } });
   };
 
+  const getVehicleLabel = (vehicle: Vehicle) =>
+    vehicle.vehicleNumber ||
+    (vehicle as any).vehicle_number ||
+    (vehicle as any).number ||
+    (vehicle as any).name ||
+    vehicle.id;
+
   const handleVehicleClick = (vehicle: Vehicle) => {
     setSelectedVehicleId(vehicle.id);
     push({
       type: 'vehicle',
-      label: vehicle.vehicleNumber,
-      data: { vehicleId: vehicle.id, vehicleNumber: vehicle.vehicleNumber }
+      label: getVehicleLabel(vehicle),
+      data: { vehicleId: vehicle.id, vehicleNumber: getVehicleLabel(vehicle) }
     });
   };
 
   const handleAlertClick = (alert: { id: string; type: string; message: string }) => {
     push({
       type: 'alert',
-      label: `Alert: ${alert.type}`,
+      label: `Alert: ${formatEnum(alert.type)}`,
       data: { alertId: alert.id, alertType: alert.type, message: alert.message }
     });
   };
@@ -80,20 +107,63 @@ export function OperationsHub() {
 
   // Calculate operational metrics
   const metrics = useMemo(() => {
-    const activeVehicles = (vehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'active');
-    const enRouteCount = Math.floor(activeVehicles.length * 0.6);
-    const completedToday = Math.floor((workOrders as unknown as WorkOrder[]).length * 0.3);
+    const vehicleRows = vehicles as unknown as Vehicle[];
+    const workOrderRows = workOrders as unknown as WorkOrder[];
+    const driverRows = drivers as unknown as Driver[];
+    const routeRows = routes as unknown as Route[];
+
+    const activeVehicles = vehicleRows.filter((v) => v.status === 'active');
+    const maintenanceVehicles = vehicleRows.filter((v) => v.status === 'maintenance');
+
+    const pendingRoutes = routeRows.filter((route) => route.status === 'pending');
+    const activeRoutes = routeRows.filter((route) => route.status === 'in_progress' || route.status === 'active');
+    const completedRoutesToday = routeRows.filter((route) => {
+      if (route.status !== 'completed') return false;
+      const completedAt = route.actual_end_time || route.updated_at || route.created_at;
+      if (!completedAt) return false;
+      const completedDate = new Date(completedAt);
+      const now = new Date();
+      return completedDate.toDateString() === now.toDateString();
+    });
+
+    const openWorkOrders = workOrderRows.filter((wo) => wo.status === 'pending');
+
+    const availableDrivers = driverRows.filter((driver) =>
+      driver.status === 'active' || driver.status === 'available'
+    );
+
+    // Derive efficiency score from real data:
+    // Weight: 40% vehicle utilization, 30% route completion, 30% driver availability
+    const vehicleUtil = vehicleRows.length > 0
+      ? (activeVehicles.length / vehicleRows.length) * 100
+      : 0;
+    const totalRoutesToday = routeRows.filter((r) => {
+      const ts = r.actual_end_time || r.updated_at || r.created_at;
+      if (!ts) return false;
+      return new Date(ts).toDateString() === new Date().toDateString();
+    });
+    const routeCompletion = totalRoutesToday.length > 0
+      ? (completedRoutesToday.length / totalRoutesToday.length) * 100
+      : vehicleUtil; // fallback to vehicle utilization if no routes today
+    const driverUtil = driverRows.length > 0
+      ? (availableDrivers.length / driverRows.length) * 100
+      : 0;
+    const efficiencyScore = Math.round(
+      vehicleUtil * 0.4 + routeCompletion * 0.3 + driverUtil * 0.3
+    );
 
     return {
-      activeJobs: enRouteCount,
-      pendingDispatch: Math.floor((workOrders as unknown as WorkOrder[]).length * 0.1),
-      enRoute: enRouteCount,
-      completed: completedToday,
-      totalVehicles: (vehicles as unknown as Vehicle[]).length,
+      activeJobs: activeRoutes.length,
+      pendingDispatch: pendingRoutes.length || openWorkOrders.length,
+      enRoute: activeRoutes.length,
+      completed: completedRoutesToday.length,
+      totalVehicles: vehicleRows.length,
       activeVehicles: activeVehicles.length,
-      availableDrivers: Math.floor((drivers as unknown as Driver[]).length * 0.4)
+      maintenanceVehicles: maintenanceVehicles.length,
+      availableDrivers: availableDrivers.length,
+      efficiencyScore
     };
-  }, [vehicles, drivers, workOrders]);
+  }, [vehicles, drivers, workOrders, routes]);
 
   // Generate alerts from work orders and vehicles
   const alerts = useMemo(() => {
@@ -106,7 +176,7 @@ export function OperationsHub() {
         id: `wo-${wo.id}`,
         type: wo.priority === 'critical' ? 'critical' : 'warning',
         message: `Work order ${wo.id} requires immediate attention`,
-        timestamp: new Date(Date.now() - (i + 1) * 5 * 60000).toLocaleTimeString()
+        timestamp: formatTime(new Date(Date.now() - (i + 1) * 5 * 60000))
       });
     });
 
@@ -116,8 +186,8 @@ export function OperationsHub() {
       generatedAlerts.push({
         id: `maint-${v.id}`,
         type: 'info',
-        message: `${v.vehicleNumber} is in maintenance - ${v.make} ${v.model}`,
-        timestamp: new Date(Date.now() - (i + 3) * 10 * 60000).toLocaleTimeString()
+        message: `${v.vehicleNumber} is in maintenance - ${formatVehicleShortName(v)}`,
+        timestamp: formatTime(new Date(Date.now() - (i + 3) * 10 * 60000))
       });
     });
 
@@ -131,20 +201,20 @@ export function OperationsHub() {
     <div className="space-y-2">
       {/* Header */}
       <div>
-        <h2 className="text-sm font-bold text-slate-900">Operations Hub</h2>
-        <p className="text-sm text-slate-500 mt-1">Real-time fleet operations control center</p>
+        <h2 className="text-sm font-bold text-white/95">Operations Hub</h2>
+        <p className="text-sm text-white/40 mt-1">Real-time fleet operations control center</p>
       </div>
 
       {/* Real-time Metrics Cards */}
       <div className="grid grid-cols-2 gap-3">
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="border-l-4 border-l-emerald-500">
           <CardContent className="pt-2 pb-3 px-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-bold text-blue-800">{metrics.activeJobs}</div>
-                <div className="text-xs text-slate-600 mt-1">Active Jobs</div>
+                <div className="text-sm font-bold text-emerald-800">{metrics.activeJobs}</div>
+                <div className="text-xs text-white/60 mt-1">Active Jobs</div>
               </div>
-              <Package className="h-8 w-8 text-blue-800 opacity-20" />
+              <Package className="h-8 w-8 text-emerald-800 opacity-20" />
             </div>
           </CardContent>
         </Card>
@@ -154,7 +224,7 @@ export function OperationsHub() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm font-bold text-amber-600">{metrics.pendingDispatch}</div>
-                <div className="text-xs text-slate-600 mt-1">Pending Dispatch</div>
+                <div className="text-xs text-white/60 mt-1">Pending Dispatch</div>
               </div>
               <Clock className="h-8 w-8 text-amber-500 opacity-20" />
             </div>
@@ -166,21 +236,21 @@ export function OperationsHub() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm font-bold text-green-600">{metrics.enRoute}</div>
-                <div className="text-xs text-slate-600 mt-1">En Route</div>
+                <div className="text-xs text-white/60 mt-1">En Route</div>
               </div>
               <Navigation className="h-8 w-8 text-green-500 opacity-20" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-purple-500">
+        <Card className="border-l-4 border-l-amber-500">
           <CardContent className="pt-2 pb-3 px-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-bold text-purple-600">{metrics.completed}</div>
-                <div className="text-xs text-slate-600 mt-1">Completed Today</div>
+                <div className="text-sm font-bold text-amber-600">{metrics.completed}</div>
+                <div className="text-xs text-white/60 mt-1">Completed Today</div>
               </div>
-              <CheckCircle className="h-8 w-8 text-purple-500 opacity-20" />
+              <CheckCircle className="h-8 w-8 text-amber-500 opacity-20" />
             </div>
           </CardContent>
         </Card>
@@ -238,7 +308,12 @@ export function OperationsHub() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3 max-h-48 overflow-y-auto">
-            {alerts.map(alert => (
+            {alerts.length === 0 ? (
+              <div className="text-center py-4">
+                <CheckCircle className="h-6 w-6 mx-auto text-green-500 mb-2" />
+                <p className="text-xs text-white/40">No active alerts</p>
+              </div>
+            ) : alerts.map(alert => (
               <div
                 key={alert.id}
                 className={`p-3 rounded-lg border text-xs ${
@@ -246,7 +321,7 @@ export function OperationsHub() {
                     ? 'bg-red-50 border-red-200'
                     : alert.type === 'warning'
                     ? 'bg-amber-50 border-amber-200'
-                    : 'bg-blue-50 border-blue-200'
+                    : 'bg-emerald-50 border-emerald-200'
                 }`}
               >
                 <div className="flex items-start gap-2">
@@ -256,12 +331,12 @@ export function OperationsHub() {
                         ? 'text-red-500'
                         : alert.type === 'warning'
                         ? 'text-amber-500'
-                        : 'text-blue-800'
+                        : 'text-emerald-800'
                     }`}
                   />
                   <div className="flex-1">
-                    <p className="text-slate-800 font-medium">{alert.message}</p>
-                    <p className="text-slate-500 mt-1">{alert.timestamp}</p>
+                    <p className="text-white/90 font-medium">{alert.message}</p>
+                    <p className="text-white/40 mt-1">{alert.timestamp}</p>
                   </div>
                 </div>
               </div>
@@ -280,63 +355,63 @@ export function OperationsHub() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-600 flex items-center gap-2">
+            <span className="text-white/60 flex items-center gap-2">
               <Truck className="h-4 w-4" />
               Active Vehicles
             </span>
-            <span className="font-semibold text-slate-900">
+            <span className="font-semibold text-white/95">
               {metrics.activeVehicles} / {metrics.totalVehicles}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-600 flex items-center gap-2">
+            <span className="text-white/60 flex items-center gap-2">
               <Users className="h-4 w-4" />
               Available Drivers
             </span>
-            <span className="font-semibold text-slate-900">{metrics.availableDrivers}</span>
+            <span className="font-semibold text-white/95">{metrics.availableDrivers}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-600 flex items-center gap-2">
+            <span className="text-white/60 flex items-center gap-2">
               <Zap className="h-4 w-4" />
               Efficiency Score
             </span>
-            <span className="font-semibold text-green-600">92%</span>
+            <span className="font-semibold text-green-600">{metrics.efficiencyScore}%</span>
           </div>
         </CardContent>
       </Card>
 
       {/* Selected Vehicle Details */}
       {selectedVehicle && (
-        <Card className="border-2 border-blue-500">
+        <Card className="border-2 border-emerald-500">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-blue-800" />
+                <MapPin className="h-4 w-4 text-emerald-800" />
                 {selectedVehicle.vehicleNumber}
               </span>
               <Badge variant={selectedVehicle.status === 'active' ? 'default' : 'secondary'}>
-                {selectedVehicle.status}
+                {formatEnum(selectedVehicle.status)}
               </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-xs">
             <div className="flex justify-between">
-              <span className="text-slate-600">Make/Model:</span>
+              <span className="text-white/60">Make/Model:</span>
               <span className="font-medium">
-                {selectedVehicle.make} {selectedVehicle.model}
+                {formatVehicleShortName(selectedVehicle)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-600">Location:</span>
+              <span className="text-white/60">Location:</span>
               <span className="font-medium">
                 {selectedVehicle.latitude?.toFixed(4)}, {selectedVehicle.longitude?.toFixed(4)}
               </span>
             </div>
             <div className="flex gap-2 mt-3">
-              <Button size="sm" className="flex-1 text-xs">
+              <Button size="sm" className="flex-1 text-xs" onClick={() => push({ id: selectedVehicle.id, type: 'vehicle', label: getVehicleLabel(selectedVehicle), data: { vehicleId: selectedVehicle.id } })}>
                 View Details
               </Button>
-              <Button size="sm" variant="outline" className="flex-1 text-xs">
+              <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => push({ type: 'dispatch' as any, label: `Dispatch ${getVehicleLabel(selectedVehicle)}`, data: { vehicleId: selectedVehicle.id } })}>
                 Dispatch
               </Button>
             </div>
@@ -346,21 +421,21 @@ export function OperationsHub() {
 
       {/* Quick Actions */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-slate-700">Quick Actions</h3>
+        <h3 className="text-sm font-semibold text-white/70">Quick Actions</h3>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => push({ type: 'work-order-create', label: 'New Job', data: {} })}>
             <Package className="h-4 w-4" />
             New Job
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigateTo('route-optimization')}>
             <Navigation className="h-4 w-4" />
             Optimize Routes
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigateTo('geofences')}>
             <MapPin className="h-4 w-4" />
             Add Geofence
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigateTo('dispatch-console')}>
             <Truck className="h-4 w-4" />
             Assign Vehicle
           </Button>
@@ -369,10 +444,28 @@ export function OperationsHub() {
     </div>
   );
 
+  const capacityLbs = selectedVehicle
+    ? Number(
+        (selectedVehicle as any).capacity_lbs ??
+          (selectedVehicle as any).payload_capacity_lbs ??
+          (selectedVehicle as any).metadata?.capacity_lbs ??
+          (selectedVehicle as any).metadata?.payload_capacity_lbs ??
+          0
+      )
+    : 0;
+  const currentLoadLbs = selectedVehicle
+    ? Number(
+        (selectedVehicle as any).current_load_lbs ??
+          (selectedVehicle as any).metadata?.current_load_lbs ??
+          0
+      )
+    : 0;
+  const loadPct = capacityLbs > 0 ? Math.round((currentLoadLbs / capacityLbs) * 100) : null;
+
   // Drawer Content for mobile
   const drawerContent = selectedVehicle && (
     <div className="space-y-2">
-      <h3 className="text-sm font-bold">Operations Details: {selectedVehicle.vehicleNumber}</h3>
+      <h3 className="text-sm font-bold">Operations Details: {getVehicleLabel(selectedVehicle)}</h3>
       <div className="space-y-3">
         <Card>
           <CardHeader>
@@ -380,15 +473,15 @@ export function OperationsHub() {
           </CardHeader>
           <CardContent className="text-sm space-y-2">
             <div className="flex justify-between">
-              <span className="text-slate-600">Make/Model:</span>
+              <span className="text-white/60">Make/Model:</span>
               <span className="font-medium">
-                {selectedVehicle.make} {selectedVehicle.model}
+                {formatVehicleShortName(selectedVehicle)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-600">Status:</span>
+              <span className="text-white/60">Status:</span>
               <Badge variant={selectedVehicle.status === 'active' ? 'default' : 'secondary'}>
-                {selectedVehicle.status}
+                {formatEnum(selectedVehicle.status)}
               </Badge>
             </div>
           </CardContent>
@@ -399,30 +492,54 @@ export function OperationsHub() {
             <CardTitle className="text-sm">Current Load</CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
-            <div className="flex justify-between">
-              <span className="text-slate-600">Capacity:</span>
-              <span className="font-medium">1,200 lbs</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Current:</span>
-              <span className="font-medium text-green-600">850 lbs (71%)</span>
-            </div>
-            <div className="h-2 bg-slate-200 rounded-full overflow-hidden mt-2">
-              <div className="h-full bg-green-500" style={{ width: '71%' }}></div>
-            </div>
+            {capacityLbs > 0 ? (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-white/60">Capacity:</span>
+                  <span className="font-medium">{formatNumber(capacityLbs)} lbs</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white/60">Current:</span>
+                  <span className="font-medium text-green-600">
+                    {formatNumber(currentLoadLbs)} lbs{loadPct != null ? ` (${loadPct}%)` : ''}
+                  </span>
+                </div>
+                <div className="h-2 bg-white/[0.08] rounded-full overflow-hidden mt-2">
+                  <div className="h-full bg-green-500" style={{ width: `${loadPct ?? 0}%` }}></div>
+                </div>
+              </>
+            ) : (
+              <div className="text-white/40 text-xs">
+                Load telemetry not available for this vehicle.
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
     </div>
   );
 
-  if (vehiclesLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <Package className="h-9 w-12 animate-spin mx-auto text-blue-800" />
-          <p className="mt-2 text-slate-600">Loading operations data...</p>
+          <Package className="h-9 w-12 animate-spin mx-auto text-emerald-800" />
+          <p className="mt-2 text-white/60">Loading operations data...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load operations data</p>
+        <p className="text-sm text-muted-foreground">
+          {hasError instanceof Error ? hasError.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
       </div>
     );
   }

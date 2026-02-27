@@ -6,7 +6,7 @@
  *
  * Features:
  * - GPS breadcrumb trail visualization
- * - Color gradient (blue = old, red/orange = recent)
+ * - Color gradient (emerald = old, red/orange = recent)
  * - Hover tooltips with timestamp, speed, address
  * - Toggle visibility
  * - Loading states and error handling
@@ -22,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
@@ -71,18 +72,18 @@ interface LocationHistoryResponse {
 // ============================================================================
 
 /**
- * Calculate color based on timestamp age (gradient from blue to red)
+ * Calculate color based on timestamp age (gradient from emerald to red)
  */
 function getColorForTimestamp(timestamp: string, oldestTime: number, newestTime: number): string {
   const time = new Date(timestamp).getTime();
   const range = newestTime - oldestTime;
   const position = range > 0 ? (time - oldestTime) / range : 0;
 
-  // Blue (old) to Red (new) gradient
+  // Emerald (old) to Red (new) gradient
   if (position < 0.25) {
-    return '#0066cc'; // Blue
+    return '#059669'; // Emerald
   } else if (position < 0.5) {
-    return '#00aacc'; // Cyan
+    return '#14b8a6'; // Teal
   } else if (position < 0.75) {
     return '#ffaa00'; // Orange
   } else {
@@ -94,7 +95,7 @@ function getColorForTimestamp(timestamp: string, oldestTime: number, newestTime:
  * Format speed for display
  */
 function formatSpeed(mph?: number): string {
-  if (mph === undefined || mph === null) return 'N/A';
+  if (mph === undefined || mph === null) return '—';
   return `${Math.round(mph)} mph`;
 }
 
@@ -102,7 +103,7 @@ function formatSpeed(mph?: number): string {
  * Format heading for display
  */
 function formatHeading(degrees?: number): string {
-  if (degrees === undefined || degrees === null) return 'N/A';
+  if (degrees === undefined || degrees === null) return '—';
   const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
   const index = Math.round(degrees / 45) % 8;
   return `${directions[index]} (${Math.round(degrees)}°)`;
@@ -144,7 +145,7 @@ export function VehicleHistoryTrail({
     });
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
-    return `/api/v1/vehicles/${vehicleId}/location-history?${params.toString()}`;
+    return `/api/vehicle-history/${vehicleId}/location-history?${params.toString()}`;
   }, [vehicleId, startDate, endDate]);
 
   // Fetch location history data
@@ -414,11 +415,11 @@ export function VehicleHistoryTrail({
             {/* Legend */}
             <div className="mt-2 flex items-center gap-2 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-[#0066cc]" />
+                <div className="w-4 h-4 rounded-full bg-emerald-600" />
                 <span>Oldest</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-[#00aacc]" />
+                <div className="w-4 h-4 rounded-full bg-teal-500" />
                 <span>Older</span>
               </div>
               <div className="flex items-center gap-2">
@@ -448,7 +449,7 @@ export function VehicleHistoryTrail({
                 </div>
                 <div>
                   <p className="text-muted-foreground">Total Points</p>
-                  <p className="font-semibold">{data.pagination.total.toLocaleString()}</p>
+                  <p className="font-semibold">{formatNumber(data.pagination.total)}</p>
                 </div>
               </div>
             )}

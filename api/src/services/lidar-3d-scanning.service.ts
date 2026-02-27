@@ -44,14 +44,13 @@ import {
  * LiDAR 3D Scanning Service
  */
 export class LiDAR3DScanningService {
-  private blobServiceClient: BlobServiceClient;
+  private blobServiceClient: BlobServiceClient | null;
   private containerName = 'lidar-scans';
 
   constructor() {
     const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
     if (!connectionString) {
       logger.warn('Azure Storage connection string not configured for LiDAR service - running in degraded mode');
-      // @ts-ignore - allow internal initialization to continue for development
       this.blobServiceClient = null;
     } else {
       this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
@@ -81,7 +80,7 @@ export class LiDAR3DScanningService {
       // Process point cloud
       const processedCloud = await this.processPointCloud(
         pointCloud,
-        request.processingOptions || {} as any
+        request.processingOptions || ({} as PointCloudProcessingOptions)
       );
 
       // Store scan metadata in database
@@ -106,7 +105,7 @@ export class LiDAR3DScanningService {
             scanId,
             processedCloud,
             format,
-            request.meshOptions || {} as any
+            request.meshOptions || ({} as MeshGenerationOptions)
           );
           models.push(model);
         } catch (error) {
@@ -150,10 +149,10 @@ export class LiDAR3DScanningService {
         damageDetected: damageAnnotations,
         volumeCalculation,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('LiDAR scan processing failed', { error, scanId });
 
-      await this.updateScanStatus(tenantId, scanId, 'failed', error.message);
+      await this.updateScanStatus(tenantId, scanId, 'failed', error instanceof Error ? error.message : 'An unexpected error occurred');
 
       throw error;
     }
@@ -180,7 +179,7 @@ export class LiDAR3DScanningService {
       [tenantId, scanId]
     );
 
-    const models = modelsResult.rows.map(this.parse3DModel);
+    const models = modelsResult.rows.map((row) => this.parse3DModel(row));
 
     // Get damage annotations
     const damageResult = await pool.query(
@@ -188,7 +187,7 @@ export class LiDAR3DScanningService {
       [tenantId, scanId]
     );
 
-    const damageAnnotations = damageResult.rows.map(this.parseDamageAnnotation);
+    const damageAnnotations = damageResult.rows.map((row) => this.parseDamageAnnotation(row));
 
     // Get volume calculations
     const volumeResult = await pool.query(
@@ -196,7 +195,7 @@ export class LiDAR3DScanningService {
       [tenantId, scanId]
     );
 
-    const volumeCalculations = volumeResult.rows.map(this.parseVolumeCalculation);
+    const volumeCalculations = volumeResult.rows.map((row) => this.parseVolumeCalculation(row));
 
     // Get AR data if available
     const arData = models.length > 0 ? await this.generateARData(models) : undefined;
@@ -294,13 +293,13 @@ export class LiDAR3DScanningService {
         `SELECT * FROM lidar_damage_annotations WHERE tenant_id = $1 AND scan_id = $2 AND annotation_id = ANY($3)`,
         [tenantId, scanId, damageAnnotations]
       );
-      annotations = result.rows.map(this.parseDamageAnnotation);
+      annotations = result.rows.map((row) => this.parseDamageAnnotation(row));
     } else {
       const result = await pool.query(
         `SELECT * FROM lidar_damage_annotations WHERE tenant_id = $1 AND scan_id = $2`,
         [tenantId, scanId]
       );
-      annotations = result.rows.map(this.parseDamageAnnotation);
+      annotations = result.rows.map((row) => this.parseDamageAnnotation(row));
     }
 
     return await this.calculateVolumes(tenantId, scanId, pointCloud, annotations, method);
@@ -540,7 +539,9 @@ export class LiDAR3DScanningService {
       const nearestDistances: number[] = [];
 
       for (let j = 0; j < points.length; j++) {
-        if (i === j) continue;
+        if (i === j) {
+continue;
+}
 
         const other = points[j];
         const dist = Math.sqrt(
@@ -585,7 +586,9 @@ export class LiDAR3DScanningService {
           Math.pow(point.y - other.y, 2) +
           Math.pow(point.z - other.z, 2)
         );
-        if (dist <= radius) neighborCount++;
+        if (dist <= radius) {
+neighborCount++;
+}
       }
       return neighborCount >= Math.max(3, points.length * threshold);
     });
@@ -692,7 +695,9 @@ export class LiDAR3DScanningService {
       smoothed = smoothed.map((point, i) => {
         // Find k-nearest neighbors (simplified: use all points within distance)
         const neighbors = smoothed.filter((other, j) => {
-          if (i === j) return false;
+          if (i === j) {
+return false;
+}
           const dist = Math.sqrt(
             Math.pow(point.x - other.x, 2) +
             Math.pow(point.y - other.y, 2) +
@@ -701,7 +706,9 @@ export class LiDAR3DScanningService {
           return dist < 0.05; // 5cm radius
         });
 
-        if (neighbors.length === 0) return point;
+        if (neighbors.length === 0) {
+return point;
+}
 
         // Average position with neighbors
         const avgX = (point.x + neighbors.reduce((sum, p) => sum + p.x, 0)) / (neighbors.length + 1);
@@ -779,9 +786,9 @@ export class LiDAR3DScanningService {
       await this.storeModelMetadata(tenantId, model);
 
       return model;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('3D model generation failed', { error, scanId, format });
-      throw new ModelGenerationError(`Failed to generate ${format} model: ${error.message}`);
+      throw new ModelGenerationError(`Failed to generate ${format} model: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -1188,7 +1195,9 @@ export class LiDAR3DScanningService {
     const threshold = 0.05; // 5cm
 
     for (let i = 0; i < pointCloud.length; i++) {
-      if (visited.has(i)) continue;
+      if (visited.has(i)) {
+continue;
+}
 
       const region: LiDARPoint[] = [];
       const queue = [i];
@@ -1201,7 +1210,9 @@ export class LiDAR3DScanningService {
 
         // Find nearby points
         for (let j = 0; j < pointCloud.length; j++) {
-          if (visited.has(j)) continue;
+          if (visited.has(j)) {
+continue;
+}
 
           const other = pointCloud[j];
           const dist = Math.sqrt(
@@ -1287,7 +1298,9 @@ export class LiDAR3DScanningService {
     const damageVolumes = damageAnnotations.map(annotation => {
       // Extract points in damage region
       const damagePoints = pointCloud.filter(p => {
-        if (!annotation.boundingBox) return false;
+        if (!annotation.boundingBox) {
+return false;
+}
         return (
           p.x >= annotation.boundingBox.minX &&
           p.x <= annotation.boundingBox.maxX &&
@@ -1303,7 +1316,7 @@ export class LiDAR3DScanningService {
       const depth = annotation.depth || 0;
 
       return {
-        annotationId: annotation.annotationId!,
+        annotationId: annotation.annotationId,
         volume,
         surfaceArea: area,
         depth,
@@ -1349,7 +1362,9 @@ export class LiDAR3DScanningService {
    * Calculate convex hull volume (simplified)
    */
   private calculateConvexHullVolume(points: LiDARPoint[]): number {
-    if (points.length < 4) return 0;
+    if (points.length < 4) {
+return 0;
+}
 
     // Simplified volume calculation using bounding box
     // Real implementation would use QuickHull or similar algorithm
@@ -1365,7 +1380,9 @@ export class LiDAR3DScanningService {
    * Calculate surface area
    */
   private calculateSurfaceArea(points: LiDARPoint[]): number {
-    if (points.length < 3) return 0;
+    if (points.length < 3) {
+return 0;
+}
 
     // Simplified area calculation
     const bbox = this.calculateBoundingBox(points);
@@ -1620,6 +1637,9 @@ export class LiDAR3DScanningService {
     scanId: string,
     pointCloud: LiDARPoint[]
   ): Promise<string> {
+    if (!this.blobServiceClient) {
+      throw new Error('Azure Blob Storage client is not configured. Set AZURE_STORAGE_CONNECTION_STRING environment variable.');
+    }
     const containerClient = this.blobServiceClient.getContainerClient(this.containerName);
     await containerClient.createIfNotExists();
 
@@ -1638,6 +1658,9 @@ export class LiDAR3DScanningService {
     format: Model3DFormat,
     data: Buffer | string
   ): Promise<string> {
+    if (!this.blobServiceClient) {
+      throw new Error('Azure Blob Storage client is not configured. Set AZURE_STORAGE_CONNECTION_STRING environment variable.');
+    }
     const containerClient = this.blobServiceClient.getContainerClient(this.containerName);
     await containerClient.createIfNotExists();
 
@@ -1651,6 +1674,9 @@ export class LiDAR3DScanningService {
   }
 
   private async loadPointCloudFromStorage(tenantId: string, scanId: string): Promise<LiDARPoint[]> {
+    if (!this.blobServiceClient) {
+      throw new Error('Azure Blob Storage client is not configured. Set AZURE_STORAGE_CONNECTION_STRING environment variable.');
+    }
     const containerClient = this.blobServiceClient.getContainerClient(this.containerName);
     const blobName = `${tenantId}/scans/${scanId}/pointcloud.json`;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);

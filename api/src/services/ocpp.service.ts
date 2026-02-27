@@ -18,6 +18,8 @@ import { EventEmitter } from 'events';
 import { Pool } from 'pg';
 import WebSocket from 'ws';
 
+import logger from '../config/logger';
+
 // OCPP 2.0.1 Message Types
 enum MessageType {
   CALL = 2,           // Request
@@ -138,7 +140,7 @@ interface ChargingProfile {
 class OCPPService extends EventEmitter {
   private db: Pool;
   private connections: Map<string, WebSocket>;
-  private pendingCalls: Map<string, { resolve: Function; reject: Function; timeout: NodeJS.Timeout }>;
+  private pendingCalls: Map<string, { resolve: (value: unknown) => void; reject: (reason?: unknown) => void; timeout: NodeJS.Timeout }>;
   private messageIdCounter: number;
 
   constructor(db: Pool) {
@@ -167,20 +169,20 @@ class OCPPService extends EventEmitter {
       );
 
       if (result.rows.length === 0) {
-        console.error(`Station ${stationId} not found in database`);
+        logger.error('Station not found in database', { stationId });
         return false;
       }
 
       const station = result.rows[0];
 
       if (!station.ws_url) {
-        console.error(`Station ${stationId} has no WebSocket URL configured`);
+        logger.error('Station has no WebSocket URL configured', { stationId });
         return false;
       }
 
       // Check if already connected
       if (this.connections.has(stationId)) {
-        console.log(`Station ${stationId} already connected`);
+        logger.info('Station already connected', { stationId });
         return true;
       }
 
@@ -188,20 +190,20 @@ class OCPPService extends EventEmitter {
       const ws = new WebSocket(station.ws_url, `ocpp2.0.1`);
 
       ws.on(`open`, () => {
-        console.log(`✅ Connected to station ${stationId}`);
+        logger.info('Connected to station', { stationId });
         this.connections.set(stationId, ws);
-        this.updateStationStatus(stationId, { is_online: true, last_heartbeat: new Date() });
+        void this.updateStationStatus(stationId, { is_online: true, last_heartbeat: new Date() });
         this.emit('stationConnected', stationId);
       });
 
       ws.on('message', (data: Buffer) => {
-        this.handleMessage(stationId, data.toString());
+        void this.handleMessage(stationId, data.toString());
       });
 
       ws.on(`close`, () => {
-        console.log(`❌ Disconnected from station ${stationId}`);
+        logger.info('Disconnected from station', { stationId });
         this.connections.delete(stationId);
-        this.updateStationStatus(stationId, { is_online: false });
+        void this.updateStationStatus(stationId, { is_online: false });
         this.emit('stationDisconnected', stationId);
 
         // Attempt reconnection after 30 seconds
@@ -209,13 +211,13 @@ class OCPPService extends EventEmitter {
       });
 
       ws.on(`error`, (error) => {
-        console.error(`WebSocket error for station ${stationId}:`, error.message);
+        logger.error('WebSocket error for station', { stationId, error: error.message });
         this.emit('stationError', { stationId, error: error.message });
       });
 
       return true;
-    } catch (error: any) {
-      console.error(`Error connecting to station ${stationId}:`, error.message);
+    } catch (error: unknown) {
+      logger.error('Error connecting to station', { stationId, error: error instanceof Error ? error.message : 'An unexpected error occurred' });
       return false;
     }
   }
@@ -247,8 +249,8 @@ class OCPPService extends EventEmitter {
           this.handleCallError(messageId, actionOrErrorCode as string, payload);
           break;
       }
-    } catch (error: any) {
-      console.error(`Error handling message from ${stationId}:`, error.message);
+    } catch (error: unknown) {
+      logger.error('Error handling message from station', { stationId, error: error instanceof Error ? error.message : 'An unexpected error occurred' });
     }
   }
 
@@ -281,15 +283,15 @@ class OCPPService extends EventEmitter {
           break;
 
         default:
-          console.warn(`Unhandled action: ${action}`);
+          logger.warn('Unhandled action', { action });
           response = {};
       }
 
       // Send CALLRESULT
       this.sendCallResult(stationId, messageId, response);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Send CALLERROR
-      this.sendCallError(stationId, messageId, `InternalError`, error.message);
+      this.sendCallError(stationId, messageId, `InternalError`, error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 
@@ -297,7 +299,7 @@ class OCPPService extends EventEmitter {
    * Handle BootNotification
    */
   private async handleBootNotification(stationId: string, payload: any): Promise<any> {
-    console.log(`📡 Boot notification from ${stationId}:`, payload);
+    logger.info('Boot notification received', { stationId, payload });
 
     // Update station info
     await this.db.query(
@@ -335,7 +337,7 @@ class OCPPService extends EventEmitter {
   private async handleStatusNotification(stationId: string, payload: any): Promise<any> {
     const { connectorId, connectorStatus, evseId } = payload;
 
-    console.log(`📊 Status update from ${stationId} connector ${connectorId}: ${connectorStatus}`);
+    logger.info('Status update from station connector', { stationId, connectorId, connectorStatus });
 
     // Update connector status
     await this.db.query(
@@ -360,7 +362,7 @@ class OCPPService extends EventEmitter {
   private async handleTransactionEvent(stationId: string, payload: any): Promise<any> {
     const { eventType, transactionInfo, meterValue, idToken } = payload;
 
-    console.log(`💳 Transaction event from ${stationId}: ${eventType}`, transactionInfo);
+    logger.info('Transaction event received', { stationId, eventType, transactionInfo });
 
     if (eventType === `Started`) {
       // Start new charging session
@@ -506,7 +508,7 @@ class OCPPService extends EventEmitter {
 
     if (response.status === `Accepted`) {
       // Will create session when TransactionEvent is received
-      console.log(`✅ Remote start accepted for station ${stationId}`);
+      logger.info('Remote start accepted for station', { stationId });
     }
 
     return response;
@@ -621,7 +623,7 @@ class OCPPService extends EventEmitter {
       ws.send(JSON.stringify(message));
 
       // Log message
-      this.logOCPPMessage(stationId, `Outbound`, MessageType.CALL, action, payload, messageId);
+      void this.logOCPPMessage(stationId, `Outbound`, MessageType.CALL, action, payload, messageId);
     });
   }
 
@@ -637,7 +639,7 @@ return;
     const message = [MessageType.CALLRESULT, messageId, payload];
     ws.send(JSON.stringify(message));
 
-    this.logOCPPMessage(stationId, 'Outbound', MessageType.CALLRESULT, '', payload, messageId);
+    void this.logOCPPMessage(stationId, 'Outbound', MessageType.CALLRESULT, '', payload, messageId);
   }
 
   /**
@@ -652,7 +654,7 @@ return;
     const message = [MessageType.CALLERROR, messageId, errorCode, errorDescription, {}];
     ws.send(JSON.stringify(message));
 
-    this.logOCPPMessage(stationId, `Outbound`, MessageType.CALLERROR, errorCode, { errorDescription }, messageId);
+    void this.logOCPPMessage(stationId, `Outbound`, MessageType.CALLERROR, errorCode, { errorDescription }, messageId);
   }
 
   /**

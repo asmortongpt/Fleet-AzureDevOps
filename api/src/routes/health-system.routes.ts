@@ -65,11 +65,13 @@ async function checkDatabase(): Promise<HealthCheck> {
       poolStats,
       threshold: '100ms'
     }
-  } catch (error: any) {
-    telemetryService.trackError(error, { context: 'database-health-check' })
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      telemetryService.trackError(error, { context: 'database-health-check' })
+    }
     return {
       status: 'unhealthy',
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     }
   }
 }
@@ -100,13 +102,15 @@ async function checkRedis(): Promise<HealthCheck> {
       }
     }
 
-    const redis = new Redis.default(process.env.REDIS_URL || {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD,
-      maxRetriesPerRequest: 1,
-      connectTimeout: 2000
-    })
+    const redis = process.env.REDIS_URL
+      ? new Redis.default(process.env.REDIS_URL)
+      : new Redis.default({
+          host: process.env.REDIS_HOST || 'localhost',
+          port: parseInt(process.env.REDIS_PORT || '6379'),
+          password: process.env.REDIS_PASSWORD,
+          maxRetriesPerRequest: 1,
+          connectTimeout: 2000
+        })
 
     // Test connection with ping
     await redis.ping()
@@ -122,11 +126,13 @@ async function checkRedis(): Promise<HealthCheck> {
       version: info.match(/redis_version:([^\r\n]+)/)?.[1] || 'unknown',
       threshold: '50ms'
     }
-  } catch (error: any) {
-    telemetryService.trackError(error, { context: 'redis-health-check' })
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      telemetryService.trackError(error, { context: 'redis-health-check' })
+    }
     return {
       status: 'unhealthy',
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     }
   }
 }
@@ -153,14 +159,15 @@ function checkMemory(): HealthCheck {
   const heapPercentage = Math.round((heapUsedMB / heapLimitMB) * 100)
   const systemMemoryPercentage = Math.round(((totalMemory - freeMemory) / totalMemory) * 100)
 
-  // Determine status based on memory usage
+  // Determine status based on memory usage (relaxed for dev environments)
+  const isDev = process.env.NODE_ENV !== 'production'
   const warningThresholds = {
-    heap: 75,
-    system: 85
+    heap: isDev ? 90 : 75,
+    system: isDev ? 95 : 85
   }
   const criticalThresholds = {
-    heap: 90,
-    system: 95
+    heap: isDev ? 98 : 90,
+    system: isDev ? 99 : 95
   }
 
   let status: 'healthy' | 'warning' | 'unhealthy' = 'healthy'
@@ -204,11 +211,12 @@ function checkDisk(): HealthCheck {
     const usedGB = totalGB - availableGB
     const usedPercentage = Math.round((usedGB / totalGB) * 100)
 
-    // Determine status based on disk usage
+    // Determine status based on disk usage (relaxed for dev environments)
+    const isDev = process.env.NODE_ENV !== 'production'
     let status: 'healthy' | 'warning' | 'unhealthy' = 'healthy'
-    if (availableGB <= 1 || usedPercentage >= 95) {
+    if (availableGB <= (isDev ? 0.5 : 1) || usedPercentage >= (isDev ? 99 : 95)) {
       status = 'unhealthy'
-    } else if (availableGB <= 5 || usedPercentage >= 90) {
+    } else if (availableGB <= (isDev ? 2 : 5) || usedPercentage >= (isDev ? 95 : 90)) {
       status = 'warning'
     }
 
@@ -220,16 +228,16 @@ function checkDisk(): HealthCheck {
       usedPercentage,
       path: process.cwd(),
       thresholds: {
-        warning: '5GB or 90% used',
-        critical: '1GB remaining'
+        warning: isDev ? '2GB or 95% used' : '5GB or 90% used',
+        critical: isDev ? '0.5GB remaining' : '1GB remaining'
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     // If statfs fails, provide basic info
     return {
       status: 'warning',
       message: 'Disk check not available on this platform',
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     }
   }
 }
@@ -321,11 +329,11 @@ router.get('/simple', async (req: Request, res: Response) => {
       status: 'ok',
       timestamp: new Date().toISOString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(503).json({
       status: 'error',
       timestamp: new Date().toISOString(),
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -343,11 +351,11 @@ router.get('/ready', async (req: Request, res: Response) => {
       status: 'ready',
       timestamp: new Date().toISOString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(503).json({
       status: 'not_ready',
       timestamp: new Date().toISOString(),
-      reason: error.message
+      reason: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })

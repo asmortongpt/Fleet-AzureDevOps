@@ -21,6 +21,8 @@ import React, { ReactNode, KeyboardEvent } from 'react'
 
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName, formatVehicleShortName } from '@/utils/vehicle-display'
 
 export interface DrilldownListItem {
   id: string | number
@@ -179,7 +181,6 @@ export function DrilldownList<T extends DrilldownListItem>({
                 ],
                 variant === 'cards' && [
                   'px-2 py-3 rounded-lg border bg-card hover:bg-muted/30',
-                  'shadow-sm hover:shadow-md',
                 ],
                 variant === 'striped' && [
                   'px-2 py-3 hover:bg-muted/50',
@@ -261,7 +262,7 @@ export function DrilldownVehicleList({
       items={vehicles}
       recordType="vehicle"
       getRecordId={(v) => v.id}
-      getRecordLabel={(v) => v.name || v.number || `Vehicle ${v.id}`}
+      getRecordLabel={(v) => v.name || formatVehicleName(v)}
       getRecordData={(v) => ({ vehicleId: v.id })}
       loading={loading}
       emptyMessage={emptyMessage}
@@ -271,11 +272,11 @@ export function DrilldownVehicleList({
         <div className="flex items-center justify-between">
           <div>
             <div className="font-medium">
-              {vehicle.name || vehicle.number || `Vehicle ${vehicle.id}`}
+              {vehicle.name || formatVehicleName(vehicle)}
             </div>
             {vehicle.make && vehicle.model && (
               <div className="text-sm text-muted-foreground">
-                {vehicle.make} {vehicle.model}
+                {formatVehicleShortName(vehicle)}
               </div>
             )}
           </div>
@@ -286,10 +287,10 @@ export function DrilldownVehicleList({
                 vehicle.status === 'active' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
                 vehicle.status === 'idle' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
                 vehicle.status === 'service' && 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-                vehicle.status === 'offline' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
+                vehicle.status === 'offline' && 'bg-white/[0.06] text-white/60'
               )}
             >
-              {vehicle.status}
+              {formatEnum(vehicle.status)}
             </span>
           )}
         </div>
@@ -353,11 +354,11 @@ export function DrilldownDriverList({
               className={cn(
                 'px-2 py-1 text-xs rounded-full',
                 driver.status === 'on-duty' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-                driver.status === 'off-duty' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600',
-                driver.status === 'driving' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700'
+                driver.status === 'off-duty' && 'bg-white/[0.06] text-white/60',
+                driver.status === 'driving' && 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700'
               )}
             >
-              {driver.status}
+              {formatEnum(driver.status)}
             </span>
           )}
         </div>
@@ -435,10 +436,10 @@ export function DrilldownWorkOrderList({
               <span
                 className={cn(
                   'px-2 py-1 text-xs rounded-full',
-                  workOrder.status === 'open' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700',
+                  workOrder.status === 'pending' && 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700',
                   workOrder.status === 'in-progress' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
                   workOrder.status === 'completed' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-                  workOrder.status === 'cancelled' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
+                  workOrder.status === 'cancelled' && 'bg-white/[0.06] text-white/60'
                 )}
               >
                 {workOrder.status}
@@ -508,7 +509,7 @@ export function DrilldownRecordList({
           </div>
           {showStatus && record.status && (
             <span className="px-2 py-1 text-xs rounded-full bg-muted">
-              {record.status}
+              {formatEnum(record.status)}
             </span>
           )}
         </div>

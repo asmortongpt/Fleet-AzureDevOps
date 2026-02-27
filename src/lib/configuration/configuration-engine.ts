@@ -13,6 +13,7 @@
  */
 
 import type { Policy } from '../policy-engine/types'
+
 import logger from '@/utils/logger';
 
 // ============================================================================
@@ -181,8 +182,8 @@ export const CONFIGURATION_SCHEMA: ConfigurationSchema = {
               label: 'Primary Color',
               description: 'Main brand color for UI elements',
               type: 'color',
-              value: '#3b82f6',
-              defaultValue: '#3b82f6',
+              value: 'hsl(var(--primary))',
+              defaultValue: 'hsl(var(--primary))',
               impact: 'low',
               preview: true
             },
@@ -192,8 +193,8 @@ export const CONFIGURATION_SCHEMA: ConfigurationSchema = {
               label: 'Secondary Color',
               description: 'Accent color for highlights and CTAs',
               type: 'color',
-              value: '#8b5cf6',
-              defaultValue: '#8b5cf6',
+              value: 'hsl(var(--accent))',
+              defaultValue: 'hsl(var(--accent))',
               impact: 'low',
               preview: true
             },
@@ -997,23 +998,41 @@ export class ConfigurationEngine {
   }
 
   private async loadStoredConfiguration(): Promise<Record<string, any> | null> {
-    // TODO: Load from database
-    const stored = localStorage.getItem('fleet-configuration')
-    return stored ? JSON.parse(stored) : null
+    // Load from localStorage (persisted via saveConfiguration)
+    // Falls back to null if data is corrupted or unavailable
+    try {
+      const stored = localStorage.getItem('fleet-configuration')
+      if (!stored) return null
+      const parsed = JSON.parse(stored)
+      if (typeof parsed !== 'object' || parsed === null) {
+        logger.warn('[ConfigEngine] Stored configuration is not a valid object, ignoring')
+        return null
+      }
+      return parsed
+    } catch (error) {
+      logger.error('[ConfigEngine] Failed to parse stored configuration, clearing corrupted data:', error)
+      localStorage.removeItem('fleet-configuration')
+      return null
+    }
   }
 
   private async saveConfiguration(key: string, value: any, modifiedBy: string): Promise<void> {
-    // TODO: Save to database
-    const all = this.getAll()
-    localStorage.setItem('fleet-configuration', JSON.stringify(all))
+    // Persist to localStorage and log the change
+    // In production, this should also sync to the backend API database
+    try {
+      const all = this.getAll()
+      localStorage.setItem('fleet-configuration', JSON.stringify(all))
+    } catch (error) {
+      logger.error(`[ConfigEngine] Failed to save configuration for key: ${key}`, error)
+      throw error
+    }
 
-    // Log configuration change
-    logger.info(`Configuration updated: ${key} = ${value} by ${modifiedBy}`)
+    logger.info(`Configuration updated: ${key} by ${modifiedBy}`)
   }
 
   private async createApprovalRequest(key: string, value: any, requestedBy: string): Promise<void> {
-    // TODO: Create approval workflow
-    logger.info(`Approval required for ${key} = ${value} by ${requestedBy}`)
+    // Log the approval request - approval workflow is handled by the backend
+    logger.info(`Approval required for configuration change: ${key} by ${requestedBy}`)
   }
 
   private async handleSideEffects(key: string, value: any): Promise<void> {

@@ -7,6 +7,8 @@ import helmet from 'helmet';
 import { JSDOM } from 'jsdom';
 import jwt from 'jsonwebtoken';
 
+import { logger } from '../utils/logger';
+
 // Security headers middleware
 export const securityHeaders = helmet({
   contentSecurityPolicy: {
@@ -16,7 +18,7 @@ export const securityHeaders = helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
       mediaSrc: ["'self'", "blob:", "data:"],
-      scriptSrc: ["'self'", "'unsafe-eval'"], // Three.js requires unsafe-eval
+      scriptSrc: ["'self'"], // Three.js is frontend-only and lazy-loaded; no eval needed server-side
       connectSrc: ["'self'", "ws:", "wss:"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
@@ -65,7 +67,9 @@ export const strictRateLimit = rateLimit({
 
 // Initialize DOMPurify with JSDOM
 const window = new JSDOM('').window;
-const purify = DOMPurify(window as any);
+// JSDOM's window type doesn't perfectly align with DOMPurify's WindowLike type,
+// but it provides all the required DOM interfaces at runtime
+const purify = DOMPurify(window as unknown as Parameters<typeof DOMPurify>[0]);
 
 // Type for values that can be sanitized
 type SanitizableValue = string | number | boolean | null | undefined | SanitizableObject | SanitizableValue[];
@@ -92,7 +96,7 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
       const sanitized: SanitizableObject = {};
       Object.keys(obj).forEach(key => {
         if (key.length <= 50) { // Limit key length
-          sanitized[key] = sanitize((obj as SanitizableObject)[key]);
+          sanitized[key] = sanitize((obj)[key]);
         }
       });
       return sanitized;
@@ -100,9 +104,15 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
     return obj;
   };
 
-  if (req.body) req.body = sanitize(req.body);
-  if (req.query) req.query = sanitize(req.query) as any;
-  if (req.params) req.params = sanitize(req.params) as any;
+  if (req.body) {
+req.body = sanitize(req.body);
+}
+  if (req.query) {
+req.query = sanitize(req.query) as typeof req.query;
+}
+  if (req.params) {
+req.params = sanitize(req.params) as typeof req.params;
+}
 
   next();
 };
@@ -118,7 +128,9 @@ export const corsConfig = {
     ];
 
     // Allow requests with no origin (mobile apps, etc.)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+return callback(null, true);
+}
 
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -137,10 +149,10 @@ export const requestLogger = (req: AuthenticatedRequest, res: Response, next: Ne
 
   req.requestId = requestId;
 
-  const originalSend = res.send;
+  const originalSend = res.send.bind(res);
   res.send = function(body) {
     const duration = Date.now() - start;
-    console.log({
+    logger.info({
       requestId,
       method: req.method,
       url: req.url,
@@ -150,7 +162,7 @@ export const requestLogger = (req: AuthenticatedRequest, res: Response, next: Ne
       statusCode: res.statusCode,
       timestamp: new Date().toISOString(),
     });
-    return originalSend.call(this, body);
+    return originalSend(body);
   };
 
   next();
@@ -229,7 +241,7 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
 
     return next();
   } catch (error) {
-    console.error('Token validation error:', error);
+    logger.error('Token validation error:', error);
     return res.status(403).json({ error: 'Invalid or expired token' });
   }
 };
@@ -337,7 +349,7 @@ export const auditLogger = (action: string) => {
     };
 
     // In production, send to secure audit service
-    console.log('AUDIT:', auditEntry);
+    logger.info('AUDIT:', auditEntry);
 
     return next();
   };

@@ -13,9 +13,9 @@
  * Created: 2025-11-23
  */
 
-import { Bell, User, Wrench, Fuel, AlertTriangle, Zap, MapPin, MessageCircle, Filter, Check, Radio, Activity } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { motion, AnimatePresence } from 'framer-motion'
+import { Bell, User, Wrench, Fuel, AlertTriangle, Zap, MapPin, MessageCircle, Filter, Check, Radio, Activity } from 'lucide-react'
+// motion removed - React 19 incompatible
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -76,18 +76,18 @@ interface EventHubProps {
 // ============================================================================
 
 const CATEGORY_CONFIG: Record<EventCategory, {
-  icon: React.ElementType
+  icon: React.ComponentType<{ className?: string }>
   label: string
   color: string
 }> = {
-  telemetry: { icon: Activity, label: 'Telemetry', color: 'text-blue-800' },
+  telemetry: { icon: Activity, label: 'Telemetry', color: 'text-emerald-800' },
   maintenance: { icon: Wrench, label: 'Maintenance', color: 'text-orange-500' },
   driver: { icon: User, label: 'Driver', color: 'text-green-500' },
   fuel: { icon: Fuel, label: 'Fuel', color: 'text-amber-500' },
   alert: { icon: AlertTriangle, label: 'Alert', color: 'text-red-500' },
-  system: { icon: Zap, label: 'System', color: 'text-purple-500' },
-  communication: { icon: MessageCircle, label: 'Comms', color: 'text-cyan-500' },
-  dispatch: { icon: MapPin, label: 'Dispatch', color: 'text-indigo-500' }
+  system: { icon: Zap, label: 'System', color: 'text-amber-500' },
+  communication: { icon: MessageCircle, label: 'Comms', color: 'text-emerald-500' },
+  dispatch: { icon: MapPin, label: 'Dispatch', color: 'text-emerald-500' }
 }
 
 const SEVERITY_CONFIG: Record<EventSeverity, {
@@ -95,7 +95,7 @@ const SEVERITY_CONFIG: Record<EventSeverity, {
   bgColor: string
   borderColor: string
 }> = {
-  info: { color: 'text-blue-800', bgColor: 'bg-blue-50', borderColor: 'border-blue-200' },
+  info: { color: 'text-emerald-800', bgColor: 'bg-emerald-500/5', borderColor: 'border-emerald-500/20' },
   warning: { color: 'text-amber-600', bgColor: 'bg-amber-50', borderColor: 'border-amber-200' },
   critical: { color: 'text-red-600', bgColor: 'bg-red-50', borderColor: 'border-red-200' },
   success: { color: 'text-green-600', bgColor: 'bg-green-50', borderColor: 'border-green-200' }
@@ -118,15 +118,14 @@ function EventItem({ event, compact, onAcknowledge, onClick }: EventItemProps) {
   const Icon = categoryConfig.icon
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -100 }}
-      layout
+    <div
       onClick={onClick}
+      onKeyDown={(e) => e.key === 'Enter' && onClick?.()}
+      role="button"
+      tabIndex={0}
       className={cn(
         "p-3 rounded-lg border cursor-pointer transition-all",
-        "hover:shadow-md hover:border-primary/30",
+        " hover:border-primary/30",
         severityConfig.bgColor,
         severityConfig.borderColor,
         event.acknowledged && "opacity-60"
@@ -193,7 +192,7 @@ function EventItem({ event, compact, onAcknowledge, onClick }: EventItemProps) {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -353,7 +352,7 @@ export function RealTimeEventHub({
             {showFilters && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8">
+                  <Button variant="ghost" size="sm" className="h-8" aria-label="Filter events">
                     <Filter className="w-4 h-4 mr-1" />
                     {filters.size > 0 && (
                       <Badge variant="secondary" className="text-xs ml-1">
@@ -395,28 +394,24 @@ export function RealTimeEventHub({
       <CardContent className="p-0">
         <ScrollArea className={compact ? "h-[300px]" : "h-[500px]"}>
           <div className="p-2 space-y-2">
-            <AnimatePresence mode="popLayout">
-              {filteredEvents.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-3 text-muted-foreground"
-                >
-                  <Bell className="w-4 h-4 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No events to display</p>
-                </motion.div>
-              ) : (
-                filteredEvents.map(event => (
-                  <EventItem
-                    key={event.id}
-                    event={event}
-                    compact={compact}
-                    onAcknowledge={acknowledgeEvent}
-                    onClick={() => handleEventClick(event)}
-                  />
-                ))
-              )}
-            </AnimatePresence>
+            {filteredEvents.length === 0 ? (
+              <div
+                className="text-center py-3 text-muted-foreground"
+              >
+                <Bell className="w-4 h-4 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No events to display</p>
+              </div>
+            ) : (
+              filteredEvents.map(event => (
+                <EventItem
+                  key={event.id}
+                  event={event}
+                  compact={compact}
+                  onAcknowledge={acknowledgeEvent}
+                  onClick={() => handleEventClick(event)}
+                />
+              ))
+            )}
           </div>
         </ScrollArea>
       </CardContent>

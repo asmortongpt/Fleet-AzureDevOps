@@ -28,7 +28,7 @@
       "encoding": {
         "x": {"field": "shop_name", "type": "nominal"},
         "y": {"field": "hours", "type": "quantitative", "aggregate": "sum"},
-        "color": {"field": "labor_type", "type": "nominal", "scale": {"domain": ["Direct", "Indirect"], "range": ["#3b82f6", "#f59e0b"]}}
+        "color": {"field": "labor_type", "type": "nominal", "scale": {"domain": ["Direct", "Indirect"], "range": ["#10b981", "#f59e0b"]}}
       },
       "layout": {"x": 0, "y": 2, "w": 12, "h": 4}
     }

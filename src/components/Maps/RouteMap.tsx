@@ -4,49 +4,44 @@
  */
 
 import { AlertCircle, Route, MapPin } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 
 import { GoogleMapView } from './GoogleMapView'
 
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useVehicles } from '@/hooks/use-api'
+import { useFleetData } from '@/hooks/use-fleet-data'
 import { Vehicle } from '@/types/Vehicle'
 
 export interface RouteMapProps {
   className?: string
 }
 
-// Sample route data - in production, this would come from an API
-const SAMPLE_ROUTES = [
-  // Route 1: North route
-  [
-    { lat: 30.4383, lng: -84.2807 }, // Tallahassee
-    { lat: 30.5383, lng: -84.3807 },
-    { lat: 30.6383, lng: -84.4807 },
-    { lat: 30.7383, lng: -84.5807 }
-  ],
-  // Route 2: South route
-  [
-    { lat: 30.4383, lng: -84.2807 }, // Tallahassee
-    { lat: 30.3383, lng: -84.1807 },
-    { lat: 30.2383, lng: -84.0807 },
-    { lat: 30.1383, lng: -83.9807 }
-  ],
-  // Route 3: East route
-  [
-    { lat: 30.4383, lng: -84.2807 }, // Tallahassee
-    { lat: 30.4383, lng: -84.1807 },
-    { lat: 30.4383, lng: -84.0807 },
-    { lat: 30.4383, lng: -83.9807 }
-  ]
-]
-
 export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
   const [showRoutes, setShowRoutes] = useState(true)
 
   // Fetch vehicles - filter only those with active routes
   const { data: vehicles, isLoading, error } = useVehicles()
+  const { routes: routeData } = useFleetData()
+
+  // Convert route data to coordinate arrays for the map
+  const routeCoordinates = useMemo(() => {
+    if (!routeData || routeData.length === 0) return []
+    return routeData
+      .map((route: any) => {
+        // Extract coordinate arrays from route waypoints/geometry
+        const waypoints = route.waypoints || route.coordinates || route.geometry?.coordinates || []
+        if (Array.isArray(waypoints) && waypoints.length >= 2) {
+          return waypoints.map((wp: any) => {
+            if (Array.isArray(wp)) return { lat: wp[1], lng: wp[0] } // GeoJSON [lng, lat]
+            return { lat: wp.lat ?? wp.latitude, lng: wp.lng ?? wp.longitude }
+          }).filter((c: any) => c.lat != null && c.lng != null)
+        }
+        return null
+      })
+      .filter((r): r is { lat: number; lng: number }[] => r !== null && r.length >= 2)
+  }, [routeData])
 
   // Filter to only active vehicles (those in transit)
   // Cast to full Vehicle type since the API returns complete vehicle data
@@ -58,7 +53,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
 
   if (isLoading) {
     return (
-      <div className="w-full h-full p-2 space-y-3 bg-gradient-to-b from-slate-900/50 to-transparent">
+      <div className="w-full h-full p-2 space-y-3 bg-gradient-to-b from-[#111]/50 to-transparent">
         <Skeleton className="h-8 w-1/4" />
         <Skeleton className="h-full w-full" />
       </div>
@@ -67,11 +62,11 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center w-full h-full bg-gradient-to-b from-slate-900/50 to-transparent p-3">
+      <div className="flex items-center justify-center w-full h-full bg-gradient-to-b from-[#111]/50 to-transparent p-3">
         <div className="text-center max-w-md p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
           <AlertCircle className="w-12 h-9 text-red-500 mx-auto mb-2" />
           <h3 className="text-base font-bold text-white mb-2">Failed to Load Routes</h3>
-          <p className="text-sm text-slate-700">
+          <p className="text-sm text-white/70">
             {error instanceof Error ? error.message : 'An unknown error occurred'}
           </p>
         </div>
@@ -87,7 +82,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
           onClick={() => setShowRoutes(!showRoutes)}
           variant={showRoutes ? 'default' : 'outline'}
           size="sm"
-          className="bg-white/90 backdrop-blur hover:bg-white"
+          className="bg-[#111111] border-white/[0.04] hover:bg-[#161616] text-white/60"
         >
           <Route className="w-4 h-4 mr-2" />
           {showRoutes ? 'Hide Routes' : 'Show Routes'}
@@ -95,16 +90,16 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
       </div>
 
       {/* Route Info Overlay */}
-      <div className="absolute bottom-4 left-4 z-10 bg-white/90 backdrop-blur rounded-lg shadow-sm p-2 max-w-xs">
+      <div className="absolute bottom-4 left-4 z-10 bg-[#111111] rounded-lg p-2 max-w-xs border border-white/[0.04]">
         <div className="flex items-center gap-2 mb-2">
-          <MapPin className="w-3 h-3 text-blue-800" />
-          <h3 className="font-semibold text-gray-900">Active Routes</h3>
+          <MapPin className="w-3 h-3 text-emerald-400" />
+          <h3 className="font-semibold text-white">Active Routes</h3>
         </div>
-        <div className="space-y-1 text-sm text-slate-700">
+        <div className="space-y-1 text-sm text-white/60">
           <div>Active Vehicles: {activeVehicles.length}</div>
-          <div>Total Routes: {showRoutes ? SAMPLE_ROUTES.length : 0}</div>
-          <div className="mt-2 pt-2 border-t border-gray-200">
-            <p className="text-xs text-gray-700">
+          <div>Total Routes: {showRoutes ? routeCoordinates.length : 0}</div>
+          <div className="mt-2 pt-2 border-t border-white/[0.04]">
+            <p className="text-xs text-white/35">
               Routes shown are optimized paths calculated by the dispatch system.
             </p>
           </div>
@@ -115,7 +110,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
       <GoogleMapView
         vehicles={activeVehicles}
         showRoutes={showRoutes}
-        routes={showRoutes ? SAMPLE_ROUTES : []}
+        routes={showRoutes ? routeCoordinates : []}
         className="w-full h-full"
         zoom={11}
       />

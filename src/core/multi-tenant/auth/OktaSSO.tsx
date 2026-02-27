@@ -13,6 +13,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 // Type declarations for Okta SDK (packages not installed - this is an optional enterprise feature)
 // These types provide compile-time safety without requiring the actual @okta packages
@@ -271,12 +272,12 @@ const ROLE_PERMISSIONS = {
 // Get Okta configuration from environment variables
 const getOktaConfig = (): OktaConfig => {
   const config: OktaConfig = {
-    issuer: process.env.REACT_APP_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
-    clientId: process.env.REACT_APP_OKTA_CLIENT_ID || 'your-client-id',
-    redirectUri: process.env.REACT_APP_OKTA_REDIRECT_URI || window.location.origin + '/login/callback',
+    issuer: import.meta.env.VITE_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
+    clientId: import.meta.env.VITE_OKTA_CLIENT_ID || 'your-client-id',
+    redirectUri: import.meta.env.VITE_OKTA_REDIRECT_URI || window.location.origin + '/login/callback',
     scopes: ['openid', 'profile', 'email', 'groups'],
     pkce: true,
-    disableHttpsCheck: process.env.NODE_ENV === 'development'
+    disableHttpsCheck: import.meta.env.MODE === 'development'
   };
 
   // Validate required configuration
@@ -332,9 +333,10 @@ const logAuthEvent = (event: string, details: any = {}) => {
   logger.debug('🔒 Auth Event:', auditLog);
 
   // In production, send to audit logging API
-  if (process.env.NODE_ENV === 'production') {
-    fetch('/api/audit/auth', {
+  if (import.meta.env.MODE === 'production') {
+    fetch('/api/audit-logs/auth', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -589,7 +591,7 @@ export const OktaAuthProvider: React.FC<OktaAuthProviderProps> = ({
         );
         if (shouldExtend) {
           extendSession().catch(() => {
-            alert('Failed to extend session. Please log in again.');
+            toast.error('Failed to extend session. Please log in again.');
             logout();
           });
         }
@@ -655,17 +657,17 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-3 lg:px-3">
+    <div className="min-h-screen bg-white/[0.03] flex flex-col justify-center py-12 sm:px-3 lg:px-3">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="w-16 h-16 bg-emerald-600 rounded-lg flex items-center justify-center">
             <span className="text-white text-sm font-bold">DCF</span>
           </div>
         </div>
-        <h2 className="mt-3 text-center text-base font-extrabold text-gray-900">
+        <h2 className="mt-3 text-center text-base font-extrabold text-white/80">
           Florida DCF Fleet Management
         </h2>
-        <p className="mt-2 text-center text-sm text-slate-700">
+        <p className="mt-2 text-center text-sm text-white/70">
           Sign in with your state credentials
         </p>
       </div>
@@ -684,7 +686,7 @@ export const Login: React.FC = () => {
               <button
                 onClick={handleLogin}
                 disabled={isLoading || isLoggingIn}
-                className="w-full flex justify-center py-3 px-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-2 border border-transparent rounded-md text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading || isLoggingIn ? (
                   <div className="flex items-center">
@@ -697,7 +699,7 @@ export const Login: React.FC = () => {
               </button>
             </div>
 
-            <div className="text-xs text-gray-700 text-center space-y-2">
+            <div className="text-xs text-white/40 text-center space-y-2">
               <p>🔒 Secure authentication via Florida State Okta</p>
               <p>🛡️ Multi-factor authentication required</p>
               <p>📊 All access is logged for compliance</p>
@@ -722,9 +724,9 @@ export const LoginCallbackComponent: React.FC = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
-      <p className="text-slate-700">Completing authentication...</p>
+    <div className="min-h-screen bg-white/[0.03] flex flex-col justify-center items-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mb-2"></div>
+      <p className="text-white/70">Completing authentication...</p>
     </div>
   );
 };
@@ -752,7 +754,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
       </div>
     );
   }
@@ -799,13 +801,13 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
+    <div className="min-h-screen bg-white/[0.03] flex flex-col justify-center items-center">
       <div className="text-center">
         <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
           <span className="text-red-600 text-sm">🚫</span>
         </div>
-        <h2 className="text-sm font-bold text-gray-900 mb-2">Access Denied</h2>
-        <p className="text-slate-700 mb-2">
+        <h2 className="text-sm font-bold text-white/80 mb-2">Access Denied</h2>
+        <p className="text-white/70 mb-2">
           You don't have the required permissions to access this resource.
         </p>
 
@@ -821,14 +823,14 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
         )}
 
         {(requiredPermission || requiredPermissions) && (
-          <div className="bg-blue-50 border border-blue-200 rounded p-2 mb-2">
-            <p className="text-sm text-blue-800">
+          <div className="bg-emerald-500/5 border border-emerald-500/20 rounded p-2 mb-2">
+            <p className="text-sm text-emerald-800">
               <strong>Required Permission:</strong> {requiredPermission || requiredPermissions?.join(', ')}
             </p>
           </div>
         )}
 
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-white/40">
           Contact your administrator to request access to this feature.
         </p>
       </div>
@@ -859,34 +861,34 @@ export const UserProfile: React.FC = () => {
 
   return (
     <div className="bg-white shadow rounded-lg p-3">
-      <h3 className="text-sm font-medium text-gray-900 mb-2">User Profile</h3>
+      <h3 className="text-sm font-medium text-white/80 mb-2">User Profile</h3>
 
       <div className="space-y-3">
         <div>
-          <label className="text-sm font-medium text-gray-700">Name</label>
-          <p className="text-sm text-gray-900">{user.name}</p>
+          <label className="text-sm font-medium text-white/40">Name</label>
+          <p className="text-sm text-white/80">{user.name}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-700">Email</label>
-          <p className="text-sm text-gray-900">{user.email}</p>
+          <label className="text-sm font-medium text-white/40">Email</label>
+          <p className="text-sm text-white/80">{user.email}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-700">Department</label>
-          <p className="text-sm text-gray-900">{user.department}</p>
+          <label className="text-sm font-medium text-white/40">Department</label>
+          <p className="text-sm text-white/80">{user.department}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-700">Employee ID</label>
-          <p className="text-sm text-gray-900">{user.employee_id || 'N/A'}</p>
+          <label className="text-sm font-medium text-white/40">Employee ID</label>
+          <p className="text-sm text-white/80">{user.employee_id || '—'}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-700">Roles</label>
+          <label className="text-sm font-medium text-white/40">Roles</label>
           <div className="flex flex-wrap gap-1 mt-1">
             {user.roles.map(role => (
-              <span key={role} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+              <span key={role} className="px-2 py-1 bg-emerald-500/10 text-emerald-800 text-xs rounded">
                 {role}
               </span>
             ))}
@@ -894,16 +896,16 @@ export const UserProfile: React.FC = () => {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-700">MFA Status</label>
-          <p className="text-sm text-gray-900">
+          <label className="text-sm font-medium text-white/40">MFA Status</label>
+          <p className="text-sm text-white/80">
             {user.mfa_enabled ? '✅ Enabled' : '❌ Not Enabled'}
           </p>
         </div>
 
         {sessionExpiry && (
           <div>
-            <label className="text-sm font-medium text-gray-700">Session Expiry</label>
-            <p className="text-sm text-gray-900">
+            <label className="text-sm font-medium text-white/40">Session Expiry</label>
+            <p className="text-sm text-white/80">
               {minutesUntilExpiry > 0 ? `${minutesUntilExpiry} minutes remaining` : 'Expired'}
             </p>
           </div>
@@ -914,7 +916,7 @@ export const UserProfile: React.FC = () => {
         <button
           onClick={handleExtendSession}
           disabled={isExtending}
-          className="bg-blue-600 text-white px-2 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
+          className="bg-emerald-600 text-white px-2 py-2 rounded text-sm hover:bg-emerald-700 disabled:opacity-50"
         >
           {isExtending ? 'Extending...' : 'Extend Session'}
         </button>

@@ -103,7 +103,9 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
     );
 
     const row = result.rows[0];
-    if (!row) return null;
+    if (!row) {
+return null;
+}
 
     const meta = (row.metadata && typeof row.metadata === 'object') ? row.metadata : {};
 
@@ -112,14 +114,14 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
       tenant_id: row.tenant_id,
       allow_personal_use: meta.allow_personal_use ?? true,
       require_approval: meta.require_approval ?? true,
-      max_personal_miles_per_month: row.max_personal_miles_monthly != null ? Number(row.max_personal_miles_monthly) : undefined,
-      max_personal_miles_per_year: meta.max_personal_miles_per_year != null ? Number(meta.max_personal_miles_per_year) : undefined,
-      charge_personal_use: meta.charge_personal_use ?? (row.personal_use_rate != null && Number(row.personal_use_rate) > 0),
-      personal_use_rate_per_mile: row.personal_use_rate != null ? Number(row.personal_use_rate) : undefined,
+      max_personal_miles_per_month: row.max_personal_miles_monthly !== null && row.max_personal_miles_monthly !== undefined ? Number(row.max_personal_miles_monthly) : undefined,
+      max_personal_miles_per_year: meta.max_personal_miles_per_year !== null && meta.max_personal_miles_per_year !== undefined ? Number(meta.max_personal_miles_per_year) : undefined,
+      charge_personal_use: meta.charge_personal_use ?? (row.personal_use_rate !== null && row.personal_use_rate !== undefined && Number(row.personal_use_rate) > 0),
+      personal_use_rate_per_mile: row.personal_use_rate !== null && row.personal_use_rate !== undefined ? Number(row.personal_use_rate) : undefined,
       reporting_required: meta.reporting_required ?? true,
       approval_workflow: meta.approval_workflow ?? ApprovalWorkflow.MANAGER,
       notification_settings: meta.notification_settings ?? {},
-      auto_approve_under_miles: meta.auto_approve_under_miles != null ? Number(meta.auto_approve_under_miles) : undefined,
+      auto_approve_under_miles: meta.auto_approve_under_miles !== null && meta.auto_approve_under_miles !== undefined ? Number(meta.auto_approve_under_miles) : undefined,
       effective_date: row.effective_date ? String(row.effective_date).slice(0, 10) : new Date().toISOString().slice(0, 10),
       expiration_date: row.expiration_date ? String(row.expiration_date).slice(0, 10) : undefined,
       created_by_user_id: row.created_by,
@@ -233,7 +235,7 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
   async getMonthlyUsage(driverId: string, currentMonth: string, context: QueryContext): Promise<number> {
     const dbPool = this.getPool(context);
     const result = await dbPool.query(
-      `SELECT COALESCE(SUM(miles_personal), 0) as personal_miles FROM trip_usage_classification WHERE driver_id = $1 AND tenant_id = $2 AND TO_CHAR(trip_date, 'YYYY-MM') = $3 AND approval_status \!= 'rejected'`,
+      `SELECT COALESCE(SUM(miles_personal), 0) as personal_miles FROM trip_usage_classification WHERE driver_id = $1 AND tenant_id = $2 AND TO_CHAR(trip_date, 'YYYY-MM') = $3 AND approval_status != 'rejected'`,
       [driverId, context.tenantId, currentMonth]
     );
     return parseFloat(result.rows[0].personal_miles);
@@ -242,7 +244,7 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
   async getYearlyUsage(driverId: string, currentYear: number, context: QueryContext): Promise<number> {
     const dbPool = this.getPool(context);
     const result = await dbPool.query(
-      `SELECT COALESCE(SUM(miles_personal), 0) as personal_miles FROM trip_usage_classification WHERE driver_id = $1 AND tenant_id = $2 AND EXTRACT(YEAR FROM trip_date) = $3 AND approval_status \!= 'rejected'`,
+      `SELECT COALESCE(SUM(miles_personal), 0) as personal_miles FROM trip_usage_classification WHERE driver_id = $1 AND tenant_id = $2 AND EXTRACT(YEAR FROM trip_date) = $3 AND approval_status != 'rejected'`,
       [driverId, context.tenantId, currentYear]
     );
     return parseFloat(result.rows[0].personal_miles);
@@ -303,7 +305,7 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
        LEFT JOIN trip_usage_classification t
          ON u.id = t.driver_id
         AND TO_CHAR(t.trip_date, 'YYYY-MM') = $2
-        AND t.approval_status \!= 'rejected'
+        AND t.approval_status != 'rejected'
        WHERE u.tenant_id = $3
        GROUP BY u.id, u.first_name, u.last_name, u.email
        HAVING COALESCE(SUM(t.miles_personal), 0) / $1 * 100 >= $4

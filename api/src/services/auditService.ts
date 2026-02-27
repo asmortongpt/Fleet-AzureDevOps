@@ -5,6 +5,7 @@
 
 import { Pool } from 'pg';
 
+import logger from '../config/logger';
 import { AuditLogEntry } from '../permissions/types';
 
 export class AuditService {
@@ -40,7 +41,7 @@ export class AuditService {
         ]
       );
     } catch (error) {
-      console.error('Failed to log permission check:', error);
+      logger.error('Failed to log permission check:', { error: error instanceof Error ? error.message : String(error) });
       // Don't throw - logging failure shouldn't block the request
     }
   }
@@ -73,7 +74,7 @@ export class AuditService {
         ]
       );
     } catch (error) {
-      console.error('Failed to log security event:', error);
+      logger.error('Failed to log security event:', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 

@@ -1,4 +1,5 @@
 import * as appInsights from 'applicationinsights'
+import logger from '../config/logger'
 
 /**
  * Custom metrics interface for Application Insights
@@ -25,8 +26,8 @@ class ApplicationInsightsService implements CustomMetrics {
                              process.env.APPLICATIONINSIGHTS_CONNECTION_STRING
 
     if (!connectionString) {
-      console.warn('⚠️ Application Insights connection string not found. Telemetry will be disabled.')
-      console.warn('To enable telemetry, set APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file')
+      logger.warn('Application Insights connection string not found. Telemetry will be disabled.')
+      logger.warn('To enable telemetry, set APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file')
       return
     }
 
@@ -54,7 +55,7 @@ class ApplicationInsightsService implements CustomMetrics {
       this.client = appInsights
       this.isInitialized = true
 
-      console.log('✅ Application Insights initialized successfully')
+      logger.info('Application Insights initialized successfully')
 
       // Track startup event
       this.trackEvent('ServerStarted', {
@@ -63,7 +64,7 @@ class ApplicationInsightsService implements CustomMetrics {
         port: process.env.PORT || 3001
       })
     } catch (error) {
-      console.error('❌ Failed to initialize Application Insights:', error)
+      logger.error('Failed to initialize Application Insights', { error: error instanceof Error ? error.message : String(error) })
     }
   }
 
@@ -74,33 +75,34 @@ class ApplicationInsightsService implements CustomMetrics {
   private telemetryProcessor = (envelope: appInsights.Contracts.Envelope): boolean => {
     // Filter out sensitive headers
     if (envelope.data && 'baseData' in envelope.data) {
-      const baseData = envelope.data.baseData as any
+      const baseData = envelope.data.baseData as Record<string, unknown>
 
       // Remove sensitive headers
-      if (baseData?.properties?.requestHeaders) {
-        delete baseData.properties.requestHeaders['authorization']
-        delete baseData.properties.requestHeaders['cookie']
-        delete baseData.properties.requestHeaders['x-csrf-token']
+      const aiProps = baseData?.properties as Record<string, Record<string, unknown>> | undefined
+      if (aiProps?.requestHeaders) {
+        delete aiProps.requestHeaders['authorization']
+        delete aiProps.requestHeaders['cookie']
+        delete aiProps.requestHeaders['x-csrf-token']
       }
 
       // Remove sensitive response headers
-      if (baseData?.properties?.responseHeaders) {
-        delete baseData.properties.responseHeaders['set-cookie']
+      if (aiProps?.responseHeaders) {
+        delete aiProps.responseHeaders['set-cookie']
       }
 
       // Mask sensitive URLs
       if (baseData?.url) {
-        baseData.url = this.maskSensitiveUrl(baseData.url)
+        baseData.url = this.maskSensitiveUrl(baseData.url as string)
       }
 
       // Remove sensitive data from exceptions
       if (baseData?.exceptions) {
-        baseData.exceptions.forEach((exception: any) => {
+        (baseData.exceptions as Array<Record<string, unknown>>).forEach((exception) => {
           if (exception.parsedStack) {
             // Keep stack traces but remove local file paths
-            exception.parsedStack = exception.parsedStack.map((frame: any) => ({
+            exception.parsedStack = (exception.parsedStack as Array<Record<string, unknown>>).map((frame) => ({
               ...frame,
-              fileName: frame.fileName?.replace(/.*\/src\//, 'src/')
+              fileName: (frame.fileName as string | undefined)?.replace(/.*\/src\//, 'src/')
             }))
           }
         })
@@ -280,7 +282,7 @@ return
     }
 
     return new Promise((resolve) => {
-      this.client?.defaultClient.flush()
+      void this.client?.defaultClient.flush()
       // Small delay to allow flush to complete
       setTimeout(resolve, 100)
     })

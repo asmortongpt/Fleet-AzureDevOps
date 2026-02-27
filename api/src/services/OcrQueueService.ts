@@ -12,10 +12,14 @@
 
 import { Pool } from 'pg';
 
-import { JobPriority } from '../types/queue.types';
+import logger from '../config/logger';
+import { JobPriority, QueueName } from '../types/queue.types';
 
 import { OcrService, OcrOptions, OcrResult } from './OcrService';
 import { queueService } from './queue.service';
+
+// Export singleton instance
+import { pool } from '../db'
 
 // OCR Job Status
 export enum OcrJobStatus {
@@ -85,7 +89,7 @@ export class OcrQueueService {
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      console.log('⚠️ OCR Queue Service already initialized');
+      logger.warn('OCR Queue Service already initialized');
       return;
     }
 
@@ -100,9 +104,9 @@ export class OcrQueueService {
       await this.resumePendingJobs();
 
       this.isInitialized = true;
-      console.log('✅ OCR Queue Service initialized');
+      logger.info('OCR Queue Service initialized');
     } catch (error) {
-      console.error('❌ Failed to initialize OCR Queue Service:', error);
+      logger.error('Failed to initialize OCR Queue Service', { error });
       throw error;
     }
   }
@@ -121,7 +125,7 @@ export class OcrQueueService {
       return this.processBatchOcrJob(job);
     });
 
-    console.log('✅ OCR queue processors registered');
+    logger.info('OCR queue processors registered');
   }
 
   /**
@@ -155,7 +159,7 @@ export class OcrQueueService {
 
       // Enqueue to processing queue
       const queueJobId = await queueService.enqueueJob(
-        'ocr-processing' as any,
+        'ocr-processing' as unknown as QueueName,
         {
           type: 'ocr-processing',
           payload: { ...jobData, jobId },
@@ -167,7 +171,7 @@ export class OcrQueueService {
             timestamp: new Date(),
             ...jobData.metadata
           }
-        } as any,
+        },
         {
           priority: jobData.priority || JobPriority.NORMAL,
           retryLimit: 3,
@@ -182,10 +186,10 @@ export class OcrQueueService {
         [queueJobId, jobId]
       );
 
-      console.log(`✅ OCR job enqueued: ${jobId} (queue: ${queueJobId})`);
+      logger.info(`OCR job enqueued: ${jobId}`, { queueJobId });
       return jobId;
     } catch (error) {
-      console.error(`❌ Failed to enqueue OCR job:`, error);
+      logger.error('Failed to enqueue OCR job', { error });
       throw error;
     }
   }
@@ -244,10 +248,10 @@ export class OcrQueueService {
         [batchId, jobIds]
       );
 
-      console.log(`✅ Batch OCR job enqueued: ${batchId} (${documents.length} documents)`);
+      logger.info(`Batch OCR job enqueued: ${batchId}`, { documentCount: documents.length });
       return batchId;
     } catch (error) {
-      console.error(`❌ Failed to enqueue batch OCR job:`, error);
+      logger.error('Failed to enqueue batch OCR job', { error });
       throw error;
     }
   }
@@ -259,7 +263,7 @@ export class OcrQueueService {
     const { jobId, documentId, filePath, options } = job.data.payload;
 
     try {
-      console.log(`🔄 Processing OCR job ${jobId} for document ${documentId}`);
+      logger.info(`Processing OCR job ${jobId} for document ${documentId}`);
 
       // Update status to processing
       await this.updateJobStatus(jobId, OcrJobStatus.PROCESSING, 0);
@@ -281,7 +285,7 @@ export class OcrQueueService {
         [result.fullText, documentId]
       );
 
-      console.log(`✅ OCR job ${jobId} completed`);
+      logger.info(`OCR job ${jobId} completed`);
 
       return {
         success: true,
@@ -289,11 +293,11 @@ export class OcrQueueService {
         documentId,
         result
       };
-    } catch (error: any) {
-      console.error(`❌ OCR job ${jobId} failed:`, error);
+    } catch (error: unknown) {
+      logger.error(`OCR job ${jobId} failed`, { error });
 
       // Update job as failed
-      await this.updateJobStatus(jobId, OcrJobStatus.FAILED, 0, undefined, error.message);
+      await this.updateJobStatus(jobId, OcrJobStatus.FAILED, 0, undefined, error instanceof Error ? error.message : 'An unexpected error occurred');
 
       // Update batch if applicable
       await this.updateBatchProgress(jobId, true);
@@ -314,14 +318,14 @@ export class OcrQueueService {
   private async processBatchOcrJob(job: any): Promise<any> {
     const { batchId, documents, options } = job.data.payload;
 
-    console.log(`🔄 Processing batch OCR job ${batchId} (${documents.length} documents)`);
+    logger.info(`Processing batch OCR job ${batchId}`, { documentCount: documents.length });
 
     const results = {
       batchId,
       totalDocuments: documents.length,
       completed: 0,
       failed: 0,
-      results: [] as any[]
+      results: [] as Array<{ documentId: string; success: boolean; result?: OcrResult; error?: string }>
     };
 
     // Process documents in parallel (with concurrency limit)
@@ -329,7 +333,7 @@ export class OcrQueueService {
     for (let i = 0; i < documents.length; i += concurrency) {
       const batch = documents.slice(i, i + concurrency);
       const batchResults = await Promise.allSettled(
-        batch.map(doc =>
+        batch.map((doc: { filePath: string; documentId: string }) =>
           this.ocrService.processDocument(doc.filePath, doc.documentId, options)
         )
       );
@@ -367,7 +371,7 @@ export class OcrQueueService {
       [OcrJobStatus.COMPLETED, batchId]
     );
 
-    console.log(`✅ Batch OCR job ${batchId} completed: ${results.completed} success, ${results.failed} failed`);
+    logger.info(`Batch OCR job ${batchId} completed`, { completed: results.completed, failed: results.failed });
 
     return results;
   }
@@ -413,7 +417,7 @@ export class OcrQueueService {
         values
       );
     } catch (error) {
-      console.error('Error updating job status:', error);
+      logger.error('Error updating job status', { error });
     }
   }
 
@@ -468,11 +472,11 @@ export class OcrQueueService {
             `UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2`,
             [OcrJobStatus.COMPLETED, batchId]
           );
-          console.log(`✅ Batch ${batchId} completed`);
+          logger.info(`Batch ${batchId} completed`);
         }
       }
     } catch (error) {
-      console.error(`Error updating batch progress:`, error);
+      logger.error('Error updating batch progress', { error });
     }
   }
 
@@ -507,7 +511,7 @@ export class OcrQueueService {
         processingTime: job.processing_time
       };
     } catch (error) {
-      console.error('Error getting job status:', error);
+      logger.error('Error getting job status', { error });
       throw error;
     }
   }
@@ -552,7 +556,7 @@ export class OcrQueueService {
         updatedAt: batch.updated_at
       };
     } catch (error) {
-      console.error(`Error getting batch status:`, error);
+      logger.error('Error getting batch status', { error });
       throw error;
     }
   }
@@ -569,9 +573,9 @@ export class OcrQueueService {
         [OcrJobStatus.CANCELLED, jobId, OcrJobStatus.PENDING, OcrJobStatus.PROCESSING]
       );
 
-      console.log(`⏹️ OCR job ${jobId} cancelled`);
+      logger.info(`OCR job ${jobId} cancelled`);
     } catch (error) {
-      console.error(`Error cancelling job:`, error);
+      logger.error('Error cancelling job', { error });
       throw error;
     }
   }
@@ -631,10 +635,10 @@ export class OcrQueueService {
         priority: job.priority
       });
 
-      console.log(`🔄 Retrying OCR job ${jobId} as ${newJobId}`);
+      logger.info(`Retrying OCR job ${jobId} as ${newJobId}`);
       return newJobId;
     } catch (error) {
-      console.error(`Error retrying job:`, error);
+      logger.error('Error retrying job', { error });
       throw error;
     }
   }
@@ -653,7 +657,7 @@ export class OcrQueueService {
       const result = await this.db.query(query, params);
       return parseInt(result.rows[0].count) || 0;
     } catch (error) {
-      console.error('Error getting pending jobs count:', error);
+      logger.error('Error getting pending jobs count', { error });
       throw error;
     }
   }
@@ -674,7 +678,7 @@ export class OcrQueueService {
       );
 
       if (result.rows.length > 0) {
-        console.log(`📋 Resuming ${result.rows.length} pending OCR jobs...`);
+        logger.info(`Resuming ${result.rows.length} pending OCR jobs`);
 
         for (const job of result.rows) {
           // Reset status to pending
@@ -685,7 +689,7 @@ export class OcrQueueService {
         }
       }
     } catch (error) {
-      console.error('Error resuming pending jobs:', error);
+      logger.error('Error resuming pending jobs', { error });
     }
   }
 
@@ -704,10 +708,10 @@ export class OcrQueueService {
         [OcrJobStatus.COMPLETED, OcrJobStatus.FAILED, daysOldNum]
       );
 
-      console.log(`Cleaned up ${result.rowCount} old OCR jobs`);
+      logger.info(`Cleaned up ${result.rowCount} old OCR jobs`);
       return result.rowCount || 0;
     } catch (error) {
-      console.error(`Error cleaning up old jobs:`, error);
+      logger.error('Error cleaning up old jobs', { error });
       throw error;
     }
   }
@@ -748,14 +752,11 @@ export class OcrQueueService {
         jobs24h: parseInt(result.rows[0].jobs_24h) || 0
       };
     } catch (error) {
-      console.error('Error getting OCR statistics:', error);
+      logger.error('Error getting OCR statistics', { error });
       throw error;
     }
   }
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const ocrQueueService = new OcrQueueService(pool)
 
 export default ocrQueueService

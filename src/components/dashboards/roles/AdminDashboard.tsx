@@ -9,14 +9,17 @@
  * - Audit logs & reporting
  */
 
-import React, { useState, useEffect } from 'react';
 import { Shield, Users, LineChart, FileText, AlertTriangle, CheckCircle, Lock, Database, Cpu, Clock, TrendingUp, UserPlus, Download, Eye } from 'lucide-react';
-import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
+import React, { useMemo } from 'react';
+// motion removed - React 19 incompatible
+
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data';
 import { cn } from '@/lib/utils';
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface UserStats {
   total_users: number;
@@ -54,91 +57,74 @@ interface RecentActivity {
 }
 
 export function AdminDashboard() {
-  const [userStats, setUserStats] = useState<UserStats>({
-    total_users: 156,
-    active_today: 89,
+  const adminData = useReactiveAdminData();
+
+  const userStats = useMemo<UserStats>(() => ({
+    total_users: adminData.metrics.totalUsers || 0,
+    active_today: adminData.metrics.activeUsers || 0,
     by_role: {
-      admin: 3,
-      fleet_manager: 5,
-      dispatcher: 8,
-      maintenance_manager: 6,
-      driver: 134
+      admin: adminData.userRoleDistribution.admin || 0,
+      fleet_manager: adminData.userRoleDistribution.fleet_manager || 0,
+      dispatcher: adminData.userRoleDistribution.dispatcher || 0,
+      maintenance_manager: adminData.userRoleDistribution.maintenance_manager || 0,
+      driver: adminData.userRoleDistribution.driver || 0,
     }
-  });
+  }), [adminData.metrics, adminData.userRoleDistribution]);
 
-  const [systemHealth, setSystemHealth] = useState<SystemHealth>({
-    api_uptime: 99.98,
-    api_error_rate: 0.12,
-    database_connections: 24,
-    avg_response_time_ms: 145,
-    status: 'healthy'
-  });
+  const systemHealth = useMemo<SystemHealth>(() => ({
+    api_uptime: 99.9,
+    api_error_rate: 0,
+    database_connections: adminData.systemMetrics?.activeConnections ?? 0,
+    avg_response_time_ms: adminData.systemMetrics?.apiResponseTime ?? 0,
+    status: adminData.metrics.systemHealth > 95 ? 'healthy' as const : adminData.metrics.systemHealth > 85 ? 'warning' as const : 'critical' as const
+  }), [adminData.systemMetrics, adminData.metrics.systemHealth]);
 
-  const [securityMetrics, setSecurityMetrics] = useState<SecurityMetrics>({
-    failed_logins_24h: 3,
-    active_sessions: 67,
-    compliance_violations: 0,
-    pending_audits: 2
-  });
+  const securityMetrics = useMemo<SecurityMetrics>(() => ({
+    failed_logins_24h: adminData.metrics.failedActions || 0,
+    active_sessions: adminData.metrics.activeSessions || 0,
+    compliance_violations: adminData.actionDistribution?.security || 0,
+    pending_audits: adminData.failedActions?.length || 0
+  }), [adminData.metrics, adminData.actionDistribution, adminData.failedActions]);
 
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([
-    {
-      id: 1,
-      timestamp: '2026-01-14 10:23 AM',
-      user: 'john.smith@fleet.com',
-      action: 'Created new work order #5432',
-      severity: 'info'
-    },
-    {
-      id: 2,
-      timestamp: '2026-01-14 10:15 AM',
-      user: 'admin@fleet.com',
-      action: 'Modified user permissions for sarah.johnson',
-      severity: 'warning'
-    },
-    {
-      id: 3,
-      timestamp: '2026-01-14 09:58 AM',
-      user: 'dispatcher@fleet.com',
-      action: 'Emergency alert created for Route #48',
-      severity: 'critical'
-    }
-  ]);
+  const recentActivity = useMemo<RecentActivity[]>(() => {
+    return (adminData.recentAuditLogs || []).slice(0, 5).map((log) => ({
+      id: Number(log.id ?? 0),
+      timestamp: log.timestamp ? formatDateTime(log.timestamp) : '',
+      user: log.userName || log.userId || 'System',
+      action: log.action || log.resource || 'Activity',
+      severity: log.status === 'failure' ? 'critical' : 'info'
+    }));
+  }, [adminData.recentAuditLogs]);
 
-  // Quick actions
+  const { navigateTo } = useNavigation();
+
+  // Quick actions - Navigate to specific pages
   const handleAddUser = () => {
-    toast.success('Opening new user creation form...');
-    // TODO: Open user creation dialog
+    navigateTo('admin-hub-consolidated');
   };
 
   const handleViewAuditLogs = () => {
-    toast('Loading audit logs...');
-    // TODO: Navigate to audit logs page
+    navigateTo('admin-hub-consolidated');
   };
 
   const handleGenerateReport = () => {
-    toast.success('Generating executive report...');
-    // TODO: Generate and download report
+    navigateTo('analytics');
   };
 
   const handleConfigureSettings = () => {
-    toast('Opening system configuration...');
-    // TODO: Navigate to settings page
+    navigateTo('settings');
   };
 
   const handleExportData = () => {
-    toast.success('Preparing data export...');
-    // TODO: Export all system data
+    navigateTo('admin-hub-consolidated');
   };
 
   const handleViewUsers = () => {
-    toast('Loading user management interface...');
-    // TODO: Navigate to user management
+    navigateTo('admin-hub-consolidated');
   };
 
   const handleViewSecurityAlerts = () => {
-    toast('Loading security alerts...');
-    // TODO: Navigate to security dashboard
+    navigateTo('safety-compliance-hub');
   };
 
   const getHealthStatusColor = (status: string) => {
@@ -150,34 +136,34 @@ export function AdminDashboard() {
       case 'critical':
         return 'text-red-400 bg-red-950/30 border-red-500/30';
       default:
-        return 'text-slate-700 bg-slate-800 border-slate-700';
+        return 'text-white/40 bg-[#111111] border-white/[0.04]';
     }
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'info':
-        return 'text-blue-700';
+        return 'text-emerald-400';
       case 'warning':
         return 'text-amber-400';
       case 'critical':
         return 'text-red-400';
       default:
-        return 'text-slate-700';
+        return 'text-white/40';
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 p-2">
+    <div className="min-h-screen bg-[#111] p-2">
       {/* Header */}
       <div className="mb-2">
         <h1 className="text-sm font-bold text-white mb-1">Admin Dashboard</h1>
-        <p className="text-sm text-slate-700">System Management & Compliance Oversight</p>
+        <p className="text-sm text-white/40">System Management & Compliance Oversight</p>
       </div>
 
       {/* System Health Summary */}
       <Card className={cn(
-        "backdrop-blur-xl p-2 mb-3",
+        "p-2 mb-3",
         systemHealth.status === 'healthy'
           ? "bg-green-950/20 border-green-500/30"
           : systemHealth.status === 'warning'
@@ -200,37 +186,37 @@ export function AdminDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* API Uptime */}
-          <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+          <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.04]">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle className="w-4 h-4 text-green-400" />
-              <span className="text-sm text-slate-300 text-sm">API Uptime</span>
+              <span className="text-sm text-white/60 text-sm">API Uptime</span>
             </div>
             <p className="text-sm font-bold text-white">{systemHealth.api_uptime}%</p>
           </div>
 
           {/* Error Rate */}
-          <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+          <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.04]">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="w-4 h-4 text-amber-400" />
-              <span className="text-sm text-slate-300 text-sm">Error Rate</span>
+              <span className="text-sm text-white/60 text-sm">Error Rate</span>
             </div>
             <p className="text-sm font-bold text-white">{systemHealth.api_error_rate}%</p>
           </div>
 
           {/* DB Connections */}
-          <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+          <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.04]">
             <div className="flex items-center gap-2 mb-2">
-              <Database className="w-4 h-4 text-cyan-400" />
-              <span className="text-sm text-slate-300 text-sm">DB Connections</span>
+              <Database className="w-4 h-4 text-emerald-400" />
+              <span className="text-sm text-white/60 text-sm">DB Connections</span>
             </div>
             <p className="text-sm font-bold text-white">{systemHealth.database_connections}</p>
           </div>
 
           {/* Response Time */}
-          <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+          <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.04]">
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-violet-400" />
-              <span className="text-sm text-slate-300 text-sm">Avg Response</span>
+              <Clock className="w-4 h-4 text-amber-400" />
+              <span className="text-sm text-white/60 text-sm">Avg Response</span>
             </div>
             <p className="text-sm font-bold text-white">{systemHealth.avg_response_time_ms}ms</p>
           </div>
@@ -241,21 +227,21 @@ export function AdminDashboard() {
       <div className="mb-3 flex flex-wrap gap-3">
         <Button size="sm"
           onClick={handleAddUser}
-          className="bg-cyan-600 hover:bg-cyan-700 text-white"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <UserPlus className="w-4 h-4 mr-2" />
           Add User
         </Button>
         <Button size="sm"
           onClick={handleViewAuditLogs}
-          className="bg-violet-600 hover:bg-violet-700 text-white"
+          className="bg-amber-600 hover:bg-amber-700 text-white"
         >
           <Eye className="w-4 h-4 mr-2" />
           View Audit Logs
         </Button>
         <Button size="sm"
           onClick={handleGenerateReport}
-          className="bg-slate-600 hover:bg-slate-700 text-white"
+          className="bg-white/[0.15] hover:bg-white/[0.06] text-white"
         >
           <FileText className="w-4 h-4 mr-2" />
           Generate Report
@@ -264,15 +250,15 @@ export function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* User Management */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+        <Card className="bg-[#111111] border-white/[0.04] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-cyan-400" />
+              <Users className="w-4 h-4 text-emerald-400" />
               <h2 className="text-sm font-bold text-white">Users</h2>
             </div>
             <Button size="sm"
               variant="ghost"
-              className="text-cyan-400 hover:bg-cyan-400/10"
+              className="text-emerald-400 hover:bg-emerald-400/10"
               onClick={handleViewUsers}
             >
               View All
@@ -281,9 +267,9 @@ export function AdminDashboard() {
 
           <div className="space-y-3">
             {/* Total Users */}
-            <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+            <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.04]">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-slate-300">Total Users</span>
+                <span className="text-sm text-white/60">Total Users</span>
                 <span className="text-sm font-bold text-white">{userStats.total_users}</span>
               </div>
               <div className="flex items-center gap-1 text-sm text-green-400">
@@ -293,12 +279,12 @@ export function AdminDashboard() {
             </div>
 
             {/* By Role */}
-            <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
-              <p className="text-slate-700 text-sm mb-3 font-semibold">By Role</p>
+            <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.04]">
+              <p className="text-white/40 text-sm mb-3 font-semibold">By Role</p>
               <div className="space-y-2">
                 {Object.entries(userStats.by_role).map(([role, count]) => (
                   <div key={role} className="flex items-center justify-between">
-                    <span className="text-sm text-slate-300 text-sm capitalize">
+                    <span className="text-sm text-white/60 text-sm capitalize">
                       {role.replace('_', ' ')}
                     </span>
                     <span className="text-white font-bold">{count}</span>
@@ -310,7 +296,7 @@ export function AdminDashboard() {
 
           <Button size="sm"
             onClick={handleAddUser}
-            className="w-full mt-2 bg-cyan-600 hover:bg-cyan-700 text-white"
+            className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             <UserPlus className="w-4 h-4 mr-2" />
             Add New User
@@ -318,29 +304,28 @@ export function AdminDashboard() {
         </Card>
 
         {/* Security & Compliance */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+        <Card className="bg-[#111111] border-white/[0.04] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-violet-400" />
+              <Shield className="w-4 h-4 text-amber-400" />
               <h2 className="text-sm font-bold text-white">Security</h2>
             </div>
           </div>
 
           <div className="space-y-3">
             {/* Failed Logins */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
+            <div
               className={cn(
                 "rounded-lg p-2 border transition-all",
                 securityMetrics.failed_logins_24h > 5
                   ? "bg-red-950/30 border-red-500/30"
-                  : "bg-slate-900/50 border-slate-700"
+                  : "bg-white/[0.03] border-white/[0.04]"
               )}
             >
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   <Lock className="w-4 h-4 text-amber-400" />
-                  <span className="text-sm text-slate-300 text-sm">Failed Logins (24h)</span>
+                  <span className="text-sm text-white/60 text-sm">Failed Logins (24h)</span>
                 </div>
                 <span className="text-sm font-bold text-white">
                   {securityMetrics.failed_logins_24h}
@@ -349,14 +334,14 @@ export function AdminDashboard() {
               {securityMetrics.failed_logins_24h > 5 && (
                 <p className="text-xs text-red-400 mt-2">⚠️ Above normal threshold</p>
               )}
-            </motion.div>
+            </div>
 
             {/* Active Sessions */}
-            <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+            <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.04]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-green-400" />
-                  <span className="text-sm text-slate-300 text-sm">Active Sessions</span>
+                  <span className="text-sm text-white/60 text-sm">Active Sessions</span>
                 </div>
                 <span className="text-sm font-bold text-white">
                   {securityMetrics.active_sessions}
@@ -365,8 +350,7 @@ export function AdminDashboard() {
             </div>
 
             {/* Compliance Violations */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
+            <div
               className={cn(
                 "rounded-lg p-2 border transition-all",
                 securityMetrics.compliance_violations > 0
@@ -381,20 +365,20 @@ export function AdminDashboard() {
                   ) : (
                     <CheckCircle className="w-4 h-4 text-green-400" />
                   )}
-                  <span className="text-sm text-slate-300 text-sm">Compliance Violations</span>
+                  <span className="text-sm text-white/60 text-sm">Compliance Violations</span>
                 </div>
                 <span className="text-sm font-bold text-white">
                   {securityMetrics.compliance_violations}
                 </span>
               </div>
-            </motion.div>
+            </div>
 
             {/* Pending Audits */}
-            <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+            <div className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.04]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-violet-400" />
-                  <span className="text-sm text-slate-300 text-sm">Pending Audits</span>
+                  <FileText className="w-4 h-4 text-amber-400" />
+                  <span className="text-sm text-white/60 text-sm">Pending Audits</span>
                 </div>
                 <span className="text-sm font-bold text-white">
                   {securityMetrics.pending_audits}
@@ -406,7 +390,7 @@ export function AdminDashboard() {
           <Button size="sm"
             onClick={handleViewSecurityAlerts}
             variant="outline"
-            className="w-full mt-2 border-violet-400 text-violet-400 hover:bg-violet-400/10"
+            className="w-full mt-2 border-amber-400 text-amber-400 hover:bg-amber-400/10"
           >
             <Shield className="w-4 h-4 mr-2" />
             View Security Dashboard
@@ -414,7 +398,7 @@ export function AdminDashboard() {
         </Card>
 
         {/* Recent Activity */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+        <Card className="bg-[#111111] border-white/[0.04] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <LineChart className="w-4 h-4 text-amber-400" />
@@ -426,13 +410,13 @@ export function AdminDashboard() {
             {recentActivity.map((activity) => (
               <div
                 key={activity.id}
-                className="bg-slate-900/50 rounded-lg p-3 border border-slate-700"
+                className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]"
               >
                 <div className="flex items-start gap-2 mb-1">
                   <div className={cn(
                     "w-2 h-2 rounded-full mt-2",
                     activity.severity === 'critical' ? "bg-red-500" :
-                    activity.severity === 'warning' ? "bg-amber-500" : "bg-blue-500"
+                    activity.severity === 'warning' ? "bg-amber-500" : "bg-emerald-500"
                   )} />
                   <div className="flex-1">
                     <p className={cn(
@@ -441,8 +425,8 @@ export function AdminDashboard() {
                     )}>
                       {activity.action}
                     </p>
-                    <p className="text-xs text-slate-700">{activity.user}</p>
-                    <p className="text-xs text-slate-500">{activity.timestamp}</p>
+                    <p className="text-xs text-white/40">{activity.user}</p>
+                    <p className="text-xs text-white/40">{activity.timestamp}</p>
                   </div>
                 </div>
               </div>
@@ -461,7 +445,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Export & Reporting */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mt-3">
+      <Card className="bg-[#111111] border-white/[0.04] p-2 mt-3">
         <div className="flex items-center gap-2 mb-3">
           <FileText className="w-4 h-4 text-green-400" />
           <h2 className="text-sm font-bold text-white">Reports & Data Export</h2>
@@ -477,7 +461,7 @@ export function AdminDashboard() {
           </Button>
           <Button size="sm"
             onClick={handleExportData}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             <Download className="w-4 h-4 mr-2" />
             Export All Data
@@ -485,7 +469,7 @@ export function AdminDashboard() {
           <Button size="sm"
             onClick={handleConfigureSettings}
             variant="outline"
-            className="border-slate-600 text-sm text-slate-300 hover:bg-slate-700"
+            className="border-white/[0.12] text-sm text-white/60 hover:bg-white/[0.06]"
           >
             <Cpu className="w-4 h-4 mr-2" />
             System Settings

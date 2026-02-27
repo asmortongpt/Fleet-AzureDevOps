@@ -1,3 +1,4 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   Plus,
   Play,
@@ -6,7 +7,6 @@ import {
   BarChart,
   Clock
 } from "lucide-react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
@@ -33,6 +33,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import apiClient from "@/lib/api-client"
+import { brandColors } from '@/theme/designSystem'
+import { formatDate } from "@/utils/format-helpers"
 import logger from '@/utils/logger'
 
 interface DataSource {
@@ -221,7 +223,7 @@ export function CustomReportBuilder() {
 
   const loadTemplateMutation = useMutation({
     mutationFn: async ({ templateId, templateName }: { templateId: string; templateName: string }) => {
-      const reportName = `${templateName} - ${new Date().toLocaleDateString()}`
+      const reportName = `${templateName} - ${formatDate(new Date())}`
       return (await apiClient.post(`/custom-reports/from-template/${templateId}`, { report_name: reportName }) as unknown as { data: CustomReport }).data
     },
     onSuccess: (report: CustomReport) => {
@@ -363,8 +365,8 @@ export function CustomReportBuilder() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-slate-700">Loading report builder...</p>
+          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600 mx-auto mb-2"></div>
+          <p className="" style={{ color: brandColors.archon.mediumGray }}>Loading report builder...</p>
         </div>
       </div>
     )
@@ -374,8 +376,8 @@ export function CustomReportBuilder() {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-base font-bold text-gray-900">Custom Report Builder</h1>
-          <p className="text-slate-700">Create and schedule custom reports with drag-and-drop interface</p>
+          <h1 className="text-base font-bold text-white/80">Custom Report Builder</h1>
+          <p className="" style={{ color: brandColors.archon.mediumGray }}>Create and schedule custom reports with drag-and-drop interface</p>
         </div>
         <Button onClick={handleNewReport}>
           <Plus className="w-4 h-4 mr-2" />
@@ -466,13 +468,13 @@ export function CustomReportBuilder() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                 {templates.map((template: ReportTemplate) => (
-                  <Card key={template.id} className="hover:shadow-md transition-shadow">
+                  <Card key={template.id} className="hover:border-white/[0.12] transition-colors">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm">{template.template_name}</CardTitle>
                       <CardDescription>{template.category}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-slate-700 mb-2">{template.description}</p>
+                      <p className="text-sm  mb-2" style={{ color: brandColors.archon.mediumGray }}>{template.description}</p>
                       <Button
                         variant="outline"
                         className="w-full"
@@ -499,7 +501,7 @@ export function CustomReportBuilder() {
             <CardContent>
               {myReports.length === 0 ? (
                 <div className="text-center py-3">
-                  <p className="text-gray-700">You haven't created any custom reports yet.</p>
+                  <p className="text-white/40">You haven't created any custom reports yet.</p>
                   <Button variant="link" className="mt-2" onClick={() => setActiveTab("builder")}>
                     Create Your First Report
                   </Button>
@@ -509,11 +511,11 @@ export function CustomReportBuilder() {
                   {myReports.map((report: CustomReport) => (
                     <div
                       key={report.id}
-                      className="border rounded-lg p-2 flex flex-col md:flex-row justify-between items-start md:items-center hover:bg-gray-50"
+                      className="border rounded-lg p-2 flex flex-col md:flex-row justify-between items-start md:items-center hover:bg-white/[0.03]"
                     >
                       <div>
                         <h3 className="font-medium">{report.report_name}</h3>
-                        <p className="text-sm text-gray-700">{report.description}</p>
+                        <p className="text-sm text-white/40">{report.description}</p>
                         <div className="flex gap-2 mt-2">
                           {report.data_sources.map((dsId) => {
                             const ds = dataSources.find((d: DataSource) => d.id === dsId)
@@ -557,7 +559,7 @@ export function CustomReportBuilder() {
               <CardDescription>View past report executions</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-center text-gray-700 py-3">Execution history will be displayed here.</p>
+              <p className="text-center text-white/40 py-3">Execution history will be displayed here.</p>
             </CardContent>
           </Card>
         </TabsContent>

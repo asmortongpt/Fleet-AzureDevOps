@@ -9,6 +9,9 @@ import { requirePermission } from '../middleware/permissions';
 import { validate } from '../middleware/validate';
 import { BreakGlassRepository } from '../repositories/BreakGlassRepository';
 import { TYPES } from '../types';
+import { logger } from '../utils/logger';
+
+import { flexUuid } from '../middleware/validation'
 
 const router = express.Router();
 router.use(authenticateJWT);
@@ -22,7 +25,7 @@ router.use(authenticateJWT);
  */
 
 const elevationRequestSchema = z.object({
-  role_id: z.string().uuid(),
+  role_id: flexUuid,
   reason: z.string().min(20).max(500),
   ticket_reference: z.string().min(1).max(100),
   duration_minutes: z.number().int().min(1).max(30).default(30)
@@ -51,7 +54,7 @@ router.post(
     try {
       const validated = elevationRequestSchema.parse(req.body);
       const breakGlassRepo = container.get<BreakGlassRepository>(TYPES.BreakGlassRepository);
-      const context = { tenantId: req.user!.tenant_id };
+      const context = { tenantId: req.user!.tenant_id ?? '' };
 
       // Check if role allows JIT elevation
       // SECURITY: Repository validates role belongs to tenant
@@ -88,7 +91,7 @@ router.post(
       });
 
       // Send notification to approvers (FleetAdmin role)
-      await notifyApprovers(breakGlassRepo, req.user!.tenant_id, session.id, {
+      await notifyApprovers(breakGlassRepo, req.user!.tenant_id ?? '', session.id, {
         requester: req.user!.email,
         role: role.name,
         reason: validated.reason,
@@ -104,7 +107,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation failed', details: error.issues });
       }
-      console.error('Break-glass request error:', error);
+      logger.error('Break-glass request error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -124,7 +127,7 @@ router.get(
     try {
       const { status = 'pending' } = req.query;
       const breakGlassRepo = container.get<BreakGlassRepository>(TYPES.BreakGlassRepository);
-      const context = { tenantId: req.user!.tenant_id };
+      const context = { tenantId: req.user!.tenant_id ?? '' };
 
       const requests = await breakGlassRepo.findRequestsWithDetails(
         status as string || null,
@@ -133,7 +136,7 @@ router.get(
 
       res.json({ data: requests });
     } catch (error) {
-      console.error('List elevation requests error:', error);
+      logger.error('List elevation requests error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -159,7 +162,7 @@ router.post(
       const validated = approvalSchema.parse(req.body);
       const sessionId = req.params.id;
       const breakGlassRepo = container.get<BreakGlassRepository>(TYPES.BreakGlassRepository);
-      const context = { tenantId: req.user!.tenant_id };
+      const context = { tenantId: req.user!.tenant_id ?? '' };
 
       // Get the session
       // SECURITY: Repository verifies session belongs to approver's tenant
@@ -220,13 +223,13 @@ router.post(
           priority: 'high'
         });
 
-        res.json({ message: 'Elevation request denied' });
+        res.json({ success: true, message: 'Elevation request denied' });
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation failed', details: error.issues });
       }
-      console.error('Approve elevation error:', error);
+      logger.error('Approve elevation error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -246,7 +249,7 @@ router.post(
     try {
       const sessionId = req.params.id;
       const breakGlassRepo = container.get<BreakGlassRepository>(TYPES.BreakGlassRepository);
-      const context = { tenantId: req.user!.tenant_id };
+      const context = { tenantId: req.user!.tenant_id ?? '' };
 
       // SECURITY: Repository validates session belongs to current user's tenant
       const session = await breakGlassRepo.findSessionByIdWithTenant(sessionId, context);
@@ -258,7 +261,7 @@ router.post(
       // Check if user can revoke (self or admin)
       const canRevoke =
         session.user_id === req.user!.id ||
-        session.tenant_id === req.user!.tenant_id;
+        session.tenant_id === (req.user!.tenant_id ?? '');
 
       if (!canRevoke) {
         return res.status(403).json({ error: 'Access denied' });
@@ -273,9 +276,9 @@ router.post(
         session.elevated_role_id
       );
 
-      res.json({ message: 'Elevation revoked successfully' });
+      res.json({ success: true, message: 'Elevation revoked successfully' });
     } catch (error) {
-      console.error('Revoke elevation error:', error);
+      logger.error('Revoke elevation error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -293,13 +296,13 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const breakGlassRepo = container.get<BreakGlassRepository>(TYPES.BreakGlassRepository);
-      const context = { tenantId: req.user!.tenant_id };
+      const context = { tenantId: req.user!.tenant_id ?? '' };
 
       const elevations = await breakGlassRepo.findActiveElevations(req.user!.id, context);
 
       res.json({ data: elevations });
     } catch (error) {
-      console.error('Get active elevations error:', error);
+      logger.error('Get active elevations error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -343,7 +346,7 @@ async function notifyApprovers(
 
     await Promise.all(notifications);
   } catch (error) {
-    console.error('Failed to notify approvers:', error);
+    logger.error('Failed to notify approvers:', error);
     // Don't throw - notification failure shouldn't block the request
   }
 }
@@ -364,7 +367,7 @@ export async function expireBreakGlassSessions() {
     // Deactivate expired user_roles
     await breakGlassRepo.deactivateExpiredUserRoles();
   } catch (error) {
-    console.error('Error expiring break-glass sessions:', error);
+    logger.error('Error expiring break-glass sessions:', error);
   }
 }
 

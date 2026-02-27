@@ -264,9 +264,7 @@ router.post('/', [
     tax_rate = 0,
   } = req.body;
 
-  // @ts-ignore
   const userId = req.user?.id;
-  // @ts-ignore
   const tenantId = req.user?.tenant_id;
 
   const client = await pool.connect();
@@ -368,7 +366,6 @@ router.post('/:id/submit-for-approval', [
   param('id').isUUID(),
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  // @ts-ignore
   const userId = req.user?.id;
 
   const client = await pool.connect();
@@ -443,7 +440,7 @@ router.post('/:id/submit-for-approval', [
         approvalLevels: approvalLevels.length,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     await client.query('ROLLBACK');
     throw error;
   } finally {
@@ -463,7 +460,6 @@ router.post('/:id/approve', [
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { action, comments } = req.body;
-  // @ts-ignore
   const userId = req.user?.id;
 
   const client = await pool.connect();
@@ -524,7 +520,7 @@ router.post('/:id/approve', [
       success: true,
       message: `Purchase order ${action}d successfully`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     await client.query('ROLLBACK');
     throw error;
   } finally {
@@ -543,7 +539,6 @@ router.post('/:id/send-to-vendor', [
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { confirmation_number, vendor_po_number } = req.body;
-  // @ts-ignore
   const userId = req.user?.id;
 
   const query = `
@@ -588,9 +583,7 @@ router.post('/:id/receive', [
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { received_items, packing_slip_number, notes } = req.body;
-  // @ts-ignore
   const userId = req.user?.id;
-  // @ts-ignore
   const userName = req.user?.name || req.user?.email;
 
   const client = await pool.connect();
@@ -696,7 +689,7 @@ router.post('/:id/receive', [
         total_ordered: totalOrdered,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     await client.query('ROLLBACK');
     throw error;
   } finally {
@@ -716,7 +709,6 @@ router.post('/:id/cancel', [
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { reason } = req.body;
-  // @ts-ignore
   const userId = req.user?.id;
 
   const query = `
@@ -757,9 +749,7 @@ router.post('/auto-create-from-alerts', [
   body('alert_ids.*').isUUID(),
 ], asyncHandler(async (req: Request, res: Response) => {
   const { alert_ids } = req.body;
-  // @ts-ignore
   const userId = req.user?.id;
-  // @ts-ignore
   const tenantId = req.user?.tenant_id;
 
   const client = await pool.connect();
@@ -788,7 +778,7 @@ router.post('/auto-create-from-alerts', [
     const alertsResult = await client.query(alertsQuery, [alert_ids]);
 
     // Group by supplier
-    const supplierGroups = alertsResult.rows.reduce((groups: any, alert: any) => {
+    const supplierGroups: Record<string, SupplierGroup> = alertsResult.rows.reduce((groups: Record<string, SupplierGroup>, alert: any) => {
       const supplierId = alert.primary_supplier_id;
       if (!groups[supplierId]) {
         groups[supplierId] = {
@@ -804,7 +794,24 @@ router.post('/auto-create-from-alerts', [
     const createdPOs = [];
 
     // Create a PO for each supplier
-    for (const group of Object.values(supplierGroups) as any[]) {
+    interface AlertItem {
+      id: string;
+      inventory_item_id: string;
+      part_number: string;
+      name: string;
+      reorder_quantity: number;
+      unit_cost: number;
+      primary_supplier_id: string;
+      primary_supplier_name: string;
+    }
+
+    interface SupplierGroup {
+      supplier_id: string;
+      supplier_name: string;
+      items: AlertItem[];
+    }
+
+    for (const group of Object.values(supplierGroups)) {
       // Generate PO number
       const poNumberResult = await client.query(`
         SELECT COALESCE(MAX(CAST(SUBSTRING(number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_number
@@ -872,7 +879,7 @@ router.post('/auto-create-from-alerts', [
       message: `Created ${createdPOs.length} purchase order(s) from low stock alerts`,
       data: createdPOs,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     await client.query('ROLLBACK');
     throw error;
   } finally {

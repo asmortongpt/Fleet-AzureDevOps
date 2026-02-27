@@ -20,6 +20,7 @@ import documentAiService from '../services/DocumentAiService'
 import embeddingService from '../services/EmbeddingService'
 import vectorSearchService from '../services/VectorSearchService'
 import { getErrorMessage } from '../utils/error-handler'
+import { logger } from '../utils/logger'
 
 
 const router = express.Router()
@@ -79,7 +80,7 @@ router.post(
 
       // Perform semantic search
       const results = await vectorSearchService.search(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         searchData.query,
         {
           limit: searchData.limit,
@@ -93,7 +94,7 @@ router.post(
 
       // Log search for analytics
       await logSearch(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         searchData.query,
         'semantic',
@@ -108,11 +109,11 @@ router.post(
         searchTimeMs: searchTime,
         strategy: 'semantic',
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
-      console.error('Semantic search error:', error)
+      logger.error('Semantic search error:', error)
       res.status(500).json({ error: 'Search failed', message: getErrorMessage(error) })
     }
   }
@@ -154,7 +155,7 @@ router.post(
 
       // Perform hybrid search
       const results = await vectorSearchService.hybridSearch(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         searchData.query,
         {
           limit: searchData.limit,
@@ -168,7 +169,7 @@ router.post(
       const searchTime = Date.now() - startTime
 
       await logSearch(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         searchData.query,
         'hybrid',
@@ -187,11 +188,11 @@ router.post(
           vector: searchData.vectorWeight,
         },
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
-      console.error('Hybrid search error:', error)
+      logger.error('Hybrid search error:', error)
       res.status(500).json({ error: 'Search failed', message: getErrorMessage(error) })
     }
   }
@@ -231,7 +232,7 @@ router.post(
 
       // Get answer using DocumentAI service
       const response = await documentAiService.askQuestion(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         qaData.question,
         qaData.documentIds
@@ -249,11 +250,11 @@ router.post(
         modelUsed: response.modelUsed,
         responseTimeMs: responseTime,
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
-      console.error('Document Q&A error:', error)
+      logger.error('Document Q&A error:', error)
       res.status(500).json({ error: 'Q&A failed', message: getErrorMessage(error) })
     }
   }
@@ -297,7 +298,7 @@ router.post(
          GROUP BY query_text
          ORDER BY usage_count DESC, query_text
          LIMIT $4`,
-        [req.user!.tenant_id, `%${query}%`, query, maxSuggestions]
+        [req.user!.tenant_id ?? '', `%${query}%`, query, maxSuggestions]
       )
 
       // Generate AI-powered expansions
@@ -311,11 +312,11 @@ router.post(
         expandedQueries: expansions.slice(0, maxSuggestions),
         suggestions: expansions.length,
       })
-    } catch (error: any) {
-      if (error.name === `ZodError`) {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation error`, details: error.issues })
       }
-      console.error(`Query expansion error:`, error)
+      logger.error(`Query expansion error:`, error)
       res.status(500).json({ error: 'Expansion failed', message: getErrorMessage(error) })
     }
   }
@@ -369,7 +370,7 @@ router.post(
       for (const chunk of chunks) {
         const embeddingResult = await embeddingService.generateEmbedding(chunk.text)
 
-        await vectorSearchService.indexDocument(req.user!.tenant_id, {
+        await vectorSearchService.indexDocument(req.user!.tenant_id ?? '', {
           id: `${indexData.documentId}_chunk_${chunk.index}`,
           content: chunk.text,
           embedding: embeddingResult.embedding,
@@ -395,11 +396,11 @@ router.post(
         processingTimeMs: processingTime,
         estimatedCost: totalCost.toFixed(4),
       })
-    } catch (error: any) {
-      if (error.name === `ZodError`) {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
-      console.error('Document indexing error:', error)
+      logger.error('Document indexing error:', error)
       res.status(500).json({ error: 'Indexing failed', message: getErrorMessage(error) })
     }
   }
@@ -453,7 +454,7 @@ router.post(
           for (const chunk of chunks) {
             const embeddingResult = await embeddingService.generateEmbedding(chunk.text)
 
-            await vectorSearchService.indexDocument(req.user!.tenant_id, {
+            await vectorSearchService.indexDocument(req.user!.tenant_id ?? '', {
               id: `${doc.documentId}_chunk_${chunk.index}`,
               content: chunk.text,
               embedding: embeddingResult.embedding,
@@ -468,7 +469,7 @@ router.post(
             totalCost += embeddingResult.cost || 0
           }
         } catch (error) {
-          console.error(`Failed to index document ${doc.documentId}:`, error)
+          logger.error(`Failed to index document ${doc.documentId}:`, error)
           totalFailed++
         }
       }
@@ -483,11 +484,11 @@ router.post(
         processingTimeMs: processingTime,
         estimatedCost: totalCost.toFixed(4),
       })
-    } catch (error: any) {
-      if (error.name === `ZodError`) {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
-      console.error('Batch indexing error:', error)
+      logger.error('Batch indexing error:', error)
       res.status(500).json({ error: 'Batch indexing failed', message: getErrorMessage(error) })
     }
   }
@@ -524,7 +525,7 @@ router.get(
            GROUP BY query_text
            ORDER BY search_count DESC
            LIMIT 10`,
-          [req.user!.tenant_id]
+          [req.user!.tenant_id ?? '']
         ),
 
         // Recent searches
@@ -534,7 +535,7 @@ router.get(
            WHERE tenant_id = $1
            ORDER BY created_at DESC
            LIMIT 20`,
-          [req.user!.tenant_id]
+          [req.user!.tenant_id ?? '']
         ),
 
         // Average metrics
@@ -546,7 +547,7 @@ router.get(
            AVG(feedback_rating) as avg_rating
            FROM rag_queries
            WHERE tenant_id = $1`,
-          [req.user!.tenant_id]
+          [req.user!.tenant_id ?? '']
         ),
       ])
 
@@ -555,8 +556,8 @@ router.get(
         recentSearches: recentSearches.rows,
         metrics: avgMetrics.rows[0],
       })
-    } catch (error: any) {
-      console.error(`Analytics error:`, error)
+    } catch (error: unknown) {
+      logger.error(`Analytics error:`, error)
       res.status(500).json({ error: 'Failed to get analytics', message: getErrorMessage(error) })
     }
   }
@@ -603,16 +604,16 @@ router.post(
           feedback.helpful,
           feedback.comment,
           feedback.queryId,
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
         ]
       )
 
       res.json({ success: true, message: `Feedback recorded` })
-    } catch (error: any) {
-      if (error.name === `ZodError`) {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
-      console.error('Feedback error:', error)
+      logger.error('Feedback error:', error)
       res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) })
     }
   }
@@ -639,7 +640,7 @@ async function logSearch(
       [tenantId, userId, query, 'search', strategy, resultsCount, searchTimeMs, searchTimeMs]
     )
   } catch (error) {
-    console.error(`Error logging search:`, error)
+    logger.error(`Error logging search:`, error)
   }
 }
 

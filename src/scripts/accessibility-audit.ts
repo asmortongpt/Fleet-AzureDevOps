@@ -6,6 +6,7 @@
  */
 
 import { runAccessibilityAudit, generateAccessibilityReport, logAccessibilityViolations } from '../lib/accessibility/axe-init';
+
 import logger from '@/utils/logger';
 
 /**
@@ -92,15 +93,15 @@ if (typeof window !== 'undefined' && import.meta.env.DEV) {
 
   logger.info(
     '%c🔍 Accessibility Audit Available',
-    'color: #3b82f6; font-weight: bold; font-size: 12px;'
+    'color: hsl(var(--primary)); font-weight: bold; font-size: 12px;'
   );
   logger.info(
     '%cRun: window.runAccessibilityAudit()',
-    'color: #6b7280; font-size: 11px;'
+    'color: hsl(var(--muted-foreground)); font-size: 11px;'
   );
   logger.info(
     '%cDownload Report: window.downloadAuditReport()',
-    'color: #6b7280; font-size: 11px;'
+    'color: hsl(var(--muted-foreground)); font-size: 11px;'
   );
 }
 

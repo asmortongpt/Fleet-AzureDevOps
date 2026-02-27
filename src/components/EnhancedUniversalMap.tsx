@@ -246,7 +246,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
       case HealthStatus.UNHEALTHY:
         return 'bg-red-500'
       default:
-        return 'bg-gray-500'
+        return 'bg-white/[0.03]0'
     }
   }, [])
 
@@ -304,10 +304,10 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
             return (
               <div
                 key={provider}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md shadow-md text-xs ${
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs ${
                   isActive
-                    ? 'bg-white dark:bg-gray-800'
-                    : 'bg-gray-100 dark:bg-gray-900 opacity-60'
+                    ? 'bg-white dark:bg-[#18181b]'
+                    : 'bg-white/[0.05] dark:bg-[#111113] opacity-60'
                 }`}
               >
                 <div
@@ -318,7 +318,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
                   {provider === 'google' ? 'Google' : 'OSM'}
                 </span>
                 {stats && (
-                  <span className="text-gray-700 dark:text-gray-700">
+                  <span className="text-white/40 dark:text-white/40">
                     {Math.round(stats.averageResponseTime)}ms
                   </span>
                 )}
@@ -335,7 +335,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
           <Card>
             <CardContent className="py-3 px-2">
               <div className="flex items-center gap-3">
-                <div className="text-sm text-gray-700 dark:text-gray-300">
+                <div className="text-sm text-white/40 dark:text-white/60">
                   Map service issue detected
                 </div>
                 <div className="flex gap-2">
@@ -370,7 +370,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
       )}
 
       {/* Circuit Breaker Status (Development Only) */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.MODE === 'development' && (
         <div className="absolute bottom-4 left-4 z-40 bg-black/70 text-white px-2 py-1 rounded text-xs font-mono space-y-1">
           <div>Circuit: {errorRecovery.circuitState}</div>
           <div>Failures: {errorRecovery.failureCount}</div>

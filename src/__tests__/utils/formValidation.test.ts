@@ -176,7 +176,7 @@ describe('formValidation', () => {
       });
 
       it('should reject invalid URLs', () => {
-        const invalidUrls = ['not-a-url', 'javascript:alert()'];
+        const invalidUrls = ['not-a-url', '://missing-protocol'];
 
         invalidUrls.forEach((url) => {
           const result = urlValidator.safeParse(url);

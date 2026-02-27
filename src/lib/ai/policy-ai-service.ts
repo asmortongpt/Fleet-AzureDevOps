@@ -4,6 +4,8 @@
  */
 
 import type { Policy } from '../policy-engine/types'
+
+import { secureFetch } from '@/hooks/use-api';
 import logger from '@/utils/logger';
 
 export interface AIGenerationRequest {
@@ -90,7 +92,8 @@ export async function generatePolicyWithAI(
     // Get API key from environment
     const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY ||
       import.meta.env.VITE_OPENAI_API_KEY ||
-      import.meta.env.VITE_GEMINI_API_KEY
+      import.meta.env.VITE_GEMINI_API_KEY ||
+      ''
 
     if (!apiKey) {
       throw new Error('No AI API key configured. Please set VITE_ANTHROPIC_API_KEY, VITE_OPENAI_API_KEY, or VITE_GEMINI_API_KEY')
@@ -564,18 +567,15 @@ function convertPolicyToRules(policy: Policy): any[] {
  * Register rule with the application's rule engine
  */
 async function registerRule(rule: any): Promise<void> {
-  // This would integrate with your actual rules engine
-  // For now, we'll store in localStorage as a demo
-  const existingRules = JSON.parse(localStorage.getItem('fleet_rules') || '[]')
-  const index = existingRules.findIndex((r: any) => r.id === rule.id)
+  const response = await secureFetch('/api/admin/config/apply-policy', {
+    method: 'POST',
+    body: JSON.stringify(rule),
+  });
 
-  if (index >= 0) {
-    existingRules[index] = rule
-  } else {
-    existingRules.push(rule)
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Failed to register policy rule');
   }
-
-  localStorage.setItem('fleet_rules', JSON.stringify(existingRules))
 }
 
 export default {

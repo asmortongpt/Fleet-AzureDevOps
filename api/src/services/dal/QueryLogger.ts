@@ -3,6 +3,8 @@
  * Provides structured logging for database queries with performance monitoring
  */
 
+import logger from '../../config/logger'
+
 export interface QueryLog {
   query: string
   params?: any[]
@@ -50,7 +52,7 @@ return
     this.addLog(log)
 
     if (process.env.DB_LOG_QUERIES === 'true') {
-      console.log(`[DB Query]`, {
+      logger.info('[DB Query]', {
         query: log.query,
         params: log.params,
         timestamp: log.timestamp.toISOString()
@@ -79,7 +81,7 @@ return
 
     // Warn on slow queries (> 1 second)
     if (duration > 1000) {
-      console.warn(`[DB Slow Query]`, {
+      logger.warn('[DB Slow Query]', {
         query: log.query,
         duration: `${duration}ms`,
         rowCount
@@ -87,7 +89,7 @@ return
     }
 
     if (process.env.DB_LOG_QUERIES === `true`) {
-      console.log(`[DB Success]`, {
+      logger.info('[DB Success]', {
         query: log.query,
         duration: `${duration}ms`,
         rowCount
@@ -114,7 +116,7 @@ return
 
     this.addLog(log)
 
-    console.error(`[DB Error]`, {
+    logger.error('[DB Error]', {
       query: log.query,
       params: log.params,
       duration: `${duration}ms`,

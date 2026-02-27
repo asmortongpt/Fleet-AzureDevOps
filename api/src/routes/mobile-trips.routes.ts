@@ -111,7 +111,7 @@ const TripMetricsSchema = z.object({
     g_force: z.number().optional(),
     speed_limit_mph: z.number().int().optional(),
     description: z.string(),
-    metadata: z.any().optional()
+    metadata: z.record(z.string(), z.unknown()).optional()
   })).optional()
 });
 
@@ -167,8 +167,8 @@ const ClassifyTripSchema = z.object({
 router.post('/start', csrfProtection, requirePermission('route:create:own'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = StartTripSchema.parse(req.body);
-    const userId = (req as any).user.id;
-    const tenantId = (req as any).user.tenant_id;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenant_id;
 
     // Use authenticated user as driver if not specified
     const driverId = validated.driver_id || userId;
@@ -202,7 +202,7 @@ router.post('/start', csrfProtection, requirePermission('route:create:own'), aud
       trip_id: trip.id,
       trip
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error starting trip:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -252,8 +252,8 @@ router.post('/:id/end', csrfProtection, requirePermission('route:update:own'), a
   try {
     const tripId = req.params.id;
     const validated = EndTripSchema.parse(req.body);
-    const userId = (req as any).user.id;
-    const tenantId = (req as any).user.tenant_id;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenant_id;
 
     // Verify trip exists and user has access
     const tripCheck = await pool.query(
@@ -268,7 +268,7 @@ router.post('/:id/end', csrfProtection, requirePermission('route:update:own'), a
     const trip = tripCheck.rows[0];
 
     // Verify user is the driver or has admin access
-    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role)) {
+    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes(req.user?.role ?? '')) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -334,7 +334,7 @@ router.post('/:id/end', csrfProtection, requirePermission('route:update:own'), a
       message: 'Trip ended',
       trip: result.rows[0]
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error ending trip:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -385,7 +385,7 @@ router.post('/:id/metrics', csrfProtection, requirePermission('route:update:own'
   try {
     const tripId = req.params.id;
     const validated = TripMetricsSchema.parse(req.body);
-    const tenantId = (req as any).user.tenant_id;
+    const tenantId = req.user?.tenant_id;
 
     // Verify trip exists
     const tripCheck = await pool.query(
@@ -508,7 +508,7 @@ router.post('/:id/metrics', csrfProtection, requirePermission('route:update:own'
     } finally {
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error saving metrics:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -551,7 +551,7 @@ router.post('/:id/metrics', csrfProtection, requirePermission('route:update:own'
 router.get('/:id', requirePermission('route:view:own'), async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
-    const tenantId = (req as any).user.tenant_id;
+    const tenantId = req.user?.tenant_id;
 
     const includeBreadcrumbs = req.query.include_breadcrumbs === 'true';
     const includeMetrics = req.query.include_metrics === 'true';
@@ -614,7 +614,7 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
       success: true,
       trip
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting trip:', error);
     res.status(500).json({ error: 'Failed to get trip' });
   }
@@ -657,8 +657,8 @@ router.patch('/:id/classify', csrfProtection, requirePermission('route:update:ow
   try {
     const tripId = req.params.id;
     const validated = ClassifyTripSchema.parse(req.body);
-    const userId = (req as any).user.id;
-    const tenantId = (req as any).user.tenant_id;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenant_id;
 
     // Verify trip exists and user has access
     const tripCheck = await pool.query(
@@ -673,7 +673,7 @@ router.patch('/:id/classify', csrfProtection, requirePermission('route:update:ow
     const trip = tripCheck.rows[0];
 
     // Verify user is the driver or has admin access
-    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role)) {
+    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes(req.user?.role ?? '')) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -737,7 +737,7 @@ router.patch('/:id/classify', csrfProtection, requirePermission('route:update:ow
       message: 'Trip classified',
       trip: result.rows[0]
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error classifying trip:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -793,7 +793,7 @@ router.patch('/:id/classify', csrfProtection, requirePermission('route:update:ow
  */
 router.get('/', requirePermission('route:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const {
       driver_id,
       vehicle_id,
@@ -817,7 +817,7 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
       WHERE t.tenant_id = $1
     `;
 
-    const params: any[] = [tenantId];
+    const params: unknown[] = [tenantId];
     let paramCount = 1;
 
     if (driver_id) {
@@ -878,7 +878,7 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
         has_more: parseInt(offset as string) + result.rows.length < total
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting trips:', error);
     res.status(500).json({ error: 'Failed to get trips' });
   }

@@ -15,13 +15,14 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
+
 import logger from '@/utils/logger';
 
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 const MAX_RETRIES = 3
 const RETRY_DELAY = 1000 // ms
 

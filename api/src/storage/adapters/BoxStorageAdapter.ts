@@ -102,11 +102,11 @@ export class BoxStorageAdapter extends BaseStorageAdapter {
         size: file.size,
         metadata: options?.metadata
       };
-    } catch (error: any) {
-      if (error.response?.status === 409) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).response && ((error as Record<string, unknown>).response as Record<string, unknown>)?.status === 409) {
         throw new FileAlreadyExistsError(normalizedKey);
       }
-      throw new Error(`Failed to upload to Box: ${error.message}`);
+      throw new Error(`Failed to upload to Box: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -281,7 +281,7 @@ export class BoxStorageAdapter extends BaseStorageAdapter {
   private async getFileIdByName(filename: string): Promise<string | null> {
     const result = await this.list();
     const file = result.files.find(f => f.name === filename);
-    return file ? (file as any).id : null;
+    return file ? (file as FileInfo & { id?: string }).id ?? null : null;
   }
 
   private async streamToBuffer(stream: Readable): Promise<Buffer> {

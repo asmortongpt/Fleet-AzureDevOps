@@ -19,7 +19,7 @@ import {
   Tag as TagIcon,
   FileText
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { secureFetch } from '@/hooks/use-api';
 import { Folder as FolderType } from '@/lib/documents/types';
 import { cn } from '@/lib/utils';
 
@@ -40,75 +41,37 @@ interface DocumentSidebarProps {
   className?: string;
 }
 
-// Mock folder data - replace with actual data
-const mockFolders: FolderType[] = [
-  {
-    id: 'incidents',
-    name: 'Incident Reports',
-    path: '/incidents',
-    color: 'text-red-500',
-    icon: 'alert-circle',
-    documentCount: 24,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-  {
-    id: 'evidence',
-    name: 'Evidence',
-    path: '/evidence',
-    color: 'text-blue-800',
-    icon: 'camera',
-    documentCount: 156,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-  {
-    id: 'vehicles',
-    name: 'Vehicle Documents',
-    path: '/vehicles',
-    color: 'text-green-500',
-    icon: 'truck',
-    documentCount: 89,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-  {
-    id: 'maintenance',
-    name: 'Maintenance Records',
-    parentId: 'vehicles',
-    path: '/vehicles/maintenance',
-    documentCount: 45,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-  {
-    id: 'insurance',
-    name: 'Insurance',
-    path: '/insurance',
-    color: 'text-purple-500',
-    icon: 'shield',
-    documentCount: 32,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-  {
-    id: 'contracts',
-    name: 'Contracts',
-    path: '/contracts',
-    color: 'text-orange-500',
-    icon: 'file-text',
-    documentCount: 18,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-];
-
 export function DocumentSidebar({
   currentFolderId,
   onFolderSelect,
   className
 }: DocumentSidebarProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['vehicles']));
+  const [folders, setFolders] = useState<FolderType[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadFolders = async () => {
+      try {
+        const response = await secureFetch('/api/documents/categories');
+        if (!response.ok) return;
+        const payload = await response.json();
+        const data = payload.data || payload || [];
+        if (!isMounted) return;
+        setFolders(data);
+      } catch {
+        if (!isMounted) return;
+        setFolders([]);
+      }
+    };
+
+    loadFolders();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const toggleFolder = (folderId: string) => {
     const newExpanded = new Set(expandedFolders);
@@ -120,8 +83,8 @@ export function DocumentSidebar({
     setExpandedFolders(newExpanded);
   };
 
-  const rootFolders = mockFolders.filter(f => !f.parentId);
-  const getChildFolders = (parentId: string) => mockFolders.filter(f => f.parentId === parentId);
+  const rootFolders = folders.filter(f => !f.parentId);
+  const getChildFolders = (parentId: string) => folders.filter(f => f.parentId === parentId);
 
   return (
     <aside className={cn('flex flex-col bg-sidebar border-r', className)}>
@@ -129,7 +92,7 @@ export function DocumentSidebar({
       <div className="p-2 border-b">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-sidebar-foreground">Documents</h2>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="New document">
             <Plus className="h-4 w-4" />
           </Button>
         </div>

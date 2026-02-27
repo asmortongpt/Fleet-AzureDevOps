@@ -14,6 +14,7 @@ import express, { Request, Response } from 'express'
 import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 24: Add Winston logger
+import { pool } from '../db/connection'
 import { ValidationError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { authenticateJWT } from '../middleware/auth'
@@ -23,11 +24,92 @@ import { setTenantContext } from '../middleware/tenant-context'
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 
 // Apply authentication to all routes
 router.use(authenticateJWT)
 router.use(setTenantContext)
+
+/**
+ * Ensure supporting tables exist for mobile hardware features.
+ * Uses CREATE TABLE IF NOT EXISTS so it is safe to run on every startup.
+ */
+async function ensureMobileHardwareTables(): Promise<void> {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS beacons (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        tenant_id UUID NOT NULL,
+        vehicle_id UUID NOT NULL,
+        uuid VARCHAR(36) NOT NULL,
+        major INTEGER NOT NULL,
+        minor INTEGER NOT NULL,
+        registered_by UUID,
+        registered_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS dashcam_events (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        tenant_id UUID NOT NULL,
+        vehicle_id UUID,
+        driver_id UUID,
+        event_type VARCHAR(50) NOT NULL,
+        severity VARCHAR(20),
+        notes TEXT,
+        latitude DECIMAL(10, 8),
+        longitude DECIMAL(11, 8),
+        speed DECIMAL(8, 2),
+        heading DECIMAL(6, 2),
+        dashcam_brand VARCHAR(100),
+        dashcam_model VARCHAR(100),
+        dashcam_serial VARCHAR(100),
+        status VARCHAR(50) DEFAULT 'pending_review',
+        video_url TEXT,
+        event_timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+        created_by UUID,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS vehicle_checkins (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        tenant_id UUID NOT NULL,
+        vehicle_id UUID NOT NULL,
+        checked_in_by UUID NOT NULL,
+        checked_in_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        check_in_method VARCHAR(20) NOT NULL,
+        requires_inspection BOOLEAN DEFAULT TRUE,
+        notes TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // Indexes for performance
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_beacons_tenant ON beacons(tenant_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_beacons_vehicle ON beacons(vehicle_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_dashcam_events_tenant ON dashcam_events(tenant_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_dashcam_events_vehicle ON dashcam_events(vehicle_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_dashcam_events_type ON dashcam_events(event_type)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_vehicle_checkins_tenant ON vehicle_checkins(tenant_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_vehicle_checkins_vehicle ON vehicle_checkins(vehicle_id)`)
+
+    logger.info('Mobile hardware tables ensured')
+  } catch (error) {
+    logger.error('Error ensuring mobile hardware tables:', error)
+  }
+}
+
+// Run table creation on module load
+void ensureMobileHardwareTables()
 
 /**
  * ============================================================================
@@ -70,8 +152,8 @@ const PartScanSchema = z.object({
 router.post('/parts/scan', requirePermission('inventory:view:global'), async (req: Request, res: Response) => {
   try {
     const validated = PartScanSchema.parse(req.body)
-    const tenantId = (req as any).user?.tenant_id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
     if (!tenantId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -113,7 +195,7 @@ router.post('/parts/scan', requirePermission('inventory:view:global'), async (re
         imageUrl: row.metadata?.image_url ?? null,
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error scanning part:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -152,8 +234,8 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
       throw new ValidationError("Search query required")
     }
 
-    const tenantId = (req as any).user?.tenant_id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
     if (!tenantId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -179,21 +261,21 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
       [tenantId, q]
     )
 
-    const parts = result.rows.map((row: any) => ({
+    const parts = result.rows.map((row: Record<string, unknown>) => ({
       id: row.id,
       partNumber: row.part_number,
       name: row.name,
       description: row.description,
       manufacturer: row.manufacturer,
       price: row.unit_cost ? Number(row.unit_cost) : null,
-      inStock: Number(row.quantity_on_hand ?? 0) > 0,
-      quantity: Number(row.quantity_on_hand ?? 0),
+      inStock: Number((row.quantity_on_hand as number | null) ?? 0) > 0,
+      quantity: Number((row.quantity_on_hand as number | null) ?? 0),
       location: row.location_in_warehouse,
-      imageUrl: row.metadata?.image_url ?? null,
+      imageUrl: (row.metadata as Record<string, unknown> | null)?.image_url ?? null,
     }))
 
     res.json({ parts, total: parts.length })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error searching parts:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -248,9 +330,9 @@ router.post(
   async (req: Request, res: Response) => {
   try {
     const validated = PartOrderSchema.parse(req.body)
-    const tenantId = (req as any).user?.tenant_id
-    const userId = (req as any).user?.id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
 
     if (!tenantId || !userId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -308,12 +390,12 @@ router.post(
         subtotal, tax_amount, shipping_cost, total_amount,
         notes, line_items, requested_by_id
       ) VALUES ($1, $2, $3, $4, $5, 0, 0, $6, $7, $8, $9)
-      RETURNING id, number, status, total_amount as \"totalAmount\"`,
+      RETURNING id, number, status, total_amount as "totalAmount"`,
       [tenantId, number, vendorId, orderDate, subtotal, totalAmount, validated.notes ?? null, JSON.stringify(lineItems), userId]
     )
 
     res.status(201).json({ data: poResult.rows[0] })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error ordering part:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -365,33 +447,65 @@ const VehicleCheckInSchema = z.object({
  *       200:
  *         description: Check-in successful
  */
-router.post('/checkin/nfc', requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
+router.post('/checkin/nfc', requirePermission('vehicle:update:fleet'), auditLog({ action: 'CREATE', resourceType: 'vehicle_checkins' }), async (req: Request, res: Response) => {
   try {
     const validated = VehicleCheckInSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
+
+    if (!tenantId || !userId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
+    }
 
     if (!validated.vehicleId && !validated.vin) {
       return res.status(400).json({ error: `Either vehicleId or vin is required` })
     }
 
-    // Vehicle check-in: Basic implementation - add workflow in production
-    // - Verify vehicle exists
-    // - Check if user has reservation
-    // - Create or update check-in record
-    // - Start pre-trip inspection if configured
-
-    const checkIn = {
-      reservationId: `RSV-${Date.now()}`,
-      vehicleId: validated.vehicleId || `VEH-${Date.now()}`,
-      checkedInBy: userId,
-      checkedInAt: validated.timestamp,
-      method: validated.checkInMethod,
-      requiresInspection: true
+    // Verify vehicle exists in the database
+    let vehicleResult
+    if (validated.vehicleId) {
+      vehicleResult = await client.query(
+        `SELECT id, vin, make, model, year, status
+         FROM vehicles
+         WHERE id = $1 AND tenant_id = $2`,
+        [validated.vehicleId, tenantId]
+      )
+    } else {
+      vehicleResult = await client.query(
+        `SELECT id, vin, make, model, year, status
+         FROM vehicles
+         WHERE vin = $1 AND tenant_id = $2`,
+        [validated.vin, tenantId]
+      )
     }
 
-    res.json(checkIn)
-  } catch (error: any) {
+    if (vehicleResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Vehicle not found' })
+    }
+
+    const vehicle = vehicleResult.rows[0]
+
+    // Create check-in record in the database
+    const checkinResult = await client.query(
+      `INSERT INTO vehicle_checkins (
+        tenant_id, vehicle_id, checked_in_by, checked_in_at, check_in_method, requires_inspection
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, vehicle_id, checked_in_by, checked_in_at, check_in_method, requires_inspection`,
+      [tenantId, vehicle.id, userId, validated.timestamp, validated.checkInMethod, true]
+    )
+
+    const checkin = checkinResult.rows[0]
+
+    res.json({
+      reservationId: checkin.id,
+      vehicleId: String(checkin.vehicle_id),
+      checkedInBy: String(checkin.checked_in_by),
+      checkedInAt: checkin.checked_in_at,
+      method: checkin.check_in_method,
+      requiresInspection: checkin.requires_inspection
+    })
+  } catch (error: unknown) {
     logger.error(`Error during vehicle check-in:`, error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -422,30 +536,78 @@ router.get('/vehicles/details', requirePermission('vehicle:view:fleet'), async (
   try {
     const vehicleId = req.query.vehicleId as string
     const vin = req.query.vin as string
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
+
+    if (!tenantId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
+    }
 
     if (!vehicleId && !vin) {
       return res.status(400).json({ error: `Either vehicleId or vin is required` })
     }
 
-    // Vehicle lookup: Mock data - connect to vehicle database
-    const vehicle = {
-      id: vehicleId || `VEH-${Date.now()}`,
-      vin: vin || '1HGBH41JXMN109186',
-      make: 'Ford',
-      model: 'Transit',
-      year: 2023,
-      licensePlate: 'ABC-1234',
-      fleetNumber: 'FL-001',
-      mileage: 45678,
-      fuelLevel: 75,
-      status: 'active',
-      location: 'Parking Lot A',
-      imageUrl: 'https://example.com/vehicle.jpg'
+    let result
+    if (vehicleId) {
+      result = await client.query(
+        `SELECT
+          id,
+          vin,
+          make,
+          model,
+          year,
+          license_plate,
+          number AS fleet_number,
+          odometer AS mileage,
+          fuel_level,
+          status,
+          location_address AS location,
+          metadata
+        FROM vehicles
+        WHERE id = $1 AND tenant_id = $2`,
+        [vehicleId, tenantId]
+      )
+    } else {
+      result = await client.query(
+        `SELECT
+          id,
+          vin,
+          make,
+          model,
+          year,
+          license_plate,
+          number AS fleet_number,
+          odometer AS mileage,
+          fuel_level,
+          status,
+          location_address AS location,
+          metadata
+        FROM vehicles
+        WHERE vin = $1 AND tenant_id = $2`,
+        [vin, tenantId]
+      )
     }
 
-    res.json(vehicle)
-  } catch (error: any) {
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Vehicle not found' })
+    }
+
+    const row = result.rows[0]
+    res.json({
+      id: String(row.id),
+      vin: row.vin,
+      make: row.make,
+      model: row.model,
+      year: row.year ? Number(row.year) : null,
+      licensePlate: row.license_plate,
+      fleetNumber: row.fleet_number,
+      mileage: row.mileage ? Number(row.mileage) : null,
+      fuelLevel: row.fuel_level ? Number(row.fuel_level) : null,
+      status: row.status,
+      location: row.location,
+      imageUrl: row.metadata?.image_url ?? null
+    })
+  } catch (error: unknown) {
     logger.error('Error getting vehicle details:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -462,7 +624,7 @@ router.get('/vehicles/details', requirePermission('vehicle:view:fleet'), async (
  */
 const BeaconRegistrationSchema = z.object({
   vehicleId: z.string().min(1),
-  uuid: z.string().uuid(),
+  uuid: flexUuid,
   major: z.number().int().min(0).max(65535),
   minor: z.number().int().min(0).max(65535),
   registeredAt: z.string().datetime()
@@ -499,26 +661,48 @@ const BeaconRegistrationSchema = z.object({
  *       201:
  *         description: Beacon registered successfully
  */
-router.post('/beacons/register', requirePermission(`vehicle:update:fleet`), auditLog, async (req: Request, res: Response) => {
+router.post('/beacons/register', requirePermission(`vehicle:update:fleet`), auditLog({ action: 'CREATE', resourceType: 'beacons' }), async (req: Request, res: Response) => {
   try {
     const validated = BeaconRegistrationSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
 
-    // Beacon registration: Stub - add IoT backend integration
-    const beacon = {
-      beaconId: `BCN-${Date.now()}`,
-      vehicleId: validated.vehicleId,
-      uuid: validated.uuid,
-      major: validated.major,
-      minor: validated.minor,
-      registeredBy: userId,
-      registeredAt: validated.registeredAt,
-      active: true
+    if (!tenantId || !userId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
     }
 
-    res.status(201).json(beacon)
-  } catch (error: any) {
+    // Verify the vehicle exists
+    const vehicleCheck = await client.query(
+      `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
+      [validated.vehicleId, tenantId]
+    )
+
+    if (vehicleCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Vehicle not found', vehicleId: validated.vehicleId })
+    }
+
+    // Insert beacon into the database
+    const result = await client.query(
+      `INSERT INTO beacons (
+        tenant_id, vehicle_id, uuid, major, minor, registered_by, registered_at, is_active
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id, vehicle_id, uuid, major, minor, registered_by, registered_at, is_active`,
+      [tenantId, validated.vehicleId, validated.uuid, validated.major, validated.minor, userId, validated.registeredAt, true]
+    )
+
+    const row = result.rows[0]
+    res.status(201).json({
+      beaconId: String(row.id),
+      vehicleId: String(row.vehicle_id),
+      uuid: row.uuid,
+      major: row.major,
+      minor: row.minor,
+      registeredBy: String(row.registered_by),
+      registeredAt: row.registered_at,
+      active: row.is_active
+    })
+  } catch (error: unknown) {
     logger.error(`Error registering beacon:`, error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -552,43 +736,49 @@ router.post('/beacons/register', requirePermission(`vehicle:update:fleet`), audi
  */
 router.get('/beacons/nearby', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
-    const latitude = req.query.latitude ? parseFloat(req.query.latitude as string) : undefined
-    const longitude = req.query.longitude ? parseFloat(req.query.longitude as string) : undefined
-    const radius = req.query.radius ? parseFloat(req.query.radius as string) : 100
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
-    // Beacon lookup: Mock - implement geospatial query
-    // For now, return all beacons for the tenant
+    if (!tenantId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
+    }
 
-    const beacons = [
-      {
-        beaconId: 'BCN-001',
-        vehicleId: 'VEH-001',
-        uuid: '2F234454-CF6D-4A0F-ADF2-F4911BA9FFA6',
-        major: 100,
-        minor: 1,
-        vin: '1HGBH41JXMN109186',
-        make: 'Ford',
-        model: 'Transit',
-        licensePlate: 'ABC-1234',
-        location: 'Parking Lot A'
-      },
-      {
-        beaconId: 'BCN-002',
-        vehicleId: 'VEH-002',
-        uuid: '2F234454-CF6D-4A0F-ADF2-F4911BA9FFA6',
-        major: 100,
-        minor: 2,
-        vin: '1HGBH41JXMN109187',
-        make: 'Mercedes',
-        model: 'Sprinter',
-        licensePlate: 'XYZ-5678',
-        location: 'Parking Lot B'
-      }
-    ]
+    // Query active beacons for this tenant, joined with vehicle details
+    const result = await client.query(
+      `SELECT
+        b.id AS beacon_id,
+        b.vehicle_id,
+        b.uuid,
+        b.major,
+        b.minor,
+        v.vin,
+        v.make,
+        v.model,
+        v.license_plate,
+        v.location_address AS location
+      FROM beacons b
+      JOIN vehicles v ON b.vehicle_id = v.id AND v.tenant_id = $1
+      WHERE b.tenant_id = $1 AND b.is_active = true
+      ORDER BY b.created_at DESC
+      LIMIT 100`,
+      [tenantId]
+    )
+
+    const beacons = result.rows.map((row: Record<string, unknown>) => ({
+      beaconId: String(row.beacon_id),
+      vehicleId: String(row.vehicle_id),
+      uuid: row.uuid,
+      major: row.major,
+      minor: row.minor,
+      vin: row.vin,
+      make: row.make,
+      model: row.model,
+      licensePlate: row.license_plate,
+      location: row.location
+    }))
 
     res.json({ beacons })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting nearby beacons:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -659,34 +849,69 @@ const DashcamEventSchema = z.object({
  *       201:
  *         description: Event tagged successfully
  */
-router.post(`/dashcam/event`, requirePermission(`safety_incident:create:global`), auditLog, async (req: Request, res: Response) => {
+router.post(`/dashcam/event`, requirePermission(`safety_incident:create:global`), auditLog({ action: 'CREATE', resourceType: 'dashcam_events' }), async (req: Request, res: Response) => {
   try {
     const validated = DashcamEventSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
 
-    // Dashcam storage: Stub - add video storage service
-    // - Store event record
-    // - Trigger video capture/download if configured
-    // - Create safety incident if severity is high
-    // - Send notifications to fleet managers
-
-    const event = {
-      eventId: validated.eventId || `DCE-${Date.now()}`,
-      timestamp: validated.timestamp,
-      type: validated.type,
-      severity: validated.severity,
-      notes: validated.notes,
-      gpsData: validated.gpsData,
-      dashcamInfo: validated.dashcamInfo,
-      createdBy: userId,
-      createdAt: new Date().toISOString(),
-      status: 'pending_review',
-      videoUrl: null // Will be populated when video is captured/uploaded
+    if (!tenantId || !userId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
     }
 
-    res.status(201).json(event)
-  } catch (error: any) {
+    const result = await client.query(
+      `INSERT INTO dashcam_events (
+        tenant_id, event_type, severity, notes,
+        latitude, longitude, speed, heading,
+        dashcam_brand, dashcam_model, dashcam_serial,
+        status, event_timestamp, created_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      RETURNING id, event_type, severity, notes, latitude, longitude, speed, heading,
+                dashcam_brand, dashcam_model, dashcam_serial, status, video_url,
+                event_timestamp, created_by, created_at`,
+      [
+        tenantId,
+        validated.type,
+        validated.severity ?? null,
+        validated.notes ?? null,
+        validated.gpsData?.latitude ?? null,
+        validated.gpsData?.longitude ?? null,
+        validated.gpsData?.speed ?? null,
+        validated.gpsData?.heading ?? null,
+        validated.dashcamInfo?.brand ?? null,
+        validated.dashcamInfo?.model ?? null,
+        validated.dashcamInfo?.serialNumber ?? null,
+        'pending_review',
+        validated.timestamp,
+        userId
+      ]
+    )
+
+    const row = result.rows[0]
+    res.status(201).json({
+      eventId: String(row.id),
+      timestamp: row.event_timestamp,
+      type: row.event_type,
+      severity: row.severity,
+      notes: row.notes,
+      gpsData: (row.latitude !== null && row.latitude !== undefined && row.longitude !== null && row.longitude !== undefined) ? {
+        latitude: Number(row.latitude),
+        longitude: Number(row.longitude),
+        speed: row.speed ? Number(row.speed) : undefined,
+        heading: row.heading ? Number(row.heading) : undefined
+      } : undefined,
+      dashcamInfo: row.dashcam_brand ? {
+        brand: row.dashcam_brand,
+        model: row.dashcam_model,
+        serialNumber: row.dashcam_serial
+      } : undefined,
+      createdBy: String(row.created_by),
+      createdAt: row.created_at,
+      status: row.status,
+      videoUrl: row.video_url
+    })
+  } catch (error: unknown) {
     logger.error('Error tagging dashcam event:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -725,34 +950,88 @@ router.post(`/dashcam/event`, requirePermission(`safety_incident:create:global`)
  */
 router.get('/dashcam/events', requirePermission('safety_incident:view:global'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
+
+    if (!tenantId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
+    }
+
     const vehicleId = req.query.vehicleId as string
     const startDate = req.query.startDate as string
     const endDate = req.query.endDate as string
-    const type = req.query.type as string
+    const eventType = req.query.type as string
 
-    // Dashcam retrieval: Basic - add advanced filtering
+    // Build dynamic query with parameterized values
+    let queryText = `
+      SELECT
+        de.id AS event_id,
+        de.event_timestamp AS timestamp,
+        de.event_type AS type,
+        de.severity,
+        de.vehicle_id,
+        de.driver_id,
+        de.latitude,
+        de.longitude,
+        de.speed,
+        de.heading,
+        de.status,
+        de.video_url,
+        de.notes,
+        de.created_by,
+        de.created_at
+      FROM dashcam_events de
+      WHERE de.tenant_id = $1
+    `
+    const params: (string | undefined)[] = [tenantId]
+    let paramIndex = 2
 
-    const events = [
-      {
-        eventId: 'DCE-001',
-        timestamp: new Date().toISOString(),
-        type: 'harsh_braking',
-        severity: 'medium',
-        vehicleId: 'VEH-001',
-        driverId: 'DRV-001',
-        gpsData: {
-          latitude: 40.7128,
-          longitude: -74.0060,
-          speed: 45
-        },
-        status: 'reviewed',
-        videoUrl: 'https://example.com/dashcam/video-001.mp4'
-      }
-    ]
+    if (vehicleId) {
+      queryText += ` AND de.vehicle_id = $${paramIndex}`
+      params.push(vehicleId)
+      paramIndex++
+    }
+
+    if (startDate) {
+      queryText += ` AND de.event_timestamp >= $${paramIndex}`
+      params.push(startDate)
+      paramIndex++
+    }
+
+    if (endDate) {
+      queryText += ` AND de.event_timestamp <= $${paramIndex}`
+      params.push(endDate)
+      paramIndex++
+    }
+
+    if (eventType) {
+      queryText += ` AND de.event_type = $${paramIndex}`
+      params.push(eventType)
+      paramIndex++
+    }
+
+    queryText += ` ORDER BY de.event_timestamp DESC LIMIT 100`
+
+    const result = await client.query(queryText, params)
+
+    const events = result.rows.map((row: Record<string, unknown>) => ({
+      eventId: String(row.event_id),
+      timestamp: row.timestamp,
+      type: row.type,
+      severity: row.severity,
+      vehicleId: row.vehicle_id ? String(row.vehicle_id) : null,
+      driverId: row.driver_id ? String(row.driver_id) : null,
+      gpsData: (row.latitude !== null && row.latitude !== undefined && row.longitude !== null && row.longitude !== undefined) ? {
+        latitude: Number(row.latitude),
+        longitude: Number(row.longitude),
+        speed: row.speed ? Number(row.speed) : undefined
+      } : undefined,
+      status: row.status,
+      videoUrl: row.video_url
+    }))
 
     res.json({ events })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting dashcam events:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -785,24 +1064,52 @@ router.get('/dashcam/events', requirePermission('safety_incident:view:global'), 
 router.get('/work-orders/:workOrderId/parts', requirePermission('work_order:view:global'), async (req: Request, res: Response) => {
   try {
     const workOrderId = req.params.workOrderId
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
-    // Work order parts: Mock - integrate with parts inventory
+    if (!tenantId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
+    }
 
-    const parts = [
-      {
-        id: 'WOP-001',
-        partNumber: 'BRK-12345',
-        description: 'Brake Pad Set - Front',
-        quantity: 2,
-        unitPrice: 89.99,
-        totalPrice: 179.98,
-        status: 'ordered'
-      }
-    ]
+    // Verify work order exists for this tenant
+    const woCheck = await client.query(
+      `SELECT id FROM work_orders WHERE id = $1 AND tenant_id = $2`,
+      [workOrderId, tenantId]
+    )
+
+    if (woCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Work order not found' })
+    }
+
+    const result = await client.query(
+      `SELECT
+        wop.id,
+        wop.part_number,
+        wop.name AS description,
+        wop.quantity,
+        wop.unit_cost AS unit_price,
+        wop.total_cost AS total_price,
+        wop.supplier,
+        wop.notes,
+        wop.created_at
+      FROM work_order_parts wop
+      WHERE wop.work_order_id = $1 AND wop.tenant_id = $2
+      ORDER BY wop.created_at ASC`,
+      [workOrderId, tenantId]
+    )
+
+    const parts = result.rows.map((row: Record<string, unknown>) => ({
+      id: String(row.id),
+      partNumber: row.part_number,
+      description: row.description,
+      quantity: Number(row.quantity),
+      unitPrice: Number(row.unit_price),
+      totalPrice: Number(row.total_price),
+      status: 'ordered'
+    }))
 
     res.json({ parts })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting work order parts:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -851,30 +1158,59 @@ const AddPartToWorkOrderSchema = z.object({
  *       201:
  *         description: Part added to work order
  */
-router.post('/work-orders/:workOrderId/parts', requirePermission(`work_order:update:global`), auditLog, async (req: Request, res: Response) => {
+router.post('/work-orders/:workOrderId/parts', requirePermission(`work_order:update:global`), auditLog({ action: 'CREATE', resourceType: 'work_order_parts' }), async (req: Request, res: Response) => {
   try {
     const workOrderId = req.params.workOrderId
     const validated = AddPartToWorkOrderSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
 
-    // Part addition: Stub - add transaction handling
-
-    const workOrderPart = {
-      id: `WOP-${Date.now()}`,
-      workOrderId,
-      partNumber: validated.partNumber,
-      quantity: validated.quantity,
-      unitPrice: validated.unitPrice,
-      totalPrice: validated.quantity * validated.unitPrice,
-      notes: validated.notes,
-      status: 'pending',
-      addedBy: userId,
-      addedAt: new Date().toISOString()
+    if (!tenantId || !userId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
     }
 
-    res.status(201).json(workOrderPart)
-  } catch (error: any) {
+    // Verify work order exists for this tenant
+    const woCheck = await client.query(
+      `SELECT id FROM work_orders WHERE id = $1 AND tenant_id = $2`,
+      [workOrderId, tenantId]
+    )
+
+    if (woCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Work order not found' })
+    }
+
+    const totalCost = validated.quantity * validated.unitPrice
+
+    // Try to find the part name from parts_inventory, fall back to the part number
+    const partLookup = await client.query(
+      `SELECT name FROM parts_inventory WHERE tenant_id = $1 AND part_number = $2 AND is_active = true LIMIT 1`,
+      [tenantId, validated.partNumber]
+    )
+    const partName = partLookup.rows.length > 0 ? partLookup.rows[0].name : validated.partNumber
+
+    const result = await client.query(
+      `INSERT INTO work_order_parts (
+        tenant_id, work_order_id, part_number, name, quantity, unit_cost, total_cost, notes
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id, work_order_id, part_number, name, quantity, unit_cost, total_cost, notes, created_at`,
+      [tenantId, workOrderId, validated.partNumber, partName, validated.quantity, validated.unitPrice, totalCost, validated.notes ?? null]
+    )
+
+    const row = result.rows[0]
+    res.status(201).json({
+      id: String(row.id),
+      workOrderId: String(row.work_order_id),
+      partNumber: row.part_number,
+      quantity: Number(row.quantity),
+      unitPrice: Number(row.unit_cost),
+      totalPrice: Number(row.total_cost),
+      notes: row.notes,
+      status: 'pending',
+      addedBy: userId,
+      addedAt: row.created_at
+    })
+  } catch (error: unknown) {
     logger.error('Error adding part to work order:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -920,29 +1256,77 @@ const BatchAddPartsSchema = z.object({
  *       201:
  *         description: Parts added to work order
  */
-router.post('/work-orders/:workOrderId/parts/batch', requirePermission(`work_order:update:global`), auditLog, async (req: Request, res: Response) => {
+router.post('/work-orders/:workOrderId/parts/batch', requirePermission(`work_order:update:global`), auditLog({ action: 'CREATE', resourceType: 'work_order_parts' }), async (req: Request, res: Response) => {
   try {
     const workOrderId = req.params.workOrderId
     const validated = BatchAddPartsSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
 
-    // Batch addition: Stub - implement bulk operations
+    if (!tenantId || !userId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
+    }
 
-    const addedParts = validated.parts.map((part, index) => ({
-      id: `WOP-${Date.now()}-${index}`,
-      workOrderId,
-      partNumber: part.partNumber,
-      quantity: part.quantity,
-      unitPrice: part.unitPrice,
-      totalPrice: part.quantity * part.unitPrice,
-      status: 'pending',
-      addedBy: userId,
-      addedAt: new Date().toISOString()
-    }))
+    if (validated.parts.length === 0) {
+      return res.status(400).json({ error: 'At least one part is required' })
+    }
 
-    res.status(201).json({ parts: addedParts, count: addedParts.length })
-  } catch (error: any) {
+    // Verify work order exists for this tenant
+    const woCheck = await client.query(
+      `SELECT id FROM work_orders WHERE id = $1 AND tenant_id = $2`,
+      [workOrderId, tenantId]
+    )
+
+    if (woCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Work order not found' })
+    }
+
+    // Use a transaction for batch insert
+    await client.query('BEGIN')
+
+    try {
+      const addedParts = []
+
+      for (const part of validated.parts) {
+        const totalCost = part.quantity * part.unitPrice
+
+        // Try to look up part name from inventory
+        const partLookup = await client.query(
+          `SELECT name FROM parts_inventory WHERE tenant_id = $1 AND part_number = $2 AND is_active = true LIMIT 1`,
+          [tenantId, part.partNumber]
+        )
+        const partName = partLookup.rows.length > 0 ? partLookup.rows[0].name : part.partNumber
+
+        const result = await client.query(
+          `INSERT INTO work_order_parts (
+            tenant_id, work_order_id, part_number, name, quantity, unit_cost, total_cost
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+          RETURNING id, work_order_id, part_number, name, quantity, unit_cost, total_cost, created_at`,
+          [tenantId, workOrderId, part.partNumber, partName, part.quantity, part.unitPrice, totalCost]
+        )
+
+        const row = result.rows[0]
+        addedParts.push({
+          id: String(row.id),
+          workOrderId: String(row.work_order_id),
+          partNumber: row.part_number,
+          quantity: Number(row.quantity),
+          unitPrice: Number(row.unit_cost),
+          totalPrice: Number(row.total_cost),
+          status: 'pending',
+          addedBy: userId,
+          addedAt: row.created_at
+        })
+      }
+
+      await client.query('COMMIT')
+      res.status(201).json({ parts: addedParts, count: addedParts.length })
+    } catch (txError) {
+      await client.query('ROLLBACK')
+      throw txError
+    }
+  } catch (error: unknown) {
     logger.error('Error adding parts batch to work order:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -988,22 +1372,57 @@ const AssetScanSchema = z.object({
 router.post('/assets/scan', requirePermission(`asset:view:global`), async (req: Request, res: Response) => {
   try {
     const validated = AssetScanSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
-    // Asset lookup: Mock - connect to asset management system
-
-    const asset = {
-      assetId: `AST-${Date.now()}`,
-      assetTag: validated.barcode,
-      name: `Laptop - Dell XPS 15`,
-      category: 'IT Equipment',
-      assignedTo: 'John Doe',
-      location: 'Office Building A',
-      status: 'active' as const
+    if (!tenantId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
     }
 
-    res.json({ asset })
-  } catch (error: any) {
+    // Search by asset_tag, qr_code, or asset_number
+    const result = await client.query(
+      `SELECT
+        a.id,
+        a.asset_tag,
+        a.asset_name,
+        a.asset_type,
+        a.category,
+        a.status,
+        a.location,
+        a.serial_number,
+        a.manufacturer,
+        a.model,
+        u.first_name,
+        u.last_name
+      FROM assets a
+      LEFT JOIN users u ON a.assigned_to = u.id
+      WHERE a.tenant_id = $1
+        AND (a.asset_tag = $2 OR a.qr_code = $2)
+      LIMIT 1`,
+      [tenantId, validated.barcode]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Asset not found', barcode: validated.barcode })
+    }
+
+    const row = result.rows[0]
+    const assignedToName = (row.first_name || row.last_name)
+      ? `${row.first_name ?? ''} ${row.last_name ?? ''}`.trim()
+      : null
+
+    res.json({
+      asset: {
+        assetId: String(row.id),
+        assetTag: row.asset_tag,
+        name: row.asset_name,
+        category: row.category ?? row.asset_type,
+        assignedTo: assignedToName,
+        location: row.location,
+        status: row.status
+      }
+    })
+  } catch (error: unknown) {
     logger.error('Error scanning asset:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }

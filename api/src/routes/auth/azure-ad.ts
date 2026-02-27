@@ -6,6 +6,9 @@ import passport from 'passport';
 import { Strategy as AzureStrategy } from 'passport-azure-ad-oauth2';
 import { Pool } from 'pg';
 
+// Define next for the logout error handler since it wasn't in scope
+import { logger } from '../../utils/logger';
+
 
 type User = {
   id: string;
@@ -17,11 +20,18 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+if (!process.env.AZURE_AD_CLIENT_ID && !process.env.AZURE_CLIENT_ID) {
+  throw new Error('AZURE_AD_CLIENT_ID (or AZURE_CLIENT_ID) environment variable is required for Azure AD authentication');
+}
+if (!process.env.AZURE_AD_CLIENT_SECRET && !process.env.AZURE_CLIENT_SECRET) {
+  throw new Error('AZURE_AD_CLIENT_SECRET (or AZURE_CLIENT_SECRET) environment variable is required for Azure AD authentication');
+}
+
 passport.use(
   new AzureStrategy(
     {
-      clientID: process.env.AZURE_CLIENT_ID || 'dummy_client_id',
-      clientSecret: process.env.AZURE_CLIENT_SECRET || 'dummy_secret',
+      clientID: process.env.AZURE_AD_CLIENT_ID || process.env.AZURE_CLIENT_ID!,
+      clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.AZURE_CLIENT_SECRET!,
       callbackURL: '/api/auth/azure/callback',
     },
     function (accessToken: string, refresh_token: string, params: any, profile: any, done: any) {
@@ -36,8 +46,8 @@ passport.use(
   )
 );
 
-passport.serializeUser(function (user: User, done) {
-  done(null, user.id);
+passport.serializeUser(function (user: Express.User, done) {
+  done(null, (user as User).id);
 });
 
 passport.deserializeUser(async function (id: string, done) {
@@ -71,7 +81,7 @@ app.get(
   '/api/auth/azure/callback',
   passport.authenticate('azure_ad_oauth2', { failureRedirect: '/login' }),
   function (req: Request, res: Response) {
-    res.redirect('/');
+    res.redirect(302, '/');
   }
 );
 
@@ -80,18 +90,16 @@ app.get('/api/auth/azure/logout', function (req: Request, res: Response) {
     if (err) {
  return next(err); 
 }
-    res.redirect('/');
+    res.redirect(302, '/');
   });
 });
 
 app.get('/api/auth/me', function (req: Request, res: Response) {
   if (!req.user) {
-    return res.sendStatus(401);
+    return res.status(401).json({ error: 'Authentication required' });
   }
-  res.send(req.user);
+  res.json({ success: true, data: req.user });
 });
-
-// Define next for the logout error handler since it wasn't in scope
-const next = (err: any) => console.error(err);
+const next = (err: any) => logger.error('Logout error', { error: err });
 
 export default app;

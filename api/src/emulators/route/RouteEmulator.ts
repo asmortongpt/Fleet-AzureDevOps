@@ -4,6 +4,7 @@
 
 import { EventEmitter } from 'events'
 
+import logger from '../../config/logger'
 import { Vehicle, Route, EmulatorConfig } from '../types'
 
 export class RouteEmulator extends EventEmitter {
@@ -34,7 +35,7 @@ return
     const routeArray = Array.from(this.routes.values())
     this.currentRoute = routeArray[Math.floor(Math.random() * routeArray.length)]
 
-    console.log(`Route Emulator started for vehicle ${this.vehicle.id}`)
+    logger.info(`Route Emulator started for vehicle ${this.vehicle.id}`)
   }
 
   public async stop(): Promise<void> {

@@ -16,6 +16,7 @@ import { Button } from './ui/button'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './ui/card'
 import { Progress } from './ui/progress'
 
+import { formatDateTime, formatTime } from '@/utils/format-helpers'
 import {
   useMapHealthCheck,
   HealthStatus,
@@ -72,7 +73,7 @@ function getStatusColor(status: HealthStatus): string {
     case HealthStatus.UNHEALTHY:
       return 'bg-red-500'
     default:
-      return 'bg-gray-500'
+      return 'bg-white/[0.03]0'
   }
 }
 
@@ -184,7 +185,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
               <Card
                 key={provider}
                 className={`cursor-pointer transition-all ${
-                  isSelected ? 'ring-2 ring-blue-500' : 'hover:shadow-md'
+                  isSelected ? 'ring-2 ring-emerald-500' : ''
                 }`}
                 onClick={() => handleProviderClick(provider)}
               >
@@ -203,7 +204,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                     <div className="space-y-2 text-sm">
                       {/* Response Time */}
                       <div className="flex justify-between">
-                        <span className="text-gray-700">Avg Response</span>
+                        <span className="text-white/40">Avg Response</span>
                         <span className="font-medium">
                           {formatResponseTime(stats.averageResponseTime)}
                         </span>
@@ -212,7 +213,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                       {/* Uptime */}
                       <div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-gray-700">Uptime</span>
+                          <span className="text-white/40">Uptime</span>
                           <span className="font-medium">{stats.uptime.toFixed(1)}%</span>
                         </div>
                         <Progress value={stats.uptime} className="h-2" />
@@ -220,7 +221,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
 
                       {/* Success Rate */}
                       <div className="flex justify-between">
-                        <span className="text-gray-700">Success Rate</span>
+                        <span className="text-white/40">Success Rate</span>
                         <span className="font-medium">
                           {stats.successfulChecks}/{stats.totalChecks}
                         </span>
@@ -258,7 +259,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
 
         {/* Detailed Statistics */}
         {showDetails && selectedProvider && (
-          <Card className="bg-gray-50 dark:bg-gray-900">
+          <Card className="bg-white/[0.03] dark:bg-[#111113]">
             <CardHeader>
               <CardTitle className="text-sm">
                 {getProviderName(selectedProvider)} Details
@@ -275,10 +276,10 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                     <div>
                       <h4 className="font-semibold mb-2">Recent Health Checks</h4>
                       <div className="space-y-2">
-                        {stats.history.slice(-5).reverse().map((check, index) => (
+                        {stats.history.slice(-5).reverse().map((check) => (
                           <div
-                            key={index}
-                            className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded"
+                            key={check.timestamp}
+                            className="flex items-center justify-between p-2 bg-white dark:bg-[#18181b] rounded"
                           >
                             <div className="flex items-center gap-2">
                               <div
@@ -287,7 +288,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                                 )}`}
                               />
                               <span className="text-sm">
-                                {new Date(check.timestamp).toLocaleTimeString()}
+                                {formatTime(new Date(check.timestamp))}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -310,27 +311,27 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
 
                     {/* Overall Statistics */}
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="p-3 bg-white dark:bg-gray-800 rounded">
-                        <div className="text-sm text-gray-700">Total Checks</div>
+                      <div className="p-3 bg-white dark:bg-[#18181b] rounded">
+                        <div className="text-sm text-white/40">Total Checks</div>
                         <div className="text-sm font-bold">{stats.totalChecks}</div>
                       </div>
-                      <div className="p-3 bg-white dark:bg-gray-800 rounded">
-                        <div className="text-sm text-gray-700">Failed Checks</div>
+                      <div className="p-3 bg-white dark:bg-[#18181b] rounded">
+                        <div className="text-sm text-white/40">Failed Checks</div>
                         <div className="text-sm font-bold text-red-500">
                           {stats.failedChecks}
                         </div>
                       </div>
-                      <div className="p-3 bg-white dark:bg-gray-800 rounded">
-                        <div className="text-sm text-gray-700">Avg Response</div>
+                      <div className="p-3 bg-white dark:bg-[#18181b] rounded">
+                        <div className="text-sm text-white/40">Avg Response</div>
                         <div className="text-sm font-bold">
                           {formatResponseTime(stats.averageResponseTime)}
                         </div>
                       </div>
-                      <div className="p-3 bg-white dark:bg-gray-800 rounded">
-                        <div className="text-sm text-gray-700">Last Check</div>
+                      <div className="p-3 bg-white dark:bg-[#18181b] rounded">
+                        <div className="text-sm text-white/40">Last Check</div>
                         <div className="text-sm font-medium">
                           {stats.lastCheck
-                            ? new Date(stats.lastCheck).toLocaleString()
+                            ? formatDateTime(new Date(stats.lastCheck))
                             : 'Never'}
                         </div>
                       </div>

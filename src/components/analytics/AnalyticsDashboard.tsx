@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useVehicles } from '@/hooks/use-api';
 import type { Vehicle } from '@/types';
+import { formatCurrency, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 type AnalyticsType = 'heatmap' | 'routes' | 'performance' | 'fuel';
@@ -44,38 +45,59 @@ export function AnalyticsDashboard() {
   const [exportFormat, setExportFormat] = useState('pdf');
 
   // Calculate KPIs from vehicle data
-  const totalMiles = (vehicles as unknown as Vehicle[]).reduce((sum: number, v: Vehicle) => sum + (v.odometer || 0), 0);
-  const avgMPG = 24.5; // Demo - calculate from real data
-  const totalFuelCost = (totalMiles / avgMPG) * 3.45;
-  const avgIdleTime = 12.3; // Demo - calculate from telemetry
+  const normalizedVehicles = vehicles as unknown as Vehicle[];
+  const totalMiles = normalizedVehicles.reduce((sum: number, v: Vehicle) => sum + (v.odometer || 0), 0);
+
+  const vehiclesWithMpg = normalizedVehicles
+    .map((v: any) => Number(v.fuelEfficiency || v.fuel_efficiency || 0))
+    .filter((value) => Number.isFinite(value) && value > 0);
+  const avgMPG = vehiclesWithMpg.length
+    ? vehiclesWithMpg.reduce((sum, value) => sum + value, 0) / vehiclesWithMpg.length
+    : 0;
+
+  const vehiclesWithFuelCost = normalizedVehicles
+    .map((v: any) => Number(v.fuelCost || v.fuel_cost || v.fuel_cost_per_gallon || 0))
+    .filter((value) => Number.isFinite(value) && value > 0);
+  const avgFuelCostPerGallon = vehiclesWithFuelCost.length
+    ? vehiclesWithFuelCost.reduce((sum, value) => sum + value, 0) / vehiclesWithFuelCost.length
+    : 0;
+
+  const totalFuelCost = avgMPG > 0 ? (totalMiles / avgMPG) * avgFuelCostPerGallon : 0;
+
+  const idleCount = normalizedVehicles.filter((v: Vehicle) => v.status === 'idle').length;
+  const avgIdleTime = normalizedVehicles.length > 0
+    ? (idleCount / normalizedVehicles.length) * 100
+    : 0;
 
   const kpis: KPICard[] = [
     {
       title: 'Total Miles',
-      value: totalMiles.toLocaleString(),
-      trend: '+8.2%',
-      isPositive: true,
+      value: formatNumber(totalMiles),
+      trend: undefined,
+      isPositive: undefined,
       icon: <Activity className="h-5 w-5" />
     },
     {
       title: 'Avg MPG',
-      value: avgMPG.toFixed(1),
-      trend: '+5.3%',
-      isPositive: true,
+      value: avgMPG > 0 ? avgMPG.toFixed(1) : '—',
+      trend: undefined,
+      isPositive: undefined,
       icon: <Gauge className="h-5 w-5" />
     },
     {
       title: 'Fuel Cost',
-      value: `$${totalFuelCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      trend: '-2.1%',
-      isPositive: true,
+      value: totalFuelCost > 0
+        ? formatCurrency(totalFuelCost)
+        : '—',
+      trend: undefined,
+      isPositive: undefined,
       icon: <DollarSign className="h-5 w-5" />
     },
     {
       title: 'Idle Time',
-      value: `${avgIdleTime}%`,
-      trend: '-3.5%',
-      isPositive: true,
+      value: `${avgIdleTime.toFixed(1)}%`,
+      trend: undefined,
+      isPositive: undefined,
       icon: <Clock className="h-5 w-5" />
     }
   ];
@@ -145,8 +167,8 @@ export function AnalyticsDashboard() {
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2" data-testid="analytics-kpi-cards">
-            {kpis.map((kpi, index) => (
-              <Card key={index} data-testid={`analytics-kpi-${index}`}>
+            {kpis.map((kpi) => (
+              <Card key={kpi.title} data-testid={`analytics-kpi-${kpi.title}`}>
                 <CardContent className="p-2">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-muted-foreground">{kpi.title}</span>

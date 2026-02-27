@@ -5,6 +5,7 @@ import * as crypto from 'crypto'
 import * as fs from 'fs'
 import * as path from 'path'
 
+import logger from '../../config/logger'
 import { getIndexingService } from './indexing-service'
 import { getOCRService } from './ocr-service'
 import {
@@ -73,7 +74,7 @@ export class DocumentService {
    */
   private loadDocuments(): void {
     // TODO: Load from PostgreSQL database
-    console.log('[DocumentService] Initialized (in-memory mode)')
+    logger.info('DocumentService initialized (in-memory mode)')
   }
 
   /**
@@ -184,12 +185,12 @@ export class DocumentService {
       // Store document
       this.documents.set(documentId, document)
 
-      console.log(`[DocumentService] Document uploaded: ${documentId}`)
+      logger.info(`Document uploaded: ${documentId}`)
 
       return document
 
     } catch (error) {
-      console.error('[DocumentService] Upload failed:', error)
+      logger.error('Document upload failed', { error })
       throw new Error(`Document upload failed: ${error}`)
     }
   }
@@ -262,7 +263,9 @@ export class DocumentService {
     userId: string
   ): Promise<Document | null> {
     const document = this.documents.get(documentId)
-    if (!document) return null
+    if (!document) {
+return null
+}
 
     // Create new version if content changed
     if (updates.storageUrl && updates.storageUrl !== document.storageUrl) {
@@ -289,7 +292,9 @@ export class DocumentService {
    */
   async deleteDocument(documentId: string): Promise<boolean> {
     const document = this.documents.get(documentId)
-    if (!document) return false
+    if (!document) {
+return false
+}
 
     try {
       // Delete file from storage
@@ -305,11 +310,11 @@ export class DocumentService {
       // Remove from map
       this.documents.delete(documentId)
 
-      console.log(`[DocumentService] Document deleted: ${documentId}`)
+      logger.info(`Document deleted: ${documentId}`)
       return true
 
     } catch (error) {
-      console.error('[DocumentService] Delete failed:', error)
+      logger.error('Document delete failed', { error })
       return false
     }
   }
@@ -348,7 +353,9 @@ export class DocumentService {
    */
   async downloadDocument(documentId: string): Promise<Buffer | null> {
     const document = this.documents.get(documentId)
-    if (!document) return null
+    if (!document) {
+return null
+}
 
     try {
       const buffer = fs.readFileSync(document.storageUrl)
@@ -359,7 +366,7 @@ export class DocumentService {
       return buffer
 
     } catch (error) {
-      console.error('[DocumentService] Download failed:', error)
+      logger.error('Document download failed', { error })
       return null
     }
   }
@@ -382,7 +389,7 @@ export class DocumentService {
     const documentsByType = documents.reduce((acc, doc) => {
       acc[doc.documentType] = (acc[doc.documentType] || 0) + 1
       return acc
-    }, {} as any)
+    }, {} as Record<string, number>)
 
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
@@ -471,13 +478,14 @@ export class DocumentService {
             )
             break
 
-          case 'reindex':
+          case 'reindex': {
             const doc = await this.getDocument(documentId)
             if (doc) {
               const indexingService = getIndexingService()
               await indexingService.indexDocument(doc)
             }
             break
+          }
         }
 
         result.successCount++
@@ -508,15 +516,33 @@ export class DocumentService {
   }
 
   private getDocumentType(mimeType: string): any {
-    if (mimeType === 'application/pdf') return 'pdf'
-    if (mimeType.includes('word')) return 'word'
-    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'excel'
-    if (mimeType.startsWith('image/')) return 'image'
-    if (mimeType.startsWith('text/')) return 'text'
-    if (mimeType.includes('presentation')) return 'presentation'
-    if (mimeType.startsWith('video/')) return 'video'
-    if (mimeType.startsWith('audio/')) return 'audio'
-    if (mimeType.includes('zip') || mimeType.includes('archive')) return 'archive'
+    if (mimeType === 'application/pdf') {
+return 'pdf'
+}
+    if (mimeType.includes('word')) {
+return 'word'
+}
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) {
+return 'excel'
+}
+    if (mimeType.startsWith('image/')) {
+return 'image'
+}
+    if (mimeType.startsWith('text/')) {
+return 'text'
+}
+    if (mimeType.includes('presentation')) {
+return 'presentation'
+}
+    if (mimeType.startsWith('video/')) {
+return 'video'
+}
+    if (mimeType.startsWith('audio/')) {
+return 'audio'
+}
+    if (mimeType.includes('zip') || mimeType.includes('archive')) {
+return 'archive'
+}
     return 'other'
   }
 
@@ -536,7 +562,9 @@ export class DocumentService {
   }
 
   private countWords(text: string): number {
-    if (!text) return 0
+    if (!text) {
+return 0
+}
     return text.trim().split(/\s+/).length
   }
 
@@ -568,9 +596,13 @@ export class DocumentService {
     if (filters.dateRange) {
       const { field, from, to } = filters.dateRange
       results = results.filter(doc => {
-        const docDate = new Date((doc as any)[field])
-        if (from && docDate < new Date(from)) return false
-        if (to && docDate > new Date(to)) return false
+        const docDate = new Date((doc as unknown as Record<string, unknown>)[field] as string)
+        if (from && docDate < new Date(from)) {
+return false
+}
+        if (to && docDate > new Date(to)) {
+return false
+}
         return true
       })
     }
@@ -589,8 +621,8 @@ export class DocumentService {
 
   private applySorting(documents: Document[], sort: any): Document[] {
     return documents.sort((a, b) => {
-      const aValue = (a as any)[sort.field]
-      const bValue = (b as any)[sort.field]
+      const aValue = String((a as unknown as Record<string, unknown>)[sort.field] ?? '')
+      const bValue = String((b as unknown as Record<string, unknown>)[sort.field] ?? '')
 
       if (sort.order === 'asc') {
         return aValue > bValue ? 1 : -1

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { MileageReimbursement } from '@/components/modules/tools/MileageReimbursement';
+import { formatCurrency } from '@/utils/format-helpers';
 
 interface MileageData {
   startMileage: number;
@@ -32,13 +34,7 @@ const MileageFormView: React.FC<MileageFormViewProps> = ({ currentTheme, setActi
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // console.log('Mileage Reimbursement Submitted:', {
-    //   ...formData,
-    //   totalMiles,
-    //   reimbursement,
-    //   timestamp: new Date().toISOString()
-    // });
-    alert(`Mileage reimbursement submitted: $${reimbursement.toFixed(2)} for ${totalMiles} miles`);
+    toast.success(`Mileage reimbursement submitted: ${formatCurrency(reimbursement)} for ${totalMiles} miles`);
   };
 
   return (

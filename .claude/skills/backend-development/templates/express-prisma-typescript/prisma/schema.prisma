@@ -1,0 +1,223 @@
+// Prisma Schema for E-Commerce Backend
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Authentication & Users
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  role          Role      @default(CUSTOMER)
+  locationId    String?   @map("location_id")
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  location      Location?  @relation(fields: [locationId], references: [id])
+  customer      Customer?
+  refreshTokens RefreshToken[]
+
+  @@index([email])
+  @@index([locationId])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  CUSTOMER
+}
+
+// Customer Profiles
+model Customer {
+  id                 String   @id @default(uuid())
+  userId             String   @unique @map("user_id")
+  phone              String?
+  address            String?
+  city               String?
+  state              String?
+  zipCode            String?  @map("zip_code")
+  loyaltyPoints      Int      @default(0) @map("loyalty_points")
+  preferredLocationId String? @map("preferred_location_id")
+
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferredLocation Location? @relation(fields: [preferredLocationId], references: [id])
+  orders            Order[]
+
+  @@index([userId])
+  @@index([preferredLocationId])
+  @@map("customers")
+}
+
+// Locations
+model Location {
+  id        String @id @default(uuid())
+  name      String
+  address   String
+  phone     String
+  latitude  Float?
+  longitude Float?
+  isActive  Boolean @default(true) @map("is_active")
+
+  users     User[]
+  customers Customer[]
+  inventory Inventory[]
+  orders    Order[]
+
+  @@map("locations")
+}
+
+// Products
+model Product {
+  id          String   @id @default(uuid())
+  sku         String   @unique
+  name        String
+  brand       String
+  model       String
+  tireType    String   @map("tire_type")
+  size        String
+  season      String
+  price       Decimal  @db.Decimal(10, 2)
+  cost        Decimal  @db.Decimal(10, 2)
+  description String?
+  rating      Float?   @default(0)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  images      ProductImage[]
+  inventory   Inventory[]
+  orderItems  OrderItem[]
+
+  @@index([sku])
+  @@index([brand, tireType])
+  @@index([size])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String @id @default(uuid())
+  productId String @map("product_id")
+  imageUrl  String @map("image_url")
+  angle     String
+  order     Int
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+// Inventory
+model Inventory {
+  id               String @id @default(uuid())
+  productId        String @map("product_id")
+  locationId       String @map("location_id")
+  quantityOnHand   Int    @default(0) @map("quantity_on_hand")
+  quantityReserved Int    @default(0) @map("quantity_reserved")
+  reorderPoint     Int    @default(10) @map("reorder_point")
+  reorderQuantity  Int    @default(20) @map("reorder_quantity")
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, locationId])
+  @@index([locationId])
+  @@map("inventory")
+}
+
+// Orders
+model Order {
+  id          String      @id @default(uuid())
+  customerId  String      @map("customer_id")
+  locationId  String      @map("location_id")
+  status      OrderStatus @default(PENDING)
+  subtotal    Decimal     @db.Decimal(10, 2)
+  tax         Decimal     @db.Decimal(10, 2)
+  shipping    Decimal     @db.Decimal(10, 2)
+  totalAmount Decimal     @map("total_amount") @db.Decimal(10, 2)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  customer  Customer    @relation(fields: [customerId], references: [id])
+  location  Location    @relation(fields: [locationId], references: [id])
+  items     OrderItem[]
+  payment   Payment?
+
+  @@index([customerId])
+  @@index([locationId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+enum OrderStatus {
+  CART
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String  @map("order_id")
+  productId String  @map("product_id")
+  quantity  Int
+  unitPrice Decimal @map("unit_price") @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+// Payments
+model Payment {
+  id                    String        @id @default(uuid())
+  orderId               String        @unique @map("order_id")
+  stripePaymentIntentId String?       @unique @map("stripe_payment_intent_id")
+  amount                Decimal       @db.Decimal(10, 2)
+  status                PaymentStatus @default(PENDING)
+  paymentMethod         String        @map("payment_method")
+  createdAt             DateTime      @default(now()) @map("created_at")
+  updatedAt             DateTime      @updatedAt @map("updated_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([status])
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}

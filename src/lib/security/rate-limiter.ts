@@ -225,15 +225,17 @@ export class RateLimiter {
    */
   private async reportViolation(violation: RateLimitViolation): Promise<void> {
     try {
-      await fetch('/api/v1/security/rate-limit-violations', {
+      // Fire-and-forget security logging - endpoint may not exist
+      await fetch('/api/security/rate-limit-violations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(violation),
       });
-    } catch (error) {
-      logger.error('Failed to report rate limit violation:', error);
+    } catch {
+      // Silently ignore - rate limit violation reporting is non-critical
+      // The violation is already logged to the console in development
     }
   }
 

@@ -51,11 +51,11 @@ export class DatabaseHealthMonitor {
     logger.info('[DB Health Monitor] Starting database health monitoring')
 
     // Perform initial check
-    this.performHealthCheck()
+    void this.performHealthCheck()
 
     // Schedule periodic checks
     this.checkInterval = setInterval(() => {
-      this.performHealthCheck()
+      void this.performHealthCheck()
     }, this.INTERVAL_MS)
   }
 
@@ -91,7 +91,7 @@ export class DatabaseHealthMonitor {
       const duration = Date.now() - startTime
 
       // Check for warning conditions
-      const maxConnections = (this.pool as any).options?.max || 20
+      const maxConnections = (this.pool as unknown as { options?: { max?: number } }).options?.max || 20
       const utilizationPercent = stats.total / maxConnections
 
       let healthy = true
@@ -130,10 +130,12 @@ export class DatabaseHealthMonitor {
 
       return result
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+      const errorCode = (error as Record<string, unknown>).code
       const result: HealthCheckResult = {
         healthy: false,
-        message: `Database connection failed: ${error.message}`,
+        message: `Database connection failed: ${errorMessage}`,
         stats: this.getPoolStats(),
         timestamp: new Date()
       }
@@ -141,13 +143,13 @@ export class DatabaseHealthMonitor {
       this.lastCheckResult = result
 
       logger.error('[DB Health Monitor] Health check failed', {
-        error: error.message,
-        code: error.code,
-        stack: error.stack
+        error: errorMessage,
+        code: errorCode,
+        stack: error instanceof Error ? error.stack : undefined
       })
 
       // CRITICAL: This error will cause SSO authentication to fail!
-      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+      if (errorCode === 'ECONNREFUSED' || errorCode === 'ETIMEDOUT') {
         logger.error('[DB Health Monitor] 🚨 CRITICAL: Database unreachable - SSO authentication will fail!')
       }
 
@@ -159,12 +161,12 @@ export class DatabaseHealthMonitor {
    * Get current pool statistics
    */
   private getPoolStats(): PoolStats {
-    const pool = this.pool as any
+    const poolStats = this.pool as unknown as { totalCount?: number; idleCount?: number; waitingCount?: number }
     return {
-      total: pool.totalCount || 0,
-      idle: pool.idleCount || 0,
-      waiting: pool.waitingCount || 0,
-      active: (pool.totalCount || 0) - (pool.idleCount || 0)
+      total: poolStats.totalCount || 0,
+      idle: poolStats.idleCount || 0,
+      waiting: poolStats.waitingCount || 0,
+      active: (poolStats.totalCount || 0) - (poolStats.idleCount || 0)
     }
   }
 

@@ -135,7 +135,7 @@ router.post(
           `SELECT v.*, vp.*
            FROM vehicles v
            LEFT JOIN vehicle_optimization_profiles vp ON v.id = vp.vehicle_id
-           WHERE v.tenant_id = $1 AND (vp.available_for_optimization IS NULL OR vp.available_for_optimization = true)
+           WHERE v.tenant_id = $1 AND v.status != 'retired' AND (vp.available_for_optimization IS NULL OR vp.available_for_optimization = true)
            LIMIT 20`,
           [req.user!.tenant_id]
         )
@@ -192,10 +192,10 @@ router.post(
       )
 
       res.json(result)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Route optimization error:', error)
 
-      if (error.name === 'ZodError') {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
           details: error.issues

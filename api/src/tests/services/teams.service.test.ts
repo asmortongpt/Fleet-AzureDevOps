@@ -153,7 +153,7 @@ class TeamsService {
   }
 
   formatMentionForTeams(userId: string, displayName: string): string {
-    return "<at id="${userId}">${displayName}</at>";
+    return `<at id="${userId}">${displayName}</at>`;
   }
 }
 

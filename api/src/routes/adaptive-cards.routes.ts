@@ -65,9 +65,54 @@ router.post('/vehicle-maintenance', csrfProtection, authenticateJWT, async (req:
       messageId: response.id,
       card
     })
-  } catch (error: any) {
-    logger.error('Error sending maintenance card:', error.message)
-    res.status(500).json({ error: error.message })
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error sending maintenance card:', errMsg)
+    res.status(500).json({ error: 'An internal error occurred' })
+  }
+})
+
+// Alias to match legacy endpoint expectations
+router.post('/maintenance', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+  try {
+    const { vehicleId, maintenanceId, teamId, channelId, userId } = req.body
+
+    const vehicleResult = await pool.query(`SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1`, [vehicleId])
+    const maintenanceResult = await pool.query(`SELECT * FROM maintenance WHERE tenant_id = $1 AND id = $2`, [req.user?.tenant_id, maintenanceId])
+
+    if (vehicleResult.rows.length === 0 || maintenanceResult.rows.length === 0) {
+      return res.status(404).json({ error: `Vehicle or maintenance record not found` })
+    }
+
+    const vehicle = vehicleResult.rows[0]
+    const maintenance = maintenanceResult.rows[0]
+
+    const card = await createVehicleMaintenanceCard(vehicle, maintenance)
+
+    const validation = validateAdaptiveCard(card)
+    if (!validation.valid) {
+      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors })
+    }
+
+    let response
+    if (userId) {
+      response = await sendAdaptiveCardToUser(userId, card, 'Vehicle maintenance alert')
+    } else if (teamId && channelId) {
+      response = await sendAdaptiveCard(teamId, channelId, card, 'Vehicle maintenance alert')
+    } else {
+      throw new ValidationError("Either userId or teamId/channelId must be provided")
+    }
+
+    res.json({
+      success: true,
+      message: 'Maintenance alert card sent',
+      messageId: response.id,
+      card
+    })
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error sending maintenance card:', errMsg)
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -110,7 +155,7 @@ router.post('/maintenance', csrfProtection, authenticateJWT, async (req: Request
     })
   } catch (error: any) {
     logger.error('Error sending maintenance card:', error.message)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -164,9 +209,10 @@ router.post('/work-order', csrfProtection, authenticateJWT, async (req: Request,
       messageId: response.id,
       card
     })
-  } catch (error: any) {
-    logger.error('Error sending work order card:', error.message)
-    res.status(500).json({ error: error.message })
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error sending work order card:', errMsg)
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -222,9 +268,10 @@ router.post('/incident', csrfProtection, authenticateJWT, async (req: Request, r
       messageId: response.id,
       card
     })
-  } catch (error: any) {
-    logger.error('Error sending incident card:', error.message)
-    res.status(500).json({ error: error.message })
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error sending incident card:', errMsg)
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -276,9 +323,10 @@ router.post('/approval', csrfProtection, authenticateJWT, async (req: Request, r
       messageId: response.id,
       card
     })
-  } catch (error: any) {
-    logger.error('Error sending approval card:', error.message)
-    res.status(500).json({ error: error.message })
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error sending approval card:', errMsg)
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -324,9 +372,10 @@ router.post('/driver-performance', csrfProtection, authenticateJWT, async (req: 
       messageId: response.id,
       card
     })
-  } catch (error: any) {
-    logger.error('Error sending performance card:', error.message)
-    res.status(500).json({ error: error.message })
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error sending performance card:', errMsg)
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -380,9 +429,10 @@ router.post('/fuel-receipt', csrfProtection, authenticateJWT, async (req: Reques
       messageId: response.id,
       card
     })
-  } catch (error: any) {
-    logger.error('Error sending fuel receipt card:', error.message)
-    res.status(500).json({ error: error.message })
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error sending fuel receipt card:', errMsg)
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -436,9 +486,60 @@ router.post('/inspection-checklist', csrfProtection, authenticateJWT, async (req
       messageId: response.id,
       card
     })
-  } catch (error: any) {
-    logger.error('Error sending inspection card:', error.message)
-    res.status(500).json({ error: error.message })
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error sending inspection card:', errMsg)
+    res.status(500).json({ error: 'An internal error occurred' })
+  }
+})
+
+// Alias to match legacy endpoint expectations
+router.post('/inspection', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+  try {
+    const { vehicleId, driverId, teamId, channelId, userId } = req.body
+
+    const vehicleResult = await pool.query(`SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE tenant_id = $1 AND id = $2`, [req.user!.tenant_id, vehicleId])
+    const driverResult = await pool.query(`SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE tenant_id = $1 AND id = $2`, [req.user!.tenant_id, driverId])
+
+    if (vehicleResult.rows.length === 0 || driverResult.rows.length === 0) {
+      return res.status(404).json({ error: `Vehicle or driver not found` })
+    }
+
+    const inspection = {
+      vehicle_id: vehicleId,
+      driver_id: driverId,
+      vehicle_number: vehicleResult.rows[0].vehicle_number,
+      vehicle_make: vehicleResult.rows[0].make,
+      vehicle_model: vehicleResult.rows[0].model,
+      driver_name: `${driverResult.rows[0].first_name} ${driverResult.rows[0].last_name}`
+    }
+
+    const card = await createInspectionChecklistCard(inspection)
+
+    const validation = validateAdaptiveCard(card)
+    if (!validation.valid) {
+      return res.status(400).json({ error: `Invalid card schema`, errors: validation.errors })
+    }
+
+    let response
+    if (userId) {
+      response = await sendAdaptiveCardToUser(userId, card, `Daily vehicle inspection`)
+    } else if (teamId && channelId) {
+      response = await sendAdaptiveCard(teamId, channelId, card, 'Daily vehicle inspection')
+    } else {
+      throw new ValidationError("Either userId or teamId/channelId must be provided")
+    }
+
+    res.json({
+      success: true,
+      message: 'Inspection checklist card sent',
+      messageId: response.id,
+      card
+    })
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error sending inspection card:', errMsg)
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -487,7 +588,7 @@ router.post('/inspection', csrfProtection, authenticateJWT, async (req: Request,
     })
   } catch (error: any) {
     logger.error('Error sending inspection card:', error.message)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -499,7 +600,7 @@ router.post('/:cardType/action', csrfProtection, authenticateJWT, async (req: Re
   try {
     const { cardType } = req.params
     const { action, cardId, teamId, channelId, messageId } = req.body
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
 
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' })
@@ -513,9 +614,10 @@ router.post('/:cardType/action', csrfProtection, authenticateJWT, async (req: Re
     } else {
       res.status(400).json(result)
     }
-  } catch (error: any) {
-    logger.error('Error handling card action:', error.message)
-    res.status(500).json({ error: error.message })
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error handling card action:', errMsg)
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -578,9 +680,10 @@ router.get('/preview/:cardType', authenticateJWT, async (req: Request, res: Resp
     }
 
     res.json({ card })
-  } catch (error: any) {
-    logger.error('Error generating card preview:', error.message)
-    res.status(500).json({ error: error.message })
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error generating card preview:', errMsg)
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 

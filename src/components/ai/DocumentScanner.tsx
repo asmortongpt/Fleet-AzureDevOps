@@ -20,6 +20,7 @@ import {
   Eye
 } from 'lucide-react'
 import React, { useState, useRef } from 'react'
+import { toast } from 'sonner'
 
 import { apiClient } from '../../lib/api'
 import { Alert, AlertDescription } from '../ui/alert'
@@ -125,7 +126,7 @@ export function DocumentScanner({
     } catch (error: unknown) {
       logger.error('Document processing error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      alert(`Error processing document: ${errorMessage}`)
+      toast.error(`Error processing document: ${errorMessage}`)
     } finally {
       setIsProcessing(false)
     }
@@ -142,15 +143,15 @@ export function DocumentScanner({
 
   const getDocumentTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-      fuel_receipt: 'bg-blue-500',
+      fuel_receipt: 'bg-emerald-500/50',
       parts_invoice: 'bg-green-500',
       service_invoice: 'bg-orange-500',
-      inspection_report: 'bg-purple-500',
-      driver_license: 'bg-indigo-500',
+      inspection_report: 'bg-amber-500',
+      driver_license: 'bg-emerald-500',
       vehicle_registration: 'bg-pink-500',
-      unknown: 'bg-gray-500'
+      unknown: 'bg-white/[0.03]0'
     }
-    return colors[type] || 'bg-gray-500'
+    return colors[type] || 'bg-white/[0.03]0'
   }
 
   const getConfidenceColor = (confidence: number) => {
@@ -166,7 +167,7 @@ export function DocumentScanner({
         <CardContent className="p-3">
           <div
             className={`border-2 border-dashed rounded-lg p-3 text-center transition-colors ${
-              isDragging ? 'border-primary bg-primary/5' : 'border-gray-300'
+              isDragging ? 'border-primary bg-primary/5' : 'border-white/[0.08]'
             }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -181,7 +182,7 @@ export function DocumentScanner({
               className="hidden"
             />
 
-            <Upload className="w-12 h-9 mx-auto mb-2 text-gray-700" />
+            <Upload className="w-12 h-9 mx-auto mb-2 text-white/40" />
 
             <h3 className="text-sm font-semibold mb-2">
               Upload {documentType ? documentType.replace('_', ' ') : 'Document'}
@@ -316,8 +317,8 @@ export function DocumentScanner({
                         <AlertCircle className="h-4 w-4 text-yellow-600" />
                         <AlertDescription>
                           <p className="font-semibold text-yellow-900 mb-1">Issues Found:</p>
-                          {analysis.validationIssues.map((issue, index) => (
-                            <p key={index} className="text-sm text-yellow-800">• {issue}</p>
+                          {analysis.validationIssues.map((issue) => (
+                            <p key={issue} className="text-sm text-yellow-800">• {issue}</p>
                           ))}
                         </AlertDescription>
                       </Alert>

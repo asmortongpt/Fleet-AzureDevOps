@@ -1,3 +1,5 @@
+import logger from '@/utils/logger';
+
 /**
  * Azure AD Authentication Configuration
  *
@@ -79,6 +81,15 @@ export function getRedirectUri(): string {
   // If explicitly set via environment variable, use that
   const envRedirectUri = import.meta.env.VITE_AZURE_AD_REDIRECT_URI;
   if (envRedirectUri) {
+    // Dev guard: avoid redirect loops when the env var points to the wrong local port.
+    // In development, prefer the current origin unless the configured redirect matches it.
+    if (import.meta.env.DEV && typeof window !== 'undefined') {
+      const origin = window.location.origin;
+      if (!envRedirectUri.startsWith(origin)) {
+        return `${origin}/auth/callback`;
+      }
+    }
+
     return envRedirectUri;
   }
 
@@ -339,16 +350,10 @@ export function getMsalConfig() {
           const prefix = '[MSAL]';
           switch (level) {
             case 0: // Error
-              console.error(prefix, message);
+              logger.error(prefix, message);
               break;
             case 1: // Warning
-              console.warn(prefix, message);
-              break;
-            case 2: // Info
-              console.info(prefix, message);
-              break;
-            case 3: // Verbose
-              console.debug(prefix, message);
+              logger.warn(prefix, message);
               break;
           }
         },

@@ -6,6 +6,7 @@ import { Marker, Popup } from 'react-leaflet';
 import { useTrafficCameras } from '../../../hooks/useTrafficCameras';
 import type { TrafficCamera } from '../../../types/traffic-cameras';
 
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 interface TrafficCameraLayerProps {
   /** Filter by county */
@@ -47,7 +48,7 @@ export function TrafficCameraLayer({
     className: 'custom-camera-marker',
     html: `
       <div class="relative">
-        <div class="bg-blue-600 text-white rounded-full p-2 shadow-sm border-2 border-white">
+        <div class="bg-emerald-600 text-white rounded-full p-2 border-2 border-white">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
           </svg>
@@ -103,18 +104,18 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
     <div className="p-2 min-w-[300px]">
       <div className="flex items-start justify-between mb-2">
         <div>
-          <h3 className="font-semibold text-gray-900 dark:text-white">
+          <h3 className="font-semibold text-white/80 dark:text-white">
             {camera.name}
           </h3>
-          <p className="text-sm text-slate-700 dark:text-gray-600">
+          <p className="text-sm text-white/70 dark:text-white/40">
             {camera.road} {camera.direction}
           </p>
         </div>
-        <Camera className="w-3 h-3 text-blue-800" />
+        <Camera className="w-3 h-3 text-emerald-800" />
       </div>
 
       {camera.description && (
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+        <p className="text-sm text-white/40 dark:text-white/60 mb-2">
           {camera.description}
         </p>
       )}
@@ -134,7 +135,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2 text-xs text-slate-700 dark:text-gray-600 mb-2">
+      <div className="grid grid-cols-2 gap-2 text-xs text-white/70 dark:text-white/40 mb-2">
         <div>
           <span className="font-medium">County:</span> {camera.county}
         </div>
@@ -149,8 +150,8 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
         )}
       </div>
 
-      <div className="flex items-center justify-between text-xs text-gray-700 dark:text-gray-600">
-        <span>Updated: {new Date(camera.lastUpdated).toLocaleTimeString()}</span>
+      <div className="flex items-center justify-between text-xs text-white/40 dark:text-white/40">
+        <span>Updated: {formatTime(camera.lastUpdated)}</span>
         <span
           className={`px-2 py-1 rounded ${
             camera.status === 'active'
@@ -183,22 +184,22 @@ function CameraFeedModal({
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-sm max-w-4xl w-full max-h-[90vh] flex flex-col"
+        className="bg-white dark:bg-[#18181b] rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-2 border-b border-white/[0.08] dark:border-white/[0.08]">
           <div>
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">
+            <h2 className="text-base font-bold text-white/80 dark:text-white">
               {camera.name}
             </h2>
-            <p className="text-sm text-slate-700 dark:text-gray-600">
+            <p className="text-sm text-white/70 dark:text-white/40">
               {camera.road} {camera.direction} - {camera.county} County
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-600 hover:text-slate-700 dark:hover:text-gray-300 transition-colors"
+            className="text-white/40 hover:text-white/70 dark:hover:text-white/60 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -212,7 +213,7 @@ function CameraFeedModal({
         </div>
 
         {/* Camera Feed */}
-        <div className="flex-1 overflow-auto p-2 bg-gray-100 dark:bg-gray-900">
+        <div className="flex-1 overflow-auto p-2 bg-white/[0.05] dark:bg-[#111113]">
           <div className="aspect-video bg-black rounded overflow-hidden">
             {camera.feedUrl ? (
               <iframe
@@ -233,9 +234,9 @@ function CameraFeedModal({
         </div>
 
         {/* Footer */}
-        <div className="p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <div className="p-2 border-t border-white/[0.08] dark:border-white/[0.08] bg-white/[0.03] dark:bg-[#111113]">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-slate-700 dark:text-gray-600">
+            <div className="text-sm text-white/70 dark:text-white/40">
               <p>{camera.description}</p>
               {camera.metadata?.mileMarker && (
                 <p className="mt-1">Mile Marker: {camera.metadata.mileMarker}</p>
@@ -246,7 +247,7 @@ function CameraFeedModal({
                 href={camera.feedUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-2 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
+                className="px-2 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors flex items-center gap-2"
               >
                 Open in New Tab
                 <ExternalLink className="w-4 h-4" />

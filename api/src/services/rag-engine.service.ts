@@ -6,10 +6,14 @@
 import OpenAI from 'openai'
 import { Pool } from 'pg'
 
+// Import dependencies for singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null
 
 export interface Document {
   document_type: string
@@ -107,8 +111,8 @@ class RAGEngineService {
         chunks_created: chunks.length,
         document_id: document.document_id || 'generated'
       }
-    } catch (error: any) {
-      this.logger.error(`Error indexing document`, { error: error.message, document: document.document_title })
+    } catch (error: unknown) {
+      this.logger.error(`Error indexing document`, { error: error instanceof Error ? error.message : 'An unexpected error occurred', document: document.document_title })
       throw error
     }
   }
@@ -200,8 +204,8 @@ class RAGEngineService {
         sources: retrievedChunks,
         processing_time_ms: processingTime
       }
-    } catch (error: any) {
-      this.logger.error(`RAG query error`, { error: error.message, query: query.query })
+    } catch (error: unknown) {
+      this.logger.error(`RAG query error`, { error: error instanceof Error ? error.message : 'An unexpected error occurred', query: query.query })
       throw error
     }
   }
@@ -225,6 +229,9 @@ Your task is to answer questions accurately based on the provided context from t
 
 Context from Knowledge Base:
 ${contextText}`
+    if (!openai) {
+      return 'AI service unavailable — OpenAI API key not configured'
+    }
     const response = await openai.chat.completions.create({
       model: this.chatModel,
       messages: [
@@ -243,14 +250,17 @@ ${contextText}`
    */
   private async generateEmbedding(text: string): Promise<number[]> {
     try {
+      if (!openai) {
+        return Array(1536).fill(0)
+      }
       const response = await openai.embeddings.create({
         model: this.embeddingModel,
         input: text
       })
 
       return response.data[0].embedding
-    } catch (error: any) {
-      this.logger.error('Error generating embedding', { error: error.message })
+    } catch (error: unknown) {
+      this.logger.error('Error generating embedding', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
       throw error
     }
   }
@@ -441,10 +451,6 @@ ${contextText}`
     return { total: documents.length, successful, failed }
   }
 }
-
-// Import dependencies for singleton instance
-import pool from '../config/database'
-import logger from '../config/logger'
 
 // Export singleton instance
 export const ragEngineService = new RAGEngineService(pool, logger)

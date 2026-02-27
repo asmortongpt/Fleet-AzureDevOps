@@ -13,10 +13,12 @@
 import { Send, Bot, User, Sparkles } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { formatTime } from '@/utils/format-helpers';
 
 interface Message {
   id: string;
@@ -142,7 +144,7 @@ export function AIAssistantChat() {
                   }`}>
                     <p className="text-sm whitespace-pre-line">{msg.content}</p>
                     <p className="text-xs opacity-70 mt-1">
-                      {msg.timestamp.toLocaleTimeString()}
+                      {formatTime(msg.timestamp)}
                     </p>
                   </div>
                   {msg.role === 'user' && (

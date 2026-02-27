@@ -1,0 +1,207 @@
+name: Load Testing
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/src/**'
+      - 'tests/load/**'
+      - 'package.json'
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: fleet_db
+          POSTGRES_USER: fleet_user
+          POSTGRES_PASSWORD: fleet_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install K6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Install dependencies
+        run: |
+          npm install --legacy-peer-deps
+          cd api && npm install --legacy-peer-deps
+
+      - name: Setup database
+        run: |
+          cd api
+          npm run db:reset
+          npm run seed
+        env:
+          DATABASE_URL: postgresql://fleet_user:fleet_password@localhost:5432/fleet_db
+          REDIS_URL: redis://localhost:6379
+          SKIP_AUTH: 'true'
+
+      - name: Start backend
+        run: |
+          cd api
+          npm run dev &
+          sleep 10
+        env:
+          DATABASE_URL: postgresql://fleet_user:fleet_password@localhost:5432/fleet_db
+          REDIS_URL: redis://localhost:6379
+          SKIP_AUTH: 'true'
+          DB_WEBAPP_POOL_SIZE: '30'
+
+      - name: Wait for backend
+        run: |
+          timeout 30 bash -c 'until curl -s http://localhost:3001/api/health; do sleep 1; done'
+
+      - name: Run Normal Load Test
+        run: npm run load:normal
+        env:
+          BASE_URL: http://localhost:3001
+        continue-on-error: true
+
+      - name: Run Spike Test
+        run: npm run load:spike
+        env:
+          BASE_URL: http://localhost:3001
+        continue-on-error: true
+
+      - name: Run API Tests
+        run: |
+          npm run load:api:vehicles
+          npm run load:api:drivers
+        env:
+          BASE_URL: http://localhost:3001
+        continue-on-error: true
+
+      - name: Analyze Results
+        run: npm run load:analyze
+        continue-on-error: true
+
+      - name: Generate Report
+        run: |
+          mkdir -p test-reports
+          node tests/load/analyze-results.js > test-reports/performance-summary.txt
+        continue-on-error: true
+
+      - name: Upload Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: load-test-results
+          path: tests/load/results/
+          retention-days: 30
+
+      - name: Upload Logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: load-test-logs
+          path: tests/load/logs/
+          retention-days: 30
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: performance-report
+          path: test-reports/
+          retention-days: 30
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Load Test Results
+          path: test-reports/performance-summary.txt
+          reporter: 'java-junit'
+        continue-on-error: true
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('test-reports/performance-summary.txt', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Load Test Results\n\n\`\`\`\n${summary}\n\`\`\`\n\n[View Full Results](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+            });
+        continue-on-error: true
+
+      - name: Slack Notification on Failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "Load Test Failed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "❌ Fleet-CTA Load Test Failed\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>"
+                  }
+                }
+              ]
+            }
+        continue-on-error: true
+
+      - name: Slack Notification on Success
+        if: success()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "Load Test Passed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "✅ Fleet-CTA Load Test Passed\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Results>"
+                  }
+                }
+              ]
+            }
+        continue-on-error: true

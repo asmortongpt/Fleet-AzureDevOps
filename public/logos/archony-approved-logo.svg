@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="700" height="120" viewBox="0 0 700 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Application Name -->
+  <text x="350" y="60" font-family="'Inter', 'Arial', sans-serif" font-size="48" font-weight="300" fill="#1D1D1D" text-anchor="middle" letter-spacing="6">ARCHONY</text>
+
+  <!-- Tagline -->
+  <text x="350" y="95" font-family="'Inter', 'Arial', sans-serif" font-size="14" font-weight="300" fill="#666" text-anchor="middle" letter-spacing="3">INTELLIGENT PERFORMANCE</text>
+
+  <!-- Gold/Orange Accent Bar -->
+  <line x1="100" y1="110" x2="600" y2="110" stroke="#F0A000" stroke-width="4" stroke-linecap="round"/>
+</svg>

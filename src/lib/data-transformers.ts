@@ -123,9 +123,30 @@ function normalizeStatus(status: string | undefined): Vehicle['status'] {
 }
 
 function parseLocation(apiVehicle: any) {
-  // Try to get lat/lng from dedicated fields
-  let lat = parseFloat(apiVehicle?.location_lat || '0')
-  let lng = parseFloat(apiVehicle?.location_lng || '0')
+  const toNumber = (value: any): number => {
+    if (value === null || value === undefined || value === '') return NaN
+    const num = typeof value === 'number' ? value : parseFloat(value)
+    return Number.isFinite(num) ? num : NaN
+  }
+
+  // Try to get lat/lng from dedicated fields (support multiple schema variants)
+  const latCandidates = [
+    apiVehicle?.location_lat,
+    apiVehicle?.latitude,
+    apiVehicle?.lat,
+    apiVehicle?.location?.lat,
+    apiVehicle?.location?.latitude
+  ]
+  const lngCandidates = [
+    apiVehicle?.location_lng,
+    apiVehicle?.longitude,
+    apiVehicle?.lng,
+    apiVehicle?.location?.lng,
+    apiVehicle?.location?.longitude
+  ]
+
+  let lat = latCandidates.map(toNumber).find((val) => Number.isFinite(val)) ?? NaN
+  let lng = lngCandidates.map(toNumber).find((val) => Number.isFinite(val)) ?? NaN
 
   const hasLat = Number.isFinite(lat) && lat !== 0
   const hasLng = Number.isFinite(lng) && lng !== 0
@@ -135,7 +156,7 @@ function parseLocation(apiVehicle: any) {
   }
 
   // Get address
-  let address = apiVehicle?.location
+  let address = apiVehicle?.location_address || apiVehicle?.location
   if (typeof address !== 'string') {
     address = apiVehicle?.address || [apiVehicle?.city, apiVehicle?.state].filter(Boolean).join(', ')
   }

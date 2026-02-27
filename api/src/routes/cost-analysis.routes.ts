@@ -19,14 +19,18 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'cost_analysis' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { startDate, endDate } = req.query
+      let { startDate, endDate } = req.query
 
+      // Default to last 30 days if not provided
       if (!startDate || !endDate) {
-        throw new ValidationError("startDate and endDate are required")
+        const now = new Date()
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+        startDate = startDate || thirtyDaysAgo.toISOString().split('T')[0]
+        endDate = endDate || now.toISOString().split('T')[0]
       }
 
       const summary = await costAnalysisService.getCostSummary(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         new Date(startDate as string),
         new Date(endDate as string)
       )
@@ -53,7 +57,7 @@ router.get(
       }
 
       const costs = await costAnalysisService.getCostsByCategory(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         new Date(startDate as string),
         new Date(endDate as string)
       )
@@ -80,7 +84,7 @@ router.get(
       }
 
       const costs = await costAnalysisService.getCostsByVehicle(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         new Date(startDate as string),
         new Date(endDate as string)
       )
@@ -103,7 +107,7 @@ router.get(
       const { category, months = '3' } = req.query
 
       const forecast = await costAnalysisService.forecastCosts(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         category as string | null,
         parseInt(months as string)
       )
@@ -126,7 +130,7 @@ router.get(
       const { category, months = '12' } = req.query
 
       const trends = await costAnalysisService.getCostTrends(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         category as string | null,
         parseInt(months as string)
       )
@@ -153,7 +157,7 @@ router.get(
       }
 
       const anomalies = await costAnalysisService.getAnomalies(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         new Date(startDate as string),
         new Date(endDate as string)
       )
@@ -176,7 +180,7 @@ router.get(
       const { fiscalYear, fiscalQuarter } = req.query
 
       const status = await costAnalysisService.getBudgetStatus(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         fiscalYear ? parseInt(fiscalYear as string) : undefined,
         fiscalQuarter ? parseInt(fiscalQuarter as string) : undefined
       )
@@ -196,7 +200,7 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'cost_analysis' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const cost = await costAnalysisService.trackCost(req.user!.tenant_id, req.body)
+      const cost = await costAnalysisService.trackCost(req.user!.tenant_id ?? '', req.body)
 
       res.status(201).json(cost)
     } catch (error) {
@@ -222,14 +226,14 @@ router.post(
       }
 
       await costAnalysisService.setBudgetAllocation(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         category,
         parseFloat(amount),
         parseInt(fiscalYear),
         parseInt(fiscalQuarter)
       )
 
-      res.json({ message: 'Budget allocation set successfully' })
+      res.json({ success: true, message: 'Budget allocation set successfully' })
     } catch (error) {
       logger.error('Set budget allocation error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })
@@ -251,7 +255,7 @@ router.get(
       }
 
       const csv = await costAnalysisService.exportCostData(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         new Date(startDate as string),
         new Date(endDate as string)
       )

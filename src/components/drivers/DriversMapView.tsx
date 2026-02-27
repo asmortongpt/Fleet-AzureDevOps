@@ -9,13 +9,14 @@ import {
   Moon
 } from "lucide-react"
 import { useState, useMemo } from "react"
+import { toast } from "sonner"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { MapFirstLayout } from "@/components/layout/MapFirstLayout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Section } from "@/components/ui/section"
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/select"
 import { Driver, Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface DriversMapViewProps {
   drivers: Driver[]
@@ -82,11 +84,11 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
       case "active":
         return <Activity className="h-3 w-3 text-green-500" />
       case "off-duty":
-        return <Clock className="h-3 w-3 text-gray-700" />
+        return <Clock className="h-3 w-3 text-white/35" />
       case "on-leave":
-        return <Moon className="h-3 w-3 text-blue-800" />
+        return <Moon className="h-3 w-3 text-emerald-500" />
       default:
-        return <User className="h-3 w-3 text-gray-700" />
+        return <User className="h-3 w-3 text-white/35" />
     }
   }
 
@@ -104,9 +106,9 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
   }
 
   const getSafetyScoreColor = (score: number) => {
-    if (score >= 90) return "text-green-600"
-    if (score >= 75) return "text-yellow-600"
-    return "text-red-600"
+    if (score >= 90) return "text-emerald-400"
+    if (score >= 75) return "text-yellow-400"
+    return "text-red-400"
   }
 
   // Map component with driver locations
@@ -128,7 +130,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
       />
 
       {/* Stats Overlay */}
-      <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg p-3 shadow-sm z-10">
+      <div className="absolute top-4 left-4 bg-[#111111] border border-white/[0.04] rounded-lg p-3 z-10">
         <div className="grid grid-cols-2 gap-3">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
@@ -137,13 +139,13 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 bg-gray-500 rounded-full" />
+            <div className="h-2 w-2 bg-white/35 rounded-full" />
             <span className="text-sm">
               <span className="font-semibold">{stats.offDuty}</span> Off-Duty
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 bg-blue-500 rounded-full" />
+            <div className="h-2 w-2 bg-emerald-500 rounded-full" />
             <span className="text-sm">
               <span className="font-semibold">{stats.onLeave}</span> On Leave
             </span>
@@ -179,19 +181,16 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
 
       {/* Selected Driver Details */}
       {selectedDriver ? (
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-sm">{selectedDriver.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">{selectedDriver.employeeId}</p>
-              </div>
-              <Badge variant={getStatusBadgeVariant(selectedDriver.status)}>
-                {selectedDriver.status}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <Section
+          title={selectedDriver.name}
+          description={selectedDriver.employeeId}
+          actions={
+            <Badge variant={getStatusBadgeVariant(selectedDriver.status)}>
+              {selectedDriver.status}
+            </Badge>
+          }
+        >
+          <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <div className="text-xs text-muted-foreground">Department</div>
@@ -232,7 +231,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
                 <div className="flex items-center gap-2">
                   <Truck className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">
-                    {selectedDriverVehicle.year} {selectedDriverVehicle.make} {selectedDriverVehicle.model}
+                    {formatVehicleName(selectedDriverVehicle)}
                   </span>
                 </div>
                 <div className="text-xs text-muted-foreground">
@@ -242,68 +241,70 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
             )}
 
             <div className="pt-3 space-y-2">
-              <Button className="w-full" size="sm">
+              <Button className="w-full" size="sm" onClick={() => {
+                if (selectedDriver?.email) {
+                  window.open(`mailto:${selectedDriver.email}?subject=Fleet Communication - ${selectedDriver.name}`, '_blank')
+                } else {
+                  toast.info('No email address on file for ' + selectedDriver?.name)
+                }
+              }}>
                 <Mail className="h-4 w-4 mr-2" />
                 Message Driver
               </Button>
-              <Button variant="outline" className="w-full" size="sm">
+              <Button variant="outline" className="w-full" size="sm" onClick={() => { if (selectedDriver?.phone) window.open('tel:' + selectedDriver.phone) }}>
                 <Phone className="h-4 w-4 mr-2" />
                 Call {selectedDriver.phone}
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </Section>
       ) : (
-        <Card>
-          <CardContent className="p-3 text-center text-muted-foreground">
+        <Section title="Driver Details" description="Select a driver to view details">
+          <div className="p-3 text-center text-muted-foreground">
             <User className="h-9 w-12 mx-auto mb-2 opacity-50" />
             <p>Select a driver to view details</p>
-          </CardContent>
-        </Card>
+          </div>
+        </Section>
       )}
 
       {/* Driver List */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">
-            All Drivers ({filteredDrivers.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="h-[400px]">
-            <div className="space-y-1 p-3">
-              {filteredDrivers.map(driver => (
-                <div
-                  key={driver.id}
-                  className={cn(
-                    "p-2 rounded-lg cursor-pointer transition-colors hover:bg-accent",
-                    selectedDriver?.id === driver.id && "bg-accent"
-                  )}
-                  onClick={() => handleDriverSelect(driver)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(driver.status)}
-                      <div>
-                        <div className="text-sm font-medium">{driver.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {driver.department}
-                        </div>
+      <Section
+        title={`All Drivers (${filteredDrivers.length})`}
+        contentClassName="p-0"
+      >
+        <ScrollArea className="h-[400px]">
+          <div className="space-y-1 p-3">
+            {filteredDrivers.map(driver => (
+              <div
+                key={driver.id}
+                className={cn(
+                  "p-2 rounded-lg cursor-pointer transition-colors hover:bg-accent",
+                  selectedDriver?.id === driver.id && "bg-accent"
+                )}
+                onClick={() => handleDriverSelect(driver)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {getStatusIcon(driver.status)}
+                    <div>
+                      <div className="text-sm font-medium">{driver.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {driver.department}
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <div className={cn("text-sm font-semibold", getSafetyScoreColor(driver.safetyScore))}>
-                        {driver.safetyScore}
-                      </div>
-                      <div className="text-xs text-muted-foreground">Score</div>
                     </div>
                   </div>
+                  <div className="text-right">
+                    <div className={cn("text-sm font-semibold", getSafetyScoreColor(driver.safetyScore))}>
+                      {driver.safetyScore}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Score</div>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Section>
     </div>
   )
 

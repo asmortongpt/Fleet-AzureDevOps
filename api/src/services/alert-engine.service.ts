@@ -11,6 +11,11 @@
 import nodemailer from 'nodemailer'
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
+
+// Import pool for singleton instance
+import pool from '../config/database'
+
 export interface AlertRule {
   id: string
   rule_type: 'maintenance_due' | 'geofence_violation' | 'incident_critical' |
@@ -120,7 +125,7 @@ export class AlertEngineService {
       return alert
     } catch (error) {
       await client.query('ROLLBACK')
-      console.error('Error creating alert:', error)
+      logger.error('Error creating alert', { error })
       throw error
     } finally {
       client.release()
@@ -196,7 +201,7 @@ export class AlertEngineService {
    */
   private async deliverEmail(alert: any, recipients: string[], tenantId: string): Promise<void> {
     if (!this.emailTransporter) {
-      console.warn('Email transporter not configured, skipping email delivery')
+      logger.warn('Email transporter not configured, skipping email delivery')
       return
     }
 
@@ -213,12 +218,12 @@ export class AlertEngineService {
 return
 }
 
-      const severityColor = {
+      const severityColor = ({
         info: '#3B82F6',
         warning: '#F59E0B',
         critical: '#EF4444',
         emergency: `#DC2626`
-      }[alert.severity]
+      } as Record<string, string>)[alert.severity]
 
       const htmlBody = `
         <!DOCTYPE html>
@@ -266,7 +271,7 @@ return
         html: htmlBody
       })
     } catch (error) {
-      console.error(`Error sending email alert:`, error)
+      logger.error('Error sending email alert', { error })
     }
   }
 
@@ -275,7 +280,7 @@ return
    */
   private async deliverSMS(alert: any, recipients: string[], tenantId: string): Promise<void> {
     // PRODUCTION TODO: Integrate with Twilio or AWS SNS
-    console.log(`SMS delivery for alert ${alert.id} to ${recipients.length} recipients`)
+    logger.info(`SMS delivery for alert ${alert.id} to ${recipients.length} recipients`)
 
     // Example Twilio integration:
     /*
@@ -305,7 +310,7 @@ return
    */
   private async deliverTeams(alert: any, recipients: string[], tenantId: string): Promise<void> {
     // PRODUCTION TODO: Use existing Teams integration
-    console.log(`Teams delivery for alert ${alert.id}`)
+    logger.info(`Teams delivery for alert ${alert.id}`)
 
     // Integration with existing Teams service would go here
     // POST to Teams webhook with adaptive card
@@ -375,9 +380,9 @@ return
       const recipientList = recipients.map(userId => ({ userId }))
       await pushNotificationService.sendNotification(notification, recipientList)
 
-      console.log(`Push notification sent for alert ${alert.id} to ${recipients.length} recipients`)
+      logger.info(`Push notification sent for alert ${alert.id} to ${recipients.length} recipients`)
     } catch (error) {
-      console.error(`Error sending push notification:`, error)
+      logger.error('Error sending push notification', { error })
     }
   }
 
@@ -544,7 +549,7 @@ return baseUrl
         this.checkCriticalIncidentAlerts(tenantId)
       ])
     } catch (error) {
-      console.error('Error running alert checks:', error)
+      logger.error('Error running alert checks', { error })
     }
   }
 
@@ -615,9 +620,6 @@ return baseUrl
     return result.rows
   }
 }
-
-// Import pool for singleton instance
-import pool from '../config/database'
 
 // Export singleton instance
 export const alertEngineService = new AlertEngineService(pool)

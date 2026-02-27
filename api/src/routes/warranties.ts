@@ -30,6 +30,8 @@ import {
     UpdateWarrantyClaimStatusRequest
 } from '../types/warranties';
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router();
 
 // Services
@@ -41,28 +43,28 @@ const warrantyRecoveryService = new WarrantyRecoveryService(pool);
 // ============================================================================
 
 const warrantyIdSchema = z.object({
-    id: z.string().uuid()
+    id: flexUuid
 });
 
 const claimIdSchema = z.object({
-    id: z.string().uuid()
+    id: flexUuid
 });
 
 const vehicleIdParamSchema = z.object({
-    vehicleId: z.string().uuid()
+    vehicleId: flexUuid
 });
 
 const workOrderIdParamSchema = z.object({
-    workOrderId: z.string().uuid()
+    workOrderId: flexUuid
 });
 
 const createWarrantySchema = z.object({
     warranty_number: z.string().optional(),
     warranty_type: z.enum(['manufacturer', 'extended', 'powertrain', 'component', 'other']),
-    vehicle_id: z.string().uuid().optional(),
+    vehicle_id: flexUuid.optional(),
     component: z.string().optional(),
-    part_id: z.string().uuid().optional(),
-    vendor_id: z.string().uuid().optional(),
+    part_id: flexUuid.optional(),
+    vendor_id: flexUuid.optional(),
     start_date: z.string().or(z.date()),
     end_date: z.string().or(z.date()).optional(),
     end_mileage: z.number().int().positive().optional(),
@@ -76,7 +78,7 @@ const createWarrantySchema = z.object({
     transferable: z.boolean().optional(),
     prorated: z.boolean().optional(),
     notes: z.string().optional(),
-    metadata: z.record(z.string(), z.any()).optional()
+    metadata: z.record(z.string(), z.unknown()).optional()
 });
 
 const updateWarrantySchema = createWarrantySchema.partial().extend({
@@ -86,9 +88,9 @@ const updateWarrantySchema = createWarrantySchema.partial().extend({
 });
 
 const createClaimSchema = z.object({
-    warranty_id: z.string().uuid(),
+    warranty_id: flexUuid,
     claim_number: z.string().min(1),
-    work_order_id: z.string().uuid().optional(),
+    work_order_id: flexUuid.optional(),
     claim_date: z.string().or(z.date()),
     failure_description: z.string().min(1),
     failure_date: z.string().or(z.date()),
@@ -112,7 +114,7 @@ const createClaimSchema = z.object({
         upload_date: z.string().or(z.date())
     })).optional(),
     notes: z.string().optional(),
-    metadata: z.record(z.string(), z.any()).optional()
+    metadata: z.record(z.string(), z.unknown()).optional()
 });
 
 const updateClaimStatusSchema = z.object({
@@ -127,7 +129,7 @@ const updateClaimStatusSchema = z.object({
 });
 
 const warrantyEligibilitySchema = z.object({
-    vehicle_id: z.string().uuid(),
+    vehicle_id: flexUuid,
     component: z.string().optional(),
     failure_date: z.string().or(z.date()),
     odometer: z.number().int().nonnegative()
@@ -155,11 +157,11 @@ router.get('/',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { status, vehicle_id, warranty_type } = req.query;
 
         let query = 'SELECT * FROM warranties WHERE tenant_id = $1';
-        const params: any[] = [tenantId];
+        const params: unknown[] = [tenantId];
         let paramIndex = 2;
 
         if (status) {
@@ -200,7 +202,7 @@ router.get('/expiring',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const daysThreshold = parseInt(req.query.days as string) || 30;
 
         const expiring = await warrantyEligibilityService.getExpiringWarranties(tenantId, daysThreshold);
@@ -224,7 +226,7 @@ router.get('/statistics',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
 
         const stats = await warrantyRecoveryService.getWarrantyStatistics(tenantId);
 
@@ -245,7 +247,7 @@ router.get('/:id',
     }),
     validateParams(warrantyIdSchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
 
         const result = await pool.query<Warranty>(
@@ -275,7 +277,7 @@ router.post('/',
     }),
     validateBody(createWarrantySchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const data: CreateWarrantyRequest = req.body;
 
         const result = await pool.query<Warranty>(
@@ -334,13 +336,13 @@ router.put('/:id',
     validateParams(warrantyIdSchema),
     validateBody(updateWarrantySchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
         const data: UpdateWarrantyRequest = req.body;
 
         // Build dynamic update query
         const fields: string[] = [];
-        const values: any[] = [];
+        const values: unknown[] = [];
         let paramIndex = 1;
 
         Object.entries(data).forEach(([key, value]) => {
@@ -392,11 +394,11 @@ router.get('/claims/all',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { status, warranty_id } = req.query;
 
         let query = 'SELECT * FROM warranty_claims WHERE tenant_id = $1';
-        const params: any[] = [tenantId];
+        const params: unknown[] = [tenantId];
         let paramIndex = 2;
 
         if (status) {
@@ -432,7 +434,7 @@ router.get('/claims/pending',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
 
         const pending = await warrantyRecoveryService.getPendingClaims(tenantId);
 
@@ -456,7 +458,7 @@ router.get('/claims/:id',
     }),
     validateParams(claimIdSchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
 
         const result = await pool.query<WarrantyClaim>(
@@ -486,8 +488,8 @@ router.post('/claims',
     }),
     validateBody(createClaimSchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
-        const userId = (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
+        const userId = req.user?.id ?? '';
         const data: CreateWarrantyClaimRequest = req.body;
 
         const result = await pool.query<WarrantyClaim>(
@@ -548,7 +550,7 @@ router.put('/claims/:id/status',
     validateParams(claimIdSchema),
     validateBody(updateClaimStatusSchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
         const data: UpdateWarrantyClaimStatusRequest = req.body;
 
@@ -587,7 +589,7 @@ router.get('/work-orders/:workOrderId/eligibility',
     }),
     validateParams(workOrderIdParamSchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { workOrderId } = req.params;
 
         // Get work order details
@@ -637,7 +639,7 @@ router.get('/recovery/report',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = (req as any).user?.tenant_id || (req as any).user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const periodStart = req.query.start_date ? new Date(req.query.start_date as string) : new Date(new Date().getFullYear(), 0, 1);
         const periodEnd = req.query.end_date ? new Date(req.query.end_date as string) : new Date();
 

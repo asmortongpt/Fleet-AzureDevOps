@@ -3,7 +3,7 @@
  * Auto-updating components with real-time data and smooth animations
  */
 
-import { motion, AnimatePresence } from 'framer-motion'
+// motion removed - React 19 incompatible
 import { useAtom, useAtomValue } from 'jotai'
 import React, { useMemo, useEffect, useState } from 'react'
 
@@ -17,6 +17,9 @@ import {
   vehicleStatsAtom,
   fleetMetricsAtom,
 } from '../../lib/reactive-state'
+
+import { formatEnum } from '@/utils/format-enum'
+import { formatDateTime, formatNumber } from '@/utils/format-helpers'
 
 /* ============================================================
    REACTIVE METRIC CARD
@@ -52,6 +55,7 @@ export function ReactiveMetricCard({
       return
     }
 
+    let frameId: number
     const startValue = displayValue
     const endValue = value
     const duration = 1000 // 1 second
@@ -68,32 +72,32 @@ export function ReactiveMetricCard({
       setDisplayValue(current)
 
       if (progress < 1) {
-        requestAnimationFrame(animateValue)
+        frameId = requestAnimationFrame(animateValue)
       }
     }
 
-    requestAnimationFrame(animateValue)
+    frameId = requestAnimationFrame(animateValue)
+
+    return () => cancelAnimationFrame(frameId)
   }, [value, animate])
 
   const colorClasses: Record<string, string> = {
-    primary: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300',
+    primary: 'bg-emerald-500/5 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300',
     success: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300',
     warning: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300',
     error: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300',
-    info: 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-300',
+    info: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300',
   }
 
   const trendColors: Record<string, string> = {
     up: 'text-green-600 dark:text-green-400',
     down: 'text-red-600 dark:text-red-400',
-    neutral: 'text-slate-700 dark:text-gray-700',
+    neutral: 'text-white/70 dark:text-white/40',
   }
 
   return (
-    <motion.div
-      className={`rounded-lg p-3 shadow-sm ${colorClasses[color]}`}
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
+    <div
+      className={`rounded-lg p-3 transition-transform duration-200 hover:scale-[1.02] ${colorClasses[color]}`}
     >
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium opacity-80">{title}</h3>
@@ -101,15 +105,11 @@ export function ReactiveMetricCard({
       </div>
 
       <div className="flex items-baseline gap-2">
-        <motion.span
+        <span
           className="text-base font-bold"
-          key={displayValue}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
         >
           {typeof value === 'number' ? Math.round(displayValue) : value}
-        </motion.span>
+        </span>
         {unit && <span className="text-sm opacity-70">{unit}</span>}
       </div>
 
@@ -120,7 +120,7 @@ export function ReactiveMetricCard({
           <span className="opacity-70">vs last period</span>
         </div>
       )}
-    </motion.div>
+    </div>
   )
 }
 
@@ -180,14 +180,14 @@ export function ReactiveDataTable<T extends Record<string, any>>({
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600"></div>
       </div>
     )
   }
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center p-12 text-gray-700 dark:text-gray-700">
+      <div className="flex items-center justify-center p-12 text-white/40 dark:text-white/40">
         {emptyMessage}
       </div>
     )
@@ -196,13 +196,13 @@ export function ReactiveDataTable<T extends Record<string, any>>({
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
-        <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <thead className="bg-white/[0.03] dark:bg-[#18181b] border-b border-white/[0.08] dark:border-white/[0.08]">
           <tr>
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`px-3 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider ${
-                  column.sortable ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700' : ''
+                className={`px-3 py-3 text-left text-xs font-medium text-white/40 dark:text-white/40 uppercase tracking-wider ${
+                  column.sortable ? 'cursor-pointer hover:bg-white/[0.05] dark:hover:bg-white/[0.08]' : ''
                 }`}
                 onClick={() => column.sortable && handleSort(column.key)}
               >
@@ -216,30 +216,24 @@ export function ReactiveDataTable<T extends Record<string, any>>({
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-          <AnimatePresence>
-            {sortedData.map((item, index) => (
-              <motion.tr
-                key={String(item[keyField])}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ duration: 0.2, delay: index * 0.02 }}
-                className={`${
-                  onRowClick
-                    ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800'
-                    : ''
-                }`}
-                onClick={() => onRowClick?.(item)}
-              >
-                {columns.map((column) => (
-                  <td key={column.key} className="px-3 py-2 whitespace-nowrap">
-                    {column.render ? column.render(item) : item[column.key]}
-                  </td>
-                ))}
-              </motion.tr>
-            ))}
-          </AnimatePresence>
+        <tbody className="bg-white dark:bg-[#111113] divide-y divide-gray-200 dark:divide-gray-800">
+          {sortedData.map((item) => (
+            <tr
+              key={String(item[keyField])}
+              className={`${
+                onRowClick
+                  ? 'cursor-pointer hover:bg-white/[0.03] dark:hover:bg-[#18181b]'
+                  : ''
+              }`}
+              onClick={() => onRowClick?.(item)}
+            >
+              {columns.map((column) => (
+                <td key={column.key} className="px-3 py-2 whitespace-nowrap">
+                  {column.render ? column.render(item) : item[column.key]}
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
@@ -259,7 +253,7 @@ export function RealtimeAlertsFeed() {
     success: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
     warning: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
     error: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
-    info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
+    info: 'bg-emerald-500/5 dark:bg-emerald-900/20 border-emerald-500/20 dark:border-emerald-800',
   }
 
   const alertIcons: Record<Alert['type'], string> = {
@@ -271,49 +265,44 @@ export function RealtimeAlertsFeed() {
 
   return (
     <div className="space-y-3">
-      <AnimatePresence>
-        {alerts.map((alert) => (
-          <motion.div
-            key={alert.id}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            className={`p-2 rounded-lg border-l-4 ${alertColors[alert.type]}`}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3">
-                <div className="text-sm">{alertIcons[alert.type]}</div>
-                <div>
-                  <h4 className="font-semibold text-sm">{alert.title}</h4>
-                  <p className="text-sm opacity-80 mt-1">{alert.message}</p>
-                  <p className="text-xs opacity-60 mt-2">
-                    {new Date(alert.timestamp).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => acknowledgeAlert(alert.id)}
-                  className="text-xs px-3 py-1 rounded bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  aria-label="Acknowledge alert"
-                >
-                  ✓
-                </button>
-                <button
-                  onClick={() => removeAlert(alert.id)}
-                  className="text-xs px-3 py-1 rounded bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  aria-label="Dismiss alert"
-                >
-                  ✕
-                </button>
+      {alerts.map((alert) => (
+        <div
+          key={alert.id}
+          className={`p-2 rounded-lg border-l-4 ${alertColors[alert.type]}`}
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-3">
+              <div className="text-sm">{alertIcons[alert.type]}</div>
+              <div>
+                <h4 className="font-semibold text-sm">{alert.title}</h4>
+                <p className="text-sm opacity-80 mt-1">{alert.message}</p>
+                <p className="text-xs opacity-60 mt-2">
+                  {formatDateTime(alert.timestamp)}
+                </p>
               </div>
             </div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+            <div className="flex gap-2">
+              <button
+                onClick={() => acknowledgeAlert(alert.id)}
+                className="text-xs px-3 py-1 rounded bg-white dark:bg-[#18181b] hover:bg-white/[0.05] dark:hover:bg-white/[0.08]"
+                aria-label="Acknowledge alert"
+              >
+                ✓
+              </button>
+              <button
+                onClick={() => removeAlert(alert.id)}
+                className="text-xs px-3 py-1 rounded bg-white dark:bg-[#18181b] hover:bg-white/[0.05] dark:hover:bg-white/[0.08]"
+                aria-label="Dismiss alert"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
 
       {alerts.length === 0 && (
-        <div className="text-center py-3 text-gray-700 dark:text-gray-700">
+        <div className="text-center py-3 text-white/40 dark:text-white/40">
           No active alerts
         </div>
       )}
@@ -424,12 +413,12 @@ export function LiveVehicleList({ onVehicleClick }: { onVehicleClick?: (vehicle:
           active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
           maintenance: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
           offline: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-          retired: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+          retired: 'bg-white/[0.05] text-white/60 dark:bg-[#111113] dark:text-white/80',
         }
 
         return (
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[vehicle.status]}`}>
-            {vehicle.status}
+            {formatEnum(vehicle.status)}
           </span>
         )
       },
@@ -438,13 +427,13 @@ export function LiveVehicleList({ onVehicleClick }: { onVehicleClick?: (vehicle:
       key: 'mileage',
       label: 'Mileage',
       sortable: true,
-      render: (vehicle) => (vehicle.mileage ? `${vehicle.mileage.toLocaleString()} mi` : 'N/A'),
+      render: (vehicle) => (vehicle.mileage ? `${formatNumber(vehicle.mileage)} mi` : '—'),
     },
     {
       key: 'fuelLevel',
       label: 'Fuel',
       sortable: true,
-      render: (vehicle) => (vehicle.fuelLevel ? `${vehicle.fuelLevel}%` : 'N/A'),
+      render: (vehicle) => (vehicle.fuelLevel ? `${vehicle.fuelLevel}%` : '—'),
     },
   ]
 
@@ -470,39 +459,21 @@ interface ConnectionStatusProps {
 
 export function ConnectionStatus({ isConnected, isReconnecting }: ConnectionStatusProps) {
   return (
-    <motion.div
+    <div
       className="flex items-center gap-2 px-3 py-1 rounded-full text-sm"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
     >
-      <motion.div
+      <div
         className={`w-2 h-2 rounded-full ${
           isConnected
             ? 'bg-green-500'
             : isReconnecting
-            ? 'bg-amber-500'
+            ? 'bg-amber-500 animate-pulse'
             : 'bg-red-500'
         }`}
-        animate={
-          isReconnecting
-            ? {
-                scale: [1, 1.3, 1],
-                opacity: [1, 0.5, 1],
-              }
-            : {}
-        }
-        transition={
-          isReconnecting
-            ? {
-                duration: 1,
-                repeat: Infinity,
-              }
-            : {}
-        }
       />
       <span className="text-xs font-medium">
         {isConnected ? 'Connected' : isReconnecting ? 'Reconnecting...' : 'Disconnected'}
       </span>
-    </motion.div>
+    </div>
   )
 }

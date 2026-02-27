@@ -69,7 +69,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
       <div className="flex-1 flex flex-col overflow-hidden">
         <div
           ref={containerRef}
-          className={`flex-1 flex items-center justify-center overflow-hidden bg-muted/30 ${
+          className={`flex-1 flex items-center justify-center overflow-hidden bg-white/[0.03] ${
             isPanning ? 'cursor-grabbing' : state.zoom > 100 ? 'cursor-grab' : ''
           }`}
           onMouseDown={handleMouseDown}
@@ -93,7 +93,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
               ref={imageRef}
               src={document.url}
               alt={document.name}
-              className="max-w-full max-h-full object-contain shadow-sm"
+              className="max-w-full max-h-full object-contain"
               draggable={false}
               onError={(e) => {
                 e.currentTarget.src = '/placeholders/image.svg';
@@ -103,10 +103,10 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
         </div>
 
         {/* Image info overlay */}
-        <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur-sm border rounded-lg px-2 py-2 shadow-sm">
-          <div className="text-sm">
+        <div className="absolute bottom-4 left-4 bg-[#0a0a0a]/95 backdrop-blur-sm border border-white/[0.04] rounded-lg px-2 py-2">
+          <div className="text-sm text-white">
             {document.dimensions && (
-              <span className="font-medium">
+              <span className="font-medium text-white">
                 {document.dimensions.width} × {document.dimensions.height}
               </span>
             )}
@@ -120,7 +120,6 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
               variant="secondary"
               size="sm"
               onClick={resetView}
-              className="shadow-sm"
             >
               <RotateCcw className="mr-2 h-4 w-4" />
               Reset view
@@ -131,10 +130,10 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
 
       {/* EXIF sidebar */}
       {showExif && (
-        <div className="w-80 border-l bg-card flex flex-col">
-          <div className="p-2 border-b">
+        <div className="w-80 border-l border-white/[0.04] bg-[#0e0e0e] flex flex-col">
+          <div className="p-2 border-b border-white/[0.04]">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Image Details</h3>
+              <h3 className="font-semibold text-white">Image Details</h3>
               <Button
                 variant="ghost"
                 size="icon"
@@ -176,7 +175,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
                     <h4 className="text-sm font-semibold mb-3">Location</h4>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <MapPin className="h-4 w-4 text-white/35" />
                         <span>
                           {document.location?.lat.toFixed(6)}, {document.location?.lng.toFixed(6)}
                         </span>
@@ -211,7 +210,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
                   <Separator />
                   <div>
                     <h4 className="text-sm font-semibold mb-3">AI Analysis</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white/35">
                       {document.aiSummary}
                     </p>
                   </div>
@@ -246,7 +245,6 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
             variant="secondary"
             size="sm"
             onClick={() => setShowExif(true)}
-            className="shadow-sm"
           >
             <Info className="mr-2 h-4 w-4" />
             Details
@@ -260,8 +258,8 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-2">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium text-right break-all">{value}</span>
+      <span className="text-white/35">{label}</span>
+      <span className="font-medium text-white text-right break-all">{value}</span>
     </div>
   );
 }

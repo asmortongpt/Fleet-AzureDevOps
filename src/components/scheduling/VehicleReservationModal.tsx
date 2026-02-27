@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
+import { EmailButton } from '@/components/email/EmailButton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -39,6 +40,7 @@ import { Vehicle, Driver } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, CreateReservationRequest } from '@/types/scheduling'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 const reservationSchema = z.object({
   vehicleId: z.string().min(1, 'Vehicle is required'),
@@ -250,7 +252,7 @@ export function VehicleReservationModal({
                     <SelectContent>
                       {vehicles.map((vehicle) => (
                         <SelectItem key={vehicle.id} value={vehicle.id}>
-                          {vehicle.make} {vehicle.model} ({vehicle.licensePlate}) - {vehicle.year}
+                          {formatVehicleName(vehicle)}{vehicle.licensePlate ? ` (${vehicle.licensePlate})` : ''}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -543,12 +545,28 @@ export function VehicleReservationModal({
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}
+                className="border-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.06]"
+              >
                 Cancel
               </Button>
+              <EmailButton
+                context={{
+                  type: 'reservation_confirmation',
+                  entityName: selectedVehicle ? formatVehicleName(selectedVehicle) : undefined,
+                  details: watchStartDate && watchStartTime
+                    ? `Scheduled ${format(watchStartDate, 'PPP')} at ${watchStartTime}.`
+                    : undefined,
+                }}
+                label="Email Confirmation"
+                size="sm"
+                variant="outline"
+                className="border-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.06]"
+              />
               <Button
                 type="submit"
                 disabled={checking || submitting || conflicts.length > 0}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white"
               >
                 {submitting ? 'Submitting...' : isEditing ? 'Update Reservation' : 'Create Reservation'}
               </Button>

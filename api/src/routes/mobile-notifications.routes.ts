@@ -6,6 +6,7 @@
 import express from 'express';
 
 import logger from '../config/logger';
+import { pool } from '../db/connection';
 import { authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';
@@ -48,8 +49,8 @@ router.post('/register-device',csrfProtection, authenticateJWT, async (req, res)
     }
 
     const device = await pushNotificationService.registerDevice({
-      userId: req.user.id,
-      tenantId: req.user.tenantId,
+      userId: req.user!.id,
+      tenantId: req.user!.tenantId ?? '',
       deviceToken,
       platform,
       deviceName,
@@ -140,7 +141,7 @@ router.post(
       }
 
       const notification = {
-        tenantId: req.user.tenantId,
+        tenantId: req.user!.tenantId ?? '',
         notificationType: notificationType || 'general',
         category: category || 'administrative',
         priority: priority || 'normal',
@@ -151,7 +152,7 @@ router.post(
         imageUrl,
         sound,
         badgeCount,
-        createdBy: req.user.id,
+        createdBy: req.user!.id,
       };
 
       const notificationId = await pushNotificationService.sendNotification(
@@ -202,7 +203,7 @@ router.post('/send-to-user',csrfProtection, authenticateJWT, async (req, res) =>
     }
 
     const notification = {
-      tenantId: req.user.tenantId,
+      tenantId: req.user!.tenantId ?? '',
       notificationType: type || 'general',
       category: category || 'administrative',
       priority: priority || 'normal',
@@ -212,7 +213,7 @@ router.post('/send-to-user',csrfProtection, authenticateJWT, async (req, res) =>
         ...data,
         screen,
       },
-      createdBy: req.user.id,
+      createdBy: req.user!.id,
     };
 
     const notificationId = await pushNotificationService.sendNotification(
@@ -240,28 +241,69 @@ router.post('/send-to-user',csrfProtection, authenticateJWT, async (req, res) =>
  */
 router.get('/preferences', authenticateJWT, async (req, res) => {
   try {
-    // TODO: Implement notification preferences
-    // For now, return default preferences
-    res.json({
-      success: true,
-      data: {
-        pushEnabled: true,
-        smsEnabled: true,
-        categories: {
-          critical_alert: true,
-          maintenance_reminder: true,
-          task_assignment: true,
-          driver_alert: true,
-          administrative: true,
-          performance: true,
+    const userId = req.user?.id ?? '';
+    const tenantId = req.user?.tenantId || req.user?.tenant_id || '';
+
+    // Query notification_preferences table for this user
+    const result = await pool.query(
+      `SELECT
+        push_enabled,
+        sms_enabled,
+        email_enabled,
+        categories,
+        quiet_hours_enabled,
+        quiet_hours_start,
+        quiet_hours_end
+      FROM notification_preferences
+      WHERE user_id = $1 AND tenant_id = $2`,
+      [userId, tenantId]
+    );
+
+    if (result.rows.length > 0) {
+      const prefs = result.rows[0];
+      res.json({
+        success: true,
+        data: {
+          pushEnabled: prefs.push_enabled,
+          smsEnabled: prefs.sms_enabled,
+          categories: prefs.categories || {
+            critical_alert: true,
+            maintenance_reminder: true,
+            task_assignment: true,
+            driver_alert: true,
+            administrative: true,
+            performance: true,
+          },
+          quietHours: {
+            enabled: prefs.quiet_hours_enabled,
+            start: prefs.quiet_hours_start || '22:00',
+            end: prefs.quiet_hours_end || '08:00',
+          },
         },
-        quietHours: {
-          enabled: false,
-          start: '22:00',
-          end: '08:00',
+      });
+    } else {
+      // No preferences saved yet - return defaults
+      res.json({
+        success: true,
+        data: {
+          pushEnabled: true,
+          smsEnabled: true,
+          categories: {
+            critical_alert: true,
+            maintenance_reminder: true,
+            task_assignment: true,
+            driver_alert: true,
+            administrative: true,
+            performance: true,
+          },
+          quietHours: {
+            enabled: false,
+            start: '22:00',
+            end: '08:00',
+          },
         },
-      },
-    });
+      });
+    }
   } catch (error) {
     logger.error('Error getting preferences:', error) // Wave 21: Winston logger;
     res.status(500).json({
@@ -277,13 +319,60 @@ router.get('/preferences', authenticateJWT, async (req, res) => {
  */
 router.put('/preferences',csrfProtection, authenticateJWT, async (req, res) => {
   try {
+    const userId = req.user?.id ?? '';
+    const tenantId = req.user?.tenantId || req.user?.tenant_id || '';
     const preferences = req.body;
 
-    // TODO: Save preferences to database
-    // For now, just acknowledge
+    // Upsert notification preferences into the database
+    const result = await pool.query(
+      `INSERT INTO notification_preferences (
+        user_id,
+        tenant_id,
+        push_enabled,
+        sms_enabled,
+        email_enabled,
+        categories,
+        quiet_hours_enabled,
+        quiet_hours_start,
+        quiet_hours_end,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
+      ON CONFLICT (user_id, tenant_id) DO UPDATE SET
+        push_enabled = EXCLUDED.push_enabled,
+        sms_enabled = EXCLUDED.sms_enabled,
+        email_enabled = EXCLUDED.email_enabled,
+        categories = EXCLUDED.categories,
+        quiet_hours_enabled = EXCLUDED.quiet_hours_enabled,
+        quiet_hours_start = EXCLUDED.quiet_hours_start,
+        quiet_hours_end = EXCLUDED.quiet_hours_end,
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING *`,
+      [
+        userId,
+        tenantId,
+        preferences.pushEnabled !== undefined ? preferences.pushEnabled : true,
+        preferences.smsEnabled !== undefined ? preferences.smsEnabled : true,
+        preferences.emailEnabled !== undefined ? preferences.emailEnabled : true,
+        preferences.categories ? JSON.stringify(preferences.categories) : '{"critical_alert": true, "maintenance_reminder": true, "task_assignment": true, "driver_alert": true, "administrative": true, "performance": true}',
+        preferences.quietHours?.enabled !== undefined ? preferences.quietHours.enabled : false,
+        preferences.quietHours?.start || null,
+        preferences.quietHours?.end || null
+      ]
+    );
+
+    const saved = result.rows[0];
     res.json({
       success: true,
-      data: preferences,
+      data: {
+        pushEnabled: saved.push_enabled,
+        smsEnabled: saved.sms_enabled,
+        categories: saved.categories,
+        quietHours: {
+          enabled: saved.quiet_hours_enabled,
+          start: saved.quiet_hours_start || '22:00',
+          end: saved.quiet_hours_end || '08:00',
+        },
+      },
       message: 'Preferences updated successfully',
     });
   } catch (error) {
@@ -324,8 +413,8 @@ router.post(
           body: message,
           mediaUrl,
         },
-        req.user.tenantId,
-        req.user.id
+        req.user!.tenantId ?? '',
+        req.user!.id
       );
 
       res.json({
@@ -375,8 +464,8 @@ router.post(
           body: message,
           mediaUrl,
         },
-        req.user.tenantId,
-        req.user.id
+        req.user!.tenantId ?? '',
+        req.user!.id
       );
 
       res.json({
@@ -415,10 +504,10 @@ router.post(
 
       const messageSid = await smsService.sendFromTemplate(
         templateName,
-        req.user.tenantId,
+        req.user!.tenantId ?? '',
         to,
         variables || {},
-        req.user.id
+        req.user!.id
       );
 
       res.json({
@@ -463,7 +552,7 @@ filters.startDate = new Date(startDate as string);
 filters.endDate = new Date(endDate as string);
 }
 
-      const history = await smsService.getSMSHistory(req.user.tenantId, filters);
+      const history = await smsService.getSMSHistory(req.user!.tenantId ?? '', filters);
 
       res.json({
         success: true,
@@ -497,7 +586,7 @@ router.get(
       const { category } = req.query;
 
       const templates = await smsService.getTemplates(
-        req.user.tenantId,
+        req.user!.tenantId ?? '',
         category as string
       );
 
@@ -535,7 +624,7 @@ router.post(
       }
 
       const templateId = await smsService.createTemplate({
-        tenantId: req.user.tenantId,
+        tenantId: req.user!.tenantId ?? '',
         name,
         body,
         category: category || 'general',
@@ -577,7 +666,7 @@ router.get(
         };
       }
 
-      const stats = await smsService.getStatistics(req.user.tenantId, dateRange);
+      const stats = await smsService.getStatistics(req.user!.tenantId ?? '', dateRange);
 
       res.json({
         success: true,

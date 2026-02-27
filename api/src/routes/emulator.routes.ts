@@ -10,11 +10,20 @@ import path from 'path'
 import express, { Request, Response } from 'express'
 
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
+import type { CameraAngle, VideoLibraryFilter, VideoScenario, WeatherCondition } from '../services/video-dataset.service'
 import { pool } from '../db'
 import { csrfProtection } from '../middleware/csrf'
 import { telemetryService } from '../services/TelemetryService'
+import { logger } from '../utils/logger'
 import { getVideoDatasetService } from '../services/video-dataset.service'
 import { authenticateJWT } from '../middleware/auth'
+
+type TelemetryType = 'gps' | 'obd2' | 'iot' | 'radio' | 'driver'
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __fleetEmulatorOrchestrator: EmulatorOrchestrator | undefined
+}
 
 const router = express.Router()
 
@@ -29,7 +38,9 @@ let isInitialized = false
  * Initialize the telemetry service and orchestrator
  */
 async function ensureInitialized(): Promise<void> {
-  if (isInitialized) return
+  if (isInitialized) {
+return
+}
 
   try {
     // TelemetryService expects a minimal query/execute interface.
@@ -41,10 +52,10 @@ async function ensureInitialized(): Promise<void> {
       },
     })
     isInitialized = true
-    console.log('Emulator routes: TelemetryService initialized')
+    logger.info('Emulator routes: TelemetryService initialized')
   } catch (error) {
     // Do not silently fall back to mock/synthetic data: emulator must be DB-backed.
-    console.error('Emulator routes: TelemetryService initialization failed:', error)
+    logger.error('Emulator routes: TelemetryService initialization failed:', error)
     isInitialized = false
     throw error
   }
@@ -57,6 +68,14 @@ async function getOrchestrator(): Promise<EmulatorOrchestrator> {
   await ensureInitialized()
 
   if (!orchestrator) {
+    // Reuse the orchestrator instance created during API startup (server.ts) to avoid
+    // double-binding the emulator WebSocket port (and crashing with EADDRINUSE).
+    const globalOrchestrator = globalThis.__fleetEmulatorOrchestrator
+    if (globalOrchestrator) {
+      orchestrator = globalOrchestrator
+      return orchestrator
+    }
+
     // When running from bundled `dist/`, __dirname points at dist/ and the default config path
     // inside EmulatorOrchestrator won't exist. Provide an explicit path to the source config.
     const configPath = path.resolve(process.cwd(), 'src/emulators/config/default.json')
@@ -68,8 +87,10 @@ async function getOrchestrator(): Promise<EmulatorOrchestrator> {
     const started = Date.now()
     while (Date.now() - started < 5_000) {
       const total = orchestrator.getStatus()?.vehicles?.total ?? 0
-      if (total > 0) break
-      await new Promise((r) => setTimeout(r, 100))
+      if (total > 0) {
+break
+}
+      await new Promise((resolve) => setTimeout(resolve, 100))
     }
   }
   return orchestrator
@@ -107,10 +128,11 @@ router.get('/status', async (req: Request, res: Response) => {
         }
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -130,10 +152,11 @@ router.get('/vehicles', async (_req: Request, res: Response) => {
       success: true,
       data: telemetryService.getVehicles(),
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error',
+      error: errMsg || 'Unknown error',
     })
   }
 })
@@ -192,10 +215,11 @@ router.get('/vehicles/:vehicleId/telemetry', async (req: Request, res: Response)
         timestamp: new Date().toISOString(),
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error',
+      error: errMsg || 'Unknown error',
     })
   }
 })
@@ -231,10 +255,11 @@ router.post('/start', csrfProtection, async (req: Request, res: Response) => {
       message: 'Emulators started successfully',
       data: orch.getStatus()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -255,10 +280,11 @@ router.post('/stop', csrfProtection, async (req: Request, res: Response) => {
       success: true,
       message: 'Emulators stopped successfully'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -279,10 +305,11 @@ router.post('/pause', csrfProtection, async (req: Request, res: Response) => {
       success: true,
       message: 'Emulators paused successfully'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -303,10 +330,11 @@ router.post('/resume', csrfProtection, async (req: Request, res: Response) => {
       success: true,
       message: 'Emulators resumed successfully'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -330,10 +358,11 @@ router.post('/scenario/:scenarioId', csrfProtection, async (req: Request, res: R
       message: `Scenario "${scenarioId}" started successfully`,
       data: orch.getStatus()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -361,10 +390,11 @@ router.get('/vehicles', async (req: Request, res: Response) => {
       count: vehicles.length,
       source: 'database'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -393,10 +423,11 @@ router.get('/vehicles/:vehicleId', async (req: Request, res: Response) => {
       success: true,
       data: vehicle
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -436,10 +467,11 @@ router.get('/vehicles/:vehicleId/telemetry', async (req: Request, res: Response)
       source: liveTelemetry ? 'live' : 'database',
       timestamp: new Date().toISOString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -485,7 +517,7 @@ router.get('/vehicles/:vehicleId/telemetry/history', async (req: Request, res: R
 
     const history = await telemetryService.getTelemetryHistory(
       vehicleId,
-      type as any,
+      type as TelemetryType,
       new Date(startTime as string),
       new Date(endTime as string),
       parseInt(limit as string, 10)
@@ -498,10 +530,11 @@ router.get('/vehicles/:vehicleId/telemetry/history', async (req: Request, res: R
       type,
       timeRange: { startTime, endTime }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -535,10 +568,11 @@ router.get('/routes', async (req: Request, res: Response) => {
       },
       source: 'database'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -567,10 +601,11 @@ router.get('/routes/:routeId', async (req: Request, res: Response) => {
       success: true,
       data: route
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -596,10 +631,11 @@ router.get('/channels', async (req: Request, res: Response) => {
       data: channels,
       count: channels.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -646,10 +682,11 @@ router.get('/fleet/overview', async (req: Request, res: Response) => {
       },
       timestamp: new Date().toISOString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -701,10 +738,11 @@ router.get('/fleet/positions', async (req: Request, res: Response) => {
       count: positions.length,
       timestamp: new Date().toISOString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -729,10 +767,11 @@ router.get('/inventory', async (req: Request, res: Response) => {
       success: true,
       data: inventoryData
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -755,10 +794,11 @@ router.get('/inventory/category/:category', async (req: Request, res: Response) 
       data: items,
       category
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -788,10 +828,11 @@ router.get('/inventory/search', async (req: Request, res: Response) => {
       data: items,
       query: sku
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -817,10 +858,11 @@ router.get('/scenarios', async (req: Request, res: Response) => {
       success: true,
       data: data.scenarios
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -847,12 +889,22 @@ router.get('/video/library', async (req: Request, res: Response) => {
 
     const { cameraAngle, scenario, weather, timeOfDay, tags } = req.query
 
-    const filter: any = {}
-    if (cameraAngle) filter.cameraAngle = cameraAngle
-    if (scenario) filter.scenario = scenario
-    if (weather) filter.weather = weather
-    if (timeOfDay) filter.timeOfDay = timeOfDay
-    if (tags) filter.tags = Array.isArray(tags) ? tags : [tags]
+    const filter: VideoLibraryFilter = {}
+    if (cameraAngle) {
+filter.cameraAngle = cameraAngle as CameraAngle
+}
+    if (scenario) {
+filter.scenario = scenario as VideoScenario
+}
+    if (weather) {
+filter.weather = weather as WeatherCondition
+}
+    if (timeOfDay) {
+filter.timeOfDay = timeOfDay as string
+}
+    if (tags) {
+filter.tags = (Array.isArray(tags) ? tags : [tags]) as string[]
+}
 
     const videos = videoService.getVideos(filter)
 
@@ -861,10 +913,11 @@ router.get('/video/library', async (req: Request, res: Response) => {
       data: videos,
       count: videos.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -898,10 +951,11 @@ router.get('/video/library/:videoId', async (req: Request, res: Response) => {
       success: true,
       data: video
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -923,7 +977,7 @@ router.post('/video/stream/:vehicleId/:cameraAngle/start', csrfProtection, async
       await videoService.initialize()
     }
 
-    const stream = videoService.startStream(vehicleId, cameraAngle as any, videoId)
+    const stream = videoService.startStream(vehicleId, cameraAngle as CameraAngle, videoId)
 
     if (!stream) {
       return res.status(400).json({
@@ -936,10 +990,11 @@ router.post('/video/stream/:vehicleId/:cameraAngle/start', csrfProtection, async
       success: true,
       data: stream
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -960,16 +1015,17 @@ router.post('/video/stream/:vehicleId/:cameraAngle/stop', csrfProtection, async 
       await videoService.initialize()
     }
 
-    const stopped = videoService.stopStream(vehicleId, cameraAngle as any)
+    const stopped = videoService.stopStream(vehicleId, cameraAngle as CameraAngle)
 
     res.json({
       success: true,
       stopped
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -990,7 +1046,7 @@ router.get('/video/stream/:vehicleId/:cameraAngle', async (req: Request, res: Re
       await videoService.initialize()
     }
 
-    const stream = videoService.getStream(vehicleId, cameraAngle as any)
+    const stream = videoService.getStream(vehicleId, cameraAngle as CameraAngle)
 
     if (!stream) {
       return res.status(404).json({
@@ -1003,10 +1059,11 @@ router.get('/video/stream/:vehicleId/:cameraAngle', async (req: Request, res: Re
       success: true,
       data: stream
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -1036,10 +1093,11 @@ router.get('/video/streams', async (req: Request, res: Response) => {
         stats
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -1065,10 +1123,11 @@ router.get('/geofences', async (req: Request, res: Response) => {
       data: geofences,
       count: geofences.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     res.status(500).json({
       success: false,
-      error: error.message || 'Unknown error'
+      error: errMsg || 'Unknown error'
     })
   }
 })
@@ -1079,7 +1138,7 @@ router.get('/geofences', async (req: Request, res: Response) => {
 
 // Cleanup on process exit
 process.on('SIGINT', async () => {
-  console.log('\nShutting down emulator system...')
+  logger.info('\nShutting down emulator system...')
   if (orchestrator) {
     await orchestrator.shutdown()
   }

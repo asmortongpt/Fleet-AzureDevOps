@@ -43,13 +43,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/hooks/useAuth";
 import { apiClient } from "@/lib/api-client"
+import { formatEnum } from '@/utils/format-enum';
+import { formatDate, formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 interface Incident {
   id: string
   incident_title: string
   incident_type: string
   severity: 'low' | 'medium' | 'high' | 'critical'
-  status: 'open' | 'investigating' | 'resolved' | 'closed'
+  status: 'pending' | 'in_progress' | 'completed' | 'closed' | 'cancelled'
   incident_date: string
   incident_time?: string
   location?: string
@@ -286,14 +288,14 @@ export function IncidentManagement() {
 
   // Statistics
   const totalIncidents = incidents.length
-  const openIncidents = (incidents || []).filter(i => i.status === 'open' || i.status === 'investigating').length
+  const openIncidents = (incidents || []).filter(i => i.status === 'pending' || i.status === 'in_progress').length
   const criticalIncidents = (incidents || []).filter(i => i.severity === 'critical').length
-  const resolvedIncidents = (incidents || []).filter(i => i.status === 'resolved' || i.status === 'closed').length
+  const resolvedIncidents = (incidents || []).filter(i => i.status === 'completed' || i.status === 'closed').length
 
   const getSeverityColor = (severity: Incident['severity']) => {
     const colors = {
-      low: "bg-gray-100 text-gray-700",
-      medium: "bg-blue-100 text-blue-700",
+      low: "bg-white/[0.05] text-white/40",
+      medium: "bg-emerald-500/10 text-emerald-700",
       high: "bg-orange-100 text-orange-700",
       critical: "bg-red-100 text-red-700"
     }
@@ -302,10 +304,11 @@ export function IncidentManagement() {
 
   const getStatusColor = (status: Incident['status']) => {
     const colors = {
-      open: "bg-yellow-100 text-yellow-700",
-      investigating: "bg-blue-100 text-blue-700",
-      resolved: "bg-green-100 text-green-700",
-      closed: "bg-gray-100 text-gray-700"
+      pending: "bg-yellow-100 text-yellow-700",
+      in_progress: "bg-emerald-500/10 text-emerald-700",
+      completed: "bg-green-100 text-green-700",
+      closed: "bg-white/[0.05] text-white/40",
+      cancelled: "bg-white/[0.05] text-white/40"
     }
     return colors[status]
   }
@@ -556,7 +559,7 @@ export function IncidentManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Open/Investigating</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">{openIncidents}</div>
+            <div className="text-sm font-bold text-emerald-800">{openIncidents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <AlertTriangle className="w-3 h-3" />
               Active cases
@@ -620,9 +623,9 @@ export function IncidentManagement() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="open">Open</SelectItem>
-            <SelectItem value="investigating">Investigating</SelectItem>
-            <SelectItem value="resolved">Resolved</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
             <SelectItem value="closed">Closed</SelectItem>
           </SelectContent>
         </Select>
@@ -666,10 +669,10 @@ export function IncidentManagement() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="capitalize">{incident.incident_type.replace('_', ' ')}</TableCell>
+                    <TableCell>{formatEnum(incident.incident_type)}</TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {new Date(incident.incident_date).toLocaleDateString()}
+                        {formatDate(incident.incident_date)}
                       </div>
                       {incident.incident_time && (
                         <div className="text-xs text-muted-foreground">{incident.incident_time}</div>
@@ -697,12 +700,12 @@ export function IncidentManagement() {
                     </TableCell>
                     <TableCell>
                       <Badge className={getSeverityColor(incident.severity)} variant="secondary">
-                        {incident.severity}
+                        {formatEnum(incident.severity)}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(incident.status)} variant="secondary">
-                        {incident.status}
+                        {formatEnum(incident.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -758,8 +761,8 @@ export function IncidentManagement() {
                       </div>
                       <div>
                         <span className="text-muted-foreground">Type:</span>
-                        <p className="font-medium capitalize">
-                          {selectedIncident.incident_type.replace('_', ' ')}
+                        <p className="font-medium">
+                          {formatEnum(selectedIncident.incident_type)}
                         </p>
                       </div>
                       {selectedIncident.description && (
@@ -789,7 +792,7 @@ export function IncidentManagement() {
                       <div>
                         <span className="text-muted-foreground">Date:</span>
                         <p className="font-medium">
-                          {new Date(selectedIncident.incident_date).toLocaleDateString()}
+                          {formatDate(selectedIncident.incident_date)}
                           {selectedIncident.incident_time && ` at ${selectedIncident.incident_time}`}
                         </p>
                       </div>
@@ -852,7 +855,7 @@ export function IncidentManagement() {
                           <div className="grid grid-cols-2 gap-2">
                             <div>
                               <span className="text-muted-foreground">Type:</span>
-                              <span className="ml-2 capitalize">{action.action_type}</span>
+                              <span className="ml-2">{formatEnum(action.action_type)}</span>
                             </div>
                             {action.assigned_to_name && (
                               <div>
@@ -864,7 +867,7 @@ export function IncidentManagement() {
                               <div>
                                 <span className="text-muted-foreground">Due:</span>
                                 <span className="ml-2">
-                                  {new Date(action.due_date).toLocaleDateString()}
+                                  {formatDate(action.due_date)}
                                 </span>
                               </div>
                             )}
@@ -919,12 +922,12 @@ export function IncidentManagement() {
                     <div className="relative border-l-2 border-muted-foreground/20 pl-3 space-y-2">
                       {timeline.map((event, index) => (
                         <div key={event.id} className="relative">
-                          <div className="absolute -left-[27px] top-0 w-4 h-4 rounded-full bg-blue-500 border-2 border-background" />
+                          <div className="absolute -left-[27px] top-0 w-4 h-4 rounded-full bg-emerald-500/50 border-2 border-background" />
                           <div className="text-xs text-muted-foreground mb-1">
-                            {new Date(event.timestamp).toLocaleString()}
+                            {formatDateTime(event.timestamp)}
                           </div>
-                          <div className="font-medium capitalize">
-                            {event.event_type.replace('_', ' ')}
+                          <div className="font-medium">
+                            {formatEnum(event.event_type)}
                           </div>
                           <div className="text-sm text-muted-foreground">
                             {event.description}

@@ -6,11 +6,15 @@ import {
   Zap
 } from "lucide-react"
 import { useMemo } from "react"
+import { toast } from "sonner"
 import useSWR from "swr"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { apiFetcher } from "@/lib/api-fetcher"
+import { formatCurrency } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface PredictiveMaintenanceProps {
   data: ReturnType<typeof useFleetData>
@@ -31,10 +35,7 @@ interface PredictiveRecord {
   status?: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((res) => res.json())
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 export function PredictiveMaintenance() {
   const data = useFleetData()
@@ -133,7 +134,7 @@ export function PredictiveMaintenance() {
               <p className="text-sm font-medium text-muted-foreground">Potential Savings</p>
             </div>
             <p className="text-base font-semibold">
-              ${Math.round(estimatedSavings).toLocaleString()}
+              {formatCurrency(Math.round(estimatedSavings))}
             </p>
             <p className="text-sm text-muted-foreground mt-1">vs reactive maintenance</p>
           </CardContent>
@@ -165,7 +166,7 @@ export function PredictiveMaintenance() {
                     <div>
                       <p className="font-medium">{vehicle.number || vehicle.unit_number || vehicle.name || "Vehicle"}</p>
                       <p className="text-sm text-muted-foreground">
-                        {[vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" ") || "Details unavailable"}
+                        {formatVehicleName(vehicle) || "Details unavailable"}
                       </p>
                     </div>
                   </div>
@@ -186,11 +187,11 @@ export function PredictiveMaintenance() {
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {vehicle.estimatedCost ? `Est. $${vehicle.estimatedCost.toLocaleString()}` : "Est. —"}
+                        {vehicle.estimatedCost ? `Est. ${formatCurrency(vehicle.estimatedCost)}` : "Est. —"}
                       </p>
                     </div>
 
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" onClick={() => toast.success(`Scheduling service for: ${vehicle.predictedIssue}`)}>
                       Schedule Service
                     </Button>
                   </div>
@@ -215,7 +216,7 @@ export function PredictiveMaintenance() {
               <div className="p-2 border rounded-lg bg-accent/5">
                 <h3 className="font-semibold mb-2">Proactive Scheduling</h3>
                 <p className="text-sm text-muted-foreground">
-                  Schedule maintenance for {predictiveVehicles.length} vehicles before predicted issues occur to reduce emergency repairs by approximately ${Math.round(estimatedSavings).toLocaleString()}.
+                  Schedule maintenance for {predictiveVehicles.length} vehicles before predicted issues occur to reduce emergency repairs by approximately {formatCurrency(Math.round(estimatedSavings))}.
                 </p>
               </div>
               <div className="p-2 border rounded-lg">

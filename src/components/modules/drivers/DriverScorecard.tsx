@@ -28,6 +28,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import apiClient from "@/lib/api-client"
+import { brandColors } from "@/theme/designSystem"
 
 interface LeaderboardEntry {
   rank: number
@@ -132,21 +133,21 @@ export function DriverScorecard() {
   const getTrendIcon = (trend: string) => {
     if (trend === 'improving') return <TrendingUp className="h-4 w-4 text-green-500" />
     if (trend === 'declining') return <TrendingDown className="h-4 w-4 text-red-500" />
-    return <Minus className="h-4 w-4 text-gray-700" />
+    return <Minus className="h-4 w-4 text-white/35" />
   }
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return "text-green-600"
-    if (score >= 75) return "text-blue-800"
-    if (score >= 60) return "text-yellow-600"
-    return "text-red-600"
+    if (score >= 90) return "text-emerald-400"
+    if (score >= 75) return "text-emerald-500"
+    if (score >= 60) return "text-yellow-400"
+    return "text-red-400"
   }
 
   const getScoreBgColor = (score: number) => {
-    if (score >= 90) return "bg-green-100"
-    if (score >= 75) return "bg-blue-100"
-    if (score >= 60) return "bg-yellow-100"
-    return "bg-red-100"
+    if (score >= 90) return "bg-emerald-500/10"
+    if (score >= 75) return "bg-emerald-500/10"
+    if (score >= 60) return "bg-yellow-500/10"
+    return "bg-red-500/10"
   }
 
   const getAchievementIcon = (icon: string) => {
@@ -166,8 +167,8 @@ export function DriverScorecard() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-slate-700">Loading driver scorecard...</p>
+          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600 mx-auto mb-2"></div>
+          <p style={{ color: brandColors.archon.mediumGray }}>Loading driver scorecard...</p>
         </div>
       </div>
     )
@@ -180,7 +181,7 @@ export function DriverScorecard() {
           <Trophy className="h-8 w-8 text-yellow-600" />
           Driver Scorecard & Gamification
         </h1>
-        <p className="text-slate-700 mt-2">
+        <p className="mt-2" style={{ color: brandColors.archon.mediumGray }}>
           Performance rankings, achievements, and driver engagement
         </p>
       </div>
@@ -199,12 +200,12 @@ export function DriverScorecard() {
             <div className="grid grid-cols-3 gap-2 mb-3">
               {/* 2nd Place */}
               <Card
-                className="border-2 border-gray-300 cursor-pointer hover:shadow-md transition-all"
+                className="border border-white/[0.04] cursor-pointer hover:bg-[#161616] transition-all"
                 onClick={() => leaderboard[1] && handleDriverDrilldown(leaderboard[1])}
               >
                 <CardHeader className="text-center pb-3">
                   <div className="flex justify-center mb-2">
-                    <Medal className="h-9 w-12 text-gray-700" />
+                    <Medal className="h-9 w-12 text-white/60" />
                   </div>
                   <CardTitle className="text-sm">{leaderboard[1]?.driverName}</CardTitle>
                   <CardDescription>2nd Place</CardDescription>
@@ -226,10 +227,10 @@ export function DriverScorecard() {
 
               {/* 1st Place */}
               <Card
-                className="border-2 border-yellow-400 transform scale-105 shadow-sm cursor-pointer hover:shadow-sm transition-all"
+                className="border border-yellow-500/20 transform scale-105 cursor-pointer hover:bg-[#161616] transition-all"
                 onClick={() => leaderboard[0] && handleDriverDrilldown(leaderboard[0])}
               >
-                <CardHeader className="text-center pb-3 bg-gradient-to-b from-yellow-50 to-transparent">
+                <CardHeader className="text-center pb-3 bg-yellow-500/[0.03]">
                   <div className="flex justify-center mb-2">
                     <Trophy className="h-16 w-16 text-yellow-500" />
                   </div>
@@ -254,7 +255,7 @@ export function DriverScorecard() {
 
               {/* 3rd Place */}
               <Card
-                className="border-2 border-orange-300 cursor-pointer hover:shadow-md transition-all"
+                className="border border-orange-500/20 cursor-pointer hover:bg-[#161616] transition-all"
                 onClick={() => leaderboard[2] && handleDriverDrilldown(leaderboard[2])}
               >
                 <CardHeader className="text-center pb-3">
@@ -355,7 +356,7 @@ export function DriverScorecard() {
                     </div>
                     <div className="flex items-center gap-2">
                       {getTrendIcon(selectedDriver.trend)}
-                      <span className="text-sm text-slate-700">
+                      <span className="text-sm" style={{ color: brandColors.archon.mediumGray }}>
                         {selectedDriver.trend === 'improving' && 'Improving'}
                         {selectedDriver.trend === 'declining' && 'Declining'}
                         {selectedDriver.trend === 'stable' && 'Stable'}
@@ -368,7 +369,7 @@ export function DriverScorecard() {
                   <div className="grid grid-cols-3 gap-2">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <ShieldCheck className="h-5 w-5 text-blue-800" />
+                        <ShieldCheck className="h-5 w-5 text-emerald-500" />
                         <span className="text-sm font-medium">Safety</span>
                       </div>
                       <div className="text-sm font-bold">{selectedDriver.safetyScore.toFixed(1)}</div>
@@ -386,7 +387,7 @@ export function DriverScorecard() {
 
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-5 w-5 text-purple-600" />
+                        <CheckCircle className="h-5 w-5 text-amber-600" />
                         <span className="text-sm font-medium">Compliance</span>
                       </div>
                       <div className="text-sm font-bold">{selectedDriver.complianceScore.toFixed(1)}</div>
@@ -415,15 +416,15 @@ export function DriverScorecard() {
                               {getAchievementIcon(achievement.icon)}
                             </div>
                             <div className="text-sm font-semibold">{achievement.achievementName}</div>
-                            <div className="text-sm text-slate-700">{achievement.achievementDescription}</div>
+                            <div className="text-sm" style={{ color: brandColors.archon.mediumGray }}>{achievement.achievementDescription}</div>
                             <div className="text-sm mt-1">+{achievement.points.toString()} points</div>
                           </CardContent>
                         </Card>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-3 text-gray-700">
-                      <Target className="h-9 w-12 mx-auto mb-3 text-gray-700" />
+                    <div className="text-center py-3 text-white/35">
+                      <Target className="h-9 w-12 mx-auto mb-3 text-white/35" />
                       <p>No achievements earned yet. Keep driving safely!</p>
                     </div>
                   )}

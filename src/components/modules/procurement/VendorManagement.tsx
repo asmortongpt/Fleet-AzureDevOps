@@ -2,6 +2,7 @@ import { Plus, Search, Star, Mail, Phone, MapPin } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { EmailButton } from "@/components/email/EmailButton"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,6 +35,8 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Vendor } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatCurrency } from "@/utils/format-helpers"
 
 
 export function VendorManagement() {
@@ -127,13 +130,13 @@ export function VendorManagement() {
 
   const getTypeColor = (type: Vendor["type"]) => {
     const colors: Record<Vendor["type"], string> = {
-      parts: "bg-blue-100 text-blue-700",
+      parts: "bg-emerald-500/10 text-emerald-700",
       service: "bg-green-100 text-green-700",
       fuel: "bg-orange-100 text-orange-700",
-      insurance: "bg-purple-100 text-purple-700",
+      insurance: "bg-amber-100 text-amber-700",
       leasing: "bg-pink-100 text-pink-700",
       towing: "bg-yellow-100 text-yellow-700",
-      other: "bg-gray-100 text-gray-700"
+      other: "bg-white/[0.05] text-white/40"
     }
     return colors[type]
   }
@@ -141,7 +144,7 @@ export function VendorManagement() {
   const getStatusColor = (status: Vendor["status"]) => {
     const colors: Record<Vendor["status"], string> = {
       active: "bg-green-100 text-green-700",
-      inactive: "bg-gray-100 text-gray-700",
+      inactive: "bg-white/[0.05] text-white/40",
       suspended: "bg-red-100 text-red-700"
     }
     return colors[status]
@@ -365,7 +368,7 @@ export function VendorManagement() {
                     </TableCell>
                     <TableCell>
                       <Badge className={getTypeColor(vendor.type)} variant="secondary">
-                        {vendor.type}
+                        {formatEnum(vendor.type)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -387,11 +390,11 @@ export function VendorManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      ${vendor.totalSpend.toLocaleString()}
+                      {formatCurrency(vendor.totalSpend)}
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(vendor.status)} variant="secondary">
-                        {vendor.status}
+                        {formatEnum(vendor.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -404,14 +407,17 @@ export function VendorManagement() {
                           <Phone className="w-4 h-4 mr-1" />
                           Call
                         </Button>
-                        <Button
+                        <EmailButton
+                          to={vendor.email}
+                          context={{
+                            type: 'vendor_contact',
+                            entityName: vendor.name,
+                            recipientName: vendor.contactPerson || vendor.name,
+                          }}
+                          label="Email"
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.location.href = `mailto:${vendor.email}`}
-                        >
-                          <Mail className="w-4 h-4 mr-1" />
-                          Email
-                        </Button>
+                        />
                         <Button
                           variant="ghost"
                           size="sm"
@@ -454,7 +460,7 @@ export function VendorManagement() {
                       <span className="text-muted-foreground">Type:</span>
                       <div className="mt-1">
                         <Badge className={getTypeColor(selectedVendor.type)} variant="secondary">
-                          {selectedVendor.type}
+                          {formatEnum(selectedVendor.type)}
                         </Badge>
                       </div>
                     </div>
@@ -462,7 +468,7 @@ export function VendorManagement() {
                       <span className="text-muted-foreground">Status:</span>
                       <div className="mt-1">
                         <Badge className={getStatusColor(selectedVendor.status)} variant="secondary">
-                          {selectedVendor.status}
+                          {formatEnum(selectedVendor.status)}
                         </Badge>
                       </div>
                     </div>
@@ -480,14 +486,17 @@ export function VendorManagement() {
                       <span className="text-muted-foreground">Email:</span>
                       <div className="flex items-center gap-2 mt-1">
                         <p className="font-medium">{selectedVendor.email}</p>
-                        <Button
+                        <EmailButton
+                          to={selectedVendor.email}
+                          context={{
+                            type: 'vendor_contact',
+                            entityName: selectedVendor.name,
+                            recipientName: selectedVendor.contactPerson || selectedVendor.name,
+                          }}
+                          label="Email"
                           size="sm"
                           variant="outline"
-                          onClick={() => window.location.href = `mailto:${selectedVendor.email}`}
-                        >
-                          <Mail className="w-3 h-3 mr-1" />
-                          Email
-                        </Button>
+                        />
                       </div>
                     </div>
                     <div>
@@ -545,7 +554,7 @@ export function VendorManagement() {
                     </div>
                     <div>
                       <span className="text-muted-foreground">Total Spend:</span>
-                      <p className="font-medium text-sm">${selectedVendor.totalSpend.toLocaleString()}</p>
+                      <p className="font-medium text-sm">{formatCurrency(selectedVendor.totalSpend)}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Invoice Count:</span>
@@ -572,8 +581,8 @@ export function VendorManagement() {
                 <div>
                   <h3 className="text-sm font-semibold mb-3">Services Provided</h3>
                   <div className="flex flex-wrap gap-2">
-                    {selectedVendor.services.map((service, index) => (
-                      <Badge key={index} variant="outline">{service}</Badge>
+                    {selectedVendor.services.map((service) => (
+                      <Badge key={service} variant="outline">{service}</Badge>
                     ))}
                   </div>
                 </div>
@@ -583,8 +592,8 @@ export function VendorManagement() {
                 <div>
                   <h3 className="text-sm font-semibold mb-3">Certifications</h3>
                   <div className="flex flex-wrap gap-2">
-                    {selectedVendor.certifications.map((cert, index) => (
-                      <Badge key={index} variant="secondary">{cert}</Badge>
+                    {selectedVendor.certifications.map((cert) => (
+                      <Badge key={cert} variant="secondary">{cert}</Badge>
                     ))}
                   </div>
                 </div>

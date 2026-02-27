@@ -54,7 +54,7 @@ class AIAgentSupervisorService {
 
   constructor(
     private db: Pool,
-    private logger: any
+    private logger: import('winston').Logger
   ) {
     // Initialize supervisor model
     this.supervisorModel = new ChatOpenAI({
@@ -269,8 +269,8 @@ Provide accurate, relevant information with proper citations.`,
         totalTokens,
         executionTimeMs: Date.now() - startTime
       }
-    } catch (error: any) {
-      this.logger.error(`Supervisor processing failed`, { error: error.message, query })
+    } catch (error: unknown) {
+      this.logger.error(`Supervisor processing failed`, { error: error instanceof Error ? error.message : 'An unexpected error occurred', query })
       throw error
     }
   }
@@ -395,8 +395,9 @@ Respond in JSON format:
         executionTimeMs: Date.now() - startTime,
         tokensUsed
       }
-    } catch (error: any) {
-      this.logger.error(`Agent execution failed`, { agentId, error: error.message })
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      this.logger.error(`Agent execution failed`, { agentId, error: errMsg })
 
       return {
         agentId,
@@ -406,7 +407,7 @@ Respond in JSON format:
         confidence: 0,
         executionTimeMs: Date.now() - startTime,
         tokensUsed: 0,
-        error: error.message
+        error: errMsg
       }
     }
   }
@@ -464,7 +465,7 @@ Keep the response concise but thorough.`
   getAvailableAgents(): AgentDefinition[] {
     return Array.from(this.agents.values()).map(agent => ({
       ...agent,
-      model: undefined as any // Don't expose model instance
+      model: undefined as unknown as ChatOpenAI // Don't expose model instance
     }))
   }
 
@@ -476,7 +477,7 @@ Keep the response concise but thorough.`
     if (agent) {
       return {
         ...agent,
-        model: undefined as any
+        model: undefined as unknown as ChatOpenAI
       }
     }
     return undefined
@@ -547,8 +548,8 @@ Keep the response concise but thorough.`
           totalTokens
         ]
       )
-    } catch (error: any) {
-      this.logger.error(`Failed to log supervisor execution`, { error: error.message })
+    } catch (error: unknown) {
+      this.logger.error(`Failed to log supervisor execution`, { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     }
   }
 
@@ -597,12 +598,12 @@ Keep the response concise but thorough.`
 
     // Execute primary agent
     const results: AgentResult[] = []
-    const primaryResult = await this.executeAgent(decision.primaryAgent, query, { tenantId, userId } as any, 'primary')
+    const primaryResult = await this.executeAgent(decision.primaryAgent, query, { tenantId, userId }, 'primary')
     results.push(primaryResult)
 
     // Execute supporting agents if any
     for (const agentId of decision.supportingAgents) {
-      const result = await this.executeAgent(agentId, query, { tenantId, userId } as any, 'supporting')
+      const result = await this.executeAgent(agentId, query, { tenantId, userId }, 'supporting')
       results.push(result)
     }
 

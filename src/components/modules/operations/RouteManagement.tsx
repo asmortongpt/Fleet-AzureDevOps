@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface Route {
   id: string
@@ -232,7 +233,7 @@ export function RouteManagement() {
                     <SelectContent>
                       {vehicles.map(v => (
                         <SelectItem key={v.id} value={v.id}>
-                          {v.number} - {v.make} {v.model}
+                          {formatVehicleName(v)}
                         </SelectItem>
                       ))}
                     </SelectContent>

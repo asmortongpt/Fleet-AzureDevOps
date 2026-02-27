@@ -14,6 +14,7 @@ import { processEmailJob } from './jobs/processors/email.processor'
 import { processNotificationJob } from './jobs/processors/notification.processor'
 import { processReportJob } from './jobs/processors/report.processor'
 import { emailQueue, notificationQueue, reportQueue, closeAllQueues } from './jobs/queue'
+import telematicsSyncJob from './jobs/telematics-sync'
 import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
 import { getCsrfToken } from './middleware/csrf'
 import { errorHandler } from './middleware/errorHandler'
@@ -37,8 +38,7 @@ import { sentryService } from './monitoring/sentry'
 
 // Core Fleet Management Routes
 import adminJobsRouter from './routes/admin-jobs.routes'
-// DISABLED: import aiInsightsRouter from './routes/ai-insights.routes'
-// DISABLED: import attachmentsRouter from './routes/attachments.routes'
+import announcementsRouter from './routes/announcements'
 import batchRouter from './routes/batch'
 import billingReportsRouter from './routes/billing-reports'
 import breakGlassRouter from './routes/break-glass'
@@ -63,17 +63,29 @@ import communicationLogsRouter from './routes/communication-logs'
 import accountsPayableRouter from './routes/accounts-payable'
 import costAnalysisRouter from './routes/cost-analysis.routes'
 import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
-// import costsRouter from './routes/costs'
+import costsRouter from './routes/costs'
+import fuelPurchasingRouter from './routes/fuel-purchasing.routes'
 
 // Reporting & Analytics Routes
+import customReportsRouter from './routes/custom-reports.routes'
+import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 
 // AI & Automation Routes
 import aiChatRouter from './routes/ai-chat'
 import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
+import aiInsightsRouter from './routes/ai-insights.routes'
+import aiDispatchRouter from './routes/ai-dispatch.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
-// TEMP DISABLED: import alertsRouter from './routes/alerts.routes'
+import vehicleScannerAIRouter from './routes/vehicle-scanner-ai.routes'
+// Lazy-loaded: @langchain/core may not be installed in all environments
+let langchainRouter: import('express').Router | null = null
+try {
+  langchainRouter = require('./routes/langchain.routes').default
+} catch {
+  // langchain dependencies not available - route will be skipped
+}
 import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
 import analyticsRouter from './routes/analytics'
 import arcgisLayersRouter from './routes/arcgis-layers'
@@ -89,8 +101,11 @@ import authRouter from './routes/auth'
 // Mobile & Integration Routes
 
 // Vehicle Management Routes
+import crashDetectionRouter from './routes/crash-detection.routes'
 import damageRouter from './routes/damage'
 import damageReportsRouter from './routes/damage-reports'
+import vehicleHardwareConfigRouter from './routes/vehicle-hardware-config.routes'
+import vehicleIdentificationRouter from './routes/vehicle-identification.routes'
 
 // Trip & Route Management Routes
 
@@ -114,30 +129,27 @@ import driversRouter from './routes/drivers'
 import evManagementRouter from './routes/ev-management.routes'
 import executiveDashboardRouter from './routes/executive-dashboard.routes'
 import dashboardRouter from './routes/dashboard.routes'
+import emulatorRouter from './routes/emulator.routes'
 import facilitiesRouter from './routes/facilities'
 import serviceBaysRouter from './routes/service-bays'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
 import fleetRouter from './routes/fleet'
-import demoRouter from './routes/demo.routes'
-import emulatorRouter from './routes/emulator.routes'
-import facilitiesRouter from './routes/facilities'
-import fleetDocumentsRouter from './routes/fleet-documents.routes'
 import fuelRouter from './routes/fuel-transactions'
 import fuelCardsRouter from './routes/fuel-cards'
 import tiresRouter from './routes/tires'
 import insuranceRouter from './routes/insurance'
-import accountsPayableRouter from './routes/accounts-payable'
 import vehicleContractsRouter from './routes/vehicle-contracts'
 import vendorManagementRouter from './routes/vendor-management'
 import geofencesRouter from './routes/geofences'
+import geospatialRouter from './routes/geospatial.routes'
 import gpsRouter from './routes/gps'
 import healthDetailedRouter from './routes/health-detailed'
 import healthSystemRouter from './routes/health-system.routes' // Comprehensive system health (BACKEND-12)
 import healthRouter from './routes/health.routes' // Microsoft integration health
 import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 import incidentsRouter from './routes/incidents'
-import incidentManagementRouter from './routes/incident-management'
 import inspectionsRouter from './routes/inspections-simple'
+import internalTeamsRouter from './routes/internal-teams'
 import hazardZonesRouter from './routes/hazard-zones'
 import invoicesRouter from './routes/invoices'
 import integrationsHealthRouter from './routes/integrations-health'
@@ -145,6 +157,7 @@ import lidarRouter from './routes/lidar.routes'
 import maintenanceRouter from './modules/maintenance/routes/maintenance.routes'
 import maintenanceDrilldownsRouter from './routes/maintenance-drilldowns'
 import maintenanceSchedulesRouter from './routes/maintenance-schedules'
+import maintenanceRequestsRouter from './routes/maintenance-requests'
 import microsoftAuthRouter from './routes/microsoft-auth'
 import mileageReimbursementRouter from './routes/mileage-reimbursement'
 import meRouter from './routes/me'
@@ -152,10 +165,15 @@ import mobileAssignmentRouter from './routes/mobile-assignment.routes'
 import mobileHardwareRouter from './routes/mobile-hardware.routes'
 import mobileIntegrationRouter from './routes/mobile-integration.routes'
 import mobileMessagingRouter from './routes/mobile-messaging.routes'
+import mobileNotificationsRouter from './routes/mobile-notifications.routes'
+import mobileObd2Router from './routes/mobile-obd2.routes'
+import mobileOcrRouter from './routes/mobile-ocr.routes'
 import mobilePhotosRouter from './routes/mobile-photos.routes'
 import mobileTripsRouter from './routes/mobile-trips.routes'
 import monitoringRouter from './routes/monitoring'
+import queryPerformanceRouter from './routes/monitoring/query-performance'
 import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes'
+import ocrRouter from './routes/ocr.routes'
 import dispatchRouter from './routes/dispatch.routes'
 import onCallManagementRouter from './routes/on-call-management.routes'
 import oshaComplianceRouter from './routes/osha-compliance'
@@ -163,44 +181,72 @@ import outlookRouter from './routes/outlook.routes'
 import partsRouter from './routes/parts'
 import flairExpensesRouter from './routes/flair-expenses'
 import warrantyRecallsRouter from './routes/warranty-recalls'
+import trackingDevicesRouter from './routes/tracking-devices'
 import trainingRouter from './routes/training.routes'
 import securityEventsRouter from './routes/security-events'
 import certificationsRouter from './routes/certifications'
-// REMOVED: import performanceRouter from './routes/performance.routes'
 import permissionsRouter from './routes/permissions'
 import chargesRouter from './routes/personal-use-charges'
 import personalUsePoliciesRouter from './routes/personal-use-policies'
 import policiesRouter from './routes/policies'
+import policyAcknowledgmentsRouter from './routes/policy-acknowledgments'
+import policyComplianceAuditsRouter from './routes/policy-compliance-audits'
+import policyExecutionsRouter from './routes/policy-executions'
 
 // Missing importers
 import alertsRouter from './routes/alerts.routes'
 import complianceRouter from './routes/compliance'
+import complianceRequirementsRouter from './routes/compliance-requirements'
+import complianceRecordsRouter from './routes/compliance-records'
 import inventoryRouter from './routes/inventory.routes'
+
+// PHASE 3: Priority A Routes (High-Value Unregistered Features)
+import hosRouter from './routes/hos'
+import communicationsRouter from './routes/communications'
+import reimbursementRouter from './routes/reimbursement-requests'
+import adminRouter from './routes/admin.routes'
+import adminUsersRouter from './routes/admin/users.routes'
+import adminConfigRouter from './routes/admin/configuration'
 // monitoringRouter imported in separate block
 import { initializeBudgetRoutes } from './routes/budgets'
 import reportsRouter from './routes/reports.routes'
 import reservationsRouter from './routes/reservations.routes'
 import policyTemplatesRouter from './routes/policy-templates'
+import policyViolationsRouter from './routes/policy-violations'
+import licensesRouter from './routes/licenses'
+import attachmentsRouter from './routes/attachments.routes'
 import presenceRouter from './routes/presence.routes'
 import purchaseOrdersRouter from './routes/purchase-orders'
 import pushNotificationsRouter from './routes/push-notifications.routes'
 import notificationsRouter from './routes/notifications'
 import qualityGatesRouter from './routes/quality-gates'
+import validationDashboardRouter from './routes/validation-dashboard.routes'
+import validationIssuesRouter from './routes/validation-issues.routes'
+import validationChecklistRouter from './routes/validation-checklist.routes'
+import validationHandoffRouter from './routes/validation-handoff.routes'
+import validationStatusRouter from './routes/validation-status.routes'
+import routeOptimizationRouter from './routes/route-optimization.routes'
 // import routeEmulatorRouter from './routes/route-emulator.routes'
 import routesRouter from './routes/routes'
+import proceduresRouter from './routes/procedures'
 import safetyIncidentsRouter from './routes/safety-incidents'
+import safetyPoliciesRouter from './routes/safety-policies'
 import tripsRouter from './routes/trips'
 import safetyAlertsRouter from './routes/safety-alerts'
+import scanSessionsRouter from './routes/scan-sessions.routes'
 import schedulingRouter from './routes/scheduling.routes'
 import searchRouter from './routes/search'
 import sessionRevocationRouter from './routes/session-revocation'
 import sessionsRouter from './routes/sessions'
 import smartcarRouter from './routes/smartcar.routes'
 import storageAdminRouter from './routes/storage-admin'
+import databaseHealthRouter from './routes/database.routes'
 import syncRouter from './routes/sync.routes'
 import tasksRouter from './routes/tasks'
+import taskManagementRouter from './routes/task-management.routes'
 import teamsRouter from './routes/teams.routes'
 import tenantsRouter from './routes/tenants'
+import systemConnectionsRouter from './routes/system/connections'
 import systemMetricsRouter from './routes/system-metrics'
 import telematicsRouter from './routes/telematics.routes'
 import trafficCamerasRouter from './routes/traffic-cameras'
@@ -208,6 +254,7 @@ import tripUsageRouter from './routes/trip-usage'
 import predictiveMaintenanceRouter from './routes/predictive-maintenance'
 import usersRouter from './routes/users'
 import vehicle3dRouter from './routes/vehicle-3d.routes'
+import vehicleScannerRouter from './routes/vehicle-scanner.routes'
 import vehicleAssignmentsRouter from './routes/vehicle-assignments.routes'
 import vehicleHistoryRouter from './routes/vehicle-history.routes'
 import vehicleIdlingRouter from './routes/vehicle-idling.routes'
@@ -217,26 +264,49 @@ import videoEventsRouter from './routes/video-events'
 import videoTelematicsRouter from './routes/video-telematics.routes'
 import workOrdersRouter from './routes/work-orders'
 
+// Medium-Priority Routes (Batch 2)
+import adaptiveCardsRouter from './routes/adaptive-cards.routes'
+import assetRelationshipsRouter from './routes/asset-relationships.routes'
+import { componentsRouter } from './routes/components.routes'
+import { depreciationRouter } from './routes/depreciation.routes'
+import documentGeoRouter from './routes/document-geo.routes'
+import { registerDocumentSystemRoutes } from './routes/document-system.routes'
+import driverSafetyRouter from './routes/driver-safety'
+import incidentManagementEnhancedRouter from './routes/incident-management.routes'
+import { periodsRouter } from './routes/periods.routes'
+import purchaseOrdersEnhancedRouter from './routes/purchase-orders-enhanced.routes'
+import safetyNotificationsRouter from './routes/safety-notifications'
+import safetyTrainingRouter from './routes/safety-training'
+import schedulingNotificationsRouter from './routes/scheduling-notifications.routes'
+import systemHealthRouter from './routes/system-health.routes'
+import tripMarkingRouter from './routes/trip-marking'
+import vehicleSafetyRouter from './routes/vehicle-safety'
+import violationsRouter from './routes/violations.routes'
+import warrantiesRouter from './routes/warranties'
+import weatherRouter from './routes/weather'
+
+// Drilldown stub routes (empty-array fallbacks for frontend drilldown panels)
+import equipmentRouter from './routes/equipment.routes'
+import jobsRouter from './routes/jobs.routes'
+
 // E2E Testing Routes (DEVELOPMENT ONLY - NO AUTH)
-import e2eTestRouter from './routes/e2e-test.routes'
 
 // Job Processing Infrastructure
 import logger from './utils/logger'
 
-console.log('--- SERVER STARTING DEBUG ---')
+logger.info('--- SERVER STARTING DEBUG ---')
 // Initialize Datadog APM FIRST (must be before ALL other imports)
 // TODO: Re-enable when dd-trace package is properly installed
-console.log('Datadog APM disabled')
+logger.info('Datadog APM disabled')
 // TEMP: Disabled telemetry to resolve initialization loop
 // telemetryService.initialize()
 
 // ARCHITECTURE FIX: Import new error handling infrastructure
 
 // Initialize Sentry
-// TEMP: Disabled to resolve initialization loop
-// sentryService.init()
+sentryService.init()
 
-console.log('--- IMPORTS COMPLETED, CREATING APP ---');
+logger.info('--- IMPORTS COMPLETED, CREATING APP ---');
 const app = express()
 const PORT = process.env.PORT || 3000
 
@@ -284,11 +354,18 @@ app.use(securityHeaders({
 app.use(cors(getCorsConfig()))
 
 // Handle preflight requests explicitly for all routes
-app.options('*', cors(getCorsConfig()))
+app.options('/{*splat}', cors(getCorsConfig()))
 
 // 3. Body Parsers - After security headers and CORS
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+
+// 3.3 Express 5 compatibility: make req.query writable for validation/sanitization middleware
+app.use((req, _res, next) => {
+  const parsed = { ...req.query }
+  Object.defineProperty(req, 'query', { value: parsed, writable: true, configurable: true, enumerable: true })
+  next()
+})
 
 // 3.5. Cookie Parser - Required for CSRF protection
 app.use(cookieParser())
@@ -304,6 +381,28 @@ app.use(formatResponse)
 
 // Add telemetry middleware
 app.use(telemetryMiddleware)
+
+// DEVELOPMENT ONLY: Auth bypass for local testing
+// Sets req.user so authenticateJWT middleware skips JWT validation
+// SECURITY: Triple-gated - NODE_ENV + SKIP_AUTH + not production
+if (process.env.NODE_ENV !== 'production' && process.env.SKIP_AUTH === 'true') {
+  logger.info('[DEV] Auth bypass middleware enabled - all API requests will use Demo Fleet tenant')
+  app.use((req: any, _res: any, next: any) => {
+    if (req.path.startsWith('/api/') && !req.path.startsWith('/api/auth/')) {
+      req.user = {
+        id: '00000000-0000-0000-0000-000000000001',
+        email: 'dev@morton-tech.local',
+        role: 'SuperAdmin',
+        tenant_id: '11111111-1111-1111-1111-111111111111',
+        scope_level: 'global',
+        userId: '00000000-0000-0000-0000-000000000001',
+        tenantId: '11111111-1111-1111-1111-111111111111',
+        name: 'Dev User',
+      }
+    }
+    next()
+  })
+}
 
 // REMOVED: Performance monitoring sample logic
 
@@ -353,6 +452,7 @@ app.use('/api/v1/me', meRouter)
 
 // Core Fleet Management Routes
 app.use('/api/alerts', alertsRouter)
+app.use('/api/announcements', announcementsRouter)
 app.use('/api/vehicles', vehiclesRouter)
 app.use('/api/drivers', driversRouter)
 app.use('/api/fuel-transactions', fuelRouter)
@@ -365,15 +465,15 @@ app.use('/api/vehicle-contracts', vehicleContractsRouter)
 app.use('/api/vendor-management', vendorManagementRouter)
 app.use('/api/maintenance', maintenanceRouter)
 app.use('/api/incidents', incidentsRouter)
-app.use('/api/incident-management', incidentManagementRouter)
 app.use('/api/parts', partsRouter)
+app.use('/api/parts-inventory', partsRouter)  // Alias: frontend uses /api/parts-inventory
 app.use('/api/inventory', inventoryRouter) // Registered here as core
 app.use('/api/vendors', vendorsRouter)
 app.use('/api/invoices', invoicesRouter)
 app.use('/api/purchase-orders', purchaseOrdersRouter)
 app.use('/api/tasks', tasksRouter)
+app.use('/api/task-management', taskManagementRouter)
 app.use('/api/reservations', reservationsRouter)
-// TEMP DISABLED: app.use('/api/hos', hosRouter)  // TODO: Import hosRouter from './routes/hos.routes'
 
 // Asset Management Routes
 app.use('/api/analytics', analyticsRouter)
@@ -384,6 +484,8 @@ app.use('/api/heavy-equipment', heavyEquipmentRouter)
 
 // Dispatch & Communication Routes
 app.use('/api/communication-logs', communicationLogsRouter)
+app.use('/api/communications', communicationsRouter) // PHASE 3: Universal messaging system - Priority A
+app.use('/api/internal-teams', internalTeamsRouter)
 app.use('/api/teams', teamsRouter)
 app.use('/api/tenants', tenantsRouter)
 app.use('/api/notifications', notificationsRouter)
@@ -395,12 +497,15 @@ app.use('/api/system', systemMetricsRouter)
 // GPS & Tracking Routes
 app.use('/api/gps', gpsRouter)
 app.use('/api/geofences', geofencesRouter)
+app.use('/api/geospatial', geospatialRouter)
 app.use('/api/telematics', telematicsRouter)
 app.use('/api/traffic-cameras', trafficCamerasRouter)
+app.use('/api/traffic/cameras', trafficCamerasRouter) // Alias: frontend also uses /api/traffic/cameras
 app.use('/api/vehicle-idling', vehicleIdlingRouter)
 
 // Maintenance & Inspection Routes
 app.use('/api/maintenance-schedules', maintenanceSchedulesRouter)
+app.use('/api/maintenance-requests', maintenanceRequestsRouter)
 app.use('/api/maintenance/drilldowns', maintenanceDrilldownsRouter)
 app.use('/api/inspections', inspectionsRouter)
 app.use('/api/work-orders', workOrdersRouter)
@@ -412,17 +517,22 @@ app.use('/api/charging-stations', chargingStationsRouter)
 app.use('/api/predictive-maintenance', predictiveMaintenanceRouter)
 
 // Document Management Routes
+app.use('/api/attachments', attachmentsRouter)
+app.use('/api/documents/geo', documentGeoRouter) // Alias: frontend calls /api/documents/geo/geocode (must be before /api/documents)
 app.use('/api/documents', documentsRouter)
 app.use('/api/fleet-documents', fleetDocumentsRouter)
 app.use('/api/fleet', fleetRouter)
+app.use('/api/ocr', ocrRouter)
+app.use('/api/scan-sessions', scanSessionsRouter)
 
 // Financial & Cost Management Routes
-// app.use('/api/costs', costsRouter)
-app.use('/api/accounts-payable', accountsPayableRouter)
+app.use('/api/costs', costsRouter)
 app.use('/api/cost-analysis', costAnalysisRouter)
 app.use('/api/cost-benefit-analysis', costBenefitAnalysisRouter)
 app.use('/api/billing-reports', billingReportsRouter)
+app.use('/api/fuel-purchasing', fuelPurchasingRouter)
 app.use('/api/mileage-reimbursement', mileageReimbursementRouter)
+app.use('/api/reimbursements', reimbursementRouter) // PHASE 3: Reimbursement requests & workflows - Priority A
 app.use('/api/personal-use-charges', chargesRouter)
 app.use('/api/personal-use-policies', personalUsePoliciesRouter)
 app.use('/api/flair', flairExpensesRouter)
@@ -430,13 +540,17 @@ app.use('/api/flair', flairExpensesRouter)
 // Reporting & Analytics Routes
 app.use('/api/executive-dashboard', executiveDashboardRouter)
 app.use('/api/assignment-reporting', assignmentReportingRouter)
+app.use('/api/custom-reports', customReportsRouter)
 app.use('/api/driver-scorecard', driverScorecardRouter)
+app.use('/api/fleet-optimizer', fleetOptimizerRouter)
 
 // AI & Automation Routes
 app.use('/api/ai/chat', aiChatRouter) // AI Chat interface for document Q&A
+app.use('/api/ai-dispatch', aiDispatchRouter)
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
 app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
+if (langchainRouter) app.use('/api/langchain', langchainRouter)
 
 // Task & Schedule Management Routes
 app.use('/api/scheduling', schedulingRouter)
@@ -448,21 +562,31 @@ app.use('/api/mobile-assignment', mobileAssignmentRouter)
 app.use('/api/mobile-hardware', mobileHardwareRouter)
 app.use('/api/mobile-integration', mobileIntegrationRouter)
 app.use('/api/mobile-messaging', mobileMessagingRouter)
+app.use('/api/mobile-notifications', mobileNotificationsRouter)
+app.use('/api/mobile-obd2', mobileObd2Router)
+app.use('/api/mobile-ocr', mobileOcrRouter)
 app.use('/api/mobile-photos', mobilePhotosRouter)
 app.use('/api/mobile-trips', mobileTripsRouter)
 app.use('/api/push-notifications', pushNotificationsRouter)
 
 // Vehicle Management Routes
+app.use('/api/crash-detection', crashDetectionRouter)
 app.use('/api/vehicle-assignments', vehicleAssignmentsRouter)
+app.use('/api/vehicle-hardware-config', vehicleHardwareConfigRouter)
 app.use('/api/vehicle-history', vehicleHistoryRouter)
+app.use('/api/vehicle-identification', vehicleIdentificationRouter)
 app.use('/api/vehicle-3d', vehicle3dRouter)
+app.use('/api/vehicle-scanner-ai', vehicleScannerAIRouter)
+app.use('/api/vehicle-scanner', vehicleScannerRouter)
 app.use('/api/damage', damageRouter)
 app.use('/api/damage-reports', damageReportsRouter)
 app.use('/api/ai/damage-detection', aiDamageDetectionRouter)
+app.use('/api/ai-insights', aiInsightsRouter)
 app.use('/api/lidar', lidarRouter)
 
 // Trip & Route Management Routes
 app.use('/api/routes', routesRouter)
+app.use('/api/route-optimization', routeOptimizationRouter)
 app.use('/api/trips', tripsRouter)
 // app.use('/api/route-emulator', routeEmulatorRouter)
 app.use('/api/trip-usage', tripUsageRouter)
@@ -473,14 +597,24 @@ app.use('/api/hazard-zones', hazardZonesRouter)
 app.use('/api/safety-alerts', safetyAlertsRouter)
 app.use('/api/osha-compliance', oshaComplianceRouter)
 app.use('/api/compliance', complianceRouter)
+app.use('/api/compliance-requirements', complianceRequirementsRouter)
+app.use('/api/compliance-records', complianceRecordsRouter)
 app.use('/api/annual-reauthorization', annualReauthorizationRouter)
+app.use('/api/safety-policies', safetyPoliciesRouter)
+app.use('/api/procedures', proceduresRouter)
 app.use('/api/training', trainingRouter)
 app.use('/api/certifications', certificationsRouter)
+app.use('/api/hos', hosRouter) // PHASE 3: Hours of Service (DOT compliance) - Priority A
 
 // Policy & Permission Routes
 app.use('/api/policies', policiesRouter)
 app.use('/api/policy-templates', policyTemplatesRouter)
+app.use('/api/policy-violations', policyViolationsRouter)
+app.use('/api/policy-acknowledgments', policyAcknowledgmentsRouter)
+app.use('/api/policy-compliance-audits', policyComplianceAuditsRouter)
+app.use('/api/policy-executions', policyExecutionsRouter)
 app.use('/api/permissions', permissionsRouter)
+app.use('/api/licenses', licensesRouter)
 
 // Reporting
 app.use('/api/reports', reportsRouter)
@@ -509,17 +643,19 @@ app.use('/api/dashboard', dashboardRouter)
 app.use('/api/emulator', emulatorRouter)
 app.use('/api/obd2-emulator', obd2EmulatorRouter)
 app.use('/api/dispatch', dispatchRouter)
-// app.use('/api/demo', demoRouter) // REMOVED: demo routes deleted during mock data cleanup
+app.use('/api/dispatches', dispatchRouter)  // Alias: frontend uses /api/dispatches
 
 // System Management Routes
 app.use('/api/monitoring', monitoringRouter)
+app.use('/api/monitoring/query-performance', queryPerformanceRouter)
 app.use('/api/health', healthSystemRouter) // Comprehensive system health (BACKEND-12)
 app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
 // TEMP DISABLED: app.use('/api/health', healthStartupRouter) // TODO: Import healthStartupRouter from './routes/health-startup.routes'
 app.use('/api/health-detailed', healthDetailedRouter)
-// REMOVED: app.use('/api/performance', performanceRouter)
 app.use('/api/telemetry', telemetryRouter)
 app.use('/api/security', securityEventsRouter)
+app.use('/api/security-events', securityEventsRouter) // Alias: some frontend code uses /api/security-events
+app.use('/api/tracking-devices', trackingDevicesRouter)
 app.use('/api/queue', queueRouter)
 app.use('/api/deployments', deploymentsRouter)
 app.use('/api/facilities', facilitiesRouter)
@@ -527,20 +663,58 @@ app.use('/api/service-bays', serviceBaysRouter)
 app.use('/api/search', searchRouter)
 app.use('/api/presence', presenceRouter)
 app.use('/api/storage-admin', storageAdminRouter)
+app.use('/api/storage', storageAdminRouter)
+app.use('/api/database', databaseHealthRouter)
 app.use('/api/sync', syncRouter)
 app.use('/api/quality-gates', qualityGatesRouter)
-// TEMP DISABLED: app.use('/api/reservations', reservationsRouter) // TODO: Import reservationsRouter
+app.use('/api/validation', validationDashboardRouter)
+app.use('/api/validation/issues', validationIssuesRouter)
+app.use('/api/validation/checklist', validationChecklistRouter)
+app.use('/api/validation/handoff', validationHandoffRouter)
+app.use('/api/validation/status', validationStatusRouter)
+app.use('/api/system', systemConnectionsRouter)
 app.use('/api/admin/jobs', adminJobsRouter)
+app.use('/api/admin', adminRouter) // PHASE 3: Admin dashboard & config - Priority A
+app.use('/api/admin/users', adminUsersRouter) // PHASE 3: Admin user management - Priority A
+app.use('/api/admin/config', adminConfigRouter)
+
+// Medium-Priority Routes (Batch 2)
+app.use('/api/adaptive-cards', adaptiveCardsRouter)
+app.use('/api/asset-relationships', assetRelationshipsRouter)
+app.use('/api', componentsRouter) // componentsRouter defines its own /assets/:assetId/components paths
+app.use('/api', depreciationRouter) // depreciationRouter defines its own /assets/:assetId/depreciation paths
+app.use('/api/document-geo', documentGeoRouter)
+registerDocumentSystemRoutes(app) // Document system registers its own sub-routes internally
+app.use('/api/driver-safety', driverSafetyRouter)
+app.use('/api/incident-management-enhanced', incidentManagementEnhancedRouter) // Enhanced incident management (separate from basic incident-management)
+app.use('/api', periodsRouter) // periodsRouter defines its own /accounting/periods paths
+app.use('/api/purchase-orders-enhanced', purchaseOrdersEnhancedRouter)
+app.use('/api/safety-notifications', safetyNotificationsRouter)
+app.use('/api/safety-training', safetyTrainingRouter)
+app.use('/api/scheduling-notifications', schedulingNotificationsRouter)
+app.use('/api/system-health', systemHealthRouter)
+app.use('/api/trip-marking', tripMarkingRouter)
+app.use('/api/vehicle-safety', vehicleSafetyRouter)
+app.use('/api/warranties', warrantiesRouter)
+app.use('/api/weather', weatherRouter)
 
 // E2E Test Routes - explicit opt-in only (no authentication required)
 // Never enable by default (even in development) so demos don't accidentally expose these endpoints.
 if (process.env.ENABLE_E2E_ROUTES === 'true' && process.env.NODE_ENV !== 'production') {
-  app.use('/api/e2e-test', e2eTestRouter)
-  console.log('⚠️  E2E Test routes enabled at /api/e2e-test (NO AUTHENTICATION)')
+  if (process.env.ENABLE_E2E_TEST === 'true') {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const e2eModule = require('./routes/e2e-test.routes')
+    const e2eTestRouter = e2eModule.default || e2eModule
+    app.use('/api/e2e-test', e2eTestRouter)
+    logger.warn('E2E Test routes enabled at /api/e2e-test (NO AUTHENTICATION)')
+  }
 }
 
 // Route aliases for frontend compatibility
 app.use('/api/garage-bays', serviceBaysRouter)
+app.use('/api/violations', violationsRouter)       // Alias: ViolationDetailPanel calls /api/violations (proxies policy_violations)
+app.use('/api/jobs', jobsRouter)                   // Stub: OperationsHubDrilldowns calls /api/jobs
+app.use('/api/equipment', equipmentRouter)         // Stub: AssetHubDrilldowns calls /api/equipment
 app.use('/api', initializeBudgetRoutes(pool))
 
 // 404 handler - must come before error handlers
@@ -585,6 +759,58 @@ const initializeEmulatorTracking = async () => {
   } catch (err) {
     logger.warn('Failed to initialize OBD2 emulator WebSocket', { err })
   }
+
+  // Start the DB-backed fleet emulator stream (WebSocket :3004/emulator/stream) for demos.
+  // This powers the UI "Endpoint Monitor" connectivity and provides realistic live telemetry.
+  const enableEmulatorStream = enableEmulators && process.env.ENABLE_EMULATOR_STREAM !== 'false'
+  if (!enableEmulatorStream) {
+return
+}
+
+  try {
+    const [{ EmulatorOrchestrator }, { telemetryService: fleetTelemetryService }, path] = await Promise.all([
+      import('./emulators/EmulatorOrchestrator'),
+      import('./services/TelemetryService'),
+      import('path'),
+    ])
+
+    // Ensure TelemetryService is initialized (Orchestrator depends on it for DB-backed inventory).
+    await fleetTelemetryService.initialize({
+      query: async (sql: string, params?: any[]) => (await pool.query(sql, params)).rows,
+      execute: async (sql: string, params?: any[]) => {
+        const res = await pool.query(sql, params)
+        return { rowCount: res.rowCount ?? 0 }
+      },
+    })
+
+    const configPath = path.resolve(process.cwd(), 'src/emulators/config/default.json')
+    const orchestrator = new EmulatorOrchestrator(configPath)
+    ;(globalThis as unknown as Record<string, unknown>).__fleetEmulatorOrchestrator = orchestrator
+
+    const maxVehicles = Number(process.env.EMULATOR_STREAM_VEHICLE_COUNT || 50)
+    const vehicleIds = fleetTelemetryService.getVehicles().slice(0, maxVehicles).map((v) => v.id)
+
+    if (vehicleIds.length === 0) {
+      logger.warn('⚠️ Emulator stream not started: no vehicles available from DB')
+      return
+    }
+
+    // The orchestrator loads DB-backed vehicles asynchronously. Wait briefly so `start()`
+    // doesn't race the loader and produce false "Vehicle not found" warnings.
+    const startedAt = Date.now()
+    while (Date.now() - startedAt < 5_000) {
+      const total = orchestrator.getStatus()?.vehicles?.total ?? 0
+      if (total > 0) {
+break
+}
+      await new Promise((resolve) => setTimeout(resolve, 100))
+    }
+
+    await orchestrator.start(vehicleIds)
+    logger.info('✅ Emulator stream enabled at ws://<host>:3004/emulator/stream', { vehicles: vehicleIds.length })
+  } catch (err) {
+    logger.warn('Failed to initialize emulator stream', { err })
+  }
 }
 
 /**
@@ -594,17 +820,17 @@ const initializeJobProcessors = () => {
   logger.info('Initializing Bull job processors...')
 
   // Email queue processor
-  emailQueue.process(async (job) => {
+  void emailQueue.process(async (job) => {
     return processEmailJob(job)
   })
 
   // Notification queue processor
-  notificationQueue.process(async (job) => {
+  void notificationQueue.process(async (job) => {
     return processNotificationJob(job)
   })
 
   // Report queue processor
-  reportQueue.process(async (job) => {
+  void reportQueue.process(async (job) => {
     return processReportJob(job)
   })
 
@@ -614,7 +840,7 @@ const initializeJobProcessors = () => {
   logger.info('  - Report queue: ready')
 }
 
-console.log('--- READY TO LISTEN ON PORT ' + PORT + ' ---');
+logger.info(`--- READY TO LISTEN ON PORT ${String(PORT)} ---`);
 
 let server: any;
 
@@ -626,11 +852,11 @@ async function listenWithRetry(port: number, maxRetries = 10): Promise<any> {
         srv.on('error', (err: any) => reject(err))
       })
       return s
-    } catch (err: any) {
-      if (err?.code === 'EADDRINUSE' && attempt < maxRetries) {
+    } catch (err: unknown) {
+      if (err instanceof Error && 'code' in err && (err as Record<string, unknown>).code === 'EADDRINUSE' && attempt < maxRetries) {
         const delayMs = 250 + attempt * 250
-        console.warn(`Port ${port} in use; retrying listen in ${delayMs}ms (attempt ${attempt + 1}/${maxRetries})`)
-        await new Promise((r) => setTimeout(r, delayMs))
+        logger.warn(`Port ${port} in use; retrying listen in ${delayMs}ms (attempt ${attempt + 1}/${maxRetries})`)
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
         continue
       }
       throw err
@@ -644,77 +870,82 @@ const startServer = async () => {
     // Initialize database connection manager FIRST
     try {
       await initializeConnectionManager();
-      console.log('Database connection manager initialized');
+      logger.info('Database connection manager initialized');
     } catch (error) {
-      console.error('Failed to initialize Connection Manager (Running in Degraded Mode):', error);
+      logger.error('Failed to initialize Connection Manager (Running in Degraded Mode):', error);
     }
 
     server = await listenWithRetry(Number(PORT), 12)
-    server.on('listening', async () => {
-      console.log(`Server running on http://localhost:${PORT}`)
-      console.log(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
-      console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
 
-      try {
-        const { initializeStartupHealthCheck } = await import('./routes/health-startup.routes')
-        const healthReport = await initializeStartupHealthCheck()
-        if (healthReport) {
-          console.log(`\nStartup Health Check: ${healthReport.overallStatus.toUpperCase()}`)
-          console.log(`View full report: http://localhost:${PORT}/api/health/startup\n`)
-        }
-      } catch (error) {
-        // Startup health check is optional. Keep startup resilient when the module is
-        // absent from the build or disabled in certain deployments.
-        console.warn('Startup health check skipped:', error)
+    // NOTE: `listenWithRetry()` resolves only after the server is already listening.
+    // Registering a `'listening'` handler *after* that can miss the event entirely.
+    // Run startup hooks immediately after the server is bound.
+    logger.info(`Server running on http://localhost:${PORT}`)
+    logger.info(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
+    logger.info(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
+    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`)
+
+    try {
+      const { initializeStartupHealthCheck } = await import('./routes/health-startup.routes')
+      const healthReport = await initializeStartupHealthCheck()
+      if (healthReport) {
+        logger.info(`Startup Health Check: ${healthReport.overallStatus.toUpperCase()}`)
+        logger.info(`View full report: http://localhost:${PORT}/api/health/startup`)
       }
+    } catch (error) {
+      // Startup health check is optional. Keep startup resilient when the module is
+      // absent from the build or disabled in certain deployments.
+      logger.warn('Startup health check skipped:', { error })
+    }
 
-      // ARCHITECTURE FIX: Initialize process-level error handlers
-      initializeProcessErrorHandlers(server)
+    // ARCHITECTURE FIX: Initialize process-level error handlers
+    initializeProcessErrorHandlers(server)
 
-      // Initialize Bull job processors
-      initializeJobProcessors()
+    // Initialize Bull job processors
+    initializeJobProcessors()
 
-      // Track server startup in both monitoring systems
-      telemetryService.trackEvent('ServerStartup', {
-        port: PORT,
-        nodeVersion: process.version,
-        environment: process.env.NODE_ENV || 'development',
-        telemetryEnabled: telemetryService.isActive(),
-        sentryEnabled: !!process.env.SENTRY_DSN,
-        jobProcessorsEnabled: true
-      })
+    // Initialize Telematics Sync Job
+    telematicsSyncJob.start()
 
-      // Also track in Sentry
-      sentryService.captureMessage('Server started successfully', 'info')
-      sentryService.addBreadcrumb('Server startup', 'lifecycle', {
-        port: PORT,
-        environment: process.env.NODE_ENV || 'development'
-      })
-
-      // Initialize emulator tracking
-      initializeEmulatorTracking()
-
-      // Initialize Real-Time Collaboration Service
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { collaborationService } = require('./services/collaboration/real-time.service')
-        collaborationService.initialize(server)
-      } catch (err) {
-        console.error('Failed to initialize Collaboration Service:', err)
-      }
+    // Track server startup in both monitoring systems
+    telemetryService.trackEvent('ServerStartup', {
+      port: PORT,
+      nodeVersion: process.version,
+      environment: process.env.NODE_ENV || 'development',
+      telemetryEnabled: telemetryService.isActive(),
+      sentryEnabled: !!process.env.SENTRY_DSN,
+      jobProcessorsEnabled: true
     })
+
+    // Also track in Sentry
+    sentryService.captureMessage('Server started successfully', 'info')
+    sentryService.addBreadcrumb('Server startup', 'lifecycle', {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development'
+    })
+
+    // Initialize emulator tracking
+    void initializeEmulatorTracking()
+
+    // Initialize Real-Time Collaboration Service
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { collaborationService } = require('./services/collaboration/real-time.service')
+      collaborationService.initialize(server)
+    } catch (err) {
+      logger.error('Failed to initialize Collaboration Service:', err)
+    }
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server:', error);
     process.exit(1);
   }
 };
 
-startServer();
+void startServer();
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('SIGTERM signal received: flushing telemetry and closing server')
+  logger.info('SIGTERM signal received: flushing telemetry and closing server')
 
   server.close(async () => {
     // Close Bull queues gracefully
@@ -725,13 +956,13 @@ process.on('SIGTERM', async () => {
       telemetryService.flush(),
       sentryService.flush(5000)
     ])
-    console.log('Server closed gracefully')
+    logger.info('Server closed gracefully')
     process.exit(0)
   })
 })
 
 process.on('SIGINT', async () => {
-  console.log('SIGINT signal received: flushing telemetry and closing server')
+  logger.info('SIGINT signal received: flushing telemetry and closing server')
 
   server.close(async () => {
     // Close Bull queues gracefully
@@ -742,7 +973,7 @@ process.on('SIGINT', async () => {
       telemetryService.flush(),
       sentryService.flush(5000)
     ])
-    console.log('Server closed gracefully')
+    logger.info('Server closed gracefully')
     process.exit(0)
   })
 })

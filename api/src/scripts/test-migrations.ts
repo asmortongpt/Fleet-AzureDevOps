@@ -28,9 +28,9 @@ async function testMigrations() {
     try {
       await pool.query(constraintsMigration);
       console.log('✅ Constraints migration applied successfully\n');
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Some constraints might already exist, check if it's a "already exists" error
-      if (error.message.includes('already exists') || error.code === '42710') {
+      if ((error instanceof Error && error.message.includes('already exists')) || (error as Record<string, unknown>).code === '42710') {
         console.log('⚠️  Some constraints already exist, continuing...\n');
       } else {
         throw error;
@@ -41,8 +41,8 @@ async function testMigrations() {
     try {
       await pool.query(partitioningMigration);
       console.log('✅ Partitioning migration applied successfully\n');
-    } catch (error: any) {
-      if (error.message.includes('already exists') || error.code === '42P07') {
+    } catch (error: unknown) {
+      if ((error instanceof Error && error.message.includes('already exists')) || (error as Record<string, unknown>).code === '42P07') {
         console.log('⚠️  Partitions already exist, continuing...\n');
       } else {
         throw error;
@@ -59,11 +59,11 @@ async function testMigrations() {
          VALUES (gen_random_uuid(), gen_random_uuid(), 'TEST-001', -1000, 'active')`
       );
       console.log('  ❌ FAILED: Should have rejected negative odometer');
-    } catch (error: any) {
-      if (error.message.includes('chk_vehicles_odometer_positive')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('chk_vehicles_odometer_positive')) {
         console.log('  ✅ PASSED: Negative odometer rejected');
       } else {
-        console.log(`  ❌ FAILED: Wrong error: ${error.message}`);
+        console.log(`  ❌ FAILED: Wrong error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
       }
     }
 
@@ -75,11 +75,11 @@ async function testMigrations() {
          VALUES (gen_random_uuid(), gen_random_uuid(), 'TEST-002', 150, 'active')`
       );
       console.log('  ❌ FAILED: Should have rejected fuel level > 100');
-    } catch (error: any) {
-      if (error.message.includes('chk_vehicles_fuel_level_valid')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('chk_vehicles_fuel_level_valid')) {
         console.log('  ✅ PASSED: Invalid fuel level rejected');
       } else {
-        console.log(`  ❌ FAILED: Wrong error: ${error.message}`);
+        console.log(`  ❌ FAILED: Wrong error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
       }
     }
 
@@ -95,11 +95,11 @@ async function testMigrations() {
         [futureDate]
       );
       console.log('  ❌ FAILED: Should have rejected future date');
-    } catch (error: any) {
-      if (error.message.includes('chk_fuel_transaction_date_not_future')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('chk_fuel_transaction_date_not_future')) {
         console.log('  ✅ PASSED: Future date rejected');
       } else {
-        console.log(`  ❌ FAILED: Wrong error: ${error.message}`);
+        console.log(`  ❌ FAILED: Wrong error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
       }
     }
 
@@ -112,11 +112,11 @@ async function testMigrations() {
         ) VALUES (gen_random_uuid(), gen_random_uuid(), NOW(), 10, 3.5, 100)`
       );
       console.log('  ❌ FAILED: Should have rejected invalid calculation (10 * 3.5 != 100)');
-    } catch (error: any) {
-      if (error.message.includes('chk_fuel_calculation_valid')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('chk_fuel_calculation_valid')) {
         console.log('  ✅ PASSED: Invalid calculation rejected');
       } else {
-        console.log(`  ❌ FAILED: Wrong error: ${error.message}`);
+        console.log(`  ❌ FAILED: Wrong error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
       }
     }
 
@@ -129,11 +129,11 @@ async function testMigrations() {
         ) VALUES (gen_random_uuid(), gen_random_uuid(), NOW(), 30.0, -95.0, 200)`
       );
       console.log('  ❌ FAILED: Should have rejected speed > 150 mph');
-    } catch (error: any) {
-      if (error.message.includes('chk_gps_speed_reasonable')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('chk_gps_speed_reasonable')) {
         console.log('  ✅ PASSED: Unreasonable speed rejected');
       } else {
-        console.log(`  ❌ FAILED: Wrong error: ${error.message}`);
+        console.log(`  ❌ FAILED: Wrong error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
       }
     }
 
@@ -185,11 +185,11 @@ async function testMigrations() {
         `SELECT create_next_partition('gps_tracks', 6) as message`
       );
       console.log(`  ✅ PASSED: Partition function works - ${createResult.rows[0].message}`);
-    } catch (error: any) {
-      if (error.message.includes('already exists')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('already exists')) {
         console.log('  ✅ PASSED: Partition function works (partition already exists)');
       } else {
-        console.log(`  ❌ FAILED: ${error.message}`);
+        console.log(`  ❌ FAILED: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
       }
     }
 

@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import { pool } from '../db/connection'
 import { NotFoundError } from '../errors/app-error'
@@ -6,7 +7,25 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+import { flexUuid } from '../middleware/validation'
+
+const chargingSessionSchema = z.object({
+  vehicle_id: flexUuid,
+  driver_id: flexUuid.optional(),
+  station_id: flexUuid.optional(),
+  start_time: z.string().datetime().optional(),
+  end_time: z.string().datetime().optional(),
+  energy_kwh: z.number().min(0).max(10000).optional(),
+  cost: z.number().min(0).optional(),
+  status: z.enum(['active', 'completed', 'failed', 'cancelled']).optional(),
+  connector_type: z.string().max(100).optional(),
+  start_soc: z.number().min(0).max(100).optional(),
+  end_soc: z.number().min(0).max(100).optional(),
+  notes: z.string().max(2000).optional()
+}).passthrough()
 
 
 const router = express.Router()
@@ -41,7 +60,7 @@ router.get(
           cs.metadata,
           cs.created_at,
           cs.updated_at,
-          v.vehicle_number,
+          v.unit_number AS vehicle_number,
           v.make,
           v.model,
           d.first_name,
@@ -72,7 +91,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get charging-sessions error:`, error)
+      logger.error(`Get charging-sessions error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -103,7 +122,7 @@ router.get(
                 cs.metadata,
                 cs.created_at,
                 cs.updated_at,
-                v.vehicle_number,
+                v.unit_number AS vehicle_number,
                 v.make,
                 v.model,
                 d.first_name,
@@ -123,7 +142,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get charging-sessions error:', error)
+      logger.error('Get charging-sessions error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -132,11 +151,15 @@ router.get(
 // POST /charging-sessions
 router.post(
   '/',
-  csrfProtection, csrfProtection, requirePermission('charging_session:create:own'),
+  csrfProtection, requirePermission('charging_session:create:own'),
   auditLog({ action: 'CREATE', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = chargingSessionSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+      const data = parsed.data
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
@@ -151,7 +174,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create charging-sessions error:`, error)
+      logger.error(`Create charging-sessions error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -164,7 +187,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = chargingSessionSchema.partial().safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
@@ -178,7 +205,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update charging-sessions error:`, error)
+      logger.error(`Update charging-sessions error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -187,7 +214,7 @@ router.put(
 // DELETE /charging-sessions/:id
 router.delete(
   '/:id',
-  csrfProtection, csrfProtection, requirePermission('charging_session:delete:fleet'),
+  csrfProtection, requirePermission('charging_session:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -200,9 +227,9 @@ router.delete(
         throw new NotFoundError("ChargingSessions not found")
       }
 
-      res.json({ message: 'ChargingSessions deleted successfully' })
+      res.json({ success: true, message: 'ChargingSessions deleted successfully' })
     } catch (error) {
-      console.error('Delete charging-sessions error:', error)
+      logger.error('Delete charging-sessions error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

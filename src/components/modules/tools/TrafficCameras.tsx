@@ -16,6 +16,7 @@
  * @module TrafficCameras
  */
 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   Search,
   Video,
@@ -26,7 +27,6 @@ import {
   XCircle,
   Info
 } from "lucide-react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import { toast } from "sonner"
 
@@ -45,6 +45,7 @@ import {
 import { useInterval } from "@/hooks"
 import { apiClient } from "@/lib/api-client"
 import { TrafficCamera, CameraDataSource } from "@/lib/types"
+import { formatDateTime } from "@/utils/format-helpers"
 
 // ============================================================================
 // Types & Interfaces
@@ -121,7 +122,7 @@ const getInitialState = (): TrafficCamerasState => ({
  *
  * @returns {JSX.Element} The traffic cameras component
  */
-export function TrafficCameras(): JSX.Element {
+export function TrafficCameras(): React.ReactElement {
   // ========== State Management ==========
   const [state, setState] = useState<TrafficCamerasState>(getInitialState())
 
@@ -358,7 +359,7 @@ export function TrafficCameras(): JSX.Element {
     if (hours === 1) return "1 hour ago"
     if (hours < 24) return `${hours} hours ago`
 
-    return date.toLocaleString()
+    return formatDateTime(date)
   }, [])
 
   // ========== Data Loading Handler ==========
@@ -493,9 +494,9 @@ export function TrafficCameras(): JSX.Element {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Enabled</p>
-                <p className="text-base font-bold text-blue-800">{stats.enabled}</p>
+                <p className="text-base font-bold text-emerald-800">{stats.enabled}</p>
               </div>
-              <CheckCircle className="w-4 h-4 text-blue-800" />
+              <CheckCircle className="w-4 h-4 text-emerald-800" />
             </div>
           </CardContent>
         </Card>
@@ -575,7 +576,7 @@ export function TrafficCameras(): JSX.Element {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Location</p>
-                  <p className="font-medium">{state.selectedCamera.address || 'N/A'}</p>
+                  <p className="font-medium">{state.selectedCamera.address || '—'}</p>
                   {state.selectedCamera.crossStreets && (
                     <p className="text-sm text-muted-foreground">{state.selectedCamera.crossStreets}</p>
                   )}
@@ -602,7 +603,7 @@ export function TrafficCameras(): JSX.Element {
                 <div>
                   <p className="text-sm text-muted-foreground">Data Source</p>
                   <p className="font-medium">
-                    {state.sources.find(s => s.id === state.selectedCamera?.sourceId)?.name || 'Unknown'}
+                    {state.sources.find(s => s.id === state.selectedCamera?.sourceId)?.name || '—'}
                   </p>
                 </div>
               )}

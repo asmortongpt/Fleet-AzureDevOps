@@ -1,5 +1,6 @@
 import { Pool, PoolClient } from 'pg'
 
+import logger from '../../config/logger'
 import { TransactionError } from './errors'
 
 // Allowlist of valid PostgreSQL isolation levels
@@ -67,7 +68,7 @@ export async function withTransaction<T>(
     return result
   } catch (error) {
     await client.query('ROLLBACK')
-    console.error('Transaction rolled back:', error)
+    logger.error('Transaction rolled back', { error: error instanceof Error ? error.message : String(error) })
     throw new TransactionError(
       error instanceof Error ? error.message : 'Transaction failed'
     )
@@ -113,7 +114,7 @@ export async function withTransactionIsolation<T>(
     return result
   } catch (error) {
     await client.query('ROLLBACK')
-    console.error('Transaction rolled back:', error)
+    logger.error('Transaction rolled back', { error: error instanceof Error ? error.message : String(error) })
     throw new TransactionError(
       error instanceof Error ? error.message : 'Transaction failed'
     )
@@ -161,7 +162,7 @@ export async function withNestedTransaction<T>(
     return result
   } catch (error) {
     await client.query(`ROLLBACK TO SAVEPOINT ${savepointName}`)
-    console.error(`Nested transaction rolled back:`, error)
+    logger.error('Nested transaction rolled back', { error: error instanceof Error ? error.message : String(error) })
     throw new TransactionError(
       error instanceof Error ? error.message : 'Nested transaction failed'
     )
@@ -193,13 +194,14 @@ export async function withTransactionRetry<T>(
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await withTransaction(pool, callback)
-    } catch (error: any) {
-      lastError = error
+    } catch (error: unknown) {
+      lastError = error instanceof Error ? error : new Error(String(error))
 
       // Retry on serialization failures or deadlocks
+      const errorCode = (error as Record<string, unknown>).code
       const shouldRetry =
-        error.code === '40001' || // serialization_failure
-        error.code === `40P01`    // deadlock_detected
+        errorCode === '40001' || // serialization_failure
+        errorCode === `40P01`    // deadlock_detected
 
       if (!shouldRetry || attempt === maxRetries) {
         throw error
@@ -209,7 +211,7 @@ export async function withTransactionRetry<T>(
       const delay = retryDelay * Math.pow(2, attempt)
       await new Promise(resolve => setTimeout(resolve, delay))
 
-      console.warn(`Transaction retry attempt ${attempt + 1}/${maxRetries}`)
+      logger.warn('Transaction retry attempt', { attempt: attempt + 1, maxRetries })
     }
   }
 
@@ -264,19 +266,21 @@ export async function withTransactionTimeout<T>(
   callback: (client: PoolClient) => Promise<T>,
   timeoutMs: number
 ): Promise<T> {
-  return new Promise<T>(async (resolve, reject) => {
+  return new Promise<T>((resolve, reject) => {
     const timeoutId = setTimeout(() => {
       reject(new TransactionError(`Transaction timeout after ${timeoutMs}ms`))
     }, timeoutMs)
 
-    try {
-      const result = await withTransaction(pool, callback)
-      clearTimeout(timeoutId)
-      resolve(result)
-    } catch (error) {
-      clearTimeout(timeoutId)
-      reject(error)
-    }
+    withTransaction(pool, callback)
+      .then((result) => {
+        clearTimeout(timeoutId)
+        resolve(result)
+        return undefined
+      })
+      .catch((error) => {
+        clearTimeout(timeoutId)
+        reject(error)
+      })
   })
 }
 

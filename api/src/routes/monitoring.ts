@@ -1,6 +1,8 @@
 import { performance } from 'perf_hooks'
 import { Router, Request, Response } from 'express'
 import obd2EmulatorService from '../services/obd2-emulator.service'
+import { authenticateJWT } from '../middleware/auth'
+import { requireRole, Role } from '../middleware/rbac'
 
 const getEmulatorStatus = () => ({
   activeEmulators: obd2EmulatorService.getActiveSessions().length,
@@ -10,20 +12,52 @@ const getEmulatorStatus = () => ({
 const router = Router()
 const serverStartTime = Date.now()
 
+// Monitoring endpoints expose operational internals and should require privileged auth.
+router.use(
+  authenticateJWT,
+  requireRole([Role.SUPERADMIN, Role.ADMIN, Role.SECURITY_ADMIN, Role.ANALYST])
+)
+
 // In-memory storage for metrics
+interface RequestMetric {
+  timestamp: number
+  responseTime: number
+  statusCode: number
+  method: string
+  path: string
+}
+
+interface ErrorMetric {
+  id: string
+  endpoint: string
+  type: string
+  message: string
+  timestamp: number
+  statusCode: number
+  userId?: string | number
+}
+
+interface AlertMetric {
+  id: string
+  type: string
+  message: string
+  timestamp: number
+  severity: string
+}
+
 const metricsStore = {
-  requests: new Map<string, any[]>(),
-  errors: [] as any[],
-  alerts: [] as any[],
+  requests: new Map<string, RequestMetric[]>(),
+  errors: [] as ErrorMetric[],
+  alerts: [] as AlertMetric[],
 }
 
 // Middleware to track request metrics
-const trackMetrics = (req: Request, res: Response, next: Function) => {
+const trackMetrics = (req: Request, res: Response, next: () => void) => {
   const startTime = performance.now()
   const endpoint = `${req.method} ${req.path}`
-  const originalEnd = res.end
+  const originalEnd = res.end.bind(res)
 
-  res.end = function (...args: any[]) {
+  res.end = function (...args: unknown[]) {
     const responseTime = performance.now() - startTime
 
     if (!metricsStore.requests.has(endpoint)) {
@@ -51,7 +85,7 @@ const trackMetrics = (req: Request, res: Response, next: Function) => {
         message: `HTTP ${res.statusCode} on ${endpoint}`,
         timestamp: Date.now(),
         statusCode: res.statusCode,
-        userId: (req as any).user?.id,
+        userId: req.user?.id,
       })
 
       if (metricsStore.errors.length > 1000) {
@@ -59,7 +93,7 @@ const trackMetrics = (req: Request, res: Response, next: Function) => {
       }
     }
 
-    return originalEnd.apply(this, args as any)
+    return originalEnd(...args as unknown as [chunk: unknown, encoding: BufferEncoding, cb?: () => void])
   }
 
   next()
@@ -74,13 +108,17 @@ router.get('/health', async (req: Request, res: Response) => {
     const apiStartTime = performance.now()
     const testResult = await Promise.race([
       new Promise(resolve => setTimeout(() => resolve('ok'), 100)),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000)),
+      new Promise((_resolve, reject) => setTimeout(() => reject(new Error('Timeout')), 1000)),
     ])
     const apiResponseTime = performance.now() - apiStartTime
 
     let overallStatus: 'healthy' | 'degraded' | 'down' = 'healthy'
-    if (apiResponseTime > 500) overallStatus = 'degraded'
-    if (testResult !== 'ok') overallStatus = 'degraded'
+    if (apiResponseTime > 500) {
+overallStatus = 'degraded'
+}
+    if (testResult !== 'ok') {
+overallStatus = 'degraded'
+}
 
     const health = {
       status: overallStatus,
@@ -121,7 +159,9 @@ router.get('/metrics', (req: Request, res: Response) => {
     const endpoints = Array.from(metricsStore.requests.entries())
       .map(([path, metrics]) => {
         const recentMetrics = metrics.filter(m => m.timestamp > oneHourAgo)
-        if (recentMetrics.length === 0) return null
+        if (recentMetrics.length === 0) {
+return null
+}
 
         const responseTimes = recentMetrics.map(m => m.responseTime).sort((a, b) => a - b)
         const errorCount = recentMetrics.filter(m => m.statusCode >= 400).length

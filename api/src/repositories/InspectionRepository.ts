@@ -49,7 +49,7 @@ export class InspectionRepository extends BaseRepository<Inspection> {
   }
 
   async findByTenant(tenantId: number): Promise<Inspection[]> {
-    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC`;
+    const query = `SELECT id, tenant_id, vehicle_id, driver_id, inspector_id, inspection_type, status, scheduled_date, completed_date, odometer, location, notes, checklist_data, defects_found, signature_url, passed, created_at, updated_at, deleted_at FROM inspections WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC`;
     const result = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
@@ -67,7 +67,7 @@ export class InspectionRepository extends BaseRepository<Inspection> {
     const countRes = await this.pool.query(countQuery, [tenantId]);
     const total = parseInt(countRes.rows[0].count);
 
-    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY ${orderBy} LIMIT $2 OFFSET $3`;
+    const query = `SELECT id, tenant_id, vehicle_id, driver_id, inspector_id, inspection_type, status, scheduled_date, completed_date, odometer, location, notes, checklist_data, defects_found, signature_url, passed, created_at, updated_at, deleted_at FROM inspections WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY ${orderBy} LIMIT $2 OFFSET $3`;
     const result = await this.pool.query(query, [tenantId, limit, offset]);
 
     return {
@@ -112,25 +112,25 @@ return null;
   }
 
   async findByIdAndTenant(id: number, tenantId: number): Promise<Inspection | null> {
-    const query = `SELECT * FROM inspections WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`;
+    const query = `SELECT id, tenant_id, vehicle_id, driver_id, inspector_id, inspection_type, status, scheduled_date, completed_date, odometer, location, notes, checklist_data, defects_found, signature_url, passed, created_at, updated_at, deleted_at FROM inspections WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`;
     const result = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }
 
   async findByVehicle(tenantId: number, vehicleId: number): Promise<Inspection[]> {
-    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND vehicle_id = $2 AND deleted_at IS NULL ORDER BY created_at DESC`;
+    const query = `SELECT id, tenant_id, vehicle_id, driver_id, inspector_id, inspection_type, status, scheduled_date, completed_date, odometer, location, notes, checklist_data, defects_found, signature_url, passed, created_at, updated_at, deleted_at FROM inspections WHERE tenant_id = $1 AND vehicle_id = $2 AND deleted_at IS NULL ORDER BY created_at DESC`;
     const result = await this.pool.query(query, [tenantId, vehicleId]);
     return result.rows;
   }
 
   async findByDriver(tenantId: number, driverId: number): Promise<Inspection[]> {
-    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND driver_id = $2 AND deleted_at IS NULL ORDER BY created_at DESC`;
+    const query = `SELECT id, tenant_id, vehicle_id, driver_id, inspector_id, inspection_type, status, scheduled_date, completed_date, odometer, location, notes, checklist_data, defects_found, signature_url, passed, created_at, updated_at, deleted_at FROM inspections WHERE tenant_id = $1 AND driver_id = $2 AND deleted_at IS NULL ORDER BY created_at DESC`;
     const result = await this.pool.query(query, [tenantId, driverId]);
     return result.rows;
   }
 
   async findByStatus(tenantId: number, status: string): Promise<Inspection[]> {
-    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND status = $2 AND deleted_at IS NULL ORDER BY scheduled_date DESC`;
+    const query = `SELECT id, tenant_id, vehicle_id, driver_id, inspector_id, inspection_type, status, scheduled_date, completed_date, odometer, location, notes, checklist_data, defects_found, signature_url, passed, created_at, updated_at, deleted_at FROM inspections WHERE tenant_id = $1 AND status = $2 AND deleted_at IS NULL ORDER BY scheduled_date DESC`;
     const result = await this.pool.query(query, [tenantId, status]);
     return result.rows;
   }
@@ -141,7 +141,7 @@ return null;
 
   async findOverdue(tenantId: number): Promise<Inspection[]> {
     const query = `
-      SELECT * FROM inspections
+      SELECT id, tenant_id, vehicle_id, driver_id, inspector_id, inspection_type, status, scheduled_date, completed_date, odometer, location, notes, checklist_data, defects_found, signature_url, passed, created_at, updated_at, deleted_at FROM inspections
       WHERE tenant_id = $1
         AND status = 'pending'
         AND scheduled_date < NOW()
@@ -212,7 +212,7 @@ return null;
   async findDueSoon(tenantId: number, daysAhead: number = 7): Promise<Inspection[]> {
     const daysAheadNum = Math.max(1, Math.min(365, daysAhead || 7));
     const query = `
-      SELECT * FROM inspections
+      SELECT id, tenant_id, vehicle_id, driver_id, inspector_id, inspection_type, status, scheduled_date, completed_date, odometer, location, notes, checklist_data, defects_found, signature_url, passed, created_at, updated_at, deleted_at FROM inspections
       WHERE tenant_id = $1
         AND status = 'pending'
         AND scheduled_date BETWEEN NOW() AND NOW() + ($2 || ' days')::INTERVAL
@@ -228,7 +228,7 @@ return null;
     vehicleId: number,
     limit: number = 10
   ): Promise<Inspection[]> {
-    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND vehicle_id = $2 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT $3`;
+    const query = `SELECT id, tenant_id, vehicle_id, driver_id, inspector_id, inspection_type, status, scheduled_date, completed_date, odometer, location, notes, checklist_data, defects_found, signature_url, passed, created_at, updated_at, deleted_at FROM inspections WHERE tenant_id = $1 AND vehicle_id = $2 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT $3`;
     const result = await this.pool.query(query, [tenantId, vehicleId, limit]);
     return result.rows;
   }
@@ -241,7 +241,7 @@ return null;
 
   async findByDateRange(tenantId: number, startDate: Date, endDate: Date): Promise<Inspection[]> {
     const query = `
-      SELECT * FROM inspections
+      SELECT id, tenant_id, vehicle_id, driver_id, inspector_id, inspection_type, status, scheduled_date, completed_date, odometer, location, notes, checklist_data, defects_found, signature_url, passed, created_at, updated_at, deleted_at FROM inspections
       WHERE tenant_id = $1
         AND scheduled_date BETWEEN $2 AND $3
         AND deleted_at IS NULL

@@ -5,6 +5,7 @@
 
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth';
 import { APAgingService } from '../services/ap-aging';
 import { DepreciationService } from '../services/depreciation';
@@ -13,8 +14,57 @@ import {
   CreateAccountsPayableInput,
   PaymentInput,
   APQueryOptions,
+  APStatus,
+  AgingBucket,
   CreateDepreciationInput
 } from '../types/accounts-payable';
+import { logger } from '../utils/logger';
+import { csrfProtection } from '../middleware/csrf';
+
+import { flexUuid } from '../middleware/validation'
+
+// --- Zod Schemas for input validation ---
+
+const createAPSchema = z.object({
+  tenant_id: flexUuid.optional(),
+  invoice_id: flexUuid.optional(),
+  vendor_id: flexUuid,
+  invoice_number: z.string().min(1, 'Invoice number is required').max(100),
+  invoice_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
+  due_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
+  amount_due: z.number().positive('Amount must be positive'),
+  payment_terms: z.string().max(50).optional(),
+  discount_available: z.number().min(0).optional(),
+  discount_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const paymentSchema = z.object({
+  amount_paid: z.number().positive('Payment amount must be positive'),
+  paid_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]).optional(),
+  payment_method: z.enum(['check', 'ach', 'wire', 'credit-card', 'cash']),
+  payment_reference: z.string().max(200).optional(),
+  payment_notes: z.string().max(1000).optional(),
+});
+
+const createDepreciationSchema = z.object({
+  tenant_id: flexUuid.optional(),
+  asset_id: flexUuid.optional(),
+  vehicle_id: flexUuid.optional(),
+  depreciation_method: z.enum(['straight-line', 'declining-balance', 'units-of-production']),
+  original_cost: z.number().positive('Original cost must be positive'),
+  salvage_value: z.number().min(0, 'Salvage value cannot be negative'),
+  useful_life_years: z.number().int().positive().optional(),
+  useful_life_units: z.number().int().positive().optional(),
+  start_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
+  notes: z.string().max(1000).optional(),
+});
+
+const calculateDepreciationSchema = z.object({
+  period_start: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
+  period_end: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
+  units_used: z.union([z.number().int().positive(), z.string().regex(/^\d+$/)]).optional(),
+});
 
 const router = Router();
 
@@ -41,8 +91,8 @@ router.get('/', authenticateJWT, async (req: Request, res: Response) => {
     const options: APQueryOptions = {
       tenant_id: tenantId,
       vendor_id: req.query.vendor_id as string,
-      status: req.query.status as any,
-      aging_bucket: req.query.aging_bucket as any,
+      status: req.query.status as APStatus | undefined,
+      aging_bucket: req.query.aging_bucket as AgingBucket | undefined,
       due_date_from: req.query.due_date_from ? new Date(req.query.due_date_from as string) : undefined,
       due_date_to: req.query.due_date_to ? new Date(req.query.due_date_to as string) : undefined,
       min_amount: req.query.min_amount ? parseFloat(req.query.min_amount as string) : undefined,
@@ -54,8 +104,8 @@ router.get('/', authenticateJWT, async (req: Request, res: Response) => {
     const result = await apAgingService.listAP(options);
     res.json(result);
   } catch (error) {
-    console.error('Error listing AP records:', error);
-    res.status(500).json({ error: 'Failed to list AP records', details: String(error) });
+    logger.error('Error listing AP records:', error);
+    res.status(500).json({ error: 'Failed to list AP records', details: 'An internal error occurred' });
   }
 });
 
@@ -63,29 +113,29 @@ router.get('/', authenticateJWT, async (req: Request, res: Response) => {
  * POST /api/accounts-payable
  * Create a new AP record
  */
-router.post('/', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
-    const input: CreateAccountsPayableInput = {
-      tenant_id: req.user?.tenantId || req.body.tenant_id,
-      ...req.body
-    };
+    const parsed = createAPSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
+      });
+    }
 
-    // Convert date strings to Date objects
-    if (input.invoice_date) {
-      input.invoice_date = new Date(input.invoice_date);
-    }
-    if (input.due_date) {
-      input.due_date = new Date(input.due_date);
-    }
-    if (input.discount_date) {
-      input.discount_date = new Date(input.discount_date);
-    }
+    const input: CreateAccountsPayableInput = {
+      ...parsed.data,
+      tenant_id: req.user?.tenantId || parsed.data.tenant_id || '',
+      invoice_date: new Date(parsed.data.invoice_date),
+      due_date: new Date(parsed.data.due_date),
+      discount_date: parsed.data.discount_date ? new Date(parsed.data.discount_date) : undefined,
+    };
 
     const ap = await apAgingService.createAP(input);
     res.status(201).json(ap);
   } catch (error) {
-    console.error('Error creating AP record:', error);
-    res.status(500).json({ error: 'Failed to create AP record', details: String(error) });
+    logger.error('Error creating AP record:', error);
+    res.status(500).json({ error: 'Failed to create AP record', details: 'An internal error occurred' });
   }
 });
 
@@ -93,19 +143,27 @@ router.post('/', authenticateJWT, async (req: Request, res: Response) => {
  * POST /api/accounts-payable/:id/pay
  * Record a payment against an AP record
  */
-router.post('/:id/pay', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/:id/pay', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
+    const parsed = paymentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
+      });
+    }
+
     const { id } = req.params;
     const payment: PaymentInput = {
-      ...req.body,
-      paid_date: new Date(req.body.paid_date || new Date())
+      ...parsed.data,
+      paid_date: parsed.data.paid_date ? new Date(parsed.data.paid_date) : new Date(),
     };
 
     const updatedAP = await apAgingService.recordPayment(id, payment);
     res.json(updatedAP);
   } catch (error) {
-    console.error('Error recording payment:', error);
-    res.status(500).json({ error: 'Failed to record payment', details: String(error) });
+    logger.error('Error recording payment:', error);
+    res.status(500).json({ error: 'Failed to record payment', details: 'An internal error occurred' });
   }
 });
 
@@ -124,8 +182,8 @@ router.get('/aging-report', authenticateJWT, async (req: Request, res: Response)
     const report = await apAgingService.generateAgingReport(tenantId);
     res.json(report);
   } catch (error) {
-    console.error('Error generating aging report:', error);
-    res.status(500).json({ error: 'Failed to generate aging report', details: String(error) });
+    logger.error('Error generating aging report:', error);
+    res.status(500).json({ error: 'Failed to generate aging report', details: 'An internal error occurred' });
   }
 });
 
@@ -145,8 +203,8 @@ router.get('/cash-flow-forecast', authenticateJWT, async (req: Request, res: Res
     const forecast = await apAgingService.generateCashFlowForecast(tenantId, daysAhead);
     res.json(forecast);
   } catch (error) {
-    console.error('Error generating cash flow forecast:', error);
-    res.status(500).json({ error: 'Failed to generate forecast', details: String(error) });
+    logger.error('Error generating cash flow forecast:', error);
+    res.status(500).json({ error: 'Failed to generate forecast', details: 'An internal error occurred' });
   }
 });
 
@@ -165,8 +223,8 @@ router.get('/overdue', authenticateJWT, async (req: Request, res: Response) => {
     const overdueInvoices = await apAgingService.getOverdueInvoices(tenantId);
     res.json(overdueInvoices);
   } catch (error) {
-    console.error('Error fetching overdue invoices:', error);
-    res.status(500).json({ error: 'Failed to fetch overdue invoices', details: String(error) });
+    logger.error('Error fetching overdue invoices:', error);
+    res.status(500).json({ error: 'Failed to fetch overdue invoices', details: 'An internal error occurred' });
   }
 });
 
@@ -190,8 +248,8 @@ router.get('/metrics', authenticateJWT, async (req: Request, res: Response) => {
       days_payable_outstanding: dpo
     });
   } catch (error) {
-    console.error('Error fetching AP metrics:', error);
-    res.status(500).json({ error: 'Failed to fetch metrics', details: String(error) });
+    logger.error('Error fetching AP metrics:', error);
+    res.status(500).json({ error: 'Failed to fetch metrics', details: 'An internal error occurred' });
   }
 });
 
@@ -210,8 +268,8 @@ router.get('/discount-opportunities', authenticateJWT, async (req: Request, res:
     const opportunities = await apAgingService.getDiscountOpportunities(tenantId);
     res.json(opportunities);
   } catch (error) {
-    console.error('Error fetching discount opportunities:', error);
-    res.status(500).json({ error: 'Failed to fetch opportunities', details: String(error) });
+    logger.error('Error fetching discount opportunities:', error);
+    res.status(500).json({ error: 'Failed to fetch opportunities', details: 'An internal error occurred' });
   }
 });
 
@@ -232,8 +290,8 @@ router.get('/vendor/:vendorId/history', authenticateJWT, async (req: Request, re
       average_days_to_pay: avgDaysToPay
     });
   } catch (error) {
-    console.error('Error fetching vendor payment history:', error);
-    res.status(500).json({ error: 'Failed to fetch payment history', details: String(error) });
+    logger.error('Error fetching vendor payment history:', error);
+    res.status(500).json({ error: 'Failed to fetch payment history', details: 'An internal error occurred' });
   }
 });
 
@@ -245,23 +303,27 @@ router.get('/vendor/:vendorId/history', authenticateJWT, async (req: Request, re
  * POST /api/accounts-payable/depreciation
  * Create a depreciation record for an asset
  */
-router.post('/depreciation', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/depreciation', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
-    const input: CreateDepreciationInput = {
-      tenant_id: req.user?.tenantId || req.body.tenant_id,
-      ...req.body
-    };
-
-    // Convert date to Date object
-    if (input.start_date) {
-      input.start_date = new Date(input.start_date);
+    const parsed = createDepreciationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
+      });
     }
+
+    const input: CreateDepreciationInput = {
+      ...parsed.data,
+      tenant_id: req.user?.tenantId || parsed.data.tenant_id || '',
+      start_date: new Date(parsed.data.start_date),
+    };
 
     const depreciation = await depreciationService.createDepreciation(input);
     res.status(201).json(depreciation);
   } catch (error) {
-    console.error('Error creating depreciation record:', error);
-    res.status(500).json({ error: 'Failed to create depreciation record', details: String(error) });
+    logger.error('Error creating depreciation record:', error);
+    res.status(500).json({ error: 'Failed to create depreciation record', details: 'An internal error occurred' });
   }
 });
 
@@ -269,26 +331,30 @@ router.post('/depreciation', authenticateJWT, async (req: Request, res: Response
  * POST /api/accounts-payable/depreciation/:id/calculate
  * Calculate depreciation for a specific period
  */
-router.post('/depreciation/:id/calculate', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/depreciation/:id/calculate', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const { period_start, period_end, units_used } = req.body;
-
-    if (!period_start || !period_end) {
-      return res.status(400).json({ error: 'period_start and period_end are required' });
+    const parsed = calculateDepreciationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
+      });
     }
+
+    const { id } = req.params;
+    const { period_start, period_end, units_used } = parsed.data;
 
     const result = await depreciationService.calculatePeriodDepreciation(
       id,
       new Date(period_start),
       new Date(period_end),
-      units_used ? parseInt(units_used) : undefined
+      units_used ? parseInt(String(units_used)) : undefined
     );
 
     res.json(result);
   } catch (error) {
-    console.error('Error calculating depreciation:', error);
-    res.status(500).json({ error: 'Failed to calculate depreciation', details: String(error) });
+    logger.error('Error calculating depreciation:', error);
+    res.status(500).json({ error: 'Failed to calculate depreciation', details: 'An internal error occurred' });
   }
 });
 
@@ -302,8 +368,8 @@ router.get('/depreciation/:id/schedule', authenticateJWT, async (req: Request, r
     const schedule = await depreciationService.getDepreciationSchedule(id);
     res.json(schedule);
   } catch (error) {
-    console.error('Error fetching depreciation schedule:', error);
-    res.status(500).json({ error: 'Failed to fetch schedule', details: String(error) });
+    logger.error('Error fetching depreciation schedule:', error);
+    res.status(500).json({ error: 'Failed to fetch schedule', details: 'An internal error occurred' });
   }
 });
 
@@ -319,8 +385,8 @@ router.get('/depreciation/:id/project', authenticateJWT, async (req: Request, re
     const projection = await depreciationService.projectDepreciationSchedule(id, periods);
     res.json(projection);
   } catch (error) {
-    console.error('Error projecting depreciation:', error);
-    res.status(500).json({ error: 'Failed to project depreciation', details: String(error) });
+    logger.error('Error projecting depreciation:', error);
+    res.status(500).json({ error: 'Failed to project depreciation', details: 'An internal error occurred' });
   }
 });
 
@@ -341,8 +407,8 @@ router.get('/depreciation/monthly-journal', authenticateJWT, async (req: Request
     const journal = await depreciationService.generateMonthlyJournal(tenantId, year, month);
     res.json(journal);
   } catch (error) {
-    console.error('Error generating monthly journal:', error);
-    res.status(500).json({ error: 'Failed to generate journal', details: String(error) });
+    logger.error('Error generating monthly journal:', error);
+    res.status(500).json({ error: 'Failed to generate journal', details: 'An internal error occurred' });
   }
 });
 
@@ -361,8 +427,8 @@ router.get('/depreciation/summary', authenticateJWT, async (req: Request, res: R
     const summary = await depreciationService.getDepreciationSummary(tenantId);
     res.json(summary);
   } catch (error) {
-    console.error('Error fetching depreciation summary:', error);
-    res.status(500).json({ error: 'Failed to fetch summary', details: String(error) });
+    logger.error('Error fetching depreciation summary:', error);
+    res.status(500).json({ error: 'Failed to fetch summary', details: 'An internal error occurred' });
   }
 });
 

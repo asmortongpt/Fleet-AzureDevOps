@@ -18,6 +18,7 @@
 import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { useState, useCallback, useMemo } from 'react'
 import { z } from 'zod'
+
 import logger from '@/utils/logger';
 
 // Environment configuration with validation
@@ -48,20 +49,24 @@ const FuelTypeEnum = z.enum(['diesel', 'gasoline', 'electric', 'hybrid', 'cng', 
 
 const RouteSchema = z.object({
   id: z.string().min(1),
+  name: z.string().nullish(),
+  routeType: z.string().nullish(),
   driverId: z.string().min(1),
   vehicleId: z.string().min(1),
   status: RouteStatusEnum,
   startTime: z.string().datetime(),
-  endTime: z.string().datetime().optional(),
+  endTime: z.string().datetime().nullish(),
   distance: z.number().min(0).finite(),
   estimatedDuration: z.number().min(0).optional(),
   actualDuration: z.number().min(0).optional(),
   origin: z.string().optional(),
   destination: z.string().optional(),
+  originName: z.string().nullish(),
+  destinationName: z.string().nullish(),
   stops: z.number().min(0).optional(),
   priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-  createdAt: z.string().datetime().optional(),
-  updatedAt: z.string().datetime().optional(),
+  createdAt: z.string().datetime().nullish(),
+  updatedAt: z.string().datetime().nullish(),
 })
 
 const FuelTransactionSchema = z.object({
@@ -74,16 +79,16 @@ const FuelTransactionSchema = z.object({
   fuelType: FuelTypeEnum.optional(),
   location: z.string().optional(),
   odometer: z.number().min(0).optional(),
-  createdAt: z.string().datetime(),
+  createdAt: z.string(),
   receiptNumber: z.string().optional(),
   notes: z.string().max(500).optional(),
-})
+}).passthrough()
 
 const TaskSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1).max(255),
   description: z.string().max(1000).optional(),
-  status: z.enum(['open', 'in_progress', 'completed', 'cancelled', 'overdue']),
+  status: z.enum(['pending', 'in_progress', 'completed', 'cancelled', 'overdue']),
   priority: z.enum(['low', 'medium', 'high', 'critical']),
   assignedTo: z.string().optional(),
   dueDate: z.string().datetime().optional(),
@@ -190,8 +195,11 @@ async function secureFetch<T>(
     }
 
     const data = await response.json()
-    const payload = (data && typeof data === 'object' && Array.isArray((data as any).data))
-      ? (data as any).data
+    // Handle nested response formats: { data: { data: [...] } }, { data: [...] }, or [...]
+    const payload =
+      Array.isArray(data?.data?.data) ? data.data.data
+      : Array.isArray(data?.data) ? data.data
+      : Array.isArray(data) ? data
       : data
 
     // Validate response with Zod
@@ -290,7 +298,7 @@ function generateFuelConsumptionData(transactions: FuelTransaction[]): TrendData
 /**
  * Safe date parsing with fallback
  */
-function safeParseDate(dateString: string | undefined): Date | null {
+function safeParseDate(dateString: string | null | undefined): Date | null {
   if (!dateString) return null
   try {
     const date = new Date(dateString)
@@ -409,6 +417,8 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
 
             return {
               id: String(row.routeId ?? row.id ?? ''),
+              name: row.name || null,
+              routeType: row.type ?? row.route_type ?? null,
               driverId: String(row.driverId ?? row.driver_id ?? row.assigned_driver_id ?? ''),
               vehicleId: String(row.vehicleId ?? row.vehicle_id ?? row.assigned_vehicle_id ?? ''),
               status: normalizeRouteStatus(row.status),
@@ -419,6 +429,8 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
               actualDuration: Number(row.actualDuration ?? row.actual_duration ?? 0) || undefined,
               origin: row.startLocation ?? row.start_location,
               destination: row.endLocation ?? row.end_location,
+              originName: row.startLocationName ?? null,
+              destinationName: row.endLocationName ?? null,
               stops: Array.isArray(row.stops)
                 ? row.stops.length
                 : Array.isArray(row.waypoints)
@@ -452,7 +464,33 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
       try {
         const raw = await secureFetch('/fuel-transactions', z.any(), signal)
         const rows = Array.isArray(raw) ? raw : []
-        return FuelTransactionsResponseSchema.parse(rows)
+        // Normalize snake_case API fields to match schema
+        const normalized = rows.map((row: any) => {
+          const amount = Number(row.gallons ?? row.amount ?? row.quantity ?? 0)
+          const pricePerUnit = Number(row.cost_per_gallon ?? row.price_per_gallon ?? row.pricePerUnit ?? row.price_per_unit ?? 0)
+          const cost = Number(row.total_cost ?? row.cost ?? (amount * pricePerUnit))
+          const createdAt = row.transaction_date ?? row.createdAt ?? row.created_at ?? new Date().toISOString()
+          return {
+            id: String(row.id),
+            vehicleId: String(row.vehicle_id ?? row.vehicleId ?? ''),
+            driverId: row.driver_id ?? row.driverId ?? undefined,
+            amount: Number.isFinite(amount) ? amount : 0,
+            cost: Number.isFinite(cost) ? cost : 0,
+            pricePerUnit: Number.isFinite(pricePerUnit) ? pricePerUnit : undefined,
+            fuelType: row.fuel_type ?? row.fuelType ?? undefined,
+            location: row.station_name ?? row.station_address ?? row.location ?? undefined,
+            odometer: row.odometer_reading ? Number(row.odometer_reading) : undefined,
+            createdAt,
+            receiptNumber: row.receipt_number ?? row.receiptNumber ?? undefined,
+            notes: row.notes ?? undefined,
+            // Pass through extra fields for UI consumption
+            station_brand: row.station_brand,
+            stationBrand: row.station_brand,
+            mpg_calculated: row.mpg_calculated ? Number(row.mpg_calculated) : undefined,
+            mpgCalculated: row.mpg_calculated ? Number(row.mpg_calculated) : undefined,
+          }
+        })
+        return FuelTransactionsResponseSchema.parse(normalized)
       } catch (error) {
         logger.error('[Operations] Failed to fetch fuel transactions:', error)
         return []
@@ -483,7 +521,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
             !completedAt &&
             new Date(dueDate).getTime() < Date.now()
 
-          let status: Task['status'] = 'open'
+          let status: Task['status'] = 'pending'
           if (statusRaw === 'completed') status = 'completed'
           else if (statusRaw === 'cancelled') status = 'cancelled'
           else if (statusRaw === 'in_progress' || statusRaw === 'in-progress') status = 'in_progress'
@@ -544,7 +582,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
     const avgFuelCostPerMile = totalDistance > 0 ? totalFuelCost / totalDistance : 0
     const avgFuelCostPerRoute = totalRoutes > 0 ? totalFuelCost / totalRoutes : 0
 
-    const openTasks = tasks.filter((t) => t.status === 'open').length
+    const openTasks = tasks.filter((t) => t.status === 'pending').length
     const inProgressTasks = tasks.filter((t) => t.status === 'in_progress').length
     const completedTasks = tasks.filter((t) => t.status === 'completed').length
     const overdueTasks = tasks.filter((t) => t.status === 'overdue').length

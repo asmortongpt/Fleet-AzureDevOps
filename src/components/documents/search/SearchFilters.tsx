@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { SearchFilters as Filters, DocumentType, FileCategory } from '@/lib/documents/types';
+import { formatDate } from '@/utils/format-helpers';
 
 interface SearchFiltersProps {
   filters: Filters;
@@ -203,7 +204,7 @@ export function SearchFilters({ filters, onChange, availableTags = [] }: SearchF
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className="w-full justify-start">
-                      {filters.dateFrom ? filters.dateFrom.toLocaleDateString() : 'From date'}
+                      {filters.dateFrom ? formatDate(filters.dateFrom) : 'From date'}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -220,7 +221,7 @@ export function SearchFilters({ filters, onChange, availableTags = [] }: SearchF
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className="w-full justify-start">
-                      {filters.dateTo ? filters.dateTo.toLocaleDateString() : 'To date'}
+                      {filters.dateTo ? formatDate(filters.dateTo) : 'To date'}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">

@@ -6,6 +6,7 @@
 import { Response, NextFunction } from 'express'
 
 import pool from '../config/database'
+import logger from '../config/logger'
 import { AuthRequest } from '../middleware/auth'
 
 // Type guard for Express Response
@@ -217,7 +218,7 @@ async function getUserRoles(userId: string): Promise<string[]> {
 
     return roles
   } catch (error) {
-    console.error('Error fetching user roles:', error)
+    logger.error('Error fetching user roles', { error: error instanceof Error ? error.message : String(error) })
     // Return cached value if available, even if expired
     return cached?.roles || []
   }
@@ -340,6 +341,11 @@ export function applyFieldMasking(resourceType: string) {
       return next()
     }
 
+    // Skip field masking in development mode with auth bypass
+    if (process.env.NODE_ENV !== 'production' && (process.env.SKIP_AUTH === 'true' || process.env.NODE_ENV === 'development')) {
+      return next()
+    }
+
     // Store original json method
     const originalJson = res.json.bind(res)
 
@@ -368,13 +374,13 @@ export function applyFieldMasking(resourceType: string) {
 
           return originalJson(maskedData)
         } catch (error) {
-          console.error('Field masking error:', error)
+          logger.error('Field masking error', { error: error instanceof Error ? error.message : String(error) })
           return originalJson(data) // Fall back to original data
         }
       }
 
       // Execute masking asynchronously
-      mask()
+      void mask()
 
       return res
     }

@@ -8,13 +8,20 @@ import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 /**
  * Color scheme for vehicle status indicators
  */
-export const VEHICLE_STATUS_COLORS: Record<Vehicle["status"], string> = {
+export const VEHICLE_STATUS_COLORS: Record<string, string> = {
   active: "#10b981", // emerald-500
   idle: "#6b7280", // gray-500
-  charging: "#3b82f6", // blue-500
+  charging: "#10b981", // emerald-500
   service: "#f59e0b", // amber-500
   emergency: "#ef4444", // red-500
   offline: "#374151", // gray-700
+  assigned: "#34d399", // emerald-400
+  dispatched: "#fb923c", // orange-400
+  en_route: "#34d399", // emerald-400
+  on_site: "#facc15", // yellow-400
+  completed: "#34d399", // emerald-400
+  maintenance: "#f59e0b", // amber-500
+  retired: "#6b7280", // gray-500
 } as const
 
 /**
@@ -98,7 +105,7 @@ export function createVehicleIcon(L: any, vehicle: Vehicle): any {
 export function createFacilityIcon(L: any, facility: GISFacility): any {
   if (!L) throw new Error("Leaflet not loaded")
 
-  const color = facility.status === "operational" ? "#3b82f6" : facility.status === "maintenance" ? "#f59e0b" : "#6b7280"
+  const color = facility.status === "operational" ? "#10b981" : facility.status === "maintenance" ? "#f59e0b" : "#6b7280"
   const statusLabel = facility.status.charAt(0).toUpperCase() + facility.status.slice(1)
   const typeLabel = facility.type.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())
 
@@ -136,7 +143,7 @@ export function createFacilityIcon(L: any, facility: GISFacility): any {
 export function createCameraIcon(L: any, camera: TrafficCamera): any {
   if (!L) throw new Error("Leaflet not loaded")
 
-  const color = camera.operational ? "#3b82f6" : "#6b7280"
+  const color = camera.operational ? "#10b981" : "#6b7280"
   const statusLabel = camera.operational ? "Operational" : "Offline"
 
   return L.divIcon({

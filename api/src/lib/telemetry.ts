@@ -11,6 +11,7 @@
  */
 
 import * as appInsights from 'applicationinsights'
+import logger from '../config/logger'
 
 // Track if telemetry is initialized
 let isInitialized = false
@@ -23,9 +24,9 @@ export function initializeTelemetry(): void {
                            process.env.APPLICATION_INSIGHTS_CONNECTION_STRING
 
   if (!connectionString) {
-    console.warn('⚠️  Application Insights connection string not found')
-    console.warn('   Set APPLICATIONINSIGHTS_CONNECTION_STRING to enable telemetry')
-    console.warn('   Monitoring features will be disabled')
+    logger.warn('Application Insights connection string not found')
+    logger.warn('Set APPLICATIONINSIGHTS_CONNECTION_STRING to enable telemetry')
+    logger.warn('Monitoring features will be disabled')
     return
   }
 
@@ -65,14 +66,15 @@ export function initializeTelemetry(): void {
 
     isInitialized = true
 
-    console.log('✅ Application Insights telemetry initialized')
-    console.log(`   Connection String: ${connectionString.substring(0, 50)}...`)
-    console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`)
-    console.log(`   Live Metrics: enabled`)
-    console.log(`   Sampling: ${process.env.NODE_ENV === 'production' ? '50%' : '100%'}`)
+    logger.info('Application Insights telemetry initialized', {
+      connectionString: `${connectionString.substring(0, 50)}...`,
+      environment: process.env.NODE_ENV || 'development',
+      liveMetrics: 'enabled',
+      sampling: process.env.NODE_ENV === 'production' ? '50%' : '100%'
+    })
 
   } catch (error) {
-    console.error('❌ Failed to initialize Application Insights:', error)
+    logger.error('Failed to initialize Application Insights', { error: error instanceof Error ? error.message : String(error) })
   }
 }
 
@@ -82,47 +84,47 @@ export function initializeTelemetry(): void {
 // @ts-expect-error - Type mismatch
 function filterSensitiveData(envelope: appInsights.Contracts.Envelope): boolean {
   if (envelope.data && 'baseData' in envelope.data) {
-    const baseData = envelope.data.baseData as any
+    const baseData = envelope.data.baseData as Record<string, unknown>
 
     // Remove sensitive headers from requests
-    if (baseData?.properties?.requestHeaders) {
-      delete baseData.properties.requestHeaders['authorization']
-      delete baseData.properties.requestHeaders['cookie']
-      delete baseData.properties.requestHeaders['x-csrf-token']
-      delete baseData.properties.requestHeaders['x-api-key']
+    const props = baseData?.properties as Record<string, Record<string, unknown>> | undefined
+    if (props?.requestHeaders) {
+      delete props.requestHeaders['authorization']
+      delete props.requestHeaders['cookie']
+      delete props.requestHeaders['x-csrf-token']
+      delete props.requestHeaders['x-api-key']
     }
 
     // Remove sensitive headers from responses
-    if (baseData?.properties?.responseHeaders) {
-      delete baseData.properties.responseHeaders['set-cookie']
-      delete baseData.properties.responseHeaders['authorization']
+    if (props?.responseHeaders) {
+      delete props.responseHeaders['set-cookie']
+      delete props.responseHeaders['authorization']
     }
 
     // Mask sensitive URL parameters
     if (baseData?.url) {
-      baseData.url = maskSensitiveUrl(baseData.url)
+      baseData.url = maskSensitiveUrl(baseData.url as string)
     }
 
     if (baseData?.name) {
-      baseData.name = maskSensitiveUrl(baseData.name)
+      baseData.name = maskSensitiveUrl(baseData.name as string)
     }
 
     // Remove sensitive data from custom properties
-    if (baseData?.properties) {
-      delete baseData.properties.password
-      delete baseData.properties.token
-      delete baseData.properties.apiKey
-      delete baseData.properties.secret
+    if (props) {
+      delete props.password
+      delete props.token
+      delete props.apiKey
+      delete props.secret
     }
 
     // Clean stack traces in exceptions
     if (baseData?.exceptions) {
-      baseData.exceptions.forEach((exception: any) => {
+      (baseData.exceptions as Array<Record<string, unknown>>).forEach((exception) => {
         if (exception.parsedStack) {
-          // Remove absolute file paths, keep relative paths only
-          exception.parsedStack = exception.parsedStack.map((frame: any) => ({
+          exception.parsedStack = (exception.parsedStack as Array<Record<string, unknown>>).map((frame) => ({
             ...frame,
-            fileName: frame.fileName?.replace(/.*\/(api|src)\//, '$1/')
+            fileName: (frame.fileName as string | undefined)?.replace(/.*\/(api|src)\//, '$1/')
           }))
         }
       })
@@ -138,29 +140,31 @@ function filterSensitiveData(envelope: appInsights.Contracts.Envelope): boolean 
 // @ts-expect-error - Type mismatch
 function enrichTelemetry(envelope: appInsights.Contracts.Envelope): boolean {
   if (envelope.data && 'baseData' in envelope.data) {
-    const baseData = envelope.data.baseData as any
+    const baseData = envelope.data.baseData as Record<string, unknown>
 
     // Add custom properties to all telemetry
     if (!baseData.properties) {
       baseData.properties = {}
     }
 
+    const enrichProps = baseData.properties as Record<string, unknown>
+
     // Add environment info
-    baseData.properties.environment = process.env.NODE_ENV || 'development'
-    baseData.properties.nodeVersion = process.version
+    enrichProps.environment = process.env.NODE_ENV || 'development'
+    enrichProps.nodeVersion = process.version
 
     // Add deployment info if available
     if (process.env.BUILD_ID) {
-      baseData.properties.buildId = process.env.BUILD_ID
+      enrichProps.buildId = process.env.BUILD_ID
     }
 
     if (process.env.RELEASE_VERSION) {
-      baseData.properties.releaseVersion = process.env.RELEASE_VERSION
+      enrichProps.releaseVersion = process.env.RELEASE_VERSION
     }
 
     // Add Azure-specific info if available
     if (process.env.WEBSITE_SITE_NAME) {
-      baseData.properties.azureWebAppName = process.env.WEBSITE_SITE_NAME
+      enrichProps.azureWebAppName = process.env.WEBSITE_SITE_NAME
     }
   }
 
@@ -216,8 +220,8 @@ return
 }
 
   return new Promise((resolve) => {
-    appInsights.defaultClient.flush()
-    console.log('📊 Telemetry data flushed')
+    void appInsights.defaultClient.flush()
+    logger.info('Telemetry data flushed')
     // Small delay to allow flush to complete
     setTimeout(resolve, 100)
   })
@@ -260,7 +264,7 @@ return
  */
 export function trackException(error: Error, properties?: Record<string, any>): void {
   if (!isInitialized) {
-    console.error('Exception (telemetry disabled):', error)
+    logger.error('Exception (telemetry disabled)', { error: error instanceof Error ? error.message : String(error) })
     return
   }
 

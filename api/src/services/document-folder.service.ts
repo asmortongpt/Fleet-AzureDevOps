@@ -18,6 +18,10 @@ import { validateFolderName } from '../utils/document-utils'
 
 import documentAuditService from './document-audit.service'
 
+// Export singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
 export class DocumentFolderService {
   constructor(private db: Pool, private logger: any) {}
 
@@ -509,7 +513,7 @@ export class DocumentFolderService {
     userId: string
   ): Promise<DocumentFolder> {
     return this.updateFolder(folderId, tenantId, userId, {
-      parent_folder_id: newParentId
+      parent_folder_id: newParentId ?? undefined
     })
   }
 
@@ -670,10 +674,6 @@ export class DocumentFolderService {
     return documentFolderService.getFolderById(folderId, tenantId)
   }
 }
-
-// Export singleton instance
-import pool from '../config/database'
-import logger from '../config/logger'
 
 export const documentFolderService = new DocumentFolderService(pool, logger)
 export default documentFolderService

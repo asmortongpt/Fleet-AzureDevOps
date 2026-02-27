@@ -1,0 +1,301 @@
+/**
+ * Dynamic Theme Generator
+ * Generates CSS variables and theme objects from color configurations
+ */
+
+import {
+  DEUTERANOPIA_PALETTE,
+  PROTANOPIA_PALETTE,
+  TRITANOPIA_PALETTE,
+  HIGH_CONTRAST_LIGHT,
+  HIGH_CONTRAST_DARK,
+  calculateContrastRatio,
+  getWCAGLevel,
+} from './color-blind-palettes'
+import type { Theme, ThemeGenerationOptions, CustomThemeConfig } from './types'
+
+/**
+ * Generate CSS variables from theme colors
+ */
+export function generateCSSVariables(theme: Theme): string {
+  const colors = theme.colors
+  const lines: string[] = [':root {', '  /* Theme Colors */']
+
+  Object.entries(colors).forEach(([key, value]) => {
+    const cssVar = `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`
+    lines.push(`  ${cssVar}: ${value};`)
+  })
+
+  lines.push('}')
+  return lines.join('\n')
+}
+
+/**
+ * Generate Tailwind config from theme
+ */
+export function generateTailwindConfig(theme: Theme): Record<string, any> {
+  return {
+    colors: {
+      primary: theme.colors.primary,
+      secondary: theme.colors.secondary,
+      accent: theme.colors.accent,
+      background: theme.colors.background,
+      surface: theme.colors.surface,
+      foreground: theme.colors.foreground,
+      muted: theme.colors.muted,
+      'muted-foreground': theme.colors.mutedForeground,
+      border: theme.colors.border,
+      success: theme.colors.success,
+      warning: theme.colors.warning,
+      error: theme.colors.error,
+      info: theme.colors.info,
+      destructive: theme.colors.destructive,
+    },
+  }
+}
+
+/**
+ * Generate a theme from a single primary color
+ */
+export function generateThemeFromColor(options: ThemeGenerationOptions): Theme {
+  // Select base palette based on color blind mode
+  let basePalette
+  if (options.highContrast) {
+    basePalette = options.darkMode ? HIGH_CONTRAST_DARK : HIGH_CONTRAST_LIGHT
+  } else if (options.colorBlindMode === 'deuteranopia') {
+    basePalette = DEUTERANOPIA_PALETTE
+  } else if (options.colorBlindMode === 'protanopia') {
+    basePalette = PROTANOPIA_PALETTE
+  } else if (options.colorBlindMode === 'tritanopia') {
+    basePalette = TRITANOPIA_PALETTE
+  } else {
+    basePalette = options.darkMode
+      ? {
+          name: 'Standard Dark',
+          description: 'Standard dark theme',
+          wcagLevel: 'AA' as const,
+          contrastRatio: 4.5,
+          colors: {
+            primary: options.primaryColor,
+            secondary: options.secondaryColor,
+            accent: '#737373',
+            background: '#1a1a1a',
+            surface: '#1a1a1a',
+            foreground: '#FAFAFA',
+            muted: '#525252',
+            mutedForeground: '#D4D4D4',
+            border: '#333333',
+            success: '#22C55E',
+            warning: '#F59E0B',
+            error: '#EF4444',
+            info: '#10b981',
+            destructive: '#EF4444',
+          },
+        }
+      : {
+          name: 'Standard Light',
+          description: 'Standard light theme',
+          wcagLevel: 'AA' as const,
+          contrastRatio: 4.5,
+          colors: {
+            primary: options.primaryColor,
+            secondary: options.secondaryColor,
+            accent: '#A3A3A3',
+            background: '#FFFFFF',
+            surface: '#FAFAFA',
+            foreground: '#1a1a1a',
+            muted: '#D4D4D4',
+            mutedForeground: '#737373',
+            border: '#E5E5E5',
+            success: '#16A34A',
+            warning: '#D97706',
+            error: '#DC2626',
+            info: '#10b981',
+            destructive: '#DC2626',
+          },
+        }
+  }
+
+  // Determine variant based on theme options
+  let variant: 'light' | 'dark' | 'high-contrast' | 'deuteranopia' | 'protanopia' | 'tritanopia' | 'custom' = 'custom'
+  if (options.highContrast) {
+    variant = 'high-contrast'
+  } else if (options.colorBlindMode === 'deuteranopia') {
+    variant = 'deuteranopia'
+  } else if (options.colorBlindMode === 'protanopia') {
+    variant = 'protanopia'
+  } else if (options.colorBlindMode === 'tritanopia') {
+    variant = 'tritanopia'
+  }
+
+  return {
+    id: `theme-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+    name: basePalette.name,
+    variant,
+    colors: basePalette.colors,
+    wcagLevel: basePalette.wcagLevel,
+    contrastRatio: basePalette.contrastRatio,
+  }
+}
+
+/**
+ * Generate CSS pattern definitions for color blind safe patterns
+ */
+export function generatePatternDefs(variant: 'deuteranopia' | 'protanopia' | 'tritanopia'): string {
+  const patternId = `pattern-${variant}`
+
+  return `
+    <defs>
+      <!-- Success: Diagonal lines -->
+      <pattern id="${patternId}-success" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="0" x2="8" y2="8" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+      </pattern>
+
+      <!-- Warning: Dots -->
+      <pattern id="${patternId}-warning" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+        <circle cx="3" cy="3" r="1.5" fill="currentColor" opacity="0.5"/>
+      </pattern>
+
+      <!-- Error: Horizontal lines -->
+      <pattern id="${patternId}-error" x="0" y="0" width="8" height="4" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="2" x2="8" y2="2" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+      </pattern>
+
+      <!-- Info: Vertical lines -->
+      <pattern id="${patternId}-info" x="0" y="0" width="4" height="8" patternUnits="userSpaceOnUse">
+        <line x1="2" y1="0" x2="2" y2="8" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+      </pattern>
+    </defs>
+  `
+}
+
+/**
+ * Generate complete CSS theme file
+ */
+export function generateThemeCSS(theme: Theme): string {
+  const variables = generateCSSVariables(theme)
+
+  const additionalStyles = `
+/* Extended theme styles */
+:root {
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Monaco', 'Courier New', monospace;
+
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+
+  /* Shadows */
+  --: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+}
+
+/* Light mode adjustments */
+@media (prefers-color-scheme: light) {
+  :root {
+    --: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus styles for accessibility */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Selection colors */
+::selection {
+  background-color: var(--primary);
+  color: var(--background);
+}
+`
+
+  return variables + '\n' + additionalStyles
+}
+
+/**
+ * Export theme as JSON
+ */
+export function exportThemeAsJSON(theme: Theme): string {
+  return JSON.stringify(theme, null, 2)
+}
+
+/**
+ * Validate theme has proper contrast
+ */
+export function validateThemeContrast(theme: Theme): {
+  valid: boolean
+  issues: string[]
+  ratios: Record<string, number>
+} {
+  const issues: string[] = []
+  const ratios: Record<string, number> = {}
+
+  // Check critical color pairs
+  const colorPairs = [
+    ['foreground', 'background'],
+    ['primary', 'background'],
+    ['secondary', 'background'],
+    ['mutedForeground', 'surface'],
+  ]
+
+  colorPairs.forEach(([color1, color2]) => {
+    const ratio = calculateContrastRatio(theme.colors[color1 as keyof typeof theme.colors], theme.colors[color2 as keyof typeof theme.colors])
+    ratios[`${color1}-${color2}`] = parseFloat(ratio.toFixed(2))
+
+    const wcagLevel = getWCAGLevel(ratio)
+    if (wcagLevel === 'FAIL') {
+      issues.push(`${color1} on ${color2}: ratio ${ratio.toFixed(2)} (fails WCAG A)`)
+    } else if (wcagLevel === 'A') {
+      issues.push(`${color1} on ${color2}: ratio ${ratio.toFixed(2)} (only meets WCAG A)`)
+    }
+  })
+
+  return {
+    valid: issues.length === 0,
+    issues,
+    ratios,
+  }
+}
+
+/**
+ * Create custom theme from user-provided colors
+ */
+export function createCustomTheme(config: CustomThemeConfig): Theme {
+  const isDark = config.darkMode
+
+  return generateThemeFromColor({
+    primaryColor: config.primaryColor,
+    secondaryColor: config.secondaryColor,
+    darkMode: isDark,
+    highContrast: config.highContrast,
+    colorBlindMode: config.colorBlindMode,
+  })
+}

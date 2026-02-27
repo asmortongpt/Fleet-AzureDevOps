@@ -224,9 +224,11 @@ describe('Redirect Validator - Security Tests', () => {
       expect(getValidatedFrontendUrl()).toBe('https://fleet.capitaltechalliance.com')
     })
 
-    test('falls back to VITE_API_URL if FRONTEND_URL not set', () => {
+    test('falls back to VITE_APP_URL if FRONTEND_URL not set', () => {
       delete process.env.FRONTEND_URL
-      process.env.VITE_API_URL = 'https://fleet.capitaltechalliance.com'
+      delete process.env.APP_URL
+      delete process.env.WEBAPP_URL
+      process.env.VITE_APP_URL = 'https://fleet.capitaltechalliance.com'
 
       expect(getValidatedFrontendUrl()).toBe('https://fleet.capitaltechalliance.com')
     })

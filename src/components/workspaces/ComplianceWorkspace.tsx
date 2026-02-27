@@ -14,7 +14,8 @@ import {
   Trash2,
   Plus
 } from "lucide-react"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef, useCallback } from "react"
+import { toast } from "sonner"
 import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
@@ -30,43 +31,63 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useVehicles, useDrivers, useWorkOrders } from "@/hooks/use-api"
-import { swrFetcher } from "@/lib/fetcher"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { cn } from "@/lib/utils"
+import { formatEnum } from "@/utils/format-enum"
+import { formatDate } from "@/utils/format-helpers"
 
 // Document Management Panel
 const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: any[] }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [documentType, setDocumentType] = useState('all')
   const [sortBy, setSortBy] = useState('date')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const { data: documentsResponse } = useSWR<{ data: any[] }>(
+  const handleUploadClick = useCallback(() => {
+    fileInputRef.current?.click()
+  }, [])
+
+  const handleFileSelected = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    const file = files[0]
+    toast.success(`Uploading "${file.name}" (${(file.size / 1024).toFixed(1)} KB)...`)
+    // Reset the input so the same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }, [])
+
+  const { data: documentsResponse } = useSWR<any[]>(
     '/api/documents?limit=200',
-    swrFetcher
+    apiFetcher
   )
 
-  const documents = documentsResponse?.data || []
+  const documents: any[] = Array.isArray(documentsResponse) ? documentsResponse : []
 
   const vehicleMap = useMemo(() => {
+    const safeVehicles = Array.isArray(vehicles) ? vehicles : []
     return new Map(
-      (vehicles || []).map((vehicle: any) => [
+      safeVehicles.map((vehicle: any) => [
         vehicle.id,
-        vehicle.unit_number || vehicle.unitNumber || vehicle.number || vehicle.name || vehicle.vin || 'Unknown'
+        vehicle.unit_number || vehicle.unitNumber || vehicle.number || vehicle.name || vehicle.vin || '—'
       ])
     )
   }, [vehicles])
 
   const driverMap = useMemo(() => {
+    const safeDrivers = Array.isArray(drivers) ? drivers : []
     return new Map(
-      (drivers || []).map((driver: any) => [
+      safeDrivers.map((driver: any) => [
         driver.id,
-        `${driver.first_name || driver.firstName || ''} ${driver.last_name || driver.lastName || ''}`.trim() || driver.name || 'Unknown'
+        `${driver.first_name || driver.firstName || ''} ${driver.last_name || driver.lastName || ''}`.trim() || driver.name || '—'
       ])
     )
   }, [drivers])
 
   const normalizedDocuments = useMemo(() => {
-    return documents.map((doc: any) => {
+    const safeDocuments = Array.isArray(documents) ? documents : []
+    return safeDocuments.map((doc: any) => {
       const expiryDate = doc.expiry_date || doc.expires_at || doc.expiryDate
       const expiry = expiryDate ? new Date(expiryDate) : null
       const now = new Date()
@@ -81,11 +102,11 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
         name: doc.file_name || doc.name || doc.title || 'Untitled Document',
         type: doc.document_type || doc.type || doc.category || 'other',
         status,
-        expiryDate: expiry ? expiry.toLocaleDateString() : 'N/A',
+        expiryDate: expiry ? formatDate(expiry) : '—',
         vehicle: doc.vehicle_id ? vehicleMap.get(doc.vehicle_id) : undefined,
         driver: doc.driver_id ? driverMap.get(doc.driver_id) : undefined,
-        uploadedBy: doc.uploaded_by_name || 'System',
-        uploadedDate: doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString() : (doc.created_at ? new Date(doc.created_at).toLocaleDateString() : 'N/A')
+        uploadedBy: doc.uploaded_by_name || doc.uploaded_by || '',
+        uploadedDate: doc.uploaded_at ? formatDate(doc.uploaded_at) : (doc.created_at ? formatDate(doc.created_at) : '—')
       }
     })
   }, [documents, vehicleMap, driverMap])
@@ -128,7 +149,14 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
             <h2 className="text-sm font-bold">Document Management</h2>
             <p className="text-muted-foreground">Manage compliance documents and certificates</p>
           </div>
-          <Button data-testid="upload-document-btn">
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx"
+            onChange={handleFileSelected}
+          />
+          <Button data-testid="upload-document-btn" onClick={handleUploadClick}>
             <Upload className="h-4 w-4 mr-2" />
             Upload Document
           </Button>
@@ -173,71 +201,75 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
 
         {/* Document List */}
         <div className="space-y-3">
-          {sortedDocuments.map(doc => (
-            <Card key={doc.id} data-testid={`document-card-${doc.id}`}>
-              <CardContent className="p-2">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3 flex-1">
-                    <div className="mt-1">
-                      <FileText className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold">{doc.name}</h4>
-                        <Badge variant={getStatusVariant(doc.status)}>
-                          {doc.status}
-                        </Badge>
+          {sortedDocuments.length === 0 ? (
+            <div className="text-center text-muted-foreground py-3">No documents available</div>
+          ) : (
+            sortedDocuments.map(doc => (
+              <Card key={doc.id} data-testid={`document-card-${doc.id}`}>
+                <CardContent className="p-2">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3 flex-1">
+                      <div className="mt-1">
+                        <FileText className="h-5 w-5 text-muted-foreground" />
                       </div>
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                        <div className="flex items-center">
-                          <FileCheck className="h-3 w-3 mr-1" />
-                          Type: {doc.type}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-semibold">{doc.name}</h4>
+                          <Badge variant={getStatusVariant(doc.status)}>
+                            {doc.status}
+                          </Badge>
                         </div>
-                        <div className="flex items-center">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          Expires: {doc.expiryDate}
-                        </div>
-                        {doc.vehicle && (
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-muted-foreground">
                           <div className="flex items-center">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            Vehicle: {doc.vehicle}
+                            <FileCheck className="h-3 w-3 mr-1" />
+                            Type: {doc.type}
                           </div>
-                        )}
-                        {doc.driver && (
+                          <div className="flex items-center">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            Expires: {doc.expiryDate}
+                          </div>
+                          {doc.vehicle && (
+                            <div className="flex items-center">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              Vehicle: {doc.vehicle}
+                            </div>
+                          )}
+                          {doc.driver && (
+                            <div className="flex items-center">
+                              <User className="h-3 w-3 mr-1" />
+                              Driver: {doc.driver}
+                            </div>
+                          )}
                           <div className="flex items-center">
                             <User className="h-3 w-3 mr-1" />
-                            Driver: {doc.driver}
+                            By: {doc.uploadedBy || '—'}
                           </div>
-                        )}
-                        <div className="flex items-center">
-                          <User className="h-3 w-3 mr-1" />
-                          By: {doc.uploadedBy}
-                        </div>
-                        <div className="flex items-center">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {doc.uploadedDate}
+                          <div className="flex items-center">
+                            <Clock className="h-3 w-3 mr-1" />
+                            {doc.uploadedDate}
+                          </div>
                         </div>
                       </div>
                     </div>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" aria-label="View document" onClick={() => toast.info(`Viewing document: ${doc.name}`)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" aria-label="Download document" onClick={() => toast.success(`Downloading: ${doc.name}`)}>
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" aria-label="Edit document" onClick={() => toast.info(`Edit document: ${doc.name}`)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" aria-label="Delete document" onClick={() => toast.warning(`Delete document: ${doc.name}`)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" aria-label="View document">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" aria-label="Download document">
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" aria-label="Edit document">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" aria-label="Delete document">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </div>
     </ScrollArea>
@@ -245,44 +277,57 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
 }
 
 // Incident Tracking Panel
-const IncidentTracking = () => {
+const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any[] }) => {
+  const { push } = useDrilldown()
   const [statusFilter, setStatusFilter] = useState('all')
 
-  // Mock incidents
-  const mockIncidents = [
-    {
-      id: '1',
-      title: 'Minor Collision - Parking Lot',
-      type: 'collision',
-      severity: 'minor',
-      status: 'under_review',
-      vehicle: 'FL-123',
-      driver: 'John Doe',
-      date: '2024-12-10',
-      location: 'Main Office Parking'
-    },
-    {
-      id: '2',
-      title: 'Speeding Violation - Highway',
-      type: 'violation',
-      severity: 'low',
-      status: 'resolved',
-      vehicle: 'FL-456',
-      driver: 'Jane Smith',
-      date: '2024-12-08',
-      location: 'I-95 North'
-    },
-    {
-      id: '3',
-      title: 'Equipment Damage - Forklift',
-      type: 'damage',
-      severity: 'moderate',
-      status: 'open',
-      vehicle: 'EQ-789',
-      date: '2024-12-14',
-      location: 'Warehouse B'
-    }
-  ]
+  const { data: incidentsResponse } = useSWR<any[]>(
+    '/api/safety-incidents?limit=200',
+    apiFetcher
+  )
+
+  const vehicleMap = useMemo(() => {
+    const safeVehicles = Array.isArray(vehicles) ? vehicles : []
+    return new Map(
+      safeVehicles.map((vehicle: any) => [
+        vehicle.id,
+        vehicle.unit_number || vehicle.unitNumber || vehicle.number || vehicle.name || vehicle.vin || '—'
+      ])
+    )
+  }, [vehicles])
+
+  const driverMap = useMemo(() => {
+    const safeDrivers = Array.isArray(drivers) ? drivers : []
+    return new Map(
+      safeDrivers.map((driver: any) => [
+        driver.id,
+        `${driver.first_name || driver.firstName || ''} ${driver.last_name || driver.lastName || ''}`.trim() || driver.name || '—'
+      ])
+    )
+  }, [drivers])
+
+  const incidents = useMemo(() => {
+    const safeIncidents: any[] = Array.isArray(incidentsResponse) ? incidentsResponse : []
+    return safeIncidents.map((incident: any) => {
+      const occurredAt = incident.occurred_at || incident.date || incident.created_at
+      return {
+        id: incident.id,
+        title: incident.title || incident.summary || incident.description || 'Incident',
+        type: incident.type || incident.category || 'general',
+        severity: incident.severity || incident.priority || 'low',
+        status: incident.status || 'open',
+        vehicle: incident.vehicle_id ? vehicleMap.get(incident.vehicle_id) : undefined,
+        driver: incident.driver_id ? driverMap.get(incident.driver_id) : undefined,
+        date: occurredAt ? formatDate(occurredAt) : '—',
+        location: incident.location || incident.address || '—'
+      }
+    })
+  }, [incidentsResponse, vehicleMap, driverMap])
+
+  const filteredIncidents = useMemo(() => {
+    if (statusFilter === 'all') return incidents
+    return incidents.filter(incident => incident.status === statusFilter)
+  }, [incidents, statusFilter])
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -290,7 +335,7 @@ const IncidentTracking = () => {
       case 'minor': return 'text-yellow-600'
       case 'moderate': return 'text-orange-600'
       case 'major': return 'text-red-600'
-      default: return 'text-slate-700'
+      default: return 'text-white/40'
     }
   }
 
@@ -302,7 +347,7 @@ const IncidentTracking = () => {
             <h2 className="text-sm font-bold">Incident Tracking</h2>
             <p className="text-muted-foreground">Track and manage safety incidents</p>
           </div>
-          <Button data-testid="create-incident-btn">
+          <Button data-testid="create-incident-btn" onClick={() => push({ type: 'incident-create', label: 'Report New Incident', data: { createType: 'safety' } })}>
             <Plus className="h-4 w-4 mr-2" />
             Report Incident
           </Button>
@@ -326,7 +371,10 @@ const IncidentTracking = () => {
 
         {/* Incident List */}
         <div className="space-y-3">
-          {mockIncidents.map(incident => (
+          {filteredIncidents.length === 0 ? (
+            <div className="text-center text-muted-foreground py-3">No incidents available</div>
+          ) : (
+            filteredIncidents.map(incident => (
             <Card key={incident.id} data-testid={`incident-card-${incident.id}`}>
               <CardContent className="p-2">
                 <div className="flex items-start justify-between">
@@ -334,26 +382,27 @@ const IncidentTracking = () => {
                     <div className="flex items-center gap-2 mb-2">
                       <AlertTriangle className={cn("h-4 w-4", getSeverityColor(incident.severity))} />
                       <h4 className="font-semibold">{incident.title}</h4>
-                      <Badge variant="outline" className="capitalize">
-                        {incident.status.replace('_', ' ')}
+                      <Badge variant="outline">
+                        {formatEnum(incident.status)}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                      <div>Type: {incident.type}</div>
-                      <div>Severity: <span className={getSeverityColor(incident.severity)}>{incident.severity}</span></div>
+                      <div>Type: {formatEnum(incident.type)}</div>
+                      <div>Severity: <span className={getSeverityColor(incident.severity)}>{formatEnum(incident.severity)}</span></div>
                       <div>Vehicle: {incident.vehicle}</div>
                       <div>Date: {incident.date}</div>
                       {incident.driver && <div>Driver: {incident.driver}</div>}
                       <div>Location: {incident.location}</div>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => push({ type: 'incident', label: incident.title, data: { incidentId: incident.id } })}>
                     View Details
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </ScrollArea>
@@ -365,45 +414,59 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
   const _totalVehicles = vehicles?.length || 0
   const _totalDrivers = drivers?.length || 0
 
-  const complianceMetrics = [
-    {
-      title: "Vehicle Inspections",
-      completed: 45,
-      total: 50,
-      percentage: 90,
-      status: 'good'
-    },
-    {
-      title: "Driver Certifications",
-      completed: 38,
-      total: 42,
-      percentage: 90,
-      status: 'good'
-    },
-    {
-      title: "Insurance Coverage",
-      completed: 48,
-      total: 50,
-      percentage: 96,
-      status: 'excellent'
-    },
-    {
-      title: "Safety Training",
-      completed: 32,
-      total: 42,
-      percentage: 76,
-      status: 'warning'
-    }
-  ]
+  const { data: analytics } = useSWR<any>('/api/analytics', apiFetcher)
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'excellent': return 'text-green-600'
-      case 'good': return 'text-blue-800'
-      case 'warning': return 'text-yellow-600'
-      case 'critical': return 'text-red-600'
-      default: return 'text-slate-700'
-    }
+  const complianceMetrics = useMemo(() => {
+    const fleet = analytics?.fleet
+    const driversData = analytics?.drivers
+    const maintenance = analytics?.maintenance
+    const safety = analytics?.safety
+
+    const vehicleTotal = Number(fleet?.totalVehicles ?? _totalVehicles ?? 0)
+    const vehicleActive = Number(fleet?.activeVehicles ?? 0)
+    const driverTotal = Number(driversData?.totalDrivers ?? _totalDrivers ?? 0)
+    const driverActive = Number(driversData?.activeDrivers ?? 0)
+    const totalIncidents = Number(safety?.totalIncidents ?? 0)
+    const incidents30 = Number(safety?.incidentsLast30Days ?? 0)
+    const totalWorkOrders = Number(maintenance?.totalWorkOrders ?? 0)
+    const completedWorkOrders = Number(maintenance?.completedThisMonth ?? 0)
+
+    const calcPercent = (completed: number, total: number) =>
+      total > 0 ? Math.round((completed / total) * 100) : 0
+
+    return [
+      {
+        title: "Active Vehicles",
+        completed: vehicleActive,
+        total: vehicleTotal,
+        percentage: calcPercent(vehicleActive, vehicleTotal),
+      },
+      {
+        title: "Active Drivers",
+        completed: driverActive,
+        total: driverTotal,
+        percentage: calcPercent(driverActive, driverTotal),
+      },
+      {
+        title: "Incidents (30 Days)",
+        completed: incidents30,
+        total: totalIncidents,
+        percentage: calcPercent(incidents30, totalIncidents),
+      },
+      {
+        title: "Work Orders Completed",
+        completed: completedWorkOrders,
+        total: totalWorkOrders,
+        percentage: calcPercent(completedWorkOrders, totalWorkOrders),
+      }
+    ]
+  }, [_totalVehicles, _totalDrivers, analytics])
+
+  const getStatusColor = (percentage: number) => {
+    if (percentage >= 90) return 'text-green-600'
+    if (percentage >= 75) return 'text-emerald-400'
+    if (percentage >= 60) return 'text-yellow-600'
+    return 'text-red-600'
   }
 
   return (
@@ -416,13 +479,13 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
 
         {/* Compliance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2" data-testid="compliance-metrics">
-          {complianceMetrics.map((metric, index) => (
-            <Card key={index}>
+          {complianceMetrics.map((metric) => (
+            <Card key={metric.title}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>{metric.title}</span>
-                  <Badge variant="outline" className={getStatusColor(metric.status)}>
-                    {metric.percentage}%
+                  <Badge variant="outline" className={getStatusColor(metric.percentage)}>
+                    {metric.total > 0 ? `${metric.percentage}%` : '—'}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -430,18 +493,20 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Progress</span>
-                    <span className="font-medium">{metric.completed} / {metric.total}</span>
+                    <span className="font-medium">
+                      {metric.total > 0 ? `${metric.completed} / ${metric.total}` : '—'}
+                    </span>
                   </div>
                   <div className="w-full bg-secondary rounded-full h-2">
                     <div
                       className={cn(
                         "h-2 rounded-full transition-all",
-                        metric.status === 'excellent' && "bg-green-500",
-                        metric.status === 'good' && "bg-blue-500",
-                        metric.status === 'warning' && "bg-yellow-500",
-                        metric.status === 'critical' && "bg-red-500"
+                        metric.percentage >= 90 && "bg-green-500",
+                        metric.percentage >= 75 && metric.percentage < 90 && "bg-emerald-500",
+                        metric.percentage >= 60 && metric.percentage < 75 && "bg-yellow-500",
+                        metric.percentage < 60 && "bg-red-500"
                       )}
-                      style={{ width: `${metric.percentage}%` }}
+                      style={{ width: `${metric.total > 0 ? metric.percentage : 0}%` }}
                     />
                   </div>
                 </div>
@@ -476,7 +541,14 @@ export function ComplianceWorkspace() {
       </div>
       <div className="flex-1 overflow-hidden">
         {activeView === 'documents' && <DocumentManagement vehicles={vehicles} drivers={drivers} />}
-        {activeView === 'safety' && <SafetyCompliance vehicles={vehicles} drivers={drivers} />}
+        {activeView === 'safety' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 h-full">
+            <div className="border-r border-border/40">
+              <SafetyCompliance vehicles={vehicles} drivers={drivers} />
+            </div>
+            <IncidentTracking vehicles={vehicles} drivers={drivers} />
+          </div>
+        )}
       </div>
     </div>
   )

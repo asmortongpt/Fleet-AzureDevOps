@@ -1,10 +1,12 @@
 import { withAITracking } from '@microsoft/applicationinsights-react-js'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Shield } from "lucide-react"
-import { useState, useMemo, lazy, Suspense, useEffect } from "react"
+import { useMemo, lazy, Suspense, useEffect } from "react"
 import { Toaster } from 'react-hot-toast'
 
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
+import { SkipNavigation } from "@/components/common/SkipNavigation"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
@@ -14,12 +16,13 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts"
 import { useNavigation } from "@/contexts/NavigationContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { pageTransitionVariants } from '@/lib/animations'
 import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
 import logger from '@/utils/logger'
 
-// Feature flag for new single-page layout
-const USE_NEW_LAYOUT = true // Enabled by default for all users
+// Feature flag for new single-page layout - MAP-FIRST UX
+const USE_NEW_LAYOUT = true // ENABLED: Map is central landing page feature
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+
 // Modules now organized in feature-based folders for better maintainability
@@ -34,6 +37,7 @@ const FleetOptimizer = lazy(() => import("@/components/modules/fleet/FleetOptimi
 // ANALYTICS MODULES 
 //testing 
 const ExecutiveDashboard = lazy(() => import("@/components/modules/analytics/ExecutiveDashboard").then(m => ({ default: m.ExecutiveDashboard })))
+const PremiumFleetDashboard = lazy(() => import("@/components/dashboard/PremiumFleetDashboard").then(m => ({ default: m.PremiumFleetDashboard })))
 const DataWorkbench = lazy(() => import("@/components/modules/analytics/DataWorkbench").then(m => ({ default: m.DataWorkbench })))
 const EndpointMonitor = lazy(() => import("@/components/modules/analytics/EndpointMonitor").then(m => ({ default: m.EndpointMonitor })))
 const CostAnalysisCenter = lazy(() => import("@/components/modules/analytics/CostAnalysisCenter").then(m => ({ default: m.CostAnalysisCenter })))
@@ -47,6 +51,8 @@ const AnalyticsDashboard = lazy(() => import("@/components/analytics/AnalyticsDa
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
 const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })))
 const PushNotificationAdmin = lazy(() => import("@/components/modules/admin/PushNotificationAdmin"))
+const enableE2E = import.meta.env.VITE_ENABLE_E2E === 'true'
+const E2ETestPage = enableE2E ? lazy(() => import("@/pages/E2ETestPage")) : null
 
 // MAINTENANCE MODULES
 const GarageService = lazy(() => import("@/components/modules/maintenance/GarageService").then(m => ({ default: m.GarageService })))
@@ -113,7 +119,6 @@ const ReimbursementQueue = lazy(() => import("@/pages/PersonalUse/ReimbursementQ
 const ChargesAndBilling = lazy(() => import("@/pages/PersonalUse/ChargesAndBilling").then(m => ({ default: m.ChargesAndBilling })))
 
 // E2E TEST PAGE (DEVELOPMENT ONLY)
-const E2ETestPage = lazy(() => import("@/pages/E2ETestPage"))
 
 // ASSETS MODULES
 const AssetManagement = lazy(() => import("@/components/modules/assets/AssetManagement").then(m => ({ default: m.AssetManagement })))
@@ -155,11 +160,8 @@ const BusinessManagementHub = lazy(() => import("@/pages/BusinessManagementHub")
 const PeopleCommunicationHub = lazy(() => import("@/pages/PeopleCommunicationHub"))
 const AdminConfigurationHub = lazy(() => import("@/pages/AdminConfigurationHub"))
 const VehicleShowroom3D = lazy(() => import("@/pages/VehicleShowroom3D"))
-
-// ============================================================================
-// DEPRECATED: OLD INDIVIDUAL HUB PAGES removed in deep clean consolidate-hubs-v4
-// TODO: Clean up any remaining switch case references if they still point to removed files
-
+const MapDiagnostic = lazy(() => import("@/pages/MapDiagnostic"))
+const ReservationsHub = lazy(() => import("@/components/hubs/reservations/ReservationsHub").then(m => ({ default: m.ReservationsHub })))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -182,7 +184,7 @@ const LoadingSpinner = () => (
 function App() {
   const { canAccess } = useAuth()
   const { activeModule, setActiveModule } = useNavigation()
-  useState(() => telemetryService.initialize())
+  useEffect(() => { telemetryService.initialize() }, [])
 
   const fleetData = useFleetData()
 
@@ -194,9 +196,9 @@ function App() {
         // await initializePolicyEngine()  // DISABLED - missing dependencies
         logger.info('✅ App initialized without policy engine')
       } catch (error) {
-        logger.error('❌ Failed to initialize App:', error)
+        logger.error('Failed to initialize App policy engine:', error)
         // Application will continue but without policy enforcement
-        // TODO: Show admin notification
+        // Policy initialization failures are non-blocking but logged for admin review
       }
     }
 
@@ -221,12 +223,17 @@ function App() {
   }, [currentNavItem, canAccess])
 
   const renderModule = () => {
+    // Return null if no module is active - shows map on home page
+    if (!activeModule) {
+      return null
+    }
+
     if (!hasAccessToModule) {
       return (
-        <div className="flex flex-col items-center justify-center h-full p-3 text-center bg-gray-50 rounded-lg">
+        <div className="flex flex-col items-center justify-center h-full p-3 text-center bg-white/[0.03] rounded-lg">
           <Shield className="w-16 h-16 text-red-500 mb-2" />
-          <h2 className="text-sm font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-slate-700 mb-3">
+          <h2 className="text-sm font-bold text-white/80 mb-2">Access Denied</h2>
+          <p className="text-white/70 mb-3">
             You do not have permission to view this module.
           </p>
           <Button onClick={() => setActiveModule('fleet-hub-consolidated')}>
@@ -238,6 +245,9 @@ function App() {
 
     switch (activeModule) {
       case "e2e-test":
+        if (!enableE2E || !E2ETestPage) {
+          return <div className="p-4 text-sm text-muted-foreground">E2E test page is disabled.</div>
+        }
         return <E2ETestPage />
       case "live-fleet-dashboard":
         return <LiveFleetDashboard />
@@ -245,6 +255,8 @@ function App() {
         return <LiveFleetDashboard />
       case "executive-dashboard":
         return <ExecutiveDashboard />
+      case "premium-fleet-dashboard":
+        return <PremiumFleetDashboard />
       case "admin-dashboard":
         return <AdminConfigurationHub />
       case "operations-workspace":
@@ -423,7 +435,7 @@ function App() {
       case "safety-alerts":
         return <SafetyAlertsPage />
       case "heavy-equipment":
-        return <EquipmentDashboard /> // TODO: Replace with HeavyEquipmentPage when implemented
+        return <HeavyEquipmentPage />
 
       // DEPRECATED: Consolidated into FleetOperationsHub
       // case "assets-hub":
@@ -466,6 +478,8 @@ function App() {
       case "insights-hub":
       case "financial":
       case "procurement":
+      case "business":
+      case "reports":
         return <BusinessManagementHub />
 
       // PEOPLE & COMMUNICATION HUB - Consolidates: People, Communication, Work
@@ -473,6 +487,7 @@ function App() {
       case "people-hub":
       case "work-hub":
       case "communication":
+      case "people":
         return <PeopleCommunicationHub />
 
       // ADMIN & CONFIGURATION HUB - Consolidates: Admin, Integrations, Documents, CTA Config, Data Governance
@@ -482,9 +497,18 @@ function App() {
       case "cta-configuration-hub":
       case "data-governance-hub":
       case "configuration-hub":
+      case "configuration":
       case "admin":
       case "integrations":
         return <AdminConfigurationHub />
+
+      // RESERVATIONS - Vehicle Booking & Calendar Management
+      case "reservations":
+        return <ReservationsHub />
+
+      // MAP DIAGNOSTICS - Map & GPS diagnostic tools
+      case "map-diagnostics":
+        return <MapDiagnostic />
 
       // 3D GARAGE - Interactive Vehicle Showroom
       case "3d-garage":
@@ -498,17 +522,27 @@ function App() {
       //     return <Suspense fallback={<div>Loading...</div>}><FleetDesignDemo /></Suspense>
 
       default:
-        return <FleetOperationsHub />
+        // Unknown module - show map (home page)
+        return null
     }
   }
 
 
 
   // New single-page layout (feature-flagged)
+  // Pass renderModule content to SinglePageShell so routes work
   if (USE_NEW_LAYOUT) {
+    const moduleContent = renderModule()
     return (
       <DrilldownManager>
-        <SinglePageShell />
+        <SkipNavigation />
+        <EnhancedErrorBoundary showDetails={import.meta.env.DEV}>
+          <QueryErrorBoundary>
+            <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
+              <SinglePageShell moduleContent={moduleContent} />
+            </Suspense>
+          </QueryErrorBoundary>
+        </EnhancedErrorBoundary>
 
         {/* Toast notifications */}
         <div role="status" aria-live="polite" aria-label="Toast notifications">
@@ -536,6 +570,7 @@ function App() {
   // Legacy layout (default)
   return (
     <DrilldownManager>
+      <SkipNavigation />
       <CommandCenterLayout>
         <EnhancedErrorBoundary
           showDetails={import.meta.env.DEV}
@@ -544,9 +579,20 @@ function App() {
           }}
         >
           <QueryErrorBoundary>
-            <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
-              {renderModule()}
-            </Suspense>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeModule}
+                variants={pageTransitionVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="h-full w-full"
+              >
+                <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
+                  {renderModule()}
+                </Suspense>
+              </motion.div>
+            </AnimatePresence>
           </QueryErrorBoundary>
         </EnhancedErrorBoundary>
       </CommandCenterLayout>
@@ -577,7 +623,7 @@ function App() {
             },
             error: {
               iconTheme: {
-                primary: '#ef4444',
+                primary: 'hsl(var(--destructive))',
                 secondary: 'white',
               },
             },

@@ -20,6 +20,7 @@ import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import vectorSearchService from '../services/VectorSearchService'
 import { getErrorMessage } from '../utils/error-handler'
+import { logger } from '../utils/logger'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -64,7 +65,7 @@ router.post(
         ) VALUES ($1, $2, $3, $4, $5)
         RETURNING id, title, created_at`,
         [
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
           req.user!.id,
           sessionData.title || 'New Chat',
           JSON.stringify(sessionData.documentIds || []),
@@ -75,11 +76,11 @@ router.post(
       res.json({
         session: result.rows[0],
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
-      console.error('Create session error:', error)
+      logger.error('Create session error:', error)
       res.status(500).json({ error: 'Failed to create session', message: getErrorMessage(error) })
     }
   }
@@ -109,14 +110,14 @@ router.get(
          WHERE tenant_id = $1 AND user_id = $2
          ORDER BY updated_at DESC
          LIMIT 50`,
-        [req.user!.tenant_id, req.user!.id]
+        [req.user!.tenant_id ?? '', req.user!.id]
       )
 
       res.json({
         sessions: result.rows,
       })
-    } catch (error: any) {
-      console.error('Get sessions error:', error)
+    } catch (error: unknown) {
+      logger.error('Get sessions error:', error)
       res.status(500).json({ error: 'Failed to get sessions', message: getErrorMessage(error) })
     }
   }
@@ -142,7 +143,7 @@ router.get(
       const sessionResult = await pool.query(
         `SELECT id, tenant_id, user_id, title, created_at, updated_at, closed_at FROM chat_sessions
          WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (sessionResult.rows.length === 0) {
@@ -152,17 +153,17 @@ router.get(
       // Get messages
       const messagesResult = await pool.query(
         `SELECT id, tenant_id, session_id, role, content, created_at, updated_at FROM chat_messages
-         WHERE session_id = $1
+         WHERE session_id = $1 AND tenant_id = $2
          ORDER BY created_at ASC`,
-        [req.params.id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       res.json({
         session: sessionResult.rows[0],
         messages: messagesResult.rows,
       })
-    } catch (error: any) {
-      console.error('Get session error:', error)
+    } catch (error: unknown) {
+      logger.error('Get session error:', error)
       res.status(500).json({ error: 'Failed to get session', message: getErrorMessage(error) })
     }
   }
@@ -184,18 +185,18 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'chat_session' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      // Delete messages first
-      await pool.query('DELETE FROM chat_messages WHERE session_id = $1', [req.params.id])
+      // Delete messages first (scoped to tenant)
+      await pool.query('DELETE FROM chat_messages WHERE session_id = $1 AND tenant_id = $2', [req.params.id, req.user!.tenant_id ?? ''])
 
       // Delete session
       await pool.query(
         `DELETE FROM chat_sessions WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       res.json({ success: true, message: 'Session deleted' })
-    } catch (error: any) {
-      console.error('Delete session error:', error)
+    } catch (error: unknown) {
+      logger.error('Delete session error:', error)
       res.status(500).json({ error: 'Failed to delete session', message: getErrorMessage(error) })
     }
   }
@@ -262,7 +263,7 @@ router.post(
       last_message_at,
       is_active,
       deleted_at FROM chat_sessions WHERE id = $1 AND tenant_id = $2`,
-        [chatData.sessionId, req.user!.tenant_id]
+        [chatData.sessionId, req.user!.tenant_id ?? '']
       )
 
       if (sessionResult.rows.length === 0) {
@@ -273,9 +274,9 @@ router.post(
 
       // Save user message
       await pool.query(
-        `INSERT INTO chat_messages (session_id, role, content, created_at)
-         VALUES ($1, $2, $3, NOW())`,
-        [chatData.sessionId, 'user', chatData.message]
+        `INSERT INTO chat_messages (tenant_id, session_id, role, content, created_at)
+         VALUES ($1, $2, $3, $4, NOW())`,
+        [req.user!.tenant_id ?? '', chatData.sessionId, 'user', chatData.message]
       )
 
       // Get conversation history
@@ -283,10 +284,10 @@ router.post(
       if (chatData.includeHistory) {
         const historyResult = await pool.query(
           `SELECT role, content FROM chat_messages
-           WHERE session_id = $1
+           WHERE session_id = $1 AND tenant_id = $2
            ORDER BY created_at DESC
-           LIMIT $2`,
-          [chatData.sessionId, chatData.maxHistoryMessages]
+           LIMIT $3`,
+          [chatData.sessionId, req.user!.tenant_id ?? '', chatData.maxHistoryMessages]
         )
         conversationHistory = historyResult.rows.reverse()
       }
@@ -299,7 +300,7 @@ router.post(
         const documentScope = JSON.parse(session.document_scope || '[]')
 
         const searchResults = await vectorSearchService.search(
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
           chatData.message,
           {
             limit: chatData.maxSources,
@@ -365,9 +366,10 @@ router.post(
       // Save assistant message
       await pool.query(
         `INSERT INTO chat_messages (
-          session_id, role, content, sources, model_used, tokens_used, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+          tenant_id, session_id, role, content, sources, model_used, tokens_used, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
         [
+          req.user!.tenant_id ?? '',
           chatData.sessionId,
           'assistant',
           aiResponse,
@@ -379,8 +381,8 @@ router.post(
 
       // Update session
       await pool.query(
-        `UPDATE chat_sessions SET updated_at = NOW() WHERE id = $1`,
-        [chatData.sessionId]
+        `UPDATE chat_sessions SET updated_at = NOW() WHERE id = $1 AND tenant_id = $2`,
+        [chatData.sessionId, req.user!.tenant_id ?? '']
       )
 
       const responseTime = Date.now() - startTime
@@ -393,11 +395,11 @@ router.post(
           responseTimeMs: responseTime,
         },
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
-      console.error('Chat error:', error)
+      logger.error('Chat error:', error)
       res.status(500).json({ error: 'Chat failed', message: getErrorMessage(error) })
     }
   }
@@ -457,7 +459,7 @@ router.post(
       last_message_at,
       is_active,
       deleted_at FROM chat_sessions WHERE id = $1 AND tenant_id = $2`,
-        [chatData.sessionId, req.user!.tenant_id]
+        [chatData.sessionId, req.user!.tenant_id ?? '']
       )
 
       if (sessionResult.rows.length === 0) {
@@ -473,10 +475,10 @@ router.post(
       if (chatData.includeHistory) {
         const historyResult = await pool.query(
           `SELECT role, content FROM chat_messages
-           WHERE session_id = $1
+           WHERE session_id = $1 AND tenant_id = $2
            ORDER BY created_at DESC
-           LIMIT $2`,
-          [chatData.sessionId, chatData.maxHistoryMessages || 10]
+           LIMIT $3`,
+          [chatData.sessionId, req.user!.tenant_id ?? '', chatData.maxHistoryMessages || 10]
         )
         conversationHistory = historyResult.rows.reverse()
       }
@@ -487,7 +489,7 @@ router.post(
       if (chatData.searchDocuments) {
         const documentScope = JSON.parse(session.document_scope || '[]')
         searchResults = await vectorSearchService.search(
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
           chatData.message,
           {
             limit: chatData.maxSources || 5,
@@ -556,20 +558,20 @@ router.post(
 
       // Save messages
       await pool.query(
-        `INSERT INTO chat_messages (session_id, role, content, created_at)
-         VALUES ($1, $2, $3, NOW())`,
-        [chatData.sessionId, 'user', chatData.message]
+        `INSERT INTO chat_messages (tenant_id, session_id, role, content, created_at)
+         VALUES ($1, $2, $3, $4, NOW())`,
+        [req.user!.tenant_id ?? '', chatData.sessionId, 'user', chatData.message]
       )
 
       await pool.query(
-        `INSERT INTO chat_messages (session_id, role, content, created_at)
-         VALUES ($1, $2, $3, NOW())`,
-        [chatData.sessionId, 'assistant', fullResponse]
+        `INSERT INTO chat_messages (tenant_id, session_id, role, content, created_at)
+         VALUES ($1, $2, $3, $4, NOW())`,
+        [req.user!.tenant_id ?? '', chatData.sessionId, 'assistant', fullResponse]
       )
 
       res.end()
-    } catch (error: any) {
-      console.error('Streaming chat error:', error)
+    } catch (error: unknown) {
+      logger.error('Streaming chat error:', error)
       res.write(`data: ${JSON.stringify({ error: getErrorMessage(error) })}\n\n`)
       res.end()
     }
@@ -607,8 +609,8 @@ router.get(
       ]
 
       res.json({ suggestions })
-    } catch (error: any) {
-      console.error('Suggestions error:', error)
+    } catch (error: unknown) {
+      logger.error('Suggestions error:', error)
       res.status(500).json({ error: 'Failed to get suggestions' })
     }
   }

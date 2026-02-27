@@ -78,6 +78,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { useInventory } from "@/hooks/useInventory"
 import { usePermissions } from "@/hooks/usePermissions"
 import { Part, InventoryTransaction } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatCurrency } from "@/utils/format-helpers"
 
 interface InventoryFilters {
   category: string
@@ -232,7 +234,7 @@ export function InventoryManagement() {
       return {
         type: "overstocked" as const,
         label: "Overstocked",
-        color: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100"
+        color: "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-100"
       }
     }
     return {
@@ -607,7 +609,7 @@ export function InventoryManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Value</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold">${metrics.totalValue.toLocaleString()}</div>
+            <div className="text-sm font-bold">{formatCurrency(metrics.totalValue)}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 mt-1">
               <TrendingUp className="w-3 h-3" />
               Asset value
@@ -646,7 +648,7 @@ export function InventoryManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Overstocked</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800 dark:text-blue-700">{metrics.overstocked}</div>
+            <div className="text-sm font-bold text-emerald-800 dark:text-emerald-700">{metrics.overstocked}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <TrendingUp className="w-3 h-3" />
               Over max
@@ -738,6 +740,7 @@ export function InventoryManagement() {
             sortOrder: filters.sortOrder === "asc" ? "desc" : "asc"
           })}
           title={`Sort ${filters.sortOrder === "asc" ? "Descending" : "Ascending"}`}
+          aria-label={`Sort ${filters.sortOrder === "asc" ? "descending" : "ascending"}`}
         >
           <RefreshCw className={`w-4 h-4 transition-transform ${filters.sortOrder === "desc" ? "rotate-180" : ""}`} />
         </Button>
@@ -791,7 +794,7 @@ export function InventoryManagement() {
                             <div className="text-xs text-muted-foreground">{part.manufacturer}</div>
                           </div>
                         </TableCell>
-                        <TableCell className="capitalize">{part.category}</TableCell>
+                        <TableCell>{formatEnum(part.category)}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{part.location || "-"}</TableCell>
                         <TableCell>
                           <div className="space-y-1">
@@ -805,9 +808,9 @@ export function InventoryManagement() {
                           <span className="font-semibold">{part.quantityOnHand}</span>
                           <span className="text-muted-foreground text-sm"> units</span>
                         </TableCell>
-                        <TableCell>${part.unitCost.toFixed(2)}</TableCell>
+                        <TableCell>{formatCurrency(part.unitCost)}</TableCell>
                         <TableCell className="font-medium">
-                          ${(part.quantityOnHand * part.unitCost).toFixed(2)}
+                          {formatCurrency(part.quantityOnHand * part.unitCost)}
                         </TableCell>
                         <TableCell>
                           <Badge className={status.color} variant="secondary">
@@ -817,7 +820,7 @@ export function InventoryManagement() {
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" aria-label="Item actions">
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>

@@ -7,6 +7,7 @@ import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
 import { pool } from '../db/connection'
 import { safePost } from '../utils/ssrf-protection'
 
@@ -88,8 +89,8 @@ class GoogleCalendarService {
 
     return {
       access_token: tokens.access_token!,
-      refresh_token: tokens.refresh_token,
-      expiry_date: tokens.expiry_date
+      refresh_token: tokens.refresh_token ?? undefined,
+      expiry_date: tokens.expiry_date ?? undefined
     }
   }
 
@@ -183,7 +184,7 @@ class GoogleCalendarService {
 
       oauth2Client.setCredentials(credentials)
     } catch (error) {
-      console.error('Error refreshing Google token:', error)
+      logger.error('Error refreshing Google token', { error })
       throw new Error('Failed to refresh Google Calendar access token')
     }
   }
@@ -212,8 +213,8 @@ class GoogleCalendarService {
       const oauth2Client = this.getOAuth2Client()
     oauth2Client.setCredentials({
       access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
-      expiry_date: tokens.expiry_date
+      refresh_token: tokens.refresh_token ?? undefined,
+      expiry_date: tokens.expiry_date ?? undefined
     })
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
@@ -255,7 +256,7 @@ class GoogleCalendarService {
 
       return result.rows[0]
     } catch (error) {
-      console.error('Error storing Google Calendar integration:', error)
+      logger.error('Error storing Google Calendar integration', { error })
       throw error
     }
   }
@@ -324,7 +325,7 @@ class GoogleCalendarService {
 
     return response.data
   } catch (error) {
-    console.error('Error creating Google Calendar event:', error)
+    logger.error('Error creating Google Calendar event', { error })
     throw error
   }
 }
@@ -352,7 +353,7 @@ class GoogleCalendarService {
 
     return response.data.items || []
   } catch (error) {
-    console.error('Error listing Google Calendar events:', error)
+    logger.error('Error listing Google Calendar events', { error })
     throw error
   }
 }
@@ -375,7 +376,7 @@ class GoogleCalendarService {
 
     return response.data
   } catch (error) {
-    console.error('Error getting Google Calendar event:', error)
+    logger.error('Error getting Google Calendar event', { error })
     throw error
   }
 }
@@ -448,7 +449,7 @@ updatedEvent.location = eventData.location
 
     return response.data
   } catch (error) {
-    console.error('Error updating Google Calendar event:', error)
+    logger.error('Error updating Google Calendar event', { error })
     throw error
   }
 }
@@ -470,7 +471,7 @@ updatedEvent.location = eventData.location
         sendUpdates: 'all'
       })
     } catch (error) {
-      console.error('Error deleting Google Calendar event:', error)
+      logger.error('Error deleting Google Calendar event', { error })
       throw error
     }
   }
@@ -514,8 +515,8 @@ updatedEvent.location = eventData.location
       for (const attendee of Object.keys(busyPeriods)) {
         const busy = busyPeriods[attendee].busy || []
         for (const period of busy) {
-          const busyStart = new Date(period.start)
-          const busyEnd = new Date(period.end)
+          const busyStart = new Date(period.start as string)
+          const busyEnd = new Date(period.end as string)
 
           if (
             (currentTime >= busyStart && currentTime < busyEnd) ||
@@ -544,7 +545,7 @@ break
 
     return availableSlots
   } catch (error) {
-    console.error('Error finding available times:', error)
+    logger.error('Error finding available times', { error })
     throw error
   }
 }
@@ -572,7 +573,7 @@ break
 
       return response.data
     } catch (error) {
-      console.error('Error checking availability:', error)
+      logger.error('Error checking availability', { error })
       throw error
     }
   }
@@ -670,7 +671,7 @@ break
 
     return { synced, errors }
   } catch (error) {
-    console.error('Error syncing Google Calendar events:', error)
+    logger.error('Error syncing Google Calendar events', { error })
     throw error
   }
 }
@@ -686,7 +687,7 @@ break
 
     return response.data.items || []
   } catch (error) {
-    console.error('Error listing Google Calendars:', error)
+    logger.error('Error listing Google Calendars', { error })
     throw error
   }
 }
@@ -745,7 +746,7 @@ break
           }
         )
       } catch (error) {
-        console.warn('Error revoking token with Google:', error)
+        logger.warn('Error revoking token with Google', { error })
         // Continue even if revocation fails
       }
     }
@@ -756,7 +757,7 @@ break
       [integrationId]
     )
   } catch (error) {
-    console.error('Error revoking Google Calendar integration:', error)
+    logger.error('Error revoking Google Calendar integration', { error })
     throw error
   }
 }

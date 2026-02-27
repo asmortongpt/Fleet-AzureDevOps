@@ -21,11 +21,12 @@
  * ```
  */
 
+import { CreditCard } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { CreditCard } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -34,9 +35,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -44,10 +44,11 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
-import { useFuelMutations, type CreateFuelCardInput } from '@/hooks/use-reactive-fuel-data'
+import { Textarea } from '@/components/ui/textarea'
 import { useVehicles, useDrivers } from '@/hooks/use-api'
+import { useFuelMutations, type CreateFuelCardInput } from '@/hooks/use-reactive-fuel-data'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -227,7 +228,7 @@ export function FuelCardDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-blue-600" />
+              <CreditCard className="h-5 w-5 text-emerald-500" />
               Add Fuel Card
             </DialogTitle>
             <DialogDescription>
@@ -306,7 +307,7 @@ export function FuelCardDialog({
                     <SelectItem value="">None</SelectItem>
                     {vehicles.map(v => (
                       <SelectItem key={v.id} value={v.id.toString()}>
-                        {v.number} - {v.year} {v.make} {v.model}
+                        {formatVehicleName(v)}
                       </SelectItem>
                     ))}
                   </SelectContent>

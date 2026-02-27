@@ -12,7 +12,6 @@
  * SOC 2: CC7.2, CC7.3
  */
 
-import { createHash } from 'crypto';
 import logger from '@/utils/logger';
 
 /**
@@ -288,7 +287,7 @@ class AuditLogger {
     };
 
     // Generate SHA-256 hash for tamper detection
-    record.recordHash = this.generateHash(record);
+    record.recordHash = await this.generateHash(record);
 
     // Store in multiple locations for redundancy
     // FedRAMP AU-4: Audit Storage Capacity
@@ -313,7 +312,8 @@ class AuditLogger {
       return record;
     } catch (error) {
       logger.error('[AuditLogger] Failed to log event:', error);
-      throw error;
+      // Return the record even on failure - audit logging should never break the app
+      return record;
     }
   }
 
@@ -323,7 +323,7 @@ class AuditLogger {
    * FedRAMP AU-9: Protection of Audit Information
    * FedRAMP SC-13: Cryptographic Protection
    */
-  private generateHash(record: Omit<ImmutableAuditRecord, 'recordHash'>): string {
+  private async generateHash(record: Omit<ImmutableAuditRecord, 'recordHash'>): Promise<string> {
     // Create deterministic string representation
     const data = JSON.stringify({
       recordId: record.recordId,
@@ -339,8 +339,11 @@ class AuditLogger {
       details: record.details
     });
 
-    // Use SHA-256 (FIPS 140-2 compliant)
-    return createHash('sha256').update(data).digest('hex');
+    // Use SHA-256 via Web Crypto API (FIPS 140-2 compliant, browser-compatible)
+    const encoder = new TextEncoder();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
   /**
@@ -350,8 +353,9 @@ class AuditLogger {
    */
   private async storeInDatabase(record: ImmutableAuditRecord): Promise<void> {
     try {
-      const response = await fetch('/api/audit/log', {
+      const response = await fetch('/api/audit-logs/log', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'X-Audit-Hash': record.recordHash
@@ -368,7 +372,7 @@ class AuditLogger {
       }
     } catch (error) {
       logger.error('[AuditLogger] Database storage failed:', error);
-      throw error;
+      // Silently fail - audit logging should never break the app
     }
   }
 
@@ -384,8 +388,9 @@ class AuditLogger {
       // Blobs are stored by date for efficient retrieval
       const blobPath = `audit-logs/${record.timestamp.toISOString().split('T')[0]}/${record.recordId}.json`;
 
-      const response = await fetch('/api/audit/blob-storage', {
+      const response = await fetch('/api/audit-logs/blob-storage', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -404,7 +409,7 @@ class AuditLogger {
       }
     } catch (error) {
       logger.error('[AuditLogger] Azure Blob storage failed:', error);
-      throw error;
+      // Silently fail - audit logging should never break the app
     }
   }
 
@@ -417,8 +422,9 @@ class AuditLogger {
   private async sendToSIEM(record: ImmutableAuditRecord): Promise<void> {
     try {
       // Send to SIEM for real-time monitoring and alerting
-      const response = await fetch('/api/audit/siem', {
+      const response = await fetch('/api/audit-logs/siem', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'X-SIEM-Source': 'fleet-management'
@@ -436,7 +442,7 @@ class AuditLogger {
       }
     } catch (error) {
       logger.error('[AuditLogger] SIEM integration failed:', error);
-      throw error;
+      // Silently fail - audit logging should never break the app
     }
   }
 
@@ -465,7 +471,9 @@ class AuditLogger {
    */
   private async fetchLastAuditRecord(): Promise<ImmutableAuditRecord | null> {
     try {
-      const response = await fetch('/api/audit/last-record');
+      const response = await fetch('/api/audit-logs/last-record', {
+        credentials: 'include',
+      });
       if (!response.ok) return null;
 
       const data = await response.json();
@@ -543,14 +551,21 @@ class AuditLogger {
   }
 
   /**
-   * Generate UUID v4
+   * Generate cryptographically secure UUID v4
+   * Uses crypto.randomUUID() (Web Crypto API) for security-critical audit records
    */
   private generateUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = (Math.random() * 16) | 0;
-      const v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    // Fallback using crypto.getRandomValues for older environments
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    // Set version (4) and variant (RFC 4122)
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
   }
 }
 

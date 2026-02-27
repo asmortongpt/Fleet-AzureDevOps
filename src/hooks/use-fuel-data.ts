@@ -2,6 +2,7 @@ import { useMemo } from "react"
 
 import { useFuelTransactions } from "@/hooks/use-api"
 import { Vehicle } from "@/lib/types"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 export interface FuelRecord {
   id: string
@@ -13,6 +14,10 @@ export interface FuelRecord {
   odometer: number
   mpg: number
   location?: string
+  stationName?: string
+  stationBrand?: string
+  isFullFill?: boolean
+  mpgCalculated?: number
 }
 
 export function useFuelData(vehicles: Vehicle[]) {
@@ -58,17 +63,21 @@ export function useFuelData(vehicles: Vehicle[]) {
           vehicleName:
             transaction.vehicleName ||
             transaction.vehicle_name ||
-            (vehicle ? `${vehicle.year ?? ""} ${vehicle.make ?? ""} ${vehicle.model ?? ""}`.trim() : ""),
+            (vehicle ? formatVehicleName(vehicle) : ""),
           date: date || "",
           gallons,
           cost,
           odometer: Number(transaction.odometer ?? transaction.odometer_reading ?? 0),
           mpg: Number(transaction.mpg ?? 0),
-          location: transaction.location || transaction.station
+          location: transaction.location || transaction.station,
+          stationName: transaction.station_name || transaction.stationName || transaction.station || undefined,
+          stationBrand: transaction.station_brand || transaction.stationBrand || undefined,
+          isFullFill: transaction.is_full_fill ?? transaction.isFullFill ?? undefined,
+          mpgCalculated: transaction.mpg_calculated != null ? Number(transaction.mpg_calculated) : (transaction.mpgCalculated != null ? Number(transaction.mpgCalculated) : undefined),
         }
       })
-      .filter((record) => record.date)
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .filter((record: FuelRecord) => record.date)
+      .sort((a: FuelRecord, b: FuelRecord) => new Date(b.date).getTime() - new Date(a.date).getTime())
   }, [data, vehicleById])
 
   return { fuelRecords }

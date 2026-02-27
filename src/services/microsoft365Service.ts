@@ -15,6 +15,8 @@
  */
 
 import { Client } from '@microsoft/microsoft-graph-client'
+
+import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 export interface CalendarEvent {
@@ -211,7 +213,7 @@ class Microsoft365Service {
         <strong>Vehicle:</strong> ${vehicleId}<br/>
         <strong>Driver:</strong> ${driverId}<br/>
         <strong>Route:</strong> ${route}<br/>
-        <strong>Time:</strong> ${new Date().toLocaleString()}
+        <strong>Time:</strong> ${formatDateTime(new Date())}
       `,
       importance: 'high'
     })
@@ -240,7 +242,7 @@ class Microsoft365Service {
         <strong>Vehicle:</strong> ${vehicleId}<br/>
         <strong>Type:</strong> ${maintenanceType}<br/>
         <strong>Priority:</strong> ${priority.toUpperCase()}<br/>
-        <strong>Time:</strong> ${new Date().toLocaleString()}
+        <strong>Time:</strong> ${formatDateTime(new Date())}
       `,
       importance: importanceMap[priority]
     })
@@ -310,7 +312,7 @@ class Microsoft365Service {
         <h2>Scheduled Maintenance</h2>
         <p><strong>Vehicle:</strong> ${vehicleId}</p>
         <p><strong>Type:</strong> ${maintenanceType}</p>
-        <p><strong>Date:</strong> ${new Date(scheduledStart).toLocaleString()}</p>
+        <p><strong>Date:</strong> ${formatDateTime(scheduledStart)}</p>
       `,
       isOnlineMeeting: true
     })
@@ -371,8 +373,8 @@ class Microsoft365Service {
       <p>Hi ${driverName},</p>
       <p>Your vehicle reservation has been confirmed.</p>
       <p><strong>Vehicle:</strong> ${vehicleName}</p>
-      <p><strong>Start:</strong> ${new Date(startDate).toLocaleString()}</p>
-      <p><strong>End:</strong> ${new Date(endDate).toLocaleString()}</p>
+      <p><strong>Start:</strong> ${formatDateTime(startDate)}</p>
+      <p><strong>End:</strong> ${formatDateTime(endDate)}</p>
       <p><strong>Purpose:</strong> ${purpose}</p>
       <hr>
       <p><strong>Next Steps:</strong></p>

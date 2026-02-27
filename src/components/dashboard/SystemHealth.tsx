@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface HealthMetric {
@@ -39,87 +40,86 @@ export function SystemHealth({ className }: SystemHealthProps) {
     const fetchHealthMetrics = async () => {
       try {
         // Fetch from multiple health endpoints in parallel
-        const [dashboardStats, dbCheck] = await Promise.all([
-          fetch('/api/dashboard', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null),
+        const apiStart = Date.now();
+        const [dashboardStats, systemHealth] = await Promise.all([
+          fetch('/api/dashboard/stats', { credentials: 'include' })
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch dashboard stats for health check', { error: String(err) }); return null; }),
           fetch('/api/health', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null)
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch system health endpoint', { error: String(err) }); return null; })
         ]);
+        const apiResponseTime = Date.now() - apiStart;
 
         const now = new Date().toISOString();
         const metricsData: HealthMetric[] = [];
 
         // Database Health
-        if (dbCheck?.database?.status) {
-          const dbStatus = dbCheck.database.status === 'healthy' ? 'healthy' : 'critical';
-          const dbScore = dbStatus === 'healthy' ? 100 : 0;
+        if (systemHealth?.checks?.database) {
+          const db = systemHealth.checks.database;
+          const dbStatus = db.status === 'unhealthy' ? 'critical' : db.status === 'warning' ? 'degraded' : 'healthy';
+          const responseTime = typeof db.latency === 'string' ? parseFloat(db.latency) : db.latency;
           metricsData.push({
             name: 'Database',
             status: dbStatus,
-            score: dbScore,
-            lastCheck: dbCheck.database.lastCheck || now,
-            responseTime: dbCheck.database.responseTime || 0,
-            status_details: `Response: ${dbCheck.database.responseTime || 'N/A'}ms`,
-            icon: <Database className="h-5 w-5" />
-          });
-        } else {
-          metricsData.push({
-            name: 'Database',
-            status: 'healthy',
-            score: 100,
-            lastCheck: now,
-            responseTime: 15,
-            status_details: 'Response: 15ms, Connected',
+            score: dbStatus === 'healthy' ? 100 : dbStatus === 'degraded' ? 70 : 0,
+            lastCheck: systemHealth.timestamp || now,
+            responseTime: Number.isFinite(responseTime) ? responseTime : undefined,
+            status_details: db.latency ? `Latency: ${db.latency}` : 'Latency unavailable',
             icon: <Database className="h-5 w-5" />
           });
         }
 
         // API Health
         if (dashboardStats) {
-          const apiScore = 100; // If we got a response, API is healthy
           metricsData.push({
             name: 'API',
             status: 'healthy',
-            score: apiScore,
+            score: 100,
             lastCheck: now,
-            responseTime: 45,
+            responseTime: apiResponseTime,
             errorRate: 0,
-            status_details: 'Request rate: 12/min, Error rate: 0%',
-            icon: <Server className="h-5 w-5" />
-          });
-        } else {
-          metricsData.push({
-            name: 'API',
-            status: 'critical',
-            score: 0,
-            lastCheck: now,
-            errorRate: 100,
-            status_details: 'Unreachable',
+            status_details: `Response: ${apiResponseTime}ms`,
             icon: <Server className="h-5 w-5" />
           });
         }
 
-        // Integrations Health
-        metricsData.push({
-          name: 'Integrations',
-          status: 'healthy',
-          score: 95,
-          lastCheck: now,
-          status_details: 'Active: 3/3, Failed: 0',
-          icon: <Zap className="h-5 w-5" />
-        });
+        if (systemHealth?.checks?.applicationInsights) {
+          const ai = systemHealth.checks.applicationInsights;
+          const aiStatus = ai.status === 'unhealthy' ? 'critical' : ai.status === 'warning' ? 'degraded' : 'healthy';
+          metricsData.push({
+            name: 'Integrations',
+            status: aiStatus,
+            score: aiStatus === 'healthy' ? 100 : aiStatus === 'degraded' ? 70 : 0,
+            lastCheck: systemHealth.timestamp || now,
+            status_details: ai.message || 'Integration status unavailable',
+            icon: <Zap className="h-5 w-5" />
+          });
+        }
 
-        // Cache Health (simulated - would need Redis health endpoint)
-        metricsData.push({
-          name: 'Cache',
-          status: 'healthy',
-          score: 98,
-          lastCheck: now,
-          status_details: 'Hit rate: 87%, Memory: 45%',
-          icon: <Activity className="h-5 w-5" />
-        });
+        if (systemHealth?.checks?.redis) {
+          const redis = systemHealth.checks.redis;
+          const cacheStatus = redis.status === 'unhealthy' ? 'critical' : redis.status === 'warning' ? 'degraded' : 'healthy';
+          metricsData.push({
+            name: 'Cache',
+            status: cacheStatus,
+            score: cacheStatus === 'healthy' ? 100 : cacheStatus === 'degraded' ? 70 : 0,
+            lastCheck: systemHealth.timestamp || now,
+            status_details: redis.latency ? `Latency: ${redis.latency}` : redis.message || 'Cache status unavailable',
+            icon: <Activity className="h-5 w-5" />
+          });
+        }
+
+        if (metricsData.length === 0) {
+          metricsData.push({
+            name: 'System',
+            status: 'warning',
+            score: 0,
+            lastCheck: now,
+            status_details: 'Health endpoints unavailable',
+            icon: <AlertCircle className="h-5 w-5" />
+          });
+        }
 
         setMetrics(metricsData);
       } catch (error) {
@@ -238,7 +238,7 @@ export function SystemHealth({ className }: SystemHealthProps) {
                   <div>
                     <div className="font-semibold text-sm">{metric.name}</div>
                     <div className="text-xs text-muted-foreground">
-                      Last check: {new Date(metric.lastCheck).toLocaleTimeString()}
+                      Last check: {formatTime(metric.lastCheck)}
                     </div>
                   </div>
                 </div>
@@ -255,7 +255,7 @@ export function SystemHealth({ className }: SystemHealthProps) {
               </div>
 
               {/* Visual score bar */}
-              <div className="mt-3 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="mt-3 h-1.5 bg-white/[0.06] dark:bg-white/[0.08] rounded-full overflow-hidden">
                 <div
                   className={cn(
                     'h-full transition-all duration-500',

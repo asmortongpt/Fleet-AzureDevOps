@@ -4,7 +4,8 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import { Pool } from 'pg';
 
 import { csrfProtection } from '../../middleware/csrf'
-import { authenticateJWT } from '../middleware/auth'
+import { authenticateJWT } from '../../middleware/auth'
+import { logger } from '../../utils/logger'
 
 const router = Router();
 
@@ -68,7 +69,7 @@ router.get('/:entityType', async (req: Request, res: Response) => {
       summary: summaryData,
     });
   } catch (error) {
-    console.error('Drill-through error:', error);
+    logger.error('Drill-through error:', error);
     res.status(500).json({ error: 'Failed to fetch drill-through data' });
   }
 });
@@ -119,7 +120,7 @@ router.get('/:entityType/export', async (req: Request, res: Response) => {
         res.status(400).json({ error: 'Invalid export format' });
     }
   } catch (error) {
-    console.error('Export error:', error);
+    logger.error('Export error:', error);
     res.status(500).json({ error: 'Failed to export data' });
   }
 });
@@ -131,7 +132,7 @@ router.get('/:entityType/export', async (req: Request, res: Response) => {
 router.post('/analytics', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { entityType, filters, recordCount, exported, exportFormat } = req.body;
-    const userId = (req as any).user?.id || null;
+    const userId = req.user?.id || null;
 
     await pool.query(
       `INSERT INTO drill_through_analytics
@@ -142,7 +143,7 @@ router.post('/analytics', csrfProtection, async (req: Request, res: Response) =>
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Analytics error:', error);
+    logger.error('Analytics error:', error);
     res.status(500).json({ error: 'Failed to track analytics' });
   }
 });

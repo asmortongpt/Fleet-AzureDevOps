@@ -3,6 +3,7 @@
 
 import { getAIService } from '../api-bus/ai-service'
 
+import logger from '../../config/logger'
 import { Document, DocumentApproval } from './types'
 
 export interface WorkflowDefinition {
@@ -366,7 +367,9 @@ export class WorkflowEngine {
     const matching: WorkflowDefinition[] = []
 
     for (const workflow of this.workflows.values()) {
-      if (!workflow.enabled) continue
+      if (!workflow.enabled) {
+continue
+}
 
       for (const trigger of workflow.triggerConditions) {
         if (this.evaluateTrigger(trigger, document)) {
@@ -391,9 +394,10 @@ export class WorkflowEngine {
       case 'status-change':
         return document.status === trigger.condition.status
 
-      case 'content-match':
+      case 'content-match': {
         const content = document.extractedText || ''
         return new RegExp(trigger.condition.pattern, 'i').test(content)
+      }
 
       case 'metadata-match':
         // Check if document metadata matches trigger conditions
@@ -558,7 +562,7 @@ Return as JSON object with field names as keys.`
         temperature: 0.1
       })
 
-      const content = response.choices[0]?.message?.content || '{}'
+      const content = response.choices?.[0]?.message?.content || '{}'
       const jsonMatch = content.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
         const extracted = JSON.parse(jsonMatch[0])
@@ -583,7 +587,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
 
       document.metadata = {
         ...document.metadata,
-        analysis: response.choices[0]?.message?.content || ''
+        analysis: response.choices?.[0]?.message?.content || ''
       }
     }
   }
@@ -604,11 +608,13 @@ ${document.extractedText?.substring(0, 6000) || ''}`
         : undefined
     }
 
-    if (!document.approvals) document.approvals = []
+    if (!document.approvals) {
+document.approvals = []
+}
     document.approvals.push(approval)
 
     // In production, this would send notifications to approvers
-    console.log(`[Workflow] Approval request created for ${step.config.title}`)
+    logger.info(`Approval request created for ${step.config.title}`)
   }
 
   /**
@@ -620,7 +626,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
     for (const rule of rules) {
       if (this.evaluateCondition(rule.condition, document)) {
         // Route to specified destination
-        console.log(`[Workflow] Routing document to: ${rule.route}`)
+        logger.info(`Routing document to: ${rule.route}`)
         document.metadata = {
           ...document.metadata,
           routedTo: rule.route
@@ -635,8 +641,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
    */
   private async executeNotification(step: WorkflowStep, document: Document): Promise<void> {
     // In production, send actual notifications (email, SMS, push)
-    console.log(`[Workflow] Sending notification: ${step.config.subject}`)
-    console.log(`[Workflow] Recipients: ${step.config.recipients.join(', ')}`)
+    logger.info(`Sending notification: ${step.config.subject}`, { recipients: step.config.recipients })
   }
 
   /**
@@ -644,7 +649,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
    */
   private async executeIntegration(step: WorkflowStep, document: Document): Promise<void> {
     // In production, integrate with external systems
-    console.log(`[Workflow] Integration with ${step.config.system}: ${step.config.action}`)
+    logger.info(`Integration with ${step.config.system}: ${step.config.action}`)
   }
 
   /**
@@ -652,7 +657,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
    */
   private async executeTransformation(step: WorkflowStep, document: Document): Promise<void> {
     // Transform document (convert format, merge, split, etc.)
-    console.log(`[Workflow] Transforming document: ${step.config.transformation}`)
+    logger.info(`Transforming document: ${step.config.transformation}`)
   }
 
   /**
@@ -660,7 +665,9 @@ ${document.extractedText?.substring(0, 6000) || ''}`
    */
   private matchesMetadata(metadata: any, condition: any): boolean {
     for (const [key, value] of Object.entries(condition)) {
-      if (metadata[key] !== value) return false
+      if (metadata[key] !== value) {
+return false
+}
     }
     return true
   }
@@ -686,7 +693,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
       const expr = parser.parse(condition)
       return expr.evaluate(context)
     } catch (error) {
-      console.warn(`Failed to evaluate condition: ${condition}`, error)
+      logger.warn(`Failed to evaluate condition: ${condition}`, { error })
       return false
     }
   }

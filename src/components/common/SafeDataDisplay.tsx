@@ -10,6 +10,7 @@ import React from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
 
 // ============================================================================
 // SAFE TEXT DISPLAY
@@ -23,7 +24,7 @@ interface SafeTextProps {
   suffix?: string
 }
 
-export function SafeText({ value, fallback = 'N/A', className, prefix, suffix }: SafeTextProps) {
+export function SafeText({ value, fallback = '—', className, prefix, suffix }: SafeTextProps) {
   const displayValue = value ?? fallback
   return (
     <span className={className}>
@@ -128,17 +129,17 @@ const statusColors: Record<string, string> = {
   active: 'bg-success/10 text-success border-success/20',
   inactive: 'bg-muted text-muted-foreground',
   available: 'bg-success/10 text-success border-success/20',
-  in_use: 'bg-blue-500/10 text-blue-800 border-blue-500/20',
+  in_use: 'bg-emerald-500/10 text-emerald-800 border-emerald-500/20',
   maintenance: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
   out_of_service: 'bg-red-500/10 text-red-500 border-red-500/20',
   pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
   completed: 'bg-success/10 text-success border-success/20',
   cancelled: 'bg-red-500/10 text-red-500 border-red-500/20',
-  open: 'bg-blue-500/10 text-blue-800 border-blue-500/20',
+  open: 'bg-emerald-500/10 text-emerald-800 border-emerald-500/20',
   closed: 'bg-muted text-muted-foreground',
   critical: 'bg-red-500/10 text-red-500 border-red-500/20',
   warning: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  info: 'bg-blue-500/10 text-blue-800 border-blue-500/20',
+  info: 'bg-emerald-500/10 text-emerald-800 border-emerald-500/20',
 }
 
 export function SafeStatusBadge({ status, fallback = 'unknown', className }: SafeStatusBadgeProps) {
@@ -163,7 +164,7 @@ interface SafeDateProps {
   className?: string
 }
 
-export function SafeDate({ date, fallback = 'N/A', format = 'short', className }: SafeDateProps) {
+export function SafeDate({ date, fallback = '—', format = 'short', className }: SafeDateProps) {
   if (!date) {
     return <span className={cn('text-muted-foreground', className)}>{fallback}</span>
   }
@@ -177,11 +178,7 @@ export function SafeDate({ date, fallback = 'N/A', format = 'short', className }
   let formatted: string
   switch (format) {
     case 'long':
-      formatted = dateObj.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
+      formatted = formatDate(dateObj)
       break
     case 'relative': {
       const now = new Date()
@@ -191,14 +188,14 @@ export function SafeDate({ date, fallback = 'N/A', format = 'short', className }
       else if (diffDays === 1) formatted = 'Yesterday'
       else if (diffDays < 7) formatted = `${diffDays} days ago`
       else if (diffDays < 30) formatted = `${Math.floor(diffDays / 7)} weeks ago`
-      else formatted = dateObj.toLocaleDateString()
+      else formatted = formatDate(dateObj)
       break
     }
     case 'datetime':
-      formatted = dateObj.toLocaleString()
+      formatted = formatDateTime(dateObj)
       break
     default:
-      formatted = dateObj.toLocaleDateString()
+      formatted = formatDate(dateObj)
   }
 
   return <span className={className}>{formatted}</span>

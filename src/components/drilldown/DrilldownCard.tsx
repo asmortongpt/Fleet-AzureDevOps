@@ -17,13 +17,13 @@
  * ```
  */
 
-import { TrendingUp, TrendingDown } from 'lucide-react'
-import { ArrowRight, Loader2 } from 'lucide-react'
+import { TrendingUp, TrendingDown , ArrowRight, Loader2 } from 'lucide-react'
 import React, { ReactNode, MouseEvent, KeyboardEvent } from 'react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
 
 // ============================================================================
 // TYPES
@@ -120,7 +120,7 @@ export function DrilldownCard({
     success: 'border-green-500/30 bg-green-500/5',
     warning: 'border-yellow-500/30 bg-yellow-500/5',
     danger: 'border-red-500/30 bg-red-500/5',
-    info: 'border-blue-500/30 bg-blue-500/5',
+    info: 'border-emerald-500/30 bg-emerald-500/5',
   }
 
   const iconColorClasses = {
@@ -129,7 +129,7 @@ export function DrilldownCard({
     success: 'text-green-500',
     warning: 'text-yellow-500',
     danger: 'text-red-500',
-    info: 'text-blue-800',
+    info: 'text-emerald-800',
   }
 
   const variantClasses = {
@@ -149,7 +149,7 @@ export function DrilldownCard({
       aria-disabled={!isDrilldownEnabled}
       className={cn(
         'group transition-all duration-200',
-        isDrilldownEnabled && 'cursor-pointer hover:shadow-md hover:border-primary/50',
+        isDrilldownEnabled && 'cursor-pointer hover:border-primary/50',
         isDrilldownEnabled && 'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
         colorClasses[color],
         variantClasses[variant],
@@ -440,7 +440,7 @@ export function CountCardDrilldown({
   return (
     <DrilldownCard
       title={label}
-      value={count.toLocaleString()}
+      value={formatNumber(count)}
       drilldownType={drilldownType}
       drilldownLabel={drilldownLabel || label}
       drilldownData={{ ...drilldownData, count }}

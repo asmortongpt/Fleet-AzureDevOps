@@ -3,12 +3,13 @@
  *
  * Searches module registry. Results grouped by category.
  * Selecting a result opens the appropriate panel.
- * Glass-morphism design consistent with ArchonY branding.
+ * Glass-morphism design consistent with CTA Fleet branding.
  */
 import { Search, X, ArrowRight } from 'lucide-react'
 import { useState, useCallback, useEffect, useRef } from 'react'
+
+import { searchModules, type ModuleDefinition, type ModuleCategory } from '@/config/module-registry'
 import { usePanel } from '@/contexts/PanelContext'
-import { searchModules, getModule, type ModuleDefinition, type ModuleCategory } from '@/config/module-registry'
 import { cn } from '@/lib/utils'
 
 const categoryLabels: Record<ModuleCategory, string> = {
@@ -44,9 +45,10 @@ export function CommandPalette() {
   // Focus input when opened
   useEffect(() => {
     if (commandPaletteOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50)
+      const timerId = setTimeout(() => inputRef.current?.focus(), 50)
       setQuery('')
       setSelectedIndex(0)
+      return () => clearTimeout(timerId)
     }
   }, [commandPaletteOpen])
 
@@ -102,15 +104,15 @@ export function CommandPalette() {
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/70"
         onClick={close}
       />
 
       {/* Palette */}
-      <div className="relative w-full max-w-lg mx-4 bg-[#0A0E27] border border-white/[0.1] rounded-2xl shadow-2xl shadow-black/40 overflow-hidden">
+      <div className="relative w-full max-w-lg mx-4 bg-[#111111] border border-white/[0.04] rounded-2xl overflow-hidden">
         {/* Search input */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.06]">
-          <Search className="w-4 h-4 text-[#41B2E3]/50 shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.04]">
+          <Search className="w-4 h-4 text-white/35 shrink-0" />
           <input
             ref={inputRef}
             value={query}
@@ -120,11 +122,12 @@ export function CommandPalette() {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search modules, vehicles, drivers..."
-            className="flex-1 bg-transparent text-white text-sm placeholder:text-white/25 outline-none"
+            className="flex-1 bg-transparent text-white text-sm placeholder:text-white/35 outline-none"
           />
           <button
             onClick={close}
-            className="text-white/25 hover:text-white/60 transition-colors"
+            className="text-white/35 hover:text-white transition-colors"
+            aria-label="Close command palette"
           >
             <X className="w-4 h-4" />
           </button>
@@ -133,13 +136,13 @@ export function CommandPalette() {
         {/* Results */}
         <div className="max-h-[360px] overflow-y-auto py-2">
           {query && results.length === 0 && (
-            <p className="text-xs text-white/25 text-center py-8">
+            <p className="text-xs text-white/35 text-center py-8">
               No results for &ldquo;{query}&rdquo;
             </p>
           )}
 
           {!query && (
-            <p className="text-xs text-white/25 text-center py-8">
+            <p className="text-xs text-white/35 text-center py-8">
               Type to search across all modules and records
             </p>
           )}
@@ -147,7 +150,7 @@ export function CommandPalette() {
           {Object.entries(grouped).map(([cat, mods]) => (
             <div key={cat}>
               <div className="px-4 py-1.5">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#41B2E3]/40">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/40">
                   {categoryLabels[cat as ModuleCategory] ?? cat}
                 </span>
               </div>
@@ -163,8 +166,8 @@ export function CommandPalette() {
                     className={cn(
                       'w-full flex items-center justify-between px-4 py-2.5 text-sm transition-all',
                       isSelected
-                        ? 'bg-[#41B2E3]/[0.08] text-white'
-                        : 'text-white/50 hover:bg-white/[0.03] hover:text-white/80'
+                        ? 'bg-white/[0.08] text-white'
+                        : 'text-white/60 hover:bg-white/[0.04] hover:text-white'
                     )}
                   >
                     <span>{mod.label}</span>
@@ -177,10 +180,10 @@ export function CommandPalette() {
         </div>
 
         {/* Footer hints */}
-        <div className="flex items-center gap-4 px-4 py-2 border-t border-white/[0.06] text-[10px] text-white/15">
-          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.06]">&uarr;&darr;</kbd> Navigate</span>
-          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.06]">Enter</kbd> Open</span>
-          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.06]">Esc</kbd> Close</span>
+        <div className="flex items-center gap-4 px-4 py-2 border-t border-white/[0.04] text-[10px] text-white/30">
+          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.04]">&uarr;&darr;</kbd> Navigate</span>
+          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.04]">Enter</kbd> Open</span>
+          <span><kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-[10px] border border-white/[0.04]">Esc</kbd> Close</span>
         </div>
       </div>
     </div>

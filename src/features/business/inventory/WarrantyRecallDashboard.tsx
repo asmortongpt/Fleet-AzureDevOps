@@ -55,7 +55,6 @@ import Grid from '@mui/material/GridLegacy';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import React, { useState, useEffect } from 'react';
 
-import logger from '@/utils/logger';
 import WarrantyRecallService, {
   WarrantyInfo,
   RecallInfo,
@@ -65,6 +64,9 @@ import WarrantyRecallService, {
   ClaimReason,
   VendorPerformance
 } from '../../services/inventory/WarrantyRecallService';
+
+import logger from '@/utils/logger';
+
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -471,8 +473,8 @@ const WarrantyRecallDashboard: React.FC = () => {
 
                     <Typography variant="h6" gutterBottom>Affected Parts</Typography>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-                      {recall.affectedParts.map((part: string, index: number) => (
-                        <Chip key={index} label={part} size="small" />
+                      {recall.affectedParts.map((part: string) => (
+                        <Chip key={part} label={part} size="small" />
                       ))}
                     </Box>
 
@@ -491,8 +493,8 @@ const WarrantyRecallDashboard: React.FC = () => {
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                              {recall.affectedInventory.map((item: { partId: string; partNumber: string; location: string; actionRequired: string; complianceStatus: string }, index: number) => (
-                                <TableRow key={index}>
+                              {recall.affectedInventory.map((item: { partId: string; partNumber: string; location: string; actionRequired: string; complianceStatus: string }) => (
+                                <TableRow key={item.partId}>
                                   <TableCell>{item.partNumber}</TableCell>
                                   <TableCell>{item.location}</TableCell>
                                   <TableCell>{item.actionRequired}</TableCell>
@@ -656,8 +658,8 @@ const WarrantyRecallDashboard: React.FC = () => {
                     </Box>
 
                     <Typography variant="h6" gutterBottom>Top Claim Reasons</Typography>
-                    {warrantyAnalytics.topClaimReasons.map((reason: ClaimReason, index: number) => (
-                      <Box key={index} sx={{ mb: 1 }}>
+                    {warrantyAnalytics.topClaimReasons.map((reason: ClaimReason) => (
+                      <Box key={reason.reason} sx={{ mb: 1 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                           <Typography variant="body2">{reason.reason}</Typography>
                           <Typography variant="body2">{reason.count}</Typography>

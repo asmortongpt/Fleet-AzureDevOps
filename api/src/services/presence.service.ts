@@ -3,6 +3,7 @@ import axios from 'axios'
 
 import { pool } from '../db'
 import { validateURL, SSRFError } from '../utils/safe-http-request'
+import logger from '../config/logger'
 
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
@@ -65,8 +66,8 @@ export async function getPresence(userId: string): Promise<PresenceInfo> {
       .get()
 
     return presence
-  } catch (error: any) {
-    console.error(`Error getting user presence:`, error.message)
+  } catch (error: unknown) {
+    logger.error('Error getting user presence', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
 
     // Return default presence if API call fails
     return {
@@ -90,7 +91,12 @@ export async function setPresence(
   try {
     const client = await getGraphClient()
 
-    const presenceUpdate: any = {
+    const presenceUpdate: {
+      sessionId: string
+      availability: string
+      activity: string
+      expirationDuration: string
+    } = {
       sessionId: `fleet-${Date.now()}`,
       availability,
       activity,
@@ -115,9 +121,9 @@ export async function setPresence(
         })
     }
 
-    console.log('Presence updated for user:', userId)
-  } catch (error: any) {
-    console.error('Error setting user presence:', error.message)
+    logger.info('Presence updated for user', { userId })
+  } catch (error: unknown) {
+    logger.error('Error setting user presence', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -138,8 +144,8 @@ export async function getBatchPresence(userIds: string[]): Promise<PresenceInfo[
       .post(requestBody)
 
     return response.value || []
-  } catch (error: any) {
-    console.error('Error getting batch presence:', error.message)
+  } catch (error: unknown) {
+    logger.error('Error getting batch presence', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
 
     // Return default presence for all users if API call fails
     return userIds.map(id => ({
@@ -154,7 +160,7 @@ export async function getBatchPresence(userIds: string[]): Promise<PresenceInfo[
  * Subscribe to presence updates for users
  * Note: This requires setting up webhooks/subscriptions
  */
-export async function subscribeToPresence(userIds: string[], webhookUrl: string): Promise<any> {
+export async function subscribeToPresence(userIds: string[], webhookUrl: string): Promise<Record<string, unknown>> {
   try {
     // SSRF Protection: Validate webhook URL
     // Only allow webhooks to our own application domain
@@ -170,7 +176,8 @@ export async function subscribeToPresence(userIds: string[], webhookUrl: string)
       })
     } catch (error) {
       if (error instanceof SSRFError) {
-        console.error(`SSRF Protection blocked webhook URL: ${webhookUrl}`, {
+        logger.error('SSRF Protection blocked webhook URL', {
+          webhookUrl,
           reason: error.reason
         })
         throw new Error(`Invalid webhook URL: ${error.reason}. Only application webhook endpoints are allowed.`)
@@ -192,10 +199,10 @@ export async function subscribeToPresence(userIds: string[], webhookUrl: string)
       .api('/subscriptions')
       .post(subscription)
 
-    console.log('Presence subscription created:', response.id)
+    logger.info('Presence subscription created', { subscriptionId: response.id })
     return response
-  } catch (error: any) {
-    console.error('Error subscribing to presence:', error.message)
+  } catch (error: unknown) {
+    logger.error('Error subscribing to presence', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -271,8 +278,8 @@ export async function getDriverAvailability(driverId: string): Promise<{
       status,
       presence
     }
-  } catch (error: any) {
-    console.error('Error getting driver availability:', error.message)
+  } catch (error: unknown) {
+    logger.error('Error getting driver availability', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     return {
       available: false,
       status: 'Error checking availability'
@@ -283,7 +290,17 @@ export async function getDriverAvailability(driverId: string): Promise<{
 /**
  * Get availability for all drivers
  */
-export async function getAllDriversAvailability(tenantId?: number): Promise<any[]> {
+interface DriverAvailability {
+  driverId: string
+  name: string
+  email: string
+  available: boolean
+  status: string
+  activity: string
+  statusMessage?: string
+}
+
+export async function getAllDriversAvailability(tenantId?: number): Promise<DriverAvailability[]> {
   try {
     // Get all drivers with Microsoft SSO
     const query = tenantId
@@ -349,8 +366,8 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
     )
 
     return availability
-  } catch (error: any) {
-    console.error('Error getting all drivers availability:', error.message)
+  } catch (error: unknown) {
+    logger.error('Error getting all drivers availability', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -358,7 +375,7 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
 /**
  * Find available drivers for urgent tasks
  */
-export async function findAvailableDrivers(tenantId?: number): Promise<any[]> {
+export async function findAvailableDrivers(tenantId?: number): Promise<DriverAvailability[]> {
   const allDrivers = await getAllDriversAvailability(tenantId)
   return allDrivers.filter(driver => driver.available)
 }
@@ -457,8 +474,8 @@ export async function getIntelligentRoutingSuggestion(
         allCandidates: scoredCandidates
       }
     }
-  } catch (error: any) {
-    console.error('Error getting intelligent routing suggestion:', error.message)
+  } catch (error: unknown) {
+    logger.error('Error getting intelligent routing suggestion', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     return {
       reason: 'Error determining availability',
       allCandidates: []

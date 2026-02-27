@@ -26,6 +26,8 @@ import {
 } from '../types/lidar.types';
 import { getErrorMessage } from '../utils/error-handler';
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 
 /**
@@ -88,7 +90,7 @@ router.post(
             maxY: z.number(),
             maxZ: z.number(),
           }),
-          damageReportId: z.string().uuid().optional(),
+          damageReportId: flexUuid.optional(),
         }),
         processingOptions: PointCloudProcessingOptionsSchema.optional(),
         meshOptions: MeshGenerationOptionsSchema.optional(),
@@ -102,7 +104,7 @@ router.post(
       const request = schema.parse(req.body) as ProcessLiDARScanRequest;
 
       const result = await lidar3DScanningService.processScan(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id.toString(),
         request
       );
@@ -112,7 +114,7 @@ router.post(
         message: 'LiDAR scan processed successfully',
         data: result,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Process LiDAR scan error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -142,15 +144,15 @@ router.get(
     try {
       const scanId = req.params.scanId;
 
-      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id, scanId);
+      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id ?? '', scanId);
 
       res.json({
         success: true,
         data: scanData,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get LiDAR scan error:', error);
-      if (error.message === 'Scan not found') {
+      if (error instanceof Error && error.message === 'Scan not found') {
         throw new NotFoundError('LiDAR scan not found');
       }
       res.status(500).json({
@@ -177,7 +179,7 @@ router.get(
       const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string) : 20;
 
       const result = await lidar3DScanningService.listScans(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         vehicleId,
         page,
         pageSize
@@ -193,7 +195,7 @@ router.get(
           totalPages: Math.ceil(result.total / result.pageSize),
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('List LiDAR scans error:', error);
       res.status(500).json({
         success: false,
@@ -216,21 +218,21 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
-        scanId: z.string().uuid(),
+        scanId: flexUuid,
         method: z.enum(['convex_hull', 'delaunay', 'marching_cubes', 'voxel']).optional(),
-        damageAnnotations: z.array(z.string().uuid()).optional(),
+        damageAnnotations: z.array(flexUuid).optional(),
       });
 
       const request: CalculateVolumeRequest = schema.parse(req.body);
 
-      const result = await lidar3DScanningService.calculateVolume(req.user!.tenant_id, request);
+      const result = await lidar3DScanningService.calculateVolume(req.user!.tenant_id ?? '', request);
 
       res.json({
         success: true,
         message: 'Volume calculation completed',
         data: result,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Calculate volume error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -260,22 +262,22 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
-        baseScanId: z.string().uuid(),
-        compareScanId: z.string().uuid(),
+        baseScanId: flexUuid,
+        compareScanId: flexUuid,
         tolerance: z.number().positive().optional(),
         generateVisualization: z.boolean().default(false),
       });
 
       const request: CompareScansRequest = schema.parse(req.body);
 
-      const result = await lidar3DScanningService.compareScans(req.user!.tenant_id, request);
+      const result = await lidar3DScanningService.compareScans(req.user!.tenant_id ?? '', request);
 
       res.json({
         success: true,
         message: 'Scan comparison completed',
         data: result,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Compare scans error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -312,7 +314,7 @@ router.post(
       });
 
       // Load scan and point cloud
-      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id, scanId);
+      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id ?? '', scanId);
 
       res.json({
         success: true,
@@ -323,7 +325,7 @@ router.post(
           status: 'processing',
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Generate model error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -353,13 +355,13 @@ router.get(
     try {
       const scanId = req.params.scanId;
 
-      const arData = await lidar3DScanningService.generateARKitData(req.user!.tenant_id, scanId);
+      const arData = await lidar3DScanningService.generateARKitData(req.user!.tenant_id ?? '', scanId);
 
       res.json({
         success: true,
         data: arData,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get AR data error:', error);
       res.status(500).json({
         success: false,
@@ -392,7 +394,7 @@ router.post(
         message: 'Damage annotation added successfully',
         data: annotation,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Add annotation error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -421,9 +423,9 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const scanId = req.params.scanId;
-      const format = req.params.format as any;
+      const format = req.params.format;
 
-      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id, scanId);
+      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id ?? '', scanId);
       const model = scanData.models.find(m => m.format === format);
 
       if (!model) {
@@ -432,7 +434,7 @@ router.get(
 
       // Redirect to blob storage URL
       res.redirect(model.fileUrl);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Download model error:', error);
       if (error instanceof NotFoundError) {
         res.status(404).json({
@@ -462,7 +464,7 @@ router.get(
     try {
       const vehicleId = parseInt(req.params.vehicleId);
 
-      const result = await lidar3DScanningService.listScans(req.user!.tenant_id, vehicleId, 1, 1);
+      const result = await lidar3DScanningService.listScans(req.user!.tenant_id ?? '', vehicleId, 1, 1);
 
       if (result.scans.length === 0) {
         throw new NotFoundError('No scans found for this vehicle');
@@ -470,7 +472,7 @@ router.get(
 
       const latestScan = result.scans[0];
       const scanData = await lidar3DScanningService.getScan(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         latestScan.scanId
       );
 
@@ -478,7 +480,7 @@ router.get(
         success: true,
         data: scanData,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get latest scan error:', error);
       if (error instanceof NotFoundError) {
         res.status(404).json({
@@ -506,13 +508,13 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'lidar_stats' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await lidar3DScanningService.listScans(req.user!.tenant_id, undefined, 1, 1000);
+      const result = await lidar3DScanningService.listScans(req.user!.tenant_id ?? '', undefined, 1, 1000);
 
       const stats = {
         totalScans: result.total,
         totalModels: result.scans.reduce((sum, scan) => sum + scan.modelCount, 0),
         totalDamageAnnotations: result.scans.reduce((sum, scan) => sum + scan.damageCount, 0),
-        scansByScanner: result.scans.reduce((acc: any, scan: any) => {
+        scansByScanner: result.scans.reduce((acc: Record<string, number>, scan: { scannerType: string }) => {
           acc[scan.scannerType] = (acc[scan.scannerType] || 0) + 1;
           return acc;
         }, {}),
@@ -525,7 +527,7 @@ router.get(
         success: true,
         data: stats,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get LiDAR stats error:', error);
       res.status(500).json({
         success: false,
@@ -556,7 +558,7 @@ router.delete(
         success: true,
         message: 'LiDAR scan deleted successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Delete LiDAR scan error:', error);
       res.status(500).json({
         success: false,

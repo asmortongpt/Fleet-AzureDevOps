@@ -7,6 +7,8 @@
 import type { BrandingConfig } from './branding-config'
 import { loadBrandingConfig } from './branding-config'
 
+import { formatDate } from '@/utils/format-helpers'
+
 export interface DocumentMetadata {
   documentNumber: string
   title: string
@@ -98,7 +100,7 @@ export function generateDocumentHTML(
       font-family: ${typography.fontFamily};
       font-size: ${typography.fontSize.body}pt;
       line-height: ${typography.lineHeight};
-      color: #1f2937;
+      color: hsl(var(--foreground));
       background: white;
     }
 
@@ -189,7 +191,7 @@ export function generateDocumentHTML(
       transform: translate(-50%, -50%) rotate(${watermark.rotation}deg);
       font-size: ${watermark.fontSize}pt;
       font-weight: bold;
-      color: rgba(0, 0, 0, ${watermark.opacity});
+      color: hsl(var(--foreground) / ${watermark.opacity});
       z-index: -1;
       pointer-events: none;
       user-select: none;
@@ -246,7 +248,7 @@ export function generateDocumentHTML(
 
     .metadata-table td {
       padding: 0.5rem;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid hsl(var(--border));
     }
 
     .metadata-table td:first-child {
@@ -301,7 +303,7 @@ export function generateDocumentHTML(
     }
 
     .policy-statement {
-      background: #f9fafb;
+      background: hsl(var(--muted));
       border-left: 4px solid ${colors.primary};
       padding: 1rem;
       margin: 1rem 0;
@@ -313,8 +315,8 @@ export function generateDocumentHTML(
     }
 
     .safety-warning {
-      background: #fef2f2;
-      border-left: 4px solid #dc2626;
+      background: hsl(var(--destructive) / 0.1);
+      border-left: 4px solid hsl(var(--destructive));
       padding: 1rem;
       margin: 1rem 0;
       page-break-inside: avoid;
@@ -324,12 +326,12 @@ export function generateDocumentHTML(
       content: "⚠ SAFETY CRITICAL";
       display: block;
       font-weight: bold;
-      color: #dc2626;
+      color: hsl(var(--destructive));
       margin-bottom: 0.5rem;
     }
 
     .compliance-box {
-      background: #eff6ff;
+      background: hsl(var(--primary) / 0.1);
       border: 1px solid ${colors.accent};
       border-radius: 0.5rem;
       padding: 1rem;
@@ -343,8 +345,8 @@ export function generateDocumentHTML(
     }
 
     pre {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
+      background: hsl(var(--muted));
+      border: 1px solid hsl(var(--border));
       border-radius: 0.25rem;
       padding: 1rem;
       overflow-x: auto;
@@ -371,11 +373,11 @@ export function generateDocumentHTML(
 
     table td {
       padding: 0.75rem;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid hsl(var(--border));
     }
 
     table tr:hover {
-      background: #f9fafb;
+      background: hsl(var(--muted));
     }
 
     .signature-block {
@@ -384,7 +386,7 @@ export function generateDocumentHTML(
     }
 
     .signature-line {
-      border-top: 1px solid #000;
+      border-top: 1px solid hsl(var(--foreground));
       margin-top: 3rem;
       padding-top: 0.5rem;
       display: inline-block;
@@ -424,7 +426,7 @@ export function generateDocumentHTML(
   <!-- Footer -->
   <div class="document-footer">
     <div class="footer-left">
-      ${footer.showDate ? `Generated: ${new Date().toLocaleDateString()}` : ''}
+      ${footer.showDate ? `Generated: ${formatDate(new Date())}` : ''}
       ${footer.customText ? `<br>${footer.customText}` : ''}
     </div>
     <div class="footer-center">
@@ -492,18 +494,18 @@ function generateTitlePage(document: PolicyDocument | SOPDocument, organization:
     ${metadata.effectiveDate ? `
     <tr>
       <td>Effective Date:</td>
-      <td>${new Date(metadata.effectiveDate).toLocaleDateString()}</td>
+      <td>${formatDate(metadata.effectiveDate)}</td>
     </tr>
     ` : ''}
     ${metadata.expiryDate ? `
     <tr>
       <td>Review Date:</td>
-      <td>${new Date(metadata.expiryDate).toLocaleDateString()}</td>
+      <td>${formatDate(metadata.expiryDate)}</td>
     </tr>
     ` : ''}
   </table>
 
-  <div style="margin-top: 2rem; color: #6b7280; font-size: 10pt;">
+  <div style="margin-top: 2rem; color: hsl(var(--muted-foreground)); font-size: 10pt;">
     ${organization.name}<br>
     ${organization.address ? `${organization.address}<br>` : ''}
     ${organization.city && organization.state ? `${organization.city}, ${organization.state} ${organization.zip}<br>` : ''}
@@ -670,7 +672,7 @@ function generateRevisionHistory(history: RevisionHistoryEntry[], colors: any): 
       ${history.map(entry => `
         <tr>
           <td>${entry.version}</td>
-          <td>${new Date(entry.date).toLocaleDateString()}</td>
+          <td>${formatDate(entry.date)}</td>
           <td>${entry.author}</td>
           <td>${entry.description}</td>
         </tr>
@@ -694,8 +696,8 @@ function generateApprovalSignatures(approvals: ApprovalSignature[], colors: any)
       ${approval.signature ? `<img src="${approval.signature}" alt="Signature" style="max-width: 200px; margin: 1rem 0;">` : ''}
       <div class="signature-line">
         <div>${approval.name || '_'.repeat(40)}</div>
-        <div style="font-size: 9pt; color: #6b7280;">
-          ${approval.date ? new Date(approval.date).toLocaleDateString() : 'Date: _________________'}
+        <div style="font-size: 9pt; color: hsl(var(--muted-foreground));">
+          ${approval.date ? formatDate(approval.date) : 'Date: _________________'}
         </div>
       </div>
     </div>
@@ -709,11 +711,11 @@ function generateApprovalSignatures(approvals: ApprovalSignature[], colors: any)
  */
 function getStatusBadgeStyle(status: string, colors: any): string {
   const styles: Record<string, string> = {
-    draft: `background: #fef3c7; color: #92400e; border: 1px solid #fbbf24;`,
-    review: `background: #dbeafe; color: #1e40af; border: 1px solid #3b82f6;`,
-    approved: `background: #d1fae5; color: #065f46; border: 1px solid #10b981;`,
-    active: `background: #dcfce7; color: #166534; border: 1px solid #22c55e;`,
-    archived: `background: #f3f4f6; color: #374151; border: 1px solid #9ca3af;`
+    draft: `background: hsl(var(--warning) / 0.2); color: hsl(var(--warning)); border: 1px solid hsl(var(--warning));`,
+    review: `background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); border: 1px solid hsl(var(--primary));`,
+    approved: `background: hsl(var(--success) / 0.1); color: hsl(var(--success)); border: 1px solid hsl(var(--success));`,
+    active: `background: hsl(var(--success) / 0.1); color: hsl(var(--success)); border: 1px solid hsl(var(--success));`,
+    archived: `background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); border: 1px solid hsl(var(--muted-foreground));`
   }
   return styles[status] || styles.draft
 }

@@ -15,11 +15,11 @@ export const EntityAvatar: React.FC<{entity: EntityRef; size?: number}> = ({ ent
   return (
     <div style={{
       width: size, height: size, borderRadius: 16, padding: 2,
-      background: `conic-gradient(from 180deg, ${ring}, rgba(255,255,255,0.10))`
+      background: `conic-gradient(from 180deg, ${ring}, hsl(var(--border) / 0.1))`
     }}>
       <div style={{
         width:'100%', height:'100%', borderRadius: 14,
-        border:'1px solid var(--border)', background:'rgba(0,0,0,0.22)',
+        border:'1px solid var(--border)', background:'hsl(var(--foreground) / 0.22)',
         display:'flex', alignItems:'center', justifyContent:'center',
         fontWeight: 900
       }}>

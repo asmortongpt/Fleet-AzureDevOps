@@ -3,13 +3,15 @@
  * Auto-generated stub - implement methods
  */
 
+import logger from '../config/logger';
+
 export class FleetCognitionService {
 
   /**
    * Generate AI insights for fleet operations
    */
   static async generateFleetInsights(tenantId: string): Promise<any> {
-    console.log('FleetCognitionService.generateFleetInsights stub', tenantId);
+    logger.info('FleetCognitionService.generateFleetInsights stub', { tenantId });
     return {
       fleetHealth: 'good',
       totalVehicles: 0,
@@ -23,7 +25,7 @@ export class FleetCognitionService {
    * Calculate fleet health score
    */
   static async getFleetHealthScore(tenantId: string): Promise<number> {
-    console.log('FleetCognitionService.getFleetHealthScore stub', tenantId);
+    logger.info('FleetCognitionService.getFleetHealthScore stub', { tenantId });
     return 85; // Mock healthy fleet score
   }
 
@@ -31,7 +33,7 @@ export class FleetCognitionService {
    * Get AI recommendations for fleet optimization
    */
   static async getRecommendations(tenantId: string): Promise<any[]> {
-    console.log('FleetCognitionService.getRecommendations stub', tenantId);
+    logger.info('FleetCognitionService.getRecommendations stub', { tenantId });
     return [
       {
         type: 'maintenance',

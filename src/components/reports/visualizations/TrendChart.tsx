@@ -39,7 +39,7 @@ export function TrendChart({
   // Group data by color field if provided
   const series = useMemo(() => {
     if (!colorField) {
-      return [{ name: yField, data, color: '#6366f1' }];
+      return [{ name: yField, data, color: 'hsl(var(--primary))' }];
     }
 
     const grouped: Record<string, TrendDataPoint[]> = {};
@@ -52,14 +52,14 @@ export function TrendChart({
     });
 
     const colors = [
-      '#6366f1', // indigo
-      '#8b5cf6', // purple
-      '#ec4899', // pink
-      '#f59e0b', // amber
-      '#10b981', // emerald
-      '#3b82f6', // blue
-      '#ef4444', // red
-      '#14b8a6', // teal
+      'hsl(var(--primary))', // emerald
+      'hsl(var(--accent))', // accent
+      'hsl(var(--accent))', // pink
+      'hsl(var(--warning))', // amber
+      'hsl(var(--success))', // emerald
+      'hsl(var(--primary))', // emerald
+      'hsl(var(--destructive))', // red
+      'hsl(var(--success))', // teal
     ];
 
     return Object.entries(grouped).map(([name, seriesData], index) => ({
@@ -74,16 +74,16 @@ export function TrendChart({
     if (!active || !payload || !payload.length) return null;
 
     return (
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-3">
-        <p className="font-medium text-gray-900 mb-2">{label}</p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
+      <div className="bg-white border border-white/[0.08] rounded-lg p-3">
+        <p className="font-medium text-white/80 mb-2">{label}</p>
+        {payload.map((entry: any) => (
+          <div key={entry.name} className="flex items-center gap-2 text-sm">
             <div
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-slate-700">{entry.name}:</span>
-            <span className="font-medium text-gray-900">
+            <span className="text-white/70">{entry.name}:</span>
+            <span className="font-medium text-white/80">
               {typeof entry.value === 'number'
                 ? new Intl.NumberFormat('en-US', {
                     style: 'currency',
@@ -106,7 +106,7 @@ export function TrendChart({
 
   return (
     <Card className={`p-3 ${className}`}>
-      <h3 className="text-sm font-semibold text-gray-900 mb-2">{title}</h3>
+      <h3 className="text-sm font-semibold text-white/80 mb-2">{title}</h3>
 
       <ResponsiveContainer width="100%" height={400}>
         <LineChart
@@ -114,15 +114,15 @@ export function TrendChart({
           onClick={handleClick}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
           <XAxis
             dataKey={xField}
-            stroke="#6b7280"
+            stroke="hsl(var(--muted-foreground))"
             fontSize={12}
             tickLine={false}
           />
           <YAxis
-            stroke="#6b7280"
+            stroke="hsl(var(--muted-foreground))"
             fontSize={12}
             tickLine={false}
             tickFormatter={(value) =>
@@ -132,7 +132,7 @@ export function TrendChart({
               }).format(value)
             }
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#e5e7eb' }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--border))' }} />
           <Legend
             wrapperStyle={{ fontSize: '12px' }}
             iconType="line"
@@ -154,7 +154,7 @@ export function TrendChart({
       </ResponsiveContainer>
 
       {onDrillDown && (
-        <p className="text-xs text-gray-700 mt-2 text-center">
+        <p className="text-xs text-white/40 mt-2 text-center">
           Click on any data point to drill down
         </p>
       )}

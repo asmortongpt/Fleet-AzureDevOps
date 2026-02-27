@@ -8,8 +8,8 @@ import DOMPurify from 'dompurify'
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { z } from 'zod'
 
-import logger from '@/utils/logger';
 import { secureFetch } from '@/hooks/use-api';
+import logger from '@/utils/logger';
 
 // Enhanced Zod schemas with comprehensive validation
 const SafetyIncidentSchema = z.object({
@@ -18,7 +18,7 @@ const SafetyIncidentSchema = z.object({
   driverId: z.string().uuid(),
   type: z.enum(['collision', 'near_miss', 'property_damage', 'injury', 'other']),
   severity: z.enum(['low', 'medium', 'high', 'critical']),
-  status: z.enum(['open', 'investigating', 'resolved', 'closed']),
+  status: z.enum(['pending', 'in_progress', 'completed', 'closed', 'cancelled']),
   description: z.string().min(1).max(500).transform(str => DOMPurify.sanitize(str)),
   reportedDate: z.string().datetime(),
   investigator: z.string().optional(),
@@ -60,7 +60,7 @@ const ViolationSchema = z.object({
   driverId: z.string().uuid().optional(),
   type: z.enum(['dot', 'osha', 'epa', 'ifta', 'fmcsa', 'other']),
   severity: z.enum(['minor', 'major', 'critical']),
-  status: z.enum(['open', 'appealed', 'resolved', 'paid']),
+  status: z.enum(['pending', 'under_investigation', 'action_taken', 'closed', 'appealed', 'paid']),
   description: z.string().min(1).max(500).transform(str => DOMPurify.sanitize(str)),
   fineAmount: z.number().min(0).optional(),
   dateIssued: z.string().datetime(),
@@ -217,7 +217,7 @@ export function useReactiveSafetyComplianceData() {
 
   // Memoized calculations for performance
   const openIncidents = useMemo(() =>
-    incidents.filter((i) => i.status === 'open' || i.status === 'investigating'),
+    incidents.filter((i) => i.status === 'pending' || i.status === 'in_progress'),
     [incidents]
   )
 
@@ -238,7 +238,7 @@ export function useReactiveSafetyComplianceData() {
 
   // Active violations (defined early as it's used in complianceScore)
   const activeViolations = useMemo(() =>
-    violations.filter((v) => v.status === 'open' || v.status === 'appealed'),
+    violations.filter((v) => v.status === 'under_investigation' || v.status === 'appealed'),
     [violations]
   )
 
@@ -279,7 +279,7 @@ export function useReactiveSafetyComplianceData() {
       : 100
     score *= (avgTrainingCompletion / 100) * weights.training
 
-    const activeViolationCount = inputViolations.filter((v) => v.status === 'open' || v.status === 'appealed').length
+    const activeViolationCount = inputViolations.filter((v) => v.status === 'under_investigation' || v.status === 'appealed').length
     const violationPenalty = Math.min(activeViolationCount * 10, 50)
     score -= violationPenalty * weights.violations
 
@@ -519,14 +519,14 @@ export function useReactiveSafetyComplianceData() {
     const departmentMap = new Map<string, { incidents: number; violations: number }>()
 
     incidents.forEach((incident) => {
-      const key = (incident as any).department || incident.location?.zone || 'Unassigned'
+      const key = (incident as any).department || incident.location?.zone || '—'
       const entry = departmentMap.get(key) || { incidents: 0, violations: 0 }
       entry.incidents += 1
       departmentMap.set(key, entry)
     })
 
     violations.forEach((violation) => {
-      const key = (violation as any).department || 'Unassigned'
+      const key = (violation as any).department || '—'
       const entry = departmentMap.get(key) || { incidents: 0, violations: 0 }
       entry.violations += 1
       departmentMap.set(key, entry)

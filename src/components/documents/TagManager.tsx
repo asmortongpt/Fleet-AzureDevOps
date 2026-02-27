@@ -32,9 +32,9 @@ const TAG_COLORS = [
   { name: 'Orange', class: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' },
   { name: 'Yellow', class: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' },
   { name: 'Green', class: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
-  { name: 'Blue', class: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-700' },
-  { name: 'Indigo', class: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' },
-  { name: 'Purple', class: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
+  { name: 'Teal', class: 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-700' },
+  { name: 'Emerald', class: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  { name: 'Amber', class: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
   { name: 'Pink', class: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' },
 ];
 
@@ -106,7 +106,7 @@ export function TagManager({ tags, onCreateTag, onUpdateTag, onDeleteTag }: TagM
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Tag actions">
                   <Edit className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

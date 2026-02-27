@@ -11,6 +11,7 @@
  */
 
 import { Pool } from 'pg';
+import logger from '../config/logger';
 
 export interface IndexUsageStats {
   schemaname: string;
@@ -155,7 +156,7 @@ export class IndexMonitoring {
       return result.rows;
     } catch (error) {
       // Simplified bloat detection if the above fails
-      console.warn('Advanced bloat detection failed, using simplified method:', error);
+      logger.warn('Advanced bloat detection failed, using simplified method', { error });
       return [];
     }
   }
@@ -215,7 +216,9 @@ export class IndexMonitoring {
     const unusedIndexes = await this.getUnusedIndexes(pool);
     for (const index of unusedIndexes) {
       // Skip if it's a small index (< 1MB)
-      if (index.index_size.includes('kB')) continue;
+      if (index.index_size.includes('kB')) {
+continue;
+}
 
       recommendations.push({
         type: 'drop',
@@ -374,37 +377,34 @@ export class IndexMonitoring {
    * Pretty print index health report
    */
   static async printHealthReport(pool: Pool): Promise<void> {
-    console.log('\n' + '='.repeat(80));
-    console.log('DATABASE INDEX HEALTH REPORT');
-    console.log('='.repeat(80) + '\n');
+    logger.info('DATABASE INDEX HEALTH REPORT');
 
     const summary = await this.getIndexHealthSummary(pool);
 
-    console.log(`📊 OVERALL HEALTH SCORE: ${summary.healthScore}/100`);
-    console.log(this.getHealthScoreEmoji(summary.healthScore));
-    console.log('');
+    logger.info('OVERALL HEALTH SCORE', { score: summary.healthScore });
+    logger.info(this.getHealthScoreLabel(summary.healthScore));
 
-    console.log('📈 INDEX USAGE STATISTICS:');
-    console.log(`   Total Indexes: ${summary.totalIndexes}`);
-    console.log(`   Heavy Use:     ${summary.usage.heavy} (${summary.usagePercentages.heavy}%)`);
-    console.log(`   Moderate Use:  ${summary.usage.moderate} (${summary.usagePercentages.moderate}%)`);
-    console.log(`   Light Use:     ${summary.usage.light} (${summary.usagePercentages.light}%)`);
-    console.log(`   Unused:        ${summary.usage.unused} (${summary.usagePercentages.unused}%) ⚠️`);
-    console.log('');
+    logger.info('INDEX USAGE STATISTICS', {
+      totalIndexes: summary.totalIndexes,
+      heavyUse: `${summary.usage.heavy} (${summary.usagePercentages.heavy}%)`,
+      moderateUse: `${summary.usage.moderate} (${summary.usagePercentages.moderate}%)`,
+      lightUse: `${summary.usage.light} (${summary.usagePercentages.light}%)`,
+      unused: `${summary.usage.unused} (${summary.usagePercentages.unused}%)`
+    });
 
-    console.log('💾 INDEX BLOAT:');
-    console.log(`   Total Wasted Space: ${summary.bloat.totalWastedSpaceMB} MB`);
-    console.log(`   Indexes with Bloat: ${summary.bloat.indexesWithBloat}`);
-    console.log(`   Critical Bloat:     ${summary.bloat.criticalBloat} 🔴`);
-    console.log(`   High Bloat:         ${summary.bloat.highBloat} 🟠`);
-    console.log('');
+    logger.info('INDEX BLOAT', {
+      totalWastedSpaceMB: summary.bloat.totalWastedSpaceMB,
+      indexesWithBloat: summary.bloat.indexesWithBloat,
+      criticalBloat: summary.bloat.criticalBloat,
+      highBloat: summary.bloat.highBloat
+    });
 
-    console.log('💡 RECOMMENDATIONS:');
-    console.log(`   Total:   ${summary.recommendations.total}`);
-    console.log(`   High:    ${summary.recommendations.high} 🔴`);
-    console.log(`   Medium:  ${summary.recommendations.medium} 🟡`);
-    console.log(`   Low:     ${summary.recommendations.low} 🟢`);
-    console.log('');
+    logger.info('RECOMMENDATIONS', {
+      total: summary.recommendations.total,
+      high: summary.recommendations.high,
+      medium: summary.recommendations.medium,
+      low: summary.recommendations.low
+    });
 
     // Print top recommendations
     const recommendations = await this.getRecommendations(pool);
@@ -413,25 +413,31 @@ export class IndexMonitoring {
       .slice(0, 5);
 
     if (topRecommendations.length > 0) {
-      console.log('🎯 TOP RECOMMENDATIONS:');
+      logger.info('TOP RECOMMENDATIONS');
       topRecommendations.forEach((rec, idx) => {
-        console.log(`   ${idx + 1}. [${rec.type.toUpperCase()}] ${rec.tablename}`);
-        console.log(`      ${rec.reason}`);
-        if (rec.sql_command) {
-          console.log(`      ${rec.sql_command}`);
-        }
-        console.log('');
+        logger.info(`Recommendation ${idx + 1}`, {
+          type: rec.type.toUpperCase(),
+          tablename: rec.tablename,
+          reason: rec.reason,
+          sql_command: rec.sql_command
+        });
       });
     }
 
-    console.log('='.repeat(80) + '\n');
+    logger.info('DATABASE INDEX HEALTH REPORT complete');
   }
 
-  private static getHealthScoreEmoji(score: number): string {
-    if (score >= 90) return '🟢 Excellent - Indexes are well-maintained';
-    if (score >= 75) return '🟡 Good - Minor improvements recommended';
-    if (score >= 60) return '🟠 Fair - Several optimizations needed';
-    return '🔴 Poor - Immediate attention required';
+  private static getHealthScoreLabel(score: number): string {
+    if (score >= 90) {
+return 'Excellent - Indexes are well-maintained';
+}
+    if (score >= 75) {
+return 'Good - Minor improvements recommended';
+}
+    if (score >= 60) {
+return 'Fair - Several optimizations needed';
+}
+    return 'Poor - Immediate attention required';
   }
 }
 
@@ -445,24 +451,24 @@ if (require.main === module) {
     connectionString: process.env.DATABASE_URL || 'postgresql://localhost/fleet_db'
   });
 
-  (async () => {
+  void (async () => {
     try {
       await IndexMonitoring.printHealthReport(pool);
 
       // Optional: Get detailed reports
       if (process.argv.includes('--detailed')) {
-        console.log('\n📋 DETAILED UNUSED INDEXES:');
+        logger.info('DETAILED UNUSED INDEXES');
         const unused = await IndexMonitoring.getUnusedIndexes(pool);
-        console.table(unused);
+        logger.info('Unused indexes', { count: unused.length, indexes: unused });
 
-        console.log('\n💾 DETAILED INDEX BLOAT:');
+        logger.info('DETAILED INDEX BLOAT');
         const bloat = await IndexMonitoring.getIndexBloat(pool);
-        console.table(bloat);
+        logger.info('Index bloat details', { count: bloat.length, bloat });
       }
 
       await pool.end();
     } catch (error) {
-      console.error('Error generating index health report:', error);
+      logger.error('Error generating index health report', { error });
       process.exit(1);
     }
   })();

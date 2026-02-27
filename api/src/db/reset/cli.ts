@@ -116,9 +116,9 @@ program
       }
 
       await harness.close();
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Reset failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -162,9 +162,9 @@ program
       }
 
       await harness.close();
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Fast reset failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -180,17 +180,17 @@ program
   .option('-f, --format <format>', 'Format: custom, tar, plain', 'custom')
   .option('--data-only', 'Snapshot data only (no schema)')
   .option('--schema-only', 'Snapshot schema only (no data)')
-  .action(async (name, options) => {
+  .action(async (name: string, options: Record<string, unknown>) => {
     const spinner = ora(`Creating snapshot: ${name}...`).start();
 
     try {
       const snapshotMgr = getSnapshotManager();
 
       const metadata = await snapshotMgr.createSnapshot(name, {
-        compress: options.compress,
-        format: options.format,
-        dataOnly: options.dataOnly,
-        schemaOnly: options.schemaOnly,
+        compress: options.compress as boolean | undefined,
+        format: options.format as 'custom' | 'plain' | 'tar' | undefined,
+        dataOnly: options.dataOnly as boolean | undefined,
+        schemaOnly: options.schemaOnly as boolean | undefined,
       });
 
       spinner.succeed(`Snapshot created: ${name}`);
@@ -201,9 +201,9 @@ program
       console.log(`  Tables: ${metadata.tables}`);
       console.log(`  Hash: ${metadata.hash}`);
       console.log(`  Timestamp: ${new Date(metadata.timestamp).toISOString()}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Snapshot creation failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -217,7 +217,7 @@ program
   .argument('<name>', 'Snapshot name')
   .option('-p, --parallel <jobs>', 'Parallel restore jobs', '4')
   .option('--no-clean', 'Don\'t clean existing objects')
-  .action(async (name, options) => {
+  .action(async (name: string, options: Record<string, unknown>) => {
     const spinner = ora(`Restoring snapshot: ${name}...`).start();
 
     try {
@@ -231,15 +231,15 @@ program
       }
 
       await snapshotMgr.restoreSnapshot(name, {
-        parallel: parseInt(options.parallel),
-        clean: options.clean,
+        parallel: parseInt(options.parallel as string),
+        clean: options.clean as boolean | undefined,
         ifExists: true,
       });
 
       spinner.succeed(`Snapshot restored: ${name}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Restore failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -276,8 +276,8 @@ program
 
         console.log();
       }
-    } catch (error: any) {
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -289,7 +289,7 @@ program
   .command('delete')
   .description('Delete a snapshot')
   .argument('<name>', 'Snapshot name')
-  .action(async (name) => {
+  .action(async (name: string) => {
     const spinner = ora(`Deleting snapshot: ${name}...`).start();
 
     try {
@@ -297,9 +297,9 @@ program
       await snapshotMgr.deleteSnapshot(name);
 
       spinner.succeed(`Snapshot deleted: ${name}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Delete failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -331,9 +331,9 @@ program
 
       spinner.succeed(`Cleaned up ${cleaned} test database(s)`);
       await manager.close();
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Cleanup failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -371,8 +371,8 @@ program
       }
 
       await manager.close();
-    } catch (error: any) {
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -429,8 +429,8 @@ program
       } else {
         console.log(chalk.yellow(`\n⚠️  Target not met (${avg.toFixed(2)}s > 10s)`));
       }
-    } catch (error: any) {
-      console.error(chalk.red(`\n❌ Benchmark failed: ${error.message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`\n❌ Benchmark failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });

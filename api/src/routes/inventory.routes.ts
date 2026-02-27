@@ -289,9 +289,7 @@ router.post('/items', [
     shelf_life_days,
   } = req.body;
 
-  // @ts-ignore - user is set by auth middleware
   const userId = req.user?.id;
-  // @ts-ignore - tenant is set by auth middleware
   const tenantId = req.user?.tenant_id;
 
   const query = `
@@ -357,7 +355,6 @@ router.put('/items/:id', [
   }
 
   const { id } = req.params;
-  // @ts-ignore
   const userId = req.user?.id;
 
   const allowedFields = [
@@ -431,7 +428,6 @@ router.delete('/items/:id', [
   }
 
   const { id } = req.params;
-  // @ts-ignore
   const userId = req.user?.id;
 
   const query = `
@@ -573,11 +569,8 @@ router.post('/transactions', [
     bin_location,
   } = req.body;
 
-  // @ts-ignore
   const userId = req.user?.id;
-  // @ts-ignore
   const userName = req.user?.name || req.user?.email;
-  // @ts-ignore
   const tenantId = req.user?.tenant_id;
 
   // Start a transaction
@@ -634,7 +627,7 @@ router.post('/transactions', [
       message: 'Transaction created successfully',
       data: transactionResult.rows[0],
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     await client.query('ROLLBACK');
     throw error;
   } finally {
@@ -696,7 +689,6 @@ router.put('/alerts/low-stock/:id/resolve', [
   param('id').isUUID(),
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  // @ts-ignore
   const userId = req.user?.id;
   const { notes } = req.body;
 
@@ -751,11 +743,8 @@ router.post('/reservations', [
     notes,
   } = req.body;
 
-  // @ts-ignore
   const userId = req.user?.id;
-  // @ts-ignore
   const userName = req.user?.name || req.user?.email;
-  // @ts-ignore
   const tenantId = req.user?.tenant_id;
 
   const query = `
@@ -796,7 +785,6 @@ router.put('/reservations/:id/release', [
   param('id').isUUID(),
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  // @ts-ignore
   const userId = req.user?.id;
 
   const query = `
@@ -984,7 +972,9 @@ router.get('/export', asyncHandler(async (req: Request, res: Response) => {
     ...result.rows.map(row =>
       headers.map(header => {
         const value = row[header];
-        if (value === null || value === undefined) return '';
+        if (value === null || value === undefined) {
+return '';
+}
         if (typeof value === 'string' && value.includes(',')) {
           return `"${value.replace(/"/g, '""')}"`;
         }

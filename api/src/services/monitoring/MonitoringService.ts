@@ -21,6 +21,7 @@
  * @module MonitoringService
  */
 
+import logger from '../../config/logger'
 // @ts-expect-error - Build compatibility fix
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger'
 import { Resource } from '@opentelemetry/resources'
@@ -53,7 +54,7 @@ export interface HealthCheck {
   message?: string
   lastChecked: Date
   responseTime?: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface SystemHealth {
@@ -176,7 +177,7 @@ const eventLoopLag = new Summary({
 export class MonitoringService {
   private pool: Pool
   private redis: Redis
-  private tracerProvider: NodeTracerProvider
+  private tracerProvider!: NodeTracerProvider
   private startTime: number
 
   constructor(pool: Pool, redis: Redis) {
@@ -208,11 +209,11 @@ export class MonitoringService {
 
     // Configure Jaeger exporter (if enabled)
     if (process.env.JAEGER_ENDPOINT) {
-      const jaegerExporter = new JaegerExporter({
+      const jaegerExporter: { shutdown(): Promise<void> } = new JaegerExporter({
         endpoint: process.env.JAEGER_ENDPOINT
       })
 
-      (this.tracerProvider as any).addSpanProcessor(
+      ;(this.tracerProvider as unknown as { addSpanProcessor(processor: BatchSpanProcessor): void }).addSpanProcessor(
         // @ts-expect-error - Build compatibility fix
         new BatchSpanProcessor(jaegerExporter)
       )
@@ -289,11 +290,11 @@ export class MonitoringService {
         responseTime,
         metadata: poolStats
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'database',
         status: HealthStatus.UNHEALTHY,
-        message: `Database connection failed: ${error.message}`,
+        message: `Database connection failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         lastChecked: new Date(),
         responseTime: Date.now() - startTime
       }
@@ -319,11 +320,11 @@ export class MonitoringService {
         lastChecked: new Date(),
         responseTime
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'redis',
         status: HealthStatus.UNHEALTHY,
-        message: `Redis connection failed: ${error.message}`,
+        message: `Redis connection failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         lastChecked: new Date(),
         responseTime: Date.now() - startTime
       }
@@ -349,11 +350,11 @@ export class MonitoringService {
         lastChecked: new Date(),
         metadata: { freePercent }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'disk_space',
         status: HealthStatus.DEGRADED,
-        message: `Could not check disk space: ${error.message}`,
+        message: `Could not check disk space: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         lastChecked: new Date()
       }
     }
@@ -497,7 +498,7 @@ export class MonitoringService {
       try {
         await this.updateBusinessMetrics()
       } catch (error) {
-        console.error('Failed to update business metrics:', error)
+        logger.error('Failed to update business metrics:', { error: error instanceof Error ? error.message : String(error) })
       }
     }, 60000)
   }
@@ -579,7 +580,7 @@ export class MonitoringService {
   /**
    * Get metrics in JSON format
    */
-  async getMetricsJSON(): Promise<any> {
+  async getMetricsJSON(): Promise<Awaited<ReturnType<typeof prometheusRegister.getMetricsAsJSON>>> {
     const metrics = await prometheusRegister.getMetricsAsJSON()
     return metrics
   }

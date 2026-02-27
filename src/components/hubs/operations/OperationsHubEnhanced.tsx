@@ -2,20 +2,17 @@ import {
   Truck,
   Package,
   Navigation,
-  CheckCircle,
   AlertTriangle,
-  Clock,
-  TrendingUp,
   Users,
   MapPin,
   Settings,
-  Zap,
   Calendar,
   LayoutGrid,
   Activity
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import type { Vehicle as CanonicalVehicle } from '@/types/Vehicle';
+
+
 
 import { OperationsHubMap } from './OperationsHubMap';
 
@@ -32,8 +29,12 @@ import { OperationalMetrics, CircularGauge } from '@/components/visualizations/O
 import { RouteTimeline } from '@/components/visualizations/RouteTimeline';
 import { VehicleStatusGrid } from '@/components/visualizations/VehicleStatusGrid';
 import { useDrilldown } from '@/contexts/DrilldownContext';
+import { useNavigation } from '@/contexts/NavigationContext';
 import { useVehicles, useDrivers, useWorkOrders, useRoutes } from '@/hooks/use-api';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
+import type { Vehicle as CanonicalVehicle } from '@/types/Vehicle';
+import { formatEnum } from '@/utils/format-enum';
+import { formatTime } from '@/utils/format-helpers';
 
 /**
  * Enhanced Operations Hub
@@ -107,11 +108,13 @@ interface TimelineRoute {
 }
 
 export function OperationsHubEnhanced() {
+  const { navigateTo } = useNavigation();
   const { push } = useDrilldown();
-  const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
-  const { data: drivers = [] } = useDrivers();
-  const { data: workOrders = [] } = useWorkOrders();
-  const { data: routes = [] } = useRoutes();
+  const { data: vehicles = [], isLoading: vehiclesLoading, error: vehiclesError } = useVehicles();
+  const { data: drivers = [], error: driversError } = useDrivers();
+  const { data: workOrders = [], error: workOrdersError } = useWorkOrders();
+  const { data: routes = [], error: routesError } = useRoutes();
+  const hasError = vehiclesError || driversError || workOrdersError || routesError;
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState('overview');
@@ -144,7 +147,7 @@ export function OperationsHubEnhanced() {
   const handleAlertClick = (alert: { id: string; type: string; message: string }) => {
     push({
       type: 'alert',
-      label: `Alert: ${alert.type}`,
+      label: `Alert: ${formatEnum(alert.type)}`,
       data: { alertId: alert.id, alertType: alert.type, message: alert.message }
     });
   };
@@ -177,7 +180,7 @@ export function OperationsHubEnhanced() {
         id: alert.id,
         type: alert.type,
         message: alert.message,
-        timestamp: new Date(alert.timestamp).toLocaleTimeString(),
+        timestamp: formatTime(alert.timestamp),
         severity: alert.severity as 'critical' | 'high' | 'medium'
       });
     });
@@ -189,7 +192,7 @@ export function OperationsHubEnhanced() {
         id: `wo-${wo.id}`,
         type: wo.priority === 'critical' ? 'critical' : 'warning',
         message: `Work order ${wo.work_order_number} requires immediate attention`,
-        timestamp: new Date(Date.now() - (i + 1) * 5 * 60000).toLocaleTimeString(),
+        timestamp: formatTime(new Date(Date.now() - (i + 1) * 5 * 60000)),
         severity: wo.priority === 'critical' ? 'critical' : 'high'
       });
     });
@@ -204,7 +207,7 @@ export function OperationsHubEnhanced() {
       taskNumber: wo.work_order_number,
       description: wo.description || 'No description',
       priority: (wo.priority || 'medium') as 'low' | 'medium' | 'high' | 'urgent',
-      status: (wo.status === 'open' ? 'pending' :
+      status: (wo.status === 'pending' ? 'pending' :
               wo.status === 'in_progress' ? 'in-progress' :
               wo.status === 'completed' ? 'completed' : 'assigned') as 'pending' | 'assigned' | 'in-progress' | 'completed',
       assignedVehicleId: wo.vehicle_id,
@@ -243,7 +246,7 @@ export function OperationsHubEnhanced() {
       {/* Header with connection status */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-bold text-slate-900">Operations Hub</h2>
+          <h2 className="text-lg font-bold text-white/95">Operations Hub</h2>
           <Badge variant={isConnected ? 'default' : 'secondary'} className="text-xs">
             {isConnected ? (
               <>
@@ -255,10 +258,10 @@ export function OperationsHubEnhanced() {
             )}
           </Badge>
         </div>
-        <p className="text-xs text-slate-500">Real-time fleet operations control center</p>
+        <p className="text-xs text-white/40">Real-time fleet operations control center</p>
         {lastUpdate && (
-          <p className="text-xs text-slate-700 mt-1">
-            Last update: {lastUpdate.toLocaleTimeString()}
+          <p className="text-xs text-white/70 mt-1">
+            Last update: {formatTime(lastUpdate)}
           </p>
         )}
       </div>
@@ -281,7 +284,7 @@ export function OperationsHubEnhanced() {
             max={100}
             label="Completed"
             unit="%"
-            color="purple"
+            color="amber"
             size="sm"
           />
         </div>
@@ -289,31 +292,31 @@ export function OperationsHubEnhanced() {
 
       {/* Quick Stats Cards */}
       <div className="grid grid-cols-2 gap-2">
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="border-l-4 border-l-emerald-500">
           <CardContent className="pt-3 pb-2 px-3">
-            <div className="text-lg font-bold text-blue-800">{metrics.activeJobs}</div>
-            <div className="text-xs text-slate-600">Active Jobs</div>
+            <div className="text-lg font-bold text-emerald-800">{metrics.activeJobs}</div>
+            <div className="text-xs text-white/60">Active Jobs</div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-amber-500">
           <CardContent className="pt-3 pb-2 px-3">
             <div className="text-lg font-bold text-amber-600">{metrics.pendingDispatch}</div>
-            <div className="text-xs text-slate-600">Pending</div>
+            <div className="text-xs text-white/60">Pending</div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-green-500">
           <CardContent className="pt-3 pb-2 px-3">
             <div className="text-lg font-bold text-green-600">{metrics.enRoute}</div>
-            <div className="text-xs text-slate-600">En Route</div>
+            <div className="text-xs text-white/60">En Route</div>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-purple-500">
+        <Card className="border-l-4 border-l-amber-500">
           <CardContent className="pt-3 pb-2 px-3">
-            <div className="text-lg font-bold text-purple-600">{metrics.completed}</div>
-            <div className="text-xs text-slate-600">Completed</div>
+            <div className="text-lg font-bold text-amber-600">{metrics.completed}</div>
+            <div className="text-xs text-white/60">Completed</div>
           </CardContent>
         </Card>
       </div>
@@ -381,12 +384,12 @@ export function OperationsHubEnhanced() {
                     handleAlertClick(alert);
                     acknowledgeAlert(alert.id);
                   }}
-                  className={`p-2 rounded-lg border text-xs cursor-pointer hover:shadow-sm transition-all ${
+                  className={`p-2 rounded-lg border text-xs cursor-pointer  transition-all ${
                     alert.severity === 'critical'
                       ? 'bg-red-50 border-red-200'
                       : alert.severity === 'high'
                       ? 'bg-amber-50 border-amber-200'
-                      : 'bg-blue-50 border-blue-200'
+                      : 'bg-emerald-50 border-emerald-200'
                   }`}
                 >
                   <div className="flex items-start gap-2">
@@ -396,12 +399,12 @@ export function OperationsHubEnhanced() {
                           ? 'text-red-500 animate-pulse'
                           : alert.severity === 'high'
                           ? 'text-amber-500'
-                          : 'text-blue-600'
+                          : 'text-emerald-600'
                       }`}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-slate-800 font-medium truncate">{alert.message}</p>
-                      <p className="text-slate-500 mt-0.5">{alert.timestamp}</p>
+                      <p className="text-white/90 font-medium truncate">{alert.message}</p>
+                      <p className="text-white/40 mt-0.5">{alert.timestamp}</p>
                     </div>
                   </div>
                 </div>
@@ -413,21 +416,21 @@ export function OperationsHubEnhanced() {
 
       {/* Quick Actions */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-slate-700">Quick Actions</h3>
+        <h3 className="text-sm font-semibold text-white/70">Quick Actions</h3>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => push({ type: 'work-order-create', label: 'New Job', data: {} })}>
             <Package className="h-3 w-3" />
             New Job
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => navigateTo('route-optimization')}>
             <Navigation className="h-3 w-3" />
             Optimize Routes
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => navigateTo('geofences')}>
             <MapPin className="h-3 w-3" />
             Add Geofence
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => navigateTo('dispatch-console')}>
             <Truck className="h-3 w-3" />
             Assign Vehicle
           </Button>
@@ -509,9 +512,23 @@ export function OperationsHubEnhanced() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <Package className="h-12 w-12 animate-spin mx-auto text-blue-600" />
-          <p className="mt-4 text-slate-600">Loading operations data...</p>
+          <Package className="h-12 w-12 animate-spin mx-auto text-emerald-600" />
+          <p className="mt-4 text-white/60">Loading operations data...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load operations data</p>
+        <p className="text-sm text-muted-foreground">
+          {hasError instanceof Error ? hasError.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
       </div>
     );
   }

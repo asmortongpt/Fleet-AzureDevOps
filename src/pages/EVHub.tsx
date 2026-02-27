@@ -1,11 +1,14 @@
+import { useQuery } from '@tanstack/react-query';
 import { Battery, Leaf, TrendingUp, Zap, Car, Plug2, BarChart3, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Section } from '@/components/ui/section';
+import { formatCurrency, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface EVVehicle {
   id: number;
@@ -32,11 +35,9 @@ interface SustainabilityMetrics {
   costSavings: number;
 }
 
-// Helper function to get auth headers
+// Helper function to get headers
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
   return {
-    'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
   };
 };
@@ -44,7 +45,8 @@ const getAuthHeaders = () => {
 // Query function for EV vehicles
 const fetchEVVehicles = async (): Promise<EVVehicle[]> => {
   try {
-    const response = await fetch('/api/ev/vehicles', { headers: getAuthHeaders() });
+    const response = await fetch('/api/ev-management/vehicles', { headers: getAuthHeaders(), credentials: 'include' });
+    if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
     if (data.success) return data.data;
     return [];
@@ -109,10 +111,10 @@ const EVHub = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-green-50 to-blue-50">
+      <div className="flex items-center justify-center h-screen cta-hub">
         <div className="text-center">
           <Car className="w-16 h-16 mx-auto text-green-600 animate-pulse" />
-          <p className="mt-4 text-sm font-medium text-gray-700">Loading EV Hub...</p>
+          <p className="mt-4 text-sm font-medium text-foreground">Loading EV Hub...</p>
         </div>
       </div>
     );
@@ -125,16 +127,17 @@ const EVHub = () => {
     : 0;
 
   return (
-    <div className="h-screen overflow-hidden bg-gradient-to-br from-green-50 to-blue-50">
+    <ErrorBoundary>
+    <div className="h-screen overflow-hidden cta-hub">
       {/* Header */}
-      <div className="px-4 py-3 bg-white border-b shadow-sm">
+      <div className="px-4 py-3 bg-[#0e0e0e] border-b border-white/[0.04]">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <Car className="w-7 h-7 text-green-600" />
               EV Fleet Hub
             </h1>
-            <p className="text-sm text-gray-600 mt-0.5">Electric vehicle fleet sustainability and performance</p>
+            <p className="text-sm text-muted-foreground mt-0.5">Electric vehicle fleet sustainability and performance</p>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-sm">
@@ -150,99 +153,83 @@ const EVHub = () => {
           {/* Fleet Overview Column */}
           <div className="space-y-4 overflow-y-auto" data-testid="fleet-overview-column">
             {/* Total EVs */}
-            <Card data-testid="total-evs-card" className="bg-gradient-to-br from-green-500 to-green-600 text-white">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Car className="w-4 h-4" />
-                  Total EV Fleet
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold" aria-label={`${evVehicles.length} electric vehicles in fleet`}>
-                  {evVehicles.length}
-                </div>
-                <p className="text-xs opacity-90 mt-1">Active electric vehicles</p>
-              </CardContent>
-            </Card>
+            <Section
+              title="Total EV Fleet"
+              icon={<Car className="w-4 h-4" />}
+              className="bg-green-600 text-white border-none"
+              contentClassName="text-white"
+            >
+              <div className="text-3xl font-bold" aria-label={`${evVehicles.length} electric vehicles in fleet`}>
+                {evVehicles.length}
+              </div>
+              <p className="text-xs opacity-90 mt-1">Active electric vehicles</p>
+            </Section>
 
             {/* Average State of Charge */}
-            <Card data-testid="avg-soc-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-700">
-                  <Battery className="w-4 h-4" />
-                  Avg State of Charge
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-blue-600" aria-label={`Average state of charge ${avgSOC.toFixed(0)} percent`}>
-                  {avgSOC.toFixed(0)}%
-                </div>
-                <Progress value={avgSOC} className="mt-2 h-2" aria-label="Average battery level progress" />
-                <p className="text-xs text-gray-600 mt-2">Fleet battery health</p>
-              </CardContent>
-            </Card>
+            <Section
+              title="Avg State of Charge"
+              icon={<Battery className="w-4 h-4" />}
+              contentClassName="space-y-2"
+            >
+              <div className="text-3xl font-bold text-primary" aria-label={`Average state of charge ${avgSOC.toFixed(0)} percent`}>
+                {avgSOC.toFixed(0)}%
+              </div>
+              <Progress value={avgSOC} className="h-2" aria-label="Average battery level progress" />
+              <p className="text-xs text-muted-foreground">Fleet battery health</p>
+            </Section>
 
             {/* Charging Status */}
-            <Card data-testid="charging-status-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-700">Charging Status</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
+            <Section
+              title="Charging Status"
+              contentClassName="space-y-2"
+            >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600 flex items-center gap-1">
-                    <Zap className="w-3 h-3 text-blue-600" />
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Zap className="w-3 h-3 text-primary" />
                     Charging Now
                   </span>
-                  <span className="text-lg font-bold text-blue-600">{chargingCount}</span>
+                  <span className="text-lg font-bold text-primary">{chargingCount}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600 flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Battery className="w-3 h-3 text-green-600" />
                     Fully Charged
                   </span>
                   <span className="text-lg font-bold text-green-600">{fullCount}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600 flex items-center gap-1">
-                    <Car className="w-3 h-3 text-gray-600" />
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Car className="w-3 h-3 text-muted-foreground" />
                     Idle
                   </span>
-                  <span className="text-lg font-bold text-gray-600">
+                  <span className="text-lg font-bold text-foreground">
                     {evVehicles.length - chargingCount - fullCount}
                   </span>
                 </div>
-              </CardContent>
-            </Card>
+            </Section>
 
             {/* Energy Efficiency */}
-            <Card data-testid="energy-efficiency-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-700">
-                  <BarChart3 className="w-4 h-4" />
-                  Energy Efficiency
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600" aria-label={`${sustainabilityMetrics.avgEfficiency.toFixed(2)} miles per kilowatt hour`}>
-                  {sustainabilityMetrics.avgEfficiency.toFixed(2)}
-                </div>
-                <p className="text-xs text-gray-600 mt-1">mi/kWh fleet average</p>
-              </CardContent>
-            </Card>
+            <Section
+              title="Energy Efficiency"
+              icon={<BarChart3 className="w-4 h-4" />}
+            >
+              <div className="text-2xl font-bold text-primary" aria-label={`${sustainabilityMetrics.avgEfficiency.toFixed(2)} miles per kilowatt hour`}>
+                {sustainabilityMetrics.avgEfficiency.toFixed(2)}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">mi/kWh fleet average</p>
+            </Section>
           </div>
 
           {/* EV Vehicles List Column */}
           <div className="space-y-4 overflow-y-auto" data-testid="ev-vehicles-column">
-            <Card className="h-full" data-testid="vehicles-list-card">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  <Car className="w-5 h-5 text-green-600" />
-                  EV Vehicles
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 max-h-[calc(100vh-240px)] overflow-y-auto">
+            <Section
+              title="EV Vehicles"
+              icon={<Car className="w-5 h-5 text-green-600" />}
+              className="h-full"
+              contentClassName="space-y-3 max-h-[calc(100vh-240px)] overflow-y-auto"
+            >
                 {evVehicles.length === 0 ? (
-                  <div className="text-center py-8 text-gray-700">
+                  <div className="text-center py-8 text-muted-foreground">
                     <AlertCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No EV vehicles in fleet</p>
                   </div>
@@ -250,19 +237,19 @@ const EVHub = () => {
                   evVehicles.map((vehicle) => (
                     <div
                       key={vehicle.id}
-                      className="p-3 border rounded-lg bg-white hover:shadow-md transition-shadow"
+                      className="p-3 border rounded-lg bg-[#111111] border-white/[0.04] transition-colors"
                       data-testid="vehicle-item"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-medium text-sm text-gray-900">
-                            {vehicle.year} {vehicle.make} {vehicle.model}
+                          <h3 className="font-medium text-sm text-foreground">
+                            {formatVehicleName(vehicle)}
                           </h3>
-                          <p className="text-xs text-gray-600 mt-0.5">{vehicle.location}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{vehicle.location}</p>
                           <div className="mt-2 space-y-1">
                             <div className="flex items-center justify-between text-xs">
-                              <span className="text-gray-600">Battery</span>
-                              <span className="font-semibold text-gray-900">
+                              <span className="text-muted-foreground">Battery</span>
+                              <span className="font-semibold text-foreground">
                                 {vehicle.current_soc}%
                               </span>
                             </div>
@@ -272,8 +259,8 @@ const EVHub = () => {
                               aria-label={`Battery level ${vehicle.current_soc} percent`}
                             />
                             <div className="flex items-center justify-between text-xs mt-1">
-                              <span className="text-gray-600">Range</span>
-                              <span className="font-semibold text-gray-900">
+                              <span className="text-muted-foreground">Range</span>
+                              <span className="font-semibold text-foreground">
                                 {vehicle.range_miles} mi
                               </span>
                             </div>
@@ -290,7 +277,7 @@ const EVHub = () => {
                             }
                             className={
                               vehicle.charging_status === 'charging'
-                                ? 'bg-blue-600 animate-pulse'
+                                ? 'bg-primary animate-pulse'
                                 : vehicle.charging_status === 'full'
                                 ? 'bg-green-600 text-white'
                                 : ''
@@ -303,109 +290,90 @@ const EVHub = () => {
                     </div>
                   ))
                 )}
-              </CardContent>
-            </Card>
+            </Section>
           </div>
 
           {/* Sustainability Impact Column */}
           <div className="space-y-4 overflow-y-auto" data-testid="sustainability-impact-column">
             {/* Carbon Offset */}
-            <Card data-testid="carbon-offset-total-card" className="bg-gradient-to-br from-green-500 to-green-600 text-white">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Leaf className="w-4 h-4" />
-                  Total CO₂ Saved
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold" aria-label={`${sustainabilityMetrics.totalCO2Saved.toFixed(0)} kilograms carbon dioxide saved`}>
-                  {sustainabilityMetrics.totalCO2Saved.toFixed(0)} kg
-                </div>
-                <p className="text-xs opacity-90 mt-1">Compared to gasoline vehicles</p>
-              </CardContent>
-            </Card>
+            <Section
+              title="Total CO₂ Saved"
+              icon={<Leaf className="w-4 h-4" />}
+              className="bg-green-600 text-white border-none"
+              contentClassName="text-white"
+            >
+              <div className="text-3xl font-bold" aria-label={`${sustainabilityMetrics.totalCO2Saved.toFixed(0)} kilograms carbon dioxide saved`}>
+                {sustainabilityMetrics.totalCO2Saved.toFixed(0)} kg
+              </div>
+              <p className="text-xs opacity-90 mt-1">Compared to gasoline vehicles</p>
+            </Section>
 
             {/* Trees Equivalent */}
-            <Card data-testid="trees-equivalent-card" className="bg-gradient-to-br from-green-100 to-green-200">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-green-800">Trees Planted Equivalent</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <Leaf className="w-8 h-8 text-green-600" />
-                  <div>
-                    <div className="text-3xl font-bold text-green-800" aria-label={`${sustainabilityMetrics.treesEquivalent.toFixed(0)} trees planted equivalent`}>
-                      {sustainabilityMetrics.treesEquivalent.toFixed(0)}
-                    </div>
-                    <p className="text-xs text-green-700 mt-1">trees/year</p>
+            <Section
+              title="Trees Planted Equivalent"
+              className="bg-green-600 text-white border-none"
+              contentClassName="text-white"
+            >
+              <div className="flex items-center gap-2">
+                <Leaf className="w-8 h-8 text-white" />
+                <div>
+                  <div className="text-3xl font-bold text-white" aria-label={`${sustainabilityMetrics.treesEquivalent.toFixed(0)} trees planted equivalent`}>
+                    {sustainabilityMetrics.treesEquivalent.toFixed(0)}
                   </div>
+                  <p className="text-xs text-white opacity-90 mt-1">trees/year</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </Section>
 
             {/* Gasoline Saved */}
-            <Card data-testid="gasoline-saved-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-700">Gasoline Saved</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-orange-600" aria-label={`${sustainabilityMetrics.gasolineSaved.toFixed(1)} gallons gasoline saved`}>
-                  {sustainabilityMetrics.gasolineSaved.toFixed(1)} gal
-                </div>
-                <p className="text-xs text-gray-600 mt-1">Compared to gas fleet</p>
-              </CardContent>
-            </Card>
+            <Section title="Gasoline Saved">
+              <div className="text-2xl font-bold text-destructive" aria-label={`${sustainabilityMetrics.gasolineSaved.toFixed(1)} gallons gasoline saved`}>
+                {sustainabilityMetrics.gasolineSaved.toFixed(1)} gal
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Compared to gas fleet</p>
+            </Section>
 
             {/* Cost Savings */}
-            <Card data-testid="cost-savings-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-700">Cost Savings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600" aria-label={`${sustainabilityMetrics.costSavings.toFixed(2)} dollars saved`}>
-                  ${sustainabilityMetrics.costSavings.toFixed(2)}
-                </div>
-                <p className="text-xs text-gray-600 mt-1">Fuel cost savings (fleet lifetime)</p>
-              </CardContent>
-            </Card>
+            <Section title="Cost Savings">
+              <div className="text-2xl font-bold text-green-600" aria-label={`${formatCurrency(sustainabilityMetrics.costSavings)} saved`}>
+                {formatCurrency(sustainabilityMetrics.costSavings)}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Fuel cost savings (fleet lifetime)</p>
+            </Section>
           </div>
 
           {/* Energy Analytics Column */}
           <div className="space-y-4 overflow-y-auto" data-testid="energy-analytics-column">
             {/* Total Energy Consumed */}
-            <Card data-testid="total-energy-card" className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Zap className="w-4 h-4" />
-                  Total Energy Consumed
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold" aria-label={`${sustainabilityMetrics.totalEnergyConsumed.toFixed(0)} kilowatt hours consumed`}>
-                  {sustainabilityMetrics.totalEnergyConsumed.toFixed(0)} kWh
-                </div>
-                <p className="text-xs opacity-90 mt-1">Fleet lifetime energy use</p>
-              </CardContent>
-            </Card>
+            <Section
+              title="Total Energy Consumed"
+              icon={<Zap className="w-4 h-4" />}
+              className="bg-emerald-600 text-white border-none"
+              contentClassName="text-white"
+            >
+              <div className="text-3xl font-bold" aria-label={`${sustainabilityMetrics.totalEnergyConsumed.toFixed(0)} kilowatt hours consumed`}>
+                {sustainabilityMetrics.totalEnergyConsumed.toFixed(0)} kWh
+              </div>
+              <p className="text-xs opacity-90 mt-1">Fleet lifetime energy use</p>
+            </Section>
 
             {/* Fleet Performance */}
-            <Card data-testid="fleet-performance-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-700">Fleet Performance</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
+            <Section
+              title="Fleet Performance"
+              contentClassName="space-y-3"
+            >
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-600">Total Miles Driven</span>
-                    <span className="text-sm font-bold text-gray-900">
-                      {evVehicles.reduce((sum, v) => sum + v.total_miles_driven, 0).toLocaleString()}
+                    <span className="text-xs text-muted-foreground">Total Miles Driven</span>
+                    <span className="text-sm font-bold text-foreground">
+                      {formatNumber(evVehicles.reduce((sum, v) => sum + v.total_miles_driven, 0))}
                     </span>
                   </div>
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-600">Avg Battery Capacity</span>
-                    <span className="text-sm font-bold text-gray-900">
+                    <span className="text-xs text-muted-foreground">Avg Battery Capacity</span>
+                    <span className="text-sm font-bold text-foreground">
                       {evVehicles.length > 0
                         ? (evVehicles.reduce((sum, v) => sum + v.battery_capacity_kwh, 0) / evVehicles.length).toFixed(1)
                         : '0'} kWh
@@ -414,80 +382,73 @@ const EVHub = () => {
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-600">Avg Range</span>
-                    <span className="text-sm font-bold text-gray-900">
+                    <span className="text-xs text-muted-foreground">Avg Range</span>
+                    <span className="text-sm font-bold text-foreground">
                       {evVehicles.length > 0
                         ? (evVehicles.reduce((sum, v) => sum + v.range_miles, 0) / evVehicles.length).toFixed(0)
                         : '0'} mi
                     </span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+            </Section>
 
             {/* Charging Infrastructure */}
-            <Card data-testid="charging-infrastructure-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-700">
-                  <Plug2 className="w-4 h-4" />
-                  Charging Infrastructure
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
+            <Section
+              title="Charging Infrastructure"
+              icon={<Plug2 className="w-4 h-4" />}
+              contentClassName="space-y-2"
+            >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">Vehicles Charging</span>
-                  <span className="text-sm font-bold text-blue-600">{chargingCount}</span>
+                  <span className="text-xs text-muted-foreground">Vehicles Charging</span>
+                  <span className="text-sm font-bold text-primary">{chargingCount}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">Ready to Charge</span>
-                  <span className="text-sm font-bold text-gray-900">
+                  <span className="text-xs text-muted-foreground">Ready to Charge</span>
+                  <span className="text-sm font-bold text-foreground">
                     {evVehicles.filter(v => v.current_soc < 80 && v.charging_status === 'idle').length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">Utilization Rate</span>
+                  <span className="text-xs text-muted-foreground">Utilization Rate</span>
                   <span className="text-sm font-bold text-green-600">
                     {evVehicles.length > 0
                       ? Math.round((chargingCount / evVehicles.length) * 100)
                       : 0}%
                   </span>
                 </div>
-              </CardContent>
-            </Card>
+            </Section>
 
             {/* Environmental Impact Summary */}
-            <Card data-testid="environmental-impact-card" className="bg-gradient-to-br from-green-50 to-blue-50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-700">
-                  <TrendingUp className="w-4 h-4 text-green-600" />
-                  Impact Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
+            <Section
+              title="Impact Summary"
+              icon={<TrendingUp className="w-4 h-4 text-green-600" />}
+              className="bg-card/90 border-2 border-green-600"
+              contentClassName="space-y-2"
+            >
                 <div className="flex items-center gap-2">
                   <Leaf className="w-4 h-4 text-green-600" />
                   <div className="flex-1">
-                    <p className="text-xs text-gray-600">Emissions Reduction</p>
-                    <p className="text-sm font-semibold text-green-700">
+                    <p className="text-xs text-muted-foreground">Emissions Reduction</p>
+                    <p className="text-sm font-semibold text-green-600">
                       {((sustainabilityMetrics.totalCO2Saved / Math.max(sustainabilityMetrics.totalCO2Saved + evVehicles.reduce((sum, v) => sum + v.total_energy_consumed_kwh, 0) * 0.49, 1)) * 100).toFixed(0)}% vs gas fleet
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 pt-2 border-t">
-                  <Zap className="w-4 h-4 text-blue-600" />
+                <div className="flex items-center gap-2 pt-2 border-t border-border/50">
+                  <Zap className="w-4 h-4 text-primary" />
                   <div className="flex-1">
-                    <p className="text-xs text-gray-600">Clean Energy Impact</p>
-                    <p className="text-sm font-semibold text-blue-700">
+                    <p className="text-xs text-muted-foreground">Clean Energy Impact</p>
+                    <p className="text-sm font-semibold text-primary">
                       {sustainabilityMetrics.totalEnergyConsumed.toFixed(0)} kWh total
                     </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+            </Section>
           </div>
         </div>
       </div>
     </div>
+    </ErrorBoundary>
   );
 };
 

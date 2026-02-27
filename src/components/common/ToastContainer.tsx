@@ -1,8 +1,8 @@
 // Toast Container Component
 // Displays toast notifications using the toast event bus
 
-import { motion, AnimatePresence } from 'framer-motion';
-import React, { useState, useEffect } from 'react';
+// motion removed - React 19 incompatible
+import React, { useState, useEffect, useRef } from 'react';
 
 import { toastEventBus } from '../../utils/toast';
 import './ToastContainer.css';
@@ -17,6 +17,7 @@ interface Toast {
 
 export const ToastContainer: React.FC = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const timersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
 
   useEffect(() => {
     // Subscribe to toast events
@@ -24,12 +25,19 @@ export const ToastContainer: React.FC = () => {
       setToasts((prev) => [...prev, toast]);
 
       // Auto-remove toast after duration
-      setTimeout(() => {
+      const timerId = setTimeout(() => {
         setToasts((prev) => prev.filter((t) => t.id !== toast.id));
+        timersRef.current.delete(timerId);
       }, toast.duration);
+      timersRef.current.add(timerId);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      // Clear all pending auto-dismiss timers on unmount
+      timersRef.current.forEach((id) => clearTimeout(id));
+      timersRef.current.clear();
+    };
   }, []);
 
   const removeToast = (id: string) => {
@@ -60,28 +68,22 @@ export const ToastContainer: React.FC = () => {
       role="status"
       data-testid="toast-container"
     >
-      <AnimatePresence>
-        {toasts.map((toast) => (
-          <motion.div
-            key={toast.id}
-            className={`toast toast-${toast.type}`}
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.15 } }}
-            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+      {toasts.map((toast) => (
+        <div
+          key={toast.id}
+          className={`toast toast-${toast.type}`}
+        >
+          <span className="toast-icon">{getIcon(toast)}</span>
+          <span className="toast-message">{toast.message}</span>
+          <button
+            className="toast-close"
+            onClick={() => removeToast(toast.id)}
+            aria-label="Close notification"
           >
-            <span className="toast-icon">{getIcon(toast)}</span>
-            <span className="toast-message">{toast.message}</span>
-            <button
-              className="toast-close"
-              onClick={() => removeToast(toast.id)}
-              aria-label="Close notification"
-            >
-              ×
-            </button>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+            ×
+          </button>
+        </div>
+      ))}
     </div>
   );
 };

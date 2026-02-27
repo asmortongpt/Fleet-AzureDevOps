@@ -71,8 +71,8 @@ async function runMaintenanceScheduler(): Promise<void> {
         // Process recurring schedules
         const results = await processRecurringSchedules(tenant.id, DAYS_AHEAD)
 
-        const successful = results.filter((r) => r.success).length
-        const failed = results.filter((r) => !r.success).length
+        const successful = results.filter((r: { success: boolean }) => r.success).length
+        const failed = results.filter((r: { success: boolean }) => !r.success).length
 
         totalWorkOrders += successful
         totalErrors += failed
@@ -95,11 +95,11 @@ async function runMaintenanceScheduler(): Promise<void> {
         if (successful > 0) {
           await sendSummaryNotification(tenant.id, successful, failed, statsAfter)
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error(`Error processing tenant ${tenant.name}`, {
           tenantId: tenant.id,
-          error: error.message,
-          stack: error.stack
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
+          stack: error instanceof Error ? error.stack : undefined
         })
         totalErrors++
       }
@@ -120,10 +120,10 @@ async function runMaintenanceScheduler(): Promise<void> {
       total_errors: totalErrors,
       duration_ms: duration
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Fatal error in maintenance scheduler`, {
-      error: error.message,
-      stack: error.stack
+      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      stack: error instanceof Error ? error.stack : undefined
     })
   }
 }
@@ -170,10 +170,10 @@ Maintenance Scheduler Summary:
       tenantId,
       managersNotified: managersResult.rows.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error sending summary notification', {
       tenantId,
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }
@@ -203,9 +203,9 @@ async function logSchedulerMetrics(metrics: {
         'maintenance-scheduler-cron'
       ]
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error logging scheduler metrics', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }
@@ -242,7 +242,7 @@ export function startMaintenanceScheduler(): void {
     }
   )
 
-  task.start()
+  void task.start()
 
   logger.info('Maintenance scheduler started successfully', {
     schedule: CRON_SCHEDULE
@@ -251,12 +251,12 @@ export function startMaintenanceScheduler(): void {
   // Graceful shutdown
   process.on('SIGTERM', () => {
     logger.info('SIGTERM received, stopping maintenance scheduler')
-    task.stop()
+    void task.stop()
   })
 
   process.on('SIGINT', () => {
     logger.info('SIGINT received, stopping maintenance scheduler')
-    task.stop()
+    void task.stop()
   })
 }
 

@@ -56,13 +56,15 @@ const upload = multer({
  * @desc Process a single document with OCR
  * @access Private
  */
-router.post('/process', csrfProtection, csrfProtection, upload.single('file'), async (req: Request, res: Response) => {
+router.post('/process', csrfProtection, upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: `No file uploaded` })
     }
 
-    const { tenantId, userId } = (req as any).user
+    const { tenantId: _tenantId, userId: _userId } = req.user!
+    const tenantId = _tenantId ?? ''
+    const userId = _userId ?? ''
     const documentId =
       req.body.documentId || `doc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
@@ -112,7 +114,7 @@ router.post('/process', csrfProtection, csrfProtection, upload.single('file'), a
         result,
       })
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('OCR processing error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'OCR processing failed',
@@ -126,7 +128,7 @@ router.post('/process', csrfProtection, csrfProtection, upload.single('file'), a
  * @desc Process multiple documents with OCR
  * @access Private
  */
-router.post('/batch', csrfProtection, csrfProtection, upload.array('files', 100), async (req: Request, res: Response) => {
+router.post('/batch', csrfProtection, upload.array('files', 100), async (req: Request, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[]
 
@@ -134,7 +136,9 @@ router.post('/batch', csrfProtection, csrfProtection, upload.array('files', 100)
       throw new ValidationError("No files uploaded")
     }
 
-    const { tenantId, userId } = (req as any).user
+    const { tenantId: _tenantId, userId: _userId } = req.user!
+    const tenantId = _tenantId ?? ''
+    const userId = _userId ?? ''
 
     // Parse options
     const options: OcrOptions = {
@@ -161,7 +165,7 @@ router.post('/batch', csrfProtection, csrfProtection, upload.array('files', 100)
       totalDocuments: documents.length,
       status: 'pending',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Batch OCR error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Batch OCR processing failed',
@@ -186,7 +190,7 @@ router.get('/job/:jobId', async (req: Request, res: Response) => {
     }
 
     return res.status(200).json(job)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting job status:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get job status',
@@ -211,7 +215,7 @@ router.get('/batch/:batchId', async (req: Request, res: Response) => {
     }
 
     return res.status(200).json(batch)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting batch status:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get batch status',
@@ -236,7 +240,7 @@ router.get('/result/:documentId', async (req: Request, res: Response) => {
     }
 
     return res.status(200).json(result)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting OCR result:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get OCR result',
@@ -250,9 +254,9 @@ router.get('/result/:documentId', async (req: Request, res: Response) => {
  * @desc Search OCR results
  * @access Private
  */
-router.post('/search', csrfProtection, csrfProtection, async (req: Request, res: Response) => {
+router.post('/search', csrfProtection, async (req: Request, res: Response) => {
   try {
-    const { tenantId } = (req as any).user
+    const tenantId = req.user!.tenantId ?? ''
     const { query, limit } = req.body
 
     if (!query) {
@@ -266,7 +270,7 @@ router.post('/search', csrfProtection, csrfProtection, async (req: Request, res:
       totalResults: results.length,
       results,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('OCR search error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'OCR search failed',
@@ -280,7 +284,7 @@ router.post('/search', csrfProtection, csrfProtection, async (req: Request, res:
  * @desc Cancel an OCR job
  * @access Private
  */
-router.delete('/job/:jobId', csrfProtection, csrfProtection, async (req: Request, res: Response) => {
+router.delete('/job/:jobId', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params
 
@@ -290,7 +294,7 @@ router.delete('/job/:jobId', csrfProtection, csrfProtection, async (req: Request
       message: 'Job cancelled',
       jobId,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error cancelling job:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to cancel job',
@@ -304,7 +308,7 @@ router.delete('/job/:jobId', csrfProtection, csrfProtection, async (req: Request
  * @desc Retry a failed OCR job
  * @access Private
  */
-router.post('/job/:jobId/retry', csrfProtection, csrfProtection, async (req: Request, res: Response) => {
+router.post('/job/:jobId/retry', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params
 
@@ -315,7 +319,7 @@ router.post('/job/:jobId/retry', csrfProtection, csrfProtection, async (req: Req
       originalJobId: jobId,
       newJobId,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error retrying job:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to retry job',
@@ -331,12 +335,12 @@ router.post('/job/:jobId/retry', csrfProtection, csrfProtection, async (req: Req
  */
 router.get('/statistics', async (req: Request, res: Response) => {
   try {
-    const { tenantId } = (req as any).user
+    const tenantId = req.user!.tenantId ?? ''
 
     const stats = await ocrQueueService.getStatistics(tenantId)
 
     return res.status(200).json(stats)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting OCR statistics:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get statistics',
@@ -388,7 +392,7 @@ router.get('/providers', async (req: Request, res: Response) => {
     ]
 
     return res.status(200).json({ providers })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting providers:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get providers',
@@ -429,7 +433,7 @@ router.get('/languages', async (req: Request, res: Response) => {
     ]
 
     return res.status(200).json({ languages })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting languages:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get languages',
@@ -441,7 +445,7 @@ router.get('/languages', async (req: Request, res: Response) => {
 /**
  * Middleware to check admin authentication
  */
-const requireAdmin = (req: Request, res: Response, next: any) => {
+const requireAdmin = (req: Request, res: Response, next: () => void) => {
   const isAdmin = req.headers['x-admin-key'] === process.env.ADMIN_KEY ||
     req.headers.authorization?.includes('admin');
 
@@ -467,7 +471,7 @@ router.post('/cleanup', csrfProtection, requireAdmin, async (req: Request, res: 
       message: 'Cleanup completed',
       deletedJobs: deletedCount,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Cleanup error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Cleanup failed',

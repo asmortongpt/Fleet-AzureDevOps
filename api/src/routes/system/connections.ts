@@ -8,7 +8,8 @@
 import { Router } from 'express'
 import { Pool } from 'pg'
 import { createClient } from 'redis'
-import { authenticateJWT } from '../middleware/auth'
+import { authenticateJWT } from '../../middleware/auth'
+import { logger } from '../../utils/logger'
 
 const router = Router()
 
@@ -112,8 +113,9 @@ router.get('/connections', async (req, res) => {
     // Apply sorting
     const { sortBy = 'name', order = 'asc' } = req.query
     filtered.sort((a, b) => {
-      const aVal = (a as any)[sortBy as string] || ''
-      const bVal = (b as any)[sortBy as string] || ''
+      const sortKey = sortBy as keyof ConnectionEndpoint
+      const aVal = a[sortKey] || ''
+      const bVal = b[sortKey] || ''
 
       if (order === 'desc') {
         return bVal.toString().localeCompare(aVal.toString())
@@ -148,11 +150,11 @@ router.get('/connections', async (req, res) => {
         timestamp: new Date().toISOString()
       }
     })
-  } catch (error: any) {
-    console.error('[System Connections] Error:', error)
+  } catch (error: unknown) {
+    logger.error('[System Connections] Error:', error)
     return res.status(500).json({
       error: 'Failed to fetch connections',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -185,10 +187,10 @@ router.post('/connections/:id/test', async (req, res) => {
       success: true,
       data: result
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json({
       error: 'Connection test failed',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -220,7 +222,7 @@ async function checkPostgreSQL(): Promise<ConnectionEndpoint> {
         metadata: { port: 5432 }
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       id: 'postgresql',
       name: 'PostgreSQL Database',
@@ -230,7 +232,7 @@ async function checkPostgreSQL(): Promise<ConnectionEndpoint> {
       status: 'disconnected',
       lastChecked: new Date().toISOString(),
       details: {
-        errorMessage: error.message
+        errorMessage: error instanceof Error ? error.message : 'An unexpected error occurred'
       }
     }
   }
@@ -256,7 +258,7 @@ async function checkRedis(): Promise<ConnectionEndpoint> {
       responseTime,
       lastChecked: new Date().toISOString()
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       id: 'redis',
       name: 'Redis Cache',
@@ -266,7 +268,7 @@ async function checkRedis(): Promise<ConnectionEndpoint> {
       status: 'disconnected',
       lastChecked: new Date().toISOString(),
       details: {
-        errorMessage: error.message
+        errorMessage: error instanceof Error ? error.message : 'An unexpected error occurred'
       }
     }
   }
@@ -383,7 +385,7 @@ async function checkInternalService(name: string, url: string): Promise<Connecti
       responseTime,
       lastChecked: new Date().toISOString()
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       id: name.toLowerCase().replace(/\s+/g, '-'),
       name,
@@ -393,7 +395,7 @@ async function checkInternalService(name: string, url: string): Promise<Connecti
       status: 'disconnected',
       lastChecked: new Date().toISOString(),
       details: {
-        errorMessage: error.message
+        errorMessage: error instanceof Error ? error.message : 'An unexpected error occurred'
       }
     }
   }

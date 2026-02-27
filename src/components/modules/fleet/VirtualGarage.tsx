@@ -2,11 +2,16 @@ import { Car, Wrench, AlertTriangle, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useTenant } from "@/contexts/TenantContext"
 import { useVehicles } from "@/hooks/use-api"
+import { brandColors } from "@/theme/designSystem"
+import { formatEnum } from "@/utils/format-enum"
+import { formatVehicleName, formatVehicleShortName } from "@/utils/vehicle-display"
 
 export function VirtualGarage() {
   const { tenantId } = useTenant()
+  const { push } = useDrilldown()
   const { data: vehiclesData, isLoading, isError } = useVehicles({ tenant_id: tenantId || '' })
   const vehicles = vehiclesData || []
 
@@ -36,7 +41,10 @@ export function VirtualGarage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Virtual Garage</h1>
+          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: brandColors.archon.black }}>
+            <Car className="w-6 h-6" style={{ color: brandColors.cta.orange }} />
+            Virtual Garage
+          </h1>
           <p className="text-muted-foreground">Manage and monitor your fleet vehicles</p>
         </div>
         <Button>
@@ -72,7 +80,7 @@ export function VirtualGarage() {
             <Wrench className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{vehicles.filter(v => v.status === "maintenance" || v.status === "service").length}</div>
+            <div className="text-2xl font-bold">{vehicles.filter(v => v.status === "service").length}</div>
           </CardContent>
         </Card>
 
@@ -82,7 +90,7 @@ export function VirtualGarage() {
             <AlertTriangle className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{vehicles.filter(v => v.status === "maintenance" || v.status === "service" || v.status === "offline").length}</div>
+            <div className="text-2xl font-bold">{vehicles.filter(v => v.status === "service" || v.status === "offline").length}</div>
           </CardContent>
         </Card>
       </div>
@@ -101,27 +109,54 @@ export function VirtualGarage() {
           ) : (
             <div className="space-y-4">
               {vehicles.map((vehicle) => (
-                <div key={vehicle.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div
+                  key={vehicle.id}
+                  className="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  onClick={() => push({
+                    type: 'vehicle-details',
+                    label: formatVehicleName(vehicle),
+                    data: { vehicleId: String(vehicle.id), vehicle },
+                  })}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      push({
+                        type: 'vehicle-details',
+                        label: formatVehicleName(vehicle),
+                        data: { vehicleId: String(vehicle.id), vehicle },
+                      });
+                    }
+                  }}
+                >
                   <div className="flex items-center gap-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Car className="h-6 w-6 text-primary" />
+                    <div className="p-2 bg-emerald-500/10 rounded-lg">
+                      <Car className="h-6 w-6 text-emerald-500" />
                     </div>
                     <div>
-                      <p className="font-medium">{vehicle.name || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}</p>
-                      <p className="text-sm text-muted-foreground">{vehicle.make} {vehicle.model}</p>
+                      <p className="font-medium">{formatVehicleName(vehicle)}</p>
+                      <p className="text-sm text-muted-foreground">{formatVehicleShortName(vehicle)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       vehicle.status === "active"
-                        ? "bg-green-100 text-green-700"
-                        : vehicle.status === "service" || vehicle.status === "maintenance"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-gray-100 text-gray-700"
+                        ? "bg-emerald-500/20 text-emerald-400"
+                        : vehicle.status === "service"
+                        ? "bg-amber-500/20 text-amber-400"
+                        : "bg-white/[0.06] text-white/50"
                     }`}>
-                      {vehicle.status}
+                      {formatEnum(vehicle.status)}
                     </span>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={(e) => {
+                      e.stopPropagation();
+                      push({
+                        type: 'vehicle-details',
+                        label: formatVehicleName(vehicle),
+                        data: { vehicleId: String(vehicle.id), vehicle },
+                      });
+                    }}>
                       <Wrench className="h-4 w-4" />
                     </Button>
                   </div>

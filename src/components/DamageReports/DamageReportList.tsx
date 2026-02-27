@@ -1,6 +1,6 @@
 import { Filter, Search, AlertTriangle, Calendar, Car, Eye, Plus } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,7 +14,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useNavigation } from '@/contexts/NavigationContext'
 import { damageReportsApi, DamageReport } from '@/services/damageReportsApi'
+import { formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 interface DamageReportListProps {
@@ -22,7 +24,7 @@ interface DamageReportListProps {
 }
 
 export function DamageReportList({ vehicleId }: DamageReportListProps) {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const [damageReports, setDamageReports] = useState<DamageReport[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -61,11 +63,11 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
   }
 
   const handleViewDetails = (reportId: string) => {
-    navigate(`/damage-reports/${reportId}`)
+    navigateTo('damage-reports')
   }
 
   const handleCreateNew = () => {
-    navigate('/damage-reports/create')
+    navigateTo('damage-reports')
   }
 
   const getSeverityVariant = (
@@ -232,7 +234,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
           filteredReports.map((report) => (
             <Card
               key={report.id}
-              className="cursor-pointer hover:shadow-md transition-shadow"
+              className="cursor-pointer hover:border-white/[0.12] transition-colors"
               onClick={() => handleViewDetails(report.id)}
               role="button"
               tabIndex={0}
@@ -282,7 +284,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
                         <span>
-                          {new Date(report.created_at || '').toLocaleDateString()}
+                          {formatDate(report.created_at || '')}
                         </span>
                       </div>
                       {report.photos && report.photos.length > 0 && (

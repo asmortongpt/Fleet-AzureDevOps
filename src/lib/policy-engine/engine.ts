@@ -7,6 +7,7 @@
 
 import { Policy, PolicyType } from './types';
 
+import { auditLogger } from '@/lib/audit/audit-logger';
 import logger from '@/utils/logger';
 
 export interface PolicyEvaluationContext {
@@ -329,6 +330,29 @@ export function logPolicyExecution(
     context
   });
 
-  // TODO: Send to analytics/audit service
-  // This could be sent to Application Insights, database, etc.
+  // Send to audit service for compliance logging
+  auditLogger.logEvent({
+    eventType: 'COMPLIANCE_EVENT',
+    action: 'READ',
+    userId: context.userId || 'system',
+    userRoles: [],
+    resource: 'policy',
+    resourceId: policy.id,
+    timestamp: new Date(),
+    ipAddress: 'frontend',
+    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'policy-engine',
+    result: result.allowed ? 'SUCCESS' : 'FAILURE',
+    sensitivity: 'INTERNAL',
+    details: {
+      policyName: policy.name,
+      policyType: policy.type,
+      allowed: result.allowed,
+      mode: policy.mode,
+      confidence: result.confidence,
+      vehicleId: context.vehicleId,
+      driverId: context.driverId,
+    },
+  }).catch((error: unknown) => {
+    logger.warn('Failed to send policy execution to audit service:', { error: String(error) });
+  });
 }

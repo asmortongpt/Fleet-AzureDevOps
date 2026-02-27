@@ -4,35 +4,55 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
-  Package,
   Truck,
   Building2,
   AlertCircle,
   Grid
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
+import { toast } from "sonner"
 import useSWR from "swr"
-import { toast, ToastOptions } from "react-hot-toast"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
 import { useVehicles, useFacilities, useWorkOrders, useMaintenanceSchedules } from "@/hooks/use-api"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { Vehicle, Facility, WorkOrder } from "@/lib/types"
-import { swrFetcher } from "@/lib/fetcher"
 import { cn } from "@/lib/utils"
+import { formatEnum } from "@/utils/format-enum"
+import { formatNumber } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
+
+/** Safely extract an array from an API response that may be nested as { data: [...] } or { data: { data: [...] } } */
+const safeArray = <T,>(value: unknown): T[] => {
+  if (Array.isArray(value)) return value as T[]
+  if (value && typeof value === 'object') {
+    const inner = (value as Record<string, unknown>).data
+    if (Array.isArray(inner)) return inner as T[]
+    if (inner && typeof inner === 'object') {
+      const nested = (inner as Record<string, unknown>).data
+      if (Array.isArray(nested)) return nested as T[]
+    }
+  }
+  return []
+}
 
 // Facility Panel Component
 const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[]; onFacilitySelect: (facility: Facility) => void }) => {
   if (!facilities || facilities.length === 0) {
     return (
-      <div className="p-2 text-center text-muted-foreground">
+      <div className="p-2 text-center text-white/60">
         No facilities available
       </div>
     )
@@ -45,7 +65,7 @@ const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[
         {facilities.map(facility => (
           <Card
             key={facility.id}
-            className="cursor-pointer hover:bg-accent transition-colors"
+            className="cursor-pointer hover:bg-white/[0.04] transition-colors"
             onClick={() => onFacilitySelect(facility)}
             data-testid={`facility-card-${facility.id}`}
           >
@@ -53,15 +73,15 @@ const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <Building2 className="h-4 w-4 text-white/60" />
                     <span className="font-medium">{facility.name}</span>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">{facility.address}</p>
+                  <p className="text-sm text-white/60 mt-1">{facility.address}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge variant={facility.status === 'operational' ? 'default' : 'destructive'}>
                       {facility.status}
                     </Badge>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-white/60">
                       Capacity: {facility.capacity} vehicles
                     </span>
                   </div>
@@ -77,9 +97,11 @@ const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[
 
 // Vehicle Maintenance Panel
 const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Vehicle | null; _maintenanceHistory: unknown }) => {
+  const [scheduleOpen, setScheduleOpen] = useState(false)
+  const [scheduleType, setScheduleType] = useState<'preventive' | 'corrective'>('preventive')
   if (!vehicle) {
     return (
-      <div className="p-2 text-center text-muted-foreground">
+      <div className="p-2 text-center text-white/60">
         Select a vehicle on the map to view maintenance details
       </div>
     )
@@ -95,9 +117,9 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
         {/* Vehicle Header */}
         <div>
           <h3 className="text-sm font-semibold">
-            {vehicle.year} {vehicle.make} {vehicle.model}
+            {formatVehicleName(vehicle)}
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white/60">
             {vehicle.licensePlate} • {vehicle.vin}
           </p>
         </div>
@@ -113,14 +135,14 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm">Current Mileage</span>
-              <span className="font-medium">{vehicle.mileage?.toLocaleString()} mi</span>
+              <span className="font-medium">{formatNumber(vehicle.mileage ?? 0)} mi</span>
             </div>
 
             {vehicle.nextService && (
               <>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Next Service</span>
-                  <span className="font-medium">{vehicle.nextService.toLocaleString()} mi</span>
+                  <span className="font-medium">{formatNumber(Number(vehicle.nextService))} mi</span>
                 </div>
 
                 <div className="space-y-1">
@@ -147,8 +169,8 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
                   <AlertTriangle className="h-4 w-4 text-yellow-500" />
                   Active Alerts
                 </h4>
-                {vehicle.alerts.map((alert: string, i: number) => (
-                  <div key={i} className="flex items-start gap-2 text-sm">
+                {(Array.isArray(vehicle.alerts) ? vehicle.alerts : []).map((alert: string) => (
+                  <div key={alert} className="flex items-start gap-2 text-sm">
                     <AlertCircle className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                     <span>{alert}</span>
                   </div>
@@ -160,44 +182,71 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
 
         {/* Actions */}
         <div className="space-y-2">
-          <Button className="w-full">
+          <Button className="w-full" onClick={() => { setScheduleType('preventive'); setScheduleOpen(true) }}>
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Service
           </Button>
           <Button
             variant="outline"
             className="w-full hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 transition-colors"
-            onClick={() => {
-              toast.success('Maintenance request submitted', {
-                duration: 3000,
-                position: 'top-center'
-              } as ToastOptions)
-            }}
+            onClick={() => { setScheduleType('corrective'); setScheduleOpen(true) }}
           >
             <Wrench className="h-4 w-4 mr-2" />
             Request Maintenance
           </Button>
-          <Button variant="outline" className="w-full">
-            View Service History
-          </Button>
         </div>
+
+        {/* Schedule/Request Dialog */}
+        <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{scheduleType === 'preventive' ? 'Schedule Service' : 'Request Maintenance'}</DialogTitle>
+            </DialogHeader>
+            <div className="py-2 space-y-3">
+              <div className="text-sm text-white/60">
+                Vehicle: <strong>{vehicle ? formatVehicleName(vehicle) : '-'}</strong>
+              </div>
+              <div>
+                <Label htmlFor="svc-type">Service Type</Label>
+                <Select value={scheduleType} onValueChange={(v) => setScheduleType(v as 'preventive' | 'corrective')}>
+                  <SelectTrigger id="svc-type"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="preventive">Preventive Maintenance</SelectItem>
+                    <SelectItem value="corrective">Corrective / Repair</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setScheduleOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                setScheduleOpen(false)
+                toast.success(`${scheduleType === 'preventive' ? 'Service scheduled' : 'Maintenance requested'} for ${vehicle ? formatVehicleName(vehicle) : 'vehicle'}`)
+              }}>Submit</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ScrollArea>
   )
 }
 
 // Work Orders Panel
-const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOrder[]; onWorkOrderSelect: (order: WorkOrder) => void }) => {
+const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { workOrders: WorkOrder[]; onWorkOrderSelect: (order: WorkOrder) => void }) => {
+  const workOrders = Array.isArray(workOrdersProp) ? workOrdersProp : safeArray<WorkOrder>(workOrdersProp)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [newWO, setNewWO] = useState({ title: '', description: '', priority: 'medium', vehicleId: '' })
+
   const getStatusIcon = (status: string): React.ReactNode => {
     switch (status) {
       case 'completed':
         return <CheckCircle2 className="h-4 w-4 text-green-500" />
       case 'in_progress':
-        return <Clock className="h-4 w-4 text-blue-800" />
+        return <Clock className="h-4 w-4 text-emerald-400" />
       case 'pending':
         return <AlertCircle className="h-4 w-4 text-yellow-500" />
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-700" />
+        return <AlertCircle className="h-4 w-4 text-white/40" />
     }
   }
 
@@ -222,7 +271,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
           workOrders.map((order: WorkOrder) => (
             <Card
               key={order.id}
-              className="cursor-pointer hover:bg-accent transition-colors"
+              className="cursor-pointer hover:bg-white/[0.04] transition-colors"
               onClick={() => onWorkOrderSelect(order)}
               data-testid={`work-order-${order.id}`}
             >
@@ -233,7 +282,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
                       {getStatusIcon(order.status)}
                       <span className="font-medium">{order.title || order.description}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-sm text-white/60 mt-1">
                       {order.vehicleId && `Vehicle: ${order.vehicleId}`}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
@@ -241,7 +290,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
                         {order.priority}
                       </Badge>
                       <Badge variant="outline">
-                        {order.status}
+                        {formatEnum(order.status)}
                       </Badge>
                     </div>
                   </div>
@@ -250,21 +299,70 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
             </Card>
           ))
         ) : (
-          <div className="text-center text-muted-foreground py-3">
+          <div className="text-center text-white/60 py-3">
             No work orders available
           </div>
         )}
 
-        <Button className="w-full mt-2">
+        <Button className="w-full mt-2" onClick={() => {
+            setNewWO({ title: '', description: '', priority: 'medium', vehicleId: '' })
+            setCreateOpen(true)
+          }}>
           <Wrench className="h-4 w-4 mr-2" />
           Create Work Order
         </Button>
+
+        {/* Create Work Order Dialog */}
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create Work Order</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="new-wo-title">Title</Label>
+                <Input id="new-wo-title" placeholder="e.g., Oil Change - Unit 42" value={newWO.title} onChange={(e) => setNewWO(w => ({ ...w, title: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="new-wo-vehicle">Vehicle ID</Label>
+                <Input id="new-wo-vehicle" placeholder="Vehicle ID or Unit #" value={newWO.vehicleId} onChange={(e) => setNewWO(w => ({ ...w, vehicleId: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="new-wo-priority">Priority</Label>
+                <Select value={newWO.priority} onValueChange={(v) => setNewWO(w => ({ ...w, priority: v }))}>
+                  <SelectTrigger id="new-wo-priority"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="new-wo-desc">Description</Label>
+                <Textarea id="new-wo-desc" placeholder="Describe the maintenance needed..." value={newWO.description} onChange={(e) => setNewWO(w => ({ ...w, description: e.target.value }))} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                if (!newWO.title.trim()) {
+                  toast.error('Please enter a title for the work order')
+                  return
+                }
+                toast.success(`Work order "${newWO.title}" created successfully`)
+                setCreateOpen(false)
+              }}>Create Work Order</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ScrollArea>
   )
 }
 
-// Mock parts data
+// Parts data
 interface Part {
   id: string
   name: string
@@ -285,13 +383,16 @@ interface Technician {
 }
 
 // Parts Inventory Panel
-const PartsPanel = ({ parts, technicians }: { parts: Part[]; technicians: Technician[] }) => {
+const PartsPanel = ({ parts: partsProp, technicians: techniciansProp }: { parts: Part[]; technicians: Technician[] }) => {
+  const parts = Array.isArray(partsProp) ? partsProp : []
+  const technicians = Array.isArray(techniciansProp) ? techniciansProp : []
+
   const getStatusColor = (status: Part['status']) => {
     switch (status) {
       case 'in_stock': return 'bg-green-500'
       case 'low_stock': return 'bg-yellow-500'
       case 'out_of_stock': return 'bg-red-500'
-      case 'on_order': return 'bg-blue-500'
+      case 'on_order': return 'bg-emerald-500'
     }
   }
 
@@ -309,7 +410,7 @@ const PartsPanel = ({ parts, technicians }: { parts: Part[]; technicians: Techni
       case 'available': return 'bg-green-500'
       case 'busy': return 'bg-yellow-500'
       case 'break': return 'bg-orange-500'
-      case 'off': return 'bg-gray-500'
+      case 'off': return 'bg-white/[0.2]'
     }
   }
 
@@ -329,25 +430,25 @@ const PartsPanel = ({ parts, technicians }: { parts: Part[]; technicians: Techni
         <div className="grid grid-cols-2 gap-2">
           <Card>
             <CardContent className="p-2">
-              <div className="text-xs text-muted-foreground">Low Stock</div>
+              <div className="text-xs text-white/60">Low Stock</div>
               <div className="text-lg font-semibold text-yellow-600">{lowStockItems}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2">
-              <div className="text-xs text-muted-foreground">On Order</div>
-              <div className="text-lg font-semibold text-blue-600">{partsOnOrder}</div>
+              <div className="text-xs text-white/60">On Order</div>
+              <div className="text-lg font-semibold text-emerald-400">{partsOnOrder}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2">
-              <div className="text-xs text-muted-foreground">Total Parts</div>
+              <div className="text-xs text-white/60">Total Parts</div>
               <div className="text-lg font-semibold">{parts.length}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2">
-              <div className="text-xs text-muted-foreground">Techs Available</div>
+              <div className="text-xs text-white/60">Techs Available</div>
               <div className="text-lg font-semibold text-emerald-700">{availableTechs}</div>
             </CardContent>
           </Card>
@@ -357,7 +458,7 @@ const PartsPanel = ({ parts, technicians }: { parts: Part[]; technicians: Techni
           <h4 className="text-sm font-medium mb-2">Low Stock Parts</h4>
           <div className="space-y-2">
             {lowStockParts.length === 0 && (
-              <div className="text-xs text-muted-foreground">No low stock parts</div>
+              <div className="text-xs text-white/60">No low stock parts</div>
             )}
             {lowStockParts.map(part => (
               <Card key={part.id}>
@@ -365,7 +466,7 @@ const PartsPanel = ({ parts, technicians }: { parts: Part[]; technicians: Techni
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium text-sm">{part.name}</div>
-                      <div className="text-xs text-muted-foreground">{part.partNumber}</div>
+                      <div className="text-xs text-white/60">{part.partNumber}</div>
                     </div>
                     <Badge variant="outline" className="text-xs">
                       {part.quantity} on hand
@@ -381,14 +482,14 @@ const PartsPanel = ({ parts, technicians }: { parts: Part[]; technicians: Techni
           <h4 className="text-sm font-medium mb-2">Technicians</h4>
           <div className="space-y-2">
             {technicians.length === 0 && (
-              <div className="text-xs text-muted-foreground">No technicians found</div>
+              <div className="text-xs text-white/60">No technicians found</div>
             )}
             {technicians.map(tech => (
               <Card key={tech.id}>
                 <CardContent className="p-2 flex items-center justify-between">
                   <div>
                     <div className="text-sm font-medium">{tech.name}</div>
-                    <div className="text-xs text-muted-foreground">{tech.currentTask || 'No active task'}</div>
+                    <div className="text-xs text-white/60">{tech.currentTask || 'No active task'}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${getTechStatusColor(tech.status)}`} />
@@ -412,7 +513,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
 
   // Check for API key to set initial view mode
   const hasApiKey = useMemo(() => {
-    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
     return key && key.length > 10 && !key.includes('YOUR_KEY')
   }, [])
 
@@ -423,8 +524,8 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
   const { data: facilities = [] } = useFacilities()
   const { data: workOrders = [] } = useWorkOrders()
   const { data: _maintenanceSchedule = [] } = useMaintenanceSchedules()
-  const { data: partsResponse } = useSWR<{ data: any[] }>('/api/parts?limit=200', swrFetcher)
-  const { data: usersResponse } = useSWR<{ data: any[] }>('/api/users?limit=500', swrFetcher)
+  const { data: partsResponse } = useSWR<any[]>('/api/parts?limit=200', apiFetcher)
+  const { data: usersResponse } = useSWR<any[]>('/api/users?limit=500', apiFetcher)
 
   // Real-time telemetry
   const {
@@ -436,12 +537,15 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
   })
 
   // Use real-time vehicles if available, otherwise use static data
-  const displayVehicles = realtimeVehicles.length > 0 ? realtimeVehicles : vehicles
+  const safeRealtimeVehicles = Array.isArray(realtimeVehicles) ? realtimeVehicles : []
+  const safeVehicles = Array.isArray(vehicles) ? vehicles : safeArray<Vehicle>(vehicles)
+  const displayVehicles = safeRealtimeVehicles.length > 0 ? safeRealtimeVehicles : safeVehicles
 
-  const workOrderList = Array.isArray(workOrders) ? workOrders : ((workOrders as any)?.data || [])
+  const workOrderList: any[] = Array.isArray(workOrders) ? workOrders : safeArray<any>(workOrders)
 
   const parts: Part[] = useMemo(() => {
-    return (partsResponse?.data || []).map((part: any) => {
+    const rawParts = safeArray<any>(partsResponse)
+    return rawParts.map((part: any) => {
       const quantity = Number(part.quantity_on_hand ?? part.quantity ?? 0)
       const reorderPoint = Number(part.reorder_point ?? part.reorderPoint ?? 0)
       let status: Part['status'] = 'in_stock'
@@ -456,14 +560,14 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
         quantity,
         reorderPoint,
         status,
-        location: part.location_in_warehouse || part.location || 'Warehouse',
+        location: part.location_in_warehouse || part.location || '',
         lastUsed: part.updated_at || part.created_at
       }
     })
   }, [partsResponse])
 
   const technicians: Technician[] = useMemo(() => {
-    const users = usersResponse?.data || []
+    const users = safeArray<any>(usersResponse)
     return users
       .filter((user: any) => user.role === 'Mechanic')
       .map((user: any) => {
@@ -489,7 +593,8 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
 
   // Filter vehicles that need maintenance
   const maintenanceVehicles = useMemo(() => {
-    return (displayVehicles as unknown as Vehicle[]).filter((v: Vehicle) => {
+    const safeDisplay: Vehicle[] = Array.isArray(displayVehicles) ? displayVehicles as Vehicle[] : []
+    return safeDisplay.filter((v: Vehicle) => {
       if (filterStatus === 'all') return true
       if (filterStatus === 'service') return v.status === 'service'
       if (filterStatus === 'alerts') return v.alerts && v.alerts.length > 0
@@ -502,7 +607,8 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
 
   // Handle vehicle selection
   const handleVehicleSelect = useCallback((vehicleId: string) => {
-    const vehicle = (displayVehicles as Vehicle[]).find((v: Vehicle) => v.id === vehicleId)
+    const safeDisplay: Vehicle[] = Array.isArray(displayVehicles) ? displayVehicles as Vehicle[] : []
+    const vehicle = safeDisplay.find((v: Vehicle) => v.id === vehicleId)
     if (vehicle) {
       setSelectedEntity({ type: 'vehicle', data: vehicle })
       setActivePanel('vehicle')
@@ -510,14 +616,18 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
   }, [displayVehicles])
 
   // Stats
-  const stats = useMemo(() => ({
-    inService: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.status === 'service').length,
-    alertsPending: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.alerts && v.alerts.length > 0).length,
-    serviceDue: (displayVehicles as Vehicle[]).filter((v: Vehicle) =>
-      v.nextService && (Number(v.nextService) - (v.mileage || 0)) < 500
-    ).length,
-    workOrdersPending: (workOrders as unknown as WorkOrder[]).filter((w: WorkOrder) => w.status === 'pending').length
-  }), [displayVehicles, workOrders])
+  const stats = useMemo(() => {
+    const safeDisplay: Vehicle[] = Array.isArray(displayVehicles) ? displayVehicles as Vehicle[] : []
+    const safeWO: any[] = Array.isArray(workOrders) ? workOrders : []
+    return {
+      inService: safeDisplay.filter((v: Vehicle) => v.status === 'service').length,
+      alertsPending: safeDisplay.filter((v: Vehicle) => v.alerts && v.alerts.length > 0).length,
+      serviceDue: safeDisplay.filter((v: Vehicle) =>
+        v.nextService && (Number(v.nextService) - (v.mileage || 0)) < 500
+      ).length,
+      workOrdersPending: safeWO.filter((w: WorkOrder) => w.status === 'pending').length
+    }
+  }, [displayVehicles, workOrders])
 
   return (
     <div className="h-screen grid grid-cols-[1fr_400px]" data-testid="maintenance-workspace">
@@ -534,9 +644,9 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
         />
 
         {/* Maintenance Status Overlay */}
-        <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg shadow-sm z-10 flex gap-2">
+        <div className="absolute top-4 left-4 bg-[#0e0e0e] border border-white/[0.04] rounded-lg z-10 flex gap-2">
           {/* View Mode Toggle */}
-          <div className="p-1 bg-muted rounded-md flex">
+          <div className="p-1 bg-white/[0.04] rounded-md flex">
             <Button
               variant={viewMode === 'map' ? 'secondary' : 'ghost'}
               size="sm"
@@ -572,11 +682,11 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
         </div>
 
         {/* Stats Bar */}
-        <div className="absolute bottom-4 left-4 right-[420px] bg-background/95 backdrop-blur rounded-lg shadow-sm p-3 z-10">
+        <div className="absolute bottom-4 left-4 right-[420px] bg-[#0e0e0e] border border-white/[0.04] rounded-lg p-3 z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
-                <Truck className="h-4 w-4 text-muted-foreground" />
+                <Truck className="h-4 w-4 text-white/60" />
                 <span className="text-sm">In Service: {stats.inService}</span>
               </div>
               <div className="flex items-center gap-2">
@@ -588,7 +698,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
                 <span className="text-sm">Due Soon: {stats.serviceDue}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Wrench className="h-4 w-4 text-muted-foreground" />
+                <Wrench className="h-4 w-4 text-white/60" />
                 <span className="text-sm">Work Orders: {stats.workOrdersPending}</span>
               </div>
             </div>

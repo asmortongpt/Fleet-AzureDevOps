@@ -8,6 +8,7 @@ import React from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
 
 export interface MetricCardProps {
   /** Display label for the metric */
@@ -44,14 +45,14 @@ export function MetricCard({
   className
 }: MetricCardProps) {
   const formattedValue = value !== undefined && value !== null
-    ? value.toLocaleString()
+    ? formatNumber(value)
     : '0'
 
   return (
     <Card
       className={cn(
         'relative transition-all',
-        isPrimary && 'border-primary border-2 shadow-md',
+        isPrimary && 'border-primary border-2',
         className
       )}
     >
@@ -118,7 +119,7 @@ export function MetricCardWithProgress({
     <Card
       className={cn(
         'relative transition-all',
-        isPrimary && 'border-primary border-2 shadow-md',
+        isPrimary && 'border-primary border-2',
         isCritical && 'border-destructive',
         isWarning && 'border-yellow-500',
         className
@@ -156,13 +157,13 @@ export function MetricCardWithProgress({
           isCritical && 'text-destructive',
           isWarning && 'text-yellow-600'
         )}>
-          {value.toLocaleString()}
+          {formatNumber(value)}
           <span className="text-sm font-normal text-muted-foreground ml-1">
             {unit}
           </span>
         </div>
         <div className="text-xs text-muted-foreground mt-1">
-          of {maxValue.toLocaleString()} {unit} ({percentage.toFixed(0)}%)
+          of {formatNumber(maxValue)} {unit} ({percentage.toFixed(0)}%)
         </div>
 
         {/* Progress bar */}

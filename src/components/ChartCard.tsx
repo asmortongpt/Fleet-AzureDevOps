@@ -1,18 +1,16 @@
-import { 
-  LineChart, 
-  Line, 
+import {
+  LineChart,
+  Line,
   AreaChart,
   Area,
   BarChart,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer
 } from "recharts"
-
-// Avoid Recharts chunk circularity warnings by importing Bar directly.
-import { Bar } from "recharts/es6/cartesian/Bar.js"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 

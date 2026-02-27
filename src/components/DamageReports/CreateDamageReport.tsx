@@ -1,6 +1,6 @@
 import { AlertTriangle, Car, Upload, X, Loader2, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { useNavigation } from '@/contexts/NavigationContext'
 import { damageReportsApi } from '@/services/damageReportsApi'
 import logger from '@/utils/logger';
 
@@ -39,7 +40,7 @@ interface CreateDamageReportProps {
 }
 
 export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportProps) {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const [formData, setFormData] = useState<DamageReportFormData>({
     vehicle_id: vehicleId || '',
     damage_description: '',
@@ -80,12 +81,12 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
       const isImage = file.type.startsWith('image/')
       const isVideo = file.type.startsWith('video/')
       if (!isImage && !isVideo) {
-        alert(`${file.name} is not a valid image or video file`)
+        toast.error(`${file.name} is not a valid image or video file`)
         return false
       }
       // Validate file size (max 50MB)
       if (file.size > 50 * 1024 * 1024) {
-        alert(`${file.name} is too large. Maximum file size is 50MB`)
+        toast.error(`${file.name} is too large. Maximum file size is 50MB`)
         return false
       }
       return true
@@ -172,7 +173,7 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
       if (onSuccess) {
         onSuccess(createdReport.id)
       } else {
-        navigate(`/damage-reports/${createdReport.id}`)
+        navigateTo('damage-reports')
       }
     } catch (error: any) {
       logger.error('Error creating damage report:', error)
@@ -364,7 +365,7 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
               <div className="space-y-2">
                 {selectedFiles.map((file, index) => (
                   <div
-                    key={index}
+                    key={file.name}
                     className="flex items-center justify-between p-3 bg-muted rounded-lg"
                   >
                     <div className="flex items-center gap-3 flex-1">
@@ -447,7 +448,7 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
         <Button
           type="button"
           variant="outline"
-          onClick={() => navigate('/damage-reports')}
+          onClick={() => navigateTo('damage-reports')}
           disabled={submitting || uploading}
         >
           Cancel

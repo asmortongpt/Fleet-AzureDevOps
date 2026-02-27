@@ -85,13 +85,13 @@ export class AzureADTokenValidator {
       const client = this.getJwksClient(tenantId)
       const key = await client.getSigningKey(kid)
       return key.getPublicKey()
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[AzureADTokenValidator] Failed to get signing key:', {
         tenantId,
         kid,
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       })
-      throw new Error(`Failed to get signing key: ${error.message}`)
+      throw new Error(`Failed to get signing key: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`)
     }
   }
 
@@ -105,11 +105,11 @@ export class AzureADTokenValidator {
         throw new Error('Invalid token format')
       }
       return decoded.header
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[AzureADTokenValidator] Failed to decode token header:', {
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       })
-      throw new Error(`Failed to decode token header: ${error.message}`)
+      throw new Error(`Failed to decode token header: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`)
     }
   }
 
@@ -214,25 +214,27 @@ export class AzureADTokenValidator {
         valid: true,
         payload
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       const duration = Date.now() - startTime
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      const errName = error instanceof Error ? error.name : 'Error'
       logger.error('[AzureADTokenValidator] Token validation failed:', {
-        error: error.message,
-        name: error.name,
+        error: errMsg,
+        name: errName,
         duration: `${duration}ms`
       })
 
       let errorCode = 'VALIDATION_FAILED'
-      let errorMessage = error.message
+      let errorMessage = errMsg
 
       // Map JWT errors to specific error codes
-      if (error.name === 'TokenExpiredError') {
+      if (errName === 'TokenExpiredError') {
         errorCode = 'TOKEN_EXPIRED'
         errorMessage = 'Token has expired'
-      } else if (error.name === 'JsonWebTokenError') {
+      } else if (errName === 'JsonWebTokenError') {
         errorCode = 'INVALID_TOKEN'
-        errorMessage = error.message
-      } else if (error.name === 'NotBeforeError') {
+        errorMessage = errMsg
+      } else if (errName === 'NotBeforeError') {
         errorCode = 'TOKEN_NOT_ACTIVE'
         errorMessage = 'Token not yet valid'
       }

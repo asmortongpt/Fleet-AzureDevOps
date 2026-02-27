@@ -4,110 +4,214 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CTAFleet is an enterprise fleet management system with a React/TypeScript frontend and a Node.js/Express backend. The application provides real-time vehicle tracking, driver management, telematics, compliance monitoring, and cost analytics.
+CTAFleet is an enterprise fleet management system with a React/TypeScript frontend and a Node.js/Express backend. Multi-tenant, Azure AD authenticated, deployed to Azure. Features: real-time vehicle tracking, driver management, telematics, compliance monitoring, cost analytics.
 
 ## Development Commands
 
-### Frontend (React + Vite)
+### Frontend (root directory)
 ```bash
-# Install dependencies (use --legacy-peer-deps for React 18 compatibility)
-npm install --legacy-peer-deps
-
-# Start development server (runs on http://localhost:5173)
-npm run dev
-
-# Type checking
-npm run typecheck
-
-# Linting
-npm run lint
-
-# Build for production
-npm run build
-
-# Run tests
-npm test
-npm run test:watch        # Watch mode
-npm run test:coverage     # With coverage
-npm run test:a11y         # Accessibility tests only
+npm install --legacy-peer-deps     # Required: React 18/19 peer dep conflicts
+npm run dev                        # Vite dev server → http://localhost:5173
+npm run build                      # Production build (Vite 7 + Rolldown + Oxc minifier)
+npm run typecheck                  # tsc --noEmit
+npm run lint                       # ESLint
+npm test                           # Vitest unit tests
+npm run test:coverage              # With V8 coverage
+npm run test:a11y                  # Accessibility tests
 ```
 
-### Backend API (api-standalone/)
+### Backend (api/)
 ```bash
-cd api-standalone
-npm install
-
-# Start server (runs on http://localhost:3000)
-DB_HOST=localhost npm start
+cd api && npm install
+npm run dev                        # tsx watch → http://localhost:3001 (loads ../.env via dotenv-cli)
+npm run build                      # esbuild → dist/server.js
+npm run typecheck                  # tsc --noEmit
+npm test                           # Vitest
+npm run test:integration           # Integration tests
+npm run migrate                    # Drizzle migrations
+npm run seed                       # Seed database
+npm run db:studio                  # Drizzle Kit visual explorer
 ```
 
-### Database (PostgreSQL via Docker)
+### Database (PostgreSQL 16)
 ```bash
-# Start PostgreSQL container
 docker run -d --name fleet-postgres \
-  -e POSTGRES_DB=fleet_db \
-  -e POSTGRES_USER=fleet_user \
-  -e POSTGRES_PASSWORD=fleet_password \
-  -p 5432:5432 \
-  postgres:16-alpine
+  -e POSTGRES_DB=fleet_db -e POSTGRES_USER=fleet_user \
+  -e POSTGRES_PASSWORD=fleet_password -p 5432:5432 postgres:16-alpine
+```
 
-# Or start existing container
-docker start fleet-postgres
+### Running Tests
+```bash
+npx vitest run src/path/to/file.test.tsx           # Single frontend test
+cd api && npx vitest run src/path/to/file.test.ts  # Single backend test
+npx playwright test tests/e2e/fleet-comprehensive.spec.ts  # E2E (28 tests)
+npx playwright test --headed                       # E2E with visible browser
+```
+
+### E2E Testing Requirement
+Set `DB_WEBAPP_POOL_SIZE=30` in `.env` before running E2E tests. Default pool size (10) causes connection exhaustion with parallel tests.
+
+### After Schema Changes
+```bash
+cd api && npm run migrate && redis-cli FLUSHDB     # Run migrations + flush Redis cache
 ```
 
 ## Architecture
 
-### Frontend Structure
-- **src/pages/**: Route-level page components (FleetHub, DriversHub, ComplianceHub, etc.)
-- **src/components/**: Reusable UI components organized by domain
-  - `ui/`: Base shadcn/ui components (Button, Card, Dialog, etc.)
-  - `modules/`: Feature modules (fleet, drivers, compliance, charging, etc.)
-  - `layout/`: Layout components (CommandCenterLayout, MapFirstLayout)
-  - `hubs/`: Hub-specific components for each major feature area
-  - `visualizations/`: Charts and data visualization components
-- **src/hooks/**: Custom React hooks (`use-api.ts`, `use-reactive-fleet-data.ts`)
-- **src/contexts/**: React contexts (AuthContext, DrilldownContext, TenantContext)
-- **src/services/**: API clients and service layers
-- **src/lib/**: Utility libraries (telemetry, push-notifications, auth)
+### Two Backend Servers
 
-### Backend Structure (api-standalone/)
-Simple Express.js server with PostgreSQL:
-- `/api/vehicles` - Vehicle CRUD operations
-- `/api/drivers` - Driver management
-- `/api/stats` - Fleet statistics
-- Vite dev server proxies `/api/*` requests to port 3000
+1. **`api/`** — Production backend (Express + TypeScript + Drizzle ORM, port 3001). Full auth, RBAC, 140+ registered routes, background jobs (Bull/BullMQ), Redis caching, Sentry, OpenTelemetry.
+2. **`api-standalone/`** — Minimal JS Express server for prototyping (port 3000). No auth. Not for production.
 
-### Key Patterns
-- **Path aliases**: `@/` maps to `src/` (configured in tsconfig.json and vite.config.ts)
-- **Lazy loading**: Heavy components use React.lazy() for code splitting
-- **Named vs Default exports**: Check component exports - some use named exports requiring `.then(m => ({ default: m.ComponentName }))`
+Vite proxies `/api/*` and `/auth/*` to `http://localhost:3001` (see `vite.config.ts`).
+
+### Frontend (src/)
+
+**Routing**: React Router v7. Routes defined in `src/main.tsx`, lazy-loaded components mapped in `src/App.tsx`. 60+ code-split modules. Public routes: `/login`, `/auth/callback`. Everything else requires auth via `ProtectedRoute`.
+
+**Provider nesting order** (in `main.tsx`): QueryClientProvider → MsalProvider → ThemeProvider → SentryErrorBoundary → BrandingProvider → AuthProvider → TenantProvider → PolicyProvider → FeatureFlagProvider → DrilldownProvider → InspectProvider → PanelProvider → BrowserRouter
+
+**State management** (four layers):
+- **React Contexts** (`src/contexts/`) — AuthContext, TenantContext, PolicyContext, DrilldownContext, PermissionContext, FeatureFlagContext
+- **TanStack Query v5** — server state fetching/caching (staleTime: 60s)
+- **Zustand** — global client state
+- **Jotai** — atomic reactive state for specific UI
+
+**UI**: shadcn/ui (Radix) in `src/components/ui/`, feature modules in `src/components/modules/`, hub layouts in `src/components/hubs/`.
+
+**Path alias**: `@/` → `src/` (configured in tsconfig.json and vite.config.ts)
+
+### Backend (api/src/)
+
+**Middleware chain** (order matters in `server.ts`):
+Sentry → Helmet (CSP) → CORS → Body Parsers (10MB) → Cookie Parser → Request ID → Rate Limiter → Response Formatter → Telemetry → Dev Auth Bypass → CSRF → Routes → Error Handler
+
+**Key directories**:
+- `routes/` — 140+ route files, **manually imported and registered** in `server.ts` (no auto-loader). Many route files exist but are unregistered.
+- `repositories/` — Data access layer (240+ files). All use parameterized queries ($1, $2) — never string concatenation.
+- `middleware/` — auth.ts, rbac.ts, csrf.ts, rate-limit.ts, tenant-context.ts, etc. Field masking (`api/src/utils/fieldMasking.ts`) removes cost fields for non-admin roles.
+- `schemas/` — Zod validation schemas
+- `emulators/` — OBD2, GPS, telematics emulators
+- `jobs/` — Bull/BullMQ background processing
+
+**Auth**: Azure AD JWT (RS256) + local JWT fallback. Roles: SuperAdmin, Admin, Manager, User, ReadOnly. 100+ permissions (`driver:view:self`, `fleet:edit`, etc.).
+
+**Dev auth bypass** (triple-gated): `SKIP_AUTH=true` + `NODE_ENV !== 'production'` + non-production build. Sets dev user `00000000-0000-0000-0000-000000000001` with tenant `12345678-1234-1234-1234-123456789012` and role SuperAdmin.
+
+**Database**: PostgreSQL via Drizzle ORM. 100+ tables. Migrations in `api/src/migrations/`. Pool manager: `api/src/config/connection-manager.ts`.
+
+**Query pattern pitfall**: Route handlers use **explicit column lists** (not `SELECT *`). When adding new columns, update three places: (1) own scope queries, (2) team scope inline SQL in `vehicles.service.ts`, (3) global scope in `VehiclesRepository.selectColumns`.
+
+### API Response Format
+```json
+{ "success": true, "data": [...], "meta": { ... } }
+```
+
+When adding new API routes:
+1. Create route file in `api/src/routes/`
+2. Add Zod schema in `api/src/schemas/[domain].ts`
+3. **Manually register** the route in `server.ts` (imports + `app.use()`)
+4. Test with `curl` — schema mismatches cause runtime 500s not caught by TypeScript
 
 ## Environment Setup
 
-Create `.env` from `.env.example`:
-```bash
-VITE_API_URL=http://localhost:3000
-VITE_GOOGLE_MAPS_API_KEY=        # Optional: for map features
-```
+Copy `.env.example` to `.env`. Key variables:
+- `VITE_AZURE_AD_CLIENT_ID` / `VITE_AZURE_AD_TENANT_ID` — Azure AD auth
+- `VITE_API_URL` — Backend URL (empty = uses Vite proxy to localhost:3001)
+- `VITE_GOOGLE_MAPS_API_KEY` — Map features
+- `DATABASE_URL` — PostgreSQL connection string
+- `SKIP_AUTH` — Dev mode auth bypass (set to `true`)
+- `DB_WEBAPP_POOL_SIZE` — Connection pool size (set to `30` for E2E tests)
+- Frontend vars must be prefixed with `VITE_`
+- Backend loads `../.env` from root via dotenv-cli
 
 ## Common Issues
 
-### Database IDs as Numbers
-The PostgreSQL database returns `id` as integers, but some frontend components expect strings. When fixing type errors with `.slice()` or string comparisons on IDs, wrap with `String(vehicle.id)`.
+**npm install fails**: Use `--legacy-peer-deps` in root (React peer dep conflicts).
 
-### CORS with Credentials
-The backend CORS must specify the exact origin (not `*`) when frontend uses `credentials: 'include'`. The backend sets `Access-Control-Allow-Origin` from the request origin header.
+**Port 5173 in use**: Verify correct instance: `curl -s http://localhost:5173 | grep -o '<title>.*</title>'`. Kill wrong one: `lsof -i :5173`.
 
-### Missing Components
-If lazy-loaded components fail to resolve, check:
-1. The file exists at the expected path
-2. Export type matches import (named vs default)
-3. For named exports with lazy(): `lazy(() => import('./Component').then(m => ({ default: m.Component })))`
+**tsx watch not reloading**: `pkill -f "tsx watch"` and restart `npm run dev`.
+
+**CORS errors**: Backend CORS requires exact origin (not `*`) when frontend uses `credentials: 'include'`.
+
+**Lazy loading failures**: Check (1) file exists at path, (2) export type — some need `.then(m => ({ default: m.ComponentName }))`.
+
+**Database IDs**: PostgreSQL returns integers. Use `String(vehicle.id)` for frontend string operations.
+
+**API returns stale data after schema change**: Must flush Redis (`redis-cli FLUSHDB`) and restart backend.
+
+## Testing
+
+**Zero mocks policy**: All tests use real PostgreSQL, real HTTP (Supertest), real JWT, real RBAC. No `vi.mock()`, no `vi.fn()`, no stubs.
+
+**Test suites**:
+- Frontend UI: `npm test -- src/components/ui/` (3,969 tests, 76 components)
+- Frontend hooks: `npm test -- src/hooks/__tests__/`
+- Backend routes: `cd api && npm test -- src/routes/__tests__/`
+- Backend middleware: `cd api && npm test -- tests/integration/middleware/`
+- E2E: `npx playwright test tests/e2e/`
+- Visual regression: `npx playwright test tests/visual/`
+- Security (OWASP): `cd api && npm test -- tests/security/`
+- Load testing: `npm run load:normal` / `load:spike` / `load:stress`
 
 ## Tech Stack
 
-**Frontend**: React 18, TypeScript, Vite, TailwindCSS v4, shadcn/ui, TanStack Query, React Router, Recharts, AG Grid, Three.js (3D), Framer Motion
+**Frontend**: React 19, TypeScript, Vite 7, TailwindCSS v4, shadcn/ui (Radix), TanStack Query v5, React Router v7, Recharts, AG Grid, Three.js/R3F, Framer Motion, Zustand, Jotai, MSAL
 
-**Backend**: Express.js, PostgreSQL, node-pg
+**Backend**: Express 4, TypeScript, Drizzle ORM, PostgreSQL (pg), Redis (ioredis), Bull/BullMQ, Zod, Winston, Sentry, OpenTelemetry, Socket.io
 
-**Infrastructure**: Docker, Azure AD (auth), Azure Key Vault (secrets), Sentry (errors), Application Insights (telemetry)
+**Testing**: Vitest, Testing Library, Playwright, axe-core, K6/Artillery
+
+**Infrastructure**: Docker, Azure AD, Azure Key Vault, Azure Static Web Apps, AKS
+
+## Git Workflow
+
+```bash
+git pull origin main
+# Make changes, test locally
+git add [specific files]
+git commit -m "feat: description"
+git push origin main
+```
+
+Push to both remotes: `git push origin main && git push azure main`
+
+## Agent Team Coordination Rules
+
+When working as part of an agent team, follow these rules strictly:
+
+### File Ownership
+- **fleet-ops**: owns `src/pages/FleetOperationsHub.tsx`, `src/components/hubs/operations/`, `src/components/hubs/assets/`, `src/components/fleet/`, and fleet-related drilldowns (VehicleDetailPanel, DriverDetailPanel, WorkOrderDetailPanel, RouteDetailPanel, etc.)
+- **compliance-safety**: owns `src/pages/ComplianceSafetyHub.tsx`, `src/components/compliance/`, `src/components/safety/`, and safety/compliance drilldowns (SafetyHubDrilldowns, PolicyDetailPanel, ViolationDetailPanel, etc.)
+- **business-mgmt**: owns `src/pages/BusinessManagementHub.tsx`, `src/components/hubs/procurement/`, `src/components/hubs/reports/`, and business-related modules
+- **people-comms**: owns `src/pages/PeopleCommunicationHub.tsx`, `src/components/hubs/communication/`, `src/components/modules/communication/`, `src/components/modules/integrations/EmailCenter.tsx`
+- **admin-config**: owns `src/pages/AdminConfigurationHub.tsx`, `src/components/settings/`, and admin-related modules
+- **NEVER edit files outside your domain without lead approval**
+- **server.ts edits require lead coordination** (one teammate at a time)
+
+### Styling Rules (mandatory)
+- Use `bg-[#242424]`, `bg-white/[0.03-0.1]`, `bg-[#111]`, `bg-[#1a1a1a]` for backgrounds
+- Use `border-white/[0.08]` for borders
+- Use `text-white/60`, `text-white/80`, `text-white/40` for text colors
+- **NEVER use slate-* classes** (they have blue undertones)
+- **NEVER use blue-* background/border classes** — use emerald-* for accent colors
+- Use `formatNumber()`, `formatCurrency()`, `formatDate()` from `@/utils/format-helpers` — never raw `.toLocaleString()`
+
+### Quality Bar
+- Every button must have a working onClick handler (no empty handlers, no toast-only stubs)
+- Every API call must hit a real backend endpoint (no mock data)
+- Zero console errors on every tab in your hub
+- Every drilldown must open and show real data when clicked
+- Self-audit: grep your files for `console.log`, `TODO`, `FIXME`, `toast(` before declaring done
+
+### Task List Location
+- Full audit of all broken elements: `.claude/team-audit.md`
+- Each team member's tasks are prefixed: F- (fleet), C- (compliance), B- (business), P- (people), A- (admin), API- (backend)
+
+### Dev Environment
+- Frontend: `npm run dev` on port 5173/5174
+- Backend: `cd api && npm run dev` on port 3001
+- Database: PostgreSQL with dev tenant `12345678-1234-1234-1234-123456789012`
+- Auth bypass: `SKIP_AUTH=true` in `.env`
+- Always `SET app.current_tenant_id` for direct SQL queries

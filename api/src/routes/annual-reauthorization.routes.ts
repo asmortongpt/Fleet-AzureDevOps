@@ -21,6 +21,8 @@ import { requirePermission } from '../middleware/permissions';
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 // let pool: Pool;
 // export function setDatabasePool(dbPool: Pool) {
@@ -40,12 +42,12 @@ const createReauthCycleSchema = z.object({
 });
 
 const createReauthDecisionSchema = z.object({
-  reauthorization_cycle_id: z.string().uuid(),
-  vehicle_assignment_id: z.string().uuid(),
+  reauthorization_cycle_id: flexUuid,
+  vehicle_assignment_id: flexUuid,
   decision: z.enum(['reauthorize', 'modify', 'terminate']),
   modification_notes: z.string().optional(),
-  new_vehicle_id: z.string().uuid().optional(),
-  new_driver_id: z.string().uuid().optional(),
+  new_vehicle_id: flexUuid.optional(),
+  new_driver_id: flexUuid.optional(),
   parameter_changes: z.record(z.string(), z.any()).optional(),
   termination_reason: z.string().optional(),
   termination_effective_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -65,7 +67,7 @@ router.get(
     try {
       const { page = '1', limit = '50', year, status } = req.query;
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
 
       const whereConditions = [`arc.tenant_id = $1`];
       const params: any[] = [tenant_id];
@@ -115,7 +117,7 @@ router.get(
           pages: Math.ceil(total / parseInt(limit as string)),
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching reauthorization cycles:`, error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({
         error: 'Failed to fetch reauthorization cycles',
@@ -137,7 +139,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = createReauthCycleSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       // Check if cycle for this year already exists
@@ -191,7 +193,7 @@ router.post(
         message: `Annual reauthorization cycle created successfully`,
         cycle: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating reauthorization cycle:', error) // Wave 33: Winston logger (FINAL WAVE!);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -220,7 +222,7 @@ router.get(
     try {
       const { id } = req.params;
       const { department_id, assignment_type } = req.query;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
 
       const whereConditions = [
         'va.tenant_id = $1',
@@ -267,7 +269,7 @@ router.get(
       const result = await pool.query(query, params);
 
       res.json(result.rows);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching assignments for review:`, error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({
         error: 'Failed to fetch assignments for review',
@@ -289,7 +291,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = createReauthDecisionSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       // Validate decision type requirements
@@ -350,7 +352,7 @@ router.post(
         message: 'Reauthorization decision recorded successfully',
         decision: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating reauthorization decision:', error) // Wave 33: Winston logger (FINAL WAVE!);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -378,7 +380,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       // Check if all assignments have decisions
@@ -427,7 +429,7 @@ router.post(
         message: 'Reauthorization cycle submitted to Fleet Management successfully',
         cycle: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error submitting reauthorization cycle:', error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({
         error: 'Failed to submit reauthorization cycle',

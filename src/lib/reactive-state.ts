@@ -445,7 +445,7 @@ export interface GeneralSettings {
 
 export interface AppearanceSettings {
   theme: 'light' | 'dark' | 'auto'
-  colorScheme: 'blue' | 'green' | 'purple' | 'orange'
+  colorScheme: 'teal' | 'green' | 'amber' | 'orange'
   fontSize: 'small' | 'medium' | 'large' | 'extra-large'
   density: 'compact' | 'comfortable' | 'spacious'
   sidebarCollapsed: boolean
@@ -528,7 +528,7 @@ export const generalSettingsAtom = atomWithStorage<GeneralSettings>('general-set
 
 export const appearanceSettingsAtom = atomWithStorage<AppearanceSettings>('appearance-settings', {
   theme: 'auto',
-  colorScheme: 'blue',
+  colorScheme: 'teal',
   fontSize: 'medium',
   density: 'comfortable',
   sidebarCollapsed: false,

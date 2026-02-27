@@ -12,7 +12,6 @@ import {
   Calendar,
   User,
   Phone,
-  Mail,
   FileText,
   Download,
 } from 'lucide-react'
@@ -21,6 +20,7 @@ import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { DataGrid } from '@/components/common/DataGrid'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,11 +33,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => r.json())
-    .then((data) => data?.data ?? data)
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
 
 // ============ TYPE DEFINITIONS ============
 
@@ -87,16 +85,18 @@ export function InspectionsMatrixView() {
 
   const { data: inspections } = useSWR<InspectionData[]>(
     '/api/inspections',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false,
     }
   )
 
-  const filteredData = useMemo(() => {
-    if (!inspections) return []
+  const safeInspections = Array.isArray(inspections) ? inspections : []
 
-    return inspections.filter((inspection) => {
+  const filteredData = useMemo(() => {
+    if (!safeInspections.length) return []
+
+    return safeInspections.filter((inspection) => {
       const matchesResult = resultFilter === 'all' || inspection.result === resultFilter
       const matchesType = typeFilter === 'all' || inspection.type === typeFilter
       const matchesSearch =
@@ -107,7 +107,7 @@ export function InspectionsMatrixView() {
 
       return matchesResult && matchesType && matchesSearch
     })
-  }, [inspections, resultFilter, typeFilter, searchQuery])
+  }, [safeInspections, resultFilter, typeFilter, searchQuery])
 
   const columns: ColumnDef<InspectionData>[] = [
     {
@@ -122,7 +122,7 @@ export function InspectionsMatrixView() {
       header: 'Date',
       cell: ({ row }) => (
         <div>
-          <div>{new Date(row.original.date).toLocaleDateString()}</div>
+          <div>{formatDate(row.original.date)}</div>
           {row.original.time && (
             <div className="text-xs text-muted-foreground">{row.original.time}</div>
           )}
@@ -151,8 +151,8 @@ export function InspectionsMatrixView() {
             {result === 'passed' && <CheckCircle className="w-4 h-4 text-green-500" />}
             {result === 'failed' && <XCircle className="w-4 h-4 text-red-500" />}
             {result === 'conditional' && <AlertTriangle className="w-4 h-4 text-yellow-500" />}
-            <Badge variant={variant} className="capitalize">
-              {result}
+            <Badge variant={variant}>
+              {formatEnum(result)}
             </Badge>
           </div>
         )
@@ -222,7 +222,7 @@ export function InspectionsMatrixView() {
 
         return (
           <div>
-            <div>{dueDate.toLocaleDateString()}</div>
+            <div>{formatDate(dueDate)}</div>
             {daysUntil <= 7 && daysUntil > 0 && (
               <div className="text-xs text-amber-500 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
@@ -259,7 +259,7 @@ export function InspectionsMatrixView() {
 
     const csvData = filteredData.map((inspection) => [
       inspection.inspection_number,
-      new Date(inspection.date).toLocaleDateString(),
+      formatDate(inspection.date),
       inspection.time || '',
       inspection.vehicle_name || '',
       inspection.inspector_name,
@@ -268,7 +268,7 @@ export function InspectionsMatrixView() {
       inspection.violations.toString(),
       inspection.critical_items.toString(),
       inspection.status,
-      inspection.next_due ? new Date(inspection.next_due).toLocaleDateString() : '',
+      inspection.next_due ? formatDate(inspection.next_due) : '',
     ])
 
     const csv = [headers, ...csvData].map((row) => row.join(',')).join('\n')
@@ -292,10 +292,10 @@ export function InspectionsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-[#111111] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalInspections}</div>
-            <div className="text-xs text-slate-700">Total Inspections</div>
+            <div className="text-xs text-white/40">Total Inspections</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -304,7 +304,7 @@ export function InspectionsMatrixView() {
               <CheckCircle className="w-3 h-3 text-green-400" />
               <div className="text-sm font-bold text-green-400">{passedCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Passed ({passRate}%)</div>
+            <div className="text-xs text-white/40">Passed ({passRate}%)</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -313,7 +313,7 @@ export function InspectionsMatrixView() {
               <XCircle className="w-3 h-3 text-red-400" />
               <div className="text-sm font-bold text-red-400">{failedCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Failed</div>
+            <div className="text-xs text-white/40">Failed</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -322,13 +322,13 @@ export function InspectionsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-amber-400" />
               <div className="text-sm font-bold text-amber-400">{violationsCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Total Violations</div>
+            <div className="text-xs text-white/40">Total Violations</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3">
             <div className="flex-1">
@@ -372,10 +372,10 @@ export function InspectionsMatrixView() {
       </Card>
 
       {/* Excel-Style Inspection Matrix */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <ClipboardCheck className="w-3 h-3 text-blue-700" />
+            <ClipboardCheck className="w-3 h-3 text-emerald-400" />
             All Safety Inspections - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>
@@ -406,7 +406,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
 
   const { data: inspection, error, isLoading, mutate } = useSWR<InspectionData>(
     `/api/inspections/${inspectionId}`,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false,
     }
@@ -414,7 +414,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
 
   const { data: violations } = useSWR<InspectionViolation[]>(
     inspectionId ? `/api/inspections/${inspectionId}/violations` : null,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false,
     }
@@ -431,10 +431,8 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
     }
   }
 
-  const handleContactInspector = (email?: string, phone?: string) => {
-    if (email) {
-      window.location.href = `mailto:${email}`
-    } else if (phone) {
+  const handleContactInspector = (_email?: string, phone?: string) => {
+    if (phone) {
       window.location.href = `tel:${phone}`
     }
   }
@@ -478,15 +476,15 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
             <div className="space-y-1">
               <h3 className="text-sm font-bold">Inspection #{inspection.inspection_number}</h3>
               <p className="text-sm text-muted-foreground">
-                {new Date(inspection.date).toLocaleDateString()}{' '}
+                {formatDate(inspection.date)}{' '}
                 {inspection.time && `at ${inspection.time}`}
               </p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant={getStatusColor(inspection.result)} className="capitalize">
-                  {inspection.result}
+                <Badge variant={getStatusColor(inspection.result)}>
+                  {formatEnum(inspection.result)}
                 </Badge>
-                <Badge variant="outline" className="capitalize">
-                  {inspection.type.replace('-', ' ')}
+                <Badge variant="outline">
+                  {formatEnum(inspection.type)}
                 </Badge>
                 {inspection.score && (
                   <Badge variant={inspection.score >= 90 ? 'secondary' : 'default'}>
@@ -495,7 +493,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                 )}
               </div>
             </div>
-            <ClipboardCheck className="h-9 w-12 text-blue-700" />
+            <ClipboardCheck className="h-9 w-12 text-emerald-400" />
           </div>
 
           {/* Quick Stats */}
@@ -527,7 +525,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
               <CardContent>
                 <div className="text-sm font-bold">
                   {inspection.next_due
-                    ? new Date(inspection.next_due).toLocaleDateString()
+                    ? formatDate(inspection.next_due)
                     : 'Not scheduled'}
                 </div>
                 {inspection.next_due && (
@@ -565,14 +563,19 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                     </Button>
                   )}
                   {inspection.inspector_email && (
-                    <Button
+                    <EmailButton
+                      to={inspection.inspector_email}
+                      context={{
+                        type: 'inspection_notice',
+                        recipientName: inspection.inspector_name,
+                        entityName: inspection.vehicle_name,
+                        details: `Inspection #${inspection.inspection_number}. Type: ${inspection.type || 'Safety'}. Date: ${inspection.date}.`,
+                      }}
                       variant="ghost"
-                      size="sm"
-                      className="h-6 px-2"
-                      onClick={() => handleContactInspector(inspection.inspector_email)}
-                    >
-                      <Mail className="h-3 w-3" />
-                    </Button>
+                      size="icon"
+                      className="h-6 w-6"
+                      ariaLabel="Email inspector"
+                    />
                   )}
                 </div>
               </CardContent>
@@ -594,11 +597,11 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Location</p>
-                  <p className="font-medium">{inspection.location || 'N/A'}</p>
+                  <p className="font-medium">{inspection.location || '—'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Inspection Type</p>
-                  <p className="font-medium capitalize">{inspection.type.replace('-', ' ')}</p>
+                  <p className="font-medium">{formatEnum(inspection.type)}</p>
                 </div>
                 {inspection.certification_number && (
                   <div>
@@ -668,13 +671,13 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                                 <div className="flex items-center gap-1">
                                   <Calendar className="h-3 w-3" />
                                   <span>
-                                    Due: {new Date(violation.due_date).toLocaleDateString()}
+                                    Due: {formatDate(violation.due_date)}
                                   </span>
                                 </div>
                               )}
                               {violation.cost_to_fix && (
                                 <div className="flex items-center gap-1">
-                                  <span>Est. Cost: ${violation.cost_to_fix.toFixed(2)}</span>
+                                  <span>Est. Cost: {formatCurrency(violation.cost_to_fix)}</span>
                                 </div>
                               )}
                             </div>
@@ -685,7 +688,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                           <div className="pt-2 border-t text-sm">
                             <span className="text-muted-foreground">Resolved on </span>
                             <span className="font-medium">
-                              {new Date(violation.resolved_date).toLocaleDateString()}
+                              {formatDate(violation.resolved_date)}
                             </span>
                             {violation.resolved_by && (
                               <span className="text-muted-foreground"> by {violation.resolved_by}</span>
@@ -739,13 +742,17 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                     </Button>
                   )}
                   {inspection.inspector_email && (
-                    <Button
+                    <EmailButton
+                      to={inspection.inspector_email}
+                      context={{
+                        type: 'inspection_notice',
+                        recipientName: inspection.inspector_name,
+                        entityName: inspection.vehicle_name,
+                        details: `Inspection #${inspection.inspection_number}. Type: ${inspection.type || 'Safety'}. Date: ${inspection.date}.`,
+                      }}
+                      label={inspection.inspector_email}
                       variant="outline"
-                      onClick={() => handleContactInspector(inspection.inspector_email)}
-                    >
-                      <Mail className="h-4 w-4 mr-2" />
-                      {inspection.inspector_email}
-                    </Button>
+                    />
                   )}
                 </div>
               </div>

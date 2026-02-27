@@ -68,7 +68,7 @@ router.get(
           FROM recall_notices
           WHERE tenant_id = $1 AND status = 'ACTIVE'
         ) recalls ON true
-        WHERE v.tenant_id = $1 ${vehicleFilter}
+        WHERE v.tenant_id = $1 AND v.status != 'retired' ${vehicleFilter}
         ORDER BY v.name
         `,
         params
@@ -109,8 +109,12 @@ router.get(
         )))
 
         const maintenanceScore = (() => {
-          if (!nextInspectionDate) return 80
-          if (nextInspectionDate.getTime() < now.getTime()) return 60
+          if (!nextInspectionDate) {
+return 80
+}
+          if (nextInspectionDate.getTime() < now.getTime()) {
+return 60
+}
           return 90
         })()
 

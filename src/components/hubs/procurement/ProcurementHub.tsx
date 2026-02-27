@@ -10,8 +10,8 @@ import {
   DollarSign
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
-import useSWR from "swr"
 import { toast } from "sonner"
+import useSWR from "swr"
 
 import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
@@ -23,18 +23,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { usePolicies } from "@/contexts/PolicyContext"
+import { useFleetData } from "@/hooks/use-fleet-data"
+import { apiFetcher } from "@/lib/api-fetcher"
 import {
   enforcePaymentPolicy,
   shouldBlockAction,
   getApprovalRequirements
 } from "@/lib/policy-engine/policy-enforcement"
 import { cn } from "@/lib/utils"
+import { formatEnum } from "@/utils/format-enum"
+import { formatCurrency , formatDate } from "@/utils/format-helpers"
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" }).then((res) => res.json())
+const fetcher = apiFetcher
 
 // Supplier Panel Component
-const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; _onClose: () => void; onCreatePO: (supplier: any) => void; isCreatingPO: boolean }) => {
+const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO, onViewHistory, onContactSupplier }: { supplier: any; _onClose: () => void; onCreatePO: (supplier: any) => void; isCreatingPO: boolean; onViewHistory?: (supplier: any) => void; onContactSupplier?: (supplier: any) => void }) => {
   useDrilldown()
 
   if (!supplier) {
@@ -51,7 +54,7 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
         <div>
           <h3 className="text-sm font-semibold">{supplier.name}</h3>
           <Badge variant={supplier.status === 'active' ? 'default' : 'secondary'}>
-            {supplier.status}
+            {formatEnum(supplier.status)}
           </Badge>
         </div>
 
@@ -63,7 +66,7 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
 
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Total Spend</div>
-            <div className="font-medium text-sm">${supplier.totalSpend.toLocaleString()}</div>
+            <div className="font-medium text-sm">{formatCurrency(supplier.totalSpend)}</div>
           </Card>
 
           <Card className="p-3">
@@ -73,9 +76,30 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
 
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Category</div>
-            <div className="font-medium">{supplier.category}</div>
+            <div className="font-medium">{formatEnum(supplier.category)}</div>
           </Card>
         </div>
+
+        {/* Work Order Activity from Fleet Data */}
+        {supplier.woOrderCount > 0 && (
+          <Card className="p-3">
+            <div className="text-sm font-medium mb-2">Work Order Activity</div>
+            <div className="space-y-1.5 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Work Orders</span>
+                <span className="font-medium">{supplier.woOrderCount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Parts Cost</span>
+                <span className="font-medium">{formatCurrency(supplier.woPartsCost)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Labor Cost</span>
+                <span className="font-medium">{formatCurrency(supplier.woLaborCost)}</span>
+              </div>
+            </div>
+          </Card>
+        )}
 
         <div className="space-y-2">
           <Button
@@ -86,10 +110,10 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
             <Package className="h-4 w-4 mr-2" />
             {isCreatingPO ? "Checking Policy..." : "Create Purchase Order"}
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={() => onViewHistory?.(supplier)}>
             View Order History
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={() => onContactSupplier?.(supplier)}>
             Contact Supplier
           </Button>
         </div>
@@ -103,9 +127,9 @@ const PurchaseOrdersPanel = ({ orders, onOrderSelect }: { orders: any[]; onOrder
   const getStatusIcon = (status: string) => {
     switch(status) {
       case 'delivered': return <CheckCircle2 className="h-4 w-4 text-green-500" />
-      case 'in_transit': return <Truck className="h-4 w-4 text-blue-800" />
+      case 'in_transit': return <Truck className="h-4 w-4 text-emerald-400" />
       case 'processing': return <Clock className="h-4 w-4 text-yellow-500" />
-      default: return <AlertCircle className="h-4 w-4 text-gray-700" />
+      default: return <AlertCircle className="h-4 w-4 text-white/35" />
     }
   }
 
@@ -130,7 +154,7 @@ const PurchaseOrdersPanel = ({ orders, onOrderSelect }: { orders: any[]; onOrder
                   <Badge variant="outline">{order.items} items</Badge>
                   <Badge variant="secondary">
                     <DollarSign className="h-3 w-3 mr-1" />
-                    ${order.value.toLocaleString()}
+                    {formatCurrency(order.value)}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">ETA: {order.eta}</p>
@@ -200,6 +224,8 @@ const InventoryPanel = ({ inventory }: { inventory: any[] }) => {
 // Dashboard Panel
 const DashboardPanel = ({ suppliers, orders, inventory }: { suppliers: any[]; orders: any[]; inventory: any[] }) => {
   const totalSpend = suppliers.reduce((sum, s) => sum + s.totalSpend, 0)
+  const totalWoPartsCost = suppliers.reduce((sum, s) => sum + (s.woPartsCost || 0), 0)
+  const totalWoLaborCost = suppliers.reduce((sum, s) => sum + (s.woLaborCost || 0), 0)
   const activeOrders = orders.filter(po => po.status !== 'delivered').length
   const criticalItems = inventory.filter(item => item.quantity < item.minStock).length
 
@@ -211,10 +237,25 @@ const DashboardPanel = ({ suppliers, orders, inventory }: { suppliers: any[]; or
         <Card className="p-2">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Total Spend (30 days)</p>
-              <p className="text-sm font-bold">${totalSpend.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Total Spend (PO + Work Orders)</p>
+              <p className="text-sm font-bold">{formatCurrency(totalSpend)}</p>
             </div>
             <DollarSign className="h-8 w-8 text-muted-foreground" />
+          </div>
+        </Card>
+
+        <Card className="p-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">WO Vendor Costs</p>
+              <p className="text-sm font-bold">
+                {formatCurrency(totalWoPartsCost + totalWoLaborCost)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Parts: {formatCurrency(totalWoPartsCost)} / Labor: {formatCurrency(totalWoLaborCost)}
+              </p>
+            </div>
+            <Package className="h-8 w-8 text-muted-foreground" />
           </div>
         </Card>
 
@@ -261,7 +302,7 @@ const DashboardPanel = ({ suppliers, orders, inventory }: { suppliers: any[]; or
             ).map(([category, spend]) => (
               <div key={category} className="flex items-center justify-between">
                 <span className="text-sm">{category}</span>
-                <span className="text-sm font-medium">${spend.toLocaleString()}</span>
+                <span className="text-sm font-medium">{formatCurrency(spend as number)}</span>
               </div>
             ))}
           </CardContent>
@@ -280,18 +321,39 @@ export function ProcurementHub() {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [isCreatingPO, setIsCreatingPO] = useState(false)
 
-  const { data: vendorsResponse } = useSWR('/api/vendors', fetcher)
-  const { data: ordersResponse } = useSWR('/api/purchase-orders', fetcher)
-  const { data: partsResponse } = useSWR('/api/parts', fetcher)
+  const { workOrders: fleetWorkOrders } = useFleetData()
 
-  const vendors = vendorsResponse?.data || []
-  const purchaseOrdersRaw = ordersResponse?.data || []
-  const parts = partsResponse?.data || []
+  const { data: vendorsResponse, error: vendorsError } = useSWR('/api/vendors', fetcher)
+  const { data: ordersResponse, error: ordersError } = useSWR('/api/purchase-orders', fetcher)
+  const { data: partsResponse, error: partsError } = useSWR('/api/parts', fetcher)
+  const hasError = vendorsError || ordersError || partsError
+
+  const vendors = Array.isArray(vendorsResponse) ? vendorsResponse : []
+  const purchaseOrdersRaw = Array.isArray(ordersResponse) ? ordersResponse : []
+  const parts = Array.isArray(partsResponse) ? partsResponse : []
+
+  // Cross-reference vendor_id from work orders to compute total spend by vendor
+  const workOrderVendorSpend = useMemo(() => {
+    const spendMap = new Map<string, { totalCost: number; partsCost: number; laborCost: number; orderCount: number }>()
+    fleetWorkOrders.forEach((wo: any) => {
+      const vendorId = wo.vendor_id || wo.vendorId
+      if (!vendorId) return
+      const existing = spendMap.get(vendorId) || { totalCost: 0, partsCost: 0, laborCost: 0, orderCount: 0 }
+      existing.totalCost += Number(wo.total_cost || wo.cost || 0)
+      existing.partsCost += Number(wo.parts_cost || 0)
+      existing.laborCost += Number(wo.labor_cost || 0)
+      existing.orderCount += 1
+      spendMap.set(vendorId, existing)
+    })
+    return spendMap
+  }, [fleetWorkOrders])
 
   const suppliers = useMemo(() => {
     return vendors.map((vendor: any) => {
       const vendorOrders = purchaseOrdersRaw.filter((po: any) => po.vendorId === vendor.id)
-      const totalSpend = vendorOrders.reduce((sum: number, po: any) => sum + (Number(po.totalAmount) || 0), 0)
+      const poSpend = vendorOrders.reduce((sum: number, po: any) => sum + (Number(po.totalAmount) || 0), 0)
+      const woSpend = workOrderVendorSpend.get(vendor.id)
+      const totalSpend = poSpend + (woSpend?.totalCost || 0)
       const locationMeta = vendor.metadata || {}
       return {
         id: vendor.id,
@@ -301,13 +363,16 @@ export function ProcurementHub() {
           lng: locationMeta.lng || -84.28
         },
         category: vendor.type || 'General',
-        orderCount: vendorOrders.length,
+        orderCount: vendorOrders.length + (woSpend?.orderCount || 0),
         totalSpend,
+        woPartsCost: woSpend?.partsCost || 0,
+        woLaborCost: woSpend?.laborCost || 0,
+        woOrderCount: woSpend?.orderCount || 0,
         rating: Number(vendor.rating) || 4.5,
         status: vendor.isActive ? 'active' : 'pending'
       }
     })
-  }, [vendors, purchaseOrdersRaw])
+  }, [vendors, purchaseOrdersRaw, workOrderVendorSpend])
 
   const purchaseOrders = useMemo(() => {
     return purchaseOrdersRaw.map((po: any) => {
@@ -323,7 +388,7 @@ export function ProcurementHub() {
         failed: 'processing'
       }
       const status = statusMap[po.status] || 'processing'
-      const eta = po.expectedDeliveryDate ? new Date(po.expectedDeliveryDate).toLocaleDateString() : 'TBD'
+      const eta = formatDate(po.expectedDeliveryDate)
       return {
         id: po.number || po.id,
         supplier: po.vendorName || vendor?.name || 'Vendor',
@@ -361,18 +426,18 @@ export function ProcurementHub() {
   // Convert suppliers to map markers
   const supplierMarkers = useMemo(() => {
     return suppliers
-      .filter(s => {
+      .filter((s: any) => {
         const matchesSearch = !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase())
         const matchesCategory = categoryFilter === 'all' || s.category === categoryFilter
         return matchesSearch && matchesCategory
       })
-      .map(supplier => ({
+      .map((supplier: any) => ({
         id: supplier.id,
         number: supplier.name,
         status: supplier.status,
         make: supplier.category,
         model: `${supplier.orderCount} orders`,
-        licensePlate: `$${supplier.totalSpend.toLocaleString()}`,
+        licensePlate: formatCurrency(supplier.totalSpend),
         location: supplier.location,
         fuelLevel: supplier.rating * 20 // Convert 5-star to percentage for display
       }))
@@ -381,8 +446,8 @@ export function ProcurementHub() {
   // Convert POs to delivery markers
   const deliveryMarkers = useMemo(() => {
     return purchaseOrders
-      .filter(po => po.status === 'in_transit')
-      .map(po => ({
+      .filter((po: any) => po.status === 'in_transit')
+      .map((po: any) => ({
         id: po.id,
         name: po.trackingId,
         location: po.delivery,
@@ -391,12 +456,21 @@ export function ProcurementHub() {
   }, [purchaseOrders])
 
   const handleSupplierSelect = useCallback((supplierId: string) => {
-    const supplier = suppliers.find(s => s.id === supplierId)
+    const supplier = suppliers.find((s: any) => s.id === supplierId)
     if (supplier) {
       setSelectedEntity({ type: 'supplier', data: supplier })
       setActivePanel('supplier')
     }
   }, [suppliers])
+
+  const handleViewOrderHistory = useCallback((supplier: any) => {
+    setActivePanel('orders')
+    toast.success(`Showing orders for ${supplier.name}`)
+  }, [])
+
+  const handleContactSupplier = useCallback((supplier: any) => {
+    toast.success(`Opening contact for ${supplier.name}`)
+  }, [])
 
   // Handler for creating purchase orders with policy enforcement
   const handleCreatePurchaseOrder = async (supplier: any) => {
@@ -451,8 +525,22 @@ export function ProcurementHub() {
   }
 
   const categories = useMemo(() => {
-    return Array.from(new Set(suppliers.map(s => s.category)))
+    return Array.from(new Set(suppliers.map((s: any) => s.category))) as string[]
   }, [suppliers])
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load procurement data</p>
+        <p className="text-sm text-muted-foreground">
+          {hasError instanceof Error ? hasError.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="h-screen grid grid-cols-[1fr_400px]" data-testid="procurement-hub">
@@ -468,7 +556,7 @@ export function ProcurementHub() {
         />
 
         {/* Map Controls Overlay */}
-        <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg shadow-sm z-10">
+        <div className="absolute top-4 left-4 bg-[#111111] border border-white/[0.04] rounded-lg z-10">
           <div className="p-3 space-y-2">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-48" data-testid="procurement-category-filter">
@@ -476,7 +564,7 @@ export function ProcurementHub() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(cat => (
+                {categories.map((cat: string) => (
                   <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                 ))}
               </SelectContent>
@@ -511,6 +599,8 @@ export function ProcurementHub() {
               _onClose={() => {}}
               onCreatePO={handleCreatePurchaseOrder}
               isCreatingPO={isCreatingPO}
+              onViewHistory={handleViewOrderHistory}
+              onContactSupplier={handleContactSupplier}
             />
           </TabsContent>
           <TabsContent value="orders" className="h-[calc(100vh-48px)] mt-0">

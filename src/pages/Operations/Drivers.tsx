@@ -10,17 +10,21 @@
  * - Real performance metrics shown inline (safety score, trips, miles)
  */
 
-import { User, Plus, MagnifyingGlass, CheckCircle, Trophy, Trash, Warning } from '@phosphor-icons/react';
-import { motion } from 'framer-motion';
+import { User, Plus, Search, CheckCircle, Trophy, Trash2, AlertTriangle } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { ActionButton, StatusBadge, InlineEditPanel, ConfirmDialog } from "@/components/operations";
-import { SplitView } from "@/components/operations";
+import ErrorBoundary from '@/components/common/ErrorBoundary';
+import { ActionButton, StatusBadge, InlineEditPanel, ConfirmDialog , SplitView } from "@/components/operations";
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { useDrivers, useCreateDriver, useUpdateDriver, useDeleteDriver, Driver } from '@/hooks/useDrivers';
 import { cn } from '@/lib/utils';
+import { formatEnum } from '@/utils/format-enum';
+import { formatDate, formatNumber } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 
 export function DriversOperations() {
   // API queries
@@ -72,7 +76,7 @@ export function DriversOperations() {
       setFormData({});
     } catch (err) {
       toast.error('Failed to create driver');
-      console.error(err);
+      logger.error('Failed to create driver', err);
     }
   };
 
@@ -90,7 +94,7 @@ export function DriversOperations() {
       setFormData({});
     } catch (err) {
       toast.error('Failed to update driver');
-      console.error(err);
+      logger.error('Failed to update driver', err);
     }
   };
 
@@ -105,7 +109,7 @@ export function DriversOperations() {
       setSelectedDriverId(null);
     } catch (err) {
       toast.error('Failed to delete driver');
-      console.error(err);
+      logger.error('Failed to delete driver', err);
     }
   };
 
@@ -116,33 +120,67 @@ export function DriversOperations() {
     const statusDisplay = driver.status as 'active' | 'inactive' | 'pending' | 'completed' | 'error' | 'warning' || 'active';
 
     return (
-      <motion.div
+      <div
         key={driver.id}
-        whileHover={{ scale: 1.01, x: 4 }}
         onClick={() => {
-          setSelectedDriverId(driver.id);
+          setSelectedDriverId(Number(driver.id));
           setIsCreating(false);
           setIsEditing(false);
           setFormData({});
         }}
         className={cn(
-          'p-4 border-b border-slate-700/50 cursor-pointer hover:bg-cyan-400/5 transition-colors',
-          isSelected && 'bg-cyan-400/10 border-l-4 border-l-cyan-400'
+          'p-4 border-b border-white/[0.04] cursor-pointer hover:bg-emerald-400/5 transition-colors',
+          isSelected && 'bg-emerald-400/10 border-l-4 border-l-emerald-400'
         )}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1 min-w-0">
             {/* Avatar */}
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-400/20 to-teal-500/20 flex items-center justify-center border border-emerald-400/30 flex-shrink-0">
-              <User className="w-6 h-6 text-emerald-700" weight="bold" />
+            <div className="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-white/[0.04] flex-shrink-0">
+              <User className="w-6 h-6 text-emerald-700" />
             </div>
 
             {/* Driver Info */}
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-bold text-white mb-1 truncate">{fullName}</h3>
-              <p className="text-xs text-slate-700 line-clamp-2">
-                {driver.licenseNumber} • Safety: {driver.safetyScore || 0}
-              </p>
+              <div className="flex items-center gap-2 mb-0.5">
+                <h3 className="text-sm font-bold text-white truncate">{fullName}</h3>
+                {/* HOS Status Dot */}
+                {driver.hosStatus && (
+                  <span
+                    className={cn(
+                      'w-2.5 h-2.5 rounded-full flex-shrink-0',
+                      driver.hosStatus === 'driving' && 'bg-green-400',
+                      driver.hosStatus === 'on_duty' && 'bg-emerald-400',
+                      driver.hosStatus === 'off_duty' && 'bg-white/[0.15]',
+                      driver.hosStatus === 'sleeper' && 'bg-amber-400'
+                    )}
+                    title={`HOS: ${formatEnum(driver.hosStatus)}`}
+                  />
+                )}
+              </div>
+              {/* Department & Position */}
+              {(driver.department || driver.positionTitle) && (
+                <p className="text-[11px] text-white/40 truncate mb-0.5">
+                  {[driver.positionTitle, driver.department].filter(Boolean).join(' - ')}
+                </p>
+              )}
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-white/70 truncate">
+                  {driver.licenseNumber} • Safety: {driver.safetyScore || 0}
+                </p>
+                {/* Employment Type Badge */}
+                {driver.employmentType && (
+                  <span className={cn(
+                    'text-[10px] px-1.5 py-0.5 rounded font-medium flex-shrink-0',
+                    driver.employmentType === 'full-time' && 'bg-emerald-500/15 text-emerald-400',
+                    driver.employmentType === 'part-time' && 'bg-amber-500/15 text-amber-400',
+                    driver.employmentType === 'contract' && 'bg-emerald-500/15 text-emerald-400',
+                    !['full-time', 'part-time', 'contract'].includes(driver.employmentType) && 'bg-white/[0.1]/15 text-white/50'
+                  )}>
+                    {formatEnum(driver.employmentType)}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -154,7 +192,7 @@ export function DriversOperations() {
             />
           </div>
         </div>
-      </motion.div>
+      </div>
     );
   };
 
@@ -165,7 +203,7 @@ export function DriversOperations() {
         placeholder="Full name"
         value={formData.name || ''}
         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-        className="bg-slate-700/50 border-slate-600 text-white"
+        className="bg-white/[0.08] border-white/[0.12] text-white"
         disabled={createMutation.isPending || updateMutation.isPending}
       />
 
@@ -174,7 +212,7 @@ export function DriversOperations() {
         type="email"
         value={formData.email || ''}
         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-        className="bg-slate-700/50 border-slate-600 text-white"
+        className="bg-white/[0.08] border-white/[0.12] text-white"
         disabled={createMutation.isPending || updateMutation.isPending}
       />
 
@@ -182,7 +220,7 @@ export function DriversOperations() {
         placeholder="Phone"
         value={formData.phone || ''}
         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-        className="bg-slate-700/50 border-slate-600 text-white"
+        className="bg-white/[0.08] border-white/[0.12] text-white"
         disabled={createMutation.isPending || updateMutation.isPending}
       />
 
@@ -190,7 +228,7 @@ export function DriversOperations() {
         placeholder="License number"
         value={formData.licenseNumber || ''}
         onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
-        className="bg-slate-700/50 border-slate-600 text-white"
+        className="bg-white/[0.08] border-white/[0.12] text-white"
         disabled={createMutation.isPending || updateMutation.isPending}
       />
 
@@ -198,7 +236,7 @@ export function DriversOperations() {
         placeholder="License state"
         value={formData.licenseState || ''}
         onChange={(e) => setFormData({ ...formData, licenseState: e.target.value })}
-        className="bg-slate-700/50 border-slate-600 text-white"
+        className="bg-white/[0.08] border-white/[0.12] text-white"
         disabled={createMutation.isPending || updateMutation.isPending}
       />
 
@@ -207,14 +245,14 @@ export function DriversOperations() {
         type="date"
         value={formData.licenseExpiry ? String(formData.licenseExpiry).slice(0, 10) : ''}
         onChange={(e) => setFormData({ ...formData, licenseExpiry: e.target.value })}
-        className="bg-slate-700/50 border-slate-600 text-white"
+        className="bg-white/[0.08] border-white/[0.12] text-white"
         disabled={createMutation.isPending || updateMutation.isPending}
       />
 
       <select
         value={formData.status || 'active'}
         onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-        className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-md text-white text-sm disabled:opacity-50"
+        className="w-full px-3 py-2 bg-white/[0.08] border border-white/[0.12] rounded-md text-white text-sm disabled:opacity-50"
         disabled={createMutation.isPending || updateMutation.isPending}
       >
         <option value="active">Active</option>
@@ -224,6 +262,42 @@ export function DriversOperations() {
         <option value="suspended">Suspended</option>
         <option value="terminated">Terminated</option>
       </select>
+
+      <Input
+        placeholder="Department"
+        value={formData.department || ''}
+        onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+        className="bg-white/[0.08] border-white/[0.12] text-white"
+        disabled={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <Input
+        placeholder="Region"
+        value={formData.region || ''}
+        onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+        className="bg-white/[0.08] border-white/[0.12] text-white"
+        disabled={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <Input
+        placeholder="Position title"
+        value={formData.positionTitle || ''}
+        onChange={(e) => setFormData({ ...formData, positionTitle: e.target.value })}
+        className="bg-white/[0.08] border-white/[0.12] text-white"
+        disabled={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <select
+        value={formData.employmentType || ''}
+        onChange={(e) => setFormData({ ...formData, employmentType: e.target.value })}
+        className="w-full px-3 py-2 bg-white/[0.08] border border-white/[0.12] rounded-md text-white text-sm disabled:opacity-50"
+        disabled={createMutation.isPending || updateMutation.isPending}
+      >
+        <option value="">Employment type...</option>
+        <option value="full-time">Full-Time</option>
+        <option value="part-time">Part-Time</option>
+        <option value="contract">Contract</option>
+      </select>
     </div>
   );
 
@@ -231,7 +305,7 @@ export function DriversOperations() {
   const detailContent = () => {
     if (isCreating) {
       return (
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-4">Create New Driver</h4>
           {renderDriverForm()}
         </div>
@@ -245,36 +319,174 @@ export function DriversOperations() {
     return (
       <div className="space-y-4">
         {/* Driver Details */}
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-4">Driver Details</h4>
           {!isEditing ? (
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-slate-700">Email:</span>
+                  <span className="text-white/70">Email:</span>
                   <p className="text-white font-medium">{selectedDriver.email}</p>
                 </div>
                 <div>
-                  <span className="text-slate-700">Phone:</span>
+                  <span className="text-white/70">Phone:</span>
                   <p className="text-white font-medium">{selectedDriver.phone || '-'}</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-slate-700">License:</span>
+                  <span className="text-white/70">License:</span>
                   <p className="text-white font-mono text-xs">{selectedDriver.licenseNumber}</p>
                 </div>
                 <div>
-                  <span className="text-slate-700">Status:</span>
-                  <p className="text-white font-semibold capitalize">{selectedDriver.status}</p>
+                  <span className="text-white/70">Status:</span>
+                  <p className="text-white font-semibold">{formatEnum(selectedDriver.status)}</p>
                 </div>
               </div>
+
+              {/* Department, Region, Position, Employment Type */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-white/70">Department:</span>
+                  <p className="text-white font-medium">{selectedDriver.department || '-'}</p>
+                </div>
+                <div>
+                  <span className="text-white/70">Region:</span>
+                  <p className="text-white font-medium">{selectedDriver.region || '-'}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-white/70">Position:</span>
+                  <p className="text-white font-medium">{selectedDriver.positionTitle || '-'}</p>
+                </div>
+                <div>
+                  <span className="text-white/70">Employment Type:</span>
+                  {selectedDriver.employmentType ? (
+                    <Badge
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        'mt-0.5',
+                        selectedDriver.employmentType === 'full-time' && 'border-emerald-500/40 text-emerald-400',
+                        selectedDriver.employmentType === 'part-time' && 'border-amber-500/40 text-amber-400',
+                        selectedDriver.employmentType === 'contract' && 'border-emerald-500/40 text-emerald-400'
+                      )}
+                    >
+                      {formatEnum(selectedDriver.employmentType)}
+                    </Badge>
+                  ) : (
+                    <p className="text-white font-medium">-</p>
+                  )}
+                </div>
+              </div>
+
               {selectedDriver.hireDate && (
                 <div>
-                  <span className="text-slate-700">Hire Date:</span>
+                  <span className="text-white/70">Hire Date:</span>
                   <p className="text-white font-medium">
-                    {new Date(selectedDriver.hireDate).toLocaleDateString()}
+                    {formatDate(selectedDriver.hireDate)}
                   </p>
+                </div>
+              )}
+
+              {/* Medical Card Expiry */}
+              {selectedDriver.medicalCardExpiry && (() => {
+                const expiryDate = new Date(selectedDriver.medicalCardExpiry);
+                const now = new Date();
+                const daysUntilExpiry = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                const isExpired = daysUntilExpiry < 0;
+                const isWarning = !isExpired && daysUntilExpiry <= 30;
+                return (
+                  <div>
+                    <span className="text-white/70">Medical Card Expiry:</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className={cn(
+                        'font-medium',
+                        isExpired && 'text-red-400',
+                        isWarning && 'text-amber-400',
+                        !isExpired && !isWarning && 'text-white'
+                      )}>
+                        {formatDate(expiryDate)}
+                      </p>
+                      {isExpired && (
+                        <Badge variant="destructive" size="sm">Expired</Badge>
+                      )}
+                      {isWarning && (
+                        <Badge variant="warning" size="sm">{daysUntilExpiry}d remaining</Badge>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Drug Test */}
+              {(selectedDriver.drugTestDate || selectedDriver.drugTestResult) && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-white/70">Drug Test Date:</span>
+                    <p className="text-white font-medium">
+                      {selectedDriver.drugTestDate
+                        ? formatDate(selectedDriver.drugTestDate)
+                        : '-'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-white/70">Drug Test Result:</span>
+                    {selectedDriver.drugTestResult ? (
+                      <Badge
+                        size="sm"
+                        variant={selectedDriver.drugTestResult === 'pass' ? 'success' : 'destructive'}
+                        className="mt-0.5"
+                      >
+                        {selectedDriver.drugTestResult === 'pass' ? 'Pass' : 'Fail'}
+                      </Badge>
+                    ) : (
+                      <p className="text-white font-medium">-</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Background Check & MVR Check */}
+              {(selectedDriver.backgroundCheckStatus || selectedDriver.mvrCheckStatus) && (
+                <div className="grid grid-cols-2 gap-4">
+                  {selectedDriver.backgroundCheckStatus && (
+                    <div>
+                      <span className="text-white/70">Background Check:</span>
+                      <div className="mt-0.5">
+                        <Badge
+                          size="sm"
+                          variant={
+                            selectedDriver.backgroundCheckStatus === 'clear' ? 'success'
+                              : selectedDriver.backgroundCheckStatus === 'pending' ? 'warning'
+                              : selectedDriver.backgroundCheckStatus === 'flagged' ? 'destructive'
+                              : 'outline'
+                          }
+                        >
+                          {formatEnum(selectedDriver.backgroundCheckStatus)}
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                  {selectedDriver.mvrCheckStatus && (
+                    <div>
+                      <span className="text-white/70">MVR Check:</span>
+                      <div className="mt-0.5">
+                        <Badge
+                          size="sm"
+                          variant={
+                            selectedDriver.mvrCheckStatus === 'clear' ? 'success'
+                              : selectedDriver.mvrCheckStatus === 'pending' ? 'warning'
+                              : selectedDriver.mvrCheckStatus === 'flagged' ? 'destructive'
+                              : 'outline'
+                          }
+                        >
+                          {formatEnum(selectedDriver.mvrCheckStatus)}
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -301,28 +513,113 @@ export function DriversOperations() {
         </InlineEditPanel>
 
         {/* Performance Metrics */}
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-emerald-400/30 p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-emerald-700" weight="bold" />
+            <Trophy className="w-4 h-4 text-emerald-700" />
             Performance Metrics
           </h4>
-          <div className="grid grid-cols-3 gap-3 text-sm">
-            <div>
-              <p className="text-slate-700 text-xs mb-1">Safety Score</p>
-              <p className="text-emerald-700 font-bold text-lg">
+
+          {/* HOS Status Badge */}
+          {selectedDriver.hosStatus && (
+            <div className="mb-4">
+              <Badge
+                size="lg"
+                className={cn(
+                  'font-semibold capitalize',
+                  selectedDriver.hosStatus === 'driving' && 'bg-green-500/20 text-green-400 border border-green-500/30',
+                  selectedDriver.hosStatus === 'on_duty' && 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+                  selectedDriver.hosStatus === 'off_duty' && 'bg-white/[0.05] text-white/50 border border-white/[0.12]/30',
+                  selectedDriver.hosStatus === 'sleeper' && 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                )}
+              >
+                <span className={cn(
+                  'w-2 h-2 rounded-full inline-block mr-1',
+                  selectedDriver.hosStatus === 'driving' && 'bg-green-400',
+                  selectedDriver.hosStatus === 'on_duty' && 'bg-emerald-400',
+                  selectedDriver.hosStatus === 'off_duty' && 'bg-white/[0.15]',
+                  selectedDriver.hosStatus === 'sleeper' && 'bg-amber-400'
+                )} />
+                HOS: {formatEnum(selectedDriver.hosStatus)}
+              </Badge>
+            </div>
+          )}
+
+          {/* Safety Score Gauge */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-white/70 text-xs">Safety Score</p>
+              <p className={cn(
+                'font-bold text-2xl',
+                (selectedDriver.safetyScore || 0) >= 80 && 'text-emerald-400',
+                (selectedDriver.safetyScore || 0) >= 60 && (selectedDriver.safetyScore || 0) < 80 && 'text-amber-400',
+                (selectedDriver.safetyScore || 0) < 60 && 'text-red-400'
+              )}>
                 {selectedDriver.safetyScore || 0}
               </p>
             </div>
+            <Progress
+              value={selectedDriver.safetyScore || 0}
+              className="h-3 bg-white/[0.08]"
+              indicatorClassName={cn(
+                (selectedDriver.safetyScore || 0) >= 80 && 'bg-emerald-400',
+                (selectedDriver.safetyScore || 0) >= 60 && (selectedDriver.safetyScore || 0) < 80 && 'bg-amber-400',
+                (selectedDriver.safetyScore || 0) < 60 && 'bg-red-400'
+              )}
+            />
+            <p className="text-[10px] text-white/50 mt-1">
+              {(selectedDriver.safetyScore || 0) >= 80 ? 'Excellent' : (selectedDriver.safetyScore || 0) >= 60 ? 'Needs Improvement' : 'At Risk'}
+            </p>
+          </div>
+
+          {/* Hours Available & Cycle Hours Progress */}
+          {(selectedDriver.hoursAvailable != null || selectedDriver.cycleHoursUsed != null) && (
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {selectedDriver.hoursAvailable != null && (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-white/70 text-[10px]">Hours Available</p>
+                    <p className="text-emerald-400 font-semibold text-xs">{selectedDriver.hoursAvailable}h</p>
+                  </div>
+                  <Progress
+                    value={Math.min((selectedDriver.hoursAvailable / 11) * 100, 100)}
+                    className="h-2 bg-white/[0.08]"
+                    indicatorClassName="bg-emerald-400"
+                  />
+                  <p className="text-[10px] text-white/50 mt-0.5">of 11h daily limit</p>
+                </div>
+              )}
+              {selectedDriver.cycleHoursUsed != null && (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-white/70 text-[10px]">Cycle Hours Used</p>
+                    <p className="text-amber-400 font-semibold text-xs">{selectedDriver.cycleHoursUsed}h</p>
+                  </div>
+                  <Progress
+                    value={Math.min((selectedDriver.cycleHoursUsed / 70) * 100, 100)}
+                    className="h-2 bg-white/[0.08]"
+                    indicatorClassName={cn(
+                      selectedDriver.cycleHoursUsed <= 50 && 'bg-emerald-400',
+                      selectedDriver.cycleHoursUsed > 50 && selectedDriver.cycleHoursUsed <= 60 && 'bg-amber-400',
+                      selectedDriver.cycleHoursUsed > 60 && 'bg-red-400'
+                    )}
+                  />
+                  <p className="text-[10px] text-white/50 mt-0.5">of 70h cycle limit</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="text-slate-700 text-xs mb-1">Total Trips</p>
-              <p className="text-cyan-400 font-bold text-lg">
+              <p className="text-white/70 text-xs mb-1">Total Trips</p>
+              <p className="text-emerald-400 font-bold text-lg">
                 {selectedDriver.totalTrips || 0}
               </p>
             </div>
             <div>
-              <p className="text-slate-700 text-xs mb-1">Total Miles</p>
-              <p className="text-blue-700 font-bold text-lg">
-                {(selectedDriver.totalMiles || 0).toLocaleString()}
+              <p className="text-white/70 text-xs mb-1">Total Miles</p>
+              <p className="text-emerald-700 font-bold text-lg">
+                {formatNumber(selectedDriver.totalMiles || 0)}
               </p>
             </div>
           </div>
@@ -336,7 +633,7 @@ export function DriversOperations() {
           className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10"
           disabled={deleteMutation.isPending}
         >
-          <Trash className="w-4 h-4" weight="bold" />
+          <Trash2 className="w-4 h-4" />
           <span className="ml-2">Delete Driver</span>
         </Button>
       </div>
@@ -347,14 +644,14 @@ export function DriversOperations() {
   const listPanel = (
     <div className="flex flex-col h-full">
       {/* Search bar */}
-      <div className="p-4 border-b border-slate-700/50">
+      <div className="p-4 border-b border-white/[0.04]">
         <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" weight="bold" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search drivers..."
-            className="pl-10 bg-slate-700/50 border-slate-600 text-white"
+            className="pl-10 bg-white/[0.08] border-white/[0.12] text-white"
             disabled={isLoading}
           />
         </div>
@@ -365,24 +662,24 @@ export function DriversOperations() {
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-sm text-slate-700">Loading drivers...</p>
+              <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-sm text-white/70">Loading drivers...</p>
             </div>
           </div>
         ) : error ? (
           <div className="flex items-center justify-center h-full p-4">
             <div className="text-center">
-              <Warning className="w-8 h-8 text-red-400 mx-auto mb-3" weight="bold" />
-              <p className="text-sm text-slate-700">Failed to load drivers</p>
-              <p className="text-xs text-slate-500 mt-1">Please try refreshing the page</p>
+              <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-3" />
+              <p className="text-sm text-white/70">Failed to load drivers</p>
+              <p className="text-xs text-white/40 mt-1">Please try refreshing the page</p>
             </div>
           </div>
         ) : filteredDrivers.length === 0 ? (
           <div className="flex items-center justify-center h-full p-4">
             <div className="text-center">
-              <User className="w-8 h-8 text-slate-500 mx-auto mb-3" weight="bold" />
-              <p className="text-sm text-slate-700">
-                {searchQuery ? 'No drivers found' : 'No drivers yet'}
+              <User className="w-8 h-8 text-white/40 mx-auto mb-3" />
+              <p className="text-sm text-white/70">
+                {searchQuery ? 'No drivers match your search.' : 'No drivers found.'}
               </p>
             </div>
           </div>
@@ -394,6 +691,7 @@ export function DriversOperations() {
   );
 
   return (
+    <ErrorBoundary>
     <>
       <SplitView
         theme="operations"
@@ -420,7 +718,7 @@ export function DriversOperations() {
               className="bg-emerald-500 hover:bg-emerald-400 text-white"
               disabled={isLoading}
             >
-              <Plus className="w-4 h-4" weight="bold" />
+              <Plus className="w-4 h-4" />
               <span className="ml-2">Add Driver</span>
             </Button>
           )
@@ -467,6 +765,7 @@ export function DriversOperations() {
         isLoading={deleteMutation.isPending}
       />
     </>
+    </ErrorBoundary>
   );
 }
 

@@ -18,6 +18,7 @@ import {
   Radio
 } from 'lucide-react'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { toast } from 'sonner'
 
 import { Badge } from './ui/badge'
 
@@ -146,10 +147,9 @@ export default function DispatchConsole() {
   const loadChannels = async () => {
     try {
       const response = await fetch('/api/dispatch/channels', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
+      if (!response.ok) throw new Error('Request failed: ' + response.status)
 
       const data = await response.json()
       if (data.success) {
@@ -166,10 +166,9 @@ export default function DispatchConsole() {
   const loadChannelHistory = async (channelId: number) => {
     try {
       const response = await fetch(`/api/dispatch/channels/${channelId}/history?limit=50`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
+      if (!response.ok) throw new Error('Request failed: ' + response.status)
 
       const data = await response.json()
       if (data.success) {
@@ -183,10 +182,9 @@ export default function DispatchConsole() {
   const loadActiveListeners = async (channelId: number) => {
     try {
       const response = await fetch(`/api/dispatch/channels/${channelId}/listeners`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
+      if (!response.ok) throw new Error('Request failed: ' + response.status)
 
       const data = await response.json()
       if (data.success) {
@@ -200,10 +198,9 @@ export default function DispatchConsole() {
   const loadEmergencyAlerts = async () => {
     try {
       const response = await fetch('/api/dispatch/emergency?status=active&limit=10', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
+      if (!response.ok) throw new Error('Request failed: ' + response.status)
 
       const data = await response.json()
       if (data.success) {
@@ -219,7 +216,6 @@ export default function DispatchConsole() {
       wsRef.current.close()
     }
 
-    const _token = localStorage.getItem('token')
     const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api/dispatch/ws`
 
     const ws = new WebSocket(wsUrl)
@@ -242,8 +238,12 @@ export default function DispatchConsole() {
     }
 
     ws.onmessage = (event) => {
-      const message = JSON.parse(event.data)
-      handleWebSocketMessage(message)
+      try {
+        const message = JSON.parse(event.data)
+        handleWebSocketMessage(message)
+      } catch {
+        logger.error('Failed to parse WebSocket message')
+      }
     }
 
     ws.onerror = (error) => {
@@ -391,7 +391,7 @@ export default function DispatchConsole() {
       }
     } catch (error) {
       logger.error('Failed to start transmission:', error)
-      alert('Failed to access microphone. Please check permissions.')
+      toast.error('Failed to access microphone. Please check permissions.')
     }
   }
 
@@ -434,18 +434,19 @@ export default function DispatchConsole() {
       const response = await fetch('/api/dispatch/emergency', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           alertType: 'panic',
           description: 'Emergency alert triggered from dispatch console'
         })
       })
+      if (!response.ok) throw new Error('Request failed: ' + response.status)
 
       const data = await response.json()
       if (data.success) {
-        alert('Emergency alert sent!')
+        toast.success('Emergency alert sent!')
         loadEmergencyAlerts()
       }
     } catch (error) {
@@ -460,7 +461,7 @@ export default function DispatchConsole() {
   }
 
   const getChannelColor = (channel: DispatchChannel) => {
-    return channel.colorCode || '#3B82F6'
+    return channel.colorCode || '#10b981'
   }
 
   // Keyboard shortcut handlers for PTT

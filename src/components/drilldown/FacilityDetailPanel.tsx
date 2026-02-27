@@ -20,6 +20,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
 
 interface FacilityDetailPanelProps {
   facilityId: string
@@ -42,13 +44,11 @@ interface FacilityData {
   }
 }
 
-const fetcher = (url: string): Promise<FacilityData> => fetch(url).then((r) => r.json())
-
 export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: facility, error, isLoading, mutate } = useSWR(
+  const { data: facility, error, isLoading, mutate } = useSWR<FacilityData>(
     `/api/facilities/${facilityId}`,
-    fetcher
+    apiFetcher
   )
 
   const handleViewVehicles = () => {
@@ -74,7 +74,7 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
               <p className="text-sm text-muted-foreground">{facility.type || 'Facility'}</p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant="default">
-                  {facility.status}
+                  {formatEnum(facility.status)}
                 </Badge>
               </div>
             </div>
@@ -121,7 +121,7 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
                 <div>
                   <p className="text-sm font-medium">Address</p>
                   <p className="text-sm text-muted-foreground">
-                    {facility.address || 'N/A'}
+                    {facility.address || '—'}
                   </p>
                 </div>
               </div>

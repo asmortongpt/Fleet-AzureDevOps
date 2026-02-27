@@ -9,7 +9,7 @@ export interface Vehicle {
   year: number
   vin: string
   licensePlate: string
-  status: "active" | "idle" | "charging" | "service" | "emergency" | "offline"
+  status: "active" | "idle" | "charging" | "service" | "emergency" | "offline" | "maintenance" | "retired" | "assigned" | "dispatched" | "en_route" | "on_site" | "completed"
   location: {
     lat: number
     lng: number
@@ -244,5 +244,42 @@ export interface Vehicle {
   // Lifecycle
   expectedLifeMiles?: number
   expectedLifeYears?: number
+  expected_life_miles?: number
+  expected_life_years?: number
+  disposal_date?: string
+  disposal_value?: number
   evaluation?: any
+
+  // Physical attributes (expanded from DB)
+  body_style?: string
+  doors?: number
+  trim_level?: string
+
+  // Engine & drivetrain (expanded from DB)
+  engine_type?: string
+  engine_displacement?: string
+  transmission?: string
+  drivetrain?: string
+  cylinders?: number
+  horsepower?: number
+  torque?: number
+
+  // Capacity & weight (expanded from DB)
+  curb_weight?: number
+  payload_capacity?: number
+  towing_capacity?: number
+  cargo_volume_cubic_ft?: number
+
+  // EV / Hybrid (expanded from DB)
+  battery_capacity_kwh?: number
+
+  // Organizational (expanded from DB)
+  cost_center?: string
+
+  // Registration & compliance (expanded from DB)
+  registration_state?: string
+  registration_expiry?: string
+  emissions_class?: string
+  dot_number?: string
+  ifta_account?: string
 }

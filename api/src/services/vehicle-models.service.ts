@@ -58,7 +58,7 @@ interface Vehicle3DInstance {
   lastDamageScan?: Date;
 }
 
-interface DamageMarker {
+export interface DamageMarker {
   location: { x: number; y: number; z: number };
   severity: 'minor' | 'moderate' | 'severe';
   type: string;
@@ -142,6 +142,20 @@ class VehicleModelsService {
     );
 
     if (direct.rows.length > 0) {
+      // Enrich with color data from vehicle_3d_instances (if table exists)
+      try {
+        const instanceResult = await this.db.query(
+          `SELECT exterior_color_hex, exterior_color_name
+           FROM vehicle_3d_instances WHERE vehicle_id = $1 LIMIT 1`,
+          [vehicleId]
+        );
+        if (instanceResult.rows.length > 0) {
+          direct.rows[0].exterior_color_hex = instanceResult.rows[0].exterior_color_hex;
+          direct.rows[0].exterior_color_name = instanceResult.rows[0].exterior_color_name;
+        }
+      } catch {
+        // vehicle_3d_instances table may not exist — skip color enrichment
+      }
       return direct.rows[0];
     }
 
@@ -314,7 +328,7 @@ class VehicleModelsService {
         throw new Error('Vehicle 3D model not found');
       }
 
-      return fallback.rows[0] as any;
+      return fallback.rows[0] as unknown as Vehicle3DInstance;
     }
 
     const query = `
@@ -667,7 +681,7 @@ class VehicleModelsService {
     );
 
     if (existing.rows.length > 0) {
-      return existing.rows[0] as any;
+      return existing.rows[0] as unknown as Vehicle3DInstance;
     }
 
     const vehicleResult = await this.db.query(
@@ -748,7 +762,7 @@ class VehicleModelsService {
       ]
     );
 
-    return insertResult.rows[0] as any;
+    return insertResult.rows[0] as unknown as Vehicle3DInstance;
   }
 
   /**

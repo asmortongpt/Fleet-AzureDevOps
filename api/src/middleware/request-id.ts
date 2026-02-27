@@ -16,16 +16,6 @@ import { v4 as uuidv4 } from 'uuid'
 
 import logger from '../config/logger'
 
-// Extend Express Request type to include requestId
-declare global {
-  namespace Express {
-    interface Request {
-      requestId?: string
-      startTime?: number
-    }
-  }
-}
-
 /**
  * Request ID configuration
  */
@@ -125,8 +115,8 @@ export function requestIdMiddleware(config: RequestIdConfig = {}): (req: Request
         query: req.query,
         ip: req.ip,
         userAgent: req.get('user-agent'),
-        userId: (req as any).user?.id,
-        tenantId: (req as any).user?.tenant_id
+        userId: req.user?.id,
+        tenantId: req.user?.tenant_id
       })
     }
 
@@ -140,8 +130,8 @@ export function requestIdMiddleware(config: RequestIdConfig = {}): (req: Request
         path: req.path,
         statusCode: res.statusCode,
         duration,
-        userId: (req as any).user?.id,
-        tenantId: (req as any).user?.tenant_id
+        userId: req.user?.id,
+        tenantId: req.user?.tenant_id
       })
 
       // Warn on slow requests
@@ -175,8 +165,8 @@ export function getRequestId(req: Request): string | undefined {
  */
 export function getRequestLogger(req: Request): typeof logger {
   const requestId = getRequestId(req)
-  const userId = (req as any).user?.id
-  const tenantId = (req as any).user?.tenant_id
+  const userId = req.user?.id
+  const tenantId = req.user?.tenant_id
 
   // Create a wrapper that adds request context to all log calls
   const contextLogger = {

@@ -7,7 +7,7 @@ import ReactDOM from "react-dom/client"
 import './i18n/config'
 
 // Initialize axe-core accessibility testing in development
-import { initializeAxe } from './lib/accessibility/axe-init'
+import { validateEnvironment } from './lib/config/validate-environment'
 // Only enable when explicitly requested; axe logs to console.error by design.
 if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_AXE === 'true') {
   initializeAxe()
@@ -32,31 +32,22 @@ if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
   // If needed, use sessionStorage or cookies for non-sensitive data
   // Object.freeze(localStorage); // Uncomment if strict security is required
 
-  console.log('[Fleet] Production mode: All authentication bypass mechanisms removed');
 }
 
 // Initialize Sentry before all other imports for proper error tracking
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-// @ts-ignore - virtual module provided by vite-plugin-pwa
-import { registerSW } from 'virtual:pwa-register'
 
-import App from "./App"
-import ProtectedRoute from "./components/ProtectedRoute"
-import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
-import { ThemeProvider } from "./components/providers/ThemeProvider"
-// TEMP DISABLED: Azure Key Vault should be backend-only, not frontend
-// import { validateSecrets, getSecret, checkKeyVaultHealth } from "./config/secrets"
-import { AuthProvider } from "./contexts/AuthContext"
-import { DrilldownProvider } from "./contexts/DrilldownContext"
+// Azure Key Vault integration is backend-only (Node.js packages cannot run in browser)
+// Frontend validates backend availability via /api/health endpoint instead
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
 import { PolicyProvider } from "./contexts/PolicyContext"
 import { TenantProvider } from "./contexts/TenantContext"
+import { msalConfig } from "./lib/msal-config"
 import { initSentry } from "./lib/sentry"
-import { Login } from "./pages/Login"
 import { AuthCallback } from "./pages/AuthCallback"
+import { Login } from "./pages/Login"
+
 import { PublicClientApplication } from "@azure/msal-browser"
 import { MsalProvider } from "@azure/msal-react"
-import { msalConfig } from "./lib/msal-config"
 
 initSentry()
 
@@ -72,50 +63,62 @@ const msalInstance = new PublicClientApplication(msalConfig)
 import telemetryService from "./lib/telemetry"
 
 // PWA Service Worker registration
-// @ts-ignore
 
 const reactPlugin = telemetryService.initialize()
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClientProvider } from "@tanstack/react-query"
+import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route } from "react-router-dom"
+import { registerSW } from 'virtual:pwa-register'
+import App from "./App"
+import ProtectedRoute from "./components/ProtectedRoute"
+import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
+import { ThemeProvider } from "./components/providers/ThemeProvider"
 
-import { InspectProvider } from "./services/inspect/InspectContext"
+import { queryClient } from "./config/query-client"
+import { AuthProvider } from "./contexts/AuthContext"
+import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
 import { PanelProvider } from "./contexts/PanelContext"
+import { initializeAxe } from './lib/accessibility/axe-init'
+import { ThemeProvider as MuiThemeProvider } from '@mui/material'
+import { InspectProvider } from "./services/inspect/InspectContext"
 import { BrandingProvider } from "./shared/branding/BrandingProvider"
+import { muiTheme } from './lib/mui-theme'
+import logger from './utils/logger'
 
-// Professional theme with high contrast colors - fixes green-on-green readability
-// DISABLED: Conflicts with Deep Midnight Dark Theme
-// import "./styles/professional-theme-fix.css"
-
-// Core Tailwind v4 + Enterprise Design System
+// Core Tailwind v4 + Enterprise Design System + Optimized CSS Bundle
+// All CSS consolidated in index.css (5 files: index.css + 4 imports)
 import "./index.css"
-import "./styles/pro-max.css"
 
-// Responsive Utilities
-import "./styles/design-tokens-responsive.css"
-import "./styles/responsive-utilities.css"
-import "./styles/dark-mode-enhancements.css"
+// Data router created with createBrowserRouter + createRoutesFromElements
+// This replaces the legacy BrowserRouter with the modern data router API,
+// enabling future use of data loaders, actions, and error boundaries at the route level.
+// Note: Route elements reference components that are rendered inside the provider tree
+// (QueryClient, MSAL, Auth, etc.) because RouterProvider is nested within those providers.
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      {/* Public Login Route */}
+      <Route path="/login" element={<Login />} />
 
-// WCAG 2.1 AA Accessibility Styles
-import "./styles/accessibility.css"
+      {/* OAuth Callback Route - Public (no auth required) */}
+      <Route path="/auth/callback" element={<AuthCallback />} />
 
-// Legacy fleet theme - DISABLED to prevent conflicts
-// import "./styles/fleet-theme.css"
-
-// Create a client with reactive data configuration
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false, // Disable auto-refetch on focus for performance
-      refetchInterval: false, // Disable auto-refresh (was 10 seconds - too aggressive)
-      staleTime: 60000, // Data considered fresh for 60 seconds
-      retry: 1,
-    },
-  },
-})
-
-// Use Sentry's BrowserRouter integration (disabled - using regular Routes)
-// const SentryRoutes = Sentry.withSentryRouting(Routes)
-const SentryRoutes = Routes
+      {/* Protected Application Routes - Require SSO Authentication */}
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute requireAuth={true}>
+            <SentryErrorBoundary level="section">
+              <NavigationProvider>
+                <App />
+              </NavigationProvider>
+            </SentryErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+    </>
+  )
+)
 
 /**
  * P0-3 SECURITY FIX: Startup configuration validation
@@ -127,122 +130,64 @@ const SentryRoutes = Routes
  * and cannot run in browser environment. Secret validation should happen
  * in the backend API server, not in the frontend.
  *
- * TODO: Implement backend API endpoint for secret validation
- * TODO: Call backend /api/health or /api/config endpoint from frontend
+ * Secret validation (Key Vault, JWT) is handled server-side by the backend API.
+ * The frontend checks the backend /api/health endpoint to confirm it is operational.
  */
 async function validateStartupConfiguration(): Promise<void> {
-  console.log('[Fleet] Starting application configuration validation...');
-  console.log('[Fleet] ⚠️  NOTICE: Azure Key Vault validation disabled (frontend)');
-  console.log('[Fleet] ⚠️  Secret validation must be implemented in backend API');
+  // CRITICAL: Validate environment variables before anything else
+  const envErrors = validateEnvironment();
+  if (envErrors.length > 0) {
+    const errorMessages = envErrors.map(e => `• ${e.variable}: ${e.message}`).join('\n');
+    const fullMessage = `[CONFIGURATION ERROR] Missing or invalid environment variables:\n${errorMessages}\n\nPlease set these variables and restart the application.`;
+    logger.error(fullMessage);
+    throw new Error(fullMessage);
+  }
 
-  // TEMP: Skip all Key Vault validation in frontend
-  // This allows the app to start in development mode
-  console.log('[Fleet] ✅ Frontend startup validation: PASSED (Key Vault disabled)');
-
-  /* COMMENTED OUT - CAUSES BROWSER CRASH
+  // Environment is valid, proceed with health check
+  let apiUrl = '';
   try {
-    // Only validate secrets in production mode
-    if (import.meta.env.MODE === 'production') {
-      console.log('[Fleet] Production mode detected - validating Key Vault connectivity...');
+    apiUrl = import.meta.env.VITE_API_URL || '';
+  } catch (e) {
+    // Should not happen due to validation above
+    throw new Error('VITE_API_URL is not accessible');
+  }
 
-      // Step 1: Check Key Vault connectivity
-      const healthCheck = await checkKeyVaultHealth();
-      if (!healthCheck.healthy) {
-        throw new Error(`Key Vault health check failed: ${healthCheck.error}`);
-      }
-      console.log('[Fleet] ✓ Key Vault connectivity verified');
+  const healthUrl = apiUrl.endsWith('/api') ? `${apiUrl}/health` : `${apiUrl}/api/health`;
 
-      // Step 2: Validate all required secrets
-      console.log('[Fleet] Validating required secrets...');
-      await validateSecrets();
-      console.log('[Fleet] ✓ All required secrets validated');
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      // Step 3: Validate JWT configuration
-      console.log('[Fleet] Validating JWT configuration...');
-      const jwtSecret = await getSecret("JWT-SECRET");
+    const response = await fetch(healthUrl, {
+      method: 'GET',
+      signal: controller.signal,
+      credentials: 'include',
+    });
+    clearTimeout(timeoutId);
 
-      if (jwtSecret.length < 32) {
-        throw new Error(
-          `JWT-SECRET must be at least 32 characters for security (current: ${jwtSecret.length} chars)`
-        );
-      }
-      console.log('[Fleet] ✓ JWT configuration valid');
-
-      console.log('[Fleet] ✅ Startup validation: PASSED');
+    if (response.ok) {
+      const data = await response.json();
     } else {
-      console.log('[Fleet] Development mode - skipping Key Vault validation');
-      console.log('[Fleet] ⚠️  WARNING: Using local environment variables');
+      logger.warn(`[Fleet] Backend health check returned status ${response.status} - app will continue but some features may be unavailable`);
     }
   } catch (error) {
-    console.error('[Fleet] ❌ FATAL: Startup validation failed:', error);
-
-    // Show user-friendly error page instead of blank screen
-    const rootElement = document.getElementById("root");
-    if (rootElement) {
-      rootElement.innerHTML = `
-        <div style="
-          padding: 40px;
-          max-width: 800px;
-          margin: 100px auto;
-          text-align: center;
-          font-family: system-ui, -apple-system, sans-serif;
-          background: #fff;
-          border: 2px solid #ef4444;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        ">
-          <h1 style="color: #dc2626; margin-bottom: 20px;">
-            ⚠️ Configuration Error
-          </h1>
-          <p style="color: #374151; font-size: 18px; margin-bottom: 20px;">
-            The application could not start due to missing or invalid configuration.
-          </p>
-          <details style="
-            text-align: left;
-            background: #f9fafb;
-            padding: 20px;
-            border-radius: 4px;
-            margin-top: 20px;
-          ">
-            <summary style="cursor: pointer; font-weight: bold; color: #1f2937;">
-              Technical Details (Click to expand)
-            </summary>
-            <pre style="
-              margin-top: 10px;
-              padding: 10px;
-              background: #1f2937;
-              color: #f9fafb;
-              border-radius: 4px;
-              overflow: auto;
-              font-size: 14px;
-            ">${error instanceof Error ? error.message : 'Unknown error'}</pre>
-          </details>
-          <p style="color: #6b7280; margin-top: 30px; font-size: 14px;">
-            Please contact your system administrator or check the deployment configuration.
-          </p>
-        </div>
-      `;
-    }
-
-    // Re-throw to prevent app from starting
-    throw error;
+    // Non-blocking: log warning but allow app to render
+    // This handles cases where the backend is temporarily unavailable or network is slow
+    logger.warn('[Fleet] Backend health check failed (non-blocking):', error instanceof Error ? error.message : 'Unknown error');
+    logger.warn('[Fleet] The application will start, but API-dependent features may not work until the backend is reachable');
   }
-  */
 }
 
 // P0-3: Run validation BEFORE rendering app
 // This ensures app only starts if all security requirements are met
 validateStartupConfiguration().then(async () => {
-  console.log('[Fleet] Starting application...');
-
   // Initialize MSAL before rendering - required for MSAL v2+
   try {
     await msalInstance.initialize();
     // Handle any redirect promise from SSO callback
     await msalInstance.handleRedirectPromise();
-    console.log('[Fleet] MSAL initialized successfully');
   } catch (error) {
-    console.error('[Fleet] MSAL initialization failed:', error);
+    logger.error('[Fleet] MSAL initialization failed:', error);
   }
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -250,6 +195,7 @@ validateStartupConfiguration().then(async () => {
       <QueryClientProvider client={queryClient}>
         <MsalProvider instance={msalInstance}>
           <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
+            <MuiThemeProvider theme={muiTheme}>
             <SentryErrorBoundary level="page">
               <BrandingProvider>
                 <AuthProvider>
@@ -259,30 +205,8 @@ validateStartupConfiguration().then(async () => {
                         <DrilldownProvider>
                           <InspectProvider>
                             <PanelProvider>
-                            <BrowserRouter>
                             {/* <GlobalCommandPalette /> */}
-                            <SentryRoutes>
-                              {/* Public Login Route */}
-                              <Route path="/login" element={<Login />} />
-
-                              {/* OAuth Callback Route - Public (no auth required) */}
-                              <Route path="/auth/callback" element={<AuthCallback />} />
-
-                              {/* Protected Application Routes - Require SSO Authentication */}
-                              <Route
-                                path="/*"
-                                element={
-                                  <ProtectedRoute requireAuth={true}>
-                                    <SentryErrorBoundary level="section">
-                                      <NavigationProvider>
-                                        <App />
-                                      </NavigationProvider>
-                                    </SentryErrorBoundary>
-                                  </ProtectedRoute>
-                                }
-                              />
-                            </SentryRoutes>
-                          </BrowserRouter>
+                            <RouterProvider router={router} />
                           </PanelProvider>
                         </InspectProvider>
                       </DrilldownProvider>
@@ -292,6 +216,7 @@ validateStartupConfiguration().then(async () => {
               </AuthProvider>
             </BrandingProvider>
             </SentryErrorBoundary>
+            </MuiThemeProvider>
           </ThemeProvider>
         </MsalProvider>
       </QueryClientProvider>
@@ -305,11 +230,9 @@ validateStartupConfiguration().then(async () => {
         updateSW(true)
       }
     },
-    onOfflineReady() {
-      console.log('App ready to work offline')
-    },
+    onOfflineReady() {},
   })
 }).catch((error) => {
   // P0-3: Validation failed - app will not start
-  console.error('[Fleet] Application startup aborted due to validation failure:', error);
+  logger.error('[Fleet] Application startup aborted due to validation failure:', error);
 });

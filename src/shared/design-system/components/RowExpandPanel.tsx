@@ -27,17 +27,17 @@ export const RowExpandPanel: React.FC<{
     <div style={{
       padding: 12,
       borderRadius: 16,
-      border:'1px solid rgba(255,255,255,0.08)',
-      background:'rgba(0,0,0,0.18)'
+      border:'1px solid hsl(var(--border) / 0.2)',
+      background:'hsl(var(--foreground) / 0.18)'
     }}>
       <div style={{display:'grid', gridTemplateColumns:'1.2fr .8fr', gap:12}}>
 
         {/* Telemetry Drilldown Section */}
         <div style={{
-          border:'1px solid rgba(255,255,255,0.08)',
+          border:'1px solid hsl(var(--border) / 0.2)',
           borderRadius:16,
           padding:12,
-          background:'rgba(255,255,255,0.03)'
+          background:'hsl(var(--muted) / 0.2)'
         }}>
           <div style={{
             fontSize:12,
@@ -50,15 +50,15 @@ export const RowExpandPanel: React.FC<{
           </div>
 
           <div style={{display:'flex', gap:8, flexWrap:'wrap', marginBottom:10}}>
-            {anomalies.map((a,i)=><StatusChip key={i} status={a.status} label={a.label}/>)}
+            {anomalies.map((a)=><StatusChip key={a.label} status={a.status} label={a.label}/>)}
           </div>
 
           {/* Sparkline/Chart Placeholder */}
           <div style={{
             height:54,
             borderRadius:16,
-            border:'1px dashed rgba(255,255,255,0.18)',
-            background:'linear-gradient(180deg, rgba(96,165,250,0.10), rgba(255,255,255,0.03))'
+            border:'1px dashed hsl(var(--border) / 0.18)',
+            background:'linear-gradient(180deg, hsl(var(--primary) / 0.1), hsl(var(--muted) / 0.2))'
           }}/>
 
           <div style={{marginTop:10, color:'var(--muted)', fontSize:12}}>
@@ -68,10 +68,10 @@ export const RowExpandPanel: React.FC<{
 
         {/* Recent Records Section */}
         <div style={{
-          border:'1px solid rgba(255,255,255,0.08)',
+          border:'1px solid hsl(var(--border) / 0.2)',
           borderRadius:16,
           padding:12,
-          background:'rgba(255,255,255,0.03)'
+          background:'hsl(var(--muted) / 0.2)'
         }}>
           <div style={{
             fontSize:12,
@@ -87,7 +87,7 @@ export const RowExpandPanel: React.FC<{
             width:'100%',
             borderCollapse:'separate',
             borderSpacing:0,
-            border:'1px solid rgba(255,255,255,0.06)',
+            border:'1px solid hsl(var(--border) / 0.15)',
             borderRadius:14,
             overflow:'hidden'
           }}>
@@ -98,7 +98,7 @@ export const RowExpandPanel: React.FC<{
                   fontSize:12,
                   color:'var(--muted)',
                   textAlign:'left',
-                  background:'rgba(255,255,255,0.02)'
+                  background:'hsl(var(--muted) / 0.1)'
                 }}>
                   Event
                 </th>
@@ -107,7 +107,7 @@ export const RowExpandPanel: React.FC<{
                   fontSize:12,
                   color:'var(--muted)',
                   textAlign:'left',
-                  background:'rgba(255,255,255,0.02)'
+                  background:'hsl(var(--muted) / 0.1)'
                 }}>
                   Severity
                 </th>
@@ -116,7 +116,7 @@ export const RowExpandPanel: React.FC<{
                   fontSize:12,
                   color:'var(--muted)',
                   textAlign:'left',
-                  background:'rgba(255,255,255,0.02)'
+                  background:'hsl(var(--muted) / 0.1)'
                 }}>
                   When
                 </th>
@@ -125,7 +125,7 @@ export const RowExpandPanel: React.FC<{
                   fontSize:12,
                   color:'var(--muted)',
                   textAlign:'left',
-                  background:'rgba(255,255,255,0.02)'
+                  background:'hsl(var(--muted) / 0.1)'
                 }}>
                 </th>
               </tr>
@@ -136,14 +136,14 @@ export const RowExpandPanel: React.FC<{
                   <td style={{
                     padding:10,
                     fontSize:12,
-                    borderBottom:'1px solid rgba(255,255,255,0.06)'
+                    borderBottom:'1px solid hsl(var(--border) / 0.15)'
                   }}>
                     {r.summary}
                   </td>
                   <td style={{
                     padding:10,
                     fontSize:12,
-                    borderBottom:'1px solid rgba(255,255,255,0.06)'
+                    borderBottom:'1px solid hsl(var(--border) / 0.15)'
                   }}>
                     <StatusChip status={r.severity} />
                   </td>
@@ -151,14 +151,14 @@ export const RowExpandPanel: React.FC<{
                     padding:10,
                     fontSize:12,
                     color:'var(--muted)',
-                    borderBottom:'1px solid rgba(255,255,255,0.06)'
+                    borderBottom:'1px solid hsl(var(--border) / 0.15)'
                   }}>
                     {r.timestamp}
                   </td>
                   <td style={{
                     padding:10,
                     fontSize:12,
-                    borderBottom:'1px solid rgba(255,255,255,0.06)'
+                    borderBottom:'1px solid hsl(var(--border) / 0.15)'
                   }}>
                     <button
                       onClick={()=>onOpenRecord?.(r.id)}
@@ -166,7 +166,7 @@ export const RowExpandPanel: React.FC<{
                         padding:'8px 10px',
                         borderRadius:12,
                         border:'1px solid var(--border)',
-                        background:'rgba(96,165,250,0.15)',
+                        background:'hsl(var(--primary) / 0.15)',
                         color:'var(--text)',
                         cursor:'pointer'
                       }}

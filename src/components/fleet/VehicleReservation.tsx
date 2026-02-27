@@ -10,8 +10,6 @@
  * - WCAG 2.1 AA accessible
  */
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
 import {
   Calendar,
   Car,
@@ -22,16 +20,19 @@ import {
   CheckCircle,
   X,
   Plus,
-  Search,
-  Loader2
+  Search
 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { useState } from 'react'
+
+// motion removed - React 19 incompatible
+import toast from 'react-hot-toast'
+
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -39,11 +40,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import { useTenant } from '@/contexts/TenantContext'
 import { useVehicles } from '@/hooks/use-api'
+import { useCreateReservation } from '@/hooks/use-reservations'
 import { useVehicleScheduleWithUtils } from '@/hooks/useVehicleSchedule'
-import toast from 'react-hot-toast'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface VehicleReservationProps {
   vehicleId?: string
@@ -60,6 +65,9 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
 
   // Fetch real vehicles from API
   const { data: vehiclesData, isLoading: vehiclesLoading } = useVehicles({ tenant_id: tenantId || '' })
+
+  // Reservation mutation hook for real API submission
+  const createReservation = useCreateReservation()
 
   // Fetch vehicle schedule using the existing hook
   const {
@@ -110,38 +118,31 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
       return
     }
 
-    // TODO: Submit reservation to API
-    toast.success('Reservation request submitted! Pending approval.')
-    logger.info('Creating reservation:', {
-      vehicleId: selectedVehicle,
-      driverId,
-      startDate: start.toISOString(),
-      endDate: end.toISOString(),
-      purpose
-    })
+    try {
+      await createReservation.mutateAsync({
+        vehicle_id: selectedVehicle,
+        driver_id: driverId || '',
+        start_date: start.toISOString(),
+        end_date: end.toISOString(),
+        purpose: purpose,
+      })
 
-    // TODO: Add real API call to create reservation
-    // Example:
-    // const response = await apiClient.post('/api/reservations', {
-    //   vehicle_id: selectedVehicle,
-    //   driver_id: driverId,
-    //   start_date: start.toISOString(),
-    //   end_date: end.toISOString(),
-    //   purpose: purpose
-    // })
-
-    // Reset form
-    setStartDate('')
-    setEndDate('')
-    setPurpose('')
-    refresh()
+      // Reset form on success
+      setStartDate('')
+      setEndDate('')
+      setPurpose('')
+      refresh()
+    } catch (error) {
+      // Error toast is handled by the mutation's onError callback
+      logger.error('Reservation submission failed:', error)
+    }
   }
 
   // Map API vehicles for selection dropdown
   const availableVehicles = (vehiclesData || [])
     .map(v => ({
       id: String(v.id),
-      name: `Vehicle ${v.number || v.id} - ${v.make} ${v.model} (${v.year})`,
+      name: formatVehicleName(v),
       status: v.status === 'active' || v.status === 'idle' ? 'available' : v.status === 'service' ? 'maintenance' : v.status,
     }))
     .filter(v => v.name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -187,7 +188,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
                       <div className="flex items-center justify-between w-full">
                         <span>{vehicle.name}</span>
                         <Badge variant={vehicle.status === 'available' ? 'default' : 'secondary'}>
-                          {vehicle.status}
+                          {formatEnum(vehicle.status)}
                         </Badge>
                       </div>
                     </SelectItem>
@@ -291,11 +292,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
 
       {/* Vehicle Schedule (if vehicle selected) */}
       {selectedVehicle && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <div>
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -334,7 +331,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
                         >
                           <div className="flex items-center gap-3">
                             {event.type === 'reservation' ? (
-                              <User className="h-5 w-5 text-blue-500" />
+                              <User className="h-5 w-5 text-emerald-500" />
                             ) : (
                               <FileText className="h-5 w-5 text-orange-500" />
                             )}
@@ -343,7 +340,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
                                 {event.type === 'reservation' ? 'Reservation' : 'Maintenance'}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {event.start.toLocaleString()} - {event.end.toLocaleString()}
+                                {formatDateTime(event.start)} - {formatDateTime(event.end)}
                               </p>
                             </div>
                           </div>
@@ -365,7 +362,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
               )}
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       )}
 
       {/* My Reservations Section */}

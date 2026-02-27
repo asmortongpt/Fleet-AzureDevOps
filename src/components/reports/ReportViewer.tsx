@@ -1,7 +1,7 @@
 import { subMonths } from 'date-fns';
-import { ArrowLeft, Download, RefreshCw, Maximize2, Share2 } from 'lucide-react';
-import React, { useState, useEffect, useCallback } from 'react';
-
+import { ArrowLeft, Download, RefreshCw, Maximize2, Minimize2, Share2 } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { toast } from 'sonner';
 
 import { FilterBar, FilterValues } from './filters/FilterBar';
 import { DetailTable, TableColumn } from './visualizations/DetailTable';
@@ -93,6 +93,8 @@ interface ReportViewerProps {
  */
 export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
   const { user } = useAuth();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [reportDef, setReportDef] = useState<ReportDefinition | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -145,8 +147,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
 
     setLoading(true);
     try {
-      // In production, this would call the backend API
-      // For now, we'll simulate with mock data
+      // Call backend API for report execution
       const response = await fetch('/api/reports/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -201,6 +202,26 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
     });
   }, [reportDef, drilldownState]);
 
+  // Toggle fullscreen mode
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      const el = containerRef.current || document.documentElement;
+      el.requestFullscreen?.().then(() => setIsFullscreen(true)).catch(() => {
+        // Fallback: just toggle a CSS class for max-screen view
+        setIsFullscreen(true);
+      });
+    } else {
+      document.exitFullscreen?.().then(() => setIsFullscreen(false));
+    }
+  }, []);
+
+  // Listen for fullscreen changes (e.g., user presses Escape)
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
   // Handle drill-up
   const handleDrillUp = useCallback(() => {
     if (drilldownState.level === 0) return;
@@ -249,7 +270,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       logger.error('Export error:', err);
-      alert('Export failed. Please try again.');
+      toast.error('Export failed. Please try again.');
     }
   }, [reportDef, filters, user]);
 
@@ -305,8 +326,8 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
 
       default:
         return (
-          <div key={visual.id} className="p-2 bg-gray-100 rounded-lg">
-            <p className="text-sm text-slate-700">
+          <div key={visual.id} className="p-2 bg-white/[0.05] rounded-lg">
+            <p className="text-sm text-white/70">
               Unsupported visual type: {visual.type}
             </p>
           </div>
@@ -319,8 +340,8 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-4 h-4 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-slate-700">Loading report...</p>
+          <div className="w-4 h-4 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-white/70">Loading report...</p>
         </div>
       </div>
     );
@@ -331,7 +352,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-3">
         <div className="text-red-500 mb-2">Error loading report</div>
-        <p className="text-slate-700 mb-3">{error || 'Report not found'}</p>
+        <p className="text-white/70 mb-3">{error || 'Report not found'}</p>
         <Button onClick={onBack}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Reports
@@ -341,9 +362,9 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div ref={containerRef} className="flex flex-col h-full bg-white/[0.03]">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-3 py-2">
+      <div className="bg-white border-b border-white/[0.08] px-3 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={onBack} size="sm">
@@ -351,8 +372,8 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
               Back
             </Button>
             <div>
-              <h1 className="text-sm font-bold text-gray-900">{reportDef.title}</h1>
-              <p className="text-sm text-slate-700">{reportDef.description}</p>
+              <h1 className="text-sm font-bold text-white/80">{reportDef.title}</h1>
+              <p className="text-sm text-white/70">{reportDef.description}</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -369,19 +390,26 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => {
+              const shareUrl = `${window.location.origin}${window.location.pathname}?report=${encodeURIComponent(reportId || '')}`
+              navigator.clipboard.writeText(shareUrl).then(() => {
+                toast.success('Report link copied to clipboard')
+              }).catch(() => {
+                toast.error('Failed to copy link')
+              })
+            }}>
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>
-            <Button variant="outline" size="sm">
-              <Maximize2 className="h-4 w-4" />
+            <Button variant="outline" size="sm" onClick={toggleFullscreen} title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}>
+              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </Button>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="px-3 py-2 bg-white border-b border-gray-200">
+      <div className="px-3 py-2 bg-white border-b border-white/[0.08]">
         <FilterBar
           filters={filters}
           onChange={setFilters}
@@ -394,13 +422,13 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
 
       {/* Drill-down breadcrumb */}
       {drilldownState.level > 0 && (
-        <div className="px-3 py-2 bg-indigo-50 border-b border-indigo-200">
+        <div className="px-3 py-2 bg-emerald-50 border-b border-emerald-200">
           <div className="flex items-center gap-2 text-sm">
             <Button variant="ghost" size="sm" onClick={handleDrillUp}>
               <ArrowLeft className="h-3 w-3 mr-1" />
               Drill Up
             </Button>
-            <span className="text-slate-700">
+            <span className="text-white/70">
               Filtered by: {Object.entries(drilldownState.filters).map(([key, value]) => `${key}=${value}`).join(', ')}
             </span>
           </div>

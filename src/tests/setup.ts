@@ -13,60 +13,93 @@ expect.extend(toHaveNoViolations);
 // Cleanup after each test
 afterEach(() => {
   cleanup();
+  // Clear localStorage/sessionStorage before clearing mocks
+  // (vi.clearAllMocks may remove mock implementations on storage)
+  if (typeof localStorage !== 'undefined' && typeof localStorage.clear === 'function') {
+    localStorage.clear();
+  }
+  if (typeof sessionStorage !== 'undefined' && typeof sessionStorage.clear === 'function') {
+    sessionStorage.clear();
+  }
   // Clear all mocks
   vi.clearAllMocks();
-  // Clear localStorage
-  localStorage.clear();
-  // Clear sessionStorage
-  sessionStorage.clear();
 });
 
 // Setup global mocks before all tests
 beforeAll(() => {
-  // Mock window.matchMedia (required for responsive components)
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(), // deprecated
-      removeListener: vi.fn(), // deprecated
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
-  });
+  // Guard all DOM/window mocks — they only apply in jsdom environments
+  if (typeof window !== 'undefined') {
+    // Ensure localStorage and sessionStorage are properly mocked
+    // jsdom provides them, but ensure they work correctly
+    const createStorageMock = () => {
+      const store: Record<string, string> = {};
+      return {
+        getItem: (key: string) => store[key] || null,
+        setItem: (key: string, value: string) => { store[key] = String(value); },
+        removeItem: (key: string) => { delete store[key]; },
+        clear: () => { Object.keys(store).forEach(key => delete store[key]); },
+        key: (index: number) => Object.keys(store)[index] || null,
+        length: Object.keys(store).length,
+      };
+    };
+
+    // Always override with our implementation to ensure consistency
+    Object.defineProperty(window, 'localStorage', {
+      value: createStorageMock(),
+      writable: false,
+      configurable: true,
+    });
+
+    Object.defineProperty(window, 'sessionStorage', {
+      value: createStorageMock(),
+      writable: false,
+      configurable: true,
+    });
+
+    // Mock window.matchMedia (required for responsive components)
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(), // deprecated
+        removeListener: vi.fn(), // deprecated
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+
+    // Mock scrollTo
+    window.scrollTo = vi.fn();
+  }
 
   // Mock IntersectionObserver (required for lazy loading)
-  global.IntersectionObserver = class IntersectionObserver {
-    constructor() {}
-    disconnect() {}
-    observe() {}
-    takeRecords() {
-      return [];
-    }
-    unobserve() {}
-  } as any;
+  if (typeof globalThis !== 'undefined') {
+    global.IntersectionObserver = class IntersectionObserver {
+      constructor() {}
+      disconnect() {}
+      observe() {}
+      takeRecords() {
+        return [];
+      }
+      unobserve() {}
+    } as any;
 
-  // Mock ResizeObserver (required for responsive components)
-  global.ResizeObserver = class ResizeObserver {
-    constructor() {}
-    disconnect() {}
-    observe() {}
-    unobserve() {}
-  } as any;
-
-  // Mock scrollTo
-  window.scrollTo = vi.fn();
+    // Mock ResizeObserver (required for responsive components)
+    global.ResizeObserver = class ResizeObserver {
+      constructor() {}
+      disconnect() {}
+      observe() {}
+      unobserve() {}
+    } as any;
+  }
 
   // NOTE: Do not globally mock fetch. Many tests (and app code paths) expect a real fetch
   // implementation. Individual tests should stub fetch explicitly as needed.
 
   // jsdom doesn't implement canvas; axe-core uses it for some rules (e.g., color-contrast).
-  if (typeof HTMLCanvasElement !== 'undefined' && !('getContext' in HTMLCanvasElement.prototype)) {
-    // no-op
-  }
   if (typeof HTMLCanvasElement !== 'undefined') {
     Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
       configurable: true,
@@ -104,7 +137,7 @@ beforeAll(() => {
   // axe-core calls it with (elt, pseudoElt) for some rules; treat it as a no-op on the pseudo arg.
   if (typeof window !== 'undefined' && typeof window.getComputedStyle === 'function') {
     const originalGetComputedStyle = window.getComputedStyle.bind(window);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     (window as any).getComputedStyle = (elt: Element, _pseudoElt?: string) => originalGetComputedStyle(elt);
   }
 

@@ -27,6 +27,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
 
 interface PolicyDetailPanelProps {
   policyId: string
@@ -75,6 +78,7 @@ interface Violation {
   severity: 'low' | 'medium' | 'high' | 'critical'
   description: string
   status: 'open' | 'acknowledged' | 'resolved' | 'dismissed'
+  case_status?: string
   assigned_to?: string
   resolution_date?: string
   resolution_notes?: string
@@ -97,8 +101,6 @@ interface AffectedEntity {
   last_check_date?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
 export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('overview')
@@ -106,32 +108,37 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
   // Main policy data
   const { data: policy, error, isLoading, mutate } = useSWR<PolicyData>(
     `/api/policies/${policyId}`,
-    fetcher
+    apiFetcher
   )
 
   // Execution history
   const { data: executionHistory } = useSWR<ExecutionHistory[]>(
     policyId ? `/api/policies/${policyId}/executions` : null,
-    fetcher
+    apiFetcher
   )
 
   // Violations
   const { data: violations } = useSWR<Violation[]>(
     policyId ? `/api/policies/${policyId}/violations` : null,
-    fetcher
+    apiFetcher
   )
 
   // Compliance metrics
   const { data: complianceMetrics } = useSWR<ComplianceMetric[]>(
     policyId ? `/api/policies/${policyId}/compliance-metrics` : null,
-    fetcher
+    apiFetcher
   )
 
   // Affected entities
   const { data: affectedEntities } = useSWR<AffectedEntity[]>(
     policyId ? `/api/policies/${policyId}/affected-entities` : null,
-    fetcher
+    apiFetcher
   )
+
+  const executionsArr = Array.isArray(executionHistory) ? executionHistory : []
+  const violationsArr = Array.isArray(violations) ? violations : []
+  const metricsArr = Array.isArray(complianceMetrics) ? complianceMetrics : []
+  const entitiesArr = Array.isArray(affectedEntities) ? affectedEntities : []
 
   const handleViewEntity = (entityType: string, entityId: string, entityName: string) => {
     push({
@@ -204,7 +211,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
       case 'warning':
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />
       default:
-        return <AlertTriangle className="h-5 w-5 text-gray-700" />
+        return <AlertTriangle className="h-5 w-5 text-white/40" />
     }
   }
 
@@ -221,8 +228,8 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
     }
   }
 
-  const openViolations = violations?.filter(v => v.status === 'open').length || 0
-  const resolvedViolations = violations?.filter(v => v.status === 'resolved').length || 0
+  const openViolations = violationsArr.filter(v => v.case_status === 'under_investigation').length
+  const resolvedViolations = violationsArr.filter(v => v.case_status === 'closed').length
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
@@ -240,11 +247,11 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                 <Badge variant={getPriorityColor(policy.priority)}>
                   {policy.priority} Priority
                 </Badge>
-                <Badge variant="outline" className="capitalize">
-                  {policy.type}
+                <Badge variant="outline">
+                  {formatEnum(policy.type)}
                 </Badge>
-                <Badge variant="outline" className="capitalize">
-                  {policy.enforcement_level}
+                <Badge variant="outline">
+                  {formatEnum(policy.enforcement_level)}
                 </Badge>
               </div>
             </div>
@@ -308,7 +315,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               <CardContent>
                 <div className="text-sm font-bold capitalize">{policy.applies_to}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {affectedEntities?.length || 0} entities
+                  {entitiesArr.length} entities
                 </p>
               </CardContent>
             </Card>
@@ -319,9 +326,9 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="executions">Executions</TabsTrigger>
-              <TabsTrigger value="violations">Violations ({violations?.length || 0})</TabsTrigger>
+              <TabsTrigger value="violations">Violations ({violationsArr.length})</TabsTrigger>
               <TabsTrigger value="compliance">Compliance</TabsTrigger>
-              <TabsTrigger value="affected">Affected ({affectedEntities?.length || 0})</TabsTrigger>
+              <TabsTrigger value="affected">Affected ({entitiesArr.length})</TabsTrigger>
             </TabsList>
 
             {/* Overview Tab */}
@@ -353,19 +360,17 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Created By</p>
-                      <p className="font-medium">{policy.created_by || 'N/A'}</p>
+                      <p className="font-medium">{policy.created_by || '—'}</p>
                       {policy.created_date && (
                         <p className="text-xs text-muted-foreground">
-                          {new Date(policy.created_date).toLocaleDateString()}
+                          {formatDate(policy.created_date)}
                         </p>
                       )}
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Last Updated</p>
                       <p className="font-medium">
-                        {policy.last_updated
-                          ? new Date(policy.last_updated).toLocaleDateString()
-                          : 'N/A'}
+                        {formatDate(policy.last_updated)}
                       </p>
                     </div>
                   </div>
@@ -384,14 +389,14 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Effective Date</span>
                     <span className="font-medium">
-                      {new Date(policy.effective_date).toLocaleDateString()}
+                      {formatDate(policy.effective_date)}
                     </span>
                   </div>
                   {policy.expiry_date && (
                     <div className="flex items-center justify-between border-t pt-3">
                       <span className="text-sm">Expiry Date</span>
                       <span className={`font-medium ${new Date(policy.expiry_date) < new Date() ? 'text-destructive' : ''}`}>
-                        {new Date(policy.expiry_date).toLocaleDateString()}
+                        {formatDate(policy.expiry_date)}
                       </span>
                     </div>
                   )}
@@ -416,9 +421,9 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
 
             {/* Executions Tab */}
             <TabsContent value="executions" className="space-y-2">
-              {executionHistory && executionHistory.length > 0 ? (
+              {executionsArr.length > 0 ? (
                 <div className="space-y-3">
-                  {executionHistory.slice(0, 20).map((execution) => (
+                  {executionsArr.slice(0, 20).map((execution) => (
                     <Card key={execution.id}>
                       <CardContent className="p-2">
                         <div className="space-y-3">
@@ -436,7 +441,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                             </div>
                             <div className="text-right">
                               <p className="text-xs text-muted-foreground">
-                                {new Date(execution.timestamp).toLocaleString()}
+                                {formatDateTime(execution.timestamp)}
                               </p>
                               <Badge variant={execution.result === 'passed' ? 'default' : execution.result === 'failed' ? 'destructive' : 'secondary'}>
                                 {execution.result}
@@ -469,9 +474,9 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                       </CardContent>
                     </Card>
                   ))}
-                  {executionHistory.length > 20 && (
+                  {executionsArr.length > 20 && (
                     <p className="text-sm text-center text-muted-foreground">
-                      +{executionHistory.length - 20} more executions
+                      +{executionsArr.length - 20} more executions
                     </p>
                   )}
                 </div>
@@ -487,12 +492,12 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
 
             {/* Violations Tab */}
             <TabsContent value="violations" className="space-y-2">
-              {violations && violations.length > 0 ? (
+              {violationsArr.length > 0 ? (
                 <div className="space-y-3">
-                  {violations.map((violation) => (
+                  {violationsArr.map((violation) => (
                     <Card
                       key={violation.id}
-                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      className="cursor-pointer hover:border-white/[0.12] transition-colors"
                       onClick={() => handleViewViolation(violation)}
                     >
                       <CardContent className="p-2">
@@ -503,8 +508,8 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                                 <Badge variant={getSeverityColor(violation.severity)}>
                                   {violation.severity}
                                 </Badge>
-                                <Badge variant={violation.status === 'resolved' ? 'default' : violation.status === 'open' ? 'destructive' : 'secondary'}>
-                                  {violation.status}
+                                <Badge variant={violation.case_status === 'closed' ? 'default' : violation.case_status === 'under_investigation' ? 'destructive' : 'secondary'}>
+                                  {violation.case_status}
                                 </Badge>
                               </div>
                               <p className="font-medium capitalize">
@@ -516,7 +521,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                             </div>
                             <div className="text-right ml-2">
                               <p className="text-xs text-muted-foreground">
-                                {new Date(violation.date).toLocaleDateString()}
+                                {formatDate(violation.date)}
                               </p>
                             </div>
                           </div>
@@ -532,7 +537,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                             <div className="pt-2 border-t">
                               <p className="text-xs text-muted-foreground">Resolved</p>
                               <p className="text-sm">
-                                {new Date(violation.resolution_date).toLocaleDateString()}
+                                {formatDate(violation.resolution_date)}
                               </p>
                               {violation.resolution_notes && (
                                 <p className="text-xs text-muted-foreground mt-1">
@@ -558,7 +563,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
 
             {/* Compliance Tab */}
             <TabsContent value="compliance" className="space-y-2">
-              {complianceMetrics && complianceMetrics.length > 0 ? (
+              {metricsArr.length > 0 ? (
                 <>
                   <Card>
                     <CardHeader>
@@ -569,7 +574,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {complianceMetrics.map((metric, index) => (
+                        {metricsArr.map((metric, index) => (
                           <div key={index} className="space-y-2">
                             <div className="flex items-center justify-between">
                               <span className="text-sm font-medium">{metric.period}</span>
@@ -636,12 +641,12 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
 
             {/* Affected Entities Tab */}
             <TabsContent value="affected" className="space-y-2">
-              {affectedEntities && affectedEntities.length > 0 ? (
+              {entitiesArr.length > 0 ? (
                 <div className="space-y-3">
-                  {affectedEntities.map((entity) => (
+                  {entitiesArr.map((entity) => (
                     <Card
                       key={entity.id}
-                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      className="cursor-pointer hover:border-white/[0.12] transition-colors"
                       onClick={() => handleViewEntity(entity.type, entity.id, entity.name)}
                     >
                       <CardContent className="p-2">
@@ -660,7 +665,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                             </Badge>
                             {entity.last_check_date && (
                               <p className="text-xs text-muted-foreground mt-1">
-                                Last check: {new Date(entity.last_check_date).toLocaleDateString()}
+                                Last check: {formatDate(entity.last_check_date)}
                               </p>
                             )}
                           </div>

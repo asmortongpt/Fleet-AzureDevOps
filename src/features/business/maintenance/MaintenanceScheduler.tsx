@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 
 import { maintenanceService } from '../../services/maintenanceService';
 import { vehicleService, Vehicle } from '../../services/vehicleService';
+
 import logger from '@/utils/logger';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 interface MaintenanceSchedulerProps {
   currentTheme: any;
@@ -71,11 +73,43 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
     setSuccessMessage(null);
     setLoading(true);
 
+    if (!formData.vehicleId) {
+      setError('Please select a vehicle');
+      setLoading(false);
+      return;
+    }
+    if (!formData.serviceType) {
+      setError('Please select a service type');
+      setLoading(false);
+      return;
+    }
+    if (!formData.serviceDate) {
+      setError('Please select a service date');
+      setLoading(false);
+      return;
+    }
+    const serviceDate = new Date(formData.serviceDate);
+    if (isNaN(serviceDate.getTime())) {
+      setError('Please enter a valid service date');
+      setLoading(false);
+      return;
+    }
+    if (formData.cost && parseFloat(formData.cost) < 0) {
+      setError('Cost cannot be negative');
+      setLoading(false);
+      return;
+    }
+    if (formData.mileageAtService && parseInt(formData.mileageAtService) < 0) {
+      setError('Mileage cannot be negative');
+      setLoading(false);
+      return;
+    }
+
     try {
       const record = {
         vehicleId: formData.vehicleId,
         serviceType: formData.serviceType,
-        serviceDate: new Date(formData.serviceDate),
+        serviceDate: serviceDate,
         mileageAtService: formData.mileageAtService ? parseInt(formData.mileageAtService) : undefined,
         cost: formData.cost ? parseFloat(formData.cost) : undefined,
         vendor: formData.vendor || undefined,
@@ -158,12 +192,12 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
 
       {error && (
         <div style={{
-          backgroundColor: '#fee',
-          border: '1px solid #fcc',
+          backgroundColor: 'hsl(var(--destructive) / 0.12)',
+          border: '1px solid hsl(var(--destructive) / 0.3)',
           borderRadius: '6px',
           padding: '12px',
           marginBottom: '16px',
-          color: '#c00'
+          color: 'hsl(var(--destructive))'
         }}>
           {error}
         </div>
@@ -171,12 +205,12 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
 
       {successMessage && (
         <div style={{
-          backgroundColor: '#efe',
-          border: '1px solid #cfc',
+          backgroundColor: 'hsl(var(--chart-2) / 0.12)',
+          border: '1px solid hsl(var(--chart-2) / 0.3)',
           borderRadius: '6px',
           padding: '12px',
           marginBottom: '16px',
-          color: '#060'
+          color: 'hsl(var(--chart-2))'
         }}>
           {successMessage}
         </div>
@@ -198,7 +232,7 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
               <option value="">Select a vehicle</option>
               {vehicles.map(vehicle => (
                 <option key={vehicle.id} value={vehicle.id}>
-                  {vehicle.licensePlate || vehicle.vin} - {vehicle.make} {vehicle.model}
+                  {vehicle.licensePlate || vehicle.vin} - {formatVehicleShortName(vehicle)}
                 </option>
               ))}
             </select>
@@ -322,7 +356,7 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
             style={{
               ...buttonStyle,
               backgroundColor: currentTheme.primary,
-              color: '#fff'
+              color: 'hsl(var(--primary-foreground))'
             }}
           >
             {loading ? 'Scheduling...' : 'Schedule Maintenance'}

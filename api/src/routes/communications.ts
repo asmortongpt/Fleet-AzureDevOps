@@ -15,7 +15,8 @@ import {
   getCommunicationsQuerySchema,
   createCommunicationTemplateSchema
 } from '../schemas/communications.schema'
-import { buildInsertClause } from '../utils/sql-safety'
+import { logger } from '../utils/logger'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 
 const router = express.Router()
@@ -48,11 +49,9 @@ router.get(
       // SECURITY FIX: Add tenant_id filter to communications table directly
       let query = `
         SELECT c.*,
-               from_user.first_name || ' ' || from_user.last_name as from_user_name,
-               COUNT(DISTINCT cel.id) as linked_entities_count
-        FROM communications c
-        LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
-        LEFT JOIN communication_entity_links cel ON c.id = cel.communication_id
+               from_user.first_name || ' ' || from_user.last_name as from_user_name
+        FROM communication_logs c
+        LEFT JOIN drivers from_user ON c.sender_id = from_user.id
         WHERE c.tenant_id = $1
       `
       const params: any[] = [req.user!.tenant_id]
@@ -65,13 +64,13 @@ router.get(
       }
 
       if (category) {
-        query += ` AND (c.ai_detected_category = $${paramIndex} OR c.manual_category = $${paramIndex})`
+        query += ` AND c.related_entity_type = $${paramIndex}`
         params.push(category)
         paramIndex++
       }
 
       if (priority) {
-        query += ` AND (c.ai_detected_priority = $${paramIndex} OR c.manual_priority = $${paramIndex})`
+        query += ` AND c.priority = $${paramIndex}`
         params.push(priority)
         paramIndex++
       }
@@ -86,14 +85,13 @@ router.get(
         query += ` AND (
           c.subject ILIKE $${paramIndex} OR
           c.body ILIKE $${paramIndex} OR
-          c.from_contact_name ILIKE $${paramIndex}
+          c.sender_name ILIKE $${paramIndex}
         )`
         params.push(`%${search}%`)
         paramIndex++
       }
 
-      query += ` GROUP BY c.id, from_user.first_name, from_user.last_name`
-      query += ` ORDER BY c.communication_datetime DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      query += ` ORDER BY c.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
@@ -101,7 +99,7 @@ router.get(
       // SECURITY FIX: Add tenant_id filter to count query
       const countQuery = `
         SELECT COUNT(DISTINCT c.id)
-        FROM communications c
+        FROM communication_logs c
         WHERE c.tenant_id = $1
       `
       const countResult = await pool.query(countQuery, [req.user!.tenant_id])
@@ -116,7 +114,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get communications error:`, error)
+      logger.error(`Get communications error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -134,8 +132,8 @@ router.get(
       const result = await pool.query(
         `SELECT c.*,
                 from_user.first_name || ' ' || from_user.last_name as from_user_name
-         FROM communications c
-         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
+         FROM communication_logs c
+         LEFT JOIN drivers from_user ON c.sender_id = from_user.id
          WHERE c.id = $1 AND c.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -148,7 +146,7 @@ router.get(
       const linksResult = await pool.query(
         `SELECT cel.entity_type, cel.entity_id, cel.link_type, cel.relevance_score, cel.auto_detected
          FROM communication_entity_links cel
-         JOIN communications c ON cel.communication_id = c.id
+         JOIN communication_logs c ON cel.communication_id = c.id
          WHERE cel.communication_id = $1 AND c.tenant_id = $2
          ORDER BY cel.relevance_score DESC`,
         [req.params.id, req.user!.tenant_id]
@@ -159,13 +157,13 @@ router.get(
         `SELECT
       ca.id,
       ca.communication_id,
-      ca.file_name,
-      ca.file_path,
-      ca.file_type,
-      ca.file_size,
+      ca.original_filename as file_name,
+      ca.storage_path as file_path,
+      ca.mime_type as file_type,
+      ca.file_size_bytes as file_size,
       ca.created_at
          FROM communication_attachments ca
-         JOIN communications c ON ca.communication_id = c.id
+         JOIN communication_logs c ON ca.communication_id = c.id
          WHERE ca.communication_id = $1 AND c.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -176,7 +174,7 @@ router.get(
         attachments: attachmentsResult.rows
       })
     } catch (error) {
-      console.error(`Get communication error:`, error)
+      logger.error(`Get communication error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -193,16 +191,16 @@ router.post(
     try {
       const { linked_entities, ...data } = req.body
 
-      // SECURITY FIX: Add tenant_id and created_by to the insert
+      // SECURITY FIX: Add tenant_id to the insert
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        [`tenant_id`, `created_by`],
+        [`tenant_id`],
         1
       )
 
       const result = await pool.query(
-        `INSERT INTO communications (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.tenant_id, req.user!.id, ...values]
+        `INSERT INTO communication_logs (${columnNames}) VALUES (${placeholders}) RETURNING *`,
+        [req.user!.tenant_id, ...values]
       )
 
       const communicationId = result.rows[0].id
@@ -235,7 +233,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create communication error:`, error)
+      logger.error(`Create communication error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -251,18 +249,15 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
-      const fields = Object.keys(data)
-        .map((key, i) => `${key} = $${i + 4}`)
-        .join(`, `)
-      const values = Object.values(data)
+      const { fields, values } = buildUpdateClause(data, 3)
 
       // SECURITY FIX: Add tenant_id to WHERE clause to prevent cross-tenant updates
       const result = await pool.query(
-        `UPDATE communications
-         SET ${fields}, updated_at = NOW(), updated_by = $2
-         WHERE id = $1 AND tenant_id = $3
+        `UPDATE communication_logs
+         SET ${fields}, updated_at = NOW()
+         WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
-        [req.params.id, req.user!.id, req.user!.tenant_id, ...values]
+        [req.params.id, req.user!.tenant_id, ...values]
       )
 
       if (result.rows.length === 0) {
@@ -271,7 +266,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update communication error:`, error)
+      logger.error(`Update communication error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -293,7 +288,7 @@ router.post(
 
       // SECURITY FIX: Validate that communication belongs to tenant before linking
       const commCheck = await pool.query(
-        `SELECT id FROM communications WHERE id = $1 AND tenant_id = $2`,
+        `SELECT id FROM communication_logs WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -312,7 +307,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Link communication to entity error:`, error)
+      logger.error(`Link communication to entity error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -328,7 +323,7 @@ router.delete(
       // SECURITY FIX: Verify communication belongs to tenant before deleting link
       const result = await pool.query(
         `DELETE FROM communication_entity_links cel
-         USING communications c
+         USING communication_logs c
          WHERE cel.id = $1
            AND cel.communication_id = $2
            AND cel.communication_id = c.id
@@ -341,9 +336,9 @@ router.delete(
         throw new NotFoundError(`Link not found`)
       }
 
-      res.json({ message: 'Link deleted successfully' })
+      res.json({ success: true, message: 'Link deleted successfully' })
     } catch (error) {
-      console.error('Delete communication link error:', error)
+      logger.error('Delete communication link error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -370,11 +365,11 @@ router.get(
                 cel.link_type,
                 cel.relevance_score,
                 from_user.first_name || ' ' || from_user.last_name as from_user_name
-         FROM communications c
+         FROM communication_logs c
          JOIN communication_entity_links cel ON c.id = cel.communication_id
-         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
+         LEFT JOIN drivers from_user ON c.sender_id = from_user.id
          WHERE cel.entity_type = $1 AND cel.entity_id = $2 AND c.tenant_id = $3
-         ORDER BY c.communication_datetime DESC
+         ORDER BY c.created_at DESC
          LIMIT $4 OFFSET $5`,
         [entity_type, entity_id, req.user!.tenant_id, limit, offset]
       )
@@ -383,7 +378,7 @@ router.get(
       const countResult = await pool.query(
         `SELECT COUNT(*)
          FROM communication_entity_links cel
-         JOIN communications c ON cel.communication_id = c.id
+         JOIN communication_logs c ON cel.communication_id = c.id
          WHERE cel.entity_type = $1 AND cel.entity_id = $2 AND c.tenant_id = $3`,
         [entity_type, entity_id, req.user!.tenant_id]
       )
@@ -398,7 +393,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get entity communications error:`, error)
+      logger.error(`Get entity communications error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -421,26 +416,25 @@ router.get(
         `SELECT c.*,
                 from_user.first_name || ' ' || from_user.last_name as from_user_name,
                 CASE
-                  WHEN c.follow_up_by_date < CURRENT_DATE THEN 'Overdue'
-                  WHEN c.follow_up_by_date = CURRENT_DATE THEN 'Due Today'
+                  WHEN c.follow_up_date < CURRENT_DATE THEN 'Overdue'
+                  WHEN c.follow_up_date = CURRENT_DATE THEN 'Due Today'
                   ELSE 'Upcoming'
                 END AS follow_up_status,
                 COUNT(DISTINCT cel.id) as linked_entities_count
-         FROM communications c
-         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
+         FROM communication_logs c
+         LEFT JOIN drivers from_user ON c.sender_id = from_user.id
          LEFT JOIN communication_entity_links cel ON c.id = cel.communication_id
          WHERE c.tenant_id = $1
-           AND c.requires_follow_up = TRUE
-           AND c.follow_up_completed = FALSE
-           AND c.status != 'Closed'
+           AND c.follow_up_required = TRUE
+           AND c.status != 'closed'
          GROUP BY c.id, from_user.first_name, from_user.last_name
-         ORDER BY c.follow_up_by_date ASC NULLS LAST`,
+         ORDER BY c.follow_up_date ASC NULLS LAST`,
         [req.user!.tenant_id]
       )
 
       res.json({ data: result.rows })
     } catch (error) {
-      console.error('Get pending follow-ups error:', error)
+      logger.error('Get pending follow-ups error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -463,11 +457,11 @@ router.get(
       let query = `SELECT
       id,
       tenant_id,
-      name,
-      type,
-      subject,
-      body,
-      variables,
+      template_name as name,
+      template_category as type,
+      subject_template as subject,
+      body_template as body,
+      required_variables as variables,
       is_active,
       created_at,
       updated_at FROM communication_templates WHERE tenant_id = $1 AND is_active = TRUE`
@@ -483,7 +477,7 @@ router.get(
       const result = await pool.query(query, params)
       res.json({ data: result.rows })
     } catch (error) {
-      console.error(`Get communication templates error:`, error)
+      logger.error(`Get communication templates error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -513,7 +507,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create communication template error:`, error)
+      logger.error(`Create communication template error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -534,19 +528,19 @@ router.get(
       // SECURITY FIX: Total communications this month - use c.tenant_id directly
       const totalResult = await pool.query(
         `SELECT COUNT(*) as total,
-                COUNT(CASE WHEN requires_follow_up = TRUE AND follow_up_completed = FALSE THEN 1 END) as pending_followups
-         FROM communications c
+                COUNT(CASE WHEN follow_up_required = TRUE AND status != 'closed' THEN 1 END) as pending_followups
+         FROM communication_logs c
          WHERE c.tenant_id = $1
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)`,
+         AND c.created_at >= DATE_TRUNC('month', CURRENT_DATE)`,
         [req.user!.tenant_id]
       )
 
       // SECURITY FIX: By type - use c.tenant_id directly
       const byTypeResult = await pool.query(
         `SELECT communication_type, COUNT(*) as count
-         FROM communications c
+         FROM communication_logs c
          WHERE c.tenant_id = $1
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)
+         AND c.created_at >= DATE_TRUNC('month', CURRENT_DATE)
          GROUP BY communication_type
          ORDER BY count DESC`,
         [req.user!.tenant_id]
@@ -554,12 +548,12 @@ router.get(
 
       // SECURITY FIX: By priority - use c.tenant_id directly
       const byPriorityResult = await pool.query(
-        `SELECT COALESCE(ai_detected_priority, manual_priority, 'Unassigned') as priority,
+        `SELECT COALESCE(c.priority, 'Unassigned') as priority,
                 COUNT(*) as count
-         FROM communications c
+         FROM communication_logs c
          WHERE c.tenant_id = $1
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)
-         GROUP BY priority
+         AND c.created_at >= DATE_TRUNC('month', CURRENT_DATE)
+         GROUP BY COALESCE(c.priority, 'Unassigned')
          ORDER BY count DESC`,
         [req.user!.tenant_id]
       )
@@ -567,11 +561,11 @@ router.get(
       // SECURITY FIX: Overdue follow-ups - use c.tenant_id directly
       const overdueResult = await pool.query(
         `SELECT COUNT(*) as overdue_followups
-         FROM communications c
+         FROM communication_logs c
          WHERE c.tenant_id = $1
-         AND c.requires_follow_up = TRUE
-         AND c.follow_up_completed = FALSE
-         AND c.follow_up_by_date < CURRENT_DATE`,
+         AND c.follow_up_required = TRUE
+         AND c.status != 'closed'
+         AND c.follow_up_date < CURRENT_DATE`,
         [req.user!.tenant_id]
       )
 
@@ -582,7 +576,7 @@ router.get(
         overdue: overdueResult.rows[0]
       })
     } catch (error) {
-      console.error(`Get communications dashboard error:`, error)
+      logger.error(`Get communications dashboard error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }

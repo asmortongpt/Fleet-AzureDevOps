@@ -153,20 +153,20 @@ export function SmartForm({
 
   const getSeverityColor = (severity: string) => {
     const colors = {
-      info: 'text-blue-800',
+      info: 'text-emerald-800',
       warning: 'text-yellow-600',
       error: 'text-red-600'
     }
-    return colors[severity as keyof typeof colors] || 'text-slate-700'
+    return colors[severity as keyof typeof colors] || 'text-white/70'
   }
 
   const getSeverityBgColor = (severity: string) => {
     const colors = {
-      info: 'bg-blue-50 border-blue-200',
+      info: 'bg-emerald-500/5 border-emerald-500/20',
       warning: 'bg-yellow-50 border-yellow-200',
       error: 'bg-red-50 border-red-200'
     }
-    return colors[severity as keyof typeof colors] || 'bg-gray-50'
+    return colors[severity as keyof typeof colors] || 'bg-white/[0.03]'
   }
 
   return (
@@ -195,8 +195,8 @@ export function SmartForm({
             <TrendingUp className="h-4 w-4 text-orange-600" />
             <AlertDescription>
               <p className="font-semibold text-orange-900 mb-2">Anomalies Detected:</p>
-              {validation.anomalies.map((anomaly, index) => (
-                <div key={index} className="text-sm text-orange-800 mb-1">
+              {validation.anomalies.map((anomaly) => (
+                <div key={anomaly.type} className="text-sm text-orange-800 mb-1">
                   <strong>{anomaly.type}:</strong> {anomaly.description}
                   {anomaly.expectedRange && (
                     <span className="text-orange-600 ml-2">
@@ -275,18 +275,18 @@ export function SmartForm({
 
                 {/* Smart Suggestion */}
                 {suggestion && !warning && (
-                  <div className="flex items-start gap-2 p-2 rounded border bg-blue-50 border-blue-200">
-                    <Lightbulb className="w-4 h-4 mt-0.5 text-blue-800" />
+                  <div className="flex items-start gap-2 p-2 rounded border bg-emerald-500/5 border-emerald-500/20">
+                    <Lightbulb className="w-4 h-4 mt-0.5 text-emerald-800" />
                     <div className="flex-1 text-sm">
-                      <p className="text-blue-900">
+                      <p className="text-emerald-900">
                         Suggestion: <strong>{String(suggestion.value)}</strong>
                       </p>
-                      <p className="text-blue-700 text-xs">{suggestion.reason}</p>
+                      <p className="text-emerald-700 text-xs">{suggestion.reason}</p>
                       <Button
                         type="button"
                         variant="link"
                         size="sm"
-                        className="p-0 h-auto text-xs text-blue-800"
+                        className="p-0 h-auto text-xs text-emerald-800"
                         onClick={() => handleSuggestionApply(field.name, suggestion.value)}
                       >
                         Apply suggestion ({Math.round(suggestion.confidence * 100)}% confidence)
@@ -299,8 +299,8 @@ export function SmartForm({
           })}
 
           {/* General Warnings */}
-          {validation && validation.warnings.filter(w => !w.field).map((warning, index) => (
-            <Alert key={index} className={getSeverityBgColor(warning.severity)}>
+          {validation && validation.warnings.filter(w => !w.field).map((warning) => (
+            <Alert key={warning.message} className={getSeverityBgColor(warning.severity)}>
               <AlertCircle className={`h-4 w-4 ${getSeverityColor(warning.severity)}`} />
               <AlertDescription className={getSeverityColor(warning.severity)}>
                 {warning.message}

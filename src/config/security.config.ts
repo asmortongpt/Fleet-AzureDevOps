@@ -2,7 +2,7 @@
  * Security configuration settings.
  */
 export const securityConfig = {
-  referrerPolicy: process.env.REFERRER_POLICY || 'no-referrer',
+  referrerPolicy: (import.meta.env.VITE_REFERRER_POLICY as string) || 'no-referrer',
   cspDirectives: {
     "default-src": ["'self'"],
     "script-src": ["'self'"],

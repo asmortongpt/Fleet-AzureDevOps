@@ -94,7 +94,7 @@ class WebhookSetup {
       throw new Error(`Failed to create subscription: ${JSON.stringify(error)}`);
     }
 
-    return response.json() as Promise<any>;
+    return response.json();
   }
 
   async listSubscriptions(): Promise<any[]> {
@@ -217,15 +217,15 @@ async function main() {
     console.log('\n✓ Webhook setup complete!');
     console.log('Remember to renew subscriptions before they expire (every 3 days)');
 
-  } catch (error: any) {
-    console.error('✗ Webhook setup failed:', error.message);
+  } catch (error: unknown) {
+    console.error('✗ Webhook setup failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
     process.exit(1);
   }
 }
 
 // Run if called directly
 if (require.main === module) {
-  main();
+  void main();
 }
 
 export { WebhookSetup };

@@ -50,7 +50,7 @@ class DocumentIndexer {
   private batchSize: number = 100
   private jobCheckInterval: NodeJS.Timeout | null = null
 
-  constructor(private db: Pool, private logger: any) {
+  constructor(private db: Pool, private logger: { info(msg: string, ...args: unknown[]): void; error(msg: string, ...args: unknown[]): void }) {
     // Start background job processor
     this.startJobProcessor()
   }
@@ -119,31 +119,31 @@ class DocumentIndexer {
   /**
    * Build searchable content from document fields
    */
-  private buildSearchContent(document: any): string {
+  private buildSearchContent(document: Record<string, unknown>): string {
     const parts: string[] = []
 
     // File name (highest weight)
-    if (document.file_name) {
+    if (typeof document.file_name === 'string') {
       parts.push(document.file_name.repeat(4)) // Boost file name
     }
 
     // Description
-    if (document.description) {
+    if (typeof document.description === 'string') {
       parts.push(document.description.repeat(2)) // Boost description
     }
 
     // Extracted text (main content)
-    if (document.extracted_text) {
+    if (typeof document.extracted_text === 'string') {
       parts.push(document.extracted_text)
     }
 
     // Tags
     if (document.tags && Array.isArray(document.tags)) {
-      parts.push(document.tags.join(' ').repeat(3)) // Boost tags
+      parts.push((document.tags as string[]).join(' ').repeat(3)) // Boost tags
     }
 
     // Category
-    if (document.category_name) {
+    if (typeof document.category_name === 'string') {
       parts.push(document.category_name.repeat(2))
     }
 
@@ -223,7 +223,7 @@ class DocumentIndexer {
     try {
       // Count documents to be reindexed
       let countQuery = `SELECT COUNT(*) as count FROM documents WHERE tenant_id = $1`
-      const countParams: any[] = [tenantId]
+      const countParams: (string | string[])[] = [tenantId]
 
       if (options?.categoryId) {
         countQuery += ' AND category_id = $2'
@@ -285,7 +285,7 @@ class DocumentIndexer {
         [job.id]
       )
 
-      const metadata = JSON.parse((job as any).metadata || '{}')
+      const metadata = JSON.parse((job as IndexingJob & { metadata?: string }).metadata || '{}')
 
       // Build query to get documents
       let query = `
@@ -293,7 +293,7 @@ class DocumentIndexer {
         FROM documents
         WHERE tenant_id = $1
       `
-      const params: any[] = [job.tenant_id]
+      const params: (string | string[])[] = [job.tenant_id]
       let paramCount = 1
 
       if (metadata.categoryId) {
@@ -491,7 +491,7 @@ class DocumentIndexer {
       SELECT * FROM indexing_jobs
       WHERE tenant_id = $1
     `
-    const params: any[] = [tenantId]
+    const params: string[] = [tenantId]
 
     if (options?.status) {
       query += ' AND status = $2'

@@ -11,10 +11,11 @@
  * Meets FAANG-level quality standards
  */
 
-import { AlertTriangle, RotateCw, Home, Mail } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AlertTriangle, RotateCw, Home } from 'lucide-react'
+// motion removed - React 19 incompatible
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 
+import { EmailButton } from '@/components/email/EmailButton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -75,7 +76,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
     const { errorCount } = this.state
 
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.group('🚨 Error Boundary Caught Error')
       logger.error('Error:', error)
       logger.error('Error Info:', errorInfo)
@@ -208,18 +209,8 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
     this.logErrorToServer(errorReport)
   }
 
-  private async logErrorToServer(errorReport: any) {
-    try {
-      await fetch('/api/errors', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(errorReport)
-      })
-    } catch {
-      // Fail silently - don't throw in error boundary
-    }
+  private logErrorToServer(errorReport: any) {
+    logger.error('Error boundary caught:', errorReport)
   }
 
   private resetErrorBoundary = () => {
@@ -263,168 +254,160 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
     const errorType = this.getErrorType(error!)
 
     return (
-      <AnimatePresence mode="wait">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className={`
-            ${level === 'page' ? 'min-h-screen' : level === 'section' ? 'min-h-[400px]' : 'min-h-[200px]'}
-            flex items-center justify-center p-2 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800
-          `}
-        >
-          <Card className="w-full max-w-2xl shadow-sm border-red-200 dark:border-red-800">
-            <CardHeader className="text-center">
-              <motion.div
-                initial={{ rotate: 0 }}
-                animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
-                transition={{ duration: 0.5 }}
-                className="inline-flex mx-auto mb-2"
-              >
-                <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
-                  <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
-                </div>
-              </motion.div>
-
-              <CardTitle className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                {errorType === 'network' && 'Connection Problem'}
-                {errorType === 'loading' && 'Loading Error'}
-                {errorType === 'permission' && 'Access Denied'}
-                {errorType === 'notfound' && 'Page Not Found'}
-                {errorType === 'unknown' && 'Something Went Wrong'}
-              </CardTitle>
-
-              <CardDescription className="text-base mt-2">
-                {errorType === 'network' && 'We\'re having trouble connecting to our servers.'}
-                {errorType === 'loading' && 'Some resources failed to load properly.'}
-                {errorType === 'permission' && 'You don\'t have permission to access this resource.'}
-                {errorType === 'notfound' && 'The requested resource could not be found.'}
-                {errorType === 'unknown' && 'An unexpected error occurred. Our team has been notified.'}
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-2">
-              {retryCount > 0 && (
-                <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:border-blue-800">
-                  <AlertTitle className="text-sm font-medium">Auto-retry in progress</AlertTitle>
-                  <AlertDescription className="text-sm">
-                    Attempt {retryCount} of 3. The system is automatically trying to recover...
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {showDetails && error && (
-                <details className="mt-2">
-                  <summary className="cursor-pointer text-sm font-medium text-slate-600 dark:text-slate-700 hover:text-slate-900 dark:hover:text-slate-100">
-                    Technical Details
-                  </summary>
-                  <div className="mt-2 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                    <div className="space-y-2 text-xs font-mono">
-                      <div>
-                        <span className="text-slate-500">Error ID:</span>{' '}
-                        <span className="text-slate-700 dark:text-slate-300">{errorId}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500">Timestamp:</span>{' '}
-                        <span className="text-slate-700 dark:text-slate-300">
-                          {errorTimestamp.toISOString()}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500">Message:</span>{' '}
-                        <span className="text-red-600 dark:text-red-400">{error.message}</span>
-                      </div>
-                      {error.stack && (
-                        <div className="mt-2">
-                          <span className="text-slate-500">Stack Trace:</span>
-                          <pre className="mt-1 text-[10px] text-slate-600 dark:text-slate-700 overflow-auto max-h-32">
-                            {error.stack}
-                          </pre>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </details>
-              )}
-
-              <div className="pt-2">
-                <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  What you can try:
-                </h3>
-                <ul className="space-y-1 text-sm text-slate-600 dark:text-slate-700">
-                  {errorType === 'network' && (
-                    <>
-                      <li>• Check your internet connection</li>
-                      <li>• Try refreshing the page</li>
-                      <li>• Wait a few moments and try again</li>
-                    </>
-                  )}
-                  {errorType === 'loading' && (
-                    <>
-                      <li>• Clear your browser cache</li>
-                      <li>• Disable browser extensions</li>
-                      <li>• Try a different browser</li>
-                    </>
-                  )}
-                  {errorType === 'permission' && (
-                    <>
-                      <li>• Verify you're logged in</li>
-                      <li>• Contact your administrator</li>
-                      <li>• Request access to this resource</li>
-                    </>
-                  )}
-                  {(errorType === 'notfound' || errorType === 'unknown') && (
-                    <>
-                      <li>• Return to the previous page</li>
-                      <li>• Go to the home page</li>
-                      <li>• Contact support if the problem persists</li>
-                    </>
-                  )}
-                </ul>
+      <div
+        className={`
+          ${level === 'page' ? 'min-h-screen' : level === 'section' ? 'min-h-[400px]' : 'min-h-[200px]'}
+          flex items-center justify-center p-2 bg-[#0a0a0a]
+        `}
+      >
+        <Card className="w-full max-w-2xl border-white/[0.04] bg-[#111111]">
+          <CardHeader className="text-center">
+            <div
+              className="inline-flex mx-auto mb-2"
+            >
+              <div className="p-3 bg-red-500/10 rounded-full">
+                <AlertTriangle className="w-4 h-4 text-red-400" />
               </div>
-            </CardContent>
+            </div>
 
-            <CardFooter className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button
-                onClick={this.resetErrorBoundary}
-                className="gap-2"
-                variant="default"
-              >
-                <RotateCw className="w-4 h-4" />
-                Try Again
-              </Button>
+            <CardTitle className="text-sm font-bold text-white">
+              {errorType === 'network' && 'Connection Problem'}
+              {errorType === 'loading' && 'Loading Error'}
+              {errorType === 'permission' && 'Access Denied'}
+              {errorType === 'notfound' && 'Page Not Found'}
+              {errorType === 'unknown' && 'Something Went Wrong'}
+            </CardTitle>
 
-              <Button
-                onClick={() => window.location.href = '/'}
-                className="gap-2"
-                variant="outline"
-              >
-                <Home className="w-4 h-4" />
-                Go Home
-              </Button>
+            <CardDescription className="text-base mt-2">
+              {errorType === 'network' && 'We\'re having trouble connecting to our servers.'}
+              {errorType === 'loading' && 'Some resources failed to load properly.'}
+              {errorType === 'permission' && 'You don\'t have permission to access this resource.'}
+              {errorType === 'notfound' && 'The requested resource could not be found.'}
+              {errorType === 'unknown' && 'An unexpected error occurred. Our team has been notified.'}
+            </CardDescription>
+          </CardHeader>
 
-              {level === 'page' && (
-                <Button
-                  onClick={() => window.location.href = 'mailto:support@fleet.gov'}
-                  className="gap-2"
-                  variant="outline"
-                >
-                  <Mail className="w-4 h-4" />
-                  Contact Support
-                </Button>
-              )}
-            </CardFooter>
-
-            {errorId && (
-              <div className="px-3 pb-2">
-                <p className="text-xs text-center text-slate-500 dark:text-slate-700">
-                  Reference this ID when contacting support: <code className="font-mono">{errorId}</code>
-                </p>
-              </div>
+          <CardContent className="space-y-2">
+            {retryCount > 0 && (
+              <Alert className="bg-emerald-500/5 border-emerald-500/20">
+                <AlertTitle className="text-sm font-medium">Auto-retry in progress</AlertTitle>
+                <AlertDescription className="text-sm">
+                  Attempt {retryCount} of 3. The system is automatically trying to recover...
+                </AlertDescription>
+              </Alert>
             )}
-          </Card>
-        </motion.div>
-      </AnimatePresence>
+
+            {showDetails && error && (
+              <details className="mt-2">
+                <summary className="cursor-pointer text-sm font-medium text-white/60 hover:text-white/80">
+                  Technical Details
+                </summary>
+                <div className="mt-2 p-3 bg-[#0e0e0e] rounded-lg">
+                  <div className="space-y-2 text-xs font-mono">
+                    <div>
+                      <span className="text-white/35">Error ID:</span>{' '}
+                      <span className="text-white/60">{errorId}</span>
+                    </div>
+                    <div>
+                      <span className="text-white/35">Timestamp:</span>{' '}
+                      <span className="text-white/60">
+                        {errorTimestamp.toISOString()}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-white/35">Message:</span>{' '}
+                      <span className="text-red-400">{error.message}</span>
+                    </div>
+                    {error.stack && (
+                      <div className="mt-2">
+                        <span className="text-white/40">Stack Trace:</span>
+                        <pre className="mt-1 text-[10px] text-white/60 overflow-auto max-h-32">
+                          {error.stack}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </details>
+            )}
+
+            <div className="pt-2">
+              <h3 className="text-sm font-medium text-white/60 mb-2">
+                What you can try:
+              </h3>
+              <ul className="space-y-1 text-sm text-white/60">
+                {errorType === 'network' && (
+                  <>
+                    <li>• Check your internet connection</li>
+                    <li>• Try refreshing the page</li>
+                    <li>• Wait a few moments and try again</li>
+                  </>
+                )}
+                {errorType === 'loading' && (
+                  <>
+                    <li>• Clear your browser cache</li>
+                    <li>• Disable browser extensions</li>
+                    <li>• Try a different browser</li>
+                  </>
+                )}
+                {errorType === 'permission' && (
+                  <>
+                    <li>• Verify you're logged in</li>
+                    <li>• Contact your administrator</li>
+                    <li>• Request access to this resource</li>
+                  </>
+                )}
+                {(errorType === 'notfound' || errorType === 'unknown') && (
+                  <>
+                    <li>• Return to the previous page</li>
+                    <li>• Go to the home page</li>
+                    <li>• Contact support if the problem persists</li>
+                  </>
+                )}
+              </ul>
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button
+              onClick={this.resetErrorBoundary}
+              className="gap-2"
+              variant="default"
+            >
+              <RotateCw className="w-4 h-4" />
+              Try Again
+            </Button>
+
+            <Button
+              onClick={() => window.location.href = '/'}
+              className="gap-2"
+              variant="outline"
+            >
+              <Home className="w-4 h-4" />
+              Go Home
+            </Button>
+
+            {level === 'page' && (
+              <EmailButton
+                to="support@fleet.gov"
+                context={{ type: 'general', recipientName: 'Support Team', details: `Application error report${errorId ? ` (Reference: ${errorId})` : ''}` }}
+                label="Contact Support"
+                variant="outline"
+                size="default"
+                className="gap-2"
+              />
+            )}
+          </CardFooter>
+
+          {errorId && (
+            <div className="px-3 pb-2">
+              <p className="text-xs text-center text-white/35">
+                Reference this ID when contacting support: <code className="font-mono">{errorId}</code>
+              </p>
+            </div>
+          )}
+        </Card>
+      </div>
     )
   }
 
@@ -451,7 +434,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
 // Export convenience wrapper components
 export const PageErrorBoundary: React.FC<{ children: ReactNode }> = ({ children }) => (
-  <EnhancedErrorBoundary level="page" showDetails={process.env.NODE_ENV === 'development'}>
+  <EnhancedErrorBoundary level="page" showDetails={import.meta.env.MODE === 'development'}>
     {children}
   </EnhancedErrorBoundary>
 )

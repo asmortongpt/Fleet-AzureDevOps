@@ -33,8 +33,8 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { Geofence } from "@/lib/types"
 import { getCsrfToken } from "@/hooks/use-api"
+import { Geofence } from "@/lib/types"
 
 interface GeofenceControlPanelProps {
     isVisible: boolean;
@@ -59,7 +59,7 @@ export function GeofenceControlPanel({
         name: "",
         description: "",
         type: "circle",
-        color: "#3B82F6",
+        color: "#10b981",
         active: true,
         triggers: {
             onEnter: true,
@@ -95,7 +95,7 @@ export function GeofenceControlPanel({
                 : row.center,
             radius: row.radius != null ? Number(row.radius) : undefined,
             coordinates: row.polygon || row.coordinates || [],
-            color: row.color || '#3B82F6',
+            color: row.color || '#10b981',
             active: row.is_active ?? row.active ?? true,
             triggers: metadata.triggers || {
                 onEnter: row.notify_on_entry ?? false,
@@ -297,7 +297,7 @@ export function GeofenceControlPanel({
             name: "",
             description: "",
             type: "circle",
-            color: "#3B82F6",
+            color: "#10b981",
             active: true,
             triggers: {
                 onEnter: true,
@@ -323,29 +323,28 @@ export function GeofenceControlPanel({
 
     return (
         <>
-            <Card className="fixed top-24 right-6 w-96 shadow-sm z-40 border border-white/20 bg-white/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-lg overflow-hidden ring-1 ring-black/5 flex flex-col max-h-[calc(100vh-120px)]">
-                <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
-                <CardHeader className="pb-2 border-b border-black/5 flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/40 shrink-0">
+            <Card className="fixed top-24 right-6 w-96 z-40 border border-white/[0.04] bg-[#0e0e0e] animate-in slide-in-from-right-10 rounded-lg overflow-hidden flex flex-col max-h-[calc(100vh-120px)]">
+                <CardHeader className="pb-2 border-b border-white/[0.04] flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/[0.03] shrink-0">
                     <div>
-                        <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800">
-                            <div className="p-1.5 bg-blue-500/10 rounded-md border border-blue-500/20">
-                                <MapPin className="text-blue-800 w-4 h-4" />
+                        <CardTitle className="text-base font-bold flex items-center gap-2 text-white">
+                            <div className="p-1.5 bg-emerald-500/10 rounded-md border border-emerald-500/30">
+                                <MapPin className="text-emerald-200 w-4 h-4" />
                             </div>
                             Geofences
                         </CardTitle>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-white/60 mt-1">
                             {geofences.filter(g => g.active).length} active monitoring
                         </p>
                     </div>
                     <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={() => {
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10 rounded-full" onClick={() => {
                             resetForm();
                             setIsAddDialogOpen(true);
                         }} aria-label="Add new geofence">
-                            <Plus className="w-4 h-4 text-slate-700" />
+                            <Plus className="w-4 h-4 text-white/60" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose} aria-label="Close geofence panel">
-                            <X className="w-4 h-4 text-slate-500" />
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10 rounded-full" onClick={onClose} aria-label="Close geofence panel">
+                            <X className="w-4 h-4 text-white/60" />
                         </Button>
                     </div>
                 </CardHeader>
@@ -355,7 +354,7 @@ export function GeofenceControlPanel({
                     <div className="space-y-3 shrink-0 mb-2">
                         <div className="flex gap-2">
                             <div className="relative flex-1">
-                                <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-muted-foreground" />
+                                <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-white/60" />
                                 <Input
                                     placeholder="Search..."
                                     value={searchTerm}
@@ -382,14 +381,14 @@ export function GeofenceControlPanel({
                     {/* Geofence List */}
                     <div className="space-y-2 overflow-y-auto pr-2 flex-1">
                         {filteredGeofences.length === 0 ? (
-                            <div className="text-center py-3 text-muted-foreground text-sm">
+                            <div className="text-center py-3 text-white/60 text-sm">
                                 No geofences found.
                             </div>
                         ) : (
                             filteredGeofences.map(geofence => (
                                 <div
                                     key={geofence.id}
-                                    className="p-3 rounded-lg border border-slate-200 bg-white/50 hover:bg-white hover:border-slate-300 transition-all group"
+                                    className="p-3 rounded-lg border border-white/[0.04] bg-[#111111] hover:bg-white/[0.06] hover:border-white/[0.08] transition-all group"
                                 >
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-2">
@@ -409,7 +408,7 @@ export function GeofenceControlPanel({
                                     </div>
 
                                     <div className="flex items-center justify-between mt-2">
-                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                        <div className="flex items-center gap-2 text-xs text-white/60">
                                             <Badge variant="outline" className="text-[10px] h-4 px-1 py-0">
                                                 {getTypeIcon(geofence.type)} {geofence.type}
                                             </Badge>
@@ -489,7 +488,7 @@ export function GeofenceControlPanel({
                         </div>
 
                         {newGeofence.type === "circle" && (
-                            <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-md border">
+                        <div className="grid grid-cols-3 gap-2 bg-white/[0.03] p-3 rounded-md border border-white/[0.04]">
                                 <div className="space-y-2">
                                     <Label htmlFor="center-lat" className="text-xs">Latitude</Label>
                                     <Input
@@ -561,7 +560,7 @@ export function GeofenceControlPanel({
                         </div>
 
                         <div className="space-y-3 border-t pt-3">
-                            <Label className="text-xs text-muted-foreground uppercase">Trigger Events</Label>
+                            <Label className="text-xs text-white/60 uppercase">Trigger Events</Label>
                             <div className="grid grid-cols-3 gap-2">
                                 <div className="flex items-center space-x-2">
                                     <Switch

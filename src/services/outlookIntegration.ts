@@ -3,6 +3,8 @@
 
 import { Client } from '@microsoft/microsoft-graph-client';
 import { Pool } from 'pg';
+
+import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface ReservationEmailData {
@@ -60,9 +62,9 @@ export class OutlookIntegrationService {
         content: `
           <h2>Vehicle Reservation Details</h2>
           <p><strong>Vehicle:</strong> ${reservation.vehicle_name}</p>
-          <p><strong>VIN:</strong> ${reservation.vin || 'N/A'}</p>
+          <p><strong>VIN:</strong> ${reservation.vin || '—'}</p>
           <p><strong>Purpose:</strong> ${reservation.purpose || 'No purpose specified'}</p>
-          <p><strong>Department:</strong> ${reservation.department || 'N/A'}</p>
+          <p><strong>Department:</strong> ${reservation.department || '—'}</p>
           <p><strong>Reservation ID:</strong> ${reservation.id}</p>
           <hr>
           <p><em>This is an automated calendar event from the Fleet Management System.</em></p>
@@ -115,8 +117,8 @@ export class OutlookIntegrationService {
         body: `
           <h2>Vehicle Reservation Submitted</h2>
           <p>Your reservation for <strong>${data.vehicleName}</strong> has been submitted and is pending approval.</p>
-          <p><strong>Start:</strong> ${new Date(data.startDate).toLocaleString()}</p>
-          <p><strong>End:</strong> ${new Date(data.endDate).toLocaleString()}</p>
+          <p><strong>Start:</strong> ${formatDateTime(data.startDate)}</p>
+          <p><strong>End:</strong> ${formatDateTime(data.endDate)}</p>
           <p><strong>Purpose:</strong> ${data.purpose}</p>
           <p>You will receive a notification once your reservation is approved.</p>
         `
@@ -126,8 +128,8 @@ export class OutlookIntegrationService {
         body: `
           <h2 style="color: green;">Reservation Approved!</h2>
           <p>Your reservation for <strong>${data.vehicleName}</strong> has been approved.</p>
-          <p><strong>Start:</strong> ${new Date(data.startDate).toLocaleString()}</p>
-          <p><strong>End:</strong> ${new Date(data.endDate).toLocaleString()}</p>
+          <p><strong>Start:</strong> ${formatDateTime(data.startDate)}</p>
+          <p><strong>End:</strong> ${formatDateTime(data.endDate)}</p>
           <p>A calendar event has been added to your Outlook calendar.</p>
           <p><strong>Next Steps:</strong></p>
           <ul>
@@ -142,7 +144,7 @@ export class OutlookIntegrationService {
         body: `
           <h2 style="color: red;">Reservation Not Approved</h2>
           <p>Unfortunately, your reservation for <strong>${data.vehicleName}</strong> was not approved.</p>
-          <p><strong>Requested Period:</strong> ${new Date(data.startDate).toLocaleString()} - ${new Date(data.endDate).toLocaleString()}</p>
+          <p><strong>Requested Period:</strong> ${formatDateTime(data.startDate)} - ${formatDateTime(data.endDate)}</p>
           <p>Please contact fleet management for more information or try booking an alternative vehicle.</p>
         `
       },
@@ -151,7 +153,7 @@ export class OutlookIntegrationService {
         body: `
           <h2>Reservation Cancelled</h2>
           <p>Your reservation for <strong>${data.vehicleName}</strong> has been cancelled.</p>
-          <p><strong>Original Period:</strong> ${new Date(data.startDate).toLocaleString()} - ${new Date(data.endDate).toLocaleString()}</p>
+          <p><strong>Original Period:</strong> ${formatDateTime(data.startDate)} - ${formatDateTime(data.endDate)}</p>
           <p>The calendar event has been removed from your Outlook calendar.</p>
         `
       }

@@ -36,7 +36,7 @@ export function MetricCard({
 }: MetricCardProps) {
   return (
     <Card
-      className={`p-2 ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''} ${className}`}
+      className={`p-2 ${onClick ? 'cursor-pointer hover:border-white/[0.12] transition-colors' : ''} ${className}`}
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
@@ -82,8 +82,8 @@ export function MetricsBar({
 
   return (
     <div className={`grid ${gridCols} gap-${gap}`}>
-      {metrics.map((metric, index) => (
-        <MetricCard key={index} {...metric} />
+      {metrics.map((metric) => (
+        <MetricCard key={metric.label} {...metric} />
       ))}
     </div>
   )

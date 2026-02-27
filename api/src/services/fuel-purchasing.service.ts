@@ -7,7 +7,11 @@
 
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
 import fuelPriceForecastingModel from '../ml-models/fuel-price-forecasting.model'
+
+// Export singleton instance
+import { pool } from '../db'
 
 export interface FuelStation {
   id: string
@@ -138,7 +142,7 @@ export class FuelPurchasingService {
 
       return stations
     } catch (error) {
-      console.error('Error getting nearby stations:', error)
+      logger.error('Error getting nearby stations', { error })
       throw error
     }
   }
@@ -199,7 +203,7 @@ return null
         avgPrice
       }
     } catch (error) {
-      console.error(`Error finding cheapest fuel:`, error)
+      logger.error('Error finding cheapest fuel', { error })
       return null
     }
   }
@@ -281,7 +285,7 @@ return null
         purchaseTiming: timingRec.recommendation
       }
     } catch (error) {
-      console.error(`Error getting optimal fueling recommendation:`, error)
+      logger.error('Error getting optimal fueling recommendation', { error })
       return null
     }
   }
@@ -336,7 +340,7 @@ return null
       }
     } catch (error) {
       await client.query('ROLLBACK')
-      console.error('Error creating purchase order:', error)
+      logger.error('Error creating purchase order', { error })
       throw error
     } finally {
       client.release()
@@ -375,7 +379,7 @@ return null
         status: row.status
       }))
     } catch (error) {
-      console.error('Error getting contracts:', error)
+      logger.error('Error getting contracts', { error })
       return []
     }
   }
@@ -411,7 +415,7 @@ return null
         isActive: result.rows[0].is_active
       }
     } catch (error) {
-      console.error('Error creating price alert:', error)
+      logger.error('Error creating price alert', { error })
       throw error
     }
   }
@@ -468,7 +472,7 @@ return null
         }
       }
     } catch (error) {
-      console.error('Error calculating savings:', error)
+      logger.error('Error calculating savings', { error })
       return {
         totalGallons: 0,
         totalSpent: 0,
@@ -506,15 +510,12 @@ return null
 
       return prices
     } catch (error) {
-      console.error('Error getting station prices:', error)
+      logger.error('Error getting station prices', { error })
       return {}
     }
   }
 
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const fuelPurchasingService = new FuelPurchasingService(pool)
 
 export default fuelPurchasingService

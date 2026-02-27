@@ -3,12 +3,16 @@
  * Shows trailers attached to tractors, equipment attachments, etc.
  */
 
-import { Link2, AlertCircle, Loader2 } from 'lucide-react'
+import { Link2, Loader2 } from 'lucide-react'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatDate } from '@/utils/format-helpers'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 export interface AssetRelationshipsListProps {
   /** ID of the vehicle to show relationships for */
@@ -28,8 +32,6 @@ interface AssetRelationship {
   notes?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
 /**
  * AssetRelationshipsList Component
  *
@@ -40,12 +42,14 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json())
  * /api/asset-relationships will need to be implemented.
  */
 export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProps) {
+  const { push } = useDrilldown()
+
   // Fetch active relationships for this vehicle
   const { data, error, isLoading } = useSWR<{
     relationships: AssetRelationship[]
   }>(
     `/api/asset-relationships/active?parent_asset_id=${vehicleId}`,
-    fetcher,
+    apiFetcher,
     {
       // Don't retry if endpoint doesn't exist yet
       shouldRetryOnError: false,
@@ -63,26 +67,18 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
     )
   }
 
-  // Show error state (API not implemented yet)
+  // Show empty state when data is unavailable
   if (error) {
     return (
-      <Card className="p-2 bg-muted/50 border-dashed">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-muted-foreground">
-              Asset Relationships Feature
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              This feature will display attached trailers, equipment, and other related assets.
-              API endpoint not yet implemented.
-            </p>
-            <p className="text-xs text-muted-foreground mt-2 italic">
-              Expected endpoint: GET /api/asset-relationships/active?parent_asset_id={vehicleId}
-            </p>
-          </div>
-        </div>
-      </Card>
+      <div className="text-center py-3">
+        <Link2 className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+        <p className="text-sm text-muted-foreground">
+          No asset relationships found
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          No attached trailers, equipment, or related assets for this vehicle
+        </p>
+      </div>
     )
   }
 
@@ -114,7 +110,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
                 <Link2 className="h-4 w-4 text-muted-foreground" />
                 <h4 className="font-medium">
                   {relationship.child_asset_name ||
-                    `${relationship.child_make} ${relationship.child_model}` ||
+                    formatVehicleShortName({ make: relationship.child_make, model: relationship.child_model }) ||
                     'Unknown Asset'}
                 </h4>
                 <Badge variant="secondary" className="text-xs">
@@ -136,7 +132,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
                 {relationship.effective_from && (
                   <div>
                     <span className="font-medium">Attached:</span>{' '}
-                    {new Date(relationship.effective_from).toLocaleDateString()}
+                    {formatDate(relationship.effective_from)}
                   </div>
                 )}
                 {relationship.notes && (
@@ -147,7 +143,21 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
               </div>
             </div>
 
-            <Button variant="ghost" size="sm" className="ml-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="ml-2"
+              onClick={() => {
+                push({
+                  id: `vehicle-${relationship.child_asset_id}`,
+                  type: 'vehicle',
+                  label: relationship.child_asset_name ||
+                    formatVehicleShortName({ make: relationship.child_make, model: relationship.child_model }) ||
+                    'Asset',
+                  data: { vehicleId: relationship.child_asset_id }
+                })
+              }}
+            >
               View
             </Button>
           </div>
@@ -155,7 +165,19 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
       ))}
 
       {/* Action button to manage relationships */}
-      <Button variant="outline" className="w-full" size="sm">
+      <Button
+        variant="outline"
+        className="w-full"
+        size="sm"
+        onClick={() => {
+          push({
+            id: `asset-mgmt-${vehicleId}`,
+            type: 'vehicle',
+            label: 'Manage Attachments',
+            data: { vehicleId, tab: 'attachments' }
+          })
+        }}
+      >
         <Link2 className="h-4 w-4 mr-2" />
         Manage Attachments
       </Button>

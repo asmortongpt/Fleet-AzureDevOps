@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+// motion removed - React 19 incompatible
 import { ReactNode, useState } from "react";
 
 import {
@@ -9,6 +9,7 @@ import {
 } from "./tooltip";
 
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/utils/format-helpers";
 
 /**
  * InteractiveTooltip - Rich tooltips with vehicle data and interactive elements
@@ -36,17 +37,22 @@ interface VehicleTooltipData {
 
 interface InteractiveTooltipProps {
   children: ReactNode;
-  data: VehicleTooltipData;
+  content?: ReactNode;
+  data?: VehicleTooltipData;
   showDetails?: boolean;
   side?: "top" | "right" | "bottom" | "left";
   align?: "start" | "center" | "end";
   className?: string;
   onViewDetails?: (id: string) => void;
   onTrack?: (id: string) => void;
+  delay?: number;
+  asChild?: boolean;
+  position?: "top" | "right" | "bottom" | "left";
 }
 
 export function InteractiveTooltip({
   children,
+  content,
   data,
   showDetails = true,
   side = "top",
@@ -54,6 +60,9 @@ export function InteractiveTooltip({
   className,
   onViewDetails,
   onTrack,
+  delay = 0,
+  asChild = true,
+  position,
 }: InteractiveTooltipProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -61,178 +70,187 @@ export function InteractiveTooltip({
     active: {
       color: "bg-green-500",
       label: "Active",
-      textColor: "text-green-700"
+      textColor: "text-emerald-400"
     },
     idle: {
-      color: "bg-yellow-500",
+      color: "bg-amber-500",
       label: "Idle",
-      textColor: "text-yellow-700"
+      textColor: "text-amber-400"
     },
     maintenance: {
       color: "bg-orange-500",
       label: "Maintenance",
-      textColor: "text-orange-700"
+      textColor: "text-orange-400"
     },
     offline: {
-      color: "bg-gray-500",
+      color: "bg-white/30",
       label: "Offline",
-      textColor: "text-gray-700"
+      textColor: "text-white/40"
     },
   };
 
-  const config = statusConfig[data.status];
+  // Support both simple content and complex data
+  const config = data ? statusConfig[data.status] : null;
+  const effectiveSide = (position || side) as "top" | "right" | "bottom" | "left";
 
-  return (
-    <TooltipProvider delayDuration={100}>
-      <Tooltip open={isOpen} onOpenChange={setIsOpen}>
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <AnimatePresence>
+  // If simple content is provided, render a simple tooltip
+  if (content && !data) {
+    return (
+      <TooltipProvider delayDuration={delay}>
+        <Tooltip open={isOpen} onOpenChange={setIsOpen}>
+          <TooltipTrigger asChild={asChild}>{children}</TooltipTrigger>
           {isOpen && (
             <TooltipContent
-              side={side}
+              side={effectiveSide}
               align={align}
-              className={cn("p-0 border-0 bg-transparent shadow-none", className)}
-              asChild
+              className={cn("bg-[#1a1a1a] text-white border-white/[0.04]", className)}
             >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: side === "top" ? 5 : -5 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: side === "top" ? 5 : -5 }}
-                transition={{ duration: 0.15 }}
-                className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden min-w-[280px] max-w-[320px]"
-              >
-                {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-2 py-3 text-white">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-sm leading-tight">{data.name}</h4>
-                      <p className="text-xs text-blue-100 mt-0.5">{data.type}</p>
-                    </div>
-                    <div className={cn(
-                      "px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1",
-                      "bg-white/20 backdrop-blur-sm"
-                    )}>
-                      <div className={cn("w-2 h-2 rounded-full", config.color)} />
-                      {config.label}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-2 space-y-3">
-                  {/* Quick Stats */}
-                  {showDetails && (
-                    <div className="grid grid-cols-2 gap-3">
-                      {data.speed !== undefined && (
-                        <MetricItem
-                          label="Speed"
-                          value={`${data.speed} mph`}
-                          icon="🚗"
-                        />
-                      )}
-                      {data.fuel !== undefined && (
-                        <MetricItem
-                          label="Fuel"
-                          value={`${data.fuel}%`}
-                          icon="⛽"
-                          warning={data.fuel < 25}
-                        />
-                      )}
-                    </div>
-                  )}
-
-                  {/* Location & Driver */}
-                  {(data.location || data.driver) && (
-                    <div className="space-y-2 text-sm">
-                      {data.location && (
-                        <div className="flex items-start gap-2">
-                          <span className="text-gray-700 text-xs">📍</span>
-                          <span className="text-gray-700 text-xs flex-1 leading-relaxed">
-                            {data.location}
-                          </span>
-                        </div>
-                      )}
-                      {data.driver && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-700 text-xs">👤</span>
-                          <span className="text-gray-700 text-xs font-medium">
-                            {data.driver}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Alerts */}
-                  {data.alerts && data.alerts.length > 0 && (
-                    <div className="space-y-1">
-                      {data.alerts.map((alert, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.05 }}
-                          className={cn(
-                            "text-xs p-2 rounded flex items-start gap-2",
-                            alert.type === "error" && "bg-red-50 text-red-700",
-                            alert.type === "warning" && "bg-yellow-50 text-yellow-700",
-                            alert.type === "info" && "bg-blue-50 text-blue-700"
-                          )}
-                        >
-                          <span className="flex-shrink-0">
-                            {alert.type === "error" && "⚠️"}
-                            {alert.type === "warning" && "⚡"}
-                            {alert.type === "info" && "ℹ️"}
-                          </span>
-                          <span className="flex-1 leading-relaxed">{alert.message}</span>
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Last Update */}
-                  {data.lastUpdate && (
-                    <div className="text-xs text-gray-700 text-center pt-2 border-t">
-                      Updated {formatRelativeTime(data.lastUpdate)}
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  {(onViewDetails || onTrack) && (
-                    <div className="flex gap-2 pt-2">
-                      {onViewDetails && (
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => {
-                            onViewDetails(data.id);
-                            setIsOpen(false);
-                          }}
-                          className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors"
-                        >
-                          View Details
-                        </motion.button>
-                      )}
-                      {onTrack && (
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => {
-                            onTrack(data.id);
-                            setIsOpen(false);
-                          }}
-                          className="flex-1 px-3 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-md transition-colors"
-                        >
-                          Track
-                        </motion.button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </motion.div>
+              {content}
             </TooltipContent>
           )}
-        </AnimatePresence>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
+  // Complex vehicle data rendering
+  return (
+    <TooltipProvider delayDuration={delay}>
+      <Tooltip open={isOpen} onOpenChange={setIsOpen}>
+        <TooltipTrigger asChild={asChild}>{children}</TooltipTrigger>
+        {isOpen && data && (
+          <TooltipContent
+            side={effectiveSide}
+            align={align}
+            className={cn("p-0 border-0 bg-transparent", className)}
+          >
+            <div
+              className="bg-[#111111] border border-white/[0.04] rounded-lg overflow-hidden min-w-[280px] max-w-[320px]"
+            >
+              {/* Header */}
+              <div className="bg-emerald-600 px-2 py-3 text-white">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-sm leading-tight">{data.name}</h4>
+                    <p className="text-xs text-emerald-100 mt-0.5">{data.type}</p>
+                  </div>
+                  <div className={cn(
+                    "px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1",
+                    "bg-white/20"
+                  )}>
+                    <div className={cn("w-2 h-2 rounded-full", config?.color)} />
+                    {config?.label}
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-2 space-y-3">
+                {/* Quick Stats */}
+                {showDetails && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {data.speed !== undefined && (
+                      <MetricItem
+                        label="Speed"
+                        value={`${data.speed} mph`}
+                        icon="🚗"
+                      />
+                    )}
+                    {data.fuel !== undefined && (
+                      <MetricItem
+                        label="Fuel"
+                        value={`${data.fuel}%`}
+                        icon="⛽"
+                        warning={data.fuel < 25}
+                      />
+                    )}
+                  </div>
+                )}
+
+                {/* Location & Driver */}
+                {(data.location || data.driver) && (
+                  <div className="space-y-2 text-sm">
+                    {data.location && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-white/60 text-xs">📍</span>
+                        <span className="text-white/60 text-xs flex-1 leading-relaxed">
+                          {data.location}
+                        </span>
+                      </div>
+                    )}
+                    {data.driver && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-white/60 text-xs">👤</span>
+                        <span className="text-white/60 text-xs font-medium">
+                          {data.driver}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Alerts */}
+                {data.alerts && data.alerts.length > 0 && (
+                  <div className="space-y-1">
+                    {data.alerts.map((alert) => (
+                      <div
+                        key={alert.message}
+                        className={cn(
+                          "text-xs p-2 rounded flex items-start gap-2",
+                          alert.type === "error" && "bg-red-500/10 text-red-400",
+                          alert.type === "warning" && "bg-amber-500/10 text-amber-400",
+                          alert.type === "info" && "bg-emerald-500/10 text-emerald-400"
+                        )}
+                      >
+                        <span className="flex-shrink-0">
+                          {alert.type === "error" && "⚠️"}
+                          {alert.type === "warning" && "⚡"}
+                          {alert.type === "info" && "ℹ️"}
+                        </span>
+                        <span className="flex-1 leading-relaxed">{alert.message}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Last Update */}
+                {data.lastUpdate && (
+                  <div className="text-xs text-white/35 text-center pt-2 border-t border-white/[0.04]">
+                    Updated {formatRelativeTime(data.lastUpdate)}
+                  </div>
+                )}
+
+                {/* Actions */}
+                {(onViewDetails || onTrack) && (
+                  <div className="flex gap-2 pt-2">
+                    {onViewDetails && (
+                      <button
+                        onClick={() => {
+                          onViewDetails(data.id);
+                          setIsOpen(false);
+                        }}
+                        className="flex-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-md transition-colors"
+                      >
+                        View Details
+                      </button>
+                    )}
+                    {onTrack && (
+                      <button
+                        onClick={() => {
+                          onTrack(data.id);
+                          setIsOpen(false);
+                        }}
+                        className="flex-1 px-3 py-2 border border-white/[0.04] hover:bg-white/[0.04] text-white/60 text-xs font-medium rounded-md transition-colors"
+                      >
+                        Track
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </TooltipContent>
+        )}
       </Tooltip>
     </TooltipProvider>
   );
@@ -252,15 +270,15 @@ function MetricItem({ label, value, icon, warning }: MetricItemProps) {
   return (
     <div className={cn(
       "p-2 rounded-lg border",
-      warning ? "bg-yellow-50 border-yellow-200" : "bg-gray-50 border-gray-200"
+      warning ? "bg-amber-500/10 border-amber-500/20" : "bg-white/[0.04] border-white/[0.04]"
     )}>
       <div className="flex items-center gap-1 mb-1">
         {icon && <span className="text-xs">{icon}</span>}
-        <span className="text-xs text-slate-700">{label}</span>
+        <span className="text-xs text-white/40">{label}</span>
       </div>
       <div className={cn(
         "text-sm font-semibold",
-        warning ? "text-yellow-700" : "text-gray-900"
+        warning ? "text-amber-400" : "text-white"
       )}>
         {value}
       </div>
@@ -292,26 +310,19 @@ export function SimpleTooltip({
     <TooltipProvider delayDuration={100}>
       <Tooltip open={isOpen} onOpenChange={setIsOpen}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <AnimatePresence>
-          {isOpen && (
-            <TooltipContent
-              side={side}
-              align={align}
-              className={cn("p-0 border-0 bg-transparent shadow-none", className)}
-              asChild
+        {isOpen && (
+          <TooltipContent
+            side={side}
+            align={align}
+            className={cn("p-0 border-0 bg-transparent", className)}
+          >
+            <div
+              className="bg-[#1a1a1a] text-white px-3 py-2 rounded-md text-sm max-w-xs border border-white/[0.04]"
             >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.12 }}
-                className="bg-gray-900 text-white px-3 py-2 rounded-md shadow-sm text-sm max-w-xs"
-              >
-                {content}
-              </motion.div>
-            </TooltipContent>
-          )}
-        </AnimatePresence>
+              {content}
+            </div>
+          </TooltipContent>
+        )}
       </Tooltip>
     </TooltipProvider>
   );
@@ -334,7 +345,7 @@ function formatRelativeTime(date: Date): string {
   } else if (diffHours < 24) {
     return `${diffHours}h ago`;
   } else {
-    return date.toLocaleDateString();
+    return formatDate(date);
   }
 }
 
@@ -354,7 +365,7 @@ export function DataTooltip({
   label,
   value,
   change,
-  color = "#3b82f6",
+  color = "hsl(var(--chart-1))",
   unit,
   children,
 }: DataTooltipProps) {
@@ -364,38 +375,32 @@ export function DataTooltip({
     <TooltipProvider delayDuration={50}>
       <Tooltip open={isOpen} onOpenChange={setIsOpen}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <AnimatePresence>
-          {isOpen && (
-            <TooltipContent className="p-0 border-0 bg-transparent shadow-none" asChild>
-              <motion.div
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 5 }}
-                transition={{ duration: 0.1 }}
-                className="bg-white border border-gray-200 rounded-lg shadow-sm px-3 py-2 min-w-[120px]"
-              >
-                <div className="text-xs text-slate-700 mb-1">{label}</div>
-                <div className="flex items-baseline gap-1">
-                  <div
-                    className="text-sm font-bold"
-                    style={{ color }}
-                  >
-                    {value}
-                  </div>
-                  {unit && <span className="text-xs text-gray-700">{unit}</span>}
+        {isOpen && (
+          <TooltipContent className="p-0 border-0 bg-transparent">
+            <div
+              className="bg-[#111111] border border-white/[0.04] rounded-lg px-3 py-2 min-w-[120px]"
+            >
+              <div className="text-xs text-white/40 mb-1">{label}</div>
+              <div className="flex items-baseline gap-1">
+                <div
+                  className="text-sm font-bold"
+                  style={{ color }}
+                >
+                  {value}
                 </div>
-                {change !== undefined && (
-                  <div className={cn(
-                    "text-xs font-medium mt-1",
-                    change >= 0 ? "text-green-600" : "text-red-600"
-                  )}>
-                    {change >= 0 ? "↑" : "↓"} {Math.abs(change)}%
-                  </div>
-                )}
-              </motion.div>
-            </TooltipContent>
-          )}
-        </AnimatePresence>
+                {unit && <span className="text-xs text-white/40">{unit}</span>}
+              </div>
+              {change !== undefined && (
+                <div className={cn(
+                  "text-xs font-medium mt-1",
+                  change >= 0 ? "text-emerald-400" : "text-rose-400"
+                )}>
+                  {change >= 0 ? "↑" : "↓"} {Math.abs(change)}%
+                </div>
+              )}
+            </div>
+          </TooltipContent>
+        )}
       </Tooltip>
     </TooltipProvider>
   );

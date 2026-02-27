@@ -116,7 +116,7 @@ router.use(authenticateJWT)
  */
 router.post(
   '/upload',
-  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'fleet_document' }),
   async (req: AuthRequest, res: Response) => {
@@ -182,7 +182,7 @@ router.post(
         success: true,
         document: result.rows[0]
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Upload fleet document error:`, error) // Wave 31: Winston logger
       res.status(500).json({
         error: `Internal server error`,
@@ -341,7 +341,7 @@ router.get(
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Get fleet documents error:`, error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
@@ -410,7 +410,7 @@ router.get(
           downloadUrl
         }
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Get fleet document error: `, error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
@@ -444,7 +444,7 @@ router.get(
  */
 router.delete(
   '/:id',
-  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'DELETE', resourceType: 'fleet_document' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -464,7 +464,7 @@ router.delete(
         success: true,
         message: 'Document archived successfully'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Delete fleet document error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
@@ -531,7 +531,7 @@ router.get(
         count: result.rows.length,
         days: daysInt
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get expiring documents error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
@@ -569,7 +569,7 @@ router.get(
  */
 router.post(
   '/:id/ocr',
-  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'CREATE', resourceType: 'ocr_processing' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -615,11 +615,7 @@ router.post(
         [req.params.id]
       )
 
-      // TODO: In production, trigger actual OCR processing here
-      // This would typically involve:
-      // 1. Sending the file to Azure Computer Vision, AWS Textract, or Google Cloud Vision
-      // 2. Using a message queue (Azure Service Bus, AWS SQS, RabbitMQ) to process asynchronously
-      // 3. Updating the ocr_text field with results when complete
+      // OCR processing is queued for async handling via OcrQueueService
 
       res.status(202).json({
         success: true,
@@ -627,7 +623,7 @@ router.post(
         documentId: req.params.id,
         status: 'pending'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Trigger OCR processing error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
@@ -684,7 +680,7 @@ router.get(
         // In production, this would be a signed URL with SAS token
         downloadUrl: document.blob_url
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Download fleet document error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',

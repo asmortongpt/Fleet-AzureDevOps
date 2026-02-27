@@ -13,13 +13,15 @@ import {
   ChargeBreakdownItem
 } from '../types/trip-usage';
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 router.use(authenticateJWT);
 
 // Validation schemas
 const createChargeSchema = z.object({
-  driver_id: z.string().uuid(),
-  trip_usage_id: z.string().uuid().optional(),
+  driver_id: flexUuid,
+  trip_usage_id: flexUuid.optional(),
   charge_period: z.string().regex(/^\d{4}-\d{2}$/), // YYYY-MM format
   charge_period_start: z.string(),
   charge_period_end: z.string(),
@@ -56,7 +58,7 @@ const updateChargeSchema = z.object({
 });
 
 const calculateChargesSchema = z.object({
-  driver_id: z.string().uuid(),
+  driver_id: flexUuid,
   charge_period: z.string().regex(/^\d{4}-\d{2}$/)
 });
 
@@ -78,20 +80,20 @@ router.get(
         is_reimbursement,
         limit = 50,
         offset = 0
-      } = req.query as any;
+      } = req.query as Record<string, string | undefined>;
 
-	      let query = `
-	        SELECT c.*,
-	               dr.first_name || ' ' || dr.last_name as driver_name,
-	               dr.email as driver_email,
-	               COALESCE(v.number, v.name) as vehicle_number
-	        FROM personal_use_data c
-	        LEFT JOIN drivers dr ON c.driver_id = dr.id
-	        LEFT JOIN vehicles v ON c.vehicle_id = v.id
-	        WHERE c.tenant_id = $1
-	      `;
-	      const params: any[] = [req.user!.tenant_id];
-	      let paramCount = 1;
+      let query = `
+        SELECT c.*,
+               dr.first_name || ' ' || dr.last_name as driver_name,
+               dr.email as driver_email,
+               COALESCE(v.number, v.name) as vehicle_number
+        FROM personal_use_data c
+        LEFT JOIN drivers dr ON c.driver_id = dr.id
+        LEFT JOIN vehicles v ON c.vehicle_id = v.id
+        WHERE c.tenant_id = $1
+      `;
+      const params: unknown[] = [req.user!.tenant_id];
+      let paramCount = 1;
 
       if (driver_id) {
         paramCount++;
@@ -99,37 +101,37 @@ router.get(
         params.push(driver_id);
       }
 
-	      if (charge_period) {
-	        paramCount++;
-	        // Map YYYY-MM to period_start/period_end
-	        query += ` AND TO_CHAR(c.period_start, 'YYYY-MM') = $${paramCount}`;
-	        params.push(charge_period);
-	      }
+      if (charge_period) {
+        paramCount++;
+        // Map YYYY-MM to period_start/period_end
+        query += ` AND TO_CHAR(c.period_start, 'YYYY-MM') = $${paramCount}`;
+        params.push(charge_period);
+      }
 
-	      if (charge_status) {
-	        paramCount++;
-	        query += ` AND c.status = $${paramCount}`;
-	        params.push(charge_status);
-	      }
+      if (charge_status) {
+        paramCount++;
+        query += ` AND c.status = $${paramCount}`;
+        params.push(charge_status);
+      }
 
-	      if (start_date) {
-	        paramCount++;
-	        query += ` AND c.period_start >= $${paramCount}`;
-	        params.push(start_date);
-	      }
+      if (start_date) {
+        paramCount++;
+        query += ` AND c.period_start >= $${paramCount}`;
+        params.push(start_date);
+      }
 
-	      if (end_date) {
-	        paramCount++;
-	        query += ` AND c.period_end <= $${paramCount}`;
-	        params.push(end_date);
-	      }
+      if (end_date) {
+        paramCount++;
+        query += ` AND c.period_end <= $${paramCount}`;
+        params.push(end_date);
+      }
 
-	      // `personal_use_data` does not model reimbursements; ignore the filter for now.
+      // `personal_use_data` does not model reimbursements; ignore the filter for now.
 
-	      query += ` ORDER BY c.period_start DESC, c.created_at DESC`;
+      query += ` ORDER BY c.period_start DESC, c.created_at DESC`;
 
-	      // Get total count
-	      const countResult = await pool.query(`SELECT COUNT(*) FROM (${query}) q`, params);
+      // Get total count
+      const countResult = await pool.query(`SELECT COUNT(*) FROM (${query}) q`, params);
 
       // Add pagination
       paramCount++;
@@ -140,60 +142,60 @@ router.get(
       query += ` OFFSET $${paramCount}`;
       params.push(offset);
 
-	      const result = await pool.query(query, params);
+      const result = await pool.query(query, params);
 
-	      res.json({
-	        success: true,
-	        data: result.rows,
-	        pagination: {
-	          total: parseInt(countResult.rows[0].count),
-          limit: parseInt(limit),
-          offset: parseInt(offset),
-          has_more: parseInt(offset) + result.rows.length < parseInt(countResult.rows[0].count)
+      res.json({
+        success: true,
+        data: result.rows,
+        pagination: {
+          total: parseInt(countResult.rows[0].count),
+          limit: parseInt(String(limit)),
+          offset: parseInt(String(offset)),
+          has_more: parseInt(String(offset)) + result.rows.length < parseInt(countResult.rows[0].count)
         }
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get personal use charges error:', error);
       res.status(500).json({ error: 'Failed to retrieve personal use charges' });
     }
   }
-	);
+);
 
-	/**
-	 * GET /api/personal-use-charges/summary
-	 * Summary rollup for personal use data (DB-backed)
-	 */
-	router.get(
-	  '/summary',
-	  requirePermission('route:view:fleet'),
-	  async (req: AuthRequest, res: Response) => {
-	    try {
-	      const result = await pool.query(
-	        `SELECT
-	           TO_CHAR(period_start, 'YYYY-MM') as charge_period,
-	           SUM(personal_miles)::numeric(12,2) as personal_miles,
-	           SUM(COALESCE(taxable_benefit_amount, 0))::numeric(12,2) as taxable_benefit_amount,
-	           COUNT(*)::integer as records
-	         FROM personal_use_data
-	         WHERE tenant_id = $1
-	         GROUP BY 1
-	         ORDER BY 1 DESC
-	         LIMIT 12`,
-	        [req.user!.tenant_id]
-	      );
-	
-	      res.json({ success: true, data: result.rows });
-	    } catch (error: any) {
-	      logger.error('Get personal use summary error:', error);
-	      res.status(500).json({ error: 'Failed to retrieve personal use summary' });
-	    }
-	  }
-	);
+/**
+ * GET /api/personal-use-charges/summary
+ * Summary rollup for personal use data (DB-backed)
+ */
+router.get(
+  '/summary',
+  requirePermission('route:view:fleet'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT
+           TO_CHAR(period_start, 'YYYY-MM') as charge_period,
+           SUM(personal_miles)::numeric(12,2) as personal_miles,
+           SUM(COALESCE(taxable_benefit_amount, 0))::numeric(12,2) as taxable_benefit_amount,
+           COUNT(*)::integer as records
+         FROM personal_use_data
+         WHERE tenant_id = $1
+         GROUP BY 1
+         ORDER BY 1 DESC
+         LIMIT 12`,
+        [req.user!.tenant_id]
+      );
 
-	/**
-	 * GET /api/personal-use-charges/:id
-	 * Get specific personal use charge
-	 */
+      res.json({ success: true, data: result.rows });
+    } catch (error: unknown) {
+      logger.error('Get personal use summary error:', error);
+      res.status(500).json({ error: 'Failed to retrieve personal use summary' });
+    }
+  }
+);
+
+/**
+ * GET /api/personal-use-charges/:id
+ * Get specific personal use charge
+ */
 router.get(
   '/:id',
   requirePermission('route:view:own'),
@@ -219,7 +221,7 @@ router.get(
         success: true,
         data: result.rows[0]
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get personal use charge error:', error);
       res.status(500).json({ error: 'Failed to retrieve personal use charge' });
     }
@@ -286,7 +288,7 @@ router.post(
         data: result.rows[0],
         message: 'Personal use charge created successfully'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Create personal use charge error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -321,7 +323,7 @@ router.put(
 
       // Build update query dynamically
       const updates: string[] = [];
-      const values: any[] = [];
+      const values: unknown[] = [];
       let paramCount = 2; // id is $1, tenant_id is $2
 
       if (validated.charge_status !== undefined) {
@@ -401,7 +403,7 @@ router.put(
         data: result.rows[0],
         message: 'Personal use charge updated successfully'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Update personal use charge error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -467,7 +469,7 @@ router.post(
       const trips = tripsResult.rows;
 
       // Calculate breakdown
-      const charge_breakdown: ChargeBreakdownItem[] = trips.map((trip: any) => {
+      const charge_breakdown: ChargeBreakdownItem[] = trips.map((trip: { id: string; trip_date: string; miles_personal: number | null; miles_total: number; business_percentage: number | null }) => {
         let miles_personal = trip.miles_personal;
 
         // If miles_personal is not set, calculate from miles_total and business_percentage
@@ -504,7 +506,7 @@ router.post(
         success: true,
         data: response
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Calculate charges error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -513,6 +515,11 @@ router.post(
     }
   }
 );
+
+// Validation schema for waiving a charge
+const waiveChargeSchema = z.object({
+  waived_reason: z.string().min(1).max(2000),
+});
 
 /**
  * POST /api/personal-use-charges/:id/waive
@@ -525,11 +532,15 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'personal_use_charges' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { waived_reason } = req.body;
-
-      if (!waived_reason || waived_reason.trim().length === 0) {
-        return res.status(400).json({ error: 'Waived reason is required' });
+      const parsed = waiveChargeSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        });
       }
+
+      const { waived_reason } = parsed.data;
 
       const result = await pool.query(
         `UPDATE personal_use_charges
@@ -552,7 +563,7 @@ router.post(
         data: result.rows[0],
         message: 'Personal use charge waived successfully'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Waive charge error:', error);
       res.status(500).json({ error: 'Failed to waive charge' });
     }
@@ -585,7 +596,7 @@ router.delete(
         success: true,
         message: 'Personal use charge deleted successfully'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Delete charge error:', error);
       res.status(500).json({ error: 'Failed to delete charge' });
     }

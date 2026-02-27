@@ -9,6 +9,8 @@
 import crypto from 'crypto';
 import { EventEmitter } from 'events';
 
+import logger from '../config/logger';
+
 export interface DispatchTransmission {
   id: string;
   vehicleId: string;
@@ -252,7 +254,7 @@ export class DispatchEmulator extends EventEmitter {
       dispatchChannel.activeUnits.push(vehicle.unitNumber);
     }
 
-    console.log(`Vehicle ${vehicle.unitNumber} registered for dispatch radio`);
+    logger.info(`Vehicle ${vehicle.unitNumber} registered for dispatch radio`);
   }
 
   /**
@@ -260,12 +262,12 @@ export class DispatchEmulator extends EventEmitter {
    */
   public start(): void {
     if (this.isRunning) {
-      console.warn('DispatchEmulator is already running');
+      logger.warn('DispatchEmulator is already running');
       return;
     }
 
     this.isRunning = true;
-    console.log('DispatchEmulator started');
+    logger.info('DispatchEmulator started');
 
     // Generate initial transmissions for realism
     this.generateInitialTransmissions();
@@ -294,7 +296,7 @@ export class DispatchEmulator extends EventEmitter {
     }
 
     this.isRunning = false;
-    console.log('DispatchEmulator stopped');
+    logger.info('DispatchEmulator stopped');
     this.emit('stopped', { timestamp: new Date() });
   }
 

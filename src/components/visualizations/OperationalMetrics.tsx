@@ -1,8 +1,8 @@
 import { TrendingUp, TrendingDown, Minus, Clock, Fuel, Zap, Navigation } from 'lucide-react';
-import { useMemo } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { formatNumber } from '@/utils/format-helpers';
 
 /**
  * Operational Metrics Gauges
@@ -23,8 +23,8 @@ interface Metric {
   unit: string;
   trend?: 'up' | 'down' | 'stable';
   trendValue?: number;
-  icon: React.ElementType;
-  color: 'blue' | 'green' | 'amber' | 'purple' | 'red';
+  icon: React.ComponentType<{ className?: string }>;
+  color: 'teal' | 'green' | 'amber' | 'red';
 }
 
 interface OperationalMetricsProps {
@@ -53,7 +53,7 @@ const defaultMetrics: Metric[] = [
     trend: 'down',
     trendValue: -1.2,
     icon: Zap,
-    color: 'blue'
+    color: 'teal'
   },
   {
     id: 'fuel-efficiency',
@@ -75,7 +75,7 @@ const defaultMetrics: Metric[] = [
     trend: 'stable',
     trendValue: 0,
     icon: Navigation,
-    color: 'purple'
+    color: 'amber'
   }
 ];
 
@@ -83,10 +83,9 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
   // Get color classes
   const getColorClasses = (color: Metric['color'], isAccent = false) => {
     const colors = {
-      blue: isAccent ? 'bg-blue-500 text-blue-700' : 'text-blue-700 bg-blue-50 border-blue-200',
+      teal: isAccent ? 'bg-emerald-500/50 text-emerald-700' : 'text-emerald-700 bg-emerald-500/5 border-emerald-500/20',
       green: isAccent ? 'bg-green-500 text-green-700' : 'text-green-700 bg-green-50 border-green-200',
       amber: isAccent ? 'bg-amber-500 text-amber-700' : 'text-amber-700 bg-amber-50 border-amber-200',
-      purple: isAccent ? 'bg-purple-500 text-purple-700' : 'text-purple-700 bg-purple-50 border-purple-200',
       red: isAccent ? 'bg-red-500 text-red-700' : 'text-red-700 bg-red-50 border-red-200'
     };
     return colors[color];
@@ -95,10 +94,9 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
   // Get progress color
   const getProgressColor = (color: Metric['color']) => {
     const colors = {
-      blue: 'bg-blue-500',
+      teal: 'bg-emerald-500/50',
       green: 'bg-green-500',
       amber: 'bg-amber-500',
-      purple: 'bg-purple-500',
       red: 'bg-red-500'
     };
     return colors[color];
@@ -126,9 +124,9 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
       case 'down':
         return 'text-red-600';
       case 'stable':
-        return 'text-slate-500';
+        return 'text-white/40';
       default:
-        return 'text-slate-500';
+        return 'text-white/40';
     }
   };
 
@@ -149,7 +147,7 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
             className={`border-l-4 ${getColorClasses(metric.color).split(' ').find(c => c.startsWith('border-'))}`}
           >
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium text-white/70">
                 <Icon className={`h-4 w-4 ${getColorClasses(metric.color).split(' ').find(c => c.startsWith('text-'))}`} />
                 {metric.label}
               </CardTitle>
@@ -158,10 +156,10 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
               {/* Main value */}
               <div className="mb-3">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-slate-900">
-                    {metric.value.toLocaleString()}
+                  <span className="text-3xl font-bold text-white/90">
+                    {formatNumber(metric.value)}
                   </span>
-                  <span className="text-sm text-slate-600">{metric.unit}</span>
+                  <span className="text-sm text-white/50">{metric.unit}</span>
                 </div>
 
                 {/* Trend indicator */}
@@ -178,7 +176,7 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
 
               {/* Progress bar */}
               <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs text-slate-600">
+                <div className="flex items-center justify-between text-xs text-white/50">
                   <span>Target: {metric.target}{metric.unit}</span>
                   <span className="font-medium">{percentage.toFixed(0)}%</span>
                 </div>
@@ -190,9 +188,9 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
               </div>
 
               {/* Status indicator */}
-              <div className="mt-2 pt-2 border-t border-slate-100">
+              <div className="mt-2 pt-2 border-t border-white/[0.04]">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-600">Status</span>
+                  <span className="text-white/50">Status</span>
                   <span className={`font-medium ${isAboveTarget ? 'text-green-600' : 'text-amber-600'}`}>
                     {isAboveTarget ? 'Above Target' : 'Below Target'}
                   </span>
@@ -227,7 +225,7 @@ export function CircularGauge({
   max,
   label,
   unit,
-  color = 'blue',
+  color = 'teal',
   size = 'md'
 }: GaugeProps) {
   const percentage = (value / max) * 100;
@@ -241,10 +239,9 @@ export function CircularGauge({
   };
 
   const colorMap = {
-    blue: 'stroke-blue-500',
+    teal: 'stroke-emerald-500',
     green: 'stroke-green-500',
     amber: 'stroke-amber-500',
-    purple: 'stroke-purple-500',
     red: 'stroke-red-500'
   };
 
@@ -258,7 +255,7 @@ export function CircularGauge({
             cy="50"
             r="45"
             fill="none"
-            stroke="#e2e8f0"
+            stroke="var(--border)"
             strokeWidth="8"
           />
           {/* Progress circle */}
@@ -278,12 +275,12 @@ export function CircularGauge({
 
         {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={`${sizes[size].text} font-bold text-slate-900`}>{value}</span>
-          <span className="text-xs text-slate-600">{unit}</span>
+          <span className={`${sizes[size].text} font-bold text-foreground`}>{value}</span>
+          <span className="text-xs text-muted-foreground">{unit}</span>
         </div>
       </div>
 
-      <span className={`${sizes[size].label} font-medium text-slate-700 mt-2 text-center`}>
+      <span className={`${sizes[size].label} font-medium text-foreground/80 mt-2 text-center`}>
         {label}
       </span>
     </div>

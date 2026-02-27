@@ -1,6 +1,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import logger from '@/utils/logger';
+
+
 
 interface MileageData {
   startMileage: number;
@@ -22,7 +23,7 @@ const MileageReimbursementForm: React.FC = () => {
   };
   
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-3 bg-gray-800 rounded-lg">
+    <form onSubmit={handleSubmit(onSubmit)} className="p-3 bg-[#18181b] rounded-lg">
       <h2 className="text-base font-bold text-white mb-2">Mileage Reimbursement</h2>
       
       <div className="grid grid-cols-2 gap-2">
@@ -31,7 +32,7 @@ const MileageReimbursementForm: React.FC = () => {
           <input 
             {...register('startMileage', { required: true, min: 0 })}
             type="number"
-            className="w-full p-2 rounded bg-gray-700 text-white"
+            className="w-full p-2 rounded bg-white/[0.08] text-white"
           />
         </div>
         
@@ -40,7 +41,7 @@ const MileageReimbursementForm: React.FC = () => {
           <input 
             {...register('endMileage', { required: true, min: 0 })}
             type="number"
-            className="w-full p-2 rounded bg-gray-700 text-white"
+            className="w-full p-2 rounded bg-white/[0.08] text-white"
           />
         </div>
       </div>
@@ -50,18 +51,18 @@ const MileageReimbursementForm: React.FC = () => {
         <input 
           {...register('purpose', { required: true })}
           type="text"
-          className="w-full p-2 rounded bg-gray-700 text-white"
+          className="w-full p-2 rounded bg-white/[0.08] text-white"
         />
       </div>
       
-      <div className="mt-2 p-2 bg-blue-900 rounded">
+      <div className="mt-2 p-2 bg-emerald-900 rounded">
         <p className="text-white">Total Miles: {totalMiles}</p>
         <p className="text-white font-bold">Reimbursement: ${reimbursement.toFixed(2)}</p>
       </div>
       
       <button 
         type="submit"
-        className="mt-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        className="mt-2 px-3 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700"
       >
         Submit Reimbursement Request
       </button>

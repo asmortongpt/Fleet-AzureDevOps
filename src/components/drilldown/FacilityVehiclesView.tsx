@@ -9,6 +9,10 @@ import useSWR from 'swr'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface FacilityVehiclesViewProps {
   facilityId: string
@@ -28,28 +32,28 @@ interface Vehicle {
   assigned_to?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
 export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehiclesViewProps) {
   const { data: vehicles, error, isLoading, mutate } = useSWR<Vehicle[]>(
     `/api/facilities/${facilityId}/vehicles`,
-    fetcher
+    apiFetcher
   )
+
+  const vehiclesArr = Array.isArray(vehicles) ? vehicles : []
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {vehicles && (
+      {vehicles !== undefined && (
         <div className="space-y-2">
           <div>
             <h3 className="text-sm font-semibold">
               Vehicles {facilityName && `at ${facilityName}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {vehicles.length} vehicle{vehicles.length !== 1 ? 's' : ''}
+              {vehiclesArr.length} vehicle{vehiclesArr.length !== 1 ? 's' : ''}
             </p>
           </div>
 
-          {vehicles.length === 0 ? (
+          {vehiclesArr.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <Car className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
@@ -58,7 +62,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
             </Card>
           ) : (
             <div className="space-y-3">
-              {vehicles.map((vehicle) => (
+              {vehiclesArr.map((vehicle) => (
                 <Card key={vehicle.id}>
                   <CardContent className="p-2">
                     <div className="space-y-3">
@@ -66,11 +70,11 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                         <div>
                           <p className="font-medium">{vehicle.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {vehicle.year} {vehicle.make} {vehicle.model}
+                            {formatVehicleName(vehicle)}
                           </p>
                         </div>
                         <Badge variant="outline">
-                          {vehicle.status}
+                          {formatEnum(vehicle.status)}
                         </Badge>
                       </div>
 
@@ -81,7 +85,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                             <span>Mileage</span>
                           </div>
                           <p className="text-sm font-medium">
-                            {vehicle.mileage?.toLocaleString() ?? '0'} mi
+                            {formatNumber(vehicle.mileage ?? 0)} mi
                           </p>
                         </div>
                         <div>

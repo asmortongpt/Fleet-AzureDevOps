@@ -159,7 +159,7 @@ export const mapOktaGroupsToRoles = (groups: string[]): string[] => {
 export const getConfigSummary = (): Record<string, any> => {
   const config = getAuthConfig();
   return {
-    environment: process.env.NODE_ENV || 'development',
+    environment: import.meta.env.MODE || 'development',
     okta_issuer: config.okta.issuer,
     client_id: config.okta.clientId.substring(0, 8) + '...',
     mfa_required: config.security.requireMFA,

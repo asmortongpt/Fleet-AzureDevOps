@@ -8,8 +8,9 @@
 import { Router } from 'express'
 
 import { aiService } from '../../services/api-bus'
+import { logger } from '../../utils/logger'
 import type { AICompletionRequest } from '../../services/api-bus'
-import { authenticateJWT } from '../middleware/auth'
+import { authenticateJWT } from '../../middleware/auth'
 
 const router = Router()
 
@@ -59,11 +60,11 @@ router.post('/chat', async (req, res) => {
         finishReason: response.finishReason,
       },
     })
-  } catch (error: any) {
-    console.error('[AI Chat] Error:', error)
+  } catch (error: unknown) {
+    logger.error('[AI Chat] Error:', error)
     return res.status(500).json({
       error: 'AI completion failed',
-      message: error.message,
+      message: 'An internal error occurred',
     })
   }
 })
@@ -101,12 +102,12 @@ router.post('/chat/stream', async (req, res) => {
 
     res.write('data: [DONE]\n\n')
     res.end()
-  } catch (error: any) {
-    console.error('[AI Chat Stream] Error:', error)
+  } catch (error: unknown) {
+    logger.error('[AI Chat Stream] Error:', error)
     if (!res.headersSent) {
       return res.status(500).json({
         error: 'AI streaming failed',
-        message: error.message,
+        message: 'An internal error occurred',
       })
     }
   }
@@ -128,11 +129,11 @@ router.get('/providers', async (req, res) => {
         defaultProvider: 'openai', // From config
       },
     })
-  } catch (error: any) {
-    console.error('[AI Providers] Error:', error)
+  } catch (error: unknown) {
+    logger.error('[AI Providers] Error:', error)
     return res.status(500).json({
       error: 'Failed to get provider info',
-      message: error.message,
+      message: 'An internal error occurred',
     })
   }
 })
@@ -163,11 +164,11 @@ router.post('/switch-provider', async (req, res) => {
       message: `Switched to ${provider}`,
       provider,
     })
-  } catch (error: any) {
-    console.error('[AI Switch Provider] Error:', error)
+  } catch (error: unknown) {
+    logger.error('[AI Switch Provider] Error:', error)
     return res.status(500).json({
       error: 'Failed to switch provider',
-      message: error.message,
+      message: 'An internal error occurred',
     })
   }
 })

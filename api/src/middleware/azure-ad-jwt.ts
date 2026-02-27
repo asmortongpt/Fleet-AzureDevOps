@@ -52,7 +52,7 @@ const getSigningKey = (kid: string): Promise<string> => {
         return reject(err)
       }
 
-      const signingKey = key.getPublicKey()
+      const signingKey = key!.getPublicKey()
       resolve(signingKey)
     })
   })
@@ -132,7 +132,7 @@ const extractUserInfo = (payload: any): {
   return {
     id: payload.oid || payload.sub, // Object ID (unique user ID)
     email: payload.email || payload.preferred_username || payload.upn,
-    name: payload.name || payload.given_name + ' ' + payload.family_name,
+    name: payload.name || `${String(payload.given_name || '')} ${String(payload.family_name || '')}`.trim(),
     roles: payload.roles || [],
     tenantId: payload.tid, // Tenant ID
     mfaUsed: validateMFA(payload)
@@ -198,17 +198,17 @@ export const authenticateAzureAdJWT = async (
     })
 
     next()
-  } catch (error: any) {
-    logger.error('❌ AZURE AD AUTH - Validation failed:', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('❌ AZURE AD AUTH - Validation failed:', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
 
-    if (error.name === 'TokenExpiredError') {
+    if (error instanceof Error && error.name === 'TokenExpiredError') {
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'Token has expired'
       })
     }
 
-    if (error.name === 'JsonWebTokenError') {
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'Invalid token'
@@ -255,9 +255,9 @@ export const checkTokenExpiry = (req: AuthRequest, res: Response, next: NextFunc
   }
 
   const token = authHeader.substring(7)
-  const decoded = jwt.decode(token) as any
+  const decoded = jwt.decode(token) as Record<string, unknown> | null
 
-  if (decoded && decoded.exp) {
+  if (decoded && typeof decoded.exp === 'number') {
     const expiresIn = decoded.exp - Math.floor(Date.now() / 1000)
     if (expiresIn < 300) { // Less than 5 minutes
       logger.warn('Token expiring soon', {

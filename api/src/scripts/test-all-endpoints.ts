@@ -202,7 +202,7 @@ class EndpointTester {
 
   async testDatabaseConnection(): Promise<ConnectionTestResult> {
     const startTime = Date.now();
-    const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_dev';
+    const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_test';
 
     console.log(`${colors.cyan}Testing PostgreSQL connection...${colors.reset}`);
 
@@ -224,16 +224,16 @@ class EndpointTester {
       this.connectionResults.push(result);
       console.log(`${colors.green}✓ PostgreSQL connected (${latency}ms)${colors.reset}`);
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       await pool.end().catch(() => {});
 
       const result: ConnectionTestResult = {
         service: 'PostgreSQL',
         status: 'error',
-        error: error.message,
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
       };
       this.connectionResults.push(result);
-      console.log(`${colors.red}✗ PostgreSQL connection failed: ${error.message}${colors.reset}`);
+      console.log(`${colors.red}✗ PostgreSQL connection failed: ${error instanceof Error ? error.message : String(error)}${colors.reset}`);
       return result;
     }
   }
@@ -263,16 +263,16 @@ class EndpointTester {
       this.connectionResults.push(result);
       console.log(`${colors.green}✓ Redis connected (${latency}ms)${colors.reset}`);
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       await redis.quit().catch(() => {});
 
       const result: ConnectionTestResult = {
         service: 'Redis',
         status: 'error',
-        error: error.message,
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
       };
       this.connectionResults.push(result);
-      console.log(`${colors.yellow}⚠ Redis not available: ${error.message}${colors.reset}`);
+      console.log(`${colors.yellow}⚠ Redis not available: ${error instanceof Error ? error.message : String(error)}${colors.reset}`);
       return result;
     }
   }
@@ -346,12 +346,12 @@ class EndpointTester {
 
       this.results.push(result);
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const result: TestResult = {
         endpoint: endpoint.path,
         method: endpoint.method,
         status: 'error',
-        error: error.message,
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
         details: endpoint.description,
       };
 
@@ -458,8 +458,8 @@ async function main() {
     const failed = tester.getFailedEndpoints();
     process.exit(failed.length > 0 ? 1 : 0);
 
-  } catch (error: any) {
-    console.error(`${colors.red}Fatal error: ${error.message}${colors.reset}`);
+  } catch (error: unknown) {
+    console.error(`${colors.red}Fatal error: ${error instanceof Error ? error.message : String(error)}${colors.reset}`);
     process.exit(1);
   }
 }
@@ -468,4 +468,4 @@ async function main() {
 export { EndpointTester, endpoints };
 
 // Run if executed directly
-main().catch(console.error);
+main().catch((err) => console.error(err));

@@ -5,6 +5,7 @@
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import logger from '../config/logger';
 
 import {
   User,
@@ -53,8 +54,8 @@ export class PermissionEngine implements IPermissionEngine {
   async can(
     user: User,
     action: string,
-    resource?: any,
-    context?: any
+    resource?: Record<string, unknown>,
+    context?: Record<string, unknown>
   ): Promise<PermissionCheckResult> {
     // Admin always has full access
     if (user.roles.includes('Admin')) {
@@ -81,7 +82,7 @@ export class PermissionEngine implements IPermissionEngine {
     if (actionConfig.conditions && actionConfig.conditions.length > 0) {
       const conditionResults = await this.evaluateConditions(
         actionConfig.conditions,
-        { user, resource, resourceType: context?.resourceType, action }
+        { user, resource, resourceType: context?.resourceType as string | undefined, action }
       );
 
       if (!conditionResults.passed) {
@@ -127,10 +128,10 @@ export class PermissionEngine implements IPermissionEngine {
    * Apply record-level filters based on user role and org
    */
   async applyRecordFilter(
-    query: any,
+    query: Record<string, unknown>,
     user: User,
     resourceType: string
-  ): Promise<any> {
+  ): Promise<Record<string, unknown>> {
     // Admin sees everything in their org (or all orgs if super admin)
     if (user.roles.includes('Admin')) {
       // Only filter by org if user has org_id
@@ -141,7 +142,7 @@ export class PermissionEngine implements IPermissionEngine {
     }
 
     // Base filter: user's organization
-    const filters: any = {
+    const filters: Record<string, unknown> = {
       ...query,
       org_id: user.org_id
     };
@@ -181,7 +182,7 @@ export class PermissionEngine implements IPermissionEngine {
   async filterFields(
     user: User,
     resourceType: string,
-    payload: any
+    payload: Record<string, unknown> | Record<string, unknown>[]
   ): Promise<FieldFilterResult> {
     const fieldConfig = this.config.fields[resourceType];
 
@@ -203,12 +204,12 @@ export class PermissionEngine implements IPermissionEngine {
       };
     }
 
-    const filteredData: any = Array.isArray(payload) ? [] : {};
+    const filteredData: Record<string, unknown>[] | Record<string, unknown> = Array.isArray(payload) ? [] : {};
     const redactedFields: string[] = [];
     const anonymizedFields: string[] = [];
 
-    const processItem = (item: any): any => {
-      const result: any = {};
+    const processItem = (item: Record<string, unknown>): Record<string, unknown> => {
+      const result: Record<string, unknown> = {};
 
       // Always include always_visible fields
       if (fieldConfig.always_visible) {
@@ -273,7 +274,7 @@ export class PermissionEngine implements IPermissionEngine {
     };
 
     if (Array.isArray(payload)) {
-      filteredData.push(...payload.map(processItem));
+      (filteredData as Record<string, unknown>[]).push(...payload.map(processItem));
     } else {
       Object.assign(filteredData, processItem(payload));
     }
@@ -354,7 +355,7 @@ export class PermissionEngine implements IPermissionEngine {
     const parts = condition.split(/\s+(==|!=|IN)\s+/);
 
     if (parts.length !== 3) {
-      console.warn(`Invalid condition format: ${condition}`);
+      logger.warn(`Invalid condition format: ${condition}`);
       return true; // Fail open for malformed conditions (or change to false for security)
     }
 
@@ -377,11 +378,11 @@ export class PermissionEngine implements IPermissionEngine {
             return values.includes(String(leftValue));
           }
         } catch (e) {
-          console.error(`Error evaluating IN condition:`, e);
+          logger.error('Error evaluating IN condition', { error: e instanceof Error ? e.message : String(e) });
         }
         return false;
       default:
-        console.warn(`Unknown operator: ${operator}`);
+        logger.warn(`Unknown operator: ${operator}`);
         return false;
     }
   }
@@ -389,23 +390,23 @@ export class PermissionEngine implements IPermissionEngine {
   /**
    * Resolve condition value from context
    */
-  private resolveConditionValue(path: string, context: PermissionContext): any {
+  private resolveConditionValue(path: string, context: PermissionContext): unknown {
     const cleanPath = path.trim();
 
     // Handle user properties
     if (cleanPath.startsWith(`user.`)) {
       const prop = cleanPath.substring(5);
-      return (context.user as any)[prop];
+      return (context.user as unknown as Record<string, unknown>)[prop];
     }
 
     // Handle resource properties
     if (context.resource && cleanPath.includes('.')) {
       const parts = cleanPath.split('.');
-      let value: any = context.resource;
+      let value: unknown = context.resource;
 
       for (const part of parts) {
         if (value && typeof value === 'object') {
-          value = value[part];
+          value = (value as Record<string, unknown>)[part];
         } else {
           return undefined;
         }
@@ -436,7 +437,7 @@ export class PermissionEngine implements IPermissionEngine {
   /**
    * Summarize a field (e.g., show total but not breakdown)
    */
-  private summarizeField(fieldName: string, value: any): any {
+  private summarizeField(fieldName: string, value: unknown): unknown {
     if (fieldName.includes('cost') || fieldName.includes('price') || fieldName.includes('value')) {
       // For financial fields, return rounded total
       if (typeof value === 'number') {
@@ -450,7 +451,7 @@ export class PermissionEngine implements IPermissionEngine {
   /**
    * Anonymize a field (e.g., hide PII)
    */
-  private anonymizeField(fieldName: string, value: any): any {
+  private anonymizeField(fieldName: string, value: unknown): unknown {
     if (fieldName.includes('name')) {
       return 'Anonymous';
     }

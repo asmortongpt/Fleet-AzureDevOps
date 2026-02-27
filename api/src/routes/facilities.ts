@@ -9,10 +9,25 @@ import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac'
 import { validateParams, validateBody, validateQuery } from '../middleware/validate'
 import { tenantSafeQuery } from '../utils/dbHelpers'
 
+import { flexUuid } from '../middleware/validation'
+
+interface VehicleRow {
+  id: string | number
+  name: string
+  make: string
+  model: string
+  year: number
+  license_plate: string
+  status: string
+  mileage: number | null
+  fuel_level: number | null
+  metadata: Record<string, unknown> | string | null
+}
+
 const router = Router()
 
 const facilityIdSchema = z.object({
-  id: z.string().uuid()
+  id: flexUuid
 })
 
 const facilityCreateSchema = z.object({
@@ -57,17 +72,17 @@ router.get(
   validateQuery(facilityQuerySchema),
   asyncHandler(async (req, res) => {
     const { page = 1, limit = 50, type, active } = req.query
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
 
     const offset = (Number(page) - 1) * Number(limit)
 
     let whereClause = 'WHERE f.tenant_id = $1'
-    const params: any[] = [tenantId]
+    const params: (string | number | boolean | null | undefined)[] = [tenantId]
     let paramIndex = 2
 
     if (type) {
       whereClause += ` AND f.type = $${paramIndex}`
-      params.push(type)
+      params.push(type as string)
       paramIndex++
     }
 
@@ -122,16 +137,16 @@ router.get(
   validateParams(facilityIdSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
 
     const query = `
       SELECT
         f.*, 
         COUNT(v.id) as current_vehicles,
         COUNT(v.id) FILTER (WHERE v.status = 'active') as active_vehicles,
-        COUNT(v.id) FILTER (WHERE v.status = 'maintenance') as in_maintenance,
-        COUNT(v.id) FILTER (WHERE v.status = 'available') as available,
-        COUNT(v.id) FILTER (WHERE v.status = 'out_of_service') as out_of_service
+        COUNT(v.id) FILTER (WHERE v.status IN ('maintenance', 'service')) as in_maintenance,
+        COUNT(v.id) FILTER (WHERE v.status = 'idle') as available,
+        COUNT(v.id) FILTER (WHERE v.status IN ('offline', 'retired')) as out_of_service
       FROM facilities f
       LEFT JOIN vehicles v
         ON v.assigned_facility_id = f.id
@@ -179,7 +194,7 @@ router.post(
   }),
   validateBody(facilityCreateSchema),
   asyncHandler(async (req, res) => {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
     const data = req.body
 
     const query = `
@@ -232,18 +247,18 @@ router.put(
   validateParams(facilityIdSchema),
   validateBody(facilityUpdateSchema),
   asyncHandler(async (req, res) => {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
     const { id } = req.params
     const updates = req.body
 
     const setClauses: string[] = []
-    const params: any[] = []
+    const params: (string | number | boolean | null | undefined)[] = []
     let paramIndex = 1
 
     Object.entries(updates).forEach(([key, value]) => {
       if (value !== undefined) {
         setClauses.push(`${key} = $${paramIndex}`)
-        params.push(key === 'operating_hours' ? JSON.stringify(value) : value)
+        params.push(key === 'operating_hours' ? JSON.stringify(value) : value as string | number | boolean | null)
         paramIndex++
       }
     })
@@ -284,7 +299,7 @@ router.delete(
   }),
   validateParams(facilityIdSchema),
   asyncHandler(async (req, res) => {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
     const { id } = req.params
 
     const result = await tenantSafeQuery(
@@ -297,7 +312,7 @@ router.delete(
       return res.status(404).json({ error: 'Facility not found' })
     }
 
-    res.json({ message: 'Facility deleted successfully' })
+    res.json({ success: true, message: 'Facility deleted successfully' })
   })
 )
 
@@ -313,7 +328,7 @@ router.get(
   validateParams(facilityIdSchema),
   asyncHandler(async (req, res) => {
     const facilityId = req.params.id
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
 
     const result = await tenantSafeQuery(
       `SELECT
@@ -328,19 +343,19 @@ router.get(
         fuel_level,
         metadata
       FROM vehicles
-      WHERE tenant_id = $1 AND assigned_facility_id = $2
+      WHERE tenant_id = $1 AND assigned_facility_id = $2 AND status != 'retired'
       ORDER BY name ASC`,
       [tenantId, facilityId],
       tenantId
     )
 
-    const vehicles = result.rows.map((row: any) => {
-      const metadata = row.metadata && typeof row.metadata === 'object'
+    const vehicles = result.rows.map((row: VehicleRow) => {
+      const metadata: Record<string, unknown> = row.metadata && typeof row.metadata === 'object'
         ? row.metadata
-        : row.metadata
+        : typeof row.metadata === 'string'
           ? (() => {
               try {
-                return JSON.parse(row.metadata)
+                return JSON.parse(row.metadata) as Record<string, unknown>
               } catch {
                 return {}
               }

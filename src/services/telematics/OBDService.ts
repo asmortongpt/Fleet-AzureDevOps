@@ -26,8 +26,8 @@ export class OBDService {
   constructor() {
     this.config = {
       protocol: 'wifi',
-      deviceAddress: process.env.OBD_DEVICE_ADDRESS || '192.168.0.10',
-      port: parseInt(process.env.OBD_PORT || '35000'),
+      deviceAddress: import.meta.env.VITE_OBD_DEVICE_ADDRESS || '192.168.0.10',
+      port: parseInt(import.meta.env.VITE_OBD_PORT || '35000'),
     };
   }
 

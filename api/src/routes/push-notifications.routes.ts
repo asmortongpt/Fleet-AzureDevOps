@@ -3,7 +3,7 @@
  * API endpoints for mobile push notification management
  */
 
-import express from 'express';
+import express, { Request } from 'express';
 
 import logger from '../config/logger';
 import { authenticateJWT } from '../middleware/auth';
@@ -13,8 +13,8 @@ import { pushNotificationService } from '../services/push-notification.service';
 
 const router = express.Router();
 
-function getTenantId(req: any): string | undefined {
-  return req?.user?.tenant_id || req?.user?.tenantId;
+function getTenantId(req: Request): string {
+  return req.user?.tenant_id || req.user?.tenantId || '';
 }
 
 /**
@@ -43,14 +43,14 @@ router.post(
         });
       }
 
-	      const device = await pushNotificationService.registerDevice({
-	        userId: (req as any).user.id,
-	        tenantId: getTenantId(req),
-	        deviceToken,
-	        platform,
-	        deviceName,
-	        deviceModel,
-	        osVersion,
+      const device = await pushNotificationService.registerDevice({
+        userId: req.user?.id ?? '',
+        tenantId: getTenantId(req),
+        deviceToken,
+        platform,
+        deviceName,
+        deviceModel,
+        osVersion,
         appVersion,
       });
 
@@ -134,20 +134,20 @@ router.post(
         });
       }
 
-	      const notification = {
-	        tenantId: getTenantId(req),
-	        notificationType: notificationType || 'general',
-	        category: category || 'administrative',
-	        priority: priority || 'normal',
-	        title,
-	        message,
-	        dataPayload,
-	        actionButtons,
-	        imageUrl,
-	        sound,
-	        badgeCount,
-	        createdBy: (req as any).user.id,
-	      };
+      const notification = {
+        tenantId: getTenantId(req),
+        notificationType: notificationType || 'general',
+        category: category || 'administrative',
+        priority: priority || 'normal',
+        title,
+        message,
+        dataPayload,
+        actionButtons,
+        imageUrl,
+        sound,
+        badgeCount,
+        createdBy: req.user?.id ?? '',
+      };
 
       const notificationId = await pushNotificationService.sendNotification(
         notification,
@@ -209,20 +209,20 @@ router.post(
         });
       }
 
-	      const notification = {
-	        tenantId: getTenantId(req),
-	        notificationType: notificationType || 'general',
-	        category: category || 'administrative',
-	        priority: priority || 'normal',
-	        title,
-	        message,
-	        dataPayload,
-	        actionButtons,
-	        imageUrl,
-	        sound,
-	        badgeCount,
-	        createdBy: (req as any).user.id,
-	      };
+      const notification = {
+        tenantId: getTenantId(req),
+        notificationType: notificationType || 'general',
+        category: category || 'administrative',
+        priority: priority || 'normal',
+        title,
+        message,
+        dataPayload,
+        actionButtons,
+        imageUrl,
+        sound,
+        badgeCount,
+        createdBy: req.user?.id ?? '',
+      };
 
       const notificationId = await pushNotificationService.sendBulkNotification(
         notification,
@@ -292,20 +292,20 @@ router.post(
         });
       }
 
-	      const notification = {
-	        tenantId: getTenantId(req),
-	        notificationType: notificationType || 'general',
-	        category: category || 'administrative',
-	        priority: priority || 'normal',
-	        title,
-	        message,
-	        dataPayload,
-	        actionButtons,
-	        imageUrl,
-	        sound,
-	        badgeCount,
-	        createdBy: (req as any).user.id,
-	      };
+      const notification = {
+        tenantId: getTenantId(req),
+        notificationType: notificationType || 'general',
+        category: category || 'administrative',
+        priority: priority || 'normal',
+        title,
+        message,
+        dataPayload,
+        actionButtons,
+        imageUrl,
+        sound,
+        badgeCount,
+        createdBy: req.user?.id ?? '',
+      };
 
       const notificationId = await pushNotificationService.scheduleNotification(
         notification,
@@ -358,13 +358,13 @@ router.post(
       }
 
       // Create notification from template
-	      const notification = await pushNotificationService.createFromTemplate(
-	        templateName,
-	        getTenantId(req),
-	        variables || {}
-	      );
+      const notification = await pushNotificationService.createFromTemplate(
+        templateName,
+        getTenantId(req),
+        variables || {}
+      );
 
-      notification.createdBy = (req as any).user.id;
+      notification.createdBy = req.user?.id ?? '';
 
       // Send notification
       const notificationId = await pushNotificationService.sendNotification(
@@ -401,7 +401,7 @@ router.get(
     try {
       const { category, status, startDate, endDate, limit = 50, offset = 0 } = req.query;
 
-      const filters: any = {
+      const filters: Record<string, unknown> = {
         limit: parseInt(limit as string),
         offset: parseInt(offset as string),
       };
@@ -419,10 +419,10 @@ filters.startDate = new Date(startDate as string);
 filters.endDate = new Date(endDate as string);
 }
 
-	      const history = await pushNotificationService.getNotificationHistory(
-	        getTenantId(req),
-	        filters
-	      );
+      const history = await pushNotificationService.getNotificationHistory(
+        getTenantId(req),
+        filters
+      );
 
       res.json({
         success: true,
@@ -463,7 +463,7 @@ router.get(
         };
       }
 
-	      const stats = await pushNotificationService.getDeliveryStats(getTenantId(req), dateRange);
+      const stats = await pushNotificationService.getDeliveryStats(getTenantId(req), dateRange);
 
       res.json({
         success: true,
@@ -491,10 +491,10 @@ router.get(
     try {
       const { category } = req.query;
 
-	      const templates = await pushNotificationService.getTemplates(
-	        getTenantId(req),
-	        category as string
-	      );
+      const templates = await pushNotificationService.getTemplates(
+        getTenantId(req),
+        category as string
+      );
 
       res.json({
         success: true,
@@ -567,24 +567,24 @@ router.put('/:id/clicked', csrfProtection, authenticateJWT, async (req, res) => 
  * Send a test notification (for development)
  */
 router.post('/test', csrfProtection, authenticateJWT, async (req, res) => {
-	  try {
-	    const notification = {
-	      tenantId: getTenantId(req),
-	      notificationType: 'test',
-	      category: 'administrative' as const,
-	      priority: 'normal' as const,
-	      title: 'Test Notification',
+  try {
+    const notification = {
+      tenantId: getTenantId(req),
+      notificationType: 'test',
+      category: 'administrative' as const,
+      priority: 'normal' as const,
+      title: 'Test Notification',
       message: 'This is a test push notification from Fleet Management System',
       dataPayload: { test: true },
       actionButtons: [
         { id: 'acknowledge', title: 'Got It' },
         { id: 'dismiss', title: 'Dismiss' },
       ],
-      createdBy: (req as any).user.id,
+      createdBy: req.user?.id ?? '',
     };
 
     const notificationId = await pushNotificationService.sendNotification(notification, [
-      { userId: (req as any).user.id },
+      { userId: req.user?.id ?? '' },
     ]);
 
     res.json({

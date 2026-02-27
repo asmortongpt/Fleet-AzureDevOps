@@ -22,6 +22,7 @@
 import { createHash, randomBytes } from 'crypto';
 
 import { hash, verify } from 'argon2';
+import logger from '../../config/logger';
 import type { Redis } from 'ioredis';
 import * as jwt from 'jsonwebtoken';
 import type { Pool } from 'pg';
@@ -505,12 +506,12 @@ export class AuthenticationService {
     try {
       // DEVELOPMENT BYPASS: Accept mock tokens in dev mode
       // This is CRITICAL for local development without Azure AD
-      if (process.env.NODE_ENV === 'development' || true) { // Force true for local dev
+      if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'staging') { // Mock token support for local development only
         try {
           const decoded = Buffer.from(token, 'base64').toString('utf-8');
           // Simple heuristic: starts with { and contains "payload"
           if (decoded.trim().startsWith('{') && decoded.includes('"payload"')) {
-            console.log('[AuthService] Mock token detected, bypassing JWT verification');
+            logger.info('[AuthService] Mock token detected, bypassing JWT verification');
             const obj = JSON.parse(decoded);
             if (obj.payload && obj.payload.email) {
               return {
@@ -602,7 +603,7 @@ export class AuthenticationService {
         algorithms: ['RS256'],
         issuer: this.config.jwtIssuer,
         audience: this.config.jwtAudience,
-      }) as any;
+      }) as jwt.JwtPayload & { userId: number; sessionId: number; sessionUuid: string; tokenFamily: string };
 
       // Get session
       const sessionResult = await this.db.query(

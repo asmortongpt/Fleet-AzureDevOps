@@ -22,6 +22,7 @@ import {
 import { useDrilldown } from "@/contexts/DrilldownContext";
 import { useFleetData } from "@/hooks/use-fleet-data";
 import { Vehicle } from "@/lib/types";
+import { formatEnum } from "@/utils/format-enum"
 
 interface VehicleRosterProps {
     open: boolean;
@@ -64,8 +65,8 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
         switch (status) {
             case "active": return "text-green-500 border-green-200 bg-green-50";
             case "maintenance": return "text-amber-500 border-amber-200 bg-amber-50";
-            case "inactive": return "text-gray-700 border-gray-200 bg-gray-50";
-            default: return "text-blue-800 border-blue-200 bg-blue-50";
+            case "inactive": return "text-white/40 border-white/[0.08] bg-white/[0.03]";
+            default: return "text-emerald-800 border-emerald-500/20 bg-emerald-500/5";
         }
     };
 
@@ -101,7 +102,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                                     className="pl-9"
                                 />
                             </div>
-                            <Button variant="outline" size="icon">
+                            <Button variant="outline" size="icon" aria-label="Filter vehicles">
                                 <Filter className="w-4 h-4" />
                             </Button>
                         </div>
@@ -154,7 +155,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                                         </div>
                                     </div>
                                     <Badge variant="outline" className={getStatusColor(vehicle.status)}>
-                                        {vehicle.status}
+                                        {formatEnum(vehicle.status)}
                                     </Badge>
                                 </div>
 
@@ -165,7 +166,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                         <Fuel className="w-4 h-4" />
-                                        <span>{vehicle.fuelType || 'Unknown'}</span>
+                                        <span>{vehicle.fuelType || '—'}</span>
                                     </div>
                                 </div>
                             </div>

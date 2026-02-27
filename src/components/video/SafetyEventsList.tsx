@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface SafetyEvent {
   id: number;
@@ -50,7 +51,7 @@ interface SafetyEventsListProps {
 }
 
 const severityColors = {
-  minor: 'bg-blue-100 text-blue-800',
+  minor: 'bg-emerald-500/10 text-emerald-800',
   moderate: 'bg-yellow-100 text-yellow-800',
   severe: 'bg-orange-100 text-orange-800',
   critical: 'bg-red-100 text-red-800'
@@ -261,8 +262,8 @@ export default function SafetyEventsList({
                         onClick={() => onPlayVideo?.(event)}
                       />
                     ) : (
-                      <div className="w-40 h-24 bg-gray-200 rounded border flex items-center justify-center">
-                        <Play className="h-8 w-8 text-gray-700" />
+                      <div className="w-40 h-24 bg-white/[0.06] rounded border flex items-center justify-center">
+                        <Play className="h-8 w-8 text-white/40" />
                       </div>
                     )}
                   </div>
@@ -306,7 +307,7 @@ export default function SafetyEventsList({
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm mb-3">
                       <div>
                         <span className="text-muted-foreground">Time:</span>{' '}
-                        {new Date(event.event_timestamp).toLocaleString()}
+                        {formatDateTime(event.event_timestamp)}
                       </div>
                       <div>
                         <span className="text-muted-foreground">Location:</span> {event.address}
@@ -315,7 +316,7 @@ export default function SafetyEventsList({
                         <span className="text-muted-foreground">Speed:</span> {event.speed_mph} mph
                       </div>
                       <div>
-                        <span className="text-muted-foreground">G-Force:</span> {event.g_force?.toFixed(2) || 'N/A'}
+                        <span className="text-muted-foreground">G-Force:</span> {event.g_force?.toFixed(2) || '—'}
                       </div>
                     </div>
 

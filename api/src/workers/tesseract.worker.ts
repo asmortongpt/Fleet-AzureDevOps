@@ -14,6 +14,8 @@ import { parentPort, workerData } from 'worker_threads';
 
 import { createWorker, PSM, OEM } from 'tesseract.js';
 
+import logger from '../config/logger';
+
 interface TesseractWorkerData {
   imageBuffer: Buffer;
   languages: string[];
@@ -52,7 +54,7 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
       logger: (m) => {
         // Minimal logging in worker
         if (m.status === `recognizing text`) {
-          console.log(`[Worker] OCR Progress: ${Math.round(m.progress * 100)}%`);
+          logger.info(`[Worker] OCR Progress: ${Math.round(m.progress * 100)}%`);
         }
       }
     });
@@ -70,7 +72,7 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
     await worker.terminate();
 
     const processingTime = Date.now() - startTime;
-    console.log(`[Worker] OCR completed in ${processingTime}ms`);
+    logger.info(`[Worker] OCR completed in ${processingTime}ms`);
 
     return {
       success: true,
@@ -92,7 +94,7 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
         imageHeight: ocrData.imageHeight || 0
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Ensure worker is terminated on error
     if (worker) {
       try {
@@ -102,10 +104,11 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
       }
     }
 
-    console.error(`[Worker] OCR error:`, error);
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('[Worker] OCR error', { error: errMsg });
     return {
       success: false,
-      error: error.message || 'Unknown OCR error'
+      error: errMsg
     };
   }
 }
@@ -115,6 +118,7 @@ if (parentPort) {
   processOCR(workerData)
     .then(result => {
       parentPort!.postMessage(result);
+      return undefined;
     })
     .catch(error => {
       parentPort!.postMessage({

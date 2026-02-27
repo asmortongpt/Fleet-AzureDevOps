@@ -46,6 +46,20 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
 
     useEffect(() => {
         const fetchTenantSettings = async () => {
+            if (import.meta.env.VITE_SKIP_AUTH === 'true') {
+                setSettings({
+                    branding: {
+                        primaryColor: 'hsl(var(--primary))',
+                        logoUrl: '/logos/logo-horizontal.svg',
+                        companyName: 'Capital Transit Authority',
+                    },
+                    features: {},
+                    region: 'US-East',
+                    dateFormat: 'MM/DD/YYYY',
+                });
+                return;
+            }
+
             if (!user?.tenantId) return;
 
             setIsLoading(true);
@@ -64,7 +78,7 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
 
                 setSettings({
                     branding: {
-                        primaryColor: settingsData.branding?.primaryColor || '#0f172a',
+                        primaryColor: settingsData.branding?.primaryColor || 'hsl(var(--primary))',
                         logoUrl: settingsData.branding?.logoUrl || '/logos/logo-horizontal.svg',
                         companyName: settingsData.branding?.companyName || tenantPayload?.name || user.tenantName || 'Organization',
                     },
@@ -80,19 +94,22 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
             }
         };
 
-        if (isAuthenticated && user?.tenantId) {
+        if (import.meta.env.VITE_SKIP_AUTH === 'true') {
+            fetchTenantSettings();
+        } else if (isAuthenticated && user?.tenantId) {
             fetchTenantSettings();
         } else {
             setSettings(null);
         }
     }, [isAuthenticated, user?.tenantId]);
 
+    const skipAuth = import.meta.env.VITE_SKIP_AUTH === 'true';
     const value = {
-        tenantId: user?.tenantId || null,
-        tenantName: user?.tenantName,
+        tenantId: skipAuth ? '8e33a492-9b42-4e7a-8654-0572c9773b71' : (user?.tenantId || null),
+        tenantName: skipAuth ? 'Capital Transit Authority' : user?.tenantName,
         settings,
         isLoading,
-        isTenantActive: !!user?.tenantId,
+        isTenantActive: skipAuth ? true : !!user?.tenantId,
     };
 
     return (

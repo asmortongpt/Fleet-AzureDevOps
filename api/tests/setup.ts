@@ -22,8 +22,7 @@ export const getTestApp = async (): Promise<Application> => {
     const cors = (await import('cors')).default
 
     // Import routes
-    // Temporarily disabled to debug routes test
-    // const vehiclesRouter = (await import('../src/routes/vehicles')).default
+    const vehiclesRouter = (await import('../src/routes/vehicles')).default
     const driversRouter = (await import('../src/routes/drivers')).default
     const fuelRouter = (await import('../src/routes/fuel-transactions')).default
     const maintenanceRouter = (await import('../src/routes/maintenance')).default
@@ -198,6 +197,11 @@ export const generateGPSPosition = (vehicleId: string) => ({
   timestamp: new Date().toISOString(),
   accuracy: 5 + Math.random() * 10
 })
+
+// Legacy hooks used by some security tests – no-op for lightweight runs
+export const seedTestDatabase = async () => {};
+export const cleanupDatabase = async () => {};
+export const closeTestDatabase = async () => {};
 
 export const generateGPSPositions = () => {
   return Array.from({ length: 10 }, (_, i) => generateGPSPosition(`V-${i.toString().padStart(3, '0')}`))

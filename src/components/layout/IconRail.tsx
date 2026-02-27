@@ -1,9 +1,8 @@
 /**
- * IconRail - Left 56px icon navigation rail for the ArchonY SPA
+ * IconRail — Minimal left navigation
  *
- * 6 category icons vertically stacked. Hover/click opens FlyoutMenu.
- * Active category shows BLUE SKIES left-edge indicator.
- * CTA square logo at bottom with dawn gradient bar.
+ * Tesla/Rivian minimal: monochrome icons, labels at ghost opacity.
+ * Active = white icon with subtle bg. Everything else = near-invisible.
  */
 import {
   Truck,
@@ -14,8 +13,9 @@ import {
   Settings,
 } from 'lucide-react'
 import { useCallback, type ReactNode } from 'react'
-import { usePanel } from '@/contexts/PanelContext'
+
 import type { ModuleCategory } from '@/config/module-registry'
+import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
 interface CategoryDef {
@@ -29,34 +29,43 @@ const categories: CategoryDef[] = [
   { id: 'operations', label: 'Ops', icon: <Route className="w-5 h-5" /> },
   { id: 'maintenance', label: 'Maint', icon: <Wrench className="w-5 h-5" /> },
   { id: 'safety', label: 'Safety', icon: <ShieldCheck className="w-5 h-5" /> },
-  { id: 'analytics', label: 'Stats', icon: <BarChart3 className="w-5 h-5" /> },
+  { id: 'analytics', label: 'Reports', icon: <BarChart3 className="w-5 h-5" /> },
   { id: 'admin', label: 'Admin', icon: <Settings className="w-5 h-5" /> },
 ]
+
+const hubDescriptions: Record<string, string> = {
+  fleet: 'Fleet Dashboard',
+  operations: 'Fleet Operations',
+  maintenance: 'Maintenance & Work Orders',
+  safety: 'Compliance & Safety',
+  analytics: 'Business & Reports',
+  admin: 'Admin & Configuration',
+}
 
 export function IconRail() {
   const { state, setFlyout } = usePanel()
   const { activeCategory, flyoutCategory } = state
 
   const handleMouseEnter = useCallback(
-    (cat: ModuleCategory) => {
-      setFlyout(cat)
-    },
+    (cat: ModuleCategory) => { setFlyout(cat) },
     [setFlyout]
   )
 
   const handleClick = useCallback(
-    (cat: ModuleCategory) => {
-      setFlyout(flyoutCategory === cat ? null : cat)
-    },
+    (cat: ModuleCategory) => { setFlyout(flyoutCategory === cat ? null : cat) },
     [flyoutCategory, setFlyout]
   )
 
   return (
-    <aside
-      className="relative flex flex-col items-center w-12 lg:w-14 h-full shrink-0 bg-[#0F1535] border-r border-white/[0.06] z-30"
+    <nav
+      className="relative flex flex-col items-center w-16 h-full shrink-0 bg-[#0a0a0a] border-r border-white/[0.04] z-30"
+      role="navigation"
+      aria-label="Main Navigation"
     >
-      {/* Dawn gradient accent bar at top */}
-      <div className="w-full h-[3px] bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903] shrink-0" />
+      {/* Logo area */}
+      <div className="h-14 flex items-center justify-center border-b border-white/[0.04] w-full">
+        <span className="text-[11px] font-bold text-white/40 tracking-[0.15em]">CTA</span>
+      </div>
 
       {/* Category icons */}
       <div className="flex flex-col items-center gap-1 pt-4 flex-1">
@@ -65,46 +74,32 @@ export function IconRail() {
           const isHovered = flyoutCategory === cat.id
 
           return (
-            <div key={cat.id} className="relative">
-              {/* Active indicator - BLUE SKIES left bar */}
-              {isActive && (
-                <div className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#41B2E3] shadow-[0_0_8px_rgba(0,212,255,0.5)]" />
+            <button
+              key={cat.id}
+              onMouseEnter={() => handleMouseEnter(cat.id)}
+              onClick={() => handleClick(cat.id)}
+              aria-label={cat.label}
+              title={hubDescriptions[cat.id] || cat.label}
+              className={cn(
+                'flex flex-col items-center justify-center w-11 h-11 rounded-xl transition-all duration-150',
+                isActive
+                  ? 'text-white bg-white/[0.08]'
+                  : isHovered
+                    ? 'text-white/50 bg-white/[0.04]'
+                    : 'text-white/20 hover:text-white/40'
               )}
-
-              <button
-                onMouseEnter={() => handleMouseEnter(cat.id)}
-                onClick={() => handleClick(cat.id)}
-                aria-label={cat.label}
-                title={cat.label}
-                className={cn(
-                  'flex flex-col items-center justify-center w-10 h-11 lg:w-11 lg:h-12 rounded-lg transition-all duration-200',
-                  isActive
-                    ? 'text-[#41B2E3] bg-[#41B2E3]/[0.08]'
-                    : isHovered
-                      ? 'text-white bg-white/[0.06]'
-                      : 'text-white/50 hover:text-white/70'
-                )}
-              >
-                {cat.icon}
-                <span className={cn(
-                  'text-[7px] lg:text-[8px] mt-0.5 font-medium tracking-wide',
-                  isActive ? 'text-[#41B2E3]/70' : 'text-inherit'
-                )}>
-                  {cat.label}
-                </span>
-              </button>
-            </div>
+            >
+              {cat.icon}
+              <span className={cn(
+                'text-[8px] mt-0.5 font-medium',
+                isActive ? 'text-white/50' : 'text-inherit'
+              )}>
+                {cat.label}
+              </span>
+            </button>
           )
         })}
       </div>
-
-      {/* Bottom: CTA square logo mark - Option 2 from ADELE branding doc (page 6) */}
-      <div className="pb-3 flex flex-col items-center">
-        <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-lg bg-[#2B3A67] flex flex-col items-center justify-center border border-white/[0.08] shadow-lg">
-          <span className="text-[9px] font-extrabold text-white tracking-wide leading-none">CTA</span>
-          <div className="w-5 h-[2px] mt-1 rounded-full bg-gradient-to-r from-[#FDB813] to-[#FF5722]" />
-        </div>
-      </div>
-    </aside>
+    </nav>
   )
 }

@@ -10,6 +10,7 @@
  */
 
 import { Router } from 'express'
+import { z } from 'zod'
 
 import { pool } from '../config/database';
 import logger from '../config/logger';
@@ -19,6 +20,26 @@ import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { NotFoundError, ValidationError } from '../utils/errors'
+
+// ── Zod Schemas ──────────────────────────────────────────────────────────────
+
+const relationshipTypeEnum = z.enum(['TOWS', 'ATTACHED', 'CARRIES', 'POWERS', 'CONTAINS'])
+
+const createAssetRelationshipSchema = z.object({
+  parent_asset_id: z.union([z.string(), z.number()]),
+  child_asset_id: z.union([z.string(), z.number()]),
+  relationship_type: relationshipTypeEnum,
+  effective_from: z.string().optional(),
+  effective_to: z.string().nullish(),
+  notes: z.string().nullish(),
+})
+
+const updateAssetRelationshipSchema = z.object({
+  relationship_type: relationshipTypeEnum.optional(),
+  effective_from: z.string().optional(),
+  effective_to: z.string().nullish(),
+  notes: z.string().nullish(),
+})
 
 const router = Router()
 
@@ -172,22 +193,48 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'asset_relationships' }),
   async (req: AuthRequest, res) => {
     try {
-      const result = await pool.query(
-        `SELECT vw.*
-         FROM vw_active_asset_combos vw
-         JOIN vehicles v ON vw.parent_id = v.id
-         WHERE v.tenant_id = $1
-         ORDER BY vw.parent_make, vw.parent_model`,
-        [req.user!.tenant_id]
-      )
+      const { parent_asset_id } = req.query
+
+      let query = `
+        SELECT
+          ar.id,
+          ar.relationship_type,
+          ar.parent_asset_id,
+          ar.child_asset_id,
+          vc.make as child_make,
+          vc.model as child_model,
+          vc.vin as child_vin,
+          vc.asset_type as child_type,
+          vc.make || ' ' || vc.model as child_asset_name,
+          ar.effective_from,
+          ar.effective_to,
+          ar.notes
+        FROM asset_relationships ar
+        JOIN vehicles vp ON ar.parent_asset_id = vp.id
+        LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
+        WHERE vp.tenant_id = $1
+          AND (ar.effective_to IS NULL OR ar.effective_to > NOW())
+      `
+
+      const params: unknown[] = [req.user!.tenant_id]
+      let paramIndex = 2
+
+      if (parent_asset_id) {
+        query += ` AND ar.parent_asset_id = $${paramIndex++}`
+        params.push(parent_asset_id)
+      }
+
+      query += ` ORDER BY ar.effective_from DESC`
+
+      const result = await pool.query(query, params)
 
       res.json({
-        combinations: result.rows,
+        relationships: result.rows,
         total: result.rows.length
       })
     } catch (error) {
-      logger.error('Error fetching active combinations:', error)
-      res.status(500).json({ error: 'Failed to fetch active combinations' })
+      logger.error('Error fetching active relationships:', error)
+      res.status(500).json({ error: 'Failed to fetch active relationships' })
     }
   }
 )
@@ -250,6 +297,12 @@ router.post(
     try {
       await client.query('BEGIN')
 
+      const parsed = createAssetRelationshipSchema.safeParse(req.body)
+      if (!parsed.success) {
+        await client.query('ROLLBACK')
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+
       const {
         parent_asset_id,
         child_asset_id,
@@ -257,7 +310,7 @@ router.post(
         effective_from = new Date().toISOString(),
         effective_to,
         notes
-      } = req.body
+      } = parsed.data
 
       // Validation: Verify both assets exist and belong to tenant
       const vehicleCheck = await client.query(
@@ -310,11 +363,11 @@ router.post(
         relationship: result.rows[0],
         message: 'Asset relationship created successfully'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       await client.query('ROLLBACK')
       logger.error('Error creating asset relationship:', error)
 
-      if (error.constraint === 'asset_relationships_different_assets') {
+      if ((error as Record<string, unknown>).constraint === 'asset_relationships_different_assets') {
         throw new ValidationError("Parent and child assets must be different")
       }
 
@@ -342,7 +395,13 @@ router.put(
     try {
       await client.query('BEGIN')
 
-      const { relationship_type, effective_from, effective_to, notes } = req.body
+      const parsed = updateAssetRelationshipSchema.safeParse(req.body)
+      if (!parsed.success) {
+        await client.query('ROLLBACK')
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+
+      const { relationship_type, effective_from, effective_to, notes } = parsed.data
 
       // Verify relationship exists and belongs to tenant
       const existsCheck = await client.query(
@@ -447,7 +506,7 @@ router.delete(
         return res.status(404).json({ error: 'Relationship not found' })
       }
 
-      res.json({ message: 'Relationship deleted successfully' })
+      res.json({ success: true, message: 'Relationship deleted successfully' })
     } catch (error) {
       logger.error('Error deleting relationship:', error)
       res.status(500).json({ error: 'Failed to delete relationship' })

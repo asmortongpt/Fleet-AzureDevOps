@@ -61,6 +61,8 @@
     "**/__tests__/**",
     "**/tests/**",
     "**/*.bak",
+    "**/*.bak/**",
+    "**/*.refactored.tsx",
     "**/*.async_backup",
     "**/*.event_backup",
     "**/*.nullcheck_backup",

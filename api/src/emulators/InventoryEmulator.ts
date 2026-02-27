@@ -15,6 +15,7 @@ import { EventEmitter } from 'events'
 import { faker } from '@faker-js/faker'
 
 import type { EmulatorConfig, EmulatorEvent } from './types'
+import logger from '../config/logger'
 
 // ============================================================================
 // INTERFACES
@@ -336,7 +337,7 @@ export class InventoryEmulator extends EventEmitter {
     // Generate initial inventory
     this.generateInitialInventory(500)
 
-    console.log(`InventoryEmulator initialized with ${this.items.size} items`)
+    logger.info(`InventoryEmulator initialized with ${this.items.size} items`)
   }
 
   // ==========================================================================
@@ -566,7 +567,7 @@ export class InventoryEmulator extends EventEmitter {
     }, updateIntervalMs)
 
     this.emit('started', { timestamp: new Date() })
-    console.log('InventoryEmulator started')
+    logger.info('InventoryEmulator started')
   }
 
   public async stop(): Promise<void> {
@@ -583,7 +584,7 @@ export class InventoryEmulator extends EventEmitter {
     this.isPaused = false
 
     this.emit('stopped', { timestamp: new Date() })
-    console.log('InventoryEmulator stopped')
+    logger.info('InventoryEmulator stopped')
   }
 
   public async pause(): Promise<void> {

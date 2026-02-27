@@ -22,9 +22,11 @@ import { auditLog } from '../middleware/audit';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';
-import ocrService from '../services/OcrService';
+import ocrService, { OcrProvider } from '../services/OcrService';
 import { getErrorMessage } from '../utils/error-handler'
 
+
+import { flexUuid } from '../middleware/validation'
 
 const router = express.Router();
 
@@ -50,8 +52,8 @@ const upload = multer({
 
 // Validation schemas
 const FuelReceiptOCRSchema = z.object({
-  vehicleId: z.string().uuid(),
-  driverId: z.string().uuid().optional(),
+  vehicleId: flexUuid,
+  driverId: flexUuid.optional(),
   ocrData: z
     .object({
       date: z.string(),
@@ -69,9 +71,9 @@ const FuelReceiptOCRSchema = z.object({
 });
 
 const OdometerOCRSchema = z.object({
-  vehicleId: z.string().uuid(),
-  tripId: z.string().uuid().optional(),
-  reservationId: z.string().uuid().optional(),
+  vehicleId: flexUuid,
+  tripId: flexUuid.optional(),
+  reservationId: flexUuid.optional(),
   ocrData: z
     .object({
       reading: z.number().positive(),
@@ -103,7 +105,9 @@ router.post(
         return res.status(400).json({ error: `No file uploaded` });
       }
 
-      const { tenantId, userId } = req.user!;
+      const { tenantId: _tenantId, userId: _userId } = req.user!;
+      const tenantId = _tenantId ?? '';
+      const userId = _userId ?? '';
 
       // Parse and validate request body
       const body = {
@@ -125,7 +129,7 @@ router.post(
           req.file.path,
           documentId,
           {
-            provider: 'auto' as any,
+            provider: OcrProvider.AUTO,
             detectTables: false,
             detectForms: true,
             preprocessImage: true,
@@ -201,7 +205,7 @@ router.post(
         confidenceScores: ocrResult.confidenceScores,
         documentId,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Fuel receipt OCR error:', error) // Wave 33: Winston logger (FINAL WAVE!);
 
       // Clean up uploaded file on error
@@ -240,7 +244,9 @@ router.post(
         return res.status(400).json({ error: `No file uploaded` });
       }
 
-      const { tenantId, userId } = req.user!;
+      const { tenantId: _tenantId, userId: _userId } = req.user!;
+      const tenantId = _tenantId ?? '';
+      const userId = _userId ?? '';
 
       // Parse and validate request body
       const body = {
@@ -263,7 +269,7 @@ router.post(
           req.file.path,
           documentId,
           {
-            provider: 'auto' as any,
+            provider: OcrProvider.AUTO,
             detectTables: false,
             detectForms: false,
             preprocessImage: true,
@@ -298,7 +304,7 @@ router.post(
 
         // Alert if large increase
         if (ocrResult.reading - lastReading > 1000) {
-          console.warn(
+          logger.warn(
             `Large odometer increase for vehicle ${validatedData.vehicleId}: ${ocrResult.reading - lastReading} ${ocrResult.unit}`
           );
         }
@@ -375,7 +381,7 @@ router.post(
         confidence: ocrResult.confidence,
         documentId,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Odometer OCR error:', error) // Wave 33: Winston logger (FINAL WAVE!);
 
       // Clean up uploaded file on error
@@ -411,13 +417,14 @@ router.post(
     try {
       const validatedData = ValidationSchema.parse(req.body);
 
-      let validationResult: any = { valid: false, errors: [] };
+      let validationResult: { valid: boolean; errors: { field: string; message: string }[]; data?: Record<string, unknown>; warnings?: string[] } = { valid: false, errors: [] };
 
       if (validatedData.type === `fuel-receipt`) {
         try {
           FuelReceiptOCRSchema.shape.ocrData.parse(validatedData.data);
           validationResult = {
             valid: true,
+            errors: [],
             data: validatedData.data,
             warnings: [],
           };
@@ -428,14 +435,14 @@ router.post(
               ([field, score]) => {
                 const scoreNum = typeof score === 'number' ? score : 0;
                 if (scoreNum < 0.8) {
-                  validationResult.warnings.push(
+                  validationResult.warnings!.push(
                     `Low confidence (${(scoreNum * 100).toFixed(0)}%) for field: ${field}`
                   );
                 }
               }
             );
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             validationResult.errors = error.issues.map(e => ({
               field: e.path.join(`.`),
@@ -448,17 +455,18 @@ router.post(
           OdometerOCRSchema.shape.ocrData.parse(validatedData.data);
           validationResult = {
             valid: true,
+            errors: [],
             data: validatedData.data,
             warnings: [],
           };
 
           // Add warning for low confidence
           if (validatedData.data.confidence < 0.85) {
-            validationResult.warnings.push(
+            validationResult.warnings!.push(
               `Low confidence (${(validatedData.data.confidence * 100).toFixed(0)}%) for odometer reading`
             );
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             validationResult.errors = error.issues.map(e => ({
               field: e.path.join(`.`),
@@ -469,7 +477,7 @@ router.post(
       }
 
       return res.status(200).json(validationResult);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Validation error:', error) // Wave 33: Winston logger (FINAL WAVE!);
 
       if (error instanceof z.ZodError) {
@@ -498,14 +506,16 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'ocr_history' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { tenantId, userId } = req.user!;
+      const { tenantId: _tenantId, userId: _userId } = req.user!;
+      const tenantId = _tenantId ?? '';
+      const userId = _userId ?? '';
       const { type, limit = 50, offset = 0 } = req.query;
 
       let query = `
         SELECT * FROM mobile_ocr_captures
         WHERE tenant_id = $1 AND user_id = $2
       `;
-      const params: any[] = [tenantId, userId];
+      const params: unknown[] = [tenantId, userId];
 
       if (type) {
         query += ` AND capture_type = $3`;
@@ -525,7 +535,7 @@ router.get(
           total: result.rows.length,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching OCR history:`, error) // Wave 33: Winston logger (FINAL WAVE!);
       return res.status(500).json({
         error: 'Failed to fetch OCR history',
@@ -538,7 +548,7 @@ router.get(
 /**
  * Helper function to parse fuel receipt from OCR text
  */
-function parseFuelReceiptFromOCR(text: string): any {
+function parseFuelReceiptFromOCR(text: string): { date: string; station: string; gallons: number; pricePerGallon: number; totalCost: number; fuelType?: string; location?: string; confidenceScores: Record<string, number> } {
   // Simplified parsing logic (mobile service does most of this)
   return {
     date: new Date().toISOString(),
@@ -559,7 +569,7 @@ function parseFuelReceiptFromOCR(text: string): any {
 /**
  * Helper function to parse odometer reading from OCR text
  */
-function parseOdometerFromOCR(text: string): any {
+function parseOdometerFromOCR(text: string): { reading: number; unit: 'miles' | 'kilometers'; confidence: number } {
   // Extract numbers from text
   const numbers = text.match(/\d{5,7}/g);
   const reading = numbers && numbers.length > 0 ? parseInt(numbers[0], 10) : 0;

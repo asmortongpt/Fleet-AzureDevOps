@@ -24,6 +24,7 @@
  */
 
 import { Response, NextFunction } from 'express'
+import { PoolClient } from 'pg'
 
 import pool from '../config/database'
 import logger from '../config/logger'
@@ -59,7 +60,7 @@ export const setTenantContext = async (
 
   // Validate tenant_id exists in JWT token
   if (!req.user.tenant_id) {
-    console.error('❌ TENANT CONTEXT - No tenant_id in JWT token', {
+    logger.error('❌ TENANT CONTEXT - No tenant_id in JWT token', {
       userId: req.user.id,
       email: req.user.email,
       role: req.user.role
@@ -75,7 +76,7 @@ export const setTenantContext = async (
   // Validate tenant_id is a valid UUID format
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   if (!uuidRegex.test(req.user.tenant_id)) {
-    console.error('❌ TENANT CONTEXT - Invalid tenant_id format', {
+    logger.error('❌ TENANT CONTEXT - Invalid tenant_id format', {
       tenantId: req.user.tenant_id,
       userId: req.user.id
     })
@@ -104,13 +105,15 @@ export const setTenantContext = async (
     await client.query('SELECT set_config($1, $2, true)', ['app.current_tenant_id', req.user.tenant_id])
 
       // Attach client to request
-      ; (req as any).dbClient = client
-      ; (req as any).tenantId = req.user.tenant_id
+      req.dbClient = client
+      req.tenantId = req.user.tenant_id
 
     // Track if we've already cleaned up
     let cleanedUp = false
     const cleanup = async () => {
-      if (cleanedUp) return
+      if (cleanedUp) {
+return
+}
       cleanedUp = true
       try {
         // COMMIT the transaction (or ROLLBACK if there was an error)
@@ -132,14 +135,14 @@ export const setTenantContext = async (
     // Also handle premature close
     res.on('close', cleanup)
 
-    console.log('✅ TENANT CONTEXT - Database client initialized with transaction', {
+    logger.info('✅ TENANT CONTEXT - Database client initialized with transaction', {
       tenantId: req.user.tenant_id,
       userId: req.user.id
     })
 
     next()
   } catch (error) {
-    console.error('❌ TENANT CONTEXT - Failed to initialize database client', {
+    logger.error('❌ TENANT CONTEXT - Failed to initialize database client', {
       error: error instanceof Error ? error.message : 'Unknown error',
       tenantId: req.user.tenant_id,
       userId: req.user.id
@@ -167,7 +170,7 @@ export const getCurrentTenantId = async (
   }
 
   try {
-    const client = (req as any).dbClient || pool
+    const client = req.dbClient || pool
     const result = await client.query(
       "SELECT current_setting('app.current_tenant_id', true) as tenant_id"
     )
@@ -191,7 +194,7 @@ export const debugTenantContext = async (
   res: Response
 ) => {
   try {
-    const client = (req as any).dbClient || pool
+    const client = req.dbClient || pool
 
     // Get current tenant context
     const contextResult = await client.query(
@@ -278,7 +281,7 @@ export const requireTenantContext = async (
   next: NextFunction
 ) => {
   try {
-    const client = (req as any).dbClient || pool
+    const client = req.dbClient || pool
     const result = await client.query(
       "SELECT current_setting('app.current_tenant_id', true) as tenant_id"
     )
@@ -286,7 +289,7 @@ export const requireTenantContext = async (
     const sessionTenantId = result.rows[0]?.tenant_id
 
     if (!sessionTenantId) {
-      console.error('❌ TENANT CONTEXT - Session variable not set', {
+      logger.error('❌ TENANT CONTEXT - Session variable not set', {
         userId: req.user?.id,
         jwtTenantId: req.user?.tenant_id,
         path: req.path
@@ -301,7 +304,7 @@ export const requireTenantContext = async (
 
     // Verify JWT tenant matches session tenant (defense in depth)
     if (req.user?.tenant_id !== sessionTenantId) {
-      console.error('❌ TENANT CONTEXT - Mismatch detected', {
+      logger.error('❌ TENANT CONTEXT - Mismatch detected', {
         jwtTenantId: req.user?.tenant_id,
         sessionTenantId,
         userId: req.user?.id
@@ -341,7 +344,7 @@ import logger from '../config/logger'
  * ```
  */
 export const setTenantContextDirect = async (
-  client: any,
+  client: PoolClient,
   tenantId: string
 ): Promise<void> => {
   await client.query('SET LOCAL app.current_tenant_id = $1', [tenantId])

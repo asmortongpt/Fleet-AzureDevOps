@@ -19,7 +19,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({ className }) => {
   return (
     <div
       className={cn(
-        'animate-pulse rounded-md bg-gray-200 dark:bg-gray-700',
+        'animate-pulse rounded-md bg-white/[0.06] dark:bg-white/[0.08]',
         className
       )}
       role="status"
@@ -35,7 +35,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({ className }) => {
  */
 export const SkeletonTableRow: React.FC = () => {
   return (
-    <div className="flex items-center space-x-2 p-2 border-b border-gray-200 dark:border-gray-700">
+    <div className="flex items-center space-x-2 p-2 border-b border-white/[0.08] dark:border-white/[0.08]">
       <Skeleton className="h-8 w-10 rounded-full" />
       <div className="flex-1 space-y-2">
         <Skeleton className="h-4 w-3/4" />
@@ -51,9 +51,9 @@ export const SkeletonTableRow: React.FC = () => {
  */
 export const SkeletonTable: React.FC<{ rows?: number }> = ({ rows = 5 }) => {
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+    <div className="border border-white/[0.08] dark:border-white/[0.08] rounded-lg overflow-hidden">
       {/* Table header */}
-      <div className="bg-gray-50 dark:bg-gray-800 p-2 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white/[0.03] dark:bg-[#18181b] p-2 border-b border-white/[0.08] dark:border-white/[0.08]">
         <div className="flex space-x-2">
           <Skeleton className="h-4 w-32" />
           <Skeleton className="h-4 w-24" />
@@ -74,7 +74,7 @@ export const SkeletonTable: React.FC<{ rows?: number }> = ({ rows = 5 }) => {
  */
 export const SkeletonCard: React.FC = () => {
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 space-y-2">
+    <div className="border border-white/[0.08] dark:border-white/[0.08] rounded-lg p-3 space-y-2">
       <div className="flex items-start justify-between">
         <div className="space-y-2 flex-1">
           <Skeleton className="h-6 w-48" />
@@ -110,7 +110,7 @@ export const SkeletonCardGrid: React.FC<{ cards?: number }> = ({ cards = 6 }) =>
  */
 export const SkeletonStatCard: React.FC = () => {
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+    <div className="bg-white dark:bg-[#18181b] border border-white/[0.08] dark:border-white/[0.08] rounded-lg p-3">
       <div className="flex items-center justify-between mb-2">
         <Skeleton className="h-4 w-24" />
         <Skeleton className="h-8 w-8 rounded" />
@@ -159,7 +159,7 @@ export const SkeletonForm: React.FC<{ fields?: number }> = ({ fields = 5 }) => {
  */
 export const SkeletonListItem: React.FC = () => {
   return (
-    <div className="flex items-center space-x-2 p-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
+    <div className="flex items-center space-x-2 p-2 border-b border-white/[0.08] dark:border-white/[0.08] last:border-0">
       <Skeleton className="h-9 w-12 rounded-full flex-shrink-0" />
       <div className="flex-1 space-y-2">
         <Skeleton className="h-4 w-full max-w-md" />
@@ -175,7 +175,7 @@ export const SkeletonListItem: React.FC = () => {
  */
 export const SkeletonList: React.FC<{ items?: number }> = ({ items = 5 }) => {
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg divide-y divide-gray-200 dark:divide-gray-700">
+    <div className="border border-white/[0.08] dark:border-white/[0.08] rounded-lg divide-y divide-gray-200 dark:divide-gray-700">
       {Array.from({ length: items }).map((_, i) => (
         <SkeletonListItem key={i} />
       ))}
@@ -190,7 +190,7 @@ export const SkeletonChart: React.FC<{ height?: string }> = ({
   height = 'h-64'
 }) => {
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+    <div className="border border-white/[0.08] dark:border-white/[0.08] rounded-lg p-3">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Skeleton className="h-6 w-48" />

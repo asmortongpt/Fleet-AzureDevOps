@@ -13,7 +13,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { logger } from '@/utils/logger';
 
-interface MockUserProfile {
+interface UserProfile {
   id: string;
   email: string;
   firstName: string;
@@ -27,13 +27,13 @@ interface MockUserProfile {
 }
 
 interface ProductionOktaContextType {
-  user: MockUserProfile | null;
+  user: UserProfile | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (username?: string) => Promise<void>;
   logout: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
-  hasRole: (role: MockUserProfile["role"]) => boolean;
+  hasRole: (role: UserProfile["role"]) => boolean;
   getAuthHeaders: () => Promise<Record<string, string>>;
 }
 
@@ -59,7 +59,7 @@ interface ProductionOktaProviderProps {
 }
 
 // Role mapping from Okta groups to application roles
-const OKTA_ROLE_MAPPING: Record<string, MockUserProfile['role']> = {
+const OKTA_ROLE_MAPPING: Record<string, UserProfile['role']> = {
   "DCF-Fleet-Administrators": "admin",
   "Florida-Legislature": "legislature",
   "DCF-Department-Managers": "department",
@@ -67,7 +67,7 @@ const OKTA_ROLE_MAPPING: Record<string, MockUserProfile['role']> = {
 };
 
 // Permission mapping based on roles
-const ROLE_PERMISSIONS: Record<MockUserProfile['role'], string[]> = {
+const ROLE_PERMISSIONS: Record<UserProfile['role'], string[]> = {
   admin: ['read', 'write', 'admin', 'fleet:manage', 'drivers:manage', 'maintenance:manage'],
   legislature: ['read', 'fleet:view', 'analytics:view'],
   department: ['read', 'write', 'fleet:manage', 'drivers:view'],
@@ -77,7 +77,7 @@ const ROLE_PERMISSIONS: Record<MockUserProfile['role'], string[]> = {
 // Context provider component
 const ProductionOktaContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { oktaAuth: contextOktaAuth, authState } = useOktaAuth();
-  const [user, setUser] = useState<MockUserProfile | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -117,7 +117,7 @@ const ProductionOktaContextProvider: React.FC<{ children: ReactNode }> = ({ chil
       }
 
       // Map Okta groups to application role
-      let userRole: MockUserProfile['role'] = 'driver'; // Default role
+      let userRole: UserProfile['role'] = 'driver'; // Default role
       for (const group of userGroups) {
         if (OKTA_ROLE_MAPPING[group]) {
           userRole = OKTA_ROLE_MAPPING[group];
@@ -125,8 +125,7 @@ const ProductionOktaContextProvider: React.FC<{ children: ReactNode }> = ({ chil
         }
       }
 
-      // Create user profile compatible with mock auth
-      const userProfile: MockUserProfile = {
+      const userProfile: UserProfile = {
         id: userInfo.sub || 'okta-user',
         email: userInfo.email || '',
         firstName: userInfo.given_name || 'Unknown',
@@ -148,7 +147,7 @@ const ProductionOktaContextProvider: React.FC<{ children: ReactNode }> = ({ chil
     }
   };
 
-  const getDepartmentFromRole = (role: MockUserProfile['role']): string => {
+  const getDepartmentFromRole = (role: UserProfile['role']): string => {
     switch (role) {
       case 'admin': return 'DCF Fleet Operations';
       case 'legislature': return 'Florida House of Representatives';
@@ -202,7 +201,7 @@ const ProductionOktaContextProvider: React.FC<{ children: ReactNode }> = ({ chil
     return user?.permissions?.includes(permission) || false;
   };
 
-  const hasRole = (role: MockUserProfile['role']): boolean => {
+  const hasRole = (role: UserProfile['role']): boolean => {
     return user?.role === role;
   };
 
@@ -276,25 +275,25 @@ export const OktaAuthLoading: React.FC = () => (
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f8fafc'
+    backgroundColor: 'hsl(var(--muted))'
   }}>
     <div style={{
       padding: '20px',
       textAlign: 'center',
       background: 'white',
       borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      boxShadow: '0 2px 4px hsl(var(--foreground) / 0.1)'
     }}>
       <div style={{
         width: '40px',
         height: '40px',
-        border: '4px solid #e5e7eb',
-        borderTop: '4px solid #1e40af',
+        border: '4px solid hsl(var(--border))',
+        borderTop: '4px solid hsl(var(--primary))',
         borderRadius: '50%',
         animation: 'spin 1s linear infinite',
         margin: '0 auto 16px'
       }}></div>
-      <p style={{color: '#374151'}}>Authenticating with Okta...</p>
+      <p style={{color: 'hsl(var(--muted-foreground))'}}>Authenticating with Okta...</p>
     </div>
   </div>
 );
@@ -317,7 +316,7 @@ export const OktaLoginPrompt: React.FC = () => {
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: '100vh',
-      backgroundColor: '#f8fafc',
+      backgroundColor: 'hsl(var(--muted))',
       padding: '20px'
     }}>
       <div style={{
@@ -325,7 +324,7 @@ export const OktaLoginPrompt: React.FC = () => {
         padding: '32px',
         background: 'white',
         borderRadius: '12px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+        boxShadow: '0 4px 6px hsl(var(--foreground) / 0.1)'
       }}>
         <div style={{textAlign: 'center', marginBottom: '24px'}}>
           <img
@@ -343,21 +342,21 @@ export const OktaLoginPrompt: React.FC = () => {
           <h1 style={{
             fontSize: '24px',
             fontWeight: 'bold',
-            color: '#1e40af',
+            color: 'hsl(var(--primary))',
             marginBottom: '8px'
           }}>
             Fleet Management System
           </h1>
-          <p style={{color: '#374151'}}>Secure Government Access</p>
+          <p style={{color: 'hsl(var(--muted-foreground))'}}>Secure Government Access</p>
         </div>
 
         <div style={{
           marginBottom: '20px',
           padding: '16px',
-          backgroundColor: '#fef3c7',
+          backgroundColor: 'hsl(var(--warning) / 0.2)',
           borderRadius: '8px',
           fontSize: '14px',
-          color: '#92400e'
+          color: 'hsl(var(--warning))'
         }}>
           <div style={{fontWeight: 'bold', marginBottom: '8px'}}>Government System Access</div>
           <p style={{margin: 0}}>
@@ -372,7 +371,7 @@ export const OktaLoginPrompt: React.FC = () => {
           style={{
             width: '100%',
             padding: '12px',
-            backgroundColor: isLoading ? '#374151' : '#1e40af',
+            backgroundColor: isLoading ? 'hsl(var(--muted-foreground))' : 'hsl(var(--primary))',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
@@ -390,8 +389,8 @@ export const OktaLoginPrompt: React.FC = () => {
               <div style={{
                 width: '16px',
                 height: '16px',
-                border: '2px solid #ffffff40',
-                borderTop: '2px solid #ffffff',
+                border: '2px solid hsl(var(--foreground))40',
+                borderTop: '2px solid hsl(var(--foreground))',
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite'
               }}></div>
@@ -408,7 +407,7 @@ export const OktaLoginPrompt: React.FC = () => {
           marginTop: '16px',
           textAlign: 'center',
           fontSize: '12px',
-          color: '#374151'
+          color: 'hsl(var(--muted-foreground))'
         }}>
           <p>Protected by SOC 2 Type 2 Security</p>
           <p>24/7 Security Monitoring • Audit Logging</p>

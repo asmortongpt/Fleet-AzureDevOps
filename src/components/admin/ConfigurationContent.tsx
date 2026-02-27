@@ -3,20 +3,22 @@
  * Extracted from ConfigurationHub.tsx and enhanced with admin-specific visualizations
  */
 
+// motion removed - React 19 incompatible
+import { Database, Cpu, HardDrive, Activity, Plug, CheckCircle, XCircle, AlertTriangle, Shield, Server, Clock, Gauge, UploadCloud, Lock } from 'lucide-react'
 import { memo, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import { Database, Cpu, HardDrive, Activity, Plug, CheckCircle, XCircle, AlertTriangle, Shield, Eye, Server, TrendingUp, RefreshCw, Clock, Gauge, UploadCloud, Lock } from 'lucide-react'
-import { useReactiveConfigurationData } from '@/hooks/use-reactive-configuration-data'
+
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Progress } from '@/components/ui/progress'
+import { useReactiveConfigurationData } from '@/hooks/use-reactive-configuration-data'
+import { formatDateTime, formatTime } from '@/utils/format-helpers'
 
 // ============================================================================
 // SUB-COMPONENTS - System Resource Gauge
@@ -25,7 +27,7 @@ import { Progress } from '@/components/ui/progress'
 interface ResourceGaugeProps {
   title: string
   value: number
-  icon: React.ElementType
+  icon: React.ComponentType<{ className?: string }>
   iconColor: string
   warningThreshold: number
   criticalThreshold: number
@@ -90,10 +92,7 @@ const IntegrationHealthCard = memo<IntegrationHealthCardProps>(({ integration, i
   const hasErrors = integration.errorCount && integration.errorCount > 0
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+    <div
       className={`rounded-lg border p-4 hover:bg-accent/50 transition-colors ${
         hasErrors ? 'border-red-200 bg-red-50 dark:bg-red-950/20' : ''
       }`}
@@ -108,7 +107,7 @@ const IntegrationHealthCard = memo<IntegrationHealthCardProps>(({ integration, i
           </div>
           {integration.lastSync && (
             <p className="text-xs text-muted-foreground">
-              Last sync: {new Date(integration.lastSync).toLocaleString()}
+              Last sync: {formatDateTime(integration.lastSync)}
             </p>
           )}
         </div>
@@ -135,7 +134,7 @@ const IntegrationHealthCard = memo<IntegrationHealthCardProps>(({ integration, i
           <span>{integration.errorCount} recent errors</span>
         </div>
       )}
-    </motion.div>
+    </div>
   )
 })
 
@@ -233,7 +232,7 @@ export const ConfigurationContent = memo(() => {
           </p>
         </div>
         <Badge variant="outline" className="w-fit" aria-live="polite">
-          Last updated: <time dateTime={lastUpdate.toISOString()}>{lastUpdate.toLocaleTimeString()}</time>
+          Last updated: <time dateTime={lastUpdate.toISOString()}>{formatTime(lastUpdate)}</time>
         </Badge>
       </header>
 
@@ -280,7 +279,7 @@ export const ConfigurationContent = memo(() => {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Gauge className="h-5 w-5 text-blue-500" aria-hidden="true" />
+              <Gauge className="h-5 w-5 text-emerald-500" aria-hidden="true" />
               <CardTitle>System Health Monitors</CardTitle>
             </div>
             <CardDescription>Real-time resource utilization with status indicators</CardDescription>
@@ -298,7 +297,7 @@ export const ConfigurationContent = memo(() => {
                   title="CPU Usage"
                   value={systemStatus?.cpu || 0}
                   icon={Cpu}
-                  iconColor="text-blue-500"
+                  iconColor="text-emerald-500"
                   warningThreshold={70}
                   criticalThreshold={85}
                 />
@@ -306,7 +305,7 @@ export const ConfigurationContent = memo(() => {
                   title="Memory Usage"
                   value={systemStatus?.memory || 0}
                   icon={Database}
-                  iconColor="text-purple-500"
+                  iconColor="text-amber-500"
                   warningThreshold={75}
                   criticalThreshold={90}
                 />
@@ -314,7 +313,7 @@ export const ConfigurationContent = memo(() => {
                   title="Disk Space"
                   value={systemStatus?.diskSpace || 0}
                   icon={HardDrive}
-                  iconColor="text-cyan-500"
+                  iconColor="text-emerald-500"
                   warningThreshold={70}
                   criticalThreshold={85}
                 />
@@ -450,11 +449,8 @@ export const ConfigurationContent = memo(() => {
               ) : criticalSecurityEvents.length > 0 ? (
                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
                   {criticalSecurityEvents.map((event, idx) => (
-                    <motion.div
+                    <div
                       key={event.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 }}
                       className={`rounded-lg border p-3 ${
                         event.severity === 'critical'
                           ? 'border-red-300 bg-red-50 dark:bg-red-950/20'
@@ -475,10 +471,10 @@ export const ConfigurationContent = memo(() => {
                       <p className="text-sm font-medium mb-1">{event.message}</p>
                       <p className="text-xs text-muted-foreground">
                         <Clock className="inline h-3 w-3 mr-1" aria-hidden="true" />
-                        {new Date(event.timestamp).toLocaleString()}
+                        {formatDateTime(event.timestamp)}
                         {event.userId && ` • ${event.userId}`}
                       </p>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -508,7 +504,7 @@ export const ConfigurationContent = memo(() => {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <Server className="h-5 w-5 text-blue-500" aria-hidden="true" />
+                  <Server className="h-5 w-5 text-emerald-500" aria-hidden="true" />
                   <CardTitle>API & Cache Statistics</CardTitle>
                 </div>
                 <CardDescription>Backend performance metrics</CardDescription>
@@ -524,7 +520,7 @@ export const ConfigurationContent = memo(() => {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 rounded-lg border">
                       <div className="flex items-center gap-3">
-                        <UploadCloud className="h-5 w-5 text-blue-500" aria-hidden="true" />
+                        <UploadCloud className="h-5 w-5 text-emerald-500" aria-hidden="true" />
                         <div>
                           <p className="text-sm font-medium">API Response Time</p>
                           <p className="text-xs text-muted-foreground">Average latency</p>
@@ -534,7 +530,7 @@ export const ConfigurationContent = memo(() => {
                     </div>
                     <div className="flex items-center justify-between p-4 rounded-lg border">
                       <div className="flex items-center gap-3">
-                        <Database className="h-5 w-5 text-purple-500" aria-hidden="true" />
+                        <Database className="h-5 w-5 text-amber-500" aria-hidden="true" />
                         <div>
                           <p className="text-sm font-medium">Cache Hit Rate</p>
                           <p className="text-xs text-muted-foreground">Redis performance</p>

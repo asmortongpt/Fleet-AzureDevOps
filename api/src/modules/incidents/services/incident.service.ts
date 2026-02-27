@@ -47,62 +47,62 @@ throw new Error("Reported by is required");
     }
   }
 
-  async getAll(tenantId: number): Promise<Incident[]> {
+  async getAll(tenantId: string): Promise<Incident[]> {
     return this.executeInTransaction(async () => {
       return await this.incidentRepository.findAll(tenantId);
     });
   }
 
-  async getById(id: number, tenantId: number): Promise<Incident | null> {
+  async getById(id: string, tenantId: string): Promise<Incident | null> {
     return this.executeInTransaction(async () => {
       return await this.incidentRepository.findById(id, tenantId);
     });
   }
 
-  async getByType(incidentType: string, tenantId: number): Promise<Incident[]> {
+  async getByType(incidentType: string, tenantId: string): Promise<Incident[]> {
     return this.executeInTransaction(async () => {
       return await this.incidentRepository.findByType(incidentType, tenantId);
     });
   }
 
-  async getBySeverity(severity: string, tenantId: number): Promise<Incident[]> {
+  async getBySeverity(severity: string, tenantId: string): Promise<Incident[]> {
     return this.executeInTransaction(async () => {
       return await this.incidentRepository.findBySeverity(severity, tenantId);
     });
   }
 
-  async getByStatus(status: string, tenantId: number): Promise<Incident[]> {
+  async getByStatus(status: string, tenantId: string): Promise<Incident[]> {
     return this.executeInTransaction(async () => {
       return await this.incidentRepository.findByStatus(status, tenantId);
     });
   }
 
-  async getByVehicle(vehicleId: string, tenantId: number): Promise<Incident[]> {
+  async getByVehicle(vehicleId: string, tenantId: string): Promise<Incident[]> {
     return this.executeInTransaction(async () => {
       return await this.incidentRepository.findByVehicle(vehicleId, tenantId);
     });
   }
 
-  async getByDriver(driverId: string, tenantId: number): Promise<Incident[]> {
+  async getByDriver(driverId: string, tenantId: string): Promise<Incident[]> {
     return this.executeInTransaction(async () => {
       return await this.incidentRepository.findByDriver(driverId, tenantId);
     });
   }
 
-  async getByDateRange(startDate: string, endDate: string, tenantId: number): Promise<Incident[]> {
+  async getByDateRange(startDate: string, endDate: string, tenantId: string): Promise<Incident[]> {
     return this.executeInTransaction(async () => {
       return await this.incidentRepository.findByDateRange(startDate, endDate, tenantId);
     });
   }
 
-  async create(data: Partial<Incident>, tenantId: number): Promise<Incident> {
+  async create(data: Partial<Incident>, tenantId: string): Promise<Incident> {
     await this.validate(data);
     return this.executeInTransaction(async () => {
       return await this.incidentRepository.create(data, tenantId);
     });
   }
 
-  async update(id: number, data: Partial<Incident>, tenantId: number): Promise<Incident | null> {
+  async update(id: string, data: Partial<Incident>, tenantId: string): Promise<Incident | null> {
     // Only validate fields that are being updated
     if (Object.keys(data).length > 0) {
       const validationData = {
@@ -120,7 +120,7 @@ throw new Error("Reported by is required");
     });
   }
 
-  async delete(id: number, tenantId: number): Promise<boolean> {
+  async delete(id: string, tenantId: string): Promise<boolean> {
     return this.executeInTransaction(async () => {
       return await this.incidentRepository.delete(id, tenantId);
     });

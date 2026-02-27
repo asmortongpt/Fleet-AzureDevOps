@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { pool } from '../db'
@@ -9,6 +10,72 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { rateLimit } from '../middleware/rate-limit'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const createVideoEventSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  event_type: z.string().max(100),
+  event_date: z.string().optional(),
+  video_url: z.string().max(2000).optional(),
+  thumbnail_url: z.string().max(2000).optional(),
+  duration: z.union([z.string(), z.number()]).optional(),
+  severity: z.string().max(50).optional(),
+  notes: z.string().max(5000).optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
+  address: z.string().max(500).optional(),
+  speed_mph: z.number().min(0).max(300).optional(),
+  ai_confidence: z.number().min(0).max(1).optional(),
+  reviewed: z.boolean().optional(),
+  reviewed_by: z.union([z.string(), z.number()]).optional(),
+  reviewed_at: z.string().optional(),
+  coaching_assigned: z.boolean().optional(),
+  coaching_assigned_to: z.union([z.string(), z.number()]).optional(),
+  coaching_status: z.string().max(100).optional(),
+  coaching_notes: z.string().max(5000).optional(),
+  retained: z.boolean().optional(),
+  retention_days: z.number().min(0).max(3650).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
+
+const videoEventUpdateSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  event_type: z.string().optional(),
+  event_date: z.string().optional(),
+  video_url: z.string().optional(),
+  thumbnail_url: z.string().optional(),
+  duration: z.union([z.string(), z.number()]).optional(),
+  severity: z.string().optional(),
+  notes: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  address: z.string().optional(),
+  speed_mph: z.number().optional(),
+  ai_confidence: z.number().optional(),
+  reviewed: z.boolean().optional(),
+  reviewed_by: z.union([z.string(), z.number()]).optional(),
+  reviewed_at: z.string().optional(),
+  coaching_assigned: z.boolean().optional(),
+  coaching_assigned_to: z.union([z.string(), z.number()]).optional(),
+  coaching_status: z.string().optional(),
+  coaching_notes: z.string().optional(),
+  retained: z.boolean().optional(),
+  retention_days: z.number().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
+
+const videoPrivacyUpdateSchema = z.object({
+  enableAudioRecording: z.boolean().optional(),
+  videoRetentionPeriod: z.number().optional(),
+  autoDeleteAfterRetention: z.boolean().optional(),
+  blurFaces: z.boolean().optional(),
+  blurLicensePlates: z.boolean().optional(),
+  restrictAccessByRole: z.record(z.string(), z.boolean()).optional(),
+  enableDriverOptOut: z.boolean().optional(),
+  notifyDriversOfRecording: z.boolean().optional(),
+  enableVideoEncryption: z.boolean().optional(),
+})
 
 
 const router = express.Router()
@@ -137,7 +204,11 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createVideoEventSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
@@ -165,7 +236,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = videoEventUpdateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
@@ -202,7 +277,7 @@ router.delete(
         throw new NotFoundError("VideoEvents not found")
       }
 
-      res.json({ message: 'VideoEvents deleted successfully' })
+      res.json({ success: true, message: 'VideoEvents deleted successfully' })
     } catch (error) {
       logger.error('Delete video-events error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
@@ -250,7 +325,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'tenant_settings' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const privacy = req.body || {}
+      const parsed = videoPrivacyUpdateSchema.safeParse(req.body || {})
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const privacy = parsed.data
 
       const result = await pool.query(
         `UPDATE tenants

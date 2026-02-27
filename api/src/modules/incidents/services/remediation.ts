@@ -1,5 +1,6 @@
 import { injectable } from 'inversify';
 
+import logger from '../../../config/logger';
 import { BaseService } from '../../../services/base.service';
 import type { Incident } from '../../../types/incident';
 
@@ -436,7 +437,7 @@ export class RemediationService extends BaseService {
 
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
-        console.log(`Executed remediation step: ${step.id} - ${step.name}`);
+        logger.info('Executed remediation step', { stepId: step.id, stepName: step.name });
         resolve();
       }, executionTime);
 
@@ -458,7 +459,7 @@ export class RemediationService extends BaseService {
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log(`Rolled back step: ${step.id} using plan: ${step.rollback_plan}`);
+        logger.info('Rolled back step', { stepId: step.id, rollbackPlan: step.rollback_plan });
         resolve();
       }, 100);
     });

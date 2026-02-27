@@ -34,9 +34,9 @@ export interface VehicleInventoryStats {
  */
 async function fetchAssignedParts(vehicleId: string): Promise<Part[]> {
   try {
-    const response = await apiClient.get<Part[]>(`/api/v1/vehicles/${vehicleId}/inventory/assigned`)
+    const response = await apiClient.get<Part[]>(`/api/inventory/items?vehicle_id=${vehicleId}&status=assigned`)
     return response
-  } catch (error) {
+  } catch {
     logger.warn("Assigned parts API unavailable, using emulator data")
     return generateEmulatorAssignedParts(vehicleId)
   }
@@ -47,9 +47,9 @@ async function fetchAssignedParts(vehicleId: string): Promise<Part[]> {
  */
 async function fetchCompatibleParts(vehicleId: string): Promise<Part[]> {
   try {
-    const response = await apiClient.get<Part[]>(`/api/v1/vehicles/${vehicleId}/inventory/compatible`)
+    const response = await apiClient.get<Part[]>(`/api/inventory/items?vehicle_id=${vehicleId}&status=compatible`)
     return response
-  } catch (error) {
+  } catch {
     logger.warn("Compatible parts API unavailable, using emulator data")
     return generateEmulatorCompatibleParts(vehicleId)
   }
@@ -61,10 +61,10 @@ async function fetchCompatibleParts(vehicleId: string): Promise<Part[]> {
 async function fetchUsageHistory(vehicleId: string): Promise<InventoryTransaction[]> {
   try {
     const response = await apiClient.get<InventoryTransaction[]>(
-      `/api/v1/vehicles/${vehicleId}/inventory/usage`
+      `/api/inventory/transactions?vehicle_id=${vehicleId}`
     )
     return response
-  } catch (error) {
+  } catch {
     logger.warn("Usage history API unavailable")
     return generateEmulatorUsageHistory(vehicleId)
   }
@@ -75,9 +75,9 @@ async function fetchUsageHistory(vehicleId: string): Promise<InventoryTransactio
  */
 async function fetchMaintenanceHistory(vehicleId: string): Promise<WorkOrder[]> {
   try {
-    const response = await apiClient.get<WorkOrder[]>(`/api/v1/vehicles/${vehicleId}/maintenance`)
+    const response = await apiClient.get<WorkOrder[]>(`/api/work-orders?vehicle_id=${vehicleId}`)
     return response
-  } catch (error) {
+  } catch {
     logger.warn("Maintenance history API unavailable")
     return []
   }
@@ -87,14 +87,14 @@ async function fetchMaintenanceHistory(vehicleId: string): Promise<WorkOrder[]> 
  * Assign a part to a vehicle
  */
 async function assignPartToVehicle(vehicleId: string, partId: string): Promise<void> {
-  await apiClient.post(`/api/v1/vehicles/${vehicleId}/inventory/assign`, { partId })
+  await apiClient.post(`/api/inventory/transactions`, { item_id: partId, vehicle_id: vehicleId, transaction_type: 'usage' })
 }
 
 /**
  * Remove a part from a vehicle
  */
 async function removePartFromVehicle(vehicleId: string, partId: string): Promise<void> {
-  await apiClient.post(`/api/v1/vehicles/${vehicleId}/inventory/remove`, { partId })
+  await apiClient.post(`/api/inventory/transactions`, { item_id: partId, vehicle_id: vehicleId, transaction_type: 'return' })
 }
 
 /**
@@ -105,8 +105,8 @@ async function recordPartsUsage(
   transaction: Partial<InventoryTransaction>
 ): Promise<InventoryTransaction> {
   const response = await apiClient.post<InventoryTransaction>(
-    `/api/v1/vehicles/${vehicleId}/inventory/usage`,
-    transaction
+    `/api/inventory/transactions`,
+    { ...transaction, vehicle_id: vehicleId }
   )
   return response
 }

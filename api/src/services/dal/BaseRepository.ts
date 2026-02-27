@@ -1,4 +1,4 @@
-import { Pool, PoolClient, QueryResult } from 'pg'
+import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg'
 
 import { getTableColumns } from '../../utils/column-resolver'
 
@@ -10,11 +10,17 @@ import { DatabaseError, NotFoundError, ValidationError } from './errors'
  * Provides common CRUD operations and query utilities for all repositories
  */
 export abstract class BaseRepository<T = any> {
+  // Whitelist: table names must be lowercase alphanumeric with underscores only
+  private static readonly VALID_TABLE_NAME_REGEX = /^[a-z_][a-z0-9_]*$/
+
   protected tableName: string
   protected pool: Pool
   protected logger: QueryLogger
 
   constructor(tableName: string, pool: Pool) {
+    if (!BaseRepository.VALID_TABLE_NAME_REGEX.test(tableName)) {
+      throw new Error(`Invalid table name: ${tableName}`)
+    }
     this.tableName = tableName
     this.pool = pool
     this.logger = new QueryLogger()
@@ -25,20 +31,20 @@ export abstract class BaseRepository<T = any> {
    */
   protected async query<R = T>(
     text: string,
-    params?: any[],
+    params?: unknown[],
     client?: PoolClient
-  ): Promise<QueryResult<R>> {
+  ): Promise<QueryResult<R & QueryResultRow>> {
     const startTime = Date.now()
     const queryClient = client || this.pool
 
     try {
       this.logger.logQuery(text, params)
-      const result = await queryClient.query<R>(text, params)
+      const result = await queryClient.query<R & QueryResultRow>(text, params as any[])
       this.logger.logSuccess(text, params, Date.now() - startTime, result.rowCount || 0)
       return result
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.logError(text, params, Date.now() - startTime, error)
-      throw this.handleQueryError(error)
+      throw this.handleQueryError(error as Record<string, any>)
     }
   }
 
@@ -206,7 +212,7 @@ values.push(offset)
     client?: PoolClient
   ): Promise<T> {
     const keys = Object.keys(data).filter(key => key !== `id`)
-    const values = keys.map(key => (data as any)[key])
+    const values = keys.map(key => (data as Record<string, unknown>)[key])
 
     if (keys.length === 0) {
       throw new ValidationError(`No data provided for update`)
@@ -303,7 +309,7 @@ values.push(offset)
     let paramCount = 1
 
     records.forEach(record => {
-      const recordValues = keys.map(key => (record as any)[key])
+      const recordValues = keys.map(key => (record as Record<string, unknown>)[key])
       const placeholders = keys.map(() => `$${paramCount++}`).join(`, `)
       valuePlaceholders.push(`(${placeholders})`)
       values.push(...recordValues)

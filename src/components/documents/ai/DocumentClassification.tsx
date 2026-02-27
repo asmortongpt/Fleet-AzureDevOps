@@ -15,6 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { DocumentMetadata, FileCategory } from '@/lib/documents/types';
 import { generateTagColor } from '@/lib/documents/utils';
+import { formatEnum } from '@/utils/format-enum';
 
 interface SuggestedTag {
   name: string;
@@ -108,7 +109,7 @@ export function DocumentClassification({
                     if (e.key === 'Enter') handleAddTag();
                   }}
                 />
-                <Button onClick={handleAddTag} disabled={!newTag.trim()} size="icon">
+                <Button onClick={handleAddTag} disabled={!newTag.trim()} size="icon" aria-label="Add tag">
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
@@ -187,8 +188,8 @@ export function DocumentClassification({
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Badge variant="secondary" className="capitalize">
-                  {document.category.replace(/-/g, ' ')}
+                <Badge variant="secondary">
+                  {formatEnum(document.category)}
                 </Badge>
                 <p className="text-xs text-muted-foreground">
                   Change category to improve organization and discovery

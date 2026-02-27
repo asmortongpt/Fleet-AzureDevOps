@@ -8,8 +8,8 @@
 -- Notification Logs Table
 -- Tracks all notifications sent through the system
 CREATE TABLE IF NOT EXISTS notification_logs (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID,
   tenant_id UUID,
 
   -- Notification details
@@ -57,7 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_notification_logs_related_entity ON notification_
 -- Communication Logs Table
 -- Tracks all communications (emails, SMS, etc.) sent from the system
 CREATE TABLE IF NOT EXISTS communication_logs (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID,
 
   -- Communication details
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS communication_logs (
   external_metadata JSONB DEFAULT '{}',
 
   -- Related entities
-  user_id INTEGER,
+  user_id UUID,
   related_entity_type VARCHAR(100),
   related_entity_id VARCHAR(100),
 
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS communication_logs (
   -- Audit fields
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  created_by INTEGER,
+  created_by UUID,
 
   CONSTRAINT fk_communication_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
   CONSTRAINT fk_communication_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
@@ -131,7 +131,7 @@ CREATE INDEX IF NOT EXISTS idx_communication_logs_tags ON communication_logs USI
 -- Report History Table
 -- Tracks generated reports for auditing and caching
 CREATE TABLE IF NOT EXISTS report_history (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID,
 
   -- Report details
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS report_history (
   progress_percent INTEGER DEFAULT 0,
 
   -- Generation details
-  generated_by INTEGER NOT NULL,
+  generated_by UUID NOT NULL,
   generated_at TIMESTAMP,
   generation_time_ms INTEGER, -- Time taken to generate in milliseconds
 
@@ -213,13 +213,14 @@ CREATE TRIGGER update_communication_logs_updated_at BEFORE UPDATE ON communicati
 CREATE TRIGGER update_report_history_updated_at BEFORE UPDATE ON report_history
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Grant permissions
-GRANT SELECT, INSERT, UPDATE, DELETE ON notification_logs TO webapp;
-GRANT SELECT, INSERT, UPDATE, DELETE ON communication_logs TO webapp;
-GRANT SELECT, INSERT, UPDATE, DELETE ON report_history TO webapp;
-GRANT USAGE, SELECT ON SEQUENCE notification_logs_id_seq TO webapp;
-GRANT USAGE, SELECT ON SEQUENCE communication_logs_id_seq TO webapp;
-GRANT USAGE, SELECT ON SEQUENCE report_history_id_seq TO webapp;
+-- Grant permissions (only if webapp role exists)
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'webapp') THEN
+    GRANT SELECT, INSERT, UPDATE, DELETE ON notification_logs TO webapp;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON communication_logs TO webapp;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON report_history TO webapp;
+  END IF;
+END $$;
 
 -- Comments
 COMMENT ON TABLE notification_logs IS 'Tracks all system notifications (push, email, SMS, in-app)';

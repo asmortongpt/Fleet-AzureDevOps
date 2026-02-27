@@ -17,21 +17,6 @@ import { AuditService, AuditCategory, AuditSeverity } from '../services/audit/Au
 import { AuthenticationService, TokenPayload } from '../services/auth/AuthenticationService';
 
 
-// Extend Express Request type to include authenticated user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: TokenPayload;
-      // @ts-expect-error - Build compatibility fix
-      session?: {
-        id: number;
-        uuid: string;
-      };
-      deviceFingerprint?: string;
-    }
-  }
-}
-
 export class AuthMiddleware {
   private authService: AuthenticationService;
   private auditService: AuditService;
@@ -95,13 +80,22 @@ export class AuthMiddleware {
         return;
       }
 
-      // Attach user info to request
-      // @ts-expect-error - Build compatibility fix
-      req.user = payload;
-      req.session = {
-        id: payload.sessionId,
-        uuid: payload.sessionUuid
+      // Attach user info to request (map TokenPayload to Express user shape)
+      req.user = {
+        id: String(payload.userId),
+        email: payload.email,
+        userId: String(payload.userId),
+        userUuid: payload.userUuid,
+        sessionId: String(payload.sessionId),
+        sessionUuid: payload.sessionUuid,
+        iat: payload.iat,
+        exp: payload.exp,
+        iss: payload.iss,
+        aud: payload.aud,
+        jti: payload.jti
       };
+      (req.session as unknown as Record<string, unknown>).id = String(payload.sessionId);
+      (req.session as unknown as Record<string, unknown>).uuid = payload.sessionUuid;
 
       // Log successful authentication
       await this.auditService.log({
@@ -170,12 +164,21 @@ export class AuthMiddleware {
       const payload = await this.authService.validateAccessToken(token);
 
       if (payload) {
-        // @ts-expect-error - Build compatibility fix
-        req.user = payload;
-        req.session = {
-          id: payload.sessionId,
-          uuid: payload.sessionUuid
+        req.user = {
+          id: String(payload.userId),
+          email: payload.email,
+          userId: String(payload.userId),
+          userUuid: payload.userUuid,
+          sessionId: String(payload.sessionId),
+          sessionUuid: payload.sessionUuid,
+          iat: payload.iat,
+          exp: payload.exp,
+          iss: payload.iss,
+          aud: payload.aud,
+          jti: payload.jti
         };
+        (req.session as unknown as Record<string, unknown>).id = String(payload.sessionId);
+        (req.session as unknown as Record<string, unknown>).uuid = payload.sessionUuid;
       }
 
       next();

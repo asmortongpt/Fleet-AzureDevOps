@@ -50,7 +50,7 @@ export function TenantSwitcher() {
 
   const loadTenants = async () => {
     try {
-      const response = await fetch('/api/v1/tenants', {
+      const response = await fetch('/api/tenants', {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -98,7 +98,7 @@ export function TenantSwitcher() {
           <Button
             variant="default"
             size="lg"
-            className="shadow-sm rounded-full px-3 gap-3"
+            className=" rounded-full px-3 gap-3"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -223,7 +223,7 @@ export function InlineTenantSwitcher() {
 
   const loadTenants = async () => {
     try {
-      const response = await fetch('/api/v1/tenants', {
+      const response = await fetch('/api/tenants', {
         method: 'GET',
         credentials: 'include',
       });

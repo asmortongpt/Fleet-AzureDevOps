@@ -4,31 +4,32 @@
  * This file demonstrates how to integrate all components
  */
 
-import React, { useState, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, PerspectiveCamera } from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
+import React, { useState, useEffect } from 'react';
 
 // Phase 1: Photo System
 import { MobileCameraCapture, type CapturedPhoto } from '@/components/garage/MobileCameraCapture';
 import { PhotoGallery } from '@/components/garage/PhotoGallery';
-import { photoUploadService } from '@/services/PhotoUploadService';
-
-// Phase 2: Condition Monitoring
 import { VehicleConditionPanel } from '@/components/garage/VehicleConditionPanel';
-import type { VehicleCondition, ServiceRecord } from '@/types/vehicle-condition.types';
-
-// Phase 3: Performance
-import { LODVehicleModel } from '@/utils/lod-system';
-
-// Phase 4: Rendering
-import { VehicleMaterialFactory, QUALITY_PRESETS } from '@/utils/pbr-materials';
-
-// Phase 5: AI
 import {
   initializeDamageDetection,
   getDamageDetectionService,
   type DamageReport,
 } from '@/services/AIDamageDetectionService';
+import { photoUploadService } from '@/services/PhotoUploadService';
+
+// Phase 2: Condition Monitoring
+import type { VehicleCondition, ServiceRecord } from '@/types/vehicle-condition.types';
+import { formatCurrency } from '@/utils/format-helpers';
+
+// Phase 3: Performance
+import { LODVehicleModel } from '@/utils/lod-system';
+import logger from '@/utils/logger';
+
+// Phase 4: Rendering
+
+// Phase 5: AI
 
 // ============================================================================
 // COMPLETE GARAGE SYSTEM
@@ -43,8 +44,8 @@ export function CompleteGarageSystem() {
   // Initialize AI service
   useEffect(() => {
     initializeDamageDetection({
-      endpoint: import.meta.env.VITE_AI_API_ENDPOINT,
-      apiKey: import.meta.env.VITE_AI_API_KEY,
+      endpoint: import.meta.env.VITE_AI_API_ENDPOINT || '',
+      apiKey: import.meta.env.VITE_AI_API_KEY || '',
       modelVersion: 'v1.0',
       confidenceThreshold: 0.7,
     });
@@ -57,9 +58,7 @@ export function CompleteGarageSystem() {
       await photoUploadService.uploadPhotos({
         assetId: 'vehicle-123',
         photos: capturedPhotos,
-        onProgress: (progress) => {
-          console.log('Upload progress:', progress);
-        },
+        onProgress: () => {},
       });
 
       // Run AI analysis
@@ -79,14 +78,14 @@ export function CompleteGarageSystem() {
       setShowCamera(false);
       setActiveView('photos');
     } catch (error) {
-      console.error('Photo capture failed:', error);
+      logger.error('Photo capture failed:', error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-[#0a0a0a]">
       {/* Header */}
-      <header className="bg-slate-900 border-b border-slate-800 p-2">
+      <header className="bg-[#111] border-b border-white/[0.15] p-2">
         <div className="flex items-center justify-between">
           <h1 className="text-sm font-bold text-white">
             Vehicle Garage System
@@ -97,8 +96,8 @@ export function CompleteGarageSystem() {
               onClick={() => setActiveView('3d')}
               className={`px-2 py-2 rounded-lg transition-colors $\{
                 activeView === '3d'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-[#1a1a1a] text-white/60 hover:bg-white/[0.08]'
               }`}
             >
               3D View
@@ -107,8 +106,8 @@ export function CompleteGarageSystem() {
               onClick={() => setActiveView('photos')}
               className={`px-2 py-2 rounded-lg transition-colors $\{
                 activeView === 'photos'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-[#1a1a1a] text-white/60 hover:bg-white/[0.08]'
               }`}
             >
               Photos
@@ -117,8 +116,8 @@ export function CompleteGarageSystem() {
               onClick={() => setActiveView('condition')}
               className={`px-2 py-2 rounded-lg transition-colors $\{
                 activeView === 'condition'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-[#1a1a1a] text-white/60 hover:bg-white/[0.08]'
               }`}
             >
               Condition
@@ -130,7 +129,7 @@ export function CompleteGarageSystem() {
       {/* Main Content */}
       <main className="p-3">
         {activeView === '3d' && (
-          <div className="h-[600px] rounded-md overflow-hidden bg-slate-900">
+          <div className="h-[600px] rounded-md overflow-hidden bg-[#111]">
             <Canvas>
               <PerspectiveCamera makeDefault position={[5, 2, 5]} />
               <OrbitControls />
@@ -160,14 +159,14 @@ export function CompleteGarageSystem() {
               {/* Ground */}
               <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
                 <planeGeometry args={[20, 20]} />
-                <meshStandardMaterial color="#2a2a2a" />
+                <meshStandardMaterial color="hsl(var(--muted))" />
               </mesh>
             </Canvas>
 
             {/* FAB for camera */}
             <button
               onClick={() => setShowCamera(true)}
-              className="absolute bottom-6 right-6 w-16 h-16 bg-blue-600 rounded-full shadow-sm flex items-center justify-center hover:bg-blue-700 transition-colors"
+              className="absolute bottom-6 right-6 w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
             >
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -185,14 +184,14 @@ export function CompleteGarageSystem() {
               </h2>
               <button
                 onClick={() => setShowCamera(true)}
-                className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-2 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
               >
                 Capture Photos
               </button>
             </div>
 
             {damageReport && (
-              <div className="bg-slate-900 rounded-lg p-3 mb-3">
+              <div className="bg-[#111] rounded-lg p-3 mb-3">
                 <h3 className="text-base font-semibold text-white mb-2">
                   AI Damage Analysis
                 </h3>
@@ -202,33 +201,33 @@ export function CompleteGarageSystem() {
                     <p className="text-base font-bold text-red-400">
                       {damageReport.summary.bySeverity.critical}
                     </p>
-                    <p className="text-slate-700 text-sm">Critical</p>
+                    <p className="text-white/70 text-sm">Critical</p>
                   </div>
                   <div className="text-center">
                     <p className="text-base font-bold text-orange-400">
                       {damageReport.summary.bySeverity.severe}
                     </p>
-                    <p className="text-slate-700 text-sm">Severe</p>
+                    <p className="text-white/70 text-sm">Severe</p>
                   </div>
                   <div className="text-center">
                     <p className="text-base font-bold text-yellow-400">
                       {damageReport.summary.bySeverity.moderate}
                     </p>
-                    <p className="text-slate-700 text-sm">Moderate</p>
+                    <p className="text-white/70 text-sm">Moderate</p>
                   </div>
                   <div className="text-center">
                     <p className="text-base font-bold text-green-400">
                       {damageReport.summary.bySeverity.minor}
                     </p>
-                    <p className="text-slate-700 text-sm">Minor</p>
+                    <p className="text-white/70 text-sm">Minor</p>
                   </div>
                 </div>
 
-                <div className="border-t border-slate-700 pt-2">
-                  <p className="text-slate-300 mb-2">Estimated Cost:</p>
+                <div className="border-t border-white/[0.15] pt-2">
+                  <p className="text-white/60 mb-2">Estimated Cost:</p>
                   <p className="text-sm font-bold text-green-400">
-                    ${damageReport.summary.estimatedCost.min.toLocaleString()} - 
-                    ${damageReport.summary.estimatedCost.max.toLocaleString()}
+                    {formatCurrency(damageReport.summary.estimatedCost.min)} -
+                    {formatCurrency(damageReport.summary.estimatedCost.max)}
                   </p>
                 </div>
               </div>
@@ -248,9 +247,7 @@ export function CompleteGarageSystem() {
           <VehicleConditionPanel
             condition={mockVehicleCondition}
             serviceHistory={mockServiceHistory}
-            onScheduleService={(type) => {
-              console.log('Schedule service:', type);
-            }}
+            onScheduleService={() => {}}
           />
         )}
       </main>

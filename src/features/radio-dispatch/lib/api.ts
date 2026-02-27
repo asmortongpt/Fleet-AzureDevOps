@@ -1,8 +1,10 @@
 // Stub for getSession - this module doesn't use next-auth in this React/Vite app
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const getSession = async (): Promise<{ accessToken?: string } | null> => null;
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import logger from '@/utils/logger';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000; // 1 second
@@ -79,13 +81,9 @@ class ApiClient {
         if (typeof window !== 'undefined' && csrfToken) {
           sessionStorage.setItem(CSRF_TOKEN_KEY, csrfToken);
         }
-
-        console.log('[API] CSRF token initialized');
-      } else {
-        console.warn('[API] Failed to initialize CSRF token');
       }
     } catch (error) {
-      console.error('[API] Error initializing CSRF token:', error);
+      logger.error('[API] Error initializing CSRF token:', error);
     }
   }
 
@@ -140,8 +138,6 @@ class ApiClient {
           ...headers,
           [CSRF_HEADER_NAME]: token,
         };
-      } else {
-        console.warn('[API] CSRF token not available for state-changing request');
       }
     }
 
@@ -176,11 +172,6 @@ class ApiClient {
 
     const url = `${this.baseUrl}${endpoint}`;
 
-    // Log request for debugging (only in development)
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[API] ${method} ${url}`);
-    }
-
     let lastError: Error | null = null;
     const maxAttempts = skipRetry ? 1 : retries + 1;
 
@@ -189,9 +180,6 @@ class ApiClient {
         // Add delay before retry (except first attempt)
         if (attempt > 0) {
           await delay(attempt - 1);
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`[API] Retry attempt ${attempt} for ${url}`);
-          }
         }
 
         // Create fetch request with timeout

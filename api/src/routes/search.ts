@@ -70,7 +70,7 @@ router.post(
 
       const results = await DocumentSearchService.search({
         query: validated.query,
-        tenantId: req.user!.tenant_id,
+        tenantId: req.user!.tenant_id ?? '',
         userId: req.user!.id,
         mode: validated.mode,
         fuzzy: validated.fuzzy,
@@ -78,7 +78,7 @@ router.post(
         operator: validated.operator,
         categoryId: validated.categoryId,
         documentType: validated.documentType,
-        tags: validated.tags,
+        tags: validated.tags?.filter((t: string | undefined): t is string => t !== undefined),
         dateFrom: validated.dateFrom ? new Date(validated.dateFrom) : undefined,
         dateTo: validated.dateTo ? new Date(validated.dateTo) : undefined,
         uploadedBy: validated.uploadedBy,
@@ -141,7 +141,7 @@ router.get(
       }
 
       const suggestions = await DocumentSearchService.autocomplete(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         q,
         Number(limit)
       )
@@ -179,7 +179,7 @@ router.get(
       }
 
       const suggestions = await SearchIndexService.getSpellingSuggestions(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         q
       )
 
@@ -203,6 +203,7 @@ router.get(
  */
 router.post(
   '/click',
+  csrfProtection,
   authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -270,6 +271,7 @@ router.get(
  */
 router.post(
   '/saved',
+  csrfProtection,
   authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -283,7 +285,7 @@ router.post(
       const validated = schema.parse(req.body)
 
       const savedSearch = await DocumentSearchService.saveSearch(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         validated.name,
         validated.query,
@@ -318,6 +320,7 @@ router.post(
  */
 router.delete(
   '/saved/:id',
+  csrfProtection,
   authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -390,7 +393,7 @@ router.get(
       const { days = 30 } = req.query
 
       const analytics = await DocumentSearchService.getSearchAnalytics(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         Number(days)
       )
 
@@ -418,15 +421,16 @@ router.get(
  */
 router.post(
   '/index/document/:id',
+  csrfProtection,
   authorize('admin', 'fleet_manager'),
-  auditLog({ action: 'CREATE' as any, resourceType: 'documents' }),
+  auditLog({ action: 'CREATE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const { priority = 'normal' } = req.body
 
       await DocumentIndexer.indexDocument(
         req.params.id,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         priority
       )
 
@@ -450,8 +454,9 @@ router.post(
  */
 router.post(
   '/index/reindex',
+  csrfProtection,
   authorize('admin'),
-  auditLog({ action: 'UPDATE' as any, resourceType: 'documents' }),
+  auditLog({ action: 'UPDATE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
@@ -463,8 +468,8 @@ router.post(
       const validated = schema.parse(req.body)
 
       const job = await DocumentIndexer.createReindexJob(
-        req.user!.tenant_id,
-        validated
+        req.user!.tenant_id ?? '',
+        { ...validated, documentIds: validated.documentIds?.filter((id: string | undefined): id is string => id !== undefined) }
       )
 
       res.status(202).json({
@@ -501,7 +506,7 @@ router.get(
       const { status, limit = 20 } = req.query
 
       const jobs = await DocumentIndexer.getIndexingJobs(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         {
           status: status as string,
           limit: Number(limit)
@@ -528,11 +533,12 @@ router.get(
  */
 router.post(
   '/index/optimize',
+  csrfProtection,
   authorize('admin'),
-  auditLog({ action: 'UPDATE' as any, resourceType: 'search_index' }),
+  auditLog({ action: 'UPDATE', resourceType: 'search_index' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      await DocumentIndexer.optimizeIndexes(req.user!.tenant_id)
+      await DocumentIndexer.optimizeIndexes(req.user!.tenant_id ?? '')
 
       res.json({
         success: true,
@@ -557,7 +563,7 @@ router.get(
   authorize('admin', 'fleet_manager'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const stats = await DocumentIndexer.getIndexStats(req.user!.tenant_id)
+      const stats = await DocumentIndexer.getIndexStats(req.user!.tenant_id ?? '')
 
       res.json({
         success: true,
@@ -579,8 +585,9 @@ router.get(
  */
 router.post(
   '/cache/clear',
+  csrfProtection,
   authorize('admin'),
-  auditLog({ action: 'DELETE' as any, resourceType: 'search_cache' }),
+  auditLog({ action: 'DELETE', resourceType: 'search_cache' }),
   async (req: AuthRequest, res: Response) => {
     try {
       await SearchIndexService.clearCache()
@@ -605,10 +612,11 @@ router.post(
  */
 router.post(
   '/cache/warm',
+  csrfProtection,
   authorize('admin'),
   async (req: AuthRequest, res: Response) => {
     try {
-      await SearchIndexService.warmCache(req.user!.tenant_id)
+      await SearchIndexService.warmCache(req.user!.tenant_id ?? '')
 
       res.json({
         success: true,

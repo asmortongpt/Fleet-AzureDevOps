@@ -20,6 +20,7 @@ import { API_ENDPOINT_CATEGORIES, WEBSOCKET_CONNECTIONS } from '@/config/endpoin
 import { useEndpointHealth } from '@/hooks/useEndpointHealth'
 import { cn } from '@/lib/utils'
 import { EndpointStatus, SocketStatus } from '@/types/endpoint-monitor'
+import { formatTime } from '@/utils/format-helpers'
 
 interface AllEndpointsMonitorProps {
   className?: string
@@ -91,7 +92,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       case 'error':
         return <XCircle className="w-3 h-3 text-red-600" />
       default:
-        return <HelpCircle className="w-3 h-3 text-gray-700" />
+        return <HelpCircle className="w-3 h-3 text-white/40" />
     }
   }
 
@@ -99,7 +100,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
   const getMethodColor = (method: string) => {
     switch (method) {
       case 'GET':
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+        return 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300'
       case 'POST':
         return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
       case 'PUT':
@@ -109,7 +110,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       case 'DELETE':
         return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
       default:
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300'
+        return 'bg-white/[0.05] text-white/40 dark:bg-[#111113] dark:text-white/60'
     }
   }
 
@@ -129,11 +130,11 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       case 'connecting':
         return 'text-yellow-600'
       case 'disconnected':
-        return 'text-gray-700'
+        return 'text-white/40'
       case 'error':
         return 'text-red-600'
       default:
-        return 'text-gray-700'
+        return 'text-white/40'
     }
   }
 
@@ -183,7 +184,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
         <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border/50">
-          <Circle className="w-2 h-2 fill-blue-500 text-blue-800" />
+          <Circle className="w-2 h-2 fill-emerald-500 text-emerald-800" />
           <div>
             <p className="text-[10px] text-muted-foreground">Total</p>
             <p className="text-sm font-semibold">{summary.totalEndpoints}</p>
@@ -210,11 +211,11 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
             <p className="text-sm font-semibold text-red-700 dark:text-red-400">{summary.errorCount}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-950/20 border border-gray-200 dark:border-gray-900">
-          <HelpCircle className="w-3 h-3 text-gray-700" />
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.03] dark:bg-[#09090b]/20 border border-white/[0.08] dark:border-white/[0.06]">
+          <HelpCircle className="w-3 h-3 text-white/40" />
           <div>
             <p className="text-[10px] text-muted-foreground">Unknown</p>
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-700">{summary.unknownCount}</p>
+            <p className="text-sm font-semibold text-white/40 dark:text-white/40">{summary.unknownCount}</p>
           </div>
         </div>
       </div>
@@ -222,7 +223,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       {lastCheck && (
         <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
           <Clock className="w-3 h-3" />
-          Last checked: {lastCheck.toLocaleTimeString()}
+          Last checked: {formatTime(lastCheck)}
         </div>
       )}
 

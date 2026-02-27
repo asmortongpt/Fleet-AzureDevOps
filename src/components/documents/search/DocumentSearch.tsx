@@ -82,7 +82,7 @@ export function DocumentSearch({
 
   return (
     <div className="relative w-full">
-      <Command className="rounded-lg border shadow-md">
+      <Command className="rounded-lg border">
         <div className="flex items-center border-b px-3">
           <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
           <CommandInput
@@ -130,9 +130,9 @@ export function DocumentSearch({
             {/* No query - show recent searches */}
             {!query && !isPending && recentSearches.length > 0 && (
               <CommandGroup heading="Recent Searches">
-                {recentSearches.slice(0, 5).map((search, index) => (
+                {recentSearches.slice(0, 5).map((search) => (
                   <CommandItem
-                    key={index}
+                    key={search}
                     onSelect={() => handleRecentSearch(search)}
                   >
                     <Clock className="mr-2 h-4 w-4 text-muted-foreground" />

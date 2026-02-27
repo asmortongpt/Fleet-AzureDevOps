@@ -11,9 +11,11 @@
  */
 
 import { AlertCircle, Box, Plus, Upload, X } from 'lucide-react'
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -35,6 +37,10 @@ import {
 } from '@/components/ui/select'
 import { SmartTooltip } from '@/components/ui/smart-tooltip'
 import { Textarea } from '@/components/ui/textarea'
+import { useNavigation } from '@/contexts/NavigationContext'
+import { secureFetch } from '@/hooks/use-api'
+import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface DamageReportFormData {
   vehicle_id: string
@@ -53,8 +59,10 @@ interface FormErrors {
 }
 
 export function CreateDamageReport() {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [vehicles, setVehicles] = useState<{ id: string; make: string; model: string; vin?: string; name?: string }[]>([])
+  const [vehiclesLoading, setVehiclesLoading] = useState(true)
   const [formData, setFormData] = useState<DamageReportFormData>({
     vehicle_id: '',
     damage_severity: '',
@@ -64,13 +72,30 @@ export function CreateDamageReport() {
     photos: [],
   })
   const [errors, setErrors] = useState<FormErrors>({})
+  useEffect(() => {
+    let cancelled = false
+    const loadVehicles = async () => {
+      try {
+        setVehiclesLoading(true)
+        const res = await secureFetch('/api/vehicles?limit=200')
+        if (!res.ok) throw new Error('Failed to load vehicles')
+        const payload = await res.json()
+        const rows = payload?.data?.data ?? payload?.data ?? payload
+        if (!cancelled) {
+          setVehicles(Array.isArray(rows) ? rows : [])
+        }
+      } catch {
+        if (!cancelled) setVehicles([])
+      } finally {
+        if (!cancelled) setVehiclesLoading(false)
+      }
+    }
 
-  // Mock vehicle data - in production, fetch from API
-  const vehicles = [
-    { id: '1', make: 'Ford', model: 'F-150', vin: '1FTFW1E89MFA12345' },
-    { id: '2', make: 'Chevrolet', model: 'Silverado', vin: '1GC4K1EY2MF123456' },
-    { id: '3', make: 'Toyota', model: 'Camry', vin: '4T1B11HK5MU123456' },
-  ]
+    loadVehicles()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const handleInputChange = (field: keyof DamageReportFormData, value: string | File[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -126,25 +151,96 @@ export function CreateDamageReport() {
 
     setIsSubmitting(true)
 
-    // Simulate API call
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log('Damage report submitted:', formData)
-      // Navigate to damage reports list or show success message
-      navigate('/fleet')
+      let uploadedPhotos: string[] = []
+
+      if (formData.photos.length > 0) {
+        const mediaData = new FormData()
+        formData.photos.forEach((file) => mediaData.append('media', file))
+
+        const uploadResponse = await fetch('/api/damage-reports/upload-media', {
+          method: 'POST',
+          credentials: 'include',
+          body: mediaData
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload media')
+        }
+
+        const uploadPayload = await uploadResponse.json()
+        uploadedPhotos = (uploadPayload?.files || []).map((file: any) => file.url).filter(Boolean)
+      }
+
+      const description = formData.estimated_repair_cost
+        ? `${formData.damage_description}\nEstimated repair cost: ${formData.estimated_repair_cost}`
+        : formData.damage_description
+
+      const submitResponse = await secureFetch('/api/damage-reports', {
+        method: 'POST',
+        body: JSON.stringify({
+          vehicle_id: formData.vehicle_id,
+          damage_description: description,
+          damage_severity: formData.damage_severity,
+          damage_location: formData.damage_location || undefined,
+          photos: uploadedPhotos
+        })
+      })
+
+      if (!submitResponse.ok) {
+        throw new Error('Failed to submit damage report')
+      }
+
+      navigateTo('fleet-hub-consolidated')
     } catch (error) {
-      console.error('Failed to submit damage report:', error)
+      logger.error('Failed to submit damage report:', error)
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handleSaveDraft = () => {
-    console.log('Saving draft:', formData)
-    // Save to local storage or API
+    try {
+      // Save form data to localStorage (exclude File objects which can't be serialized)
+      const draftData = {
+        vehicle_id: formData.vehicle_id,
+        damage_severity: formData.damage_severity,
+        damage_description: formData.damage_description,
+        damage_location: formData.damage_location,
+        estimated_repair_cost: formData.estimated_repair_cost,
+        photo_count: formData.photos.length,
+        saved_at: new Date().toISOString(),
+      }
+      localStorage.setItem('damage_report_draft', JSON.stringify(draftData))
+      toast.success('Draft saved successfully')
+    } catch (err) {
+      logger.error('Failed to save draft:', err)
+      toast.error('Failed to save draft')
+    }
   }
 
+  // Restore draft from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('damage_report_draft')
+      if (saved) {
+        const draft = JSON.parse(saved)
+        setFormData((prev) => ({
+          ...prev,
+          vehicle_id: draft.vehicle_id || prev.vehicle_id,
+          damage_severity: draft.damage_severity || prev.damage_severity,
+          damage_description: draft.damage_description || prev.damage_description,
+          damage_location: draft.damage_location || prev.damage_location,
+          estimated_repair_cost: draft.estimated_repair_cost || prev.estimated_repair_cost,
+        }))
+      }
+    } catch {
+      // Ignore parse errors from corrupted localStorage
+    }
+  }, [])
+
   return (
+    <ErrorBoundary>
     <div className="container mx-auto py-3 px-2 max-w-4xl">
       <Card>
         <CardHeader>
@@ -177,7 +273,7 @@ export function CreateDamageReport() {
             <SmartTooltip content="Cancel and return to fleet" shortcut="Esc">
               <Button
                 variant="ghost"
-                onClick={() => navigate('/fleet')}
+                onClick={() => navigateTo('fleet-hub-consolidated')}
                 type="button"
               >
                 <X className="h-4 w-4 mr-2" />
@@ -206,9 +302,13 @@ export function CreateDamageReport() {
                   <SelectValue placeholder="Choose a vehicle" />
                 </SelectTrigger>
                 <SelectContent>
-                  {vehicles.map((vehicle) => (
+                  {vehiclesLoading ? (
+                    <SelectItem value="loading" disabled>Loading vehicles…</SelectItem>
+                  ) : vehicles.length === 0 ? (
+                    <SelectItem value="empty" disabled>No vehicles available</SelectItem>
+                  ) : vehicles.map((vehicle) => (
                     <SelectItem key={vehicle.id} value={vehicle.id}>
-                      {vehicle.make} {vehicle.model} ({vehicle.vin})
+                      {formatVehicleName(vehicle)} {vehicle.vin ? `(${vehicle.vin})` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -359,8 +459,8 @@ export function CreateDamageReport() {
                 />
 
                 {formData.photos.length >= 3 && (
-                  <SmartTooltip content="Generate 3D model from uploaded photos using AI-powered TripoSR">
-                    <Button type="button" variant="secondary">
+                  <SmartTooltip content="3D model generation requires vehicle LiDAR scan data. Upload photos first, then request a scan from maintenance.">
+                    <Button type="button" variant="secondary" disabled>
                       <Box className="h-4 w-4 mr-2" />
                       Generate 3D Model
                     </Button>
@@ -372,7 +472,7 @@ export function CreateDamageReport() {
               {formData.photos.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {formData.photos.map((photo, index) => (
-                    <div key={index} className="relative group">
+                    <div key={photo.name} className="relative group">
                       <img
                         src={URL.createObjectURL(photo)}
                         alt={`Upload ${index + 1}`}
@@ -422,10 +522,10 @@ export function CreateDamageReport() {
 
             {/* Helpful Notice */}
             {formData.photos.length > 0 && formData.photos.length < 3 && (
-              <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-blue-800 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-blue-800">
+                  <p className="font-medium text-emerald-400">
                     Upload more photos for 3D model generation
                   </p>
                   <p className="text-muted-foreground mt-1">
@@ -441,5 +541,6 @@ export function CreateDamageReport() {
         </CardContent>
       </Card>
     </div>
+    </ErrorBoundary>
   )
 }

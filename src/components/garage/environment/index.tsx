@@ -27,12 +27,12 @@ export function DynamicLighting({ timeOfDay, weatherIntensity = 1.0 }: { timeOfD
 
 export function ProceduralSky({ timeOfDay }: { timeOfDay: TimeOfDay }) {
   const skyColors: Record<TimeOfDay, string> = {
-    dawn: '#87CEEB',
-    morning: '#87CEEB',
-    midday: '#87CEEB',
-    afternoon: '#FFD700',
-    dusk: '#FF6B35',
-    night: '#0A1929'
+    dawn: 'hsl(var(--primary))',
+    morning: 'hsl(var(--primary))',
+    midday: 'hsl(var(--primary))',
+    afternoon: 'hsl(var(--warning))',
+    dusk: 'hsl(var(--destructive))',
+    night: 'hsl(var(--background))'
   }
 
   return (
@@ -65,9 +65,10 @@ export function RainEffect() {
           count={1000}
           array={new Float32Array(3000).map(() => (Math.random() - 0.5) * 100)}
           itemSize={3}
+          args={[new Float32Array(3000).map(() => (Math.random() - 0.5) * 100), 3]}
         />
       </bufferGeometry>
-      <pointsMaterial size={0.1} color="#4A90E2" transparent opacity={0.6} />
+      <pointsMaterial size={0.1} color="hsl(var(--primary))" transparent opacity={0.6} />
     </points>
   )
 }
@@ -81,19 +82,20 @@ export function SnowEffect() {
           count={500}
           array={new Float32Array(1500).map(() => (Math.random() - 0.5) * 100)}
           itemSize={3}
+          args={[new Float32Array(1500).map(() => (Math.random() - 0.5) * 100), 3]}
         />
       </bufferGeometry>
-      <pointsMaterial size={0.2} color="#FFFFFF" transparent opacity={0.8} />
+      <pointsMaterial size={0.2} color="hsl(var(--foreground))" transparent opacity={0.8} />
     </points>
   )
 }
 
 export function FogEffect({ density = 0.15 }: { density?: number }) {
-  return <fog attach="fog" args={['#999999', 10, 100 * (1 / density)]} />
+  return <fog attach="fog" args={['hsl(var(--muted-foreground))', 10, 100 * (1 / density)]} />
 }
 
 export function DynamicGround({ weather, size = 100 }: { weather: WeatherType; size?: number }) {
-  const groundColor = weather === 'snow' ? '#FFFFFF' : weather === 'rain' ? '#555555' : '#8B7355'
+  const groundColor = weather === 'snow' ? 'hsl(var(--foreground))' : weather === 'rain' ? 'hsl(var(--muted-foreground))' : 'hsl(var(--warning))'
   
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>

@@ -7,8 +7,11 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
 import * as schema from '../schemas/production.schema';
+import { logger } from '../utils/logger';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_dev';
+const DATABASE_URL = process.env.DATABASE_URL || (process.env.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@localhost:5432/fleet_dev' : (() => {
+ throw new Error('DATABASE_URL must be set in production'); 
+})());
 
 // Create PostgreSQL connection pool
 export const pool = new Pool({
@@ -28,7 +31,7 @@ export async function checkDatabaseConnection(): Promise<boolean> {
     await pool.query('SELECT 1');
     return true;
   } catch (error) {
-    console.error('Database connection failed:', error);
+    logger.error('Database connection failed:', error);
     return false;
   }
 }
@@ -37,9 +40,9 @@ export async function checkDatabaseConnection(): Promise<boolean> {
 export async function closeDatabaseConnection(): Promise<void> {
   try {
     await pool.end();
-    console.log('✅ Database connection pool closed');
+    logger.info('Database connection pool closed');
   } catch (error) {
-    console.error('❌ Error closing database connection:', error);
+    logger.error('Error closing database connection:', error);
     throw error;
   }
 }

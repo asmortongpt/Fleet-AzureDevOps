@@ -48,7 +48,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     })
 
     res.json({ data: zones })
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json({ error: 'Failed to fetch hazard zones' })
   }
 })
@@ -114,9 +114,9 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
         lastUpdated: row.updated_at
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof NotFoundError) {
-      return res.status(404).json({ error: error.message })
+      return res.status(404).json({ error: 'Resource not found' })
     }
     return res.status(500).json({ error: 'Failed to fetch hazard zone' })
   }
@@ -186,9 +186,9 @@ router.get('/:id/affected-vehicles', async (req: AuthRequest, res: Response) => 
       }))
 
     res.json({ data: affected })
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof NotFoundError) {
-      return res.status(404).json({ error: error.message })
+      return res.status(404).json({ error: 'Resource not found' })
     }
     return res.status(500).json({ error: 'Failed to fetch affected vehicles' })
   }
@@ -235,7 +235,7 @@ router.get('/:id/events', async (req: AuthRequest, res: Response) => {
     }))
 
     res.json({ data: events })
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json({ error: 'Failed to fetch hazard zone events' })
   }
 })

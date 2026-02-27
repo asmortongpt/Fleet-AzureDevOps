@@ -5,7 +5,11 @@
  */
 
 import { pool } from '../config/database'
+import logger from '../config/logger'
 import fleetOptimizationModel, { VehicleUtilizationData } from '../ml-models/fleet-optimization.model'
+
+// Export singleton instance
+import { db } from '../db'
 // ... exports ...
 
 export interface UtilizationMetric {
@@ -138,7 +142,7 @@ class FleetOptimizerService {
       }
     } catch (error) {
       await client.query('ROLLBACK')
-      console.error('Error analyzing vehicle utilization:', error)
+      logger.error('Error analyzing vehicle utilization', { error: error instanceof Error ? error.message : String(error) })
       throw error
     } finally {
       client.release()
@@ -313,7 +317,7 @@ class FleetOptimizerService {
         )
         utilizationData.push(data)
       } catch (error) {
-        console.error(`Error gathering data for vehicle ${vehicle.id}:`, error)
+        logger.error('Error gathering data for vehicle', { vehicleId: vehicle.id, error: error instanceof Error ? error.message : String(error) })
       }
     }
 
@@ -347,7 +351,7 @@ class FleetOptimizerService {
       await client.query('COMMIT')
     } catch (error) {
       await client.query('ROLLBACK')
-      console.error('Error saving recommendations:', error)
+      logger.error('Error saving recommendations', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       client.release()
     }
@@ -458,14 +462,11 @@ class FleetOptimizerService {
       try {
         await this.analyzeVehicleUtilization(vehicle.id, tenantId, periodStart, periodEnd)
       } catch (error) {
-        console.error(`Error analyzing vehicle ${vehicle.id}:`, error)
+        logger.error('Error analyzing vehicle', { vehicleId: vehicle.id, error: error instanceof Error ? error.message : String(error) })
       }
     }
   }
 }
-
-// Export singleton instance
-import { db } from '../db'
 // @ts-expect-error - Build compatibility fix
 const fleetOptimizerService = new FleetOptimizerService(db)
 

@@ -98,7 +98,7 @@ router.get(
         data: stations,
         count: stations.length,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching chargers:', error) // Wave 24: Winston logger;
       res.status(500).json({
         success: false,
@@ -145,7 +145,7 @@ router.get(
         success: true,
         data: status,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching charger status:', error) // Wave 24: Winston logger;
       res.status(500).json({
         success: false,
@@ -198,7 +198,7 @@ router.get(
  */
 router.post(
   '/chargers/:id/reserve',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('charging_station:create:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -219,8 +219,8 @@ router.post(
         data: reservation,
         message: 'Charging station reserved successfully',
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
           error: 'Validation error',
@@ -256,7 +256,7 @@ router.post(
  */
 router.delete(
   '/reservations/:id/cancel',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('charging_station:delete:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -267,7 +267,7 @@ router.delete(
         success: true,
         message: 'Reservation cancelled successfully',
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error cancelling reservation:', error) // Wave 24: Winston logger;
       res.status(500).json({
         success: false,
@@ -319,7 +319,7 @@ router.delete(
  */
 router.post(
   '/vehicles/:id/charge-schedule',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('charging_station:create:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -340,8 +340,8 @@ router.post(
         data: schedule,
         message: 'Smart charging schedule created',
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
           error: 'Validation error',
@@ -377,7 +377,7 @@ router.post(
  */
 router.post(
   '/chargers/:id/remote-start',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('charging_station:update:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -397,7 +397,7 @@ router.post(
         data: result,
         message: 'Remote start command sent',
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error remote starting:', error) // Wave 24: Winston logger;
       res.status(500).json({
         success: false,
@@ -426,7 +426,7 @@ router.post(
  */
 router.post(
   '/sessions/:transactionId/stop',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('charging_station:update:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -442,7 +442,7 @@ router.post(
         data: result,
         message: 'Remote stop command sent',
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error remote stopping:', error) // Wave 24: Winston logger;
       res.status(500).json({
         success: false,
@@ -470,7 +470,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, charger_id, start_time, end_time, energy_charged, cost FROM active_charging_sessions ORDER BY start_time DESC`
+        `SELECT id, transaction_id, vehicle_name, vin, driver_name, station_name, station_id, start_time, energy_delivered_kwh, start_soc_percent, target_soc_percent, duration_minutes, avg_power_kw FROM active_charging_sessions ORDER BY start_time DESC`
       )
 
       res.json({
@@ -478,7 +478,7 @@ router.get(
         data: result.rows,
         count: result.rows.length,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching active sessions:`, error) // Wave 24: Winston logger;
       res.status(500).json({
         success: false,
@@ -564,7 +564,7 @@ router.get(
           summary,
         },
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching carbon footprint:', error) // Wave 24: Winston logger;
       res.status(500).json({
         success: false,
@@ -626,7 +626,7 @@ router.get(
         success: true,
         data: report,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error generating ESG report:', error) // Wave 24: Winston logger;
       res.status(500).json({
         success: false,
@@ -666,7 +666,7 @@ router.get(
         success: true,
         data: report,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching battery health:', error) // Wave 24: Winston logger;
       res.status(500).json({
         success: false,
@@ -694,14 +694,14 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT station_id, station_name, utilization_percent, total_sessions, peak_hour FROM station_utilization_today ORDER BY utilization_percent DESC`
+        `SELECT id, name, station_id, status, sessions_today, total_energy_kwh, total_minutes_used, utilization_percent FROM station_utilization_today ORDER BY utilization_percent DESC`
       )
 
       res.json({
         success: true,
         data: result.rows,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching station utilization:`, error) // Wave 24: Winston logger;
       res.status(500).json({
         success: false,
@@ -762,7 +762,7 @@ router.get(
         data: result.rows,
         count: result.rows.length,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching charging history:', error) // Wave 24: Winston logger;
       res.status(500).json({
         success: false,

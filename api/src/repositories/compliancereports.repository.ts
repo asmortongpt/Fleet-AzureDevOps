@@ -23,8 +23,9 @@ export class ComplianceReportsRepository extends BaseRepository<any> {
       const query = 'SELECT id, tenant_id, created_at, updated_at FROM compliance_reports WHERE tenant_id = $1 AND deleted_at IS NULL';
       const result = await this.pool.query<ComplianceReport>(query, [tenantId]);
       return result.rows;
-    } catch (error) {
-      throw new Error(`Failed to fetch compliance reports: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to fetch compliance reports: ${message}`);
     }
   }
 
@@ -33,8 +34,9 @@ export class ComplianceReportsRepository extends BaseRepository<any> {
       const query = 'SELECT id, tenant_id, created_at, updated_at FROM compliance_reports WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result = await this.pool.query<ComplianceReport>(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error) {
-      throw new Error(`Failed to fetch compliance report by ID: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to fetch compliance report by ID: ${message}`);
     }
   }
 
@@ -43,8 +45,9 @@ export class ComplianceReportsRepository extends BaseRepository<any> {
       const query = 'INSERT INTO compliance_reports (tenant_id, report_name, report_data) VALUES ($1, $2, $3) RETURNING *';
       const result = await this.pool.query<ComplianceReport>(query, [tenantId, report.report_name, report.report_data]);
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to create compliance report: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create compliance report: ${message}`);
     }
   }
 
@@ -58,8 +61,9 @@ export class ComplianceReportsRepository extends BaseRepository<any> {
         throw new Error('Compliance report not found or already deleted');
       }
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to update compliance report: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to update compliance report: ${message}`);
     }
   }
 
@@ -70,8 +74,9 @@ export class ComplianceReportsRepository extends BaseRepository<any> {
       if (result.rowCount === 0) {
         throw new Error('Compliance report not found or already deleted');
       }
-    } catch (error) {
-      throw new Error(`Failed to soft delete compliance report: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to soft delete compliance report: ${message}`);
     }
   }
 }

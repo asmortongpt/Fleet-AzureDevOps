@@ -20,8 +20,9 @@ import {
   Copy,
   Info,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
+import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
@@ -30,6 +31,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { secureFetch } from '@/hooks/use-api';
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 interface PolicyTemplateDetailPanelProps {
@@ -52,8 +57,8 @@ interface PolicyTemplate {
   fleet_size_max?: number
   conditions: PolicyCondition[]
   actions: PolicyAction[]
-  sample_violations: SampleViolation[]
-  implementation_requirements: ImplementationRequirement[]
+  sample_violations?: SampleViolation[]
+  implementation_requirements?: ImplementationRequirement[]
   estimated_impact: {
     cost_savings?: number
     safety_improvement?: number
@@ -85,7 +90,7 @@ interface SampleViolation {
   scenario: string
   description: string
   severity: 'low' | 'medium' | 'high' | 'critical'
-  frequency: 'rare' | 'occasional' | 'common' | 'frequent'
+  frequency?: 'rare' | 'occasional' | 'common' | 'frequent'
 }
 
 interface ImplementationRequirement {
@@ -105,136 +110,77 @@ export function PolicyTemplateDetailPanel({
   const [activeTab, setActiveTab] = useState('overview')
   const [isLoading, setIsLoading] = useState(false)
 
-  // Mock data if not provided
-  const templateData: PolicyTemplate = template || {
-    id: templateId,
-    name: 'Speed Limit Enforcement',
-    category: 'Fleet Safety',
-    type: 'safety',
-    description:
-      'Automated speed limit monitoring and enforcement policy that tracks vehicle speeds against posted limits and geofenced zones.',
-    purpose:
-      'Reduce speeding incidents, improve driver safety, lower insurance premiums, and ensure compliance with DOT regulations.',
-    priority: 'high',
-    enforcement_level: 'mandatory',
-    applies_to: 'all',
-    industry_vertical: ['Logistics & Transportation', 'Government', 'Healthcare'],
-    fleet_size_min: 10,
-    conditions: [
-      {
-        id: '1',
-        condition_type: 'speed_threshold',
-        description: 'Vehicle speed exceeds posted limit by configurable threshold',
-        parameters: { threshold_mph: 10, duration_seconds: 5 },
-        is_required: true,
+  const { data: apiTemplate } = useSWR<any>(
+    template ? null : `/api/policy-templates/${templateId}`,
+    apiFetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const { data: apiViolations } = useSWR<any>(
+    `/api/policy-templates/${templateId}/violations?limit=10`,
+    apiFetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const templateData: PolicyTemplate | undefined = useMemo(() => {
+    const source = template ?? apiTemplate
+    if (!source) return undefined
+    return {
+      id: String(source.id ?? templateId),
+      name: String(source.name ?? source.policy_name ?? templateId),
+      category: String(source.category ?? source.type ?? 'policy'),
+      type: (source.type ?? source.policy_type ?? 'operational') as PolicyTemplate['type'],
+      description: String(source.description ?? source.summary ?? ''),
+      purpose: String(source.purpose ?? source.objective ?? ''),
+      priority: (source.priority ?? 'medium') as PolicyTemplate['priority'],
+      enforcement_level: (source.enforcement_level ?? source.enforcementLevel ?? 'advisory') as PolicyTemplate['enforcement_level'],
+      applies_to: (source.applies_to ?? source.appliesTo ?? 'all') as PolicyTemplate['applies_to'],
+      industry_vertical: Array.isArray(source.industry_vertical) ? source.industry_vertical : [],
+      fleet_size_min: source.fleet_size_min ?? source.fleetSizeMin,
+      fleet_size_max: source.fleet_size_max ?? source.fleetSizeMax,
+      conditions: Array.isArray(source.conditions) ? source.conditions : [],
+      actions: Array.isArray(source.actions) ? source.actions : [],
+      sample_violations: Array.isArray(apiViolations)
+        ? apiViolations.map((violation: any) => ({
+            id: String(violation.id),
+            scenario: String(violation.policy_name ?? violation.violation_type ?? 'Violation'),
+            description: String(violation.description ?? ''),
+            severity: (violation.severity ?? 'medium') as SampleViolation['severity'],
+            frequency: (violation.frequency ?? violation.violation_frequency) as SampleViolation['frequency'],
+          }))
+        : [],
+      implementation_requirements: Array.isArray(source.implementation_requirements)
+        ? source.implementation_requirements
+        : [],
+      estimated_impact: source.estimated_impact ?? {
+        cost_savings: source.cost_savings,
+        safety_improvement: source.safety_improvement,
+        efficiency_gain: source.efficiency_gain,
       },
-      {
-        id: '2',
-        condition_type: 'geofence_zone',
-        description: 'Applies different thresholds in school zones and residential areas',
-        parameters: { zone_types: ['school', 'residential'], threshold_mph: 5 },
-        is_required: false,
-      },
-    ],
-    actions: [
-      {
-        id: '1',
-        action_type: 'notification',
-        description: 'Send real-time alert to driver via mobile app',
-        parameters: { delivery_method: 'push', priority: 'high' },
-        severity: 'medium',
-        automated: true,
-      },
-      {
-        id: '2',
-        action_type: 'escalation',
-        description: 'Notify fleet manager if speed exceeds critical threshold',
-        parameters: { threshold_mph: 20, notify_roles: ['manager', 'supervisor'] },
-        severity: 'high',
-        automated: true,
-      },
-      {
-        id: '3',
-        action_type: 'documentation',
-        description: 'Log violation for driver record and review',
-        parameters: { retention_days: 365, include_video: true },
-        severity: 'low',
-        automated: true,
-      },
-    ],
-    sample_violations: [
-      {
-        id: '1',
-        scenario: 'Highway Speeding',
-        description: 'Driver exceeds 70 mph speed limit by 15 mph on interstate',
-        severity: 'medium',
-        frequency: 'occasional',
-      },
-      {
-        id: '2',
-        scenario: 'School Zone Violation',
-        description: 'Vehicle travels 35 mph in 15 mph school zone during school hours',
-        severity: 'critical',
-        frequency: 'rare',
-      },
-      {
-        id: '3',
-        scenario: 'Residential Speeding',
-        description: 'Consistent speeding in residential neighborhoods',
-        severity: 'high',
-        frequency: 'common',
-      },
-    ],
-    implementation_requirements: [
-      {
-        id: '1',
-        requirement_type: 'data',
-        title: 'Real-time GPS Data',
-        description: 'Requires vehicle telematics with GPS and speed data',
-        priority: 'required',
-        estimated_time: '1 day',
-      },
-      {
-        id: '2',
-        requirement_type: 'integration',
-        title: 'Speed Limit Database',
-        description: 'Integration with HERE or Google Maps for posted speed limits',
-        priority: 'required',
-        estimated_time: '3 days',
-      },
-      {
-        id: '3',
-        requirement_type: 'configuration',
-        title: 'Geofence Setup',
-        description: 'Define custom geofences for school zones and sensitive areas',
-        priority: 'recommended',
-        estimated_time: '2 days',
-      },
-      {
-        id: '4',
-        requirement_type: 'training',
-        title: 'Driver Training',
-        description: 'Educate drivers on new policy and mobile alerts',
-        priority: 'recommended',
-        estimated_time: '1 week',
-      },
-    ],
-    estimated_impact: {
-      cost_savings: 25000,
-      safety_improvement: 35,
-      efficiency_gain: 10,
-    },
-    compliance_standards: ['DOT', 'FMCSA', 'OSHA'],
-    best_practices_source: 'NHTSA Fleet Safety Best Practices 2024',
-  }
+      compliance_standards: Array.isArray(source.compliance_standards)
+        ? source.compliance_standards
+        : [],
+      best_practices_source: source.best_practices_source,
+    }
+  }, [template, apiTemplate, apiViolations, templateId])
+
+  const implementationRequirements = templateData?.implementation_requirements ?? []
+  const sampleViolations = templateData?.sample_violations ?? []
 
   const handleUseTemplate = async () => {
     setIsLoading(true)
     try {
-      // Simulate API call to create policy from template
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await secureFetch(`/api/policy-templates/${templateId}/execute`, {
+        method: 'POST',
+        body: JSON.stringify({ context: {} })
+      })
 
-      toast.success(`Policy "${templateData.name}" created successfully!`)
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}))
+        throw new Error(error?.error || 'Failed to execute template')
+      }
+
+      toast.success(`Policy "${templateData?.name ?? templateId}" created successfully!`)
       pop() // Go back to template list
     } catch (error) {
       toast.error('Failed to create policy from template')
@@ -276,7 +222,7 @@ export function PolicyTemplateDetailPanel({
     }
   }
 
-  const getFrequencyColor = (frequency: string) => {
+  const getFrequencyColor = (frequency?: string) => {
     switch (frequency?.toLowerCase()) {
       case 'frequent':
         return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
@@ -287,8 +233,18 @@ export function PolicyTemplateDetailPanel({
       case 'rare':
         return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
+        return 'bg-white/[0.05] text-white/60 dark:bg-white/[0.03] dark:text-white/40'
     }
+  }
+
+  if (!templateData) {
+    return (
+      <DrilldownContent loading={false} error={null}>
+        <div className="p-6 text-center text-sm text-muted-foreground">
+          Policy template data is not available.
+        </div>
+      </DrilldownContent>
+    )
   }
 
   return (
@@ -300,14 +256,14 @@ export function PolicyTemplateDetailPanel({
             <h3 className="text-sm font-bold">{templateData.name}</h3>
             <p className="text-sm text-muted-foreground">{templateData.category}</p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <Badge variant="outline" className="capitalize">
-                {templateData.type}
+              <Badge variant="outline">
+                {formatEnum(templateData.type)}
               </Badge>
               <Badge variant={getSeverityColor(templateData.priority)}>
-                {templateData.priority} Priority
+                {formatEnum(templateData.priority)} Priority
               </Badge>
-              <Badge variant="outline" className="capitalize">
-                {templateData.enforcement_level}
+              <Badge variant="outline">
+                {formatEnum(templateData.enforcement_level)}
               </Badge>
               <Badge variant="secondary">Applies to: {templateData.applies_to}</Badge>
             </div>
@@ -332,7 +288,7 @@ export function PolicyTemplateDetailPanel({
             </CardHeader>
             <CardContent>
               <div className="text-sm font-bold text-green-600">
-                ${templateData.estimated_impact.cost_savings?.toLocaleString() || 0}
+                {formatCurrency(templateData.estimated_impact.cost_savings)}
               </div>
               <p className="text-xs text-muted-foreground">Estimated annually</p>
             </CardContent>
@@ -346,7 +302,7 @@ export function PolicyTemplateDetailPanel({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-sm font-bold text-blue-800">
+              <div className="text-sm font-bold text-emerald-400">
                 +{templateData.estimated_impact.safety_improvement || 0}%
               </div>
               <p className="text-xs text-muted-foreground">Reduction in incidents</p>
@@ -361,7 +317,7 @@ export function PolicyTemplateDetailPanel({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-sm font-bold text-purple-600">
+              <div className="text-sm font-bold text-amber-600">
                 +{templateData.estimated_impact.efficiency_gain || 0}%
               </div>
               <p className="text-xs text-muted-foreground">Operational improvement</p>
@@ -377,11 +333,11 @@ export function PolicyTemplateDetailPanel({
             </CardHeader>
             <CardContent>
               <div className="text-sm font-bold">
-                {templateData.implementation_requirements.length}
+                {implementationRequirements.length}
               </div>
               <p className="text-xs text-muted-foreground">
                 {
-                  templateData.implementation_requirements.filter((r) => r.priority === 'required')
+                  implementationRequirements.filter((r) => r.priority === 'required')
                     .length
                 }{' '}
                 required
@@ -498,8 +454,8 @@ export function PolicyTemplateDetailPanel({
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="capitalize">
-                          {condition.condition_type.replace('_', ' ')}
+                        <Badge variant="outline">
+                          {formatEnum(condition.condition_type)}
                         </Badge>
                         {condition.is_required && (
                           <Badge variant="destructive">Required</Badge>
@@ -524,8 +480,8 @@ export function PolicyTemplateDetailPanel({
                         <div className="grid grid-cols-2 gap-3">
                           {Object.entries(condition.parameters).map(([key, value]) => (
                             <div key={key}>
-                              <p className="text-xs text-muted-foreground capitalize">
-                                {key.replace('_', ' ')}
+                              <p className="text-xs text-muted-foreground">
+                                {formatEnum(key)}
                               </p>
                               <p className="text-sm font-medium">
                                 {Array.isArray(value) ? value.join(', ') : String(value)}
@@ -549,11 +505,11 @@ export function PolicyTemplateDetailPanel({
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="capitalize">
-                          {action.action_type.replace('_', ' ')}
+                        <Badge variant="outline">
+                          {formatEnum(action.action_type)}
                         </Badge>
                         <Badge variant={getSeverityColor(action.severity)}>
-                          {action.severity}
+                          {formatEnum(action.severity)}
                         </Badge>
                         {action.automated && (
                           <Badge variant="secondary" className="gap-1">
@@ -576,8 +532,8 @@ export function PolicyTemplateDetailPanel({
                         <div className="grid grid-cols-2 gap-3">
                           {Object.entries(action.parameters).map(([key, value]) => (
                             <div key={key}>
-                              <p className="text-xs text-muted-foreground capitalize">
-                                {key.replace('_', ' ')}
+                              <p className="text-xs text-muted-foreground">
+                                {formatEnum(key)}
                               </p>
                               <p className="text-sm font-medium">
                                 {Array.isArray(value) ? value.join(', ') : String(value)}
@@ -604,19 +560,21 @@ export function PolicyTemplateDetailPanel({
               </CardHeader>
             </Card>
 
-            {templateData.sample_violations.map((violation) => (
+            {sampleViolations.map((violation) => (
               <Card key={violation.id}>
                 <CardContent className="p-2 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <Badge variant={getSeverityColor(violation.severity)}>
-                          {violation.severity}
+                          {formatEnum(violation.severity)}
                         </Badge>
-                        <span className={`text-xs px-2 py-1 rounded-full ${getFrequencyColor(violation.frequency)}`}>
-                          {violation.frequency}
-                        </span>
-                      </div>
+                    {violation.frequency ? (
+                      <span className={`text-xs px-2 py-1 rounded-full ${getFrequencyColor(violation.frequency)}`}>
+                        {violation.frequency}
+                      </span>
+                    ) : null}
+                  </div>
                       <p className="font-medium">{violation.scenario}</p>
                       <p className="text-sm text-muted-foreground mt-1">
                         {violation.description}
@@ -646,17 +604,17 @@ export function PolicyTemplateDetailPanel({
               </CardHeader>
             </Card>
 
-            {templateData.implementation_requirements.map((req) => (
+            {implementationRequirements.map((req) => (
               <Card key={req.id}>
                 <CardContent className="p-2 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="capitalize">
-                          {req.requirement_type}
+                        <Badge variant="outline">
+                          {formatEnum(req.requirement_type)}
                         </Badge>
                         <Badge variant={getPriorityColor(req.priority)}>
-                          {req.priority}
+                          {formatEnum(req.priority)}
                         </Badge>
                         {req.estimated_time && (
                           <span className="text-xs text-muted-foreground">

@@ -5,7 +5,7 @@ import { IncidentActionRepository } from '../incident-action.repository';
 
 vi.mock('../../../../db', () => ({
   pool: {
-    query: vi.fn()
+    query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0, command: 'SELECT', oid: 0, fields: [] })
   }
 }));
 
@@ -13,7 +13,7 @@ describe('IncidentActionRepository', () => {
   let repository: IncidentActionRepository;
 
   beforeEach(() => {
-    repository = new IncidentActionRepository();
+    repository = new IncidentActionRepository(pool as any);
     vi.clearAllMocks();
   });
 

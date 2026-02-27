@@ -5,6 +5,8 @@ import * as fs from 'fs'
 
 import { createWorker, Worker, RecognizeResult } from 'tesseract.js'
 
+import logger from '../../config/logger'
+
 import {
   OCRConfig,
   OCRResult,
@@ -23,14 +25,14 @@ export class OCRService {
   private workerQueue: string[] = []
 
   constructor() {
-    this.initializeWorkers()
+    void this.initializeWorkers()
   }
 
   /**
    * Initialize OCR workers for parallel processing
    */
   private async initializeWorkers(): Promise<void> {
-    console.log('[OCR] Initializing Tesseract workers...')
+    logger.info('Initializing Tesseract workers')
 
     for (let i = 0; i < this.maxWorkers; i++) {
       try {
@@ -40,13 +42,13 @@ export class OCRService {
         this.workers.set(workerId, worker)
         this.workerQueue.push(workerId)
 
-        console.log(`[OCR] Worker ${workerId} initialized`)
+        logger.info(`Worker ${workerId} initialized`)
       } catch (error) {
-        console.error(`[OCR] Failed to initialize worker ${i}:`, error)
+        logger.error(`Failed to initialize worker ${i}`, { error })
       }
     }
 
-    console.log(`[OCR] ${this.workers.size} workers ready`)
+    logger.info(`${this.workers.size} OCR workers ready`)
   }
 
   /**
@@ -113,7 +115,7 @@ export class OCRService {
         text: result.data.text,
         confidence: result.data.confidence,
         language: config.language as string,
-        blocks: this.parseBlocks(result.data.blocks),
+        blocks: this.parseBlocks(result.data.blocks ?? []),
         words: this.parseWords(result.data.words),
         processingTime: Date.now() - startTime
       }
@@ -121,7 +123,7 @@ export class OCRService {
       return ocrResult
 
     } catch (error) {
-      console.error('[OCR] Error extracting text:', error)
+      logger.error('Error extracting text from image', { error })
       throw new Error(`OCR extraction failed: ${error}`)
     } finally {
       if (workerId) {
@@ -167,7 +169,7 @@ export class OCRService {
       return results
 
     } catch (error) {
-      console.error('[OCR] Error extracting text from PDF:', error)
+      logger.error('Error extracting text from PDF', { error })
       throw new Error(`PDF OCR extraction failed: ${error}`)
     }
   }
@@ -180,7 +182,7 @@ export class OCRService {
 
     try {
       const result = await worker.detect(imagePath)
-      return (result.data as any).languages?.[0]?.code || 'eng'
+      return (result.data as { languages?: Array<{ code: string }> }).languages?.[0]?.code || 'eng'
     } finally {
       this.releaseWorker(workerId)
     }
@@ -205,7 +207,9 @@ export class OCRService {
    * Parse OCR blocks from Tesseract result
    */
   private parseBlocks(blocks: any[]): OCRBlock[] {
-    if (!blocks) return []
+    if (!blocks) {
+return []
+}
 
     return blocks.map(block => ({
       text: block.text,
@@ -231,7 +235,9 @@ export class OCRService {
    * Parse OCR words
    */
   private parseWords(words: any[]): OCRWord[] {
-    if (!words) return []
+    if (!words) {
+return []
+}
 
     return words.map(word => ({
       text: word.text,
@@ -272,7 +278,7 @@ export class OCRService {
           fs.unlinkSync(filePath)
         }
       } catch (error) {
-        console.error(`[OCR] Failed to delete temp file ${filePath}:`, error)
+        logger.error(`Failed to delete temp file ${filePath}`, { error })
       }
     })
   }
@@ -281,7 +287,7 @@ export class OCRService {
    * Terminate all OCR workers
    */
   async terminate(): Promise<void> {
-    console.log('[OCR] Terminating workers...')
+    logger.info('Terminating OCR workers')
 
     const terminatePromises = Array.from(this.workers.values()).map(worker =>
       worker.terminate()
@@ -291,7 +297,7 @@ export class OCRService {
     this.workers.clear()
     this.workerQueue = []
 
-    console.log('[OCR] All workers terminated')
+    logger.info('All OCR workers terminated')
   }
 }
 
@@ -308,5 +314,5 @@ export function getOCRService(): OCRService {
 // Helper function to access worker
 async function getWorker(): Promise<{ worker: Worker; workerId: string }> {
   const service = getOCRService()
-  return (service as any).getWorker()
+  return (service as unknown as { getWorker(): Promise<{ worker: Worker; workerId: string }> }).getWorker()
 }

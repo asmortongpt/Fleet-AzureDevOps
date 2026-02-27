@@ -19,6 +19,8 @@
 
 import { EventEmitter } from 'events';
 
+import logger from '../../config/logger';
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -230,7 +232,7 @@ export class SamsaraEmulator extends EventEmitter {
       timestamp: new Date()
     });
 
-    console.log(`[Samsara Emulator] Started for vehicle ${this.config.vehicleId}`);
+    logger.info(`[Samsara Emulator] Started for vehicle ${this.config.vehicleId}`);
   }
 
   public async stop(): Promise<void> {
@@ -250,7 +252,7 @@ export class SamsaraEmulator extends EventEmitter {
       timestamp: new Date()
     });
 
-    console.log(`[Samsara Emulator] Stopped for vehicle ${this.config.vehicleId}`);
+    logger.info(`[Samsara Emulator] Stopped for vehicle ${this.config.vehicleId}`);
   }
 
   public pause(): void {
@@ -451,7 +453,7 @@ export class SamsaraEmulator extends EventEmitter {
       }
 
       this.emit('safety:event', safetyEvent);
-      console.log(`[Samsara Emulator] Safety event: ${eventType} (${severity})`);
+      logger.info(`[Samsara Emulator] Safety event: ${eventType} (${severity})`);
     }
   }
 
@@ -504,7 +506,7 @@ export class SamsaraEmulator extends EventEmitter {
     this.currentHOSStatus = newStatus;
     this.currentHOSStartTime = new Date();
 
-    console.log(`[Samsara Emulator] HOS status changed to: ${newStatus}`);
+    logger.info(`[Samsara Emulator] HOS status changed to: ${newStatus}`);
   }
 
   // ============================================================================

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 type TimeWindow = '5m' | '1h' | '24h';
@@ -55,11 +56,11 @@ export function RecentActivity({ className }: RecentActivityProps) {
       try {
         const [dashboardStats, maintenanceAlerts] = await Promise.all([
           fetch('/api/dashboard/stats', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null),
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch dashboard stats for recent activity', { error: String(err) }); return null; }),
           fetch('/api/dashboard/maintenance/alerts', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null)
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch maintenance alerts for recent activity', { error: String(err) }); return null; })
         ]);
 
         const now = new Date();
@@ -197,13 +198,13 @@ export function RecentActivity({ className }: RecentActivityProps) {
   const significanceConfig = {
     high: 'border-l-red-500 bg-red-50/50 dark:bg-red-950/20',
     medium: 'border-l-orange-500 bg-orange-50/50 dark:bg-orange-950/20',
-    low: 'border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+    low: 'border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-950/20'
   };
 
   const trendIcons = {
     up: <TrendingUp className="h-4 w-4 text-emerald-600" />,
     down: <TrendingDown className="h-4 w-4 text-red-600" />,
-    stable: <ArrowUp className="h-4 w-4 text-gray-700 rotate-90" />
+    stable: <ArrowUp className="h-4 w-4 text-white/40 rotate-90" />
   };
 
   if (loading) {
@@ -268,7 +269,7 @@ export function RecentActivity({ className }: RecentActivityProps) {
                           {event.trend && trendIcons[event.trend]}
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(event.timestamp).toLocaleTimeString()}
+                          {formatTime(event.timestamp)}
                         </span>
                       </div>
 

@@ -9,6 +9,8 @@ import rateLimit from 'express-rate-limit';
 import DOMPurify from 'isomorphic-dompurify';
 import { z, ZodSchema } from 'zod';
 
+import { logger } from './logger';
+
 // ============================================================================
 // RATE LIMITING
 // ============================================================================
@@ -68,7 +70,13 @@ export const createRateLimiter = rateLimit({
 // CSRF PROTECTION
 // ============================================================================
 
-const CSRF_SECRET = process.env.CSRF_SECRET || 'your-csrf-secret-change-in-production';
+const CSRF_SECRET = (() => {
+  const secret = process.env.CSRF_SECRET;
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('CSRF_SECRET environment variable must be set in production');
+  }
+  return secret || `dev-csrf-secret-${String(process.pid)}`;
+})();
 
 const {
   generateToken: generateCsrfToken,
@@ -117,7 +125,7 @@ export const sanitizeString = (input: string): string => {
 /**
  * Sanitize object recursively
  */
-export const sanitizeObject = (obj: any): any => {
+export const sanitizeObject = (obj: unknown): unknown => {
   if (typeof obj === 'string') {
     return sanitizeString(obj);
   }
@@ -127,10 +135,11 @@ export const sanitizeObject = (obj: any): any => {
   }
 
   if (obj !== null && typeof obj === 'object') {
-    const sanitized: any = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        sanitized[key] = sanitizeObject(obj[key]);
+    const sanitized: Record<string, unknown> = {};
+    const record = obj as Record<string, unknown>;
+    for (const key in record) {
+      if (Object.prototype.hasOwnProperty.call(record, key)) {
+        sanitized[key] = sanitizeObject(record[key]);
       }
     }
     return sanitized;
@@ -148,11 +157,11 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction): 
   }
 
   if (req.query) {
-    req.query = sanitizeObject(req.query);
+    req.query = sanitizeObject(req.query) as typeof req.query;
   }
 
   if (req.params) {
-    req.params = sanitizeObject(req.params);
+    req.params = sanitizeObject(req.params) as typeof req.params;
   }
 
   next();
@@ -191,7 +200,7 @@ export const validateQuery = <T>(schema: ZodSchema<T>) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
       const validated = schema.parse(req.query);
-      req.query = validated as any;
+      req.query = validated as Record<string, string | string[] | undefined> & T;
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -296,20 +305,21 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
   const startTime = Date.now();
 
   // Log request details
+  const authReq = req as Request & { user?: { id?: string; tenantId?: string } };
   const logData = {
     timestamp: new Date().toISOString(),
     method: req.method,
     path: req.path,
     ip: req.ip || req.socket.remoteAddress,
     userAgent: req.headers['user-agent'],
-    userId: (req as any).user?.id,
-    tenantId: (req as any).user?.tenantId,
+    userId: authReq.user?.id,
+    tenantId: authReq.user?.tenantId,
   };
 
   // Log response
   res.on('finish', () => {
     const duration = Date.now() - startTime;
-    console.log(JSON.stringify({
+    logger.info(JSON.stringify({
       ...logData,
       statusCode: res.statusCode,
       duration,
@@ -317,7 +327,7 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
 
     // Log security events
     if (res.statusCode === 401 || res.statusCode === 403) {
-      console.warn('SECURITY EVENT:', JSON.stringify({
+      logger.warn('SECURITY EVENT:', JSON.stringify({
         ...logData,
         statusCode: res.statusCode,
         event: res.statusCode === 401 ? 'UNAUTHORIZED_ACCESS' : 'FORBIDDEN_ACCESS',
@@ -347,7 +357,7 @@ const SENSITIVE_FIELDS = [
 /**
  * Filter sensitive data from response
  */
-export const filterSensitiveData = (data: any): any => {
+export const filterSensitiveData = (data: unknown): unknown => {
   if (typeof data !== 'object' || data === null) {
     return data;
   }
@@ -356,18 +366,19 @@ export const filterSensitiveData = (data: any): any => {
     return data.map(filterSensitiveData);
   }
 
-  const filtered: any = {};
-  for (const key in data) {
-    if (data.hasOwnProperty(key)) {
+  const record = data as Record<string, unknown>;
+  const filtered: Record<string, unknown> = {};
+  for (const key in record) {
+    if (Object.prototype.hasOwnProperty.call(record, key)) {
       const lowerKey = key.toLowerCase();
       const isSensitive = SENSITIVE_FIELDS.some(field => lowerKey.includes(field.toLowerCase()));
 
       if (isSensitive) {
         filtered[key] = '***REDACTED***';
-      } else if (typeof data[key] === 'object') {
-        filtered[key] = filterSensitiveData(data[key]);
+      } else if (typeof record[key] === 'object') {
+        filtered[key] = filterSensitiveData(record[key]);
       } else {
-        filtered[key] = data[key];
+        filtered[key] = record[key];
       }
     }
   }
@@ -384,13 +395,16 @@ export const filterSensitiveData = (data: any): any => {
  * Hides internal error details in production
  */
 export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
-  console.error('Error:', err);
+  logger.error('Error:', err);
 
   const isDevelopment = process.env.NODE_ENV === 'development';
 
   // Check if error has a statusCode property (AppError, HTTP errors, etc.)
-  const statusCode = (err as any).statusCode || (err as any).status || 500;
-  const isOperational = (err as any).isOperational !== false; // Default to true if not specified
+  const errRecord = err as unknown as Record<string, unknown>;
+  const statusCode = (typeof errRecord.statusCode === 'number' ? errRecord.statusCode : null)
+    || (typeof errRecord.status === 'number' ? errRecord.status : null)
+    || 500;
+  const isOperational = errRecord.isOperational !== false; // Default to true if not specified
 
   const errorResponse = {
     error: statusCode === 404 ? 'Not Found' : 'Internal server error',

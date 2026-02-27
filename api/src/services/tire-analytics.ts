@@ -64,8 +64,8 @@ export class TireAnalyticsService {
     let lastInspectionDate: Date | undefined;
     if (inspectionsResult.rows.length > 0) {
       const latestInspection = inspectionsResult.rows[0];
-      const tirePositions = latestInspection.tire_positions as any[];
-      const tirePosition = tirePositions.find((p: any) => p.tire_id === tireId);
+      const tirePositions = latestInspection.tire_positions as Array<{ tire_id: string; tread_depth?: number }>;
+      const tirePosition = tirePositions.find((p) => p.tire_id === tireId);
       if (tirePosition) {
         lastTreadDepth = tirePosition.tread_depth;
         lastInspectionDate = latestInspection.inspection_date;
@@ -336,7 +336,7 @@ export class TireAnalyticsService {
 
     let totalTireCost = 0;
     let totalMilesDriven = 0;
-    let tireCount = costResult.rows.length;
+    const tireCount = costResult.rows.length;
     const tiresByStatus: Record<TireStatus, number> = {
       [TireStatus.IN_STOCK]: 0,
       [TireStatus.MOUNTED]: 0,

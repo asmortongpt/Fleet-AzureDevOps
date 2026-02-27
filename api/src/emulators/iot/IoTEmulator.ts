@@ -4,6 +4,7 @@
 
 import { EventEmitter } from 'events'
 
+import logger from '../../config/logger'
 import { Vehicle, IoTSensorData, EmulatorConfig } from '../types'
 
 export class IoTEmulator extends EventEmitter {
@@ -32,7 +33,7 @@ return
       }
     }, 10000) // Update every 10 seconds
 
-    console.log(`IoT Emulator started for vehicle ${this.vehicle.id}`)
+    logger.info(`IoT Emulator started for vehicle ${this.vehicle.id}`)
   }
 
   public async stop(): Promise<void> {

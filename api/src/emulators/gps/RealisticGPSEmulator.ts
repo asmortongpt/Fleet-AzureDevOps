@@ -24,6 +24,7 @@ import {
   Geofence,
   Waypoint
 } from '../types'
+import logger from '../../config/logger'
 
 interface MovementState {
   // Position
@@ -187,7 +188,9 @@ export class RealisticGPSEmulator extends EventEmitter {
    * Start GPS emulation
    */
   public async start(): Promise<void> {
-    if (this.isRunning) return
+    if (this.isRunning) {
+return
+}
 
     this.isRunning = true
     this.isPaused = false
@@ -205,14 +208,16 @@ export class RealisticGPSEmulator extends EventEmitter {
       }
     }, updateFrequency)
 
-    console.log(`RealisticGPSEmulator started for vehicle ${this.vehicle.id}`)
+    logger.info(`RealisticGPSEmulator started for vehicle ${this.vehicle.id}`)
   }
 
   /**
    * Stop GPS emulation
    */
   public async stop(): Promise<void> {
-    if (!this.isRunning) return
+    if (!this.isRunning) {
+return
+}
 
     if (this.updateInterval) {
       clearInterval(this.updateInterval)
@@ -222,7 +227,7 @@ export class RealisticGPSEmulator extends EventEmitter {
     this.isRunning = false
     this.isPaused = false
 
-    console.log(`RealisticGPSEmulator stopped for vehicle ${this.vehicle.id}`)
+    logger.info(`RealisticGPSEmulator stopped for vehicle ${this.vehicle.id}`)
   }
 
   public async pause(): Promise<void> {
@@ -243,7 +248,7 @@ export class RealisticGPSEmulator extends EventEmitter {
     this.currentWaypointIndex = 0
     this.targetWaypoint = route.waypoints[0] || null
     this.calculateDistanceToTarget()
-    console.log(`Route "${route.name}" assigned to vehicle ${this.vehicle.id}`)
+    logger.info(`Route "${route.name}" assigned to vehicle ${this.vehicle.id}`)
   }
 
   /**
@@ -386,7 +391,7 @@ export class RealisticGPSEmulator extends EventEmitter {
           }
           break
 
-        case 1:
+        case 1: {
           // Curved path using quadratic bezier
           const controlOffset = 0.3 + Math.random() * 0.4
           const controlLat = from.lat + dy * 0.5 + dx * controlOffset * (Math.random() > 0.5 ? 1 : -1)
@@ -400,8 +405,9 @@ export class RealisticGPSEmulator extends EventEmitter {
           lng += (Math.random() - 0.5) * 0.0003
           roadType = t > 0.3 && t < 0.7 ? 'highway' : 'city'
           break
+        }
 
-        case 2:
+        case 2: {
           // Zigzag pattern (simulating city blocks)
           const zigzagFreq = 3 + Math.floor(Math.random() * 2)
           const zigzagPhase = (Math.floor(t * zigzagFreq) % 2 === 0)
@@ -416,9 +422,10 @@ export class RealisticGPSEmulator extends EventEmitter {
           }
           roadType = 'residential'
           break
+        }
 
         case 3:
-        default:
+        default: {
           // S-curve pattern
           const curveAmplitude = 0.15 + Math.random() * 0.1
           const curveOffset = Math.sin(t * Math.PI * 2) * curveAmplitude
@@ -427,6 +434,7 @@ export class RealisticGPSEmulator extends EventEmitter {
           lng = from.lng + dx * t - dy * curveOffset + (Math.random() - 0.5) * 0.0002
           roadType = t > 0.2 && t < 0.8 ? 'city' : 'residential'
           break
+        }
       }
 
       waypoints.push({ lat, lng, roadType })
@@ -486,7 +494,9 @@ export class RealisticGPSEmulator extends EventEmitter {
    * Update vehicle movement along route
    */
   private updateMovement(deltaTime: number): void {
-    if (!this.targetWaypoint) return
+    if (!this.targetWaypoint) {
+return
+}
 
     // Calculate target heading
     this.state.targetHeading = this.calculateBearing(
@@ -617,7 +627,9 @@ export class RealisticGPSEmulator extends EventEmitter {
    * Move to next waypoint in route
    */
   private moveToNextWaypoint(): void {
-    if (!this.currentRoute) return
+    if (!this.currentRoute) {
+return
+}
 
     this.currentWaypointIndex++
 
@@ -731,8 +743,12 @@ export class RealisticGPSEmulator extends EventEmitter {
     let accuracy = baseAccuracy.min + Math.random() * (baseAccuracy.max - baseAccuracy.min)
 
     // Accuracy degrades in certain conditions
-    if (this.state.speed < 5) accuracy *= 1.5 // Less accurate when stationary
-    if (this.weatherCondition !== 'clear') accuracy *= 2
+    if (this.state.speed < 5) {
+accuracy *= 1.5
+} // Less accurate when stationary
+    if (this.weatherCondition !== 'clear') {
+accuracy *= 2
+}
 
     // Simulate GPS jitter
     const jitterLat = (Math.random() - 0.5) * (accuracy / 111000)
@@ -740,7 +756,9 @@ export class RealisticGPSEmulator extends EventEmitter {
 
     // Satellite count (varies with location/conditions)
     let satelliteCount = Math.floor(8 + Math.random() * 6) // 8-14 satellites
-    if (this.weatherCondition !== 'clear') satelliteCount -= 2
+    if (this.weatherCondition !== 'clear') {
+satelliteCount -= 2
+}
 
     // HDOP (Horizontal Dilution of Precision)
     const hdop = 0.8 + Math.random() * 1.2 // 0.8-2.0
@@ -768,11 +786,13 @@ export class RealisticGPSEmulator extends EventEmitter {
    * Get current road type
    */
   private getCurrentRoadType(): 'highway' | 'city' | 'residential' | 'parking' | 'construction' {
-    if (!this.currentRoute) return 'city'
+    if (!this.currentRoute) {
+return 'city'
+}
 
     const roadTypes = this.currentRoute.roadTypes || []
     const index = Math.min(this.currentWaypointIndex, roadTypes.length - 1)
-    return (roadTypes[index] || 'city') as any
+    return (roadTypes[index] || 'city') as 'highway' | 'city' | 'residential' | 'parking' | 'construction'
   }
 
   /**

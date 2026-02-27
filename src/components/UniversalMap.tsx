@@ -171,7 +171,7 @@ class MapErrorBoundary extends Component<
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center h-full w-full bg-gray-50 dark:bg-gray-900 p-3">
+        <div className="flex flex-col items-center justify-center h-full w-full bg-white/[0.03] dark:bg-[#111113] p-3">
           <div className="max-w-md text-center">
             <div className="mb-2 text-red-500">
               <svg
@@ -189,15 +189,15 @@ class MapErrorBoundary extends Component<
                 />
               </svg>
             </div>
-            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            <h2 className="text-base font-semibold text-white/80 dark:text-white/80 mb-2">
               Map Failed to Load
             </h2>
-            <p className="text-slate-700 dark:text-gray-700 mb-2">
+            <p className="text-white/70 dark:text-white/40 mb-2">
               {this.state.error?.message || "An unexpected error occurred while loading the map."}
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-2 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              className="px-2 py-2 bg-emerald-500/50 text-white rounded hover:bg-emerald-600 transition-colors"
             >
               Reload Page
             </button>
@@ -257,8 +257,14 @@ function safeSetLocalStorage(key: string, value: string): boolean {
  */
 function hasGoogleMapsApiKey(): boolean {
   try {
-    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-    return typeof key === "string" && key.length > 0
+    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
+    if (typeof key !== "string" || key.length === 0) return false
+    // Reject obvious placeholder/dev keys that won't work with Google Maps API
+    const lower = key.toLowerCase()
+    if (lower.includes("placeholder") || lower.includes("your-") || lower.includes("xxx") || lower.startsWith("dev-")) {
+      return false
+    }
+    return true
   } catch (error) {
     logger.warn("Failed to check Google Maps API key:", { error: error instanceof Error ? error.message : String(error) })
     return false
@@ -464,11 +470,9 @@ export function UniversalMap(props: UniversalMapProps) {
     mapStyle,
   } = props
 
-  // Test environment data injection
-  const testData = (typeof window !== 'undefined' && (window as any).__TEST_DATA__) || {}
-  const vehicles = testData.vehicles || propVehicles
-  const facilities = testData.facilities || propFacilities
-  const cameras = testData.cameras || propCameras
+  const vehicles = propVehicles
+  const facilities = propFacilities
+  const cameras = propCameras
 
   // --------------------------------------------------------------------------
   // State Management
@@ -515,7 +519,7 @@ export function UniversalMap(props: UniversalMapProps) {
     const dynamicCenter = calculateDynamicCenter(vehicles, facilities, cameras)
 
     // Log if using dynamic center (only in dev)
-    if (process.env.NODE_ENV === 'development' && (vehicles.length > 0 || facilities.length > 0 || cameras.length > 0)) {
+    if (import.meta.env.MODE === 'development' && (vehicles.length > 0 || facilities.length > 0 || cameras.length > 0)) {
       logger.debug("Map center calculated from markers:", dynamicCenter)
     }
 
@@ -701,7 +705,7 @@ export function UniversalMap(props: UniversalMapProps) {
     showRoutes,
     center: validatedCenter,
     zoom: validatedZoom,
-    mapStyle,
+    mapStyle: mapStyle as any,
     className,
   }
 
@@ -710,10 +714,10 @@ export function UniversalMap(props: UniversalMapProps) {
       <div className="relative w-full h-full min-h-[500px]">
         {/* Loading Overlay */}
         {loadingState === "loading" && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-900/80">
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-[#111113]/80">
             <div className="flex flex-col items-center gap-3">
-              <div className="w-12 h-9 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-slate-700 dark:text-gray-700">
+              <div className="w-12 h-9 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-white/70 dark:text-white/40">
                 Loading {provider === "google" ? "Google Maps" : "OpenStreetMap"}...
               </p>
             </div>
@@ -739,13 +743,13 @@ export function UniversalMap(props: UniversalMapProps) {
 
         {/* Clustering Info Badge */}
         {shouldCluster && (
-          <div className="absolute bottom-4 left-4 z-40 bg-white/90 dark:bg-gray-800/90 px-3 py-1.5 rounded-md shadow-md text-xs text-slate-700 dark:text-gray-300">
+          <div className="absolute bottom-4 left-4 z-40 bg-white/90 dark:bg-[#18181b]/90 px-3 py-1.5 rounded-md text-xs text-white/70 dark:text-white/60">
             Clustering {totalMarkerCount} markers
           </div>
         )}
 
         {/* Provider Badge (Development Only) */}
-        {process.env.NODE_ENV === "development" && (
+        {import.meta.env.MODE === "development" && (
           <div className="absolute top-4 right-4 z-40 bg-black/70 text-white px-2 py-1 rounded text-xs font-mono">
             {provider === "google" ? "Google Maps" : "Leaflet/OSM"}
           </div>

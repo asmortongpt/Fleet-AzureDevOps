@@ -153,7 +153,10 @@ export function useNotifications() {
 
     if (settings.sound) {
       const audio = new Audio('/sounds/notification.mp3')
-      audio.play().catch(() => {})
+      audio.play().catch(() => {
+        // Browser autoplay restrictions may block notification sounds
+        logger.warn('Notification sound blocked by autoplay restrictions')
+      })
     }
   }
 

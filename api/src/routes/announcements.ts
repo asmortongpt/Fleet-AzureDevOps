@@ -20,7 +20,7 @@ const announcementSchema = z.object({
   target_roles: z.array(z.string()).optional().default([]),
   published_at: z.string().datetime().optional(),
   expires_at: z.string().datetime().optional(),
-  metadata: z.record(z.any()).optional().default({}),
+  metadata: z.record(z.string(), z.any()).optional().default({}),
   is_active: z.boolean().optional().default(true),
 })
 
@@ -114,7 +114,7 @@ router.post(
       )
 
       res.status(201).json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid announcement data', details: error.issues })
       }
@@ -131,7 +131,11 @@ router.patch(
   auditLog({ action: 'UPDATE', resourceType: 'announcements' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const updates = req.body || {}
+      const parsed = announcementSchema.partial().safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid update data', details: parsed.error.flatten() })
+      }
+      const updates: Record<string, unknown> = { ...parsed.data }
       if (updates.target_roles) {
         updates.target_roles = JSON.stringify(updates.target_roles)
       }
@@ -151,10 +155,10 @@ router.patch(
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Update announcement error:', error)
       if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message })
+        return res.status(404).json({ error: 'Resource not found' })
       }
       res.status(500).json({ error: 'Internal server error' })
     }

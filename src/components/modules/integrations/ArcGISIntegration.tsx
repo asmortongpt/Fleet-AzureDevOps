@@ -71,6 +71,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { apiClient } from "@/lib/api-client"
 import { arcgisService } from "@/lib/arcgis/service"
 import type { ArcGISLayerConfig } from "@/lib/arcgis/types"
+import { brandColors } from '@/theme/designSystem'
 import logger from '@/utils/logger';
 /**
  * Layer operation state for tracking individual layer operations
@@ -750,14 +751,14 @@ export function ArcGISIntegration() {
             {layer.enabled ? (
               <Eye className="h-4 w-4 text-green-500" />
             ) : (
-              <EyeOff className="h-4 w-4 text-gray-700" />
+              <EyeOff className="h-4 w-4 text-white/40" />
             )}
             <span className="font-medium truncate">{layer.name}</span>
             <Badge variant={layer.health === 'healthy' ? 'default' : 'destructive'}>
               {layer.health}
             </Badge>
           </div>
-          <div className="text-sm text-gray-700 truncate">{layer.description}</div>
+          <div className="text-sm text-white/40 truncate">{layer.description}</div>
           {operationError && (
             <div className="text-xs text-red-500 mt-1">{operationError}</div>
           )}
@@ -783,7 +784,7 @@ export function ArcGISIntegration() {
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" disabled={isLoading}>
+              <Button variant="ghost" size="sm" disabled={isLoading} aria-label="More options">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -826,9 +827,9 @@ export function ArcGISIntegration() {
         <AlertTitle>{connectionResult.success ? 'Success' : 'Error'}</AlertTitle>
         <AlertDescription>{connectionResult.message}</AlertDescription>
         {connectionResult.details && (
-          <div className="mt-2 text-sm text-slate-700">
-            <div>Type: {connectionResult.details.layerType ?? 'N/A'}</div>
-            <div>Capabilities: {connectionResult.details.capabilities?.join(', ') ?? 'N/A'}</div>
+          <div className="mt-2 text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>
+            <div>Type: {connectionResult.details.layerType ?? '—'}</div>
+            <div>Capabilities: {connectionResult.details.capabilities?.join(', ') ?? '—'}</div>
           </div>
         )}
       </Alert>
@@ -1045,8 +1046,8 @@ export function ArcGISIntegration() {
           </CardHeader>
           <CardContent>
             {layers.length === 0 ? (
-              <div className="text-center py-3 text-gray-700">
-                <Globe className="h-9 w-12 mx-auto mb-2 text-gray-700" />
+              <div className="text-center py-3 text-white/40">
+                <Globe className="h-9 w-12 mx-auto mb-2 text-white/40" />
                 <p>No ArcGIS layers added yet. Click "Add Layer" to get started.</p>
               </div>
             ) : (

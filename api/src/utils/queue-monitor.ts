@@ -4,6 +4,7 @@
  */
 
 import { pool } from '../config/database';
+import logger from '../config/logger';
 import { queueService } from '../services/queue.service';
 import { QueueName, QueueHealth } from '../types/queue.types';
 
@@ -62,9 +63,9 @@ export class QueueMonitor {
         );
       }
 
-      console.log(`📊 Queue statistics collected successfully`);
+      logger.info('Queue statistics collected successfully');
     } catch (error) {
-      console.error(`Failed to collect queue statistics:`, error);
+      logger.error('Failed to collect queue statistics', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -80,7 +81,7 @@ export class QueueMonitor {
       // Check each queue
       for (const [queueName, queueStats] of Object.entries(health.queues)) {
         // Check backlog
-        if (queueStats.backlog > this.alertThresholds.maxBacklog) {
+        if ((queueStats.backlog ?? 0) > this.alertThresholds.maxBacklog) {
           this.addAlert({
             level: 'warning',
             queueName,
@@ -93,7 +94,7 @@ export class QueueMonitor {
         }
 
         // Check failure rate
-        if (queueStats.failureRate > this.alertThresholds.maxFailureRate) {
+        if ((queueStats.failureRate ?? 0) > this.alertThresholds.maxFailureRate) {
           this.addAlert({
             level: 'critical',
             queueName,
@@ -106,7 +107,7 @@ export class QueueMonitor {
         }
 
         // Check processing time
-        if (queueStats.avgProcessingTime > this.alertThresholds.maxProcessingTime) {
+        if ((queueStats.avgProcessingTime ?? 0) > this.alertThresholds.maxProcessingTime) {
           this.addAlert({
             level: 'warning',
             queueName,
@@ -130,7 +131,7 @@ export class QueueMonitor {
       }
 
       // Check dead letter queue
-      if (health.deadLetterCount > this.alertThresholds.maxDeadLetterJobs) {
+      if ((health.deadLetterCount ?? 0) > this.alertThresholds.maxDeadLetterJobs) {
         this.addAlert({
           level: 'critical',
           message: `Dead letter queue has too many jobs`,
@@ -148,7 +149,7 @@ export class QueueMonitor {
 
       return health;
     } catch (error) {
-      console.error(`Failed to check queue health:`, error);
+      logger.error('Failed to check queue health', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -158,7 +159,7 @@ export class QueueMonitor {
    */
   private addAlert(alert: Alert): void {
     this.alerts.push(alert);
-    console.log(`🚨 [${alert.level.toUpperCase()}] ${alert.message}`, {
+    logger.info(`[${alert.level.toUpperCase()}] ${alert.message}`, {
       queue: alert.queueName,
       metric: alert.metric,
       currentValue: alert.currentValue,
@@ -197,11 +198,11 @@ export class QueueMonitor {
 
       const criticalAlerts = this.alerts.filter(a => a.level === `critical`);
       if (criticalAlerts.length > 0) {
-        console.error(`🚨 ${criticalAlerts.length} CRITICAL ALERTS detected!`);
+        logger.error(`${criticalAlerts.length} CRITICAL ALERTS detected!`);
         // await sendCriticalAlertNotifications(criticalAlerts);
       }
     } catch (error) {
-      console.error(`Failed to send alerts:`, error);
+      logger.error('Failed to send alerts', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -230,7 +231,7 @@ export class QueueMonitor {
         timestamp: row.created_at
       }));
     } catch (error) {
-      console.error(`Failed to get recent alerts:`, error);
+      logger.error('Failed to get recent alerts', { error: error instanceof Error ? error.message : String(error) });
       return [];
     }
   }
@@ -270,7 +271,7 @@ export class QueueMonitor {
 
       return result.rows;
     } catch (error) {
-      console.error('Failed to get performance trends:', error);
+      logger.error('Failed to get performance trends', { error: error instanceof Error ? error.message : String(error) });
       return [];
     }
   }
@@ -335,7 +336,7 @@ export class QueueMonitor {
 
       return report;
     } catch (error) {
-      console.error(`Failed to generate performance report:`, error);
+      logger.error('Failed to generate performance report', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -354,9 +355,9 @@ export class QueueMonitor {
         [daysToKeepNum]
       );
 
-      console.log(`🧹 Cleaned up ${result.rowCount} old statistics records`);
+      logger.info(`Cleaned up ${result.rowCount} old statistics records`);
     } catch (error) {
-      console.error(`Failed to cleanup old statistics:`, error);
+      logger.error('Failed to cleanup old statistics', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -368,7 +369,7 @@ export class QueueMonitor {
       ...this.alertThresholds,
       ...newThresholds
     };
-    console.log(`✅ Alert thresholds updated:`, this.alertThresholds);
+    logger.info('Alert thresholds updated', { thresholds: this.alertThresholds });
   }
 
   /**

@@ -14,7 +14,7 @@
  */
 
 import { Car, User, Wrench, Fuel, Package, FileText, ArrowRight, ChevronRight, Link as LinkIcon, Layers as Stack, AlertTriangle, Clock, DollarSign, MapPin, Truck } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+// motion removed - React 19 incompatible
 import React, { useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -51,7 +51,7 @@ interface SectionConfig {
   type: EntityType
   key: keyof LinkedEntities
   label: string
-  icon: React.ElementType
+  icon: React.ComponentType<{ className?: string }>
   color: string
   badgeVariant: 'default' | 'secondary' | 'destructive' | 'outline'
 }
@@ -61,17 +61,17 @@ interface SectionConfig {
 // ============================================================================
 
 const SECTION_CONFIGS: SectionConfig[] = [
-  { type: 'vehicle', key: 'vehicles', label: 'Vehicles', icon: Car, color: 'text-blue-800', badgeVariant: 'default' },
+  { type: 'vehicle', key: 'vehicles', label: 'Vehicles', icon: Car, color: 'text-emerald-800', badgeVariant: 'default' },
   { type: 'driver', key: 'drivers', label: 'Drivers', icon: User, color: 'text-green-500', badgeVariant: 'secondary' },
   { type: 'work-order', key: 'workOrders', label: 'Work Orders', icon: Wrench, color: 'text-orange-500', badgeVariant: 'outline' },
-  { type: 'maintenance', key: 'maintenanceRecords', label: 'Maintenance', icon: Clock, color: 'text-purple-500', badgeVariant: 'secondary' },
+  { type: 'maintenance', key: 'maintenanceRecords', label: 'Maintenance', icon: Clock, color: 'text-amber-500', badgeVariant: 'secondary' },
   { type: 'fuel', key: 'fuelTransactions', label: 'Fuel', icon: Fuel, color: 'text-amber-500', badgeVariant: 'outline' },
-  { type: 'part', key: 'parts', label: 'Parts', icon: Package, color: 'text-cyan-500', badgeVariant: 'secondary' },
-  { type: 'vendor', key: 'vendors', label: 'Vendors', icon: Truck, color: 'text-indigo-500', badgeVariant: 'outline' },
+  { type: 'part', key: 'parts', label: 'Parts', icon: Package, color: 'text-emerald-500', badgeVariant: 'secondary' },
+  { type: 'vendor', key: 'vendors', label: 'Vendors', icon: Truck, color: 'text-emerald-500', badgeVariant: 'outline' },
   { type: 'invoice', key: 'invoices', label: 'Invoices', icon: DollarSign, color: 'text-emerald-600', badgeVariant: 'default' },
-  { type: 'asset', key: 'assets', label: 'Assets', icon: Stack, color: 'text-slate-500', badgeVariant: 'secondary' },
+  { type: 'asset', key: 'assets', label: 'Assets', icon: Stack, color: 'text-white/40', badgeVariant: 'secondary' },
   { type: 'alert', key: 'alerts', label: 'Alerts', icon: AlertTriangle, color: 'text-red-500', badgeVariant: 'destructive' },
-  { type: 'document', key: 'documents', label: 'Documents', icon: FileText, color: 'text-gray-700', badgeVariant: 'outline' },
+  { type: 'document', key: 'documents', label: 'Documents', icon: FileText, color: 'text-white/40', badgeVariant: 'outline' },
   { type: 'facility', key: 'facilities', label: 'Facilities', icon: MapPin, color: 'text-teal-500', badgeVariant: 'secondary' }
 ]
 
@@ -90,11 +90,11 @@ function RelatedRecordItem({ reference, config, compact, onNavigate }: RelatedRe
   const Icon = config.icon
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      whileHover={{ x: 4 }}
+    <div
       onClick={() => onNavigate(reference)}
+      onKeyDown={(e) => e.key === 'Enter' && onNavigate(reference)}
+      role="button"
+      tabIndex={0}
       className={cn(
         "flex items-center gap-3 p-2 rounded-md cursor-pointer",
         "hover:bg-muted/50 transition-all group border border-transparent",
@@ -120,7 +120,7 @@ function RelatedRecordItem({ reference, config, compact, onNavigate }: RelatedRe
       </div>
 
       <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-    </motion.div>
+    </div>
   )
 }
 
@@ -168,7 +168,6 @@ function RelatedRecordsSection({
       </div>
 
       <div className="space-y-1">
-        <AnimatePresence mode="popLayout">
           {displayItems.map((item, index) => (
             <RelatedRecordItem
               key={`${item.type}-${item.id}-${index}`}
@@ -178,7 +177,6 @@ function RelatedRecordsSection({
               onNavigate={onNavigate}
             />
           ))}
-        </AnimatePresence>
       </div>
     </div>
   )
@@ -350,10 +348,13 @@ export function RelatedRecordsInline({
               <TooltipContent>
                 <div className="text-xs space-y-1">
                   <p className="font-medium">{config.label}</p>
-                  {displayItems.map((item, i) => (
+                  {displayItems.map((item) => (
                     <div
-                      key={i}
+                      key={`${item.type}-${item.id}`}
                       onClick={() => navigateToEntity(item)}
+                      onKeyDown={(e) => e.key === 'Enter' && navigateToEntity(item)}
+                      role="button"
+                      tabIndex={0}
                       className="cursor-pointer hover:text-primary"
                     >
                       {item.label}

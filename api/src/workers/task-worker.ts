@@ -9,6 +9,8 @@ import { parentPort } from 'worker_threads'
 
 import sharp from 'sharp'
 import { createWorker } from 'tesseract.js'
+
+import logger from '../config/logger'
 // Import other heavy processing libraries as needed
 
 interface TaskMessage {
@@ -70,15 +72,13 @@ const taskHandlers = {
         words: result.data.words,
         lines: result.data.lines
       }
-    } catch (error) {
-      throw error
     } finally {
       // Always terminate worker in finally block to prevent memory leaks
       if (worker) {
         try {
           await worker.terminate()
         } catch (terminateError) {
-          console.error('Error terminating Tesseract worker:', terminateError)
+          logger.error('Error terminating Tesseract worker', { error: terminateError instanceof Error ? terminateError.message : String(terminateError) })
         }
       }
     }
@@ -318,14 +318,14 @@ if (parentPort) {
         success: true,
         result
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Send error back to main thread
       parentPort!.postMessage({
         taskId,
         success: false,
         error: {
-          message: error.message,
-          stack: error.stack
+          message: error instanceof Error ? error.message : 'An unexpected error occurred',
+          stack: error instanceof Error ? error.stack : undefined
         }
       })
     }

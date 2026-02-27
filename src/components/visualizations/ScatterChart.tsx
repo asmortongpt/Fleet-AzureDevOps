@@ -3,7 +3,8 @@
  * Scatter plot with optional regression line for correlation analysis
  */
 
-import { motion } from 'framer-motion'
+// motion removed - React 19 incompatible
+import { useMemo } from 'react'
 import {
   ScatterChart as RechartsScatter,
   Scatter,
@@ -16,10 +17,9 @@ import {
   ReferenceLine,
   ZAxis,
 } from 'recharts'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useMemo } from 'react'
 
 interface ScatterDataPoint {
   x: number
@@ -50,18 +50,15 @@ export function ScatterChart({
   height = 400,
   loading = false,
   showRegressionLine = true,
-  color = 'hsl(210, 100%, 56%)',
+  color = '#10b981',
 }: ScatterChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    grid: isDark ? '#374151' : '#e5e7eb',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#e5e7eb' : '#111827',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -96,7 +93,7 @@ export function ScatterChart({
     const data = payload[0].payload
     return (
       <div
-        className="rounded-lg border shadow-lg p-3"
+        className="rounded-lg border p-3"
         style={{
           backgroundColor: chartColors.tooltip.background,
           borderColor: chartColors.tooltip.border,
@@ -134,12 +131,8 @@ export function ScatterChart({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4 }}
-    >
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+    <div>
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
@@ -195,7 +188,7 @@ export function ScatterChart({
                     { x: Math.min(...data.map(d => d.x)), y: regression.slope * Math.min(...data.map(d => d.x)) + regression.intercept },
                     { x: Math.max(...data.map(d => d.x)), y: regression.slope * Math.max(...data.map(d => d.x)) + regression.intercept },
                   ]}
-                  stroke="hsl(142, 76%, 36%)"
+                  stroke="#10B981"
                   strokeWidth={2}
                   strokeDasharray="5 5"
                   label={{
@@ -218,6 +211,6 @@ export function ScatterChart({
           </ResponsiveContainer>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }

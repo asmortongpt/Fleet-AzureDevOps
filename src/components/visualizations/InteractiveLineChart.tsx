@@ -3,7 +3,8 @@
  * Advanced line chart with brush selection, zoom, and cross-filtering
  */
 
-import { motion } from 'framer-motion'
+// motion removed - React 19 incompatible
+import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import {
   LineChart,
@@ -18,11 +19,11 @@ import {
   Area,
   AreaChart,
 } from 'recharts'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useThemeContext } from '@/components/providers/ThemeProvider'
+
 import { Button } from '@/components/ui/button'
-import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { formatNumber } from '@/utils/format-helpers'
 
 interface DataPoint {
   name: string
@@ -53,25 +54,22 @@ export function InteractiveLineChart({
   height = 400,
   loading = false,
   showArea = false,
-  colors = ['hsl(210, 100%, 56%)', 'hsl(142, 76%, 36%)', 'hsl(291, 64%, 42%)'],
+  colors = ['#10b981', '#10B981', '#D97706'],
   enableBrush = true,
   enableZoom = true,
 }: InteractiveLineChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const [zoomLevel, setZoomLevel] = useState(1)
   const [brushIndexes, setBrushIndexes] = useState<{ startIndex?: number; endIndex?: number }>({})
 
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    grid: isDark ? '#374151' : '#e5e7eb',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#e5e7eb' : '#111827',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
-    brush: isDark ? '#374151' : '#e5e7eb',
+    brush: 'var(--border)',
   }
 
   const ChartComponent = showArea ? AreaChart : LineChart
@@ -94,7 +92,7 @@ export function InteractiveLineChart({
 
     return (
       <div
-        className="rounded-lg border shadow-lg p-3"
+        className="rounded-lg border p-3"
         style={{
           backgroundColor: chartColors.tooltip.background,
           borderColor: chartColors.tooltip.border,
@@ -102,11 +100,11 @@ export function InteractiveLineChart({
         }}
       >
         <p className="font-semibold mb-2">{label}</p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
+        {payload.map((entry: any) => (
+          <div key={entry.name} className="flex items-center gap-2 text-sm">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
             <span>{entry.name}: </span>
-            <span className="font-mono font-semibold">{entry.value.toLocaleString()}</span>
+            <span className="font-mono font-semibold">{formatNumber(entry.value)}</span>
           </div>
         ))}
       </div>
@@ -128,12 +126,8 @@ export function InteractiveLineChart({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4 }}
-    >
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+    <div>
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
@@ -206,7 +200,8 @@ export function InteractiveLineChart({
                     type="monotone"
                     dataKey={key}
                     stroke={color}
-                    fill={`${color}40`}
+                    fill={color}
+                    fillOpacity={0.2}
                     strokeWidth={2}
                     animationDuration={1500}
                     dot={{ r: 4, fill: color }}
@@ -231,7 +226,7 @@ export function InteractiveLineChart({
                   dataKey={xAxisKey}
                   height={30}
                   stroke={chartColors.brush}
-                  fill={isDark ? '#1f2937' : '#f3f4f6'}
+                  fill="var(--card)"
                   onChange={(indexes: any) => setBrushIndexes(indexes)}
                   travellerWidth={10}
                 />
@@ -240,6 +235,6 @@ export function InteractiveLineChart({
           </ResponsiveContainer>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }

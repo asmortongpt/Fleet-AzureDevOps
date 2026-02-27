@@ -152,8 +152,8 @@ const changePasswordSchema = z.object({
 // CRIT-F-004: Apply auth rate limiter and brute force protection
 // FedRAMP SC-5 (DoS Protection), AC-7 (Unsuccessful Login Attempts), SI-10 (Input Validation)
 // SECURITY: Rate limiting MUST be enabled in production - 5 login attempts per 15 minutes
-// For E2E testing, use environment variable RATE_LIMIT_DISABLED=true to bypass
-const applyRateLimiting = process.env.RATE_LIMIT_DISABLED !== 'true'
+// For E2E testing, use environment variable RATE_LIMIT_DISABLED=true to bypass (non-production only)
+const applyRateLimiting = process.env.NODE_ENV === 'production' || process.env.RATE_LIMIT_DISABLED !== 'true'
 
 const loginMiddleware = applyRateLimiting
   ? [authLimiter, checkBruteForce('email')]
@@ -587,7 +587,7 @@ router.post('/register', csrfProtection, registrationLimiter, async (req: Reques
  *         description: Invalid or expired refresh token
  */
 // POST /api/auth/refresh - Refresh token rotation
-router.post('/refresh', csrfProtection, async (req: Request, res: Response) => {
+router.post('/refresh', ...(applyRateLimiting ? [authLimiter] : []), csrfProtection, async (req: Request, res: Response) => {
   try {
     const { refreshToken } = req.body
 
@@ -685,7 +685,7 @@ router.post('/refresh', csrfProtection, async (req: Request, res: Response) => {
  * POST /api/auth/change-password
  * Change password for authenticated user
  */
-router.post('/change-password', authenticateJWT, csrfProtection, async (req: AuthRequest, res: Response) => {
+router.post('/change-password', authenticateJWT, ...(applyRateLimiting ? [authLimiter] : []), csrfProtection, async (req: AuthRequest, res: Response) => {
   try {
     const { currentPassword, newPassword } = changePasswordSchema.parse(req.body)
 
@@ -729,7 +729,7 @@ router.post('/change-password', authenticateJWT, csrfProtection, async (req: Aut
     )
 
     res.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Change password error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
@@ -801,7 +801,7 @@ router.post('/logout', csrfProtection, async (req: Request, res: Response) => {
     }
   }
 
-  res.json({ message: 'Logged out successfully' })
+  res.json({ success: true, message: 'Logged out successfully' })
 })
 
 /**
@@ -863,14 +863,14 @@ router.get('/me', async (req: Request, res: Response) => {
       },
       token // Return the token so frontend can store it for API calls
     })
-  } catch (error: any) {
-    if (error.name === 'TokenExpiredError') {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'TokenExpiredError') {
       return res.status(401).json({ error: 'Token expired' })
     }
-    if (error.name === 'JsonWebTokenError') {
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token' })
     }
-    logger.error('Error in /auth/me:', error.message) // Wave 16: Winston logger
+    logger.error('Error in /auth/me:', error instanceof Error ? error.message : 'An unexpected error occurred') // Wave 16: Winston logger
     return res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -925,7 +925,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     const { code } = req.query
 
     if (!code || typeof code !== 'string') {
-      return res.redirect('/login?error=no_code')
+      return res.redirect(302, '/login?error=no_code')
     }
 
     const AZURE_AD_CONFIG = {
@@ -961,26 +961,49 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     const microsoftUser = userInfoResponse.data
     const email = (microsoftUser.mail || microsoftUser.userPrincipalName).toLowerCase()
 
-    // SECURITY: Restrict SSO to @capitaltechalliance.com domain
-    if (!email.endsWith('@capitaltechalliance.com')) {
-      logger.warn(`[AUTH] SSO login attempt from unauthorized domain: ${email}`)
-      const acceptsJson = req.headers.accept?.includes('application/json')
-      if (acceptsJson) {
-        return res.status(403).json({
-          error: 'Access Denied',
-          message: 'Only users with @capitaltechalliance.com email addresses can log in'
-        })
-      } else {
-        return res.redirect('/login?error=unauthorized_domain')
+    // Domain allowlist (prod-safe; dev-friendly).
+    // In production, require explicit allowlist (default: capitaltechalliance.com).
+    // In development/staging, allow all domains unless SSO_ALLOWED_DOMAINS is set.
+    const isProduction = process.env.NODE_ENV === 'production'
+    const configuredDomains = (process.env.SSO_ALLOWED_DOMAINS || '')
+      .split(',')
+      .map(domain => domain.trim().toLowerCase())
+      .filter(Boolean)
+    const defaultDomains = ['capitaltechalliance.com']
+    const allowedDomains = configuredDomains.length > 0
+      ? configuredDomains
+      : (isProduction ? defaultDomains : [])
+
+    if (allowedDomains.length > 0) {
+      const emailDomain = (email.split('@')[1] || '').toLowerCase()
+      const isAllowed = allowedDomains.some(domain => emailDomain === domain)
+      if (!isAllowed) {
+        logger.warn(`[AUTH] SSO login attempt from unauthorized domain: ${email}`)
+        const acceptsJson = req.headers.accept?.includes('application/json')
+        if (acceptsJson) {
+          return res.status(403).json({
+            error: 'Access Denied',
+            message: `Only users with ${allowedDomains.map(d => `@${d}`).join(', ')} email addresses can log in`
+          })
+        } else {
+          return res.redirect(302, '/login?error=unauthorized_domain')
+        }
       }
     }
 
-    // Get default tenant
-    // SECURITY NOTE: This query is safe - tenants table doesn't need tenant_id filter
-    // It's the root of the tenant hierarchy
-    const tenantResult = await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
+    // Resolve default tenant for SSO-provisioned users.
+    // Prefer explicit DEFAULT_TENANT_SLUG/DEFAULT_TENANT_ID when set (demo/prod),
+    // otherwise fall back to the earliest-created tenant (legacy behavior).
+    const defaultTenantId = process.env.DEFAULT_TENANT_ID || null
+    const defaultTenantSlug = process.env.DEFAULT_TENANT_SLUG || null
+
+    const tenantResult = defaultTenantId
+      ? await pool.query('SELECT id FROM tenants WHERE id = $1 LIMIT 1', [defaultTenantId])
+      : defaultTenantSlug
+        ? await pool.query('SELECT id FROM tenants WHERE slug = $1 LIMIT 1', [defaultTenantSlug])
+        : await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
     if (tenantResult.rows.length === 0) {
-      return res.redirect('/login?error=no_tenant')
+      return res.redirect(302, '/login?error=no_tenant')
     }
     const tenantId = tenantResult.rows[0].id
 
@@ -1051,15 +1074,15 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       })
     } else {
       // Redirect to dashboard without token in URL
-      res.redirect('/')
+      res.redirect(302, '/')
     }
-  } catch (error: any) {
-    logger.error('Microsoft SSO callback error:', error.message) // Wave 16: Winston logger
+  } catch (error: unknown) {
+    logger.error('Microsoft SSO callback error:', error instanceof Error ? error.message : 'An unexpected error occurred') // Wave 16: Winston logger
     const acceptsJson = req.headers.accept?.includes('application/json')
     if (acceptsJson) {
-      return res.status(500).json({ error: 'Microsoft SSO authentication failed', details: error.message })
+      return res.status(500).json({ error: 'Microsoft SSO authentication failed' })
     } else {
-      res.redirect('/login?error=sso_failed')
+      res.redirect(302, '/login?error=sso_failed')
     }
   }
 })
@@ -1089,7 +1112,7 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
       hasCookie: Boolean(req.headers.cookie),
       authCookiePresent: Boolean(req.cookies?.auth_token)
     })
-    const decodedUnverified = jwt.decode(idToken, { complete: true }) as any
+    const decodedUnverified = jwt.decode(idToken, { complete: true }) as { payload: Record<string, string | number | undefined> } | null
     if (!decodedUnverified || !decodedUnverified.payload) {
       logger.error('[Auth Exchange] Failed to decode ID token')
       return res.status(400).json({ error: 'Invalid ID token format' })
@@ -1116,11 +1139,11 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
       id: payload.oid || payload.sub,
       mail: payload.email || payload.preferred_username || payload.upn,
       userPrincipalName: payload.preferred_username || payload.upn,
-      givenName: payload.given_name || payload.name?.split(' ')[0] || 'User',
-      surname: payload.family_name || payload.name?.split(' ').slice(1).join(' ') || ''
+      givenName: payload.given_name || String(payload.name ?? '').split(' ')[0] || 'User',
+      surname: payload.family_name || String(payload.name ?? '').split(' ').slice(1).join(' ') || ''
     }
 
-    const email = (microsoftUser.mail || microsoftUser.userPrincipalName || '').toLowerCase()
+    const email = String(microsoftUser.mail || microsoftUser.userPrincipalName || '').toLowerCase()
 
     if (!email) {
       logger.error('[Auth Exchange] Unable to extract email from ID token')
@@ -1167,15 +1190,45 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
     }
 
     if (!tenantId) {
-      const tenantResult = await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
-      if (tenantResult.rows.length === 0) {
-        return res.status(500).json({ error: 'No tenant configured' })
+      // Prefer an explicit default tenant for demos and controlled environments.
+      // This avoids accidentally provisioning SSO users into a non-demo tenant.
+      const envDefaultTenantId = process.env.DEFAULT_TENANT_ID
+      const envDefaultTenantSlug = process.env.DEFAULT_TENANT_SLUG
+
+      if (envDefaultTenantId) {
+        const tenantResult = await pool.query('SELECT id FROM tenants WHERE id = $1', [envDefaultTenantId])
+        if (tenantResult.rows.length > 0) {
+          tenantId = tenantResult.rows[0].id
+        }
       }
-      tenantId = tenantResult.rows[0].id
+
+      if (!tenantId && envDefaultTenantSlug) {
+        const tenantResult = await pool.query('SELECT id FROM tenants WHERE slug = $1', [envDefaultTenantSlug])
+        if (tenantResult.rows.length > 0) {
+          tenantId = tenantResult.rows[0].id
+        }
+      }
+
+      // Dev convenience: if the CTA demo tenant exists, use it by default.
+      if (!tenantId && process.env.NODE_ENV !== 'production') {
+        const tenantResult = await pool.query('SELECT id FROM tenants WHERE slug = $1', ['cta-fleet'])
+        if (tenantResult.rows.length > 0) {
+          tenantId = tenantResult.rows[0].id
+        }
+      }
+
+      // Fallback: first created tenant.
+      if (!tenantId) {
+        const tenantResult = await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
+        if (tenantResult.rows.length === 0) {
+          return res.status(500).json({ error: 'No tenant configured' })
+        }
+        tenantId = tenantResult.rows[0].id
+      }
     }
 
     const userResult = await pool.query(
-      'SELECT id, email, first_name, last_name, role, tenant_id FROM users WHERE email = $1',
+      'SELECT id, email, first_name, last_name, role, tenant_id FROM users WHERE lower(email) = $1',
       [email]
     )
 
@@ -1190,6 +1243,27 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
       user = insertResult.rows[0]
     } else {
       user = userResult.rows[0]
+
+      // Demo/dev safety: ensure SSO users land in the intended demo tenant.
+      // If the same email existed in an older seed tenant, move it to the resolved tenant
+      // (typically CTA) so the UI consistently shows Tallahassee CTA data.
+      if (process.env.NODE_ENV !== 'production' && user.tenant_id !== tenantId) {
+        logger.warn('[Auth Exchange] User exists in different tenant; re-homing to resolved tenant (dev/demo)', {
+          email,
+          fromTenant: user.tenant_id,
+          toTenant: tenantId,
+        })
+
+        const updateResult = await pool.query(
+          `UPDATE users
+           SET tenant_id = $1, updated_at = NOW()
+           WHERE id = $2
+           RETURNING id, email, first_name, last_name, role, tenant_id`,
+          [tenantId, user.id]
+        )
+
+        user = updateResult.rows[0] || user
+      }
     }
 
     const token = FIPSJWTService.generateAccessToken(
@@ -1236,13 +1310,13 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
         tenant_id: user.tenant_id
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Microsoft SSO exchange error:', {
-      message: error.message,
-      stack: error.stack,
+      message: error instanceof Error ? error.message : 'An unexpected error occurred',
+      stack: error instanceof Error ? error.stack : undefined,
       error: error
     })
-    return res.status(500).json({ error: 'Microsoft SSO exchange failed', details: error.message })
+    return res.status(500).json({ error: 'Microsoft SSO exchange failed' })
   }
 })
 
@@ -1373,22 +1447,24 @@ router.get('/verify', async (req: Request, res: Response) => {
         name: validatedUser.name
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+    const errorName = error instanceof Error ? error.name : undefined
     logger.error('[AUTH /verify] Token verification error:', {
-      message: error.message,
-      name: error.name
+      message: errorMessage,
+      name: errorName
     })
 
     let errorCode = 'VALIDATION_FAILED'
-    if (error.name === 'TokenExpiredError') {
+    if (errorName === 'TokenExpiredError') {
       errorCode = 'TOKEN_EXPIRED'
-    } else if (error.name === 'JsonWebTokenError') {
+    } else if (errorName === 'JsonWebTokenError') {
       errorCode = 'INVALID_TOKEN'
     }
 
     res.status(401).json({
       authenticated: false,
-      error: error.message,
+      error: 'Token verification failed',
       errorCode
     })
   }
@@ -1549,21 +1625,23 @@ router.get('/userinfo', async (req: Request, res: Response) => {
       user: userInfo,
       tokenInfo
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+    const errorName = error instanceof Error ? error.name : undefined
     logger.error('[AUTH /userinfo] Error extracting user info:', {
-      message: error.message,
-      name: error.name
+      message: errorMessage,
+      name: errorName
     })
 
     let errorCode = 'EXTRACTION_FAILED'
-    if (error.name === 'TokenExpiredError') {
+    if (errorName === 'TokenExpiredError') {
       errorCode = 'TOKEN_EXPIRED'
-    } else if (error.name === 'JsonWebTokenError') {
+    } else if (errorName === 'JsonWebTokenError') {
       errorCode = 'INVALID_TOKEN'
     }
 
     res.status(401).json({
-      error: error.message,
+      error: 'Failed to extract user information',
       errorCode
     })
   }

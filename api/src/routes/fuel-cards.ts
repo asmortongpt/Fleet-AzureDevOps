@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { container } from '../container';
 import { NotFoundError } from '../errors/app-error';
 import { authenticateJWT } from '../middleware/auth';
@@ -18,6 +19,112 @@ import {
   BulkImportRequest
 } from '../types/fuel-cards';
 
+// ── Zod Schemas ──────────────────────────────────────────────────────────────
+
+const fuelCardStatusEnum = z.enum(['active', 'suspended', 'lost', 'expired']);
+const reconciliationStatusEnum = z.enum(['pending', 'matched', 'unmatched', 'disputed']);
+
+const createFuelCardProviderSchema = z.object({
+  provider_name: z.string().min(1),
+  api_endpoint: z.string().optional(),
+  api_key: z.string().optional(),
+  account_number: z.string().optional(),
+  is_active: z.boolean().optional(),
+  sync_frequency_minutes: z.number().int().positive().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const updateFuelCardProviderSchema = z.object({
+  provider_name: z.string().min(1).optional(),
+  api_endpoint: z.string().optional(),
+  api_key: z.string().optional(),
+  account_number: z.string().optional(),
+  is_active: z.boolean().optional(),
+  sync_frequency_minutes: z.number().int().positive().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const createFuelCardSchema = z.object({
+  provider_id: z.string().min(1),
+  card_number: z.string().min(1),
+  card_last4: z.string().length(4),
+  vehicle_id: z.string().optional(),
+  driver_id: z.string().optional(),
+  status: fuelCardStatusEnum.optional(),
+  issue_date: z.union([z.string(), z.coerce.date()]),
+  expiry_date: z.union([z.string(), z.coerce.date()]),
+  daily_limit: z.number().optional(),
+  weekly_limit: z.number().optional(),
+  monthly_limit: z.number().optional(),
+  allowed_fuel_types: z.array(z.string()).optional(),
+  allowed_product_codes: z.array(z.string()).optional(),
+  pin_required: z.boolean().optional(),
+  odometer_required: z.boolean().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const updateFuelCardSchema = z.object({
+  vehicle_id: z.string().nullish(),
+  driver_id: z.string().nullish(),
+  status: fuelCardStatusEnum.optional(),
+  expiry_date: z.union([z.string(), z.coerce.date()]).optional(),
+  daily_limit: z.number().nullish(),
+  weekly_limit: z.number().nullish(),
+  monthly_limit: z.number().nullish(),
+  allowed_fuel_types: z.array(z.string()).optional(),
+  allowed_product_codes: z.array(z.string()).optional(),
+  pin_required: z.boolean().optional(),
+  odometer_required: z.boolean().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const createFuelCardTransactionSchema = z.object({
+  fuel_card_id: z.string().min(1),
+  provider_transaction_id: z.string().optional(),
+  transaction_date: z.union([z.string(), z.coerce.date()]),
+  vehicle_id: z.string().optional(),
+  driver_id: z.string().optional(),
+  fuel_type: z.string().min(1),
+  gallons: z.number().positive(),
+  cost_per_gallon: z.number().nonnegative(),
+  total_cost: z.number().nonnegative(),
+  odometer_reading: z.number().optional(),
+  location: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  merchant_name: z.string().optional(),
+  merchant_address: z.string().optional(),
+  product_code: z.string().optional(),
+  unit_of_measure: z.string().optional(),
+  receipt_url: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const bulkImportSchema = z.object({
+  provider_id: z.string().optional(),
+  transactions: z.array(createFuelCardTransactionSchema),
+  auto_reconcile: z.boolean().default(true),
+});
+
+const updateFuelCardTransactionSchema = z.object({
+  vehicle_id: z.string().optional(),
+  driver_id: z.string().optional(),
+  is_approved: z.boolean().optional(),
+  is_disputed: z.boolean().optional(),
+  dispute_reason: z.string().optional(),
+  reconciliation_status: reconciliationStatusEnum.optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const disputeSchema = z.object({
+  reason: z.string().min(1, 'Dispute reason is required'),
+});
+
+const manualReconcileSchema = z.object({
+  fuel_card_transaction_id: z.string().min(1),
+  fuel_transaction_id: z.string().min(1),
+});
+
 const router = Router();
 
 // SECURITY: All routes require authentication
@@ -32,7 +139,7 @@ router.use(authenticateJWT);
  * List all fuel card providers for tenant
  */
 router.get('/providers', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -48,13 +155,18 @@ router.get('/providers', asyncHandler(async (req: Request, res: Response) => {
  * Create new fuel card provider
  */
 router.post('/providers', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
 
+  const parsed = createFuelCardProviderSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+  }
+
   const service = container.get<FuelCardService>(TYPES.FuelCardService);
-  const data: CreateFuelCardProviderInput = req.body;
+  const data: CreateFuelCardProviderInput = parsed.data;
 
   const provider = await service.createProvider(data, tenantId);
 
@@ -66,13 +178,18 @@ router.post('/providers', csrfProtection, asyncHandler(async (req: Request, res:
  * Update fuel card provider
  */
 router.put('/providers/:id', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
 
+  const parsed = updateFuelCardProviderSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+  }
+
   const service = container.get<FuelCardService>(TYPES.FuelCardService);
-  const data: UpdateFuelCardProviderInput = req.body;
+  const data: UpdateFuelCardProviderInput = parsed.data;
 
   const provider = await service.updateProvider(req.params.id, data, tenantId);
 
@@ -92,7 +209,7 @@ router.put('/providers/:id', csrfProtection, asyncHandler(async (req: Request, r
  * List all fuel cards with optional filters
  */
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -114,7 +231,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
  * Get fuel card details
  */
 router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -134,13 +251,18 @@ router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
  * Create new fuel card
  */
 router.post('/', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
 
+  const parsed = createFuelCardSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+  }
+
   const service = container.get<FuelCardService>(TYPES.FuelCardService);
-  const data: CreateFuelCardInput = req.body;
+  const data: CreateFuelCardInput = parsed.data;
 
   const card = await service.createCard(data, tenantId);
 
@@ -152,13 +274,18 @@ router.post('/', csrfProtection, asyncHandler(async (req: Request, res: Response
  * Update fuel card
  */
 router.put('/:id', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
 
+  const parsed = updateFuelCardSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+  }
+
   const service = container.get<FuelCardService>(TYPES.FuelCardService);
-  const data: UpdateFuelCardInput = req.body;
+  const data: UpdateFuelCardInput = parsed.data;
 
   const card = await service.updateCard(req.params.id, data, tenantId);
 
@@ -174,7 +301,7 @@ router.put('/:id', csrfProtection, asyncHandler(async (req: Request, res: Respon
  * Soft delete fuel card (sets status to 'suspended')
  */
 router.delete('/:id', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -186,7 +313,7 @@ router.delete('/:id', csrfProtection, asyncHandler(async (req: Request, res: Res
     throw new NotFoundError('Fuel card not found');
   }
 
-  res.json({ message: 'Fuel card suspended successfully' });
+  res.json({ success: true, message: 'Fuel card suspended successfully' });
 }));
 
 /**
@@ -194,7 +321,7 @@ router.delete('/:id', csrfProtection, asyncHandler(async (req: Request, res: Res
  * Get all transactions for a specific fuel card
  */
 router.get('/:id/transactions', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -228,7 +355,7 @@ router.get('/:id/transactions', asyncHandler(async (req: Request, res: Response)
  * List all fuel card transactions with filters
  */
 router.get('/transactions', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -252,7 +379,7 @@ router.get('/transactions', asyncHandler(async (req: Request, res: Response) => 
     fuel_card_id: fuel_card_id as string,
     vehicle_id: vehicle_id as string,
     driver_id: driver_id as string,
-    reconciliation_status: reconciliation_status as any,
+    reconciliation_status: reconciliation_status as FuelCardTransactionFilters['reconciliation_status'],
     is_disputed: is_disputed === 'true',
     start_date: start_date as string,
     end_date: end_date as string,
@@ -280,7 +407,7 @@ router.get('/transactions', asyncHandler(async (req: Request, res: Response) => 
  * Get specific fuel card transaction
  */
 router.get('/transactions/:id', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -300,16 +427,17 @@ router.get('/transactions/:id', asyncHandler(async (req: Request, res: Response)
  * Bulk import fuel card transactions from provider
  */
 router.post('/transactions/import', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
 
-  const { transactions, auto_reconcile = true }: BulkImportRequest = req.body;
-
-  if (!transactions || !Array.isArray(transactions)) {
-    throw new Error('Transactions array is required');
+  const parsed = bulkImportSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
   }
+
+  const { transactions, auto_reconcile } = parsed.data;
 
   const service = container.get<FuelCardService>(TYPES.FuelCardService);
   const reconciliationService = container.get<FuelCardReconciliationService>(TYPES.FuelCardReconciliationService);
@@ -320,7 +448,7 @@ router.post('/transactions/import', csrfProtection, asyncHandler(async (req: Req
     skipped_count: 0,
     error_count: 0,
     transaction_ids: [] as string[],
-    errors: [] as any[]
+    errors: [] as { row: number; error: string; data: unknown }[]
   };
 
   // Import each transaction
@@ -329,11 +457,11 @@ router.post('/transactions/import', csrfProtection, asyncHandler(async (req: Req
       const transaction = await service.createTransaction(transactions[i], tenantId);
       importResult.imported_count++;
       importResult.transaction_ids.push(transaction.id);
-    } catch (error: any) {
+    } catch (error: unknown) {
       importResult.error_count++;
       importResult.errors.push({
         row: i,
-        error: error.message,
+        error: 'An internal error occurred',
         data: transactions[i]
       });
     }
@@ -356,7 +484,7 @@ router.post('/transactions/import', csrfProtection, asyncHandler(async (req: Req
  * Run auto-reconciliation on pending transactions
  */
 router.post('/transactions/reconcile', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -372,21 +500,23 @@ router.post('/transactions/reconcile', csrfProtection, asyncHandler(async (req: 
  * Dispute a fuel card transaction
  */
 router.post('/transactions/:id/dispute', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
-  const userId = (req as any).user?.id;
+  const tenantId = req.user?.tenant_id;
+  const userId = req.user?.id;
   if (!tenantId || !userId) {
     throw new Error('Tenant ID and User ID are required');
   }
 
-  const { reason } = req.body;
-  if (!reason) {
-    throw new Error('Dispute reason is required');
+  const parsed = disputeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
   }
+
+  const { reason } = parsed.data;
 
   const reconciliationService = container.get<FuelCardReconciliationService>(TYPES.FuelCardReconciliationService);
   await reconciliationService.disputeTransaction(req.params.id, reason, userId, tenantId);
 
-  res.json({ message: 'Transaction disputed successfully' });
+  res.json({ success: true, message: 'Transaction disputed successfully' });
 }));
 
 /**
@@ -394,16 +524,18 @@ router.post('/transactions/:id/dispute', csrfProtection, asyncHandler(async (req
  * Manually link a fuel card transaction to a fuel transaction
  */
 router.post('/transactions/manual-reconcile', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
-  const userId = (req as any).user?.id;
+  const tenantId = req.user?.tenant_id;
+  const userId = req.user?.id;
   if (!tenantId || !userId) {
     throw new Error('Tenant ID and User ID are required');
   }
 
-  const { fuel_card_transaction_id, fuel_transaction_id } = req.body;
-  if (!fuel_card_transaction_id || !fuel_transaction_id) {
-    throw new Error('Both transaction IDs are required');
+  const parsed = manualReconcileSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
   }
+
+  const { fuel_card_transaction_id, fuel_transaction_id } = parsed.data;
 
   const reconciliationService = container.get<FuelCardReconciliationService>(TYPES.FuelCardReconciliationService);
   await reconciliationService.manualReconcile(
@@ -413,7 +545,7 @@ router.post('/transactions/manual-reconcile', csrfProtection, asyncHandler(async
     userId
   );
 
-  res.json({ message: 'Transactions manually reconciled successfully' });
+  res.json({ success: true, message: 'Transactions manually reconciled successfully' });
 }));
 
 /**
@@ -421,13 +553,18 @@ router.post('/transactions/manual-reconcile', csrfProtection, asyncHandler(async
  * Update fuel card transaction (approval, dispute, etc.)
  */
 router.put('/transactions/:id', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
 
+  const parsed = updateFuelCardTransactionSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+  }
+
   const service = container.get<FuelCardService>(TYPES.FuelCardService);
-  const data: UpdateFuelCardTransactionInput = req.body;
+  const data: UpdateFuelCardTransactionInput = parsed.data;
 
   const transaction = await service.updateTransaction(req.params.id, data, tenantId);
 
@@ -447,7 +584,7 @@ router.put('/transactions/:id', csrfProtection, asyncHandler(async (req: Request
  * Get fuel card utilization summary
  */
 router.get('/utilization', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -463,7 +600,7 @@ router.get('/utilization', asyncHandler(async (req: Request, res: Response) => {
  * Get fraud detection alerts
  */
 router.get('/transactions/fraud-alerts', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }

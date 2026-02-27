@@ -605,13 +605,13 @@ const RootMutationType = new GraphQLObjectType({
       },
       resolve: async (parent, args, context) => {
         const results = await Promise.all(
-          args.ids.map(id =>
+          args.ids.map((id: string) =>
             context.services.damageReportService.update(id, args.update)
           )
         )
 
         // Bulk cache invalidation
-        const keys = args.ids.map(id => `report:${id}`)
+        const keys = args.ids.map((id: string) => `report:${id}`)
         await context.redis.del(...keys)
 
         return results
@@ -633,7 +633,9 @@ const RootSubscriptionType = new GraphQLObjectType({
       subscribe: withFilter(
         () => pubsub.asyncIterator(['DAMAGE_REPORT_CREATED']),
         (payload, args) => {
-          if (!args.vehicleId) return true
+          if (!args.vehicleId) {
+return true
+}
           return payload.damageReportCreated.vehicleId === args.vehicleId
         }
       ),
@@ -648,7 +650,9 @@ const RootSubscriptionType = new GraphQLObjectType({
       subscribe: withFilter(
         () => pubsub.asyncIterator(['DAMAGE_REPORT_UPDATED']),
         (payload, args) => {
-          if (!args.reportId) return true
+          if (!args.reportId) {
+return true
+}
           return payload.damageReportUpdated.id === args.reportId
         }
       ),

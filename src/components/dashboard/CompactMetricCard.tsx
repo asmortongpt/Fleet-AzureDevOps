@@ -1,5 +1,9 @@
+/**
+ * CompactMetricCard — Tesla/Rivian minimal compact metric
+ *
+ * Small, clean, typography-driven.
+ */
 import { TrendingUp, TrendingDown, Minus } from "lucide-react"
-import { motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 
@@ -24,75 +28,56 @@ export function CompactMetricCard({
   trend = "neutral",
   subtitle,
   icon,
-  status = "info",
   onClick,
   className,
   testId,
   valueTestId
 }: CompactMetricCardProps) {
-  const getTrendIcon = () => {
-    if (trend === "up") return <TrendingUp className="w-3 h-3" />
-    if (trend === "down") return <TrendingDown className="w-3 h-3" />
-    return <Minus className="w-3 h-3" />
-  }
-
-  const getTrendColor = () => {
-    if (trend === "up") return "text-green-600 dark:text-green-400"
-    if (trend === "down") return "text-red-600 dark:text-red-400"
-    return "text-gray-700 dark:text-gray-700"
-  }
-
-  const getStatusStyle = () => {
-    const styles = {
-      success: "bg-green-100 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900",
-      warning: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
-      error: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
-      info: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-700 dark:border-blue-900"
-    }
-    return styles[status]
-  }
+  const trendColor = trend === "up" ? "text-emerald-400" : trend === "down" ? "text-rose-400" : "text-white/30"
+  const TrendIcon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus
 
   return (
-    <motion.div
-      className={cn("metric-card-compact", className)}
+    <div
+      className={cn(
+        "flex items-center gap-3 rounded-xl border border-white/[0.04] bg-[#111111] p-3",
+        onClick && "cursor-pointer hover:bg-[#161616] transition-colors duration-150",
+        className
+      )}
       onClick={onClick}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.99 }}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
       data-testid={testId}
     >
       {icon && (
-        <div className={cn("metric-icon-container", getStatusStyle())}>
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.04] text-white/30 shrink-0">
           {icon}
         </div>
       )}
 
-      <div className="metric-content min-w-0 flex-1">
-        <div className="metric-label truncate" title={title}>{title}</div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[10px] font-medium text-white/35 uppercase tracking-wider truncate" title={title}>
+          {title}
+        </div>
         <div className="flex items-baseline gap-2">
-          <motion.div
-            className="metric-value truncate"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+          <span
+            className="text-[15px] font-semibold text-white tabular-nums truncate"
             title={String(value)}
             data-testid={valueTestId}
           >
             {value}
-          </motion.div>
+          </span>
           {change !== undefined && (
-            <div className={cn("metric-trend", getTrendColor())}>
-              {getTrendIcon()}
+            <div className={cn("flex items-center gap-0.5 text-[10px] font-medium", trendColor)}>
+              <TrendIcon className="w-3 h-3" />
               <span>{Math.abs(change)}%</span>
             </div>
           )}
         </div>
         {subtitle && (
-          <div className="metric-subtitle truncate" title={subtitle}>{subtitle}</div>
+          <div className="text-[10px] text-white/20 truncate mt-0.5" title={subtitle}>{subtitle}</div>
         )}
       </div>
-    </motion.div>
+    </div>
   )
 }

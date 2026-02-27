@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { commonSchemas } from '../middleware/validation';
+import { commonSchemas, flexUuid } from '../middleware/validation';
 
 /**
  * Comprehensive Zod validation schemas for Assets
@@ -62,7 +62,7 @@ export const assetCreateSchema = z.object({
   asset_tag: z.string()
     .min(1, 'Asset tag is required')
     .max(50, 'Asset tag must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'Asset tag can only contain letters, numbers, and hyphens'),
+    .regex(/^[A-Z0-9-]+$/i, 'Asset tag can only contain letters, numbers, and hyphens'),
 
   asset_name: z.string()
     .min(1, 'Asset name is required')
@@ -114,11 +114,11 @@ export const assetCreateSchema = z.object({
     .max(255, 'Location must be 255 characters or less')
     .optional(),
 
-  facility_id: z.string().uuid('Invalid facility ID format').optional(),
+  facility_id: flexUuid.optional(),
 
-  assigned_to: z.string().uuid('Invalid user/entity ID format').optional(),
+  assigned_to: flexUuid.optional(),
 
-  assigned_vehicle_id: z.string().uuid('Invalid vehicle ID format').optional(),
+  assigned_vehicle_id: flexUuid.optional(),
 
   // Warranty and maintenance
   warranty_expiration: z.coerce.date().optional(),
@@ -286,9 +286,9 @@ export const assetUpdateSchema = z.object({
     .nullable()
     .optional(),
 
-  facility_id: z.string().uuid().nullable().optional(),
-  assigned_to: z.string().uuid().nullable().optional(),
-  assigned_vehicle_id: z.string().uuid().nullable().optional(),
+  facility_id: flexUuid.nullable().optional(),
+  assigned_to: flexUuid.nullable().optional(),
+  assigned_vehicle_id: flexUuid.nullable().optional(),
 
   warranty_expiration: z.coerce.date().nullable().optional(),
   last_maintenance: z.coerce.date().nullable().optional(),
@@ -395,9 +395,9 @@ export const assetQuerySchema = z.object({
   status: assetStatusEnum.optional(),
   condition: conditionEnum.optional(),
 
-  facility_id: z.string().uuid().optional(),
-  assigned_to: z.string().uuid().optional(),
-  assigned_vehicle_id: z.string().uuid().optional(),
+  facility_id: flexUuid.optional(),
+  assigned_to: flexUuid.optional(),
+  assigned_vehicle_id: flexUuid.optional(),
 
   manufacturer: z.string().max(255).optional(),
 
@@ -456,7 +456,7 @@ export const assetQuerySchema = z.object({
  * Asset ID parameter schema
  */
 export const assetIdSchema = z.object({
-  id: z.string().uuid('Invalid asset ID format')
+  id: flexUuid
 });
 
 // Type exports

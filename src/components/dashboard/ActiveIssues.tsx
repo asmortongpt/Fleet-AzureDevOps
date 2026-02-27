@@ -4,6 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 type IssueSeverity = 'critical' | 'warning' | 'info';
@@ -30,7 +31,7 @@ interface ActiveIssuesProps {
  * SEVERITY LEVELS:
  * - Critical: Action required immediately (red)
  * - Warning: Attention needed soon (orange/yellow)
- * - Info: FYI, no action required (blue)
+ * - Info: FYI, no action required (emerald)
  */
 export function ActiveIssues({ className }: ActiveIssuesProps) {
   const [issues, setIssues] = React.useState<Issue[]>([]);
@@ -42,11 +43,11 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
         // Fetch dashboard stats to detect issues
         const [dashboardStats, maintenanceAlerts] = await Promise.all([
           fetch('/api/dashboard/stats', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null),
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch dashboard stats for active issues', { error: String(err) }); return null; }),
           fetch('/api/dashboard/maintenance/alerts', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null)
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch maintenance alerts for active issues', { error: String(err) }); return null; })
         ]);
 
         const detectedIssues: Issue[] = [];
@@ -165,10 +166,10 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
     },
     info: {
       icon: <Info className="h-5 w-5" />,
-      bg: 'bg-blue-50 dark:bg-blue-950/30',
-      border: 'border-blue-300 dark:border-blue-800',
-      text: 'text-blue-700 dark:text-blue-700',
-      badge: 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300',
+      bg: 'bg-emerald-500/5 dark:bg-emerald-950/30',
+      border: 'border-emerald-500/30 dark:border-emerald-800',
+      text: 'text-emerald-700 dark:text-emerald-700',
+      badge: 'bg-emerald-500/10 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300',
       label: 'INFO'
     }
   };
@@ -228,7 +229,7 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
                   <div
                     key={issue.id}
                     className={cn(
-                      'p-4 rounded-lg border-2 transition-all hover:shadow-md',
+                      'p-4 rounded-lg border-2 transition-all',
                       config.bg,
                       config.border
                     )}
@@ -243,7 +244,7 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
                             {config.label}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {new Date(issue.timestamp).toLocaleTimeString()}
+                            {formatTime(issue.timestamp)}
                           </span>
                         </div>
 
@@ -267,7 +268,7 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
                               {issue.affectedSystems.map((system) => (
                                 <span
                                   key={system}
-                                  className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                                  className="px-1.5 py-0.5 rounded bg-white/[0.04] dark:bg-white/[0.04] text-white/60 dark:text-white/60"
                                 >
                                   {system}
                                 </span>

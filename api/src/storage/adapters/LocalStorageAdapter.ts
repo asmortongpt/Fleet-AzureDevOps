@@ -158,7 +158,9 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
       try {
         await fs.unlink(filePath).catch(() => { });
         await fs.unlink(metadataFilePath).catch(() => { });
-      } catch { }
+      } catch {
+        // Cleanup errors are intentionally ignored; the original error is re-thrown below
+      }
 
       throw new Error(
         `Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -237,8 +239,8 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
 
       // Clean up empty directories
       await this.cleanupEmptyDirectories(path.dirname(filePath));
-    } catch (error: any) {
-      if (error.code === 'ENOENT') {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === 'ENOENT') {
         throw new FileNotFoundError(normalizedKey);
       }
       throw error;
@@ -260,8 +262,8 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
 
     try {
       await this.listDirectory(searchPath, prefix, files, directories, options);
-    } catch (error: any) {
-      if (error.code === `ENOENT`) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === 'ENOENT') {
         return {
           files: [],
           directories: [],
@@ -347,8 +349,8 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
           createdAt: stats.birthtime,
           updatedAt: stats.mtime
         };
-      } catch (error: any) {
-        if (error.code === `ENOENT`) {
+      } catch (error: unknown) {
+        if ((error as Record<string, unknown>).code === 'ENOENT') {
           throw new FileNotFoundError(normalizedKey);
         }
         throw error;

@@ -5,14 +5,19 @@ import {
   Clock,
 } from "@phosphor-icons/react";
 import { ColumnDef } from "@tanstack/react-table";
-import React, { useState, useMemo  } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { DataGrid } from "../../components/common/DataGrid";
+import ErrorBoundary from "../../components/common/ErrorBoundary";
 import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
 import { HubLayout } from "../../components/layout/HubLayout";
 import { Badge } from "../../components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { secureFetch } from "../../hooks/use-api";
 import { useFleetData } from "../../hooks/use-fleet-data";
+import { formatDate } from "../../utils/format-helpers";
+
+import { formatVehicleName } from "@/utils/vehicle-display";
 
 type WorkModule = "tasks" | "maintenance" | "routes";
 
@@ -49,106 +54,114 @@ const RouteManagement: React.FC<{ data: any }> = ({ data }) => {
 const WorkHub: React.FC = () => {
   const [activeModule, setActiveModule] = useState<WorkModule>("tasks");
   const fleetData = useFleetData();
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [tasksLoading, setTasksLoading] = useState(true);
 
-  // Sample data for the consolidated view
-  const taskData: TaskData[] = useMemo(
-    () => [
-      {
-        id: "1",
-        title: "Pre-trip inspection - Unit 45",
-        status: "in-progress",
-        priority: "high",
-        assignee: "John Smith",
-        dueDate: "2025-11-27",
-      },
-      {
-        id: "2",
-        title: "Update driver records",
-        status: "pending",
-        priority: "medium",
-        assignee: "Jane Doe",
-        dueDate: "2025-11-28",
-      },
-      {
-        id: "3",
-        title: "Route optimization review",
-        status: "overdue",
-        priority: "high",
-        assignee: "Mike Johnson",
-        dueDate: "2025-11-26",
-      },
-    ],
-    []
-  );
+  useEffect(() => {
+    let cancelled = false;
+    const loadTasks = async () => {
+      try {
+        setTasksLoading(true);
+        const res = await secureFetch("/api/tasks?limit=200");
+        if (!res.ok) throw new Error("Failed to load tasks");
+        const payload = await res.json();
+        const rows = payload?.data ?? payload ?? [];
+        if (!cancelled) {
+          setTasks(Array.isArray(rows) ? rows : []);
+        }
+      } catch {
+        if (!cancelled) setTasks([]);
+      } finally {
+        if (!cancelled) setTasksLoading(false);
+      }
+    };
 
-  const maintenanceData: MaintenanceData[] = useMemo(
-    () => [
-      {
-        id: "1",
-        vehicle: "Unit 45",
-        type: "Oil Change",
-        scheduledDate: "2025-11-28",
-        status: "scheduled",
-        technician: "Tom Wilson",
-      },
-      {
-        id: "2",
-        vehicle: "Unit 23",
-        type: "Tire Rotation",
-        scheduledDate: "2025-11-29",
-        status: "scheduled",
-        technician: "Sarah Lee",
-      },
-      {
-        id: "3",
-        vehicle: "Unit 67",
-        type: "Brake Inspection",
-        scheduledDate: "2025-11-27",
-        status: "in-progress",
-        technician: "Tom Wilson",
-      },
-    ],
-    []
-  );
+    loadTasks();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const driversById = useMemo(() => {
+    return new Map((fleetData.drivers || []).map((driver: any) => [driver.id ?? driver.driver_id, driver]));
+  }, [fleetData.drivers]);
+
+  const vehiclesById = useMemo(() => {
+    return new Map((fleetData.vehicles || []).map((vehicle: any) => [vehicle.id, vehicle]));
+  }, [fleetData.vehicles]);
+
+  const taskData: TaskData[] = useMemo(() => {
+    return tasks.map((task) => {
+      const assignee = driversById.get(task.assignedToId);
+      const assigneeName = assignee ? `${assignee.first_name || ''} ${assignee.last_name || ''}`.trim() : '';
+      return {
+        id: task.id,
+        title: task.title,
+        status: task.status || "pending",
+        priority: task.priority || "medium",
+        assignee: assigneeName,
+        dueDate: task.dueDate || '',
+      };
+    });
+  }, [tasks, driversById]);
+
+  const maintenanceData: MaintenanceData[] = useMemo(() => {
+    const workOrders = fleetData.workOrders || [];
+    return workOrders.map((order: any) => {
+      const vehicle = vehiclesById.get(order.vehicle_id || order.vehicleId);
+      return {
+        id: order.id,
+        vehicle: vehicle ? formatVehicleName(vehicle) : '',
+        type: order.title || order.type || 'Maintenance',
+        scheduledDate: order.scheduled_date || order.due_date || order.created_at || '',
+        status: order.status || "scheduled",
+        technician: order.assigned_to || order.technician || ''
+      };
+    });
+  }, [fleetData.workOrders, vehiclesById]);
 
   // KPI metrics for the strip
-  const kpiMetrics: KPIMetric[] = useMemo(
-    () => [
+  const kpiMetrics: KPIMetric[] = useMemo(() => {
+    const activeTasks = taskData.filter((task) => task.status !== "completed").length;
+    const inProgress = taskData.filter((task) => task.status === "in-progress").length;
+    const maintenanceDue = maintenanceData.filter((item) => item.status === "overdue").length;
+    const routesCount = (fleetData.routes || []).length;
+
+    return [
       {
         id: "active-tasks",
         icon: <ListChecks className="w-3 h-3" />,
         label: "Active Tasks",
-        value: 24,
-        trend: { value: 12, direction: "up", isPositive: false },
-        color: "text-blue-800",
+        value: activeTasks,
+        trend: { value: 0, direction: "up", isPositive: true },
+        color: "text-emerald-800",
       },
       {
         id: "in-progress",
         icon: <Clock className="w-3 h-3" />,
         label: "In Progress",
-        value: 12,
-        trend: { value: 5, direction: "up", isPositive: true },
+        value: inProgress,
+        trend: { value: 0, direction: "up", isPositive: true },
         color: "text-orange-500",
       },
       {
         id: "maintenance-due",
         icon: <Wrench className="w-3 h-3" />,
         label: "Maintenance Due",
-        value: 15,
-        trend: { value: 8, direction: "down", isPositive: true },
-        color: "text-purple-500",
+        value: maintenanceDue,
+        trend: { value: 0, direction: "down", isPositive: true },
+        color: "text-amber-500",
       },
       {
         id: "route-efficiency",
         icon: <MapTrifold className="w-3 h-3" />,
-        label: "Route Efficiency",
-        value: "94%",
-        trend: { value: 3, direction: "up", isPositive: true },
+        label: "Routes",
+        value: routesCount,
+        trend: { value: 0, direction: "up", isPositive: true },
         color: "text-green-500",
       },
-    ],
-    []
-  );
+    ];
+  }, [taskData, maintenanceData, fleetData.routes]);
 
   // Column definitions for task grid
   const taskColumns: ColumnDef<TaskData>[] = useMemo(
@@ -198,7 +211,7 @@ const WorkHub: React.FC = () => {
       {
         accessorKey: "dueDate",
         header: "Due Date",
-        cell: ({ row }) => new Date(row.original.dueDate).toLocaleDateString(),
+        cell: ({ row }) => formatDate(row.original.dueDate),
       },
     ],
     []
@@ -223,7 +236,7 @@ const WorkHub: React.FC = () => {
         accessorKey: "scheduledDate",
         header: "Scheduled",
         cell: ({ row }) =>
-          new Date(row.original.scheduledDate).toLocaleDateString(),
+          formatDate(row.original.scheduledDate),
       },
       {
         accessorKey: "status",
@@ -251,6 +264,7 @@ const WorkHub: React.FC = () => {
   );
 
   return (
+    <ErrorBoundary>
     <HubLayout title="Work Management">
       <div className="h-full flex flex-col gap-2 p-2">
         {/* KPI Strip at the top */}
@@ -355,6 +369,7 @@ const WorkHub: React.FC = () => {
         </div>
       </div>
     </HubLayout>
+    </ErrorBoundary>
   );
 };
 

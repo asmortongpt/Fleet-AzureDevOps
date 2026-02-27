@@ -4,11 +4,13 @@
  */
 
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { db } from '../db';
 import logger from '../config/logger';
 import { authenticateJWT } from '../middleware/auth';
-import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
+import { csrfProtection } from '../middleware/csrf';
 import { asyncHandler } from '../middleware/errorHandler';
+import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { tireRotationService } from '../services/tire-rotation';
 import { tireAnalyticsService } from '../services/tire-analytics';
 import {
@@ -22,8 +24,123 @@ import {
   CreatePressureLogInput,
   TireInventoryQuery,
   TireStatus,
+  TireType,
+  RemovalReason,
+  RotationPattern,
   PressureLogSource
 } from '../types/tires';
+
+// ============================================================================
+// ZOD VALIDATION SCHEMAS
+// ============================================================================
+
+const tireTypeEnum = z.nativeEnum(TireType);
+const tireStatusEnum = z.nativeEnum(TireStatus);
+const removalReasonEnum = z.nativeEnum(RemovalReason);
+const rotationPatternEnum = z.nativeEnum(RotationPattern);
+const pressureLogSourceEnum = z.nativeEnum(PressureLogSource);
+
+const createTireInventorySchema = z.object({
+  tire_number: z.string().min(1).max(100),
+  manufacturer: z.string().min(1).max(200),
+  model: z.string().min(1).max(200),
+  size: z.string().min(1).max(50),
+  load_range: z.string().max(10).optional(),
+  tire_type: tireTypeEnum,
+  tread_depth_32nds: z.number().int().min(0).max(32).optional(),
+  dot_number: z.string().max(50).optional(),
+  manufacture_date: z.coerce.date().optional(),
+  purchase_date: z.coerce.date().optional(),
+  purchase_price: z.number().nonnegative().max(10_000).optional(),
+  vendor_id: z.string().optional(),
+  warranty_miles: z.number().int().nonnegative().max(1_000_000).optional(),
+  expected_life_miles: z.number().int().nonnegative().max(1_000_000).optional(),
+  facility_id: z.string().optional(),
+  location_in_warehouse: z.string().max(200).optional(),
+  notes: z.string().max(5000).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const updateTireInventorySchema = z.object({
+  tread_depth_32nds: z.number().int().min(0).max(32).optional(),
+  status: tireStatusEnum.optional(),
+  facility_id: z.string().optional(),
+  location_in_warehouse: z.string().max(200).optional(),
+  notes: z.string().max(5000).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const mountTireSchema = z.object({
+  tire_id: z.string().min(1),
+  position: z.string().min(1).max(20),
+  mounted_date: z.coerce.date().optional(),
+  mounted_odometer: z.number().nonnegative().max(10_000_000),
+  mounted_by: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const unmountTireSchema = z.object({
+  position: z.string().min(1).max(20),
+  removed_date: z.coerce.date().optional(),
+  removed_odometer: z.number().nonnegative().max(10_000_000),
+  removed_by: z.string().optional(),
+  removal_reason: removalReasonEnum,
+});
+
+const rotateTiresSchema = z.object({
+  rotation_date: z.coerce.date().optional(),
+  rotation_odometer: z.number().nonnegative().max(10_000_000),
+  rotated_by: z.string().optional(),
+  rotation_pattern: rotationPatternEnum,
+  position_mappings: z.array(z.object({
+    from_position: z.string().min(1).max(20),
+    to_position: z.string().min(1).max(20),
+  })).min(1).max(20),
+});
+
+const tirePositionInspectionSchema = z.object({
+  position: z.string().min(1).max(20),
+  tire_id: z.string().min(1),
+  tread_depth: z.number().min(0).max(32),
+  psi: z.number().min(0).max(200),
+  condition: z.enum(['excellent', 'good', 'fair', 'poor', 'critical']),
+  issues: z.array(z.string()).optional(),
+});
+
+const tireDefectSchema = z.object({
+  position: z.string().min(1).max(20),
+  issue: z.string().min(1).max(500),
+  severity: z.enum(['low', 'medium', 'high', 'critical']),
+  description: z.string().max(2000).optional(),
+});
+
+const createTireInspectionSchema = z.object({
+  vehicle_id: z.string().min(1),
+  inspection_date: z.coerce.date().optional(),
+  inspector_id: z.string().optional(),
+  odometer_reading: z.number().nonnegative().max(10_000_000),
+  tire_positions: z.array(tirePositionInspectionSchema).min(1).max(20),
+  defects: z.array(tireDefectSchema).optional(),
+  work_order_id: z.string().optional(),
+  notes: z.string().max(5000).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const tirePositionPressureSchema = z.object({
+  position: z.string().min(1).max(20),
+  tire_id: z.string().optional(),
+  psi: z.number().min(0).max(250),
+  temp_f: z.number().min(-40).max(500).optional(),
+});
+
+const createPressureLogSchema = z.object({
+  vehicle_id: z.string().min(1),
+  log_date: z.coerce.date().optional(),
+  tire_positions: z.array(tirePositionPressureSchema).min(1).max(20),
+  checked_by: z.string().optional(),
+  source: pressureLogSourceEnum.optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
 
 const router = Router();
 
@@ -45,7 +162,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const {
       status,
       tire_type,
@@ -56,7 +173,7 @@ router.get(
       search,
       page = 1,
       pageSize = 50
-    }: TireInventoryQuery = req.query as any;
+    } = req.query as unknown as TireInventoryQuery;
 
     let query = `
       SELECT ti.*, f.name as facility_name, v.name as vendor_name
@@ -65,7 +182,7 @@ router.get(
       LEFT JOIN vendors v ON v.id = ti.vendor_id
       WHERE ti.tenant_id = $1
     `;
-    const params: any[] = [tenantId];
+    const params: unknown[] = [tenantId];
     let paramIndex = 2;
 
     if (status) {
@@ -126,13 +243,18 @@ router.get(
  */
 router.post(
   '/',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
-    const input: CreateTireInventoryInput = req.body;
+    const tenantId = req.user?.tenant_id ?? '';
+    const parsed = createTireInventorySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    }
+    const input: CreateTireInventoryInput = parsed.data;
 
     const query = `
       INSERT INTO tire_inventory (
@@ -189,7 +311,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { id } = req.params;
 
     // Get tire details
@@ -233,17 +355,22 @@ router.get(
  */
 router.put(
   '/:id',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { id } = req.params;
-    const input: UpdateTireInventoryInput = req.body;
+    const parsed = updateTireInventorySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    }
+    const input: UpdateTireInventoryInput = parsed.data;
 
     const updates: string[] = [];
-    const values: any[] = [id, tenantId];
+    const values: unknown[] = [id, tenantId];
     let paramIndex = 3;
 
     if (input.tread_depth_32nds !== undefined) {
@@ -304,14 +431,19 @@ router.put(
  */
 router.post(
   '/vehicles/:vehicleId/tires/mount',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
-    const input: MountTireInput = req.body;
+    const parsed = mountTireSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    }
+    const input: MountTireInput = parsed.data;
 
     // Check if position is already occupied
     const checkQuery = `
@@ -341,7 +473,7 @@ router.post(
       input.position,
       input.mounted_date || new Date(),
       input.mounted_odometer,
-      input.mounted_by || (req as any).user?.id,
+      input.mounted_by || req.user?.id,
       input.metadata || {}
     ]);
 
@@ -363,14 +495,19 @@ router.post(
  */
 router.post(
   '/vehicles/:vehicleId/tires/unmount',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
-    const input: UnmountTireInput = req.body;
+    const parsed = unmountTireSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    }
+    const input: UnmountTireInput = parsed.data;
 
     const query = `
       UPDATE vehicle_tire_positions
@@ -389,7 +526,7 @@ router.post(
     const result = await db.query(query, [
       input.removed_date || new Date(),
       input.removed_odometer,
-      input.removed_by || (req as any).user?.id,
+      input.removed_by || req.user?.id,
       input.removal_reason,
       vehicleId,
       input.position,
@@ -430,14 +567,19 @@ router.post(
  */
 router.post(
   '/vehicles/:vehicleId/tires/rotate',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
-    const input: RotateTiresInput = req.body;
+    const parsed = rotateTiresSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    }
+    const input: RotateTiresInput = parsed.data;
 
     const result = await tireRotationService.executeTireRotation(vehicleId, tenantId, input);
 
@@ -456,7 +598,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
 
     const query = `
@@ -491,14 +633,19 @@ router.get(
  */
 router.post(
   '/vehicles/:vehicleId/tires/inspect',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
-    const input: CreateTireInspectionInput = req.body;
+    const parsed = createTireInspectionSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    }
+    const input: CreateTireInspectionInput = parsed.data;
 
     const query = `
       INSERT INTO tire_inspections (
@@ -514,7 +661,7 @@ router.post(
       tenantId,
       vehicleId,
       input.inspection_date || new Date(),
-      input.inspector_id || (req as any).user?.id,
+      input.inspector_id || req.user?.id,
       input.odometer_reading,
       JSON.stringify(input.tire_positions),
       input.defects && input.defects.length > 0,
@@ -545,7 +692,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
 
     const schedule = await tireRotationService.getScheduleForVehicle(vehicleId, tenantId);
@@ -568,16 +715,28 @@ router.get(
  */
 router.post(
   '/pressure-log',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER, Role.USER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
-    const input: CreatePressureLogInput = req.body;
+    const tenantId = req.user?.tenant_id ?? '';
+    const parsed = createPressureLogSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    }
+    const input: CreatePressureLogInput = parsed.data;
 
     // Generate alerts for low/high pressure
-    const alerts: any[] = [];
+    interface PressureAlert {
+      position: string;
+      alert_type: 'low_pressure' | 'high_pressure' | 'high_temperature';
+      threshold: number;
+      actual: number;
+      severity: 'warning' | 'critical';
+    }
+    const alerts: PressureAlert[] = [];
     for (const position of input.tire_positions) {
       if (position.psi < 95) {
         alerts.push({
@@ -622,7 +781,7 @@ router.post(
       input.vehicle_id,
       input.log_date || new Date(),
       JSON.stringify(input.tire_positions),
-      input.checked_by || (req as any).user?.id,
+      input.checked_by || req.user?.id,
       input.source || PressureLogSource.MANUAL,
       alerts.length > 0 ? JSON.stringify(alerts) : null,
       input.metadata || {}
@@ -653,13 +812,13 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { alert_level } = req.query;
 
     // Get rotation alerts
     const rotationAlerts = await tireRotationService.getRotationAlerts(
       tenantId,
-      alert_level as any
+      alert_level as 'info' | 'critical' | 'warning' | undefined
     );
 
     // Get low tread alerts
@@ -709,7 +868,7 @@ router.get(
     const pressureResult = await db.query(pressureQuery, [tenantId]);
 
     const pressureAlerts = pressureResult.rows.flatMap((row) => {
-      const alerts = row.alerts_triggered as any[];
+      const alerts = row.alerts_triggered as Record<string, unknown>[];
       return alerts.map((alert) => ({
         ...alert,
         vehicle_id: row.vehicle_id,
@@ -727,12 +886,12 @@ router.get(
         critical: [
           ...rotationAlerts.filter((a) => a.alert_level === 'critical'),
           ...treadAlerts.filter((a) => a.severity === 'critical'),
-          ...pressureAlerts.filter((a) => a.severity === 'critical')
+          ...pressureAlerts.filter((a) => (a as Record<string, unknown>).severity === 'critical')
         ].length,
         warning: [
           ...rotationAlerts.filter((a) => a.alert_level === 'warning'),
           ...treadAlerts.filter((a) => a.severity === 'warning'),
-          ...pressureAlerts.filter((a) => a.severity === 'warning')
+          ...pressureAlerts.filter((a) => (a as Record<string, unknown>).severity === 'warning')
         ].length
       }
     });

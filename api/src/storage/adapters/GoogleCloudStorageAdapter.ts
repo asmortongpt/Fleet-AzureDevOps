@@ -146,7 +146,7 @@ throw new Error(`Bucket not initialized`);
       } else {
         // Stream upload
         await new Promise<void>((resolve, reject) => {
-          const writeStream = (file as any).createWriteStream(uploadOptions);
+          const writeStream = (file as unknown as { createWriteStream: (opts: Record<string, unknown>) => NodeJS.WritableStream }).createWriteStream(uploadOptions);
           let bytesWritten = 0;
 
           writeStream.on('error', reject);
@@ -185,7 +185,7 @@ throw new Error(`Bucket not initialized`);
 
   async uploadMultipart(key: string, data: Readable, options?: UploadOptions): Promise<UploadResult> {
     // GCS handles resumable uploads automatically
-    return this.upload(key, data, { ...options, resumable: true } as any);
+    return this.upload(key, data, options);
   }
 
   async download(key: string, options?: DownloadOptions): Promise<DownloadResult> {
@@ -254,8 +254,8 @@ throw new Error('Bucket not initialized');
 
     try {
       await file.delete();
-    } catch (error: any) {
-      if (error.code === 404) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === 404) {
         throw new FileNotFoundError(normalizedKey);
       }
       throw error;
@@ -280,7 +280,7 @@ throw new Error('Bucket not initialized');
       });
 
       const fileInfos: FileInfo[] = await Promise.all(
-        files.map(async (file: any) => {
+        files.map(async (file: GCSFile) => {
           const [metadata] = await file.getMetadata();
           return {
             key: file.name,
@@ -364,8 +364,8 @@ throw new Error('Bucket not initialized');
         createdAt: new Date(metadata.timeCreated),
         updatedAt: new Date(metadata.updated)
       };
-    } catch (error: any) {
-      if (error.code === 404) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === 404) {
         throw new FileNotFoundError(normalizedKey);
       }
       throw error;

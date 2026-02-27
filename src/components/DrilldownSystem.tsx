@@ -10,7 +10,10 @@ import { useDrilldown } from '@/contexts/DrilldownContext';
 import { useMultiLevelDrilldown } from '@/hooks/useMultiLevelDrilldown';
 import { api } from '@/services/api';
 import { Vehicle } from '@/types';
+import { formatEnum } from '@/utils/format-enum';
+import { formatCurrency, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 /**
  * DrilldownSystem - Universal Multi-Level Drilldown with Excel Views
@@ -80,7 +83,7 @@ export function DrilldownSystem() {
         return renderCostAnalysisDrilldown(data);
 
       default:
-        return <div className="p-3 text-center text-slate-700">
+        return <div className="p-3 text-center text-white/70">
           <p>Drilldown type "{type}" not yet implemented</p>
           <p className="text-sm mt-2">Check DrilldownSystem.tsx to add this view</p>
         </div>;
@@ -125,34 +128,34 @@ export function DrilldownSystem() {
                 label: `Vehicle ${vehicle.number}`,
                 data: { vehicle }
               },
-              <div className="p-3 bg-slate-900/95 rounded-lg">
+              <div className="p-3 bg-[#111]/95 rounded-lg">
                 <h3 className="text-sm font-bold text-white mb-3">Vehicle Details: {vehicle.number}</h3>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-700">Make / Model</label>
-                      <p className="text-sm text-white">{vehicle.make} {vehicle.model} ({vehicle.year})</p>
+                      <label className="text-sm text-white/70">Make / Model</label>
+                      <p className="text-sm text-white">{formatVehicleName(vehicle)}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">VIN</label>
+                      <label className="text-sm text-white/70">VIN</label>
                       <p className="text-sm text-white font-mono">{vehicle.vin}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">Status</label>
-                      <p className="text-sm text-white capitalize">{vehicle.status}</p>
+                      <label className="text-sm text-white/70">Status</label>
+                      <p className="text-sm text-white">{formatEnum(vehicle.status)}</p>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-700">Mileage</label>
-                      <p className="text-sm text-white">{vehicle.mileage?.toLocaleString()} mi</p>
+                      <label className="text-sm text-white/70">Mileage</label>
+                      <p className="text-sm text-white">{formatNumber(vehicle.mileage)} mi</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">Driver</label>
-                      <p className="text-sm text-white">{vehicle.assignedDriver || 'Unassigned'}</p>
+                      <label className="text-sm text-white/70">Driver</label>
+                      <p className="text-sm text-white">{vehicle.assignedDriver || '—'}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">Facility</label>
+                      <label className="text-sm text-white/70">Facility</label>
                       <p className="text-sm text-white">{vehicle.department}</p>
                     </div>
                   </div>
@@ -177,7 +180,7 @@ export function DrilldownSystem() {
 
       if (records.length === 0) {
         return (
-          <div className="p-3 text-center text-slate-700">
+          <div className="p-3 text-center text-white/70">
             <p className="text-base">No Maintenance Records</p>
             <p className="text-sm mt-2">No maintenance records are currently available.</p>
           </div>
@@ -196,34 +199,34 @@ export function DrilldownSystem() {
                 label: `Maintenance ${record.id}`,
                 data: { record }
               },
-              <div className="p-3 bg-slate-900/95 rounded-lg">
+              <div className="p-3 bg-[#111]/95 rounded-lg">
                 <h3 className="text-sm font-bold text-white mb-3">Maintenance Record: {record.id}</h3>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-700">Vehicle</label>
+                      <label className="text-sm text-white/70">Vehicle</label>
                       <p className="text-sm text-white">{record.unit_number}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">Service Type</label>
+                      <label className="text-sm text-white/70">Service Type</label>
                       <p className="text-sm text-white">{record.service_type}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">Status</label>
+                      <label className="text-sm text-white/70">Status</label>
                       <p className="text-sm text-white capitalize">{record.status}</p>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-700">Cost</label>
-                      <p className="text-sm text-emerald-700 font-semibold">${record.cost.toLocaleString()}</p>
+                      <label className="text-sm text-white/70">Cost</label>
+                      <p className="text-sm text-emerald-700 font-semibold">{formatCurrency(record.cost)}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">Technician</label>
+                      <label className="text-sm text-white/70">Technician</label>
                       <p className="text-sm text-white">{record.technician}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">Facility</label>
+                      <label className="text-sm text-white/70">Facility</label>
                       <p className="text-sm text-white">{record.facility}</p>
                     </div>
                   </div>
@@ -257,34 +260,34 @@ export function DrilldownSystem() {
                 label: `${driver.first_name} ${driver.last_name}`,
                 data: { driver }
               },
-              <div className="p-3 bg-slate-900/95 rounded-lg">
+              <div className="p-3 bg-[#111]/95 rounded-lg">
                 <h3 className="text-sm font-bold text-white mb-3">Driver Profile: {driver.first_name} {driver.last_name}</h3>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-700">Email</label>
+                      <label className="text-sm text-white/70">Email</label>
                       <p className="text-sm text-white">{driver.email}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">Phone</label>
+                      <label className="text-sm text-white/70">Phone</label>
                       <p className="text-sm text-white">{driver.phone}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">License</label>
+                      <label className="text-sm text-white/70">License</label>
                       <p className="text-sm text-white font-mono">{driver.license_number} ({driver.license_state})</p>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-700">Status</label>
+                      <label className="text-sm text-white/70">Status</label>
                       <p className="text-sm text-white capitalize">{driver.status.replace('-', ' ')}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">Assigned Vehicle</label>
+                      <label className="text-sm text-white/70">Assigned Vehicle</label>
                       <p className="text-sm text-white">{driver.assigned_vehicle || 'None'}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-700">Performance</label>
+                      <label className="text-sm text-white/70">Performance</label>
                       <p className="text-sm text-emerald-700 font-semibold">{driver.performance_score}/100</p>
                     </div>
                   </div>
@@ -301,17 +304,143 @@ export function DrilldownSystem() {
   };
 
   const renderUtilizationDrilldown = async (data: any) => {
-    return <div className="p-3 text-center text-slate-700">
-      <p className="text-base">Utilization Data View</p>
-      <p className="text-sm mt-2">Excel-style utilization analytics coming soon</p>
-    </div>;
+    try {
+      const response = await api.get('/vehicles');
+      const vehicles: Vehicle[] = response.data.data || [];
+
+      // Compute utilization stats
+      const total = vehicles.length;
+      const active = vehicles.filter(v => v.status === 'active').length;
+      const inService = vehicles.filter(v => v.status === 'service').length;
+      const offline = vehicles.filter(v => v.status === 'offline').length;
+      const idle = total - active - inService - offline;
+      const utilizationRate = total > 0 ? Math.round((active / total) * 100) : 0;
+
+      return (
+        <div className="p-3 space-y-3">
+          <h3 className="text-sm font-bold text-white">Fleet Utilization Summary</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-[#1a1a1a]/60 rounded-lg p-2">
+              <div className="text-xs text-white/50">Utilization Rate</div>
+              <div className="text-lg font-bold text-emerald-400">{utilizationRate}%</div>
+            </div>
+            <div className="bg-[#1a1a1a]/60 rounded-lg p-2">
+              <div className="text-xs text-white/50">Total Vehicles</div>
+              <div className="text-lg font-bold text-white">{formatNumber(total)}</div>
+            </div>
+            <div className="bg-[#1a1a1a]/60 rounded-lg p-2">
+              <div className="text-xs text-white/50">Active</div>
+              <div className="text-lg font-bold text-green-400">{formatNumber(active)}</div>
+            </div>
+            <div className="bg-[#1a1a1a]/60 rounded-lg p-2">
+              <div className="text-xs text-white/50">In Service</div>
+              <div className="text-lg font-bold text-yellow-400">{formatNumber(inService)}</div>
+            </div>
+            <div className="bg-[#1a1a1a]/60 rounded-lg p-2">
+              <div className="text-xs text-white/50">Idle</div>
+              <div className="text-lg font-bold text-orange-400">{formatNumber(idle)}</div>
+            </div>
+            <div className="bg-[#1a1a1a]/60 rounded-lg p-2">
+              <div className="text-xs text-white/50">Offline</div>
+              <div className="text-lg font-bold text-red-400">{formatNumber(offline)}</div>
+            </div>
+          </div>
+          {/* Breakdown table */}
+          <div className="mt-2">
+            <h4 className="text-xs font-semibold text-white/60 mb-2">Vehicle Status Breakdown</h4>
+            <div className="space-y-1">
+              {[
+                { label: 'Active', count: active, color: 'bg-green-500' },
+                { label: 'In Service', count: inService, color: 'bg-yellow-500' },
+                { label: 'Idle', count: idle, color: 'bg-orange-500' },
+                { label: 'Offline', count: offline, color: 'bg-red-500' },
+              ].map(row => (
+                <div key={row.label} className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${row.color}`} />
+                  <span className="text-xs text-white/60 flex-1">{row.label}</span>
+                  <span className="text-xs text-white font-medium">{row.count}</span>
+                  <div className="w-24 h-1.5 bg-white/[0.15] rounded-full overflow-hidden">
+                    <div className={`h-full ${row.color} rounded-full`} style={{ width: `${total > 0 ? (row.count / total) * 100 : 0}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    } catch (err) {
+      logger.error('Failed to load utilization data:', err);
+      return <div className="p-3 text-center text-red-400">Failed to load utilization data</div>;
+    }
   };
 
   const renderCostAnalysisDrilldown = async (data: any) => {
-    return <div className="p-3 text-center text-slate-700">
-      <p className="text-base">Cost Analysis View</p>
-      <p className="text-sm mt-2">Excel-style cost breakdown coming soon</p>
-    </div>;
+    try {
+      const response = await api.get('/maintenance');
+      const records: MaintenanceRecord[] = response.data.data || [];
+
+      // Compute cost breakdown
+      const totalCost = records.reduce((sum, r) => sum + (r.cost || 0), 0);
+      const completedRecords = records.filter(r => r.status === 'completed');
+      const pendingRecords = records.filter(r => r.status === 'scheduled' || r.status === 'in-progress');
+      const completedCost = completedRecords.reduce((sum, r) => sum + (r.cost || 0), 0);
+      const pendingCost = pendingRecords.reduce((sum, r) => sum + (r.cost || 0), 0);
+      const avgCost = records.length > 0 ? totalCost / records.length : 0;
+
+      // Cost by service type
+      const costByType: Record<string, number> = {};
+      records.forEach(r => {
+        const type = r.service_type || 'Other';
+        costByType[type] = (costByType[type] || 0) + (r.cost || 0);
+      });
+      const sortedTypes = Object.entries(costByType).sort((a, b) => b[1] - a[1]).slice(0, 6);
+
+      return (
+        <div className="p-3 space-y-3">
+          <h3 className="text-sm font-bold text-white">Cost Analysis Summary</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-[#1a1a1a]/60 rounded-lg p-2">
+              <div className="text-xs text-white/50">Total Maintenance Cost</div>
+              <div className="text-lg font-bold text-emerald-400">{formatCurrency(totalCost)}</div>
+            </div>
+            <div className="bg-[#1a1a1a]/60 rounded-lg p-2">
+              <div className="text-xs text-white/50">Total Records</div>
+              <div className="text-lg font-bold text-white">{records.length}</div>
+            </div>
+            <div className="bg-[#1a1a1a]/60 rounded-lg p-2">
+              <div className="text-xs text-white/50">Completed Cost</div>
+              <div className="text-lg font-bold text-green-400">{formatCurrency(completedCost)}</div>
+            </div>
+            <div className="bg-[#1a1a1a]/60 rounded-lg p-2">
+              <div className="text-xs text-white/50">Pending Cost</div>
+              <div className="text-lg font-bold text-yellow-400">{formatCurrency(pendingCost)}</div>
+            </div>
+            <div className="bg-[#1a1a1a]/60 rounded-lg p-2 col-span-2">
+              <div className="text-xs text-white/50">Average Cost per Record</div>
+              <div className="text-lg font-bold text-emerald-400">{formatCurrency(avgCost)}</div>
+            </div>
+          </div>
+          {/* Cost by service type */}
+          <div className="mt-2">
+            <h4 className="text-xs font-semibold text-white/60 mb-2">Cost by Service Type</h4>
+            <div className="space-y-1">
+              {sortedTypes.map(([type, cost]) => (
+                <div key={type} className="flex items-center gap-2">
+                  <span className="text-xs text-white/60 flex-1 truncate">{formatEnum(type)}</span>
+                  <span className="text-xs text-emerald-400 font-medium">{formatCurrency(cost)}</span>
+                  <div className="w-24 h-1.5 bg-white/[0.15] rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${totalCost > 0 ? (cost / totalCost) * 100 : 0}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    } catch (err) {
+      logger.error('Failed to load cost data:', err);
+      return <div className="p-3 text-center text-red-400">Failed to load cost analysis data</div>;
+    }
   };
 
   if (!isOpen || levels.length === 0) {
@@ -320,9 +449,9 @@ export function DrilldownSystem() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="flex items-center gap-3 bg-slate-900/95 border border-slate-700/60 rounded-lg px-3 py-2">
-          <Loader2 className="w-3 h-3 text-blue-700 animate-spin" />
+      <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
+        <div className="flex items-center gap-3 bg-[#111111] border border-white/[0.04] rounded-lg px-3 py-2">
+          <Loader2 className="w-3 h-3 text-emerald-700 animate-spin" />
           <span className="text-white">Loading drilldown...</span>
         </div>
       </div>
@@ -331,10 +460,10 @@ export function DrilldownSystem() {
 
   if (error) {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="bg-slate-900/95 border border-red-500/60 rounded-lg px-3 py-2 max-w-md">
+      <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
+        <div className="bg-[#111]/95 border border-red-500/60 rounded-lg px-3 py-2 max-w-md">
           <p className="text-red-400 font-semibold">Error loading drilldown</p>
-          <p className="text-slate-300 text-sm mt-2">{error}</p>
+          <p className="text-white/60 text-sm mt-2">{error}</p>
           <button
             onClick={close}
             className="mt-2 px-2 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-medium"

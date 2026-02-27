@@ -10,12 +10,12 @@ import {
   Wrench,
   ShieldCheck,
   BarChart3,
-  Settings,
   MapPin,
 } from 'lucide-react'
 import { useCallback, type ReactNode } from 'react'
-import { usePanel } from '@/contexts/PanelContext'
+
 import { getModule, type ModuleCategory } from '@/config/module-registry'
+import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
 interface TabDef {
@@ -59,7 +59,7 @@ export function MobileTabBar() {
   )
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#1A0B2E]/95 backdrop-blur-xl border-t border-white/10 safe-bottom lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0e0e0e] border-t border-white/[0.04] safe-bottom lg:hidden">
       <div className="flex items-center justify-around h-12 sm:h-14">
         {tabs.map(tab => {
           const isActive =
@@ -72,7 +72,7 @@ export function MobileTabBar() {
               onClick={() => handleTabClick(tab)}
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors',
-                isActive ? 'text-[#41B2E3]' : 'text-white/40'
+                isActive ? 'text-white' : 'text-white/40'
               )}
               aria-label={tab.label}
             >

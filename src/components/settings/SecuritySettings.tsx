@@ -3,9 +3,10 @@
  * Password, 2FA, sessions, and API keys
  */
 
-import { ShieldCheck, Key, Smartphone, RotateCcw, Monitor, LogOut, Shield } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { ShieldCheck, Key, Smartphone, RotateCcw, Monitor, LogOut, Shield } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
@@ -23,8 +24,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { securitySettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
+import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 export function SecuritySettings() {
@@ -34,8 +36,8 @@ export function SecuritySettings() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordStrength, setPasswordStrength] = useState(0)
-  const { data: sessionsData, mutate: mutateSessions } = useSWR('/api/sessions', swrFetcher)
-  const { data: auditData } = useSWR('/api/audit-logs', swrFetcher)
+  const { data: sessionsData, mutate: mutateSessions } = useSWR<Record<string, any>[]>('/api/sessions', apiFetcher)
+  const { data: auditData } = useSWR<Record<string, any>[]>('/api/audit-logs', apiFetcher)
 
   const formatRelativeTime = (timestamp?: string) => {
     if (!timestamp) return '—'
@@ -52,23 +54,23 @@ export function SecuritySettings() {
   }
 
   const parseDevice = (userAgent: string) => {
-    if (!userAgent) return 'Unknown'
+    if (!userAgent) return '—'
     if (/mobile|android|iphone|ipad/i.test(userAgent)) return 'Mobile'
     return 'Desktop'
   }
 
   const parseBrowser = (userAgent: string) => {
-    if (!userAgent) return 'Unknown'
+    if (!userAgent) return '—'
     if (userAgent.includes('Edg/')) return 'Edge'
     if (userAgent.includes('Chrome/')) return 'Chrome'
     if (userAgent.includes('Firefox/')) return 'Firefox'
     if (userAgent.includes('Safari/')) return 'Safari'
-    return 'Unknown'
+    return '—'
   }
 
   const activeSessions = useMemo(() => {
-    const rows = sessionsData?.data ?? []
-    if (!Array.isArray(rows)) return []
+    const raw = sessionsData ?? []
+    const rows = Array.isArray(raw) ? raw : []
     const sorted = [...rows].sort((a, b) => {
       const aTime = new Date(a.lastActivity || a.startTime || 0).getTime()
       const bTime = new Date(b.lastActivity || b.startTime || 0).getTime()
@@ -86,16 +88,16 @@ export function SecuritySettings() {
   }, [sessionsData])
 
   const loginHistory = useMemo(() => {
-    const rows = auditData?.data ?? []
-    if (!Array.isArray(rows)) return []
+    const raw = auditData ?? []
+    const rows = Array.isArray(raw) ? raw : []
     return rows
       .filter((row: any) => row.action === 'LOGIN' || row.action === 'user_login')
       .slice(0, 10)
       .map((row: any) => ({
         id: row.id,
-        timestamp: new Date(row.timestamp).toLocaleString(),
+        timestamp: formatDateTime(row.timestamp),
         device: row.metadata?.userAgent ? `${parseDevice(row.metadata.userAgent)} - ${parseBrowser(row.metadata.userAgent)}` : 'Unknown',
-        location: row.metadata?.location || 'Unknown',
+        location: row.metadata?.location || '—',
         ip: row.ipAddress || row.metadata?.ipAddress || '—'
       }))
   }, [auditData])
@@ -263,7 +265,27 @@ export function SecuritySettings() {
                 <li>Scan the QR code or enter the setup key</li>
                 <li>Enter the 6-digit code from your app to verify</li>
               </ol>
-              <Button variant="outline" className="mt-3">
+              <Button variant="outline" className="mt-3" onClick={async () => {
+                const toastId = toast.loading('Initiating 2FA setup...')
+                try {
+                  const response = await fetch('/api/auth/2fa/setup', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                  })
+                  if (!response.ok) {
+                    throw new Error(`2FA setup failed (${response.status})`)
+                  }
+                  toast.success('Two-factor authentication setup initiated. Check your authenticator app.', { id: toastId })
+                  logger.info('2FA setup initiated')
+                } catch (error) {
+                  logger.error('2FA setup failed', error as Error)
+                  toast.error(
+                    error instanceof Error ? error.message : '2FA setup failed. Please try again.',
+                    { id: toastId }
+                  )
+                }
+              }}>
                 Setup 2FA
               </Button>
             </div>
@@ -393,7 +415,33 @@ export function SecuritySettings() {
           <div className="text-sm text-muted-foreground mb-2">
             API keys allow you to access Fleet Management data programmatically.
           </div>
-          <Button variant="outline">
+          <Button variant="outline" onClick={async () => {
+            const toastId = toast.loading('Generating API key...')
+            try {
+              const response = await fetch('/api/api-keys', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: `Key-${new Date().toISOString().slice(0, 10)}` })
+              })
+              if (!response.ok) {
+                throw new Error(`Failed to generate API key (${response.status})`)
+              }
+              const data = await response.json()
+              const keyPreview = data?.key ? `${String(data.key).slice(0, 12)}...` : ''
+              toast.success(
+                `API key generated${keyPreview ? `: ${keyPreview}` : ''}. Copy it now — it will not be shown again.`,
+                { id: toastId, duration: 6000 }
+              )
+              logger.info('API key generated')
+            } catch (error) {
+              logger.error('Failed to generate API key', error as Error)
+              toast.error(
+                error instanceof Error ? error.message : 'Failed to generate API key',
+                { id: toastId }
+              )
+            }
+          }}>
             <Key className="w-4 h-4 mr-2" />
             Generate New API Key
           </Button>

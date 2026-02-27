@@ -45,32 +45,32 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
   // Variant classes with hover/active/focus states
   const variantClasses = {
     primary: `
-      bg-blue-600 text-white
-      hover:bg-blue-700 hover:shadow-md
-      active:bg-blue-800 active:scale-98
-      focus:ring-blue-500
-      disabled:bg-gray-300 disabled:text-gray-700 disabled:cursor-not-allowed disabled:hover:shadow-none
+      bg-emerald-600 text-white
+      hover:bg-emerald-700 
+      active:bg-emerald-800 active:scale-98
+      focus:ring-emerald-500
+      disabled:bg-white/[0.08] disabled:text-white/40 disabled:cursor-not-allowed disabled:hover:shadow-none
     `,
     secondary: `
-      bg-gray-100 text-gray-900 border border-gray-300
-      hover:bg-gray-200 hover:border-gray-400 hover:shadow-sm
-      active:bg-gray-300 active:scale-98
+      bg-white/[0.05] text-white/80 border border-white/[0.08]
+      hover:bg-white/[0.06] hover:border-white/[0.08] 
+      active:bg-white/[0.08] active:scale-98
       focus:ring-gray-500
-      disabled:bg-gray-50 disabled:text-gray-700 disabled:border-gray-200 disabled:cursor-not-allowed
+      disabled:bg-white/[0.03] disabled:text-white/40 disabled:border-white/[0.08] disabled:cursor-not-allowed
     `,
     danger: `
       bg-red-600 text-white
-      hover:bg-red-700 hover:shadow-md
+      hover:bg-red-700 
       active:bg-red-800 active:scale-98
       focus:ring-red-500
-      disabled:bg-gray-300 disabled:text-gray-700 disabled:cursor-not-allowed disabled:hover:shadow-none
+      disabled:bg-white/[0.08] disabled:text-white/40 disabled:cursor-not-allowed disabled:hover:shadow-none
     `,
     ghost: `
-      bg-transparent text-gray-700
-      hover:bg-gray-100 hover:text-gray-900
-      active:bg-gray-200 active:scale-98
+      bg-transparent text-white/40
+      hover:bg-white/[0.05] hover:text-white/80
+      active:bg-white/[0.06] active:scale-98
       focus:ring-gray-500
-      disabled:text-gray-700 disabled:cursor-not-allowed disabled:hover:bg-transparent
+      disabled:text-white/40 disabled:cursor-not-allowed disabled:hover:bg-transparent
     `,
   };
 

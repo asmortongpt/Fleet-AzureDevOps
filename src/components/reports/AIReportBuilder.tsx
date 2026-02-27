@@ -1,8 +1,11 @@
 import { ArrowLeft, Sparkles, Send, Code, Eye, Save } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import apiClient from '@/lib/api-client';
 import logger from '@/utils/logger';
@@ -30,6 +33,9 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
   const [generatedReport, setGeneratedReport] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [jsonDialogOpen, setJsonDialogOpen] = useState(false);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [previewVisual, setPreviewVisual] = useState<any>(null);
 
   // Example prompts
   const examplePrompts = [
@@ -80,20 +86,20 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
       onReportCreated(reportId);
     } catch (err) {
       logger.error('Save error:', err);
-      alert('Failed to save report. Please try again.');
+      toast.error('Failed to save report. Please try again.');
     }
   }, [generatedReport, onReportCreated]);
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-[#0a0a0a]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white px-3 py-3">
+      <div className="bg-[#111111] border-b border-white/[0.04] text-white px-3 py-3">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               onClick={onBack}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-white/15"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
@@ -112,13 +118,13 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 bg-gray-50">
+      <div className="flex-1 overflow-y-auto px-3 py-3 bg-[#0a0a0a]">
         <div className="max-w-6xl mx-auto space-y-2">
           {/* Input section */}
           {!showPreview && (
             <>
-              <Card className="p-3">
-                <h2 className="text-sm font-semibold text-gray-900 mb-2">
+              <Card className="p-3 bg-[#111111] border-white/[0.04]">
+                <h2 className="text-sm font-semibold text-white mb-2">
                   What report would you like to create?
                 </h2>
                 <Textarea
@@ -133,7 +139,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   }}
                 />
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-700">
+                  <p className="text-xs text-white/40">
                     Press Ctrl+Enter to generate
                   </p>
                   <Button
@@ -142,7 +148,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   >
                     {generating ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        <div className="w-4 h-4 border-2 border-white/80 border-t-transparent rounded-full animate-spin mr-2" />
                         Generating...
                       </>
                     ) : (
@@ -156,16 +162,16 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
               </Card>
 
               {/* Example prompts */}
-              <Card className="p-3">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              <Card className="p-3 bg-[#111111] border-white/[0.04]">
+                <h3 className="text-sm font-semibold text-white/40 mb-3">
                   Example Prompts
                 </h3>
                 <div className="space-y-2">
-                  {examplePrompts.map((example, index) => (
+                  {examplePrompts.map((example) => (
                     <button
-                      key={index}
+                      key={example}
                       onClick={() => setPrompt(example)}
-                      className="w-full text-left px-2 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-sm text-gray-700"
+                      className="w-full text-left px-2 py-3 bg-white/[0.03] hover:bg-white/[0.06] rounded-lg transition-colors text-sm text-white/40"
                     >
                       {example}
                     </button>
@@ -174,12 +180,12 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
               </Card>
 
               {/* How it works */}
-              <Card className="p-3 bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
-                <h3 className="text-sm font-semibold text-indigo-900 mb-3 flex items-center gap-2">
+              <Card className="p-3 bg-[#111111] border-white/[0.04]">
+                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
                   How it works
                 </h3>
-                <ul className="space-y-2 text-sm text-indigo-800">
+                <ul className="space-y-2 text-sm text-white/40">
                   <li className="flex items-start gap-2">
                     <span className="font-semibold">1.</span>
                     <span>Describe your report using natural language</span>
@@ -205,7 +211,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
           {showPreview && generatedReport && (
             <>
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold text-gray-900">
+                <h2 className="text-base font-bold text-white">
                   Generated Report Preview
                 </h2>
                 <div className="flex gap-2">
@@ -216,7 +222,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Edit Prompt
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" onClick={() => setJsonDialogOpen(true)}>
                     <Code className="h-4 w-4 mr-2" />
                     View JSON
                   </Button>
@@ -227,34 +233,37 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                 </div>
               </div>
 
-              <Card className="p-3">
+              <Card className="p-3 bg-[#111111] border-white/[0.04]">
                 <div className="mb-2">
-                  <h3 className="text-sm font-semibold text-gray-900">
+                  <h3 className="text-sm font-semibold text-white">
                     {generatedReport.title}
                   </h3>
-                  <p className="text-sm text-slate-700 mt-1">
+                  <p className="text-sm text-white/40 mt-1">
                     {generatedReport.description}
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  {generatedReport.visuals?.map((visual: any, index: number) => (
+                  {generatedReport.visuals?.map((visual: any) => (
                     <div
-                      key={index}
-                      className="p-2 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+                      key={visual.title}
+                      className="p-2 bg-white/[0.03] rounded-lg border-2 border-dashed border-white/[0.04]"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div>
-                          <div className="font-medium text-gray-900">{visual.title}</div>
-                          <div className="text-xs text-gray-700">Type: {visual.type}</div>
+                          <div className="font-medium text-white">{visual.title}</div>
+                          <div className="text-xs text-white/40">Type: {visual.type}</div>
                         </div>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => {
+                          setPreviewVisual(visual)
+                          setPreviewDialogOpen(true)
+                        }}>
                           <Eye className="h-4 w-4 mr-1" />
                           Preview
                         </Button>
                       </div>
                       {visual.measures && (
-                        <div className="text-xs text-slate-700">
+                        <div className="text-xs text-white/40">
                           {visual.measures.length} measures configured
                         </div>
                       )}
@@ -263,11 +272,11 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                 </div>
               </Card>
 
-              <Card className="p-3 bg-green-50 border-green-200">
-                <h3 className="text-sm font-semibold text-green-900 mb-2">
+              <Card className="p-3 bg-emerald-500/10 border-emerald-500/30">
+                <h3 className="text-sm font-semibold text-emerald-200 mb-2">
                   Report Generated Successfully
                 </h3>
-                <p className="text-sm text-green-800">
+                <p className="text-sm text-emerald-100/80">
                   Your report has been generated and is ready to save. You can customize
                   the layout, add more visuals, or save it directly to your account.
                 </p>
@@ -277,15 +286,84 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
 
           {/* Error */}
           {error && (
-            <Card className="p-3 bg-red-50 border-red-200">
-              <h3 className="text-sm font-semibold text-red-900 mb-2">
+            <Card className="p-3 bg-red-500/10 border-red-500/30">
+              <h3 className="text-sm font-semibold text-red-200 mb-2">
                 Generation Failed
               </h3>
-              <p className="text-sm text-red-800">{error}</p>
+              <p className="text-sm text-red-100/80">{error}</p>
             </Card>
           )}
         </div>
       </div>
+
+      {/* JSON Schema Dialog */}
+      <Dialog open={jsonDialogOpen} onOpenChange={setJsonDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Code className="h-4 w-4" />
+              Report JSON Schema
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[60vh]">
+            <pre className="text-xs font-mono bg-[#0e0e0e]p-4 rounded-lg overflow-x-auto whitespace-pre-wrap">
+              {generatedReport ? JSON.stringify(generatedReport, null, 2) : 'No report generated'}
+            </pre>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Visual Preview Dialog */}
+      <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-4 w-4" />
+              Visual Preview: {previewVisual?.title || 'Untitled'}
+            </DialogTitle>
+          </DialogHeader>
+          {previewVisual && (
+            <div className="space-y-3 py-2">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-white/40">Type:</span>{' '}
+                  <span className="font-medium">{previewVisual.type}</span>
+                </div>
+                <div>
+                  <span className="text-white/40">Measures:</span>{' '}
+                  <span className="font-medium">{previewVisual.measures?.length || 0}</span>
+                </div>
+              </div>
+              {previewVisual.measures && previewVisual.measures.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Configured Measures</h4>
+                  <div className="space-y-1">
+                    {previewVisual.measures.map((m: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between p-2 bg-[#0e0e0e]rounded text-sm">
+                        <span>{m.label || m.id}</span>
+                        <span className="text-white/40 text-xs">{m.format || m.aggregation || 'value'}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="p-4 border-2 border-dashed rounded-lg text-center text-white/40">
+                <div className="text-3xl mb-2">
+                  {previewVisual.type === 'line' ? '📈' : previewVisual.type === 'bar' ? '📊' : previewVisual.type === 'table' ? '📋' : '📊'}
+                </div>
+                <p className="text-sm">{previewVisual.type} visualization</p>
+                <p className="text-xs mt-1">Data will be populated when the report is executed</p>
+              </div>
+              <div className="mt-2">
+                <h4 className="text-sm font-medium mb-1">Raw Configuration</h4>
+                <pre className="text-xs font-mono bg-[#0e0e0e]p-2 rounded overflow-x-auto max-h-32">
+                  {JSON.stringify(previewVisual, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

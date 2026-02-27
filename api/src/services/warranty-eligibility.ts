@@ -309,7 +309,9 @@ export class WarrantyEligibilityService {
 
         const active = warranties.rows.filter(w => w.status === WarrantyStatus.ACTIVE);
         const expiringSoon = active.filter(w => {
-            if (!w.end_date) return false;
+            if (!w.end_date) {
+return false;
+}
             const daysUntil = Math.floor(
                 (new Date(w.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
             );

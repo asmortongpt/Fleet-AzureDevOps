@@ -25,7 +25,10 @@ const pool = process.env.DATABASE_URL
     database: process.env.DB_NAME || 'fleet_management',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD,
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    ssl: process.env.DB_SSL === 'true' ? {
+      rejectUnauthorized: process.env.NODE_ENV === 'production',
+      ...(process.env.DB_SSL_CA ? { ca: process.env.DB_SSL_CA } : {})
+    } : false,
   });
 
 interface MigrationRecord {
@@ -101,14 +104,18 @@ function getMigrationFiles(): string[] {
 
 function getAllowlist(): Set<string> | null {
   const raw = process.env.MIGRATIONS_ALLOWLIST;
-  if (!raw) return null;
+  if (!raw) {
+return null;
+}
   const items = raw.split(',').map((s) => s.trim()).filter(Boolean);
   return new Set(items);
 }
 
 function getSkiplist(): Set<string> | null {
   const raw = process.env.MIGRATIONS_SKIP;
-  if (!raw) return null;
+  if (!raw) {
+return null;
+}
   const items = raw.split(',').map((s) => s.trim()).filter(Boolean);
   return new Set(items);
 }
@@ -176,9 +183,15 @@ async function runMigrations(): Promise<void> {
     const allowlist = getAllowlist();
     const skiplist = getSkiplist();
     const pendingMigrations = migrationFiles.filter((file) => {
-      if (appliedMigrations.has(file)) return false;
-      if (skiplist?.has(file)) return false;
-      if (allowlist) return allowlist.has(file);
+      if (appliedMigrations.has(file)) {
+return false;
+}
+      if (skiplist?.has(file)) {
+return false;
+}
+      if (allowlist) {
+return allowlist.has(file);
+}
       return true;
     });
 
@@ -220,7 +233,7 @@ async function runMigrations(): Promise<void> {
 
 // Run migrations if this script is executed directly
 if (require.main === module) {
-  runMigrations();
+  void runMigrations();
 }
 
 export { runMigrations };

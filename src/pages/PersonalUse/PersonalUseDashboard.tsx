@@ -1,18 +1,21 @@
-import { Car, DollarSign, Receipt, Calendar, AlertTriangle, TrendingUp, Check, Clock, X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
+import { Car, DollarSign, Receipt, Calendar, AlertTriangle, TrendingUp, Check, Clock, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { TripMarker } from '@/components/PersonalUse/TripMarker'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { Section } from '@/components/ui/section'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 interface DashboardData {
   driver_id: string
@@ -65,9 +68,8 @@ interface ReimbursementRequest {
 }
 
 const apiClient = async (url: string) => {
-  const token = localStorage.getItem('token')
   const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
+    credentials: 'include'
   })
   if (!response.ok) throw new Error('Failed to fetch')
   return response.json()
@@ -166,6 +168,7 @@ export function PersonalUseDashboard() {
   const yearlyExceeded = yearlyPercentage > 100
 
   return (
+    <ErrorBoundary>
     <div className="p-3 space-y-2">
       {/* Header */}
       <div>
@@ -193,127 +196,107 @@ export function PersonalUseDashboard() {
       {/* Usage Meters */}
       <div className="grid gap-2 md:grid-cols-2">
         {/* Monthly Usage */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-3 h-3" />
-              This Month
-            </CardTitle>
-            <CardDescription>
-              {dashboardData?.current_month}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>Personal Miles</span>
-                <span className="font-semibold">
-                  {dashboardData?.month_personal_miles.toFixed(1) || '0.0'} / {dashboardData?.monthly_limit || '∞'} mi
-                </span>
-              </div>
-              <Progress
-                value={monthlyPercentage}
-                className={`h-2 ${getUsageColor(monthlyPercentage)}`}
-              />
-              <p className="text-xs text-muted-foreground">
-                {monthlyPercentage.toFixed(0)}% used
-              </p>
+        <Section
+          title="This Month"
+          description={dashboardData?.current_month}
+          icon={<Calendar className="w-3 h-3" />}
+          contentClassName="space-y-2"
+        >
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span>Personal Miles</span>
+              <span className="font-semibold">
+                {dashboardData?.month_personal_miles.toFixed(1) || '0.0'} / {dashboardData?.monthly_limit || '∞'} mi
+              </span>
             </div>
-          </CardContent>
-        </Card>
+            <Progress
+              value={monthlyPercentage}
+              className={`h-2 ${getUsageColor(monthlyPercentage)}`}
+            />
+            <p className="text-xs text-muted-foreground">
+              {monthlyPercentage.toFixed(0)}% used
+            </p>
+          </div>
+        </Section>
 
         {/* Yearly Usage */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-3 h-3" />
-              This Year
-            </CardTitle>
-            <CardDescription>
-              Year-to-date usage
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>Personal Miles</span>
-                <span className="font-semibold">
-                  {dashboardData?.year_personal_miles.toFixed(1) || '0.0'} / {dashboardData?.yearly_limit || '∞'} mi
-                </span>
-              </div>
-              <Progress
-                value={yearlyPercentage}
-                className={`h-2 ${getUsageColor(yearlyPercentage)}`}
-              />
-              <p className="text-xs text-muted-foreground">
-                {yearlyPercentage.toFixed(0)}% used
-              </p>
+        <Section
+          title="This Year"
+          description="Year-to-date usage"
+          icon={<TrendingUp className="w-3 h-3" />}
+          contentClassName="space-y-2"
+        >
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span>Personal Miles</span>
+              <span className="font-semibold">
+                {dashboardData?.year_personal_miles.toFixed(1) || '0.0'} / {dashboardData?.yearly_limit || '∞'} mi
+              </span>
             </div>
-          </CardContent>
-        </Card>
+            <Progress
+              value={yearlyPercentage}
+              className={`h-2 ${getUsageColor(yearlyPercentage)}`}
+            />
+            <p className="text-xs text-muted-foreground">
+              {yearlyPercentage.toFixed(0)}% used
+            </p>
+          </div>
+        </Section>
       </div>
 
       {/* Summary Cards */}
       <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-bold">{dashboardData?.pending_approvals || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Trips awaiting review
-            </p>
-          </CardContent>
-        </Card>
+        <Section
+          title="Pending Approvals"
+          icon={<Clock className="h-4 w-4" />}
+          contentClassName="space-y-1"
+        >
+          <div className="text-sm font-bold">{dashboardData?.pending_approvals || 0}</div>
+          <p className="text-xs text-muted-foreground">
+            Trips awaiting review
+          </p>
+        </Section>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Charges</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-bold">
-              ${dashboardData?.pending_charges_amount.toFixed(2) || '0.00'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {dashboardData?.pending_charges_count || 0} charges
-            </p>
-          </CardContent>
-        </Card>
+        <Section
+          title="Pending Charges"
+          icon={<DollarSign className="h-4 w-4" />}
+          contentClassName="space-y-1"
+        >
+          <div className="text-sm font-bold">
+            {formatCurrency(dashboardData?.pending_charges_amount ?? 0)}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {dashboardData?.pending_charges_count || 0} charges
+          </p>
+        </Section>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Reimbursements</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-bold">
-              ${dashboardData?.pending_reimbursements_amount.toFixed(2) || '0.00'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {dashboardData?.pending_reimbursements_count || 0} requests
-            </p>
-          </CardContent>
-        </Card>
+        <Section
+          title="Pending Reimbursements"
+          icon={<Receipt className="h-4 w-4" />}
+          contentClassName="space-y-1"
+        >
+          <div className="text-sm font-bold">
+            {formatCurrency(dashboardData?.pending_reimbursements_amount ?? 0)}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {dashboardData?.pending_reimbursements_count || 0} requests
+          </p>
+        </Section>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Next Payment</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-bold">
-              ${dashboardData?.next_payment_amount?.toFixed(2) || '0.00'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {dashboardData?.next_payment_date
-                ? format(new Date(dashboardData.next_payment_date), 'MMM dd, yyyy')
-                : 'No upcoming payments'}
-            </p>
-          </CardContent>
-        </Card>
+        <Section
+          title="Next Payment"
+          icon={<Calendar className="h-4 w-4" />}
+          contentClassName="space-y-1"
+        >
+          <div className="text-sm font-bold">
+            {formatCurrency(dashboardData?.next_payment_amount ?? 0)}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {dashboardData?.next_payment_date
+              ? format(new Date(dashboardData.next_payment_date), 'MMM dd, yyyy')
+              : 'No upcoming payments'}
+          </p>
+        </Section>
       </div>
 
       {/* Tabs for Details */}
@@ -335,14 +318,11 @@ export function PersonalUseDashboard() {
 
         {/* Recent Trips Tab */}
         <TabsContent value="trips">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Personal Trips</CardTitle>
-              <CardDescription>
-                Last 10 personal or mixed trips
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Section
+            title="Recent Personal Trips"
+            description="Last 10 personal or mixed trips"
+            icon={<Car className="h-5 w-5" />}
+          >
               {recentTrips.length === 0 ? (
                 <div className="text-center py-3 text-muted-foreground">
                   No personal trips recorded
@@ -367,7 +347,7 @@ export function PersonalUseDashboard() {
                           {format(new Date(trip.trip_date), 'MMM dd, yyyy')}
                         </TableCell>
                         <TableCell>
-                          {trip.make} {trip.model}
+                          {formatVehicleShortName(trip)}
                           <div className="text-xs text-muted-foreground">
                             {trip.license_plate}
                           </div>
@@ -378,7 +358,7 @@ export function PersonalUseDashboard() {
                           </Badge>
                         </TableCell>
                         <TableCell>{trip.miles_personal.toFixed(1)} mi</TableCell>
-                        <TableCell>${trip.estimated_charge.toFixed(2)}</TableCell>
+                        <TableCell>{formatCurrency(trip.estimated_charge)}</TableCell>
                         <TableCell>{getStatusBadge(trip.approval_status)}</TableCell>
                         <TableCell>
                           <Button
@@ -394,20 +374,16 @@ export function PersonalUseDashboard() {
                   </TableBody>
                 </Table>
               )}
-            </CardContent>
-          </Card>
+          </Section>
         </TabsContent>
 
         {/* Pending Charges Tab */}
         <TabsContent value="charges">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pending Charges</CardTitle>
-              <CardDescription>
-                Charges awaiting payment
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Section
+            title="Pending Charges"
+            description="Charges awaiting payment"
+            icon={<DollarSign className="h-5 w-5" />}
+          >
               {pendingCharges.length === 0 ? (
                 <div className="text-center py-3 text-muted-foreground">
                   No pending charges
@@ -428,30 +404,26 @@ export function PersonalUseDashboard() {
                       <TableRow key={charge.id}>
                         <TableCell>{charge.charge_period}</TableCell>
                         <TableCell>{charge.miles_charged.toFixed(1)} mi</TableCell>
-                        <TableCell>${charge.total_charge.toFixed(2)}</TableCell>
+                        <TableCell>{formatCurrency(charge.total_charge)}</TableCell>
                         <TableCell>{getStatusBadge(charge.charge_status)}</TableCell>
                         <TableCell>
-                          {charge.due_date ? format(new Date(charge.due_date), 'MMM dd, yyyy') : 'N/A'}
+                          {charge.due_date ? format(new Date(charge.due_date), 'MMM dd, yyyy') : '—'}
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               )}
-            </CardContent>
-          </Card>
+          </Section>
         </TabsContent>
 
         {/* Reimbursements Tab */}
         <TabsContent value="reimbursements">
-          <Card>
-            <CardHeader>
-              <CardTitle>Reimbursement Requests</CardTitle>
-              <CardDescription>
-                Your pending and recent reimbursement requests
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Section
+            title="Reimbursement Requests"
+            description="Your pending and recent reimbursement requests"
+            icon={<Receipt className="h-5 w-5" />}
+          >
               {reimbursements.length === 0 ? (
                 <div className="text-center py-3 text-muted-foreground">
                   No reimbursement requests
@@ -473,8 +445,8 @@ export function PersonalUseDashboard() {
                         <TableCell>
                           {format(new Date(request.expense_date), 'MMM dd, yyyy')}
                         </TableCell>
-                        <TableCell>${request.request_amount.toFixed(2)}</TableCell>
-                        <TableCell>{request.category || 'N/A'}</TableCell>
+                        <TableCell>{formatCurrency(request.request_amount)}</TableCell>
+                        <TableCell>{request.category || '—'}</TableCell>
                         <TableCell>{getStatusBadge(request.status)}</TableCell>
                         <TableCell>
                           {format(new Date(request.submitted_at), 'MMM dd, yyyy')}
@@ -484,8 +456,7 @@ export function PersonalUseDashboard() {
                   </TableBody>
                 </Table>
               )}
-            </CardContent>
-          </Card>
+          </Section>
         </TabsContent>
       </Tabs>
 
@@ -497,5 +468,6 @@ export function PersonalUseDashboard() {
         />
       )}
     </div>
+    </ErrorBoundary>
   )
 }

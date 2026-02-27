@@ -4,9 +4,11 @@
 import { OpenAI } from 'openai';
 import { Pool } from 'pg';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+import logger from '../../config/logger';
+
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 interface SearchOptions {
   query: string;
@@ -40,6 +42,10 @@ export class SemanticSearchService {
    * Generate embedding vector for text using OpenAI
    */
   async generateEmbedding(text: string): Promise<number[]> {
+    if (!openai) {
+      throw new Error('OpenAI API key not configured - semantic search is unavailable');
+    }
+
     // Check cache first
     const cacheKey = this.hashText(text);
     if (this.embeddingCache.has(cacheKey)) {
@@ -59,7 +65,7 @@ export class SemanticSearchService {
 
       return embedding;
     } catch (error) {
-      console.error('Embedding generation failed:', error);
+      logger.error('Embedding generation failed', { error });
       throw new Error('Failed to generate embedding');
     }
   }
@@ -144,7 +150,7 @@ export class SemanticSearchService {
         metadata: row.metadata
       }));
     } catch (error) {
-      console.error('Semantic search failed:', error);
+      logger.error('Semantic search failed', { error });
       throw new Error('Search failed');
     }
   }
@@ -199,7 +205,7 @@ export class SemanticSearchService {
         metadata: row.metadata
       }));
     } catch (error) {
-      console.error('Similar document search failed:', error);
+      logger.error('Similar document search failed', { error });
       throw new Error('Failed to find similar documents');
     }
   }
@@ -229,9 +235,9 @@ export class SemanticSearchService {
         JSON.stringify(metadata)
       ]);
 
-      console.log(`Document ${documentId} indexed for semantic search`);
+      logger.info(`Document ${documentId} indexed for semantic search`);
     } catch (error) {
-      console.error('Document indexing failed:', error);
+      logger.error('Document indexing failed', { error });
       throw new Error('Failed to index document');
     }
   }
@@ -248,7 +254,7 @@ export class SemanticSearchService {
       await Promise.all(
         batch.map(doc =>
           this.indexDocument(doc.id, doc.content, doc.metadata)
-            .catch(err => console.error(`Failed to index ${doc.id}:`, err))
+            .catch(err => logger.error(`Failed to index ${doc.id}`, { error: err }))
         )
       );
 
@@ -368,7 +374,9 @@ export class SemanticSearchService {
    * Extract relevant snippet from document
    */
   private extractSnippet(content: string, query: string, maxLength: number = 200): string {
-    if (!content) return '';
+    if (!content) {
+return '';
+}
 
     const queryTerms = query.toLowerCase().split(/\s+/);
     const sentences = content.split(/[.!?]+/);

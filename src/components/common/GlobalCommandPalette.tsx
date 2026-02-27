@@ -21,7 +21,6 @@ import {
     Radio
 } from 'lucide-react'
 import { useEffect, useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import {
     CommandDialog,
@@ -33,6 +32,8 @@ import {
     CommandSeparator,
     CommandShortcut,
 } from '@/components/ui/command'
+import { useNavigation } from '@/contexts/NavigationContext'
+
 
 interface CommandAction {
     id: string
@@ -45,7 +46,7 @@ interface CommandAction {
 
 export function GlobalCommandPalette() {
     const [open, setOpen] = useState(false)
-    const navigate = useNavigate()
+    const { navigateTo } = useNavigation()
 
     // Handle ⌘K / Ctrl+K keyboard shortcut
     useEffect(() => {
@@ -72,7 +73,7 @@ export function GlobalCommandPalette() {
             label: 'Go to Dashboard',
             icon: <Home className="mr-2 h-4 w-4" />,
             shortcut: '⌘D',
-            action: () => navigate('/'),
+            action: () => navigateTo('live-fleet-dashboard'),
             keywords: ['home', 'dashboard', 'main'],
         },
         {
@@ -80,7 +81,7 @@ export function GlobalCommandPalette() {
             label: 'Fleet Hub',
             icon: <Truck className="mr-2 h-4 w-4" />,
             shortcut: '⌘F',
-            action: () => navigate('/fleet-hub-consolidated'),
+            action: () => navigateTo('fleet-hub-consolidated'),
             keywords: ['fleet', 'vehicles', 'cars', 'trucks'],
         },
         {
@@ -88,7 +89,7 @@ export function GlobalCommandPalette() {
             label: 'Drivers Hub',
             icon: <Users className="mr-2 h-4 w-4" />,
             shortcut: '⌘R',
-            action: () => navigate('/drivers-hub-consolidated'),
+            action: () => navigateTo('communication-hub-consolidated'),
             keywords: ['drivers', 'team', 'staff', 'employees'],
         },
         {
@@ -96,7 +97,7 @@ export function GlobalCommandPalette() {
             label: 'Maintenance Hub',
             icon: <Wrench className="mr-2 h-4 w-4" />,
             shortcut: '⌘M',
-            action: () => navigate('/maintenance-hub-consolidated'),
+            action: () => navigateTo('fleet-hub-consolidated'),
             keywords: ['maintenance', 'repairs', 'service', 'garage'],
         },
         {
@@ -104,7 +105,7 @@ export function GlobalCommandPalette() {
             label: 'Operations Hub',
             icon: <Radio className="mr-2 h-4 w-4" />,
             shortcut: '⌘O',
-            action: () => navigate('/operations-hub-consolidated'),
+            action: () => navigateTo('fleet-hub-consolidated'),
             keywords: ['operations', 'dispatch', 'routes'],
         },
         {
@@ -112,21 +113,21 @@ export function GlobalCommandPalette() {
             label: 'Analytics Hub',
             icon: <BarChart3 className="mr-2 h-4 w-4" />,
             shortcut: '⌘A',
-            action: () => navigate('/analytics-hub-consolidated'),
+            action: () => navigateTo('analytics'),
             keywords: ['analytics', 'reports', 'metrics', 'data'],
         },
         {
             id: 'compliance',
             label: 'Compliance Hub',
             icon: <Shield className="mr-2 h-4 w-4" />,
-            action: () => navigate('/compliance-hub-consolidated'),
+            action: () => navigateTo('safety-compliance-hub'),
             keywords: ['compliance', 'dot', 'regulations', 'ifta'],
         },
         {
             id: 'safety',
             label: 'Safety Hub',
             icon: <AlertTriangle className="mr-2 h-4 w-4" />,
-            action: () => navigate('/safety-hub'),
+            action: () => navigateTo('safety-compliance-hub'),
             keywords: ['safety', 'alerts', 'incidents', 'osha'],
         },
     ]
@@ -137,35 +138,35 @@ export function GlobalCommandPalette() {
             id: 'new-vehicle',
             label: 'Add New Vehicle',
             icon: <Truck className="mr-2 h-4 w-4" />,
-            action: () => navigate('/fleet-hub-consolidated?action=add-vehicle'),
+            action: () => navigateTo('fleet-hub-consolidated'),
             keywords: ['add', 'new', 'vehicle', 'create'],
         },
         {
             id: 'new-driver',
             label: 'Add New Driver',
             icon: <Users className="mr-2 h-4 w-4" />,
-            action: () => navigate('/drivers-hub-consolidated?action=add-driver'),
+            action: () => navigateTo('communication-hub-consolidated'),
             keywords: ['add', 'new', 'driver', 'hire'],
         },
         {
             id: 'schedule-maintenance',
             label: 'Schedule Maintenance',
             icon: <Calendar className="mr-2 h-4 w-4" />,
-            action: () => navigate('/maintenance-hub-consolidated?action=schedule'),
+            action: () => navigateTo('fleet-hub-consolidated'),
             keywords: ['schedule', 'maintenance', 'service', 'appointment'],
         },
         {
             id: 'view-map',
             label: 'Open Live Map',
             icon: <Map className="mr-2 h-4 w-4" />,
-            action: () => navigate('/gps-tracking'),
+            action: () => navigateTo('gps-tracking'),
             keywords: ['map', 'gps', 'tracking', 'location'],
         },
         {
             id: 'fuel-log',
             label: 'Log Fuel Transaction',
             icon: <Fuel className="mr-2 h-4 w-4" />,
-            action: () => navigate('/fleet-hub-consolidated?tab=fuel'),
+            action: () => navigateTo('fleet-hub-consolidated'),
             keywords: ['fuel', 'gas', 'diesel', 'fill'],
         },
     ]
@@ -176,28 +177,28 @@ export function GlobalCommandPalette() {
             id: 'notifications',
             label: 'View Notifications',
             icon: <Bell className="mr-2 h-4 w-4" />,
-            action: () => navigate('/notifications'),
+            action: () => navigateTo('notifications'),
             keywords: ['notifications', 'alerts', 'messages'],
         },
         {
             id: 'settings',
             label: 'Settings',
             icon: <Settings className="mr-2 h-4 w-4" />,
-            action: () => navigate('/admin-hub-consolidated'),
+            action: () => navigateTo('cta-configuration-hub'),
             keywords: ['settings', 'preferences', 'config'],
         },
         {
             id: 'reports',
             label: 'Generate Report',
             icon: <FileText className="mr-2 h-4 w-4" />,
-            action: () => navigate('/analytics-hub-consolidated?tab=reports'),
+            action: () => navigateTo('reports'),
             keywords: ['report', 'export', 'pdf', 'csv'],
         },
         {
             id: 'search',
             label: 'Global Search',
             icon: <Search className="mr-2 h-4 w-4" />,
-            action: () => navigate('/search'),
+            action: () => navigateTo('live-fleet-dashboard'),
             keywords: ['search', 'find', 'lookup'],
         },
     ]

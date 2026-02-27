@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import 'leaflet/dist/leaflet.css';
 import { Asset, Geofence } from '@/types';
 import { getAuthHeaders } from '@/utils/auth';
+import { formatDateTime } from '@/utils/format-helpers';
 import { logger } from '@/utils/logger';
 import { validateCategory, validateStatus } from '@/utils/validators';
 
@@ -50,7 +51,7 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
     fetchAssets();
     fetchGeofences();
 
-    const newSocket = io(process.env.REACT_APP_WS_URL || '', {
+    const newSocket = io(import.meta.env.VITE_WS_URL || '', {
       query: { tenant_id: tenantId },
       transports: ['websocket'],
       secure: true,
@@ -84,7 +85,7 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
           <Popup>
             <div>
               <strong>{asset.name}</strong><br />
-              Last seen: {new Date(asset.lastSeen ?? Date.now()).toLocaleString()}
+              Last seen: {formatDateTime(new Date(asset.lastSeen ?? Date.now()))}
             </div>
           </Popup>
         </Marker>
@@ -95,13 +96,13 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
             key={geofence.id}
             center={[geofence.latitude ?? 0, geofence.longitude ?? 0] as LatLngExpression}
             radius={geofence.radius ?? 1000}
-            pathOptions={{ color: 'blue' }}
+            pathOptions={{ color: '#10b981' }}
           />
         ) : (
           <Polygon
             key={geofence.id}
             positions={(geofence.coordinates ?? []).map((coord: { lat: number; lng: number; }) => [coord.lat, coord.lng] as LatLngExpression)}
-            pathOptions={{ color: 'blue' }}
+            pathOptions={{ color: '#10b981' }}
           />
         )
       ))}

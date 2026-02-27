@@ -7,6 +7,7 @@ import {
 import { ChartCard } from "@/components/ChartCard"
 import { MetricCard } from "@/components/MetricCard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { formatCurrency } from "@/utils/format-helpers"
 
 
 interface CostAnalysisData {
@@ -42,7 +43,7 @@ export function FinancialTab({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <MetricCard
           title="Total Fuel Cost"
-          value={`$${totalFuelCost.toLocaleString()}`}
+          value={formatCurrency(totalFuelCost)}
           trend={fuelTrend}
           change={fuelChange !== undefined ? Number(Math.abs(fuelChange).toFixed(1)) : undefined}
           subtitle={fuelChange !== undefined ? "vs last period" : "current period"}
@@ -51,7 +52,7 @@ export function FinancialTab({
         />
         <MetricCard
           title="Maintenance Cost"
-          value={`$${totalMaintenanceCost.toLocaleString()}`}
+          value={formatCurrency(totalMaintenanceCost)}
           trend={maintenanceTrend}
           change={maintenanceChange !== undefined ? Number(Math.abs(maintenanceChange).toFixed(1)) : undefined}
           subtitle={maintenanceChange !== undefined ? "vs last period" : "current period"}
@@ -60,7 +61,7 @@ export function FinancialTab({
         />
         <MetricCard
           title="Cost per Vehicle"
-          value={`$${costPerVehicle.toLocaleString()}`}
+          value={formatCurrency(costPerVehicle)}
           subtitle="average total cost"
           icon={<CurrencyDollar className="w-3 h-3" />}
           status="info"
@@ -85,7 +86,7 @@ export function FinancialTab({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">Fuel</span>
-                  <span className="text-sm font-semibold">${totalFuelCost.toLocaleString()}</span>
+                  <span className="text-sm font-semibold">{formatCurrency(totalFuelCost)}</span>
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
@@ -99,7 +100,7 @@ export function FinancialTab({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">Maintenance</span>
-                  <span className="text-sm font-semibold">${totalMaintenanceCost.toLocaleString()}</span>
+                  <span className="text-sm font-semibold">{formatCurrency(totalMaintenanceCost)}</span>
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
@@ -114,7 +115,7 @@ export function FinancialTab({
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">Total Operating Cost</span>
                   <span className="font-semibold text-sm">
-                    ${(totalFuelCost + totalMaintenanceCost).toLocaleString()}
+                    {formatCurrency(totalFuelCost + totalMaintenanceCost)}
                   </span>
                 </div>
               </div>

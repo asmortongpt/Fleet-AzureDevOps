@@ -25,12 +25,12 @@ export function LeafletMarkerCount({
   return (
     <div
       id="map-marker-count"
-      className="absolute top-4 right-4 bg-background/95 backdrop-blur-md px-2 py-2.5 rounded-lg shadow-sm border border-border z-[1000] transition-all hover:shadow-sm"
+      className="absolute top-4 right-4 bg-[#111111] px-2 py-2.5 rounded-lg border border-white/[0.04] z-[1000] transition-all"
       role="status"
       aria-live="polite"
       aria-atomic="true"
     >
-      <p className="text-xs font-semibold text-foreground/90 flex items-center gap-3">
+      <p className="text-xs font-semibold text-white flex items-center gap-3">
         {showVehicles && vehicles.length > 0 && (
           <span className="flex items-center gap-1.5" title={`${vehicles.length} vehicles`}>
             <span role="img" aria-label="Vehicles">

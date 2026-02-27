@@ -54,7 +54,7 @@ const CheckoutAssetModal: React.FC<CheckoutAssetModalProps> = ({ show, onHide, a
     try {
       // Using a simple base64 encoding as a placeholder since bcryptjs is not available in browser
       const signatureHash = btoa(data.signature);
-      const response = await axios.post('/api/assets/checkout', {
+      const response = await axios.post('/api/assets-mobile/checkout', {
         assetId,
         tenantId,
         assignee: data.assignee,

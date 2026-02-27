@@ -8,7 +8,6 @@ import {
   User,
   Truck,
   Phone,
-  Mail,
   Clock,
   AlertTriangle,
   Link2,
@@ -19,12 +18,16 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDateTime } from '@/utils/format-helpers'
 
 interface TaskDetailPanelProps {
   taskId: string
@@ -34,6 +37,7 @@ interface TaskData {
   id: string
   number?: string
   title: string
+  name?: string
   description?: string
   status: 'open' | 'in-progress' | 'completed' | 'blocked' | 'cancelled'
   priority: 'high' | 'medium' | 'low'
@@ -90,17 +94,12 @@ interface DependencyTask {
   status: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => r.json())
-    .then((data) => data?.data ?? data)
-
 export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
   const { push } = useDrilldown()
 
   const { data: task, error, isLoading, mutate } = useSWR<TaskData>(
     `/api/tasks/${taskId}`,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -109,7 +108,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
   // Fetch dependency tasks if they exist
   const { data: dependencyTasks } = useSWR<DependencyTask[]>(
     task?.dependencies ? `/api/tasks/dependencies?ids=${task.dependencies.join(',')}` : null,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -157,13 +156,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
 
   const handleCallAssignee = () => {
     if (task?.assignedToPhone) {
-      window.location.href = `tel:${task.assignedToPhone}`
-    }
-  }
-
-  const handleEmailAssignee = () => {
-    if (task?.assignedToEmail) {
-      window.location.href = `mailto:${task.assignedToEmail}`
+      window.open(`tel:${task.assignedToPhone}`, '_self')
     }
   }
 
@@ -186,18 +179,6 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
     }
   }
 
-  const formatDateTime = (dateString?: string) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    })
-  }
-
   const getAssigneeIcon = (type?: string) => {
     switch (type) {
       case 'driver': return <User className="h-5 w-5" />
@@ -216,7 +197,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <ListChecks className="h-8 w-8 text-blue-800" />
+                <ListChecks className="h-8 w-8 text-emerald-400" />
                 <div>
                   <h3 className="text-sm font-bold">{task.title}</h3>
                   {task.number && (
@@ -226,13 +207,13 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant={getStatusColor(task.status)}>
-                  {task.status}
+                  {formatEnum(task.status)}
                 </Badge>
                 <Badge variant={getPriorityColor(task.priority)}>
-                  {task.priority} priority
+                  {formatEnum(task.priority)} priority
                 </Badge>
                 {task.category && (
-                  <Badge variant="outline">{task.category}</Badge>
+                  <Badge variant="outline">{formatEnum(task.category)}</Badge>
                 )}
                 {task.status === 'blocked' && (
                   <Badge variant="destructive">
@@ -253,7 +234,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
             </div>
             {task.completionPercent !== undefined && task.status !== 'completed' && (
               <div className="text-right">
-                <div className="text-base font-bold text-blue-800">{task.completionPercent}%</div>
+                <div className="text-base font-bold text-emerald-400">{task.completionPercent}%</div>
                 <div className="text-sm text-muted-foreground">Complete</div>
               </div>
             )}
@@ -320,7 +301,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
           )}
 
           {/* Assignee */}
-          <Card className="border-l-4 border-l-blue-500">
+          <Card className="border-l-4 border-l-emerald-500">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {getAssigneeIcon(task.assignedToType)}
@@ -333,7 +314,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-semibold text-sm">{task.assignedToName}</p>
-                      <p className="text-sm text-muted-foreground capitalize">{task.assignedToType}</p>
+                      <p className="text-sm text-muted-foreground">{formatEnum(task.assignedToType)}</p>
                     </div>
                     <Button size="sm" variant="outline" onClick={handleViewAssignee}>
                       View Details
@@ -349,7 +330,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                             <Phone className="h-4 w-4 text-muted-foreground" />
                             <a
                               href={`tel:${task.assignedToPhone}`}
-                              className="text-sm text-blue-800 hover:underline font-medium"
+                              className="text-sm text-emerald-400 hover:underline font-medium"
                               onClick={(e) => {
                                 e.preventDefault()
                                 handleCallAssignee()
@@ -364,20 +345,18 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                         )}
                         {task.assignedToEmail && (
                           <div className="flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-muted-foreground" />
-                            <a
-                              href={`mailto:${task.assignedToEmail}`}
-                              className="text-sm text-blue-800 hover:underline"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                handleEmailAssignee()
+                            <EmailButton
+                              to={task.assignedToEmail}
+                              context={{
+                                type: 'general',
+                                recipientName: task.assignedToName,
+                                details: `Regarding task: ${task.title || task.name || 'Assigned Task'}.`,
                               }}
-                            >
-                              {task.assignedToEmail}
-                            </a>
-                            <Button size="sm" variant="ghost" onClick={handleEmailAssignee}>
-                              Email
-                            </Button>
+                              label={task.assignedToEmail}
+                              variant="ghost"
+                              size="sm"
+                              className="text-emerald-400 h-auto p-0"
+                            />
                           </div>
                         )}
                       </div>
@@ -508,7 +487,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                             <p className="text-sm font-medium">{dep.title}</p>
                             <p className="text-xs text-muted-foreground">Task {dep.id}</p>
                           </div>
-                          <Badge variant="outline" className="capitalize">{dep.status}</Badge>
+                          <Badge variant="outline">{formatEnum(dep.status)}</Badge>
                         </div>
                       ))}
                     </div>

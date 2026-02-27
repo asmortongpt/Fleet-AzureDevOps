@@ -11,7 +11,10 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { tenantSafeQuery } from '../utils/dbHelpers'
+import { logger } from '../utils/logger'
 
+
+import { flexUuid } from '../middleware/validation'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -53,8 +56,8 @@ const initializeBlobService = () => {
 }
 
 const damageReportSchema = z.object({
-  vehicle_id: z.string().uuid(),
-  reported_by: z.string().uuid().optional(),
+  vehicle_id: flexUuid,
+  reported_by: flexUuid.optional(),
   damage_description: z.string(),
   damage_severity: z.enum(['minor', 'moderate', 'severe']),
   damage_location: z.string().optional(),
@@ -64,8 +67,8 @@ const damageReportSchema = z.object({
   triposr_task_id: z.string().optional(),
   triposr_status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
   triposr_model_url: z.string().optional(),
-  linked_work_order_id: z.string().uuid().optional(),
-  inspection_id: z.string().uuid().optional(),
+  linked_work_order_id: flexUuid.optional(),
+  inspection_id: flexUuid.optional(),
 })
 
 // GET /damage-reports
@@ -95,7 +98,7 @@ router.get(
       updated_at
       FROM damage_reports
       WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
+      const params: any[] = [req.user!.tenant_id ?? '']
 
       if (vehicle_id) {
         query += ` AND vehicle_id = $2`
@@ -105,13 +108,13 @@ router.get(
       query += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2)
       params.push(limit, offset)
 
-      const result = await tenantSafeQuery(query, params, req.user!.tenant_id)
+      const result = await tenantSafeQuery(query, params, req.user!.tenant_id ?? '')
 
       const countQuery = vehicle_id
         ? `SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1 AND vehicle_id = $2`
         : `SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1`
-      const countParams = vehicle_id ? [req.user!.tenant_id, vehicle_id] : [req.user!.tenant_id]
-      const countResult = await tenantSafeQuery(countQuery, countParams, req.user!.tenant_id)
+      const countParams = vehicle_id ? [req.user!.tenant_id ?? '', vehicle_id] : [req.user!.tenant_id ?? '']
+      const countResult = await tenantSafeQuery(countQuery, countParams, req.user!.tenant_id ?? '')
 
       res.json({
         data: result.rows,
@@ -123,7 +126,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get damage reports error:`, error)
+      logger.error(`Get damage reports error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -154,7 +157,7 @@ router.get(
       updated_at
       FROM damage_reports
       WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (result.rows.length === 0) {
@@ -163,7 +166,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get damage report error:', error)
+      logger.error('Get damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -186,7 +189,7 @@ router.post(
           linked_work_order_id, inspection_id
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
         [
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
           validatedData.vehicle_id,
           validatedData.reported_by || req.user!.id,
           validatedData.damage_description,
@@ -208,7 +211,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation error`, details: error.issues })
       }
-      console.error('Create damage report error:', error)
+      logger.error('Create damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -240,7 +243,7 @@ router.put(
       const result = await pool.query(
         `UPDATE damage_reports SET ${fields.join(`, `)}, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2 RETURNING *`,
-        [req.params.id, req.user!.tenant_id, ...values]
+        [req.params.id, req.user!.tenant_id ?? '', ...values]
       )
 
       if (result.rows.length === 0) {
@@ -252,11 +255,17 @@ router.put(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation error`, details: error.issues })
       }
-      console.error('Update damage report error:', error)
+      logger.error('Update damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
+
+// Validation schema for TripoSR status update
+const triposrStatusSchema = z.object({
+  triposr_status: z.enum(['pending', 'processing', 'completed', 'failed']),
+  triposr_model_url: z.string().url().max(2048).optional(),
+})
 
 // PATCH /damage-reports/:id/triposr-status
 // Update TripoSR processing status
@@ -266,17 +275,21 @@ router.patch(
   auditLog({ action: 'UPDATE', resourceType: 'damage_reports' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { triposr_status, triposr_model_url } = req.body
-
-      if (!triposr_status) {
-        throw new ValidationError("triposr_status is required")
+      const parsed = triposrStatusSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
       }
+
+      const { triposr_status, triposr_model_url } = parsed.data
 
       const result = await pool.query(
         `UPDATE damage_reports
          SET triposr_status = $1, triposr_model_url = $2, updated_at = NOW()
          WHERE id = $3 AND tenant_id = $4 RETURNING *`,
-        [triposr_status, triposr_model_url || null, req.params.id, req.user!.tenant_id]
+        [triposr_status, triposr_model_url || null, req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (result.rows.length === 0) {
@@ -285,7 +298,7 @@ router.patch(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update TripoSR status error:`, error)
+      logger.error(`Update TripoSR status error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -300,16 +313,16 @@ router.delete(
     try {
       const result = await pool.query(
         `DELETE FROM damage_reports WHERE id = $1 AND tenant_id = $2 RETURNING id`,
-        [req.params.id, req.user!.tenant_id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (result.rows.length === 0) {
         return res.status(404).json({ error: `Damage report not found` })
       }
 
-      res.json({ message: 'Damage report deleted successfully' })
+      res.json({ success: true, message: 'Damage report deleted successfully' })
     } catch (error) {
-      console.error('Delete damage report error:', error)
+      logger.error('Delete damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -338,7 +351,7 @@ router.post(
         })
       }
 
-      const tenantId = req.user!.tenant_id
+      const tenantId = req.user!.tenant_id ?? ''
       const uploadedFiles: {
         url: string
         type: 'photo' | 'video' | 'lidar'
@@ -398,8 +411,8 @@ router.post(
             fileName: file.originalname,
             size: file.size,
           })
-        } catch (error: any) {
-          console.error(`Failed to upload file ${file.originalname}:`, error)
+        } catch (error: unknown) {
+          logger.error(`Failed to upload file ${file.originalname}:`, error)
           // Continue with other files even if one fails
         }
       }
@@ -417,11 +430,11 @@ router.post(
         totalFiles: req.files.length,
         successfulUploads: uploadedFiles.length,
       })
-    } catch (error: any) {
-      console.error('Upload media error:', error)
+    } catch (error: unknown) {
+      logger.error('Upload media error:', error)
       res.status(500).json({
         error: 'Failed to upload media',
-        details: error.message,
+        details: 'An internal error occurred',
       })
     }
   }

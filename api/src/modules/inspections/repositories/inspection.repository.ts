@@ -30,7 +30,7 @@ export class InspectionRepository extends BaseRepository<Inspection> {
   // Custom query: Find inspections by type
   async findByType(inspectionType: string, tenantId: string | number): Promise<Inspection[]> {
     const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE inspection_type = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
+      `SELECT * FROM ${this.tableName} WHERE type = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
       [inspectionType, tenantId]
     );
     return result.rows;
@@ -75,7 +75,7 @@ export class InspectionRepository extends BaseRepository<Inspection> {
   // Custom query: Find failed inspections
   async findFailed(tenantId: string | number): Promise<Inspection[]> {
     const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE passed = false AND tenant_id = $1 ORDER BY created_at DESC`,
+      `SELECT * FROM ${this.tableName} WHERE passed_inspection = false AND tenant_id = $1 ORDER BY created_at DESC`,
       [tenantId]
     );
     return result.rows;
@@ -108,7 +108,9 @@ export class InspectionRepository extends BaseRepository<Inspection> {
   }
 
   async update(id: string | number, data: Partial<Inspection>, tenantId: string | number): Promise<Inspection | null> {
-    if (Object.keys(data).length === 0) return this.findById(id, tenantId);
+    if (Object.keys(data).length === 0) {
+return this.findById(id, tenantId);
+}
 
     const fields = Object.keys(data);
     const setClause = fields.map((key, i) => `${key} = $${i + 3}`).join(', ');

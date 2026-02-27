@@ -51,7 +51,7 @@ interface CameraHealth {
 }
 
 const severityColors = {
-  minor: 'bg-blue-100 text-blue-800',
+  minor: 'bg-emerald-500/10 text-emerald-800',
   moderate: 'bg-yellow-100 text-yellow-800',
   severe: 'bg-orange-100 text-orange-800',
   critical: 'bg-red-100 text-red-800'
@@ -103,10 +103,8 @@ export default function VideoTelematicsDashboard() {
         params.append('startDate', startDate.toISOString());
       }
 
-      const response = await fetch(`/api/video/events?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await fetch(`/api/video-telematics/events?${params.toString()}`, {
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -122,10 +120,8 @@ export default function VideoTelematicsDashboard() {
 
   const loadCameraHealth = async () => {
     try {
-      const response = await fetch('/api/video/health/cameras', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await fetch('/api/video-telematics/health/cameras', {
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -139,12 +135,12 @@ export default function VideoTelematicsDashboard() {
 
   const handleReviewEvent = async (eventId: number, reviewed: boolean, falsePositive: boolean = false) => {
     try {
-      const response = await fetch(`/api/video/events/${eventId}/review`, {
+      const response = await fetch(`/api/video-telematics/events/${eventId}/review`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           reviewed,
           falsePositive,
@@ -162,12 +158,12 @@ export default function VideoTelematicsDashboard() {
 
   const handleMarkForCoaching = async (eventId: number) => {
     try {
-      const response = await fetch(`/api/video/events/${eventId}/review`, {
+      const response = await fetch(`/api/video-telematics/events/${eventId}/review`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           coachingRequired: true
         })
@@ -183,10 +179,8 @@ export default function VideoTelematicsDashboard() {
 
   const getVideoPlaybackUrl = async (eventId: number) => {
     try {
-      const response = await fetch(`/api/video/events/${eventId}/clip`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await fetch(`/api/video-telematics/events/${eventId}/clip`, {
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -232,7 +226,7 @@ export default function VideoTelematicsDashboard() {
                 <p className="text-sm text-muted-foreground">Total Events</p>
                 <p className="text-sm font-bold">{stats.total}</p>
               </div>
-              <Video className="h-8 w-8 text-blue-800" />
+              <Video className="h-8 w-8 text-emerald-800" />
             </div>
           </CardContent>
         </Card>
@@ -394,8 +388,8 @@ export default function VideoTelematicsDashboard() {
                             className="w-32 h-20 object-cover rounded border"
                           />
                         ) : (
-                          <div className="w-32 h-20 bg-gray-200 rounded border flex items-center justify-center">
-                            <Video className="h-8 w-8 text-gray-700" />
+                          <div className="w-32 h-20 bg-white/[0.06] rounded border flex items-center justify-center">
+                            <Video className="h-8 w-8 text-white/40" />
                           </div>
                         )}
                       </div>
@@ -519,8 +513,8 @@ export default function VideoTelematicsDashboard() {
                               className="w-32 h-20 object-cover rounded border"
                             />
                           ) : (
-                            <div className="w-32 h-20 bg-gray-200 rounded border flex items-center justify-center">
-                              <Video className="h-8 w-8 text-gray-700" />
+                            <div className="w-32 h-20 bg-white/[0.06] rounded border flex items-center justify-center">
+                              <Video className="h-8 w-8 text-white/40" />
                             </div>
                           )}
                         </div>

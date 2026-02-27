@@ -1,110 +1,128 @@
 /**
- * ArchonY Logo - Exact implementation from CTA Branding Guide (Pages 12-15)
- *
- * Brand: ArchonY - "INTELLIGENT PERFORMANCE"
- * Design: Technology-forward font with flowing swoosh/pivot symbol
- * Philosophy: "Simplicity rather than symbols, allowing meaning, performance, and presence to do the work"
- *
- * Color Palette:
- * - Primary: MIDNIGHT (#1A0B2E) - Deep, confident base
- * - Accent: Gradient bar (GOLDEN HOUR #F0A000 → NOON #FF8A00 → #DD3903)
+ * CTA Fleet Logo - Capital Technology Alliance branding
+ * Clean dark theme SVG logos — no navy/purple/blue.
  */
 
-interface ArchonYLogoProps {
-  variant?: 'full' | 'compact' | 'icon'
+import { motion } from 'framer-motion'
+
+import { cn } from '@/lib/utils'
+
+interface CTAFleetLogoProps {
+  variant?: 'full' | 'compact' | 'icon' | 'text'
   className?: string
-  showTagline?: boolean
+  showAnimation?: boolean
 }
 
-export function ArchonYLogo({
-  variant = 'full',
-  className = '',
-  showTagline = false
-}: ArchonYLogoProps) {
+/** Full inline SVG logo — charcoal bg, white CTA text, subtle accent bar */
+function CTALogoFull({ className, style }: { className?: string; style?: React.CSSProperties }) {
+  return (
+    <svg viewBox="0 0 280 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} style={style}>
+      {/* CTA text */}
+      <text x="0" y="42" fill="white" fontSize="48" fontWeight="900" fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif" letterSpacing="-1">
+        CTA
+      </text>
+      {/* Divider */}
+      <rect x="120" y="10" width="1.5" height="40" rx="0.75" fill="rgba(255,255,255,0.15)" />
+      {/* Company name */}
+      <text x="132" y="22" fill="rgba(255,255,255,0.8)" fontSize="11" fontWeight="600" fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif" letterSpacing="1.5">
+        CAPITAL TECHNOLOGY
+      </text>
+      <text x="132" y="38" fill="rgba(255,255,255,0.8)" fontSize="11" fontWeight="600" fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif" letterSpacing="1.5">
+        ALLIANCE
+      </text>
+      {/* Accent bar */}
+      <rect x="0" y="56" width="270" height="2" rx="1" fill="url(#ctaFullAccent)" />
+      <defs>
+        <linearGradient id="ctaFullAccent" x1="0" y1="57" x2="270" y2="57" gradientUnits="userSpaceOnUse">
+          <stop stopColor="rgba(255,255,255,0.5)" />
+          <stop offset="0.6" stopColor="rgba(255,255,255,0.15)" />
+          <stop offset="1" stopColor="rgba(255,255,255,0.03)" />
+        </linearGradient>
+      </defs>
+    </svg>
+  )
+}
 
-  // Full horizontal logo with tagline
+/** Compact CTA icon — dark square with white text */
+function CTALogoIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <rect width="32" height="32" rx="6" fill="#242424" />
+      <text x="16" y="20" fill="white" fontSize="11" fontWeight="800" fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif" textAnchor="middle" letterSpacing="0.5">
+        CTA
+      </text>
+      <rect x="6" y="24" width="20" height="2" rx="1" fill="url(#ctaIconAccent)" />
+      <defs>
+        <linearGradient id="ctaIconAccent" x1="6" y1="25" x2="26" y2="25" gradientUnits="userSpaceOnUse">
+          <stop stopColor="rgba(255,255,255,0.5)" />
+          <stop offset="1" stopColor="rgba(255,255,255,0.15)" />
+        </linearGradient>
+      </defs>
+    </svg>
+  )
+}
+
+export function CTAFleetLogo({
+  variant = 'full',
+  className,
+  showAnimation = false
+}: CTAFleetLogoProps) {
+  // Full logo
   if (variant === 'full') {
     return (
-      <div className={`flex flex-col ${className}`}>
-        <div className="flex items-center gap-2">
-          {/* ArchonY wordmark with flowing pivot symbol */}
-          <svg
-            viewBox="0 0 180 40"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-auto"
-          >
-            {/* "ArchonY" text in technology-forward font */}
-            <text
-              x="0"
-              y="28"
-              fontFamily="'Inter', 'SF Pro Display', system-ui, sans-serif"
-              fontSize="28"
-              fontWeight="700"
-              letterSpacing="-0.02em"
-              fill="currentColor"
-              className="text-white"
-            >
-              ArchonY
-            </text>
-
-            {/* Flowing swoosh/pivot symbol integrated with the "Y" */}
-            <path
-              d="M 155 8 Q 165 8, 170 15 Q 175 22, 170 28 Q 165 34, 155 34 Q 150 34, 147 30"
-              stroke="url(#archony-gradient)"
-              strokeWidth="2.5"
-              fill="none"
-              strokeLinecap="round"
-              className="opacity-90"
-            />
-
-            {/* Gradient definition for the swoosh */}
-            <defs>
-              <linearGradient id="archony-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#F0A000" />
-                <stop offset="50%" stopColor="#FF8A00" />
-                <stop offset="100%" stopColor="#DD3903" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-
-        {/* Gradient accent bar below logo */}
-        <div className="h-[3px] w-full rounded-full bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903] mt-1" />
-
-        {/* Optional tagline */}
-        {showTagline && (
-          <div className="mt-1 text-[9px] font-semibold tracking-[0.2em] uppercase text-white/60">
-            INTELLIGENT PERFORMANCE
-          </div>
-        )}
-      </div>
+      <motion.div
+        className={cn("w-full h-auto", className)}
+        initial={showAnimation ? { opacity: 0, scale: 0.95 } : { opacity: 1, scale: 1 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      >
+        <CTALogoFull className="w-full h-auto" />
+      </motion.div>
     )
   }
 
-  // Compact logo for sidebar
+  // Compact version for header bar
   if (variant === 'compact') {
     return (
-      <div className={`flex flex-col items-center ${className}`}>
-        <div className="text-lg font-bold tracking-tight text-white">
-          ArchonY
-        </div>
-        <div className="w-full h-[2px] rounded-full bg-gradient-to-r from-[#F0A000] to-[#DD3903] mt-0.5" />
-      </div>
+      <motion.div
+        className={cn("w-full h-auto", className)}
+        initial={showAnimation ? { opacity: 0, scale: 0.95 } : { opacity: 1, scale: 1 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+      >
+        <CTALogoFull className="w-full h-auto" style={{ maxWidth: '220px' }} />
+      </motion.div>
     )
   }
 
-  // Icon/square variant for app icons and small spaces
+  // Icon only — CTA square mark
   if (variant === 'icon') {
     return (
-      <div className={`flex flex-col items-center justify-center ${className}`}>
-        <div className="text-xs font-extrabold tracking-wide text-white">
-          AY
-        </div>
-        <div className="w-5 h-[2px] rounded-full bg-gradient-to-r from-[#F0A000] to-[#DD3903] mt-0.5" />
-      </div>
+      <motion.div
+        className={cn("flex items-center justify-center", className)}
+        initial={showAnimation ? { opacity: 0, scale: 0.8 } : { opacity: 1, scale: 1 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+      >
+        <CTALogoIcon className="w-full h-full" />
+      </motion.div>
     )
   }
 
-  return null
+  // Text only variant
+  return (
+    <motion.div
+      className={cn("flex flex-col gap-1", className)}
+      initial={showAnimation ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <span className="text-2xl font-black tracking-tight text-white">
+        CTA FLEET
+      </span>
+      <span className="text-xs font-light tracking-wider text-white/60">
+        CAPITAL TECHNOLOGY ALLIANCE
+      </span>
+    </motion.div>
+  )
 }

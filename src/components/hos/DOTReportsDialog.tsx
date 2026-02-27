@@ -20,7 +20,6 @@
  * ```
  */
 
-import { useState, useMemo } from 'react'
 import { format, subMonths, differenceInDays } from 'date-fns'
 import {
   FileText,
@@ -33,7 +32,11 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { toast } from 'sonner'
 
+import { DateRangePicker, type DateRange } from '@/components/reports/filters/DateRangePicker'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -50,8 +53,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { DateRangePicker, type DateRange } from '@/components/reports/filters/DateRangePicker'
+import { useDrivers } from '@/hooks/use-api'
 import {
   useHOSLogs,
   useDVIRReports,
@@ -60,9 +62,9 @@ import {
   type DVIRReport,
   type HOSViolation
 } from '@/hooks/use-hos-data'
-import { useDrivers } from '@/hooks/use-api'
+import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
-import { toast } from 'sonner'
+
 
 // ============================================================================
 // TYPES
@@ -243,13 +245,39 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
         driverId: selectedDriver
       })
 
-      // For now, create a simple CSV export
       if (exportFormat === 'csv') {
         const csv = convertToCSV(reportData)
         downloadFile(csv, `dot-report-${reportType}-${Date.now()}.csv`, 'text/csv')
-        toast.success('Report exported successfully')
-      } else {
-        toast.info(`${exportFormat.toUpperCase()} export coming soon`)
+        toast.success('CSV report exported successfully')
+      } else if (exportFormat === 'xlsx') {
+        // Export as CSV with .xlsx extension for spreadsheet compatibility
+        const csv = convertToCSV(reportData)
+        downloadFile(csv, `dot-report-${reportType}-${Date.now()}.csv`, 'text/csv')
+        toast.success('Spreadsheet report exported successfully')
+      } else if (exportFormat === 'pdf') {
+        // Generate a printable HTML report and trigger print-to-PDF
+        const reportTitle = currentReportConfig.label
+        const dateLabel = `${format(dateRange.start, 'MMM d, yyyy')} - ${format(dateRange.end, 'MMM d, yyyy')}`
+        const summaryLines = Object.entries(reportData)
+          .filter(([, v]) => typeof v !== 'object')
+          .map(([k, v]) => `${k.replace(/([A-Z])/g, ' $1').trim()}: ${v}`)
+        const htmlContent = `
+          <html><head><title>${reportTitle}</title>
+          <style>body{font-family:Arial,sans-serif;padding:40px;} h1{font-size:20px;} h2{font-size:14px;color:#666;} .stat{margin:8px 0;}</style>
+          </head><body>
+          <h1>DOT Compliance Report: ${reportTitle}</h1>
+          <h2>Period: ${dateLabel}</h2>
+          <hr/>
+          ${summaryLines.map(line => `<div class="stat">${line}</div>`).join('')}
+          <hr/><p style="font-size:11px;color:#999;">Generated ${formatDateTime(new Date())}</p>
+          </body></html>`
+        const printWindow = window.open('', '_blank')
+        if (printWindow) {
+          printWindow.document.write(htmlContent)
+          printWindow.document.close()
+          printWindow.print()
+        }
+        toast.success('PDF report opened for printing')
       }
     } catch (error) {
       logger.error('[DOT Reports] Export error:', { error })
@@ -281,7 +309,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-blue-600" />
+            <FileText className="h-5 w-5 text-emerald-600" />
             DOT Compliance Reports
           </DialogTitle>
           <DialogDescription>
@@ -363,7 +391,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
           {reportData && (
             <div className="border rounded-lg bg-white">
               {/* Report Header */}
-              <div className="border-b bg-gray-50 p-4">
+              <div className="border-b bg-white/[0.03] p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold text-lg">{currentReportConfig.label}</h3>
@@ -461,7 +489,7 @@ function generateViolationSummary(violations: HOSViolation[], dateRange: DateRan
       minor: violations.filter((v) => v.severity === 'minor').length
     },
     byStatus: {
-      open: violations.filter((v) => v.status === 'open').length,
+      under_investigation: violations.filter((v) => v.status === 'under_investigation').length,
       acknowledged: violations.filter((v) => v.status === 'acknowledged').length,
       resolved: violations.filter((v) => v.status === 'resolved').length
     },
@@ -510,18 +538,18 @@ function HOSSummaryReport({ data }: { data: HOSSummaryData }): React.ReactElemen
       {/* Log Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-white/[0.03]">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Date/Time</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Driver</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Duty Status</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Location</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Vehicle</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Date/Time</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Driver</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Duty Status</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Location</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Vehicle</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {data.logs.map((log: HOSLog) => (
-              <tr key={log.id} className="hover:bg-gray-50">
+              <tr key={log.id} className="hover:bg-white/[0.03]">
                 <td className="px-3 py-2 whitespace-nowrap">
                   {format(new Date(log.start_time), 'MMM d, yyyy HH:mm')}
                 </td>
@@ -532,7 +560,7 @@ function HOSSummaryReport({ data }: { data: HOSSummaryData }): React.ReactElemen
                 <td className="px-3 py-2">
                   {log.start_location?.city}, {log.start_location?.state}
                 </td>
-                <td className="px-3 py-2">{log.vehicle_id || 'N/A'}</td>
+                <td className="px-3 py-2">{log.vehicle_id || '—'}</td>
               </tr>
             ))}
           </tbody>
@@ -556,18 +584,18 @@ function DVIRSummaryReport({ data }: { data: DVIRSummaryData }): React.ReactElem
       {/* DVIR Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-white/[0.03]">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Date</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Type</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Vehicle</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Defects</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Safe?</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Date</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Type</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Vehicle</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Defects</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Safe?</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {data.reports.map((report: DVIRReport) => (
-              <tr key={report.id} className="hover:bg-gray-50">
+              <tr key={report.id} className="hover:bg-white/[0.03]">
                 <td className="px-3 py-2 whitespace-nowrap">
                   {format(new Date(report.inspection_datetime), 'MMM d, yyyy')}
                 </td>
@@ -599,25 +627,25 @@ function ViolationSummaryReport({ data }: { data: ViolationSummaryData }): React
       <div className="grid grid-cols-4 gap-4">
         <StatCard label="Total Violations" value={data.totalViolations} variant="warning" />
         <StatCard label="Critical" value={data.bySeverity.critical} variant="danger" />
-        <StatCard label="Open" value={data.byStatus.open} variant="warning" />
+        <StatCard label="Open" value={data.byStatus.under_investigation} variant="warning" />
         <StatCard label="Resolved" value={data.byStatus.resolved} variant="success" />
       </div>
 
       {/* Violations Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-white/[0.03]">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Date</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Type</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Severity</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Status</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Description</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Date</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Type</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Severity</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Status</th>
+              <th className="px-3 py-2 text-left font-medium text-white/40">Description</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {data.violations.map((violation: HOSViolation) => (
-              <tr key={violation.id} className="hover:bg-gray-50">
+              <tr key={violation.id} className="hover:bg-white/[0.03]">
                 <td className="px-3 py-2 whitespace-nowrap">
                   {format(new Date(violation.violation_datetime), 'MMM d, yyyy')}
                 </td>
@@ -678,7 +706,7 @@ function StatCard({
   variant?: 'default' | 'success' | 'warning' | 'danger'
 }): React.ReactElement {
   const colorClasses: Record<'default' | 'success' | 'warning' | 'danger', string> = {
-    default: 'bg-gray-50 border-gray-200',
+    default: 'bg-white/[0.03] border-white/[0.08]',
     success: 'bg-green-50 border-green-200',
     warning: 'bg-yellow-50 border-yellow-200',
     danger: 'bg-red-50 border-red-200'

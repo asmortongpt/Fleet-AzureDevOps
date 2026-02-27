@@ -3,7 +3,7 @@
  * Bottom navigation, drawer, tabs, header, and FAB
  */
 
-import { motion, AnimatePresence } from 'framer-motion'
+// motion removed - React 19 incompatible
 import React, { useState, ReactNode } from 'react'
 
 /* ============================================================
@@ -26,7 +26,7 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ items, activeId, onItemClick }: MobileBottomNavProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-[#111113] border-t border-white/[0.08] dark:border-white/[0.06] safe-bottom">
       <div className="grid grid-cols-5 gap-1">
         {items.map((item) => {
           const isActive = item.id === activeId
@@ -43,8 +43,8 @@ export function MobileBottomNav({ items, activeId, onItemClick }: MobileBottomNa
                 transition-colors duration-200
                 ${
                   isActive
-                    ? 'text-blue-800 dark:text-blue-700'
-                    : 'text-slate-700 dark:text-gray-700'
+                    ? 'text-emerald-800 dark:text-emerald-700'
+                    : 'text-white/70 dark:text-white/40'
                 }
               `}
               aria-label={item.label}
@@ -53,21 +53,17 @@ export function MobileBottomNav({ items, activeId, onItemClick }: MobileBottomNa
               <div className="relative">
                 <div className="text-sm">{item.icon}</div>
                 {item.badge !== undefined && item.badge > 0 && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
+                  <div
                     className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-3 h-3 flex items-center justify-center font-bold"
                   >
                     {item.badge > 99 ? '99+' : item.badge}
-                  </motion.div>
+                  </div>
                 )}
               </div>
               <span className="text-xs mt-1 font-medium truncate max-w-full">{item.label}</span>
               {isActive && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400 rounded-t-full"
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-600 dark:bg-emerald-400 rounded-t-full"
                 />
               )}
             </button>
@@ -97,40 +93,32 @@ export function MobileDrawer({
   position = 'left',
   width = '280px',
 }: MobileDrawerProps) {
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            aria-hidden="true"
-          />
+  if (!isOpen) return null
 
-          {/* Drawer */}
-          <motion.div
-            initial={{ x: position === 'left' ? '-100%' : '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: position === 'left' ? '-100%' : '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className={`
-              fixed top-0 ${position === 'left' ? 'left-0' : 'right-0'} bottom-0 z-50
-              bg-white dark:bg-gray-900
-              shadow-sm
-              overflow-y-auto
-              safe-area
-            `}
-            style={{ width }}
-          >
-            {children}
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
+        aria-hidden="true"
+      />
+
+      {/* Drawer */}
+      <div
+        className={`
+          fixed top-0 ${position === 'left' ? 'left-0' : 'right-0'} bottom-0 z-50
+          bg-white dark:bg-[#111113]
+         
+          overflow-y-auto
+          safe-area
+          transition-transform duration-300
+        `}
+        style={{ width }}
+      >
+        {children}
+      </div>
+    </>
   )
 }
 
@@ -164,7 +152,7 @@ export function MobileTabs({ tabs, activeId: controlledActiveId, onChange }: Mob
   return (
     <div className="flex flex-col h-full">
       {/* Tab headers */}
-      <div className="flex overflow-x-auto border-b border-gray-200 dark:border-gray-800 scrollbar-hide">
+      <div className="flex overflow-x-auto border-b border-white/[0.08] dark:border-white/[0.06] scrollbar-hide">
         {tabs.map((tab) => {
           const isActive = tab.id === activeId
 
@@ -177,8 +165,8 @@ export function MobileTabs({ tabs, activeId: controlledActiveId, onChange }: Mob
                 transition-colors duration-200 touch-target
                 ${
                   isActive
-                    ? 'text-blue-800 dark:text-blue-700 border-b-2 border-blue-600 dark:border-blue-400'
-                    : 'text-slate-700 dark:text-gray-700'
+                    ? 'text-emerald-800 dark:text-emerald-700 border-b-2 border-emerald-600 dark:border-emerald-400'
+                    : 'text-white/70 dark:text-white/40'
                 }
               `}
               aria-selected={isActive}
@@ -192,18 +180,12 @@ export function MobileTabs({ tabs, activeId: controlledActiveId, onChange }: Mob
 
       {/* Tab content */}
       <div className="flex-1 overflow-hidden relative">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeId}
-            initial={{ opacity: 0, x: activeIndex > 0 ? 100 : -100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: activeIndex > 0 ? -100 : 100 }}
-            transition={{ duration: 0.2 }}
-            className="absolute inset-0 overflow-y-auto"
-          >
-            {tabs.find((tab) => tab.id === activeId)?.content}
-          </motion.div>
-        </AnimatePresence>
+        <div
+          key={activeId}
+          className="absolute inset-0 overflow-y-auto"
+        >
+          {tabs.find((tab) => tab.id === activeId)?.content}
+        </div>
       </div>
     </div>
   )
@@ -240,31 +222,29 @@ export function MobileHeader({
   }, [collapsible])
 
   return (
-    <motion.header
-      className="sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 safe-top"
-      animate={{
+    <header
+      className="sticky top-0 z-30 bg-white dark:bg-[#111113] border-b border-white/[0.08] dark:border-white/[0.06] safe-top transition-shadow duration-200"
+      style={{
         boxShadow: isScrolled
           ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
           : '0 0 0 0 rgba(0, 0, 0, 0)',
       }}
-      transition={{ duration: 0.2 }}
     >
       <div className="flex items-center justify-between px-2 h-14">
         <div className="flex items-center gap-3 flex-1">
           {leftAction && <div className="flex-shrink-0">{leftAction}</div>}
-          <motion.h1
-            className="text-sm font-semibold truncate"
-            animate={{
+          <h1
+            className="font-semibold truncate transition-all duration-200"
+            style={{
               fontSize: isScrolled ? '1rem' : '1.125rem',
             }}
-            transition={{ duration: 0.2 }}
           >
             {title}
-          </motion.h1>
+          </h1>
         </div>
         {rightAction && <div className="flex-shrink-0 ml-3">{rightAction}</div>}
       </div>
-    </motion.header>
+    </header>
   )
 }
 
@@ -296,7 +276,7 @@ export function MobileFab({
   }
 
   const colorClasses: Record<string, string> = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
+    primary: 'bg-emerald-600 hover:bg-emerald-700 text-white',
     success: 'bg-green-600 hover:bg-green-700 text-white',
     warning: 'bg-amber-600 hover:bg-amber-700 text-white',
     error: 'bg-red-600 hover:bg-red-700 text-white',
@@ -309,24 +289,22 @@ export function MobileFab({
   }
 
   return (
-    <motion.button
+    <button
       onClick={onClick}
       className={`
-        fixed z-40 rounded-full shadow-sm
+        fixed z-40 rounded-full
         flex items-center justify-center
-        transition-colors duration-200
+        transition-all duration-200 active:scale-95 hover:scale-105
         ${positionClasses[position]}
         ${colorClasses[color]}
         ${sizeClasses[size]}
         ${label ? 'px-2 gap-2' : ''}
       `}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
       aria-label={label || 'Floating action button'}
     >
       <span>{icon}</span>
       {label && <span className="text-sm font-medium whitespace-nowrap">{label}</span>}
-    </motion.button>
+    </button>
   )
 }
 
@@ -353,12 +331,11 @@ export function MobileSearchBar({
 
   return (
     <div className="relative">
-      <motion.div
-        className="relative"
-        animate={{
-          scale: isFocused ? 1.02 : 1,
+      <div
+        className="relative transition-transform duration-200"
+        style={{
+          transform: isFocused ? 'scale(1.02)' : 'scale(1)',
         }}
-        transition={{ duration: 0.2 }}
       >
         <input
           type="search"
@@ -375,24 +352,24 @@ export function MobileSearchBar({
           placeholder={placeholder}
           className="
             w-full px-2 py-3 pl-10 pr-10
-            bg-gray-100 dark:bg-gray-800
-            border border-gray-300 dark:border-gray-700
+            bg-white/[0.05] dark:bg-[#18181b]
+            border border-white/[0.08] dark:border-white/[0.08]
             rounded-full
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+            focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
             transition-all duration-200
           "
         />
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700">🔍</div>
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">🔍</div>
         {value && (
           <button
             onClick={() => onChange('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 hover:text-slate-700 dark:hover:text-gray-300"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 dark:hover:text-white/60"
             aria-label="Clear search"
           >
             ✕
           </button>
         )}
-      </motion.div>
+      </div>
     </div>
   )
 }
@@ -419,18 +396,17 @@ export function MobileMenuItem({
   danger = false,
 }: MobileMenuItemProps) {
   return (
-    <motion.button
+    <button
       onClick={onClick}
       className={`
         w-full flex items-center gap-3 px-2 py-3 touch-target
-        transition-colors duration-200
+        transition-colors duration-200 active:scale-[0.98]
         ${
           danger
             ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-            : 'text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
+            : 'text-white/80 dark:text-white/80 hover:bg-white/[0.05] dark:hover:bg-[#18181b]'
         }
       `}
-      whileTap={{ scale: 0.98 }}
     >
       {icon && <div className="text-base flex-shrink-0">{icon}</div>}
       <span className="flex-1 text-left font-medium">{label}</span>
@@ -440,6 +416,6 @@ export function MobileMenuItem({
         </div>
       )}
       {rightContent && <div className="flex-shrink-0">{rightContent}</div>}
-    </motion.button>
+    </button>
   )
 }

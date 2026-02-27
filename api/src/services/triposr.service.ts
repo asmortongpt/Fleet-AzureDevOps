@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+import logger from '../config/logger';
 import { damageReportRepository } from '../repositories/damage-report.repository';
 import { TripoSRTask } from '../types/damage-report';
 
@@ -73,7 +74,7 @@ export class TripoSRService {
       );
 
       // Start polling for completion in background
-      this.pollTaskStatus(tenantId, damageReportId, taskId);
+      void this.pollTaskStatus(tenantId, damageReportId, taskId);
 
       return {
         task_id: taskId,
@@ -82,8 +83,8 @@ export class TripoSRService {
         created_at: new Date(),
         updated_at: new Date(),
       };
-    } catch (error: any) {
-      console.error('TripoSR generation failed:', error);
+    } catch (error: unknown) {
+      logger.error('TripoSR generation failed', { error: error instanceof Error ? error.message : String(error) });
 
       // Update status to failed
       await damageReportRepository.updateTriposrStatus(
@@ -92,7 +93,7 @@ export class TripoSRService {
         'failed'
       );
 
-      throw new Error(`Failed to generate 3D model: ${error.message}`);
+      throw new Error(`Failed to generate 3D model: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -125,9 +126,7 @@ export class TripoSRService {
           modelUrl
         );
 
-        console.log(
-          `TripoSR task ${taskId} completed. Model URL: ${modelUrl}`
-        );
+        logger.info('TripoSR task completed', { taskId, modelUrl });
       } else if (status === 'failed') {
         // Update damage report with failed status
         await damageReportRepository.updateTriposrStatus(
@@ -137,19 +136,19 @@ export class TripoSRService {
           taskId
         );
 
-        console.error(`TripoSR task ${taskId} failed`);
+        logger.error('TripoSR task failed', { taskId });
       } else if (status === 'processing') {
         // Continue polling
         setTimeout(() => {
-          this.pollTaskStatus(tenantId, damageReportId, taskId);
+          void this.pollTaskStatus(tenantId, damageReportId, taskId);
         }, this.pollInterval);
       }
-    } catch (error: any) {
-      console.error(`Error polling TripoSR task ${taskId}:`, error);
+    } catch (error: unknown) {
+      logger.error('Error polling TripoSR task', { taskId, error: error instanceof Error ? error.message : String(error) });
 
       // Retry after interval
       setTimeout(() => {
-        this.pollTaskStatus(tenantId, damageReportId, taskId);
+        void this.pollTaskStatus(tenantId, damageReportId, taskId);
       }, this.pollInterval);
     }
   }
@@ -177,8 +176,8 @@ export class TripoSRService {
         updated_at: new Date(response.data.updated_at),
         error: response.data.error,
       };
-    } catch (error: any) {
-      throw new Error(`Failed to get task status: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Failed to get task status: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -190,20 +189,15 @@ export class TripoSRService {
     const pendingReports =
       await damageReportRepository.findPending3DGeneration(tenantId);
 
-    console.log(
-      `Processing ${pendingReports.length} pending 3D model generations`
-    );
+    logger.info('Processing pending 3D model generations', { count: pendingReports.length });
 
     for (const report of pendingReports) {
       try {
         if (report.photos && report.photos.length > 0) {
           await this.generate3DModel(tenantId, report.id, report.photos);
         }
-      } catch (error: any) {
-        console.error(
-          `Failed to generate 3D model for report ${report.id}:`,
-          error
-        );
+      } catch (error: unknown) {
+        logger.error('Failed to generate 3D model for report', { reportId: report.id, error: error instanceof Error ? error.message : String(error) });
       }
     }
   }

@@ -11,8 +11,8 @@ import {
   Clock
 } from "lucide-react"
 import { useMemo, useState } from "react"
-import useSWR from "swr"
 import { toast } from "sonner"
+import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -45,13 +45,13 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { CommunicationLog as CommunicationLogType } from "@/lib/types"
 import { useAuth } from "@/contexts"
+import { apiFetcher } from "@/lib/api-fetcher"
+import { CommunicationLog as CommunicationLogType } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatDate, formatTime } from "@/utils/format-helpers"
 
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => r.json())
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 
 export function CommunicationLog() {
@@ -215,10 +215,10 @@ export function CommunicationLog() {
 
   const getTypeColor = (type: CommunicationLogType["type"]) => {
     const colors = {
-      email: "bg-blue-100 text-blue-700",
-      teams: "bg-purple-100 text-purple-700",
+      email: "bg-emerald-100 text-emerald-700",
+      teams: "bg-amber-100 text-amber-700",
       phone: "bg-green-100 text-green-700",
-      sms: "bg-cyan-100 text-cyan-700",
+      sms: "bg-emerald-100 text-emerald-700",
       "in-person": "bg-orange-100 text-orange-700"
     }
     return colors[type]
@@ -299,7 +299,7 @@ export function CommunicationLog() {
                 {(newLog.participants || []).length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {(newLog.participants || []).map((participant, idx) => (
-                      <Badge key={idx} variant="secondary" className="gap-1">
+                      <Badge key={participant} variant="secondary" className="gap-1">
                         {participant}
                         <button
                           onClick={() => handleRemoveParticipant(idx)}
@@ -410,7 +410,7 @@ export function CommunicationLog() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Today's Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">{todayLogs}</div>
+            <div className="text-sm font-bold text-emerald-800">{todayLogs}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Calendar className="w-3 h-3" />
               Logged today
@@ -499,24 +499,24 @@ export function CommunicationLog() {
                 filteredLogs.map(log => (
                   <TableRow key={log.id}>
                     <TableCell className="text-sm">
-                      {new Date(log.date).toLocaleDateString()}
+                      {formatDate(log.date)}
                       <div className="text-xs text-muted-foreground">
-                        {new Date(log.date).toLocaleTimeString()}
+                        {formatTime(log.date)}
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge className={getTypeColor(log.type)} variant="secondary">
                         <span className="flex items-center gap-1">
                           {getTypeIcon(log.type)}
-                          {log.type}
+                          {formatEnum(log.type)}
                         </span>
                       </Badge>
                     </TableCell>
                     <TableCell className="font-medium">{log.subject}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {log.participants.slice(0, 2).map((p, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
+                        {log.participants.slice(0, 2).map((p) => (
+                          <Badge key={p} variant="outline" className="text-xs">
                             {p}
                           </Badge>
                         ))}
@@ -534,7 +534,7 @@ export function CommunicationLog() {
                       {log.followUpRequired ? (
                         <Badge variant="secondary" className="bg-orange-100 text-orange-700">
                           <Clock className="w-3 h-3 mr-1" />
-                          {log.followUpDate ? new Date(log.followUpDate).toLocaleDateString() : "Required"}
+                          {log.followUpDate ? formatDate(log.followUpDate) : "Required"}
                         </Badge>
                       ) : (
                         <span className="text-muted-foreground text-sm">-</span>

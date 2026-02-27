@@ -61,7 +61,7 @@ export const settingSchema = z.object({
   key: z.string()
     .min(1, 'Setting key is required')
     .max(100, 'Setting key must be 100 characters or less')
-    .regex(/^[a-z][a-z0-9_\.]*$/, 'Setting key must be lowercase letters, numbers, underscores, and dots')
+    .regex(/^[a-z][a-z0-9_.]*$/, 'Setting key must be lowercase letters, numbers, underscores, and dots')
     .trim(),
 
   /** Human-readable setting label */

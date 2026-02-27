@@ -3,14 +3,15 @@
  * Developer mode, API endpoint, feature flags, and debug settings
  */
 
-import { Code, Cpu, Flag, Bug, BarChart, AlertTriangle } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { Code, Cpu, Flag, Bug, BarChart, AlertTriangle, Database } from 'lucide-react'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
 import { Switch } from '@/components/ui/switch'
 import {
   Table,
@@ -20,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { advancedSettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
 
 // Available feature flags
@@ -54,11 +55,27 @@ const availableFeatureFlags = [
 export function AdvancedSettings() {
   const [settings, setSettings] = useAtom(advancedSettingsAtom)
   const [, setHasUnsavedChanges] = useAtom(hasUnsavedChangesAtom)
-  const { data: metricsData } = useSWR(
+  const { data: metricsData } = useSWR<Record<string, any>>(
     settings.performanceMetrics ? '/api/system/metrics' : null,
-    swrFetcher
+    apiFetcher
   )
-  const metrics = metricsData?.data ?? metricsData ?? {}
+  const metrics = metricsData ?? {}
+
+  // Database stats - always fetch for the Database Stats card
+  const { data: dbStatsData } = useSWR<Record<string, any>>(
+    '/api/system/db-stats',
+    apiFetcher,
+    { refreshInterval: 30000, revalidateOnFocus: false }
+  )
+  const dbStats = dbStatsData ?? {}
+
+  // Connection pool status
+  const { data: poolData } = useSWR<Record<string, any>>(
+    '/api/system/pool-status',
+    apiFetcher,
+    { refreshInterval: 15000, revalidateOnFocus: false }
+  )
+  const poolStatus = poolData ?? {}
 
   const formatMetric = (value: number | null | undefined, unit?: string) => {
     if (value === null || value === undefined) return '—'
@@ -282,6 +299,75 @@ export function AdvancedSettings() {
           </CardContent>
         </Card>
       )}
+
+      {/* Database Stats */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Database className="w-3 h-3" />
+            <CardTitle>Database Stats</CardTitle>
+          </div>
+          <CardDescription>Live entity counts and connection pool status from PostgreSQL</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="p-3 border rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Vehicles</p>
+              <p className="text-2xl font-bold">{formatMetric(dbStats.totalVehicles ?? dbStats.total_vehicles)}</p>
+            </div>
+            <div className="p-3 border rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Drivers</p>
+              <p className="text-2xl font-bold">{formatMetric(dbStats.totalDrivers ?? dbStats.total_drivers)}</p>
+            </div>
+            <div className="p-3 border rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Work Orders</p>
+              <p className="text-2xl font-bold">{formatMetric(dbStats.totalWorkOrders ?? dbStats.total_work_orders)}</p>
+            </div>
+            <div className="p-3 border rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Fuel Transactions</p>
+              <p className="text-2xl font-bold">{formatMetric(dbStats.totalFuelTransactions ?? dbStats.total_fuel_transactions)}</p>
+            </div>
+          </div>
+
+          {/* Connection Pool Status */}
+          {(poolStatus.totalConnections != null || poolStatus.total_connections != null || poolStatus.total != null) && (
+            <div className="border rounded-lg p-3 space-y-2">
+              <p className="text-sm font-medium">Connection Pool</p>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="text-lg font-semibold">{poolStatus.totalConnections ?? poolStatus.total_connections ?? poolStatus.total ?? '--'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Active</p>
+                  <p className="text-lg font-semibold text-emerald-500">{poolStatus.activeConnections ?? poolStatus.active ?? poolStatus.busy ?? '--'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Idle</p>
+                  <p className="text-lg font-semibold text-green-500">{poolStatus.idleConnections ?? poolStatus.idle ?? '--'}</p>
+                </div>
+              </div>
+              {(() => {
+                const total = poolStatus.totalConnections ?? poolStatus.total_connections ?? poolStatus.total ?? 0
+                const active = poolStatus.activeConnections ?? poolStatus.active ?? poolStatus.busy ?? 0
+                const pct = total > 0 ? Math.round((active / total) * 100) : 0
+                return total > 0 ? (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Pool utilization</span>
+                      <span>{pct}%</span>
+                    </div>
+                    <Progress
+                      value={pct}
+                      className="h-2"
+                    />
+                  </div>
+                ) : null
+              })()}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* System Information */}
       <Card>

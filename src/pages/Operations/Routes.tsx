@@ -18,18 +18,20 @@
  * - Actions: optimize, view stops, track metrics
  */
 
-import { MapPin, Plus, MagnifyingGlass, Lightning, Briefcase, CheckCircle, Warning, Spinner } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
+import { MapPin, Plus, Search, Zap, Briefcase, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
+// motion removed - React 19 incompatible
 import React, { useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { ActionButton, StatusBadge } from "@/components/operations";
-import { SplitView } from "@/components/operations";
+import ErrorBoundary from '@/components/common/ErrorBoundary';
+import { ActionButton, StatusBadge , SplitView } from "@/components/operations";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getCsrfToken } from '@/hooks/use-api';
 import { cn } from '@/lib/utils';
+import { formatEnum } from '@/utils/format-enum';
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 /**
@@ -131,7 +133,7 @@ function formatDistance(stops: RouteStop[]): string {
  * Format duration from minutes to readable string
  */
 function formatDuration(minutes: number): string {
-  if (minutes === 0) return 'N/A';
+  if (minutes === 0) return '—';
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
@@ -168,7 +170,7 @@ export function RoutesOperations() {
     try {
       const token = await getCsrfToken();
 
-      const response = await fetch('/api/routes/optimize', {
+      const response = await fetch('/api/route-optimization/optimize', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -184,7 +186,7 @@ export function RoutesOperations() {
 
       toast.success('Route optimized successfully!', {
         duration: 3000,
-        icon: <Lightning className="w-5 h-5" weight="bold" />,
+        icon: <Zap className="w-5 h-5" />,
       });
 
       // Refetch routes to get updated data
@@ -205,23 +207,22 @@ export function RoutesOperations() {
     const nextStop = route.stops.find(s => s.status !== 'completed');
 
     return (
-      <motion.div
+      <div
         key={route.routeId}
-        whileHover={{ scale: 1.01, x: 4 }}
         onClick={() => {
           setSelectedRouteId(route.routeId);
           setIsCreating(false);
         }}
         className={cn(
-          'p-4 border-b border-slate-700/50 cursor-pointer transition-colors',
-          'hover:bg-cyan-400/5',
-          isSelected && 'bg-cyan-400/10 border-l-4 border-l-cyan-400'
+          'p-4 border-b border-white/[0.04] cursor-pointer transition-colors',
+          'hover:bg-muted',
+          isSelected && 'bg-muted border-l-4 border-l-foreground'
         )}
       >
         <div className="flex items-start justify-between gap-3">
           {/* Route Icon */}
-          <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-gradient-to-br from-violet-400/20 to-pink-500/20 flex items-center justify-center border border-violet-400/30">
-            <MapPin className="w-6 h-6 text-violet-400" weight="bold" />
+          <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center border border-white/[0.04]">
+            <MapPin className="w-6 h-6 text-amber-400" />
           </div>
 
           {/* Route Info */}
@@ -229,11 +230,11 @@ export function RoutesOperations() {
             <h3 className="text-sm font-bold text-white mb-1 truncate">
               {route.date ? `${route.startLocation} → ${route.endLocation}` : 'Unnamed Route'}
             </h3>
-            <p className="text-xs text-slate-700">
+            <p className="text-xs text-white/70">
               {route.stops.length} stops • {distance} mi • {formatDuration(route.estimatedDuration)}
             </p>
             {nextStop && (
-              <p className="text-xs text-cyan-300 mt-1">
+              <p className="text-xs text-emerald-300 mt-1">
                 Next: {nextStop.address}
               </p>
             )}
@@ -248,8 +249,8 @@ export function RoutesOperations() {
         {/* Optimization Score */}
         {route.optimizationScore > 0 && (
           <div className="mt-2 flex items-center gap-2">
-            <div className="text-xs text-slate-700">Efficiency:</div>
-            <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+            <div className="text-xs text-white/70">Efficiency:</div>
+            <div className="w-20 h-1.5 bg-white/[0.15] rounded-full overflow-hidden">
               <div
                 className={cn(
                   'h-full rounded-full transition-all',
@@ -262,10 +263,10 @@ export function RoutesOperations() {
                 style={{ width: `${route.optimizationScore}%` }}
               />
             </div>
-            <div className="text-xs text-slate-300">{Math.round(route.optimizationScore)}%</div>
+            <div className="text-xs text-white/60">{Math.round(route.optimizationScore)}%</div>
           </div>
         )}
-      </motion.div>
+      </div>
     );
   };
 
@@ -275,21 +276,21 @@ export function RoutesOperations() {
   const detailContent = () => {
     if (isCreating) {
       return (
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-4">New Route</h4>
           <div className="space-y-3">
             <Input
               placeholder="Start location"
-              className="bg-slate-700/50 border-slate-600 text-white"
+              className="bg-white/[0.08] border-white/[0.12] text-white"
             />
             <Input
               placeholder="End location"
-              className="bg-slate-700/50 border-slate-600 text-white"
+              className="bg-white/[0.08] border-white/[0.12] text-white"
             />
             <Input
               placeholder="Number of stops"
               type="number"
-              className="bg-slate-700/50 border-slate-600 text-white"
+              className="bg-white/[0.08] border-white/[0.12] text-white"
             />
           </div>
         </div>
@@ -299,8 +300,8 @@ export function RoutesOperations() {
     if (!selectedRoute) {
       return (
         <div className="flex flex-col items-center justify-center h-full text-center p-6">
-          <Briefcase className="w-12 h-12 text-slate-600 mb-4" />
-          <p className="text-sm text-slate-700">Select a route to view details</p>
+          <Briefcase className="w-12 h-12 text-white/50 mb-4" />
+          <p className="text-sm text-white/70">Select a route to view details</p>
         </div>
       );
     }
@@ -308,41 +309,41 @@ export function RoutesOperations() {
     return (
       <div className="space-y-4">
         {/* Route Summary */}
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-4">Route Details</h4>
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-slate-700">Status:</span>
+              <span className="text-white/70">Status:</span>
               <StatusBadge status={getStatusColor(selectedRoute.status)} size="sm" />
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-700">Stops:</span>
+              <span className="text-white/70">Stops:</span>
               <span className="text-white font-semibold">{selectedRoute.stops.length}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-700">Distance:</span>
+              <span className="text-white/70">Distance:</span>
               <span className="text-white font-semibold">{formatDistance(selectedRoute.stops)} mi</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-700">Est. Duration:</span>
+              <span className="text-white/70">Est. Duration:</span>
               <span className="text-white font-semibold">{formatDuration(selectedRoute.estimatedDuration)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-700">Route Type:</span>
-              <span className="text-white font-semibold capitalize">{selectedRoute.type}</span>
+              <span className="text-white/70">Route Type:</span>
+              <span className="text-white font-semibold">{formatEnum(selectedRoute.type)}</span>
             </div>
           </div>
         </div>
 
         {/* Optimization Score */}
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-violet-400/30 p-4">
+        <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
           <h4 className="text-sm font-bold text-white mb-3">Efficiency Score</h4>
           <div className="mb-3">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-xs text-slate-700">Overall Optimization</span>
+              <span className="text-xs text-white/70">Overall Optimization</span>
               <span className="text-sm font-bold text-white">{Math.round(selectedRoute.optimizationScore)}%</span>
             </div>
-            <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-white/[0.15] rounded-full overflow-hidden">
               <div
                 className={cn(
                   'h-full rounded-full transition-all',
@@ -359,32 +360,32 @@ export function RoutesOperations() {
           <Button
             onClick={handleOptimize}
             size="sm"
-            className="bg-violet-500 hover:bg-violet-400 text-white w-full"
+            className="bg-amber-500 hover:bg-amber-400 text-white w-full"
           >
-            <Lightning className="w-4 h-4" weight="bold" />
+            <Zap className="w-4 h-4" />
             <span className="ml-2">Optimize Route</span>
           </Button>
         </div>
 
         {/* Route Stops */}
         {selectedRoute.stops.length > 0 && (
-          <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-slate-600/30 p-4">
+          <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
             <h4 className="text-sm font-bold text-white mb-3">Stops ({selectedRoute.stops.length})</h4>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {selectedRoute.stops.map((stop) => (
-                <div key={stop.stopNumber} className="flex items-start gap-2 p-2 bg-slate-700/20 rounded text-xs">
-                  <div className="text-slate-700 font-semibold">#{stop.stopNumber}</div>
+                <div key={stop.stopNumber} className="flex items-start gap-2 p-2 bg-white/[0.05] rounded text-xs">
+                  <div className="text-white/70 font-semibold">#{stop.stopNumber}</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-white truncate">{stop.address}</p>
-                    <p className="text-slate-700 text-xs">
-                      {new Date(stop.estimatedArrival).toLocaleTimeString()}
+                    <p className="text-white/70 text-xs">
+                      {formatTime(stop.estimatedArrival)}
                     </p>
                   </div>
                   <div className={cn(
                     'flex-shrink-0 w-2 h-2 rounded-full',
                     stop.status === 'completed' ? 'bg-green-500' :
                     stop.status === 'in-progress' ? 'bg-yellow-500' :
-                    'bg-slate-500'
+                    'bg-white/[0.1]'
                   )} />
                 </div>
               ))}
@@ -394,9 +395,9 @@ export function RoutesOperations() {
 
         {/* Notes */}
         {selectedRoute.notes && (
-          <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-slate-600/30 p-4">
+          <div className="bg-[#111111] rounded-lg border border-white/[0.04] p-4">
             <h4 className="text-sm font-bold text-white mb-2">Notes</h4>
-            <p className="text-xs text-slate-300">{selectedRoute.notes}</p>
+            <p className="text-xs text-white/60">{selectedRoute.notes}</p>
           </div>
         )}
       </div>
@@ -409,17 +410,16 @@ export function RoutesOperations() {
   const listPanel = (
     <div className="flex flex-col h-full">
       {/* Search Bar */}
-      <div className="p-4 border-b border-slate-700/50">
+      <div className="p-4 border-b border-white/[0.04]">
         <div className="relative">
-          <MagnifyingGlass
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700"
-            weight="bold"
-          />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70"
+                     />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search routes..."
-            className="pl-10 bg-slate-700/50 border-slate-600 text-white"
+            className="pl-10 bg-white/[0.08] border-white/[0.12] text-white"
           />
         </div>
       </div>
@@ -427,20 +427,20 @@ export function RoutesOperations() {
       {/* Routes List */}
       <div className="flex-1 overflow-y-auto">
         {isLoading && (
-          <div className="flex flex-col items-center justify-center h-full text-slate-700">
-            <Spinner className="w-8 h-8 animate-spin mb-2" />
+          <div className="flex flex-col items-center justify-center h-full text-white/70">
+            <Loader2 className="w-8 h-8 animate-spin mb-2" />
             <p className="text-sm">Loading routes...</p>
           </div>
         )}
 
         {error && (
           <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-            <Warning className="w-8 h-8 text-red-400 mb-2" />
+            <AlertTriangle className="w-8 h-8 text-red-400 mb-2" />
             <p className="text-sm text-red-400 mb-2">Failed to load routes</p>
             <Button
               onClick={() => refetch()}
               size="sm"
-              className="bg-slate-700 hover:bg-slate-600 text-white"
+              className="bg-white/[0.15] hover:bg-white/[0.08] text-white"
             >
               Try Again
             </Button>
@@ -448,7 +448,7 @@ export function RoutesOperations() {
         )}
 
         {!isLoading && !error && routes.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-slate-700 p-4">
+          <div className="flex flex-col items-center justify-center h-full text-white/70 p-4">
             <MapPin className="w-8 h-8 mb-2" />
             <p className="text-sm">No routes found</p>
             {searchQuery && (
@@ -467,6 +467,7 @@ export function RoutesOperations() {
   const activeCount = routes.filter(r => r.status === 'active' || r.status === 'in_progress').length;
 
   return (
+    <ErrorBoundary>
     <SplitView
       theme="operations"
       listPanel={{
@@ -481,9 +482,9 @@ export function RoutesOperations() {
               setSelectedRouteId(null);
             }}
             size="sm"
-            className="bg-violet-500 hover:bg-violet-400 text-white"
+            className="bg-amber-500 hover:bg-amber-400 text-white"
           >
-            <Plus className="w-4 h-4" weight="bold" />
+            <Plus className="w-4 h-4" />
             <span className="ml-2">New Route</span>
           </Button>
         ),
@@ -513,6 +514,7 @@ export function RoutesOperations() {
           : null
       }
     />
+    </ErrorBoundary>
   );
 }
 

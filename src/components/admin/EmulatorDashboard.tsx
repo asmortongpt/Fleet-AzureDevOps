@@ -65,6 +65,7 @@ import Grid from '@mui/material/Grid';
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { apiClient } from '@/services/api';
+import { formatDate, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 // ============================================================================
@@ -316,7 +317,7 @@ const EmulatorDashboard: React.FC = () => {
     if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`;
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-    return timestamp.toLocaleDateString();
+    return formatDate(timestamp);
   };
 
   /**
@@ -686,7 +687,7 @@ const EmulatorDashboard: React.FC = () => {
                     <Typography variant="subtitle2">Data Points</Typography>
                   </Box>
                   <Typography variant="h4">
-                    {(generalStats?.dataPointsGenerated || 0).toLocaleString()}
+                    {formatNumber(generalStats?.dataPointsGenerated || 0)}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     Generated
@@ -715,10 +716,10 @@ const EmulatorDashboard: React.FC = () => {
           {/* Emulator Types */}
           <Grid container spacing={2}>
             {[
-              { icon: <Speed />, label: 'OBD2', color: '#2196f3' },
+              { icon: <Speed />, label: 'OBD2', color: '#10b981' },
               { icon: <MyLocation />, label: 'GPS', color: '#4caf50' },
               { icon: <Sensors />, label: 'IoT Sensors', color: '#ff9800' },
-              { icon: <Radio />, label: 'Radio', color: '#9c27b0' },
+              { icon: <Radio />, label: 'Radio', color: '#f59e0b' },
               { icon: <Person />, label: 'Driver', color: '#f44336' },
               { icon: <Timer />, label: 'Events', color: '#00bcd4' }
             ].map((emType) => (
@@ -844,7 +845,7 @@ const EmulatorDashboard: React.FC = () => {
                     • Running Emulators: {generalStats?.running || 0}
                   </Typography>
                   <Typography variant="body2">
-                    • Data Points: {(generalStats?.dataPointsGenerated || 0).toLocaleString()}
+                    • Data Points: {formatNumber(generalStats?.dataPointsGenerated || 0)}
                   </Typography>
                   <Typography variant="body2">
                     • System Errors: {generalStats?.errors || 0}

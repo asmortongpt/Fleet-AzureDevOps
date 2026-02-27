@@ -5,6 +5,7 @@
  * and actions. Supports drilling to related records (vendors, work orders, etc.)
  */
 
+import DOMPurify from 'dompurify'
 import {
   Paperclip,
   Star,
@@ -22,7 +23,6 @@ import {
   ExternalLink,
   Eye,
 } from 'lucide-react'
-import DOMPurify from 'dompurify'
 import React from 'react'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
@@ -31,6 +31,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatDateTime } from '@/utils/format-helpers'
 
 // ============================================================================
 // TYPES
@@ -98,7 +99,7 @@ function EmailHeader({ email }: { email: EmailRecord }) {
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
             )}
             {!email.isRead && (
-              <Badge className="bg-blue-500 text-white text-xs">Unread</Badge>
+              <Badge className="bg-emerald-500/50 text-white text-xs">Unread</Badge>
             )}
           </div>
         </div>
@@ -135,8 +136,8 @@ function EmailParticipants({ email, push }: { email: EmailRecord; push: any }) {
           <div className="flex-1 min-w-0">
             <div className="text-xs text-muted-foreground uppercase">To</div>
             <div className="space-y-1">
-              {email.to.map((recipient, i) => (
-                <div key={i} className="text-sm truncate">{recipient}</div>
+              {email.to.map((recipient) => (
+                <div key={recipient} className="text-sm truncate">{recipient}</div>
               ))}
             </div>
           </div>
@@ -148,8 +149,8 @@ function EmailParticipants({ email, push }: { email: EmailRecord; push: any }) {
             <div className="flex-1 min-w-0">
               <div className="text-xs text-muted-foreground uppercase">CC</div>
               <div className="space-y-1">
-                {email.cc.map((recipient, i) => (
-                  <div key={i} className="text-sm truncate">{recipient}</div>
+                {email.cc.map((recipient) => (
+                  <div key={recipient} className="text-sm truncate">{recipient}</div>
                 ))}
               </div>
             </div>
@@ -161,14 +162,7 @@ function EmailParticipants({ email, push }: { email: EmailRecord; push: any }) {
           <div className="flex-1 min-w-0">
             <div className="text-xs text-muted-foreground uppercase">Date</div>
             <div className="text-sm">
-              {new Date(email.date).toLocaleString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
+              {formatDateTime(email.date)}
             </div>
           </div>
         </div>
@@ -177,6 +171,15 @@ function EmailParticipants({ email, push }: { email: EmailRecord; push: any }) {
   )
 }
 
+/**
+ * SECURITY: Email HTML body is sanitized with DOMPurify using a strict whitelist.
+ * - ALLOWED_TAGS: Only safe formatting/layout tags permitted (no script, iframe, object, etc.)
+ * - ALLOWED_ATTR: Only href, target, rel, class, style (DOMPurify strips dangerous CSS/JS URIs)
+ * - ALLOW_DATA_ATTR: false - prevents data-* attribute abuse
+ * - ADD_ATTR: rel is added so sanitized anchor tags can carry rel="noopener noreferrer"
+ * DOMPurify automatically strips javascript: URIs, event handlers (onclick, onerror, etc.),
+ * and dangerous CSS expressions from style attributes.
+ */
 function EmailBody({ email }: { email: EmailRecord }) {
   return (
     <Card>
@@ -192,7 +195,7 @@ function EmailBody({ email }: { email: EmailRecord }) {
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(email.bodyHtml, {
                 ALLOWED_TAGS: ['p', 'br', 'b', 'i', 'u', 'a', 'ul', 'ol', 'li', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre', 'div', 'span', 'table', 'thead', 'tbody', 'tr', 'td', 'th'],
-                ALLOWED_ATTR: ['href', 'target', 'class', 'style'],
+                ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style'],
                 ALLOW_DATA_ATTR: false,
               })
             }}
@@ -355,8 +358,8 @@ function EmailLabels({ email }: { email: EmailRecord }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <Tag className="w-4 h-4 text-muted-foreground" />
-      {email.labels.map((label, i) => (
-        <Badge key={i} variant="secondary" className="text-xs">
+      {email.labels.map((label) => (
+        <Badge key={label} variant="secondary" className="text-xs">
           {label}
         </Badge>
       ))}

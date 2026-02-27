@@ -5,6 +5,7 @@
 
 import Bottleneck from 'bottleneck';
 
+import logger from '../config/logger';
 import { pool } from '../config/database';
 import {
   QueueName,
@@ -36,7 +37,7 @@ class QueueService {
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      console.log('⚠️ Queue service already initialized');
+      logger.warn('Queue service already initialized');
       return;
     }
 
@@ -67,9 +68,9 @@ class QueueService {
       this.setupEventHandlers();
 
       this.isInitialized = true;
-      console.log('✅ Queue service initialized successfully');
+      logger.info('Queue service initialized successfully');
     } catch (error) {
-      console.error('❌ Failed to initialize queue service:', error);
+      logger.error('Failed to initialize queue service', { error });
       throw error;
     }
   }
@@ -112,11 +113,11 @@ return;
 }
 
     this.boss.on('error', (error: any) => {
-      console.error('❌ Queue error:', error);
+      logger.error('Queue error', { error });
     });
 
     this.boss.on('monitor-states', (states: any) => {
-      console.log('📊 Queue states:', states);
+      logger.info('Queue states', { states });
     });
   }
 
@@ -276,10 +277,10 @@ return;
       // Track job in database
       await this.trackJob(jobId, queueName, data, JobStatus.PENDING);
 
-      console.log(`✅ Job enqueued: ${jobId} in queue: ${queueName}`);
+      logger.info(`Job enqueued: ${jobId} in queue: ${queueName}`);
       return jobId;
     } catch (error) {
-      console.error(`❌ Failed to enqueue job:`, error);
+      logger.error('Failed to enqueue job', { error });
       throw error;
     }
   }
@@ -325,7 +326,7 @@ return;
       const startTime = Date.now();
 
       try {
-        console.log(`🔄 Processing job ${job.id} from queue ${queueName}`);
+        logger.info(`Processing job ${job.id} from queue ${queueName}`);
 
         // Update job status to active
         await this.updateJobStatus(job.id, JobStatus.ACTIVE);
@@ -341,11 +342,11 @@ return;
         // Mark job as completed
         await this.completeJob(job.id, result, processingTime);
 
-        console.log(`✅ Job ${job.id} completed in ${processingTime}ms`);
+        logger.info(`Job ${job.id} completed`, { processingTime });
         return result;
-      } catch (error: any) {
+      } catch (error: unknown) {
         const processingTime = Date.now() - startTime;
-        console.error(`❌ Job ${job.id} failed:`, error);
+        logger.error(`Job ${job.id} failed`, { error });
 
         // Determine retry strategy
         const retryDecision = this.determineRetryStrategy(error, job);
@@ -393,7 +394,7 @@ return;
           errorType
         };
 
-      case ErrorType.RATE_LIMIT:
+      case ErrorType.RATE_LIMIT: {
         // Retry with exponential backoff for rate limits
         const rateLimitDelay = this.calculateExponentialBackoff(retryCount, 60000);
         return {
@@ -403,6 +404,7 @@ return;
           reason: 'Rate limit - retry with backoff',
           errorType
         };
+      }
 
       case ErrorType.AUTHENTICATION:
         // Retry once for auth errors (token might be refreshed)
@@ -415,7 +417,7 @@ return;
         };
 
       case ErrorType.NETWORK:
-      case ErrorType.TIMEOUT:
+      case ErrorType.TIMEOUT: {
         // Retry with exponential backoff
         const delay = this.calculateExponentialBackoff(retryCount);
         return {
@@ -425,8 +427,9 @@ return;
           reason: 'Network/timeout error - retry with backoff',
           errorType
         };
+      }
 
-      default:
+      default: {
         // Unknown errors - retry with backoff
         const defaultDelay = this.calculateExponentialBackoff(retryCount);
         return {
@@ -436,6 +439,7 @@ return;
           reason: 'Unknown error - retry with backoff',
           errorType
         };
+      }
     }
   }
 
@@ -520,7 +524,7 @@ return 'attachments';
         ]
       );
     } catch (error) {
-      console.error('Failed to track job:', error);
+      logger.error('Failed to track job', { error });
     }
   }
 
@@ -541,7 +545,7 @@ return 'attachments';
         values
       );
     } catch (error) {
-      console.error('Failed to update job status:', error);
+      logger.error('Failed to update job status', { error });
     }
   }
 
@@ -557,7 +561,7 @@ return 'attachments';
         [jobId, JobStatus.COMPLETED, JSON.stringify({ data: result, processingTime })]
       );
     } catch (error) {
-      console.error('Failed to complete job:', error);
+      logger.error('Failed to complete job', { error });
     }
   }
 
@@ -574,7 +578,7 @@ return 'attachments';
         [jobId, JobStatus.FAILED, error.message, error.stack]
       );
     } catch (err) {
-      console.error('Failed to fail job:', err);
+      logger.error('Failed to fail job', { error: err });
     }
   }
 
@@ -600,9 +604,9 @@ return 'attachments';
       );
 
       await this.updateJobStatus(job.id, JobStatus.DEAD_LETTER);
-      console.log(`📪 Job ${job.id} moved to dead letter queue`);
+      logger.info(`Job ${job.id} moved to dead letter queue`);
     } catch (err) {
-      console.error(`Failed to move job to dead letter queue:`, err);
+      logger.error('Failed to move job to dead letter queue', { error: err });
     }
   }
 
@@ -660,10 +664,10 @@ return 'attachments';
         [jobId]
       );
 
-      console.log(`🔄 Retried job ${jobId}, new job ID: ${newJobId}`);
+      logger.info(`Retried job ${jobId}, new job ID: ${newJobId}`);
       return newJobId;
     } catch (error) {
-      console.error(`Failed to retry job:`, error);
+      logger.error('Failed to retry job', { error });
       throw error;
     }
   }
@@ -707,7 +711,7 @@ return 'attachments';
         paused: false
       };
     } catch (error) {
-      console.error('Failed to get queue stats:', error);
+      logger.error('Failed to get queue stats', { error });
       throw error;
     }
   }
@@ -722,9 +726,9 @@ return 'attachments';
 
     try {
       await this.boss.deleteQueue(queueName);
-      console.log(`🗑️ Queue ${queueName} cleared`);
+      logger.info(`Queue ${queueName} cleared`);
     } catch (error) {
-      console.error(`Failed to clear queue:`, error);
+      logger.error('Failed to clear queue', { error });
       throw error;
     }
   }
@@ -739,9 +743,9 @@ return 'attachments';
 
     try {
       await this.boss.pause();
-      console.log(`⏸️ Queue ${queueName} paused`);
+      logger.info(`Queue ${queueName} paused`);
     } catch (error) {
-      console.error(`Failed to pause queue:`, error);
+      logger.error('Failed to pause queue', { error });
       throw error;
     }
   }
@@ -756,9 +760,9 @@ return 'attachments';
 
     try {
       await this.boss.resume();
-      console.log(`▶️ Queue ${queueName} resumed`);
+      logger.info(`Queue ${queueName} resumed`);
     } catch (error) {
-      console.error(`Failed to resume queue:`, error);
+      logger.error('Failed to resume queue', { error });
       throw error;
     }
   }
@@ -803,7 +807,7 @@ return 'attachments';
         lastChecked: new Date()
       };
     } catch (error) {
-      console.error(`Failed to get queue health:`, error);
+      logger.error('Failed to get queue health', { error });
       throw error;
     }
   }
@@ -882,10 +886,10 @@ return 'attachments';
    */
   async shutdown(): Promise<void> {
     if (this.boss) {
-      console.log(`🛑 Shutting down queue service...`);
+      logger.info('Shutting down queue service');
       await this.boss.stop();
       this.isInitialized = false;
-      console.log('✅ Queue service stopped');
+      logger.info('Queue service stopped');
     }
   }
 }

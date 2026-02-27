@@ -23,8 +23,9 @@ export class RouteOptimizationRepository extends BaseRepository<any> {
       const query = 'SELECT id, tenant_id, created_at, updated_at FROM route_optimizations WHERE tenant_id = $1 AND deleted_at IS NULL';
       const result: QueryResult<RouteOptimization> = await this.pool.query(query, [tenantId]);
       return result.rows;
-    } catch (error) {
-      throw new Error(`Failed to find all route optimizations: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to find all route optimizations: ${message}`);
     }
   }
 
@@ -33,8 +34,9 @@ export class RouteOptimizationRepository extends BaseRepository<any> {
       const query = 'SELECT id, tenant_id, created_at, updated_at FROM route_optimizations WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL';
       const result: QueryResult<RouteOptimization> = await this.pool.query(query, [id, tenantId]);
       return result.rows[0] || null;
-    } catch (error) {
-      throw new Error(`Failed to find route optimization by id: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to find route optimization by id: ${message}`);
     }
   }
 
@@ -43,8 +45,9 @@ export class RouteOptimizationRepository extends BaseRepository<any> {
       const query = 'INSERT INTO route_optimizations (tenant_id, name, description, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING *';
       const result: QueryResult<RouteOptimization> = await this.pool.query(query, [tenantId, data.name, data.description]);
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to create route optimization: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create route optimization: ${message}`);
     }
   }
 
@@ -58,8 +61,9 @@ export class RouteOptimizationRepository extends BaseRepository<any> {
         throw new Error('Route optimization not found');
       }
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to update route optimization: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to update route optimization: ${message}`);
     }
   }
 
@@ -70,8 +74,9 @@ export class RouteOptimizationRepository extends BaseRepository<any> {
       if (result.rowCount === 0) {
         throw new Error('Route optimization not found');
       }
-    } catch (error) {
-      throw new Error(`Failed to soft delete route optimization: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to soft delete route optimization: ${message}`);
     }
   }
 }

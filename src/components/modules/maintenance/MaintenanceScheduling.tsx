@@ -1,6 +1,6 @@
-import { Calendar as CalendarIcon, Wrench, Clock, CheckCircle, AlertTriangle } from "lucide-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
+import { Wrench, Clock, CheckCircle, AlertTriangle } from "lucide-react"
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { MaintenanceSchedule } from "@/lib/types"
+import { formatCurrency } from "@/utils/format-helpers"
 
 export function MaintenanceScheduling() {
   const { push } = useDrilldown()
@@ -108,7 +109,7 @@ export function MaintenanceScheduling() {
 
   const getStatusColor = (status: MaintenanceSchedule["status"]) => {
     const colors: Record<MaintenanceSchedule["status"], string> = {
-      scheduled: "bg-blue-100 text-blue-700",
+      scheduled: "bg-emerald-500/10 text-emerald-700",
       due: "bg-yellow-100 text-yellow-700",
       overdue: "bg-red-100 text-red-700",
       completed: "bg-green-100 text-green-700"
@@ -118,8 +119,8 @@ export function MaintenanceScheduling() {
 
   const getPriorityColor = (priority: MaintenanceSchedule["priority"]) => {
     const colors: Record<MaintenanceSchedule["priority"], string> = {
-      low: "bg-gray-100 text-gray-700",
-      medium: "bg-blue-100 text-blue-700",
+      low: "bg-white/[0.05] text-white/40",
+      medium: "bg-emerald-500/10 text-emerald-700",
       high: "bg-orange-100 text-orange-700",
       urgent: "bg-red-100 text-red-700"
     }
@@ -169,7 +170,7 @@ export function MaintenanceScheduling() {
         accessorKey: "estimatedCost",
         header: "Est. Cost",
         cell: ({ row }) => (
-          <div className="text-sm">${row.original.estimatedCost.toLocaleString()}</div>
+          <div className="text-sm">{formatCurrency(row.original.estimatedCost)}</div>
         ),
       },
       {
@@ -336,7 +337,7 @@ export function MaintenanceScheduling() {
                       </div>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      Estimated Cost: ${schedule.estimatedCost.toLocaleString()}
+                      Estimated Cost: {formatCurrency(schedule.estimatedCost)}
                     </div>
                   </div>
                 ))}

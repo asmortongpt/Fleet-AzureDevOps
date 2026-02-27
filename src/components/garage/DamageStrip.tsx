@@ -177,7 +177,7 @@ function VehicleSilhouette({ className }: { className?: string }) {
       <path
         d="M180 40 C180 25 175 15 160 12 L140 10 C130 10 120 15 110 15 L90 15 C80 15 70 10 60 10 L40 12 C25 15 20 25 20 40 C20 55 25 65 40 68 L60 70 C70 70 80 65 90 65 L110 65 C120 65 130 70 140 70 L160 68 C175 65 180 55 180 40Z"
         fill="currentColor"
-        className="text-slate-700 stroke-slate-500"
+        className="text-white/[0.08] stroke-white/20"
         stroke="currentColor"
         strokeWidth="1"
       />
@@ -185,25 +185,25 @@ function VehicleSilhouette({ className }: { className?: string }) {
       <path
         d="M140 20 C135 22 130 30 130 40 C130 50 135 58 140 60 L145 60 L145 20 L140 20Z"
         fill="currentColor"
-        className="text-slate-600"
+        className="text-white/[0.12]"
       />
       {/* Rear windshield */}
       <path
         d="M60 20 C65 22 70 30 70 40 C70 50 65 58 60 60 L55 60 L55 20 L60 20Z"
         fill="currentColor"
-        className="text-slate-600"
+        className="text-white/[0.12]"
       />
       {/* Wheels */}
-      <ellipse cx="150" cy="15" rx="12" ry="8" fill="currentColor" className="text-slate-800" />
-      <ellipse cx="150" cy="65" rx="12" ry="8" fill="currentColor" className="text-slate-800" />
-      <ellipse cx="50" cy="15" rx="12" ry="8" fill="currentColor" className="text-slate-800" />
-      <ellipse cx="50" cy="65" rx="12" ry="8" fill="currentColor" className="text-slate-800" />
+      <ellipse cx="150" cy="15" rx="12" ry="8" fill="currentColor" className="text-white/[0.06]" />
+      <ellipse cx="150" cy="65" rx="12" ry="8" fill="currentColor" className="text-white/[0.06]" />
+      <ellipse cx="50" cy="15" rx="12" ry="8" fill="currentColor" className="text-white/[0.06]" />
+      <ellipse cx="50" cy="65" rx="12" ry="8" fill="currentColor" className="text-white/[0.06]" />
       {/* Headlights */}
-      <ellipse cx="175" cy="30" rx="4" ry="8" fill="#FFF3" />
-      <ellipse cx="175" cy="50" rx="4" ry="8" fill="#FFF3" />
+      <ellipse cx="175" cy="30" rx="4" ry="8" fill="hsl(var(--foreground) / 0.2)" />
+      <ellipse cx="175" cy="50" rx="4" ry="8" fill="hsl(var(--foreground) / 0.2)" />
       {/* Taillights */}
-      <ellipse cx="25" cy="30" rx="3" ry="6" fill="#F003" />
-      <ellipse cx="25" cy="50" rx="3" ry="6" fill="#F003" />
+      <ellipse cx="25" cy="30" rx="3" ry="6" fill="hsl(var(--destructive) / 0.2)" />
+      <ellipse cx="25" cy="50" rx="3" ry="6" fill="hsl(var(--destructive) / 0.2)" />
     </svg>
   )
 }
@@ -224,8 +224,8 @@ function DamageListItem({
     <button
       className={cn(
         'flex items-center gap-3 p-2 rounded-lg w-full text-left',
-        'hover:bg-slate-800/50 transition-colors',
-        isSelected && 'bg-slate-800/80 ring-1 ring-slate-600'
+        'hover:bg-white/[0.05] transition-colors',
+        isSelected && 'bg-white/[0.08] ring-1 ring-white/[0.12]'
       )}
       onClick={onClick}
     >
@@ -234,7 +234,7 @@ function DamageListItem({
         <p className="text-sm font-medium text-white truncate">
           {ZONE_POSITIONS[damage.zone]?.label || 'Custom'}
         </p>
-        <p className="text-xs text-slate-700 truncate">{damage.description}</p>
+        <p className="text-xs text-white/40 truncate">{damage.description}</p>
       </div>
       <Badge
         variant={damage.repaired ? 'outline' : damage.severity === 'severe' ? 'destructive' : 'secondary'}
@@ -270,8 +270,8 @@ export function DamageStrip({
     <div
       className={cn(
         'fixed bottom-0 left-0 right-0 z-40',
-        'bg-gradient-to-t from-slate-950 to-slate-900/95',
-        'border-t border-slate-700/50',
+        'bg-[#1a1a1a]',
+        'border-t border-white/[0.04]',
         'transition-all duration-300',
         isExpanded ? 'h-64' : 'h-16',
         className
@@ -339,7 +339,7 @@ export function DamageStrip({
       {isExpanded && (
         <div className="px-2 pb-2 grid grid-cols-[1fr,300px] gap-2 h-48">
           {/* Vehicle Silhouette with Damage Pins */}
-          <div className="relative bg-slate-900/50 rounded-lg p-2 border border-slate-700/50">
+          <div className="relative bg-white/[0.03] rounded-lg p-2 border border-white/[0.04]">
             <VehicleSilhouette className="opacity-60" />
 
             {/* Damage pins */}
@@ -353,15 +353,15 @@ export function DamageStrip({
             ))}
 
             {/* View label */}
-            <div className="absolute bottom-2 left-2 text-xs text-slate-500">
+            <div className="absolute bottom-2 left-2 text-xs text-white/30">
               Top-down view
             </div>
           </div>
 
           {/* Damage List */}
-          <div className="bg-slate-900/50 rounded-lg border border-slate-700/50 overflow-hidden">
-            <div className="p-2 border-b border-slate-700/50">
-              <h4 className="text-xs font-medium text-slate-700 uppercase">Damage Points</h4>
+          <div className="bg-white/[0.03] rounded-lg border border-white/[0.04] overflow-hidden">
+            <div className="p-2 border-b border-white/[0.06]">
+              <h4 className="text-xs font-medium text-white/50 uppercase">Damage Points</h4>
             </div>
             <div className="h-36 overflow-y-auto p-2 space-y-1">
               {damages.length > 0 ? (
@@ -374,7 +374,7 @@ export function DamageStrip({
                   />
                 ))
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-slate-500">
+                <div className="flex flex-col items-center justify-center h-full text-white/30">
                   <PushPin className="w-4 h-4 mb-2 opacity-50" />
                   <p className="text-xs">No damage reported</p>
                 </div>
@@ -385,42 +385,6 @@ export function DamageStrip({
       )}
     </div>
   )
-}
-
-// Demo data generator
-export function generateDemoDamages(vehicleId: string): DamagePin[] {
-  return [
-    {
-      id: `${vehicleId}-dmg-1`,
-      zone: 'rear_bumper',
-      position: { x: 5, y: 50 },
-      severity: 'moderate',
-      description: 'Parking lot collision - scratches and dent',
-      date: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
-      repairCost: 450,
-      repaired: true
-    },
-    {
-      id: `${vehicleId}-dmg-2`,
-      zone: 'front_left_fender',
-      position: { x: 85, y: 25 },
-      severity: 'minor',
-      description: 'Door ding from parking lot',
-      date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
-      repairCost: 150,
-      repaired: false
-    },
-    {
-      id: `${vehicleId}-dmg-3`,
-      zone: 'front_windshield',
-      position: { x: 70, y: 40 },
-      severity: 'minor',
-      description: 'Small rock chip',
-      date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      repairCost: 75,
-      repaired: false
-    }
-  ]
 }
 
 export type { DamagePin }

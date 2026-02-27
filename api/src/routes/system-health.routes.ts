@@ -6,8 +6,17 @@
 import { Router } from 'express';
 
 import { connectionHealthService } from '../services/ConnectionHealthService';
+import { logger } from '../utils/logger';
+import { authenticateJWT } from '../middleware/auth';
+import { requireRole, Role } from '../middleware/rbac';
 
 const router = Router();
+
+// Restrict system health diagnostics to privileged users.
+router.use(
+  authenticateJWT,
+  requireRole([Role.SUPERADMIN, Role.ADMIN, Role.SECURITY_ADMIN, Role.ANALYST])
+);
 
 /**
  * GET /api/system-health
@@ -23,10 +32,10 @@ router.get('/', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[SystemHealth] Error getting health:', error);
+    logger.error('[SystemHealth] Error getting health:', error);
     res.status(503).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'An internal error occurred',
       timestamp: new Date(),
     });
   }
@@ -57,10 +66,10 @@ router.get('/connections', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[SystemHealth] Error getting connections:', error);
+    logger.error('[SystemHealth] Error getting connections:', error);
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'An internal error occurred',
     });
   }
 });
@@ -85,10 +94,10 @@ router.get('/memory', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[SystemHealth] Error getting memory:', error);
+    logger.error('[SystemHealth] Error getting memory:', error);
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'An internal error occurred',
     });
   }
 });
@@ -110,10 +119,10 @@ router.get('/uptime', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[SystemHealth] Error getting uptime:', error);
+    logger.error('[SystemHealth] Error getting uptime:', error);
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'An internal error occurred',
     });
   }
 });
@@ -148,10 +157,10 @@ router.get('/metrics', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[SystemHealth] Error getting metrics:', error);
+    logger.error('[SystemHealth] Error getting metrics:', error);
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'An internal error occurred',
     });
   }
 });
@@ -166,9 +175,15 @@ function formatUptime(seconds: number): string {
   const secs = Math.floor(seconds % 60);
 
   const parts: string[] = [];
-  if (days > 0) parts.push(`${days}d`);
-  if (hours > 0) parts.push(`${hours}h`);
-  if (minutes > 0) parts.push(`${minutes}m`);
+  if (days > 0) {
+parts.push(`${days}d`);
+}
+  if (hours > 0) {
+parts.push(`${hours}h`);
+}
+  if (minutes > 0) {
+parts.push(`${minutes}m`);
+}
   parts.push(`${secs}s`);
 
   return parts.join(' ');

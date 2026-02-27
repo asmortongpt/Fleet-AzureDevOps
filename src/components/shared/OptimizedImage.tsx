@@ -209,7 +209,7 @@ export function AvatarImage({ name, size = 40, src, ...props }: AvatarImageProps
   if (!src || hasError) {
     return (
       <div
-        className="flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold rounded-full"
+        className="flex items-center justify-center bg-[#1a1a1a] text-white/60 font-semibold rounded-full border border-white/[0.04]"
         style={{ width: size, height: size, fontSize: size * 0.4 }}
       >
         {getInitials(name)}

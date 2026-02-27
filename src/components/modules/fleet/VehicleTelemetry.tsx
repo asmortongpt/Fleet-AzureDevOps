@@ -6,11 +6,11 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { apiFetcher } from "@/lib/api-fetcher"
+import { formatTime } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((res) => res.json())
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 interface TelemetryRecord {
   gps?: {
@@ -91,7 +91,7 @@ export function VehicleTelemetry() {
               <SelectContent>
                 {vehicles.map((vehicle) => (
                   <SelectItem key={vehicle.id} value={String(vehicle.id)}>
-                    {vehicle.name || vehicle.number || `${vehicle.make} ${vehicle.model}`}
+                    {vehicle.name || formatVehicleName(vehicle)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -119,7 +119,7 @@ export function VehicleTelemetry() {
             <Thermometer className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{engineTemp ? `${engineTemp}°F` : "—"}</div>
+            <div className="text-2xl font-bold">{engineTemp ? `${Math.round(engineTemp)}°F` : "—"}</div>
             <p className="text-xs text-muted-foreground">Current reading</p>
           </CardContent>
         </Card>
@@ -164,7 +164,7 @@ export function VehicleTelemetry() {
           </CardHeader>
           <CardContent>
             <div className="text-lg font-semibold">
-              {telemetry.timestamp ? new Date(telemetry.timestamp).toLocaleTimeString() : "—"}
+              {formatTime(telemetry.timestamp)}
             </div>
             <p className="text-xs text-muted-foreground">Telemetry timestamp</p>
           </CardContent>

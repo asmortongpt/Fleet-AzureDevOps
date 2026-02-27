@@ -139,9 +139,7 @@ export default class DocumentService {
   private async initializeContainer(): Promise<void> {
     try {
       const containerClient = this.blobServiceClient!.getContainerClient(this.CONTAINER_NAME)
-      await containerClient.createIfNotExists({
-        access: 'private' as any
-      })
+      await containerClient.createIfNotExists()
       this.logger.info(`✅ Container initialized: ${this.CONTAINER_NAME}`)
     } catch (error) {
       this.logger.error(`Error creating container ${this.CONTAINER_NAME}:`, error)

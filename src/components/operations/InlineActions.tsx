@@ -5,11 +5,12 @@
  * status badges, edit panels, and confirmation dialogs.
  */
 
-import React from 'react';
 import { X, PencilSimple, Check, Spinner } from '@phosphor-icons/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import React from 'react';
+
+// motion removed - React 19 incompatible
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 // ============================================================================
 // ActionButton
@@ -33,7 +34,7 @@ export function ActionButton({
   disabled = false,
 }: ActionButtonProps) {
   const variantStyles = {
-    default: 'bg-slate-700 hover:bg-slate-600 text-white',
+    default: 'bg-white/[0.15] hover:bg-white/[0.1] text-white',
     success: 'bg-emerald-500 hover:bg-emerald-400 text-white',
     warning: 'bg-amber-500 hover:bg-amber-400 text-white',
     danger: 'bg-red-500 hover:bg-red-400 text-white',
@@ -79,10 +80,10 @@ export function StatusBadge({ status, size = 'md', label }: StatusBadgeProps) {
       label: label || 'Active',
     },
     inactive: {
-      bg: 'bg-slate-500/20',
-      border: 'border-slate-500/50',
-      text: 'text-slate-700',
-      dot: 'bg-slate-400',
+      bg: 'bg-white/[0.05]',
+      border: 'border-white/[0.12]/50',
+      text: 'text-white/70',
+      dot: 'bg-white/[0.15]',
       label: label || 'Inactive',
     },
     pending: {
@@ -93,10 +94,10 @@ export function StatusBadge({ status, size = 'md', label }: StatusBadgeProps) {
       label: label || 'Pending',
     },
     completed: {
-      bg: 'bg-blue-500/20',
-      border: 'border-blue-500/50',
-      text: 'text-blue-700',
-      dot: 'bg-blue-400',
+      bg: 'bg-emerald-500/20',
+      border: 'border-emerald-500/50',
+      text: 'text-emerald-700',
+      dot: 'bg-emerald-400',
       label: label || 'Completed',
     },
     error: {
@@ -169,7 +170,7 @@ export function InlineEditPanel({
         onClick={onEdit}
         variant="outline"
         size="sm"
-        className="w-full border-slate-600 text-slate-300 hover:bg-slate-700/50"
+        className="w-full border-white/[0.12] text-white/60 hover:bg-white/[0.08]"
       >
         <PencilSimple className="w-4 h-4" weight="bold" />
         <span className="ml-2">{title}</span>
@@ -182,11 +183,8 @@ export function InlineEditPanel({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4"
+    <div
+      className="bg-[#0e0e0e] rounded-lg border border-white/[0.04] p-4"
     >
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-sm font-bold text-white">{title}</h4>
@@ -195,7 +193,7 @@ export function InlineEditPanel({
             onClick={onCancel}
             variant="ghost"
             size="sm"
-            className="text-slate-700 hover:text-white"
+            className="text-white/70 hover:text-white"
             disabled={isSaving}
           >
             <X className="w-4 h-4" weight="bold" />
@@ -205,12 +203,12 @@ export function InlineEditPanel({
 
       {children}
 
-      <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-700/50">
+      <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
         <Button
           onClick={onCancel}
           variant="outline"
           size="sm"
-          className="border-slate-600 text-slate-300"
+          className="border-white/[0.12] text-white/60"
           disabled={isSaving}
         >
           Cancel
@@ -218,7 +216,7 @@ export function InlineEditPanel({
         <Button
           onClick={onSave}
           size="sm"
-          className="bg-cyan-500 hover:bg-cyan-400 text-white"
+          className="bg-emerald-500 hover:bg-emerald-400 text-white"
           disabled={isSaving}
         >
           {isSaving ? (
@@ -234,7 +232,7 @@ export function InlineEditPanel({
           )}
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -266,39 +264,33 @@ export function ConfirmDialog({
   isLoading = false,
 }: ConfirmDialogProps) {
   const confirmStyles = {
-    default: 'bg-cyan-500 hover:bg-cyan-400 text-white',
+    default: 'bg-emerald-500 hover:bg-emerald-400 text-white',
     danger: 'bg-red-500 hover:bg-red-400 text-white',
   };
 
   return (
-    <AnimatePresence>
+    <>
       {isOpen && (
         <>
           {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <div
             onClick={onClose}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
           />
 
           {/* Dialog */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+          <div
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
           >
-            <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-6">
+            <div className="bg-[#111111] border border-white/[0.04] rounded-lg p-6">
               <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-              <p className="text-slate-300 text-sm mb-6">{message}</p>
+              <p className="text-white/60 text-sm mb-6">{message}</p>
 
               <div className="flex justify-end gap-3">
                 <Button
                   onClick={onClose}
                   variant="outline"
-                  className="border-slate-600 text-slate-300"
+                  className="border-white/[0.12] text-white/60"
                   disabled={isLoading}
                 >
                   {cancelLabel}
@@ -319,9 +311,9 @@ export function ConfirmDialog({
                 </Button>
               </div>
             </div>
-          </motion.div>
+          </div>
         </>
       )}
-    </AnimatePresence>
+    </>
   );
 }

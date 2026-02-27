@@ -23,8 +23,20 @@
 -- SECTION 1: PARTITION GPS_TRACKS BY TIMESTAMP (MONTHLY)
 -- ============================================================================
 
--- Step 1: Rename existing table
+-- Step 1: Rename existing table and drop conflicting indexes
 ALTER TABLE gps_tracks RENAME TO gps_tracks_old;
+
+-- Drop indexes that were carried over to the renamed table (they keep their names)
+-- Drop indexes from 009_add_indexes.sql
+DROP INDEX IF EXISTS idx_gps_tracks_vehicle_timestamp;
+DROP INDEX IF EXISTS idx_gps_tracks_timestamp_desc;
+DROP INDEX IF EXISTS idx_gps_tracks_tenant_timestamp;
+DROP INDEX IF EXISTS idx_gps_tracks_location;
+DROP INDEX IF EXISTS idx_gps_tracks_vehicle_speed;
+DROP INDEX IF EXISTS idx_gps_tracks_trip_id;
+-- Drop indexes from 0000_green_stranger.sql (original schema)
+DROP INDEX IF EXISTS gps_tracks_vehicle_idx;
+DROP INDEX IF EXISTS gps_tracks_timestamp_idx;
 
 -- Step 2: Create partitioned table with same structure
 CREATE TABLE gps_tracks (
@@ -115,20 +127,39 @@ CREATE INDEX idx_gps_tracks_location ON gps_tracks USING GIST (
 );
 
 -- Step 5: Migrate data from old table (if any exists)
--- This uses INSERT to automatically route to correct partition
-INSERT INTO gps_tracks
-SELECT * FROM gps_tracks_old
-WHERE timestamp >= '2025-03-01'::timestamptz;
+-- Use explicit column list to handle type differences between old/new schema
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM gps_tracks_old LIMIT 1) THEN
+    INSERT INTO gps_tracks (id, tenant_id, vehicle_id, timestamp, latitude, longitude,
+      altitude, speed, heading, accuracy, odometer, fuel_level, engine_status, metadata, created_at)
+    SELECT id, tenant_id, vehicle_id, timestamp::timestamptz, latitude, longitude,
+      altitude, speed, heading, accuracy, odometer, fuel_level, engine_status, metadata, created_at::timestamptz
+    FROM gps_tracks_old
+    WHERE timestamp >= '2025-03-01'::timestamptz;
+  END IF;
+END $$;
 
 -- Step 6: Drop old table (archive old data first if needed)
-DROP TABLE gps_tracks_old;
+DROP TABLE gps_tracks_old CASCADE;
 
 -- ============================================================================
 -- SECTION 2: PARTITION TELEMETRY_DATA BY TIMESTAMP (MONTHLY)
 -- ============================================================================
 
--- Step 1: Rename existing table
+-- Step 1: Rename existing table and drop conflicting indexes
 ALTER TABLE telemetry_data RENAME TO telemetry_data_old;
+
+-- Drop indexes that were carried over to the renamed table
+-- Drop indexes from 009_add_indexes.sql
+DROP INDEX IF EXISTS idx_telemetry_vehicle_timestamp;
+DROP INDEX IF EXISTS idx_telemetry_timestamp_desc;
+DROP INDEX IF EXISTS idx_telemetry_tenant_timestamp;
+DROP INDEX IF EXISTS idx_telemetry_engine_state;
+DROP INDEX IF EXISTS idx_telemetry_fuel_level;
+DROP INDEX IF EXISTS idx_telemetry_battery_voltage;
+-- Drop indexes from 0000_green_stranger.sql (original schema)
+DROP INDEX IF EXISTS telemetry_data_vehicle_idx;
+DROP INDEX IF EXISTS telemetry_data_timestamp_idx;
 
 -- Step 2: Create partitioned table
 CREATE TABLE telemetry_data (
@@ -217,13 +248,27 @@ CREATE INDEX idx_telemetry_tenant_timestamp ON telemetry_data(tenant_id, timesta
 CREATE INDEX idx_telemetry_dtc_codes ON telemetry_data USING GIN(dtc_codes)
   WHERE dtc_codes IS NOT NULL AND array_length(dtc_codes, 1) > 0;
 
--- Step 5: Migrate data
-INSERT INTO telemetry_data
-SELECT * FROM telemetry_data_old
-WHERE timestamp >= '2025-03-01'::timestamptz;
+-- Step 5: Migrate data from old table using column mapping
+-- Old schema columns: id, tenant_id, vehicle_id, timestamp, engine_rpm,
+--   engine_temperature, battery_voltage, fuel_consumption_rate,
+--   tire_pressure_front_left/right, tire_pressure_rear_left/right,
+--   oil_pressure, transmission_temperature, diagnostic_codes (jsonb), raw_data, created_at
+-- New schema has different columns; map only common ones
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM telemetry_data_old LIMIT 1) THEN
+    INSERT INTO telemetry_data (id, tenant_id, vehicle_id, timestamp, engine_rpm,
+      engine_temperature, battery_voltage, oil_pressure, transmission_temperature,
+      metadata, created_at)
+    SELECT id, tenant_id, vehicle_id, timestamp::timestamptz, engine_rpm::numeric,
+      engine_temperature::numeric, battery_voltage::numeric, oil_pressure::numeric,
+      transmission_temperature::numeric, raw_data, created_at::timestamptz
+    FROM telemetry_data_old
+    WHERE timestamp >= '2025-03-01'::timestamptz;
+  END IF;
+END $$;
 
 -- Step 6: Drop old table
-DROP TABLE telemetry_data_old;
+DROP TABLE telemetry_data_old CASCADE;
 
 -- ============================================================================
 -- SECTION 3: CREATE PARTITION MANAGEMENT METADATA TABLE

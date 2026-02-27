@@ -14,6 +14,23 @@
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
+// Ensure localStorage is available for ModuleLogger initialization
+if (typeof window !== 'undefined' && !window.localStorage?.getItem) {
+  const store: Record<string, string> = {}
+  Object.defineProperty(window, 'localStorage', {
+    value: {
+      getItem: (key: string) => store[key] ?? null,
+      setItem: (key: string, value: string) => { store[key] = value },
+      removeItem: (key: string) => { delete store[key] },
+      clear: () => { Object.keys(store).forEach(k => delete store[k]) },
+      get length() { return Object.keys(store).length },
+      key: (i: number) => Object.keys(store)[i] ?? null,
+    },
+    writable: true,
+    configurable: true,
+  })
+}
+
 // ============================================================================
 // MOCK UTILITIES
 // ============================================================================
@@ -240,13 +257,13 @@ describe('SafeDataDisplay', () => {
 
     render(
       <div>
-        <SafeText value={null} fallback="N/A" data-testid="null-text" />
-        <SafeNumber value={undefined} fallback={0} data-testid="null-number" />
+        <SafeText value={null} fallback="N/A" />
+        <SafeNumber value={undefined} fallback={0} />
       </div>
     )
 
-    expect(screen.getByTestId('null-text')).toHaveTextContent('N/A')
-    expect(screen.getByTestId('null-number')).toHaveTextContent('0')
+    expect(screen.getByText('N/A')).toBeInTheDocument()
+    expect(screen.getByText('0')).toBeInTheDocument()
   })
 
   it('displays valid data correctly', async () => {
@@ -254,13 +271,13 @@ describe('SafeDataDisplay', () => {
 
     render(
       <div>
-        <SafeText value="Hello World" data-testid="valid-text" />
-        <SafeNumber value={42} data-testid="valid-number" />
+        <SafeText value="Hello World" />
+        <SafeNumber value={42} />
       </div>
     )
 
-    expect(screen.getByTestId('valid-text')).toHaveTextContent('Hello World')
-    expect(screen.getByTestId('valid-number')).toHaveTextContent('42')
+    expect(screen.getByText('Hello World')).toBeInTheDocument()
+    expect(screen.getByText('42')).toBeInTheDocument()
   })
 })
 

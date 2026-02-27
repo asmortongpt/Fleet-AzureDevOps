@@ -12,6 +12,7 @@
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 
+import { formatNumber } from '@/utils/format-helpers'
 import { colors, typography, spacing } from '../tokens'
 
 export interface DataGridColumn<T> {
@@ -133,7 +134,7 @@ export function DataGrid<T extends Record<string, any>>({
     const groups = new Map<string, T[]>()
 
     sortedData.forEach((row) => {
-      const groupValue = String(row[groupBy] ?? 'Unknown')
+      const groupValue = String(row[groupBy] ?? '—')
       if (!groups.has(groupValue)) {
         groups.set(groupValue, [])
       }
@@ -512,9 +513,7 @@ export function DataGrid<T extends Record<string, any>>({
             >
               {aggregations[col.key] != null
                 ? typeof aggregations[col.key] === 'number'
-                  ? aggregations[col.key].toLocaleString(undefined, {
-                    maximumFractionDigits: 2,
-                  })
+                  ? formatNumber(aggregations[col.key], 2)
                   : aggregations[col.key]
                 : ''}
             </div>

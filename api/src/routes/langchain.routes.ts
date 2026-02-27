@@ -29,8 +29,8 @@ router.use(authenticateJWT)
 router.post('/execute',csrfProtection, requirePermission('report:generate:global'), async (req: Request, res: Response) => {
   try {
     const { workflowType, parameters } = req.body
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.userId
+    const tenantId = req.user?.tenant_id ?? ''
+    const userId = req.user?.userId ?? ''
     const sessionId = req.body.sessionId || uuidv4()
 
     if (!workflowType) {
@@ -81,7 +81,7 @@ router.post('/execute',csrfProtection, requirePermission('report:generate:global
       sessionId,
       result
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Workflow execution failed`, { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to execute workflow',
@@ -97,8 +97,8 @@ router.post('/execute',csrfProtection, requirePermission('report:generate:global
 router.post('/chat',csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
     const { message, sessionId, config } = req.body
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.userId
+    const tenantId = req.user?.tenant_id ?? ''
+    const userId = req.user?.userId ?? ''
 
     if (!message) {
       throw new ValidationError("Message is required")
@@ -164,7 +164,7 @@ router.post('/chat',csrfProtection, requirePermission('report:view:global'), asy
       responseType,
       ...response
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Chat processing failed', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to process chat message',
@@ -180,8 +180,8 @@ router.post('/chat',csrfProtection, requirePermission('report:view:global'), asy
 router.post('/supervisor/query',csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
     const { query, sessionId } = req.body
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.userId
+    const tenantId = req.user?.tenant_id ?? ''
+    const userId = req.user?.userId ?? ''
 
     if (!query) {
       throw new ValidationError("Query is required")
@@ -205,7 +205,7 @@ router.post('/supervisor/query',csrfProtection, requirePermission('report:view:g
       totalTokens: result.totalTokens,
       executionTimeMs: result.executionTimeMs
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Supervisor query failed', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to process supervisor query',
@@ -231,7 +231,7 @@ router.get('/agents', requirePermission('report:view:global'), async (req: Reque
         capabilities: agent.capabilities
       }))
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to list agents', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to list agents',
@@ -263,7 +263,7 @@ router.get('/agents/:agentId', requirePermission('report:view:global'), async (r
         systemPrompt: agent.systemPrompt
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to get agent', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to get agent',
@@ -337,7 +337,7 @@ router.get('/workflows', requirePermission('report:view:global'), async (req: Re
       success: true,
       workflows
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to list workflows', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to list workflows',
@@ -509,7 +509,7 @@ router.get('/workflows/:workflowId', requirePermission('report:view:global'), as
       success: true,
       workflow
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to get workflow', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to get workflow',
@@ -530,7 +530,7 @@ router.get('/mcp/servers', requirePermission('report:view:global'), async (req: 
       success: true,
       servers: healthStatus
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to list MCP servers', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to list MCP servers',
@@ -545,14 +545,14 @@ router.get('/mcp/servers', requirePermission('report:view:global'), async (req: 
  */
 router.get('/mcp/tools', requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
     const tools = await mcpServerRegistryService.getAvailableFleetTools(tenantId)
 
     res.json({
       success: true,
       tools
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to list MCP tools', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to list MCP tools',
@@ -575,7 +575,7 @@ router.delete('/sessions/:sessionId',csrfProtection, requirePermission('report:g
       success: true,
       message: 'Session cleared successfully'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to clear session', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to clear session',
@@ -596,7 +596,7 @@ router.get('/sessions', requirePermission('report:view:global'), async (req: Req
       success: true,
       sessions
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to list sessions', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to list sessions',

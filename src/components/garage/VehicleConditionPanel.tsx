@@ -1,13 +1,13 @@
 /**
  * VehicleConditionPanel - Comprehensive vehicle health dashboard
- * 
+ *
  * Features:
  * - Real-time condition monitoring
  * - Visual gauges and indicators
  * - Service history timeline
  * - Maintenance alerts
  * - OBD-II integration ready
- * 
+ *
  * Created: 2026-01-08
  */
 
@@ -15,17 +15,52 @@ import {
   Activity,
   AlertTriangle,
   Battery,
-  Droplet,
-  Gauge,
-  Wrench,
-  Calendar,
   CheckCircle,
-  XCircle,
   Clock,
+  Droplet,
+  Fuel,
+  Gauge,
+  Calendar,
+  Wrench,
+  XCircle,
 } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 
 import type { VehicleCondition, ServiceRecord } from '@/types/vehicle-condition.types';
+import { formatEnum } from '@/utils/format-enum';
+import { formatCurrency, formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers';
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+/** Return a relative-time string like "2m ago", "3h ago", "5d ago". */
+function relativeTime(date: Date | string | null | undefined): string {
+  if (!date) return '\u2014';
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return '\u2014';
+  const diffMs = Date.now() - d.getTime();
+  const seconds = Math.floor(diffMs / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return formatDateTime(d);
+}
+
+/** Map a 0-100 percentage to the correct status color class set. */
+function statusColor(
+  pct: number,
+  goodThreshold = 60,
+  warnThreshold = 30,
+): { text: string; bg: string; bar: string } {
+  if (pct >= goodThreshold) return { text: 'text-emerald-400', bg: 'bg-emerald-500/15', bar: 'bg-emerald-500' };
+  if (pct >= warnThreshold) return { text: 'text-amber-400', bg: 'bg-amber-500/15', bar: 'bg-amber-500' };
+  return { text: 'text-rose-400', bg: 'bg-rose-500/15', bar: 'bg-rose-500' };
+}
 
 // ============================================================================
 // TYPES
@@ -60,18 +95,23 @@ export function VehicleConditionPanel({
       (condition.tires.rearLeft.pressure / condition.tires.rearLeft.recommendedPressure) * 100,
       (condition.tires.rearRight.pressure / condition.tires.rearRight.recommendedPressure) * 100,
     ];
-
     return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
   }, [condition]);
 
   // Get critical alerts
   const criticalAlerts = useMemo(() => {
-    const alerts: Array<{ type: string; message: string; severity: 'critical' | 'warning' }> = [];
+    const alerts: Array<{
+      type: string;
+      description: string;
+      action: string;
+      severity: 'critical' | 'warning';
+    }> = [];
 
     if (condition.engine.oilLife < 15) {
       alerts.push({
         type: 'oil',
-        message: `Oil life: ${condition.engine.oilLife}% - Service soon`,
+        description: `Oil life at ${condition.engine.oilLife}%`,
+        action: condition.engine.oilLife < 5 ? 'Immediate service required' : 'Schedule oil change soon',
         severity: condition.engine.oilLife < 5 ? 'critical' : 'warning',
       });
     }
@@ -79,15 +119,18 @@ export function VehicleConditionPanel({
     if (condition.battery.health < 50) {
       alerts.push({
         type: 'battery',
-        message: `Battery health: ${condition.battery.health}% - Consider replacement`,
+        description: `Battery health at ${condition.battery.health}%`,
+        action: condition.battery.health < 30 ? 'Replace battery immediately' : 'Plan battery replacement',
         severity: condition.battery.health < 30 ? 'critical' : 'warning',
       });
     }
 
     if (condition.brakes.frontPadLife < 20 || condition.brakes.rearPadLife < 20) {
+      const worst = Math.min(condition.brakes.frontPadLife, condition.brakes.rearPadLife);
       alerts.push({
         type: 'brakes',
-        message: 'Brake pads worn - Inspection required',
+        description: `Brake pads at ${worst}% life remaining`,
+        action: 'Schedule brake inspection',
         severity: 'critical',
       });
     }
@@ -95,7 +138,8 @@ export function VehicleConditionPanel({
     if (condition.diagnostics.checkEngineLightOn) {
       alerts.push({
         type: 'engine',
-        message: `Check Engine Light - ${condition.diagnostics.diagnosticCodes.length} code(s)`,
+        description: `Check Engine Light active`,
+        action: `${condition.diagnostics.diagnosticCodes.length} diagnostic code(s) detected`,
         severity: 'critical',
       });
     }
@@ -103,82 +147,78 @@ export function VehicleConditionPanel({
     return alerts;
   }, [condition]);
 
+  const colors = statusColor(healthScore);
+
   return (
-    <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-md shadow-sm overflow-hidden">
+    <div className="bg-[#1a1a1a] rounded-md overflow-hidden">
       {/* Header */}
-      <div className="bg-slate-800/50 border-b border-slate-700 p-3">
+      <div className="bg-[#111111] border-b border-white/[0.04] p-3">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-white mb-1">Vehicle Condition</h2>
-            <p className="text-slate-700 text-sm">
-              Last updated: {condition.lastUpdated.toLocaleString()}
+            <h2 className="text-sm font-bold text-foreground mb-1">Vehicle Condition</h2>
+            <p className="text-muted-foreground text-xs">
+              Updated {relativeTime(condition.lastUpdated)}
             </p>
           </div>
 
-          {/* Overall Health Score */}
-          <div className="text-center">
-            <div className="relative inline-flex items-center justify-center">
-              <svg className="w-24 h-24 transform -rotate-90">
-                <circle
-                  cx="48"
-                  cy="48"
-                  r="40"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  fill="none"
-                  className="text-slate-700"
-                />
-                <circle
-                  cx="48"
-                  cy="48"
-                  r="40"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  fill="none"
-                  strokeDasharray={`${(healthScore / 100) * 251.2} 251.2`}
-                  className={
-                    healthScore >= 80
-                      ? 'text-green-500'
-                      : healthScore >= 60
-                      ? 'text-yellow-500'
-                      : 'text-red-500'
-                  }
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-base font-bold text-white">{healthScore}</span>
-                <span className="text-xs text-slate-700">Health</span>
-              </div>
+          {/* Overall Health Score - flat horizontal bar */}
+          <div className="w-40">
+            <div className="flex items-baseline justify-between mb-1">
+              <span className="text-xs text-muted-foreground">Health</span>
+              <span className={`text-sm font-bold ${colors.text}`}>{healthScore}%</span>
+            </div>
+            <div className="h-2 rounded-full bg-[#1a1a1a] overflow-hidden">
+              <div
+                className={`h-full rounded-full ${colors.bar} transition-[width] duration-500`}
+                style={{ width: `${Math.min(healthScore, 100)}%` }}
+              />
             </div>
           </div>
         </div>
 
         {/* Critical Alerts */}
         {criticalAlerts.length > 0 && (
-          <div className="mt-2 space-y-2">
-            {criticalAlerts.map((alert, index) => (
+          <div className="mt-3 space-y-2">
+            {criticalAlerts.map((alert) => (
               <div
-                key={index}
-                className={`flex items-center gap-3 p-3 rounded-lg ${
+                key={alert.description}
+                className={`rounded-md border p-3 ${
                   alert.severity === 'critical'
-                    ? 'bg-red-900/30 border border-red-700'
-                    : 'bg-yellow-900/30 border border-yellow-700'
+                    ? 'bg-rose-500/10 border-rose-500/30'
+                    : 'bg-amber-500/10 border-amber-500/30'
                 }`}
               >
-                <AlertTriangle
-                  size={20}
-                  className={alert.severity === 'critical' ? 'text-red-400' : 'text-yellow-400'}
-                />
-                <span className="text-white text-sm flex-1">{alert.message}</span>
-                {onScheduleService && (
-                  <button
-                    onClick={() => onScheduleService(alert.type)}
-                    className="text-blue-700 hover:text-blue-300 text-sm font-medium"
-                  >
-                    Schedule
-                  </button>
-                )}
+                <div className="flex items-start gap-3">
+                  <AlertTriangle
+                    size={16}
+                    className={`mt-0.5 shrink-0 ${
+                      alert.severity === 'critical' ? 'text-rose-400' : 'text-amber-400'
+                    }`}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span
+                        className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                          alert.severity === 'critical'
+                            ? 'bg-rose-500/20 text-rose-400'
+                            : 'bg-amber-500/20 text-amber-400'
+                        }`}
+                      >
+                        {alert.severity}
+                      </span>
+                    </div>
+                    <p className="text-foreground text-sm">{alert.description}</p>
+                    <p className="text-muted-foreground text-xs mt-0.5">{alert.action}</p>
+                  </div>
+                  {onScheduleService && (
+                    <button
+                      onClick={() => onScheduleService(alert.type)}
+                      className="text-emerald-400 text-xs font-medium shrink-0"
+                    >
+                      Schedule
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -186,19 +226,19 @@ export function VehicleConditionPanel({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-700">
-        {[
-          { id: 'overview', label: 'Overview' },
-          { id: 'details', label: 'Details' },
-          { id: 'history', label: 'History' },
-        ].map(tab => (
+      <div className="flex border-b border-white/[0.04]">
+        {([
+          { id: 'overview' as const, label: 'Overview' },
+          { id: 'details' as const, label: 'Details' },
+          { id: 'history' as const, label: 'History' },
+        ]).map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`flex-1 px-3 py-3 text-sm font-medium transition-colors ${
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 px-3 py-2.5 text-xs font-medium ${
               activeTab === tab.id
-                ? 'text-white bg-slate-800 border-b-2 border-blue-500'
-                : 'text-slate-700 hover:text-white hover:bg-slate-800/50'
+                ? 'text-foreground bg-[#111111] border-b-2 border-emerald-500'
+                : 'text-muted-foreground'
             }`}
           >
             {tab.label}
@@ -212,9 +252,7 @@ export function VehicleConditionPanel({
           <OverviewTab condition={condition} onScheduleService={onScheduleService} />
         )}
         {activeTab === 'details' && <DetailsTab condition={condition} />}
-        {activeTab === 'history' && (
-          <HistoryTab serviceHistory={serviceHistory} />
-        )}
+        {activeTab === 'history' && <HistoryTab serviceHistory={serviceHistory} />}
       </div>
     </div>
   );
@@ -231,88 +269,101 @@ interface OverviewTabProps {
 
 function OverviewTab({ condition, onScheduleService }: OverviewTabProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <StatCard
-          icon={<Gauge size={24} />}
+          icon={<Gauge size={18} />}
           label="Mileage"
-          value={condition.mileage.current.toLocaleString()}
+          value={formatNumber(condition.mileage.current)}
           unit={condition.mileage.unit}
-          color="blue"
+          pct={100}
         />
         <StatCard
-          icon={<Droplet size={24} />}
+          icon={<Droplet size={18} />}
           label="Oil Life"
           value={`${condition.engine.oilLife}%`}
-          color={condition.engine.oilLife > 50 ? 'green' : condition.engine.oilLife > 25 ? 'yellow' : 'red'}
+          pct={condition.engine.oilLife}
         />
         <StatCard
-          icon={<Battery size={24} />}
+          icon={<Battery size={18} />}
           label="Battery"
           value={`${condition.battery.health}%`}
-          color={condition.battery.health > 70 ? 'green' : condition.battery.health > 40 ? 'yellow' : 'red'}
+          pct={condition.battery.health}
         />
         <StatCard
-          icon={<Activity size={24} />}
+          icon={<Activity size={18} />}
           label="Brake Pads"
           value={`${Math.min(condition.brakes.frontPadLife, condition.brakes.rearPadLife)}%`}
-          color={
-            Math.min(condition.brakes.frontPadLife, condition.brakes.rearPadLife) > 50
-              ? 'green'
-              : Math.min(condition.brakes.frontPadLife, condition.brakes.rearPadLife) > 25
-              ? 'yellow'
-              : 'red'
-          }
+          pct={Math.min(condition.brakes.frontPadLife, condition.brakes.rearPadLife)}
         />
       </div>
 
+      {/* Fuel Level (if available via mileage proxy, show as visual bar) */}
+      <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">
+        <div className="flex items-center gap-2 mb-2">
+          <Fuel size={16} className="text-muted-foreground" />
+          <h3 className="text-xs font-semibold text-foreground">Fluid Levels</h3>
+        </div>
+        <div className="space-y-2">
+          <FluidRow label="Coolant" level={condition.engine.coolantLevel} />
+          <FluidRow label="Brake Fluid" level={condition.brakes.fluidLevel} />
+          <FluidRow label="Transmission" level={condition.transmission.fluidLevel} />
+          <FluidRow label="Power Steering" level={condition.fluids.powerSteering} />
+          <FluidRow label="Washer Fluid" level={condition.fluids.washerFluid} />
+        </div>
+      </div>
+
       {/* Tire Pressure Visual */}
-      <div className="bg-slate-800/50 rounded-lg p-3">
-        <h3 className="text-sm font-semibold text-white mb-2">Tire Pressure</h3>
+      <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">
+        <h3 className="text-xs font-semibold text-foreground mb-2">Tire Pressure</h3>
         <TirePressureVisual tires={condition.tires} />
       </div>
 
       {/* Upcoming Service */}
       {condition.nextScheduledService && (
-        <div className="bg-slate-800/50 rounded-lg p-3">
+        <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-white">Next Scheduled Service</h3>
+            <h3 className="text-xs font-semibold text-foreground">Next Scheduled Service</h3>
             {onScheduleService && (
               <button
                 onClick={() => onScheduleService(condition.nextScheduledService.type)}
-                className="text-blue-700 hover:text-blue-300 text-sm font-medium"
+                className="text-emerald-400 text-xs font-medium"
               >
                 Reschedule
               </button>
             )}
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <Wrench size={20} className="text-slate-700" />
+              <Wrench size={16} className="text-muted-foreground shrink-0" />
               <div>
-                <p className="text-white font-medium">{condition.nextScheduledService.type}</p>
-                <p className="text-slate-700 text-sm">{condition.nextScheduledService.description}</p>
+                <p className="text-foreground text-sm font-medium">
+                  {formatEnum(condition.nextScheduledService.type)}
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  {condition.nextScheduledService.description}
+                </p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2 mt-2">
               <div className="flex items-center gap-2">
-                <Calendar size={16} className="text-slate-700" />
+                <Calendar size={14} className="text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-slate-700">Due Date</p>
-                  <p className="text-white text-sm">
-                    {condition.nextScheduledService.dueDate.toLocaleDateString()}
+                  <p className="text-[10px] text-muted-foreground">Due Date</p>
+                  <p className="text-foreground text-xs">
+                    {formatDate(condition.nextScheduledService.dueDate)}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Gauge size={16} className="text-slate-700" />
+                <Gauge size={14} className="text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-slate-700">Due Mileage</p>
-                  <p className="text-white text-sm">
-                    {condition.nextScheduledService.dueMileage.toLocaleString()} {condition.mileage.unit}
+                  <p className="text-[10px] text-muted-foreground">Due Mileage</p>
+                  <p className="text-foreground text-xs">
+                    {formatNumber(condition.nextScheduledService.dueMileage)} {condition.mileage.unit}
                   </p>
                 </div>
               </div>
@@ -334,85 +385,90 @@ interface DetailsTabProps {
 
 function DetailsTab({ condition }: DetailsTabProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {/* Engine */}
       <DetailSection title="Engine">
         <DetailRow label="Oil Life" value={`${condition.engine.oilLife}%`} />
-        <DetailRow
-          label="Last Oil Change"
-          value={condition.engine.lastOilChange.toLocaleDateString()}
-        />
+        <DetailRow label="Last Oil Change" value={formatDate(condition.engine.lastOilChange)} />
         <DetailRow
           label="Next Oil Change"
-          value={`${condition.engine.nextOilChangeDue.toLocaleString()} ${condition.mileage.unit}`}
+          value={`${formatNumber(condition.engine.nextOilChangeDue)} ${condition.mileage.unit}`}
         />
         <DetailRow label="Oil Type" value={condition.engine.oilType} />
-        <DetailRow label="Coolant Level" value={condition.engine.coolantLevel} />
+        <DetailRow label="Coolant Level" value={formatEnum(condition.engine.coolantLevel)} />
       </DetailSection>
 
       {/* Transmission */}
       <DetailSection title="Transmission">
-        <DetailRow label="Fluid Level" value={condition.transmission.fluidLevel} />
-        <DetailRow
-          label="Last Service"
-          value={condition.transmission.lastService.toLocaleDateString()}
-        />
-        <DetailRow label="Condition" value={condition.transmission.condition} />
+        <DetailRow label="Fluid Level" value={formatEnum(condition.transmission.fluidLevel)} />
+        <DetailRow label="Last Service" value={formatDate(condition.transmission.lastService)} />
+        <DetailRow label="Condition" value={formatEnum(condition.transmission.condition)} />
       </DetailSection>
 
       {/* Brakes */}
       <DetailSection title="Brakes">
         <DetailRow label="Front Pad Life" value={`${condition.brakes.frontPadLife}%`} />
         <DetailRow label="Rear Pad Life" value={`${condition.brakes.rearPadLife}%`} />
-        <DetailRow label="Fluid Level" value={condition.brakes.fluidLevel} />
-        <DetailRow
-          label="Last Inspection"
-          value={condition.brakes.lastInspection.toLocaleDateString()}
-        />
+        <DetailRow label="Fluid Level" value={formatEnum(condition.brakes.fluidLevel)} />
+        <DetailRow label="Last Inspection" value={formatDate(condition.brakes.lastInspection)} />
       </DetailSection>
 
       {/* Battery */}
       <DetailSection title="Battery">
         <DetailRow label="Health" value={`${condition.battery.health}%`} />
         <DetailRow label="Voltage" value={`${condition.battery.voltage}V`} />
-        <DetailRow label="Last Tested" value={condition.battery.lastTested.toLocaleDateString()} />
+        <DetailRow label="Last Tested" value={formatDate(condition.battery.lastTested)} />
         {condition.battery.manufactureDate && (
           <DetailRow
             label="Manufacture Date"
-            value={condition.battery.manufactureDate.toLocaleDateString()}
+            value={formatDate(condition.battery.manufactureDate)}
           />
         )}
+      </DetailSection>
+
+      {/* Filters */}
+      <DetailSection title="Filters">
+        <DetailRow label="Air Filter" value={formatEnum(condition.filters.airFilter)} />
+        <DetailRow label="Cabin Filter" value={formatEnum(condition.filters.cabinFilter)} />
+        {condition.filters.fuelFilter && (
+          <DetailRow label="Fuel Filter" value={formatEnum(condition.filters.fuelFilter)} />
+        )}
+        <DetailRow label="Last Replaced" value={formatDate(condition.filters.lastReplaced)} />
       </DetailSection>
 
       {/* Diagnostic Codes */}
       {condition.diagnostics.diagnosticCodes.length > 0 && (
         <DetailSection title="Diagnostic Codes">
-          {condition.diagnostics.diagnosticCodes.map((code, index) => (
+          {condition.diagnostics.diagnosticCodes.map((code) => (
             <div
-              key={index}
-              className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-lg"
+              key={code.code}
+              className="flex items-start gap-3 p-2.5 bg-[#1a1a1a] rounded-md"
             >
-              <div
-                className={`w-2 h-2 rounded-full mt-1.5 ${
-                  code.severity === 'critical'
-                    ? 'bg-red-500'
-                    : code.severity === 'warning'
-                    ? 'bg-yellow-500'
-                    : 'bg-blue-500'
-                }`}
-              />
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-white font-mono">{code.code}</span>
-                  {code.resolved ? (
-                    <CheckCircle size={16} className="text-green-500" />
-                  ) : (
-                    <XCircle size={16} className="text-red-500" />
-                  )}
+              <div className="shrink-0 mt-0.5">
+                {code.resolved ? (
+                  <CheckCircle size={14} className="text-emerald-400" />
+                ) : (
+                  <XCircle size={14} className="text-rose-400" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-foreground text-xs font-mono font-medium">{code.code}</span>
+                  <span
+                    className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                      code.severity === 'critical'
+                        ? 'bg-rose-500/20 text-rose-400'
+                        : code.severity === 'warning'
+                        ? 'bg-amber-500/20 text-amber-400'
+                        : 'bg-teal-500/20 text-teal-400'
+                    }`}
+                  >
+                    {code.severity}
+                  </span>
                 </div>
-                <p className="text-slate-300 text-sm">{code.description}</p>
-                <p className="text-slate-500 text-xs mt-1">
-                  Detected: {code.detectedDate.toLocaleDateString()}
+                <p className="text-muted-foreground text-xs">{code.description}</p>
+                <p className="text-muted-foreground text-[10px] mt-0.5">
+                  Detected: {formatDate(code.detectedDate)}
                 </p>
               </div>
             </div>
@@ -444,110 +500,96 @@ function HistoryTab({ serviceHistory }: HistoryTabProps) {
   }, [filteredHistory]);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {/* Summary */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="bg-slate-800/50 rounded-lg p-2 text-center">
-          <p className="text-slate-700 text-sm mb-1">Total Services</p>
-          <p className="text-sm font-bold text-white">{filteredHistory.length}</p>
+        <div className="bg-[#111111] rounded-md border border-white/[0.04] p-2 text-center">
+          <p className="text-muted-foreground text-[10px] mb-0.5">Total Services</p>
+          <p className="text-sm font-bold text-foreground">{filteredHistory.length}</p>
         </div>
-        <div className="bg-slate-800/50 rounded-lg p-2 text-center">
-          <p className="text-slate-700 text-sm mb-1">Total Cost</p>
-          <p className="text-sm font-bold text-green-400">${totalCost.toLocaleString()}</p>
+        <div className="bg-[#111111] rounded-md border border-white/[0.04] p-2 text-center">
+          <p className="text-muted-foreground text-[10px] mb-0.5">Total Cost</p>
+          <p className="text-sm font-bold text-emerald-400">{formatCurrency(totalCost)}</p>
         </div>
-        <div className="bg-slate-800/50 rounded-lg p-2 text-center">
-          <p className="text-slate-700 text-sm mb-1">Avg Cost</p>
-          <p className="text-sm font-bold text-blue-700">
-            ${Math.round(totalCost / (filteredHistory.length || 1)).toLocaleString()}
+        <div className="bg-[#111111] rounded-md border border-white/[0.04] p-2 text-center">
+          <p className="text-muted-foreground text-[10px] mb-0.5">Avg Cost</p>
+          <p className="text-sm font-bold text-foreground">
+            {formatCurrency(Math.round(totalCost / (filteredHistory.length || 1)))}
           </p>
         </div>
       </div>
 
       {/* Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        <button
-          onClick={() => setFilter('all')}
-          className={`px-2 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-            filter === 'all'
-              ? 'bg-blue-600 text-white'
-              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-          }`}
-        >
-          All Services
-        </button>
+      <div className="flex gap-1.5 overflow-x-auto pb-1">
+        <FilterPill label="All Services" active={filter === 'all'} onClick={() => setFilter('all')} />
         {['oil_change', 'tire_rotation', 'brake_service', 'inspection', 'repair'].map(type => (
-          <button
+          <FilterPill
             key={type}
+            label={formatEnum(type)}
+            active={filter === type}
             onClick={() => setFilter(type)}
-            className={`px-2 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-              filter === type
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-            }`}
-          >
-            {type.replace(/_/g, ' ')}
-          </button>
+          />
         ))}
       </div>
 
       {/* Timeline */}
       <div className="space-y-2">
         {filteredHistory.length === 0 ? (
-          <div className="text-center py-12 text-slate-700">
-            <Clock size={48} className="mx-auto mb-2 opacity-50" />
-            <p>No service records found</p>
+          <div className="text-center py-12 text-muted-foreground">
+            <Clock size={36} className="mx-auto mb-2 opacity-40" />
+            <p className="text-sm">No records found</p>
           </div>
         ) : (
-          filteredHistory.map((record, index) => (
+          filteredHistory.map((record) => (
             <div
               key={record.id}
-              className="relative pl-3 pb-3 border-l-2 border-slate-700 last:border-0"
+              className="relative pl-4 pb-3 border-l-2 border-white/[0.04] last:border-0"
             >
               {/* Timeline dot */}
-              <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-blue-600 border-4 border-slate-900" />
+              <div className="absolute left-[-5px] top-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-[#1a1a1a]" />
 
-              <div className="bg-slate-800/50 rounded-lg p-2">
-                <div className="flex items-start justify-between mb-3">
+              <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">
+                <div className="flex items-start justify-between mb-2">
                   <div>
-                    <h4 className="text-white font-semibold capitalize mb-1">
-                      {record.serviceType.replace(/_/g, ' ')}
+                    <h4 className="text-foreground text-sm font-semibold">
+                      {formatEnum(record.serviceType)}
                     </h4>
-                    <p className="text-slate-700 text-sm">{record.description}</p>
+                    <p className="text-muted-foreground text-xs">{record.description}</p>
                   </div>
-                  <span className="text-green-400 font-semibold">
-                    ${record.cost.toLocaleString()}
+                  <span className="text-emerald-400 text-sm font-semibold shrink-0 ml-2">
+                    {formatCurrency(record.cost)}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <p className="text-slate-500">Date</p>
-                    <p className="text-white">{record.date.toLocaleDateString()}</p>
+                    <p className="text-muted-foreground text-[10px]">Date</p>
+                    <p className="text-foreground">{formatDate(record.date)}</p>
                   </div>
                   <div>
-                    <p className="text-slate-500">Mileage</p>
-                    <p className="text-white">{record.mileage.toLocaleString()}</p>
+                    <p className="text-muted-foreground text-[10px]">Mileage</p>
+                    <p className="text-foreground">{formatNumber(record.mileage)}</p>
                   </div>
                   <div>
-                    <p className="text-slate-500">Performed By</p>
-                    <p className="text-white">{record.performedBy}</p>
+                    <p className="text-muted-foreground text-[10px]">Performed By</p>
+                    <p className="text-foreground">{record.performedBy}</p>
                   </div>
                   <div>
-                    <p className="text-slate-500">Location</p>
-                    <p className="text-white">{record.location}</p>
+                    <p className="text-muted-foreground text-[10px]">Location</p>
+                    <p className="text-foreground">{record.location}</p>
                   </div>
                 </div>
 
                 {record.parts.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-slate-700">
-                    <p className="text-slate-700 text-sm mb-2">Parts Used:</p>
-                    <ul className="space-y-1">
-                      {record.parts.map((part, idx) => (
-                        <li key={idx} className="text-sm text-slate-300 flex justify-between">
+                  <div className="mt-2 pt-2 border-t border-white/[0.04]">
+                    <p className="text-muted-foreground text-[10px] mb-1">Parts Used</p>
+                    <ul className="space-y-0.5">
+                      {record.parts.map((part) => (
+                        <li key={part.name} className="text-xs text-foreground flex justify-between">
                           <span>
                             {part.name} (x{part.quantity})
                           </span>
-                          <span className="text-slate-500">${part.cost.toLocaleString()}</span>
+                          <span className="text-muted-foreground">{formatCurrency(part.cost)}</span>
                         </li>
                       ))}
                     </ul>
@@ -571,28 +613,44 @@ interface StatCardProps {
   label: string;
   value: string;
   unit?: string;
-  color: 'blue' | 'green' | 'yellow' | 'red';
+  pct: number;
 }
 
-function StatCard({ icon, label, value, unit, color }: StatCardProps) {
-  const colorClasses = {
-    blue: 'text-blue-700 bg-blue-900/30',
-    green: 'text-green-400 bg-green-900/30',
-    yellow: 'text-yellow-400 bg-yellow-900/30',
-    red: 'text-red-400 bg-red-900/30',
-  };
+function StatCard({ icon, label, value, unit, pct }: StatCardProps) {
+  const colors = statusColor(pct);
 
   return (
-    <div className="bg-slate-800/50 rounded-lg p-2">
-      <div className={`inline-flex p-2 rounded-lg mb-3 ${colorClasses[color]}`}>
-        {icon}
+    <div className="bg-[#111111] rounded-md border border-white/[0.04] p-2.5">
+      <div className={`inline-flex p-1.5 rounded ${colors.bg} mb-2`}>
+        <span className={colors.text}>{icon}</span>
       </div>
-      <p className="text-slate-700 text-sm mb-1">{label}</p>
-      <p className="text-sm font-bold text-white">
+      <p className="text-muted-foreground text-[10px] mb-0.5">{label}</p>
+      <p className="text-sm font-bold text-foreground">
         {value}
-        {unit && <span className="text-sm text-slate-700 ml-1">{unit}</span>}
+        {unit && <span className="text-xs text-muted-foreground ml-1">{unit}</span>}
       </p>
     </div>
+  );
+}
+
+interface FilterPillProps {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}
+
+function FilterPill({ label, active, onClick }: FilterPillProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-2.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap ${
+        active
+          ? 'bg-emerald-600 text-white'
+          : 'bg-[#111111] text-muted-foreground border border-white/[0.04]'
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 
@@ -603,9 +661,9 @@ interface DetailSectionProps {
 
 function DetailSection({ title, children }: DetailSectionProps) {
   return (
-    <div className="bg-slate-800/50 rounded-lg p-3">
-      <h3 className="text-sm font-semibold text-white mb-2">{title}</h3>
-      <div className="space-y-3">{children}</div>
+    <div className="bg-[#111111] rounded-md border border-white/[0.04] p-3">
+      <h3 className="text-xs font-semibold text-foreground mb-2">{title}</h3>
+      <div className="space-y-0">{children}</div>
     </div>
   );
 }
@@ -617,38 +675,77 @@ interface DetailRowProps {
 
 function DetailRow({ label, value }: DetailRowProps) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-slate-700 last:border-0">
-      <span className="text-slate-700">{label}</span>
-      <span className="text-white font-medium capitalize">{value}</span>
+    <div className="flex items-center justify-between py-1.5 border-b border-white/[0.04] last:border-0">
+      <span className="text-muted-foreground text-xs">{label}</span>
+      <span className="text-foreground text-xs font-medium">{value}</span>
     </div>
   );
 }
 
-function TirePressureVisual({ tires }: { tires: VehicleCondition['tires'] }) {
-  const TireIndicator = ({ tire, position }: { tire: any; position: string }) => {
-    const percentage = (tire.pressure / tire.recommendedPressure) * 100;
-    const color =
-      percentage >= 95 && percentage <= 105
-        ? 'green'
-        : percentage >= 85 && percentage <= 115
-        ? 'yellow'
-        : 'red';
+// ============================================================================
+// FLUID LEVEL ROW
+// ============================================================================
 
-    const colorClasses = {
-      green: 'bg-green-500 border-green-400',
-      yellow: 'bg-yellow-500 border-yellow-400',
-      red: 'bg-red-500 border-red-400',
-    };
+function FluidRow({ label, level }: { label: string; level: string }) {
+  const pctMap: Record<string, number> = {
+    low: 25,
+    normal: 75,
+    high: 100,
+    full: 100,
+  };
+  const pct = pctMap[level] ?? 50;
+  const colors = level === 'low'
+    ? { bar: 'bg-rose-500', text: 'text-rose-400' }
+    : { bar: 'bg-emerald-500', text: 'text-emerald-400' };
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-muted-foreground text-xs w-28 shrink-0">{label}</span>
+      <div className="flex-1 h-1.5 rounded-full bg-[#1a1a1a] overflow-hidden">
+        <div
+          className={`h-full rounded-full ${colors.bar} transition-[width] duration-500`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className={`text-[10px] font-medium w-12 text-right ${colors.text}`}>
+        {formatEnum(level)}
+      </span>
+    </div>
+  );
+}
+
+// ============================================================================
+// TIRE PRESSURE VISUAL
+// ============================================================================
+
+function TirePressureVisual({ tires }: { tires: VehicleCondition['tires'] }) {
+  const TireIndicator = ({ tire, position }: { tire: VehicleCondition['tires']['frontLeft']; position: string }) => {
+    const percentage = (tire.pressure / tire.recommendedPressure) * 100;
+    const isOptimal = percentage >= 95 && percentage <= 105;
+    const isAcceptable = percentage >= 85 && percentage <= 115;
+
+    const borderColor = isOptimal
+      ? 'border-emerald-500'
+      : isAcceptable
+      ? 'border-amber-500'
+      : 'border-rose-500';
+
+    const textColor = isOptimal
+      ? 'text-emerald-400'
+      : isAcceptable
+      ? 'text-amber-400'
+      : 'text-rose-400';
 
     return (
       <div className="text-center">
         <div
-          className={`w-16 h-20 rounded-lg border-4 ${colorClasses[color]} mx-auto mb-2 flex items-center justify-center`}
+          className={`w-14 h-18 rounded-md border-2 ${borderColor} bg-[#1a1a1a] mx-auto mb-1 flex flex-col items-center justify-center p-1`}
         >
-          <div className="text-white font-bold text-sm">{tire.pressure}</div>
+          <div className={`font-bold text-xs ${textColor}`}>{tire.pressure}</div>
+          <div className="text-[9px] text-muted-foreground">PSI</div>
         </div>
-        <p className="text-slate-700 text-xs">{position}</p>
-        <p className="text-white text-xs">{tire.condition}</p>
+        <p className="text-muted-foreground text-[10px] font-medium">{position}</p>
+        <p className={`text-[10px] ${textColor}`}>{formatEnum(tire.condition)}</p>
       </div>
     );
   };
@@ -656,39 +753,39 @@ function TirePressureVisual({ tires }: { tires: VehicleCondition['tires'] }) {
   return (
     <div className="relative">
       {/* Car outline */}
-      <div className="w-64 h-48 mx-auto relative">
-        <svg viewBox="0 0 200 150" className="w-full h-full text-slate-700">
+      <div className="w-56 h-44 mx-auto relative">
+        <svg viewBox="0 0 200 150" className="w-full h-full text-white/[0.08]">
           <rect x="30" y="30" width="140" height="90" rx="10" stroke="currentColor" strokeWidth="2" fill="none" />
         </svg>
 
         {/* Tire positions */}
-        <div className="absolute top-4 left-4">
+        <div className="absolute top-2 left-2">
           <TireIndicator tire={tires.frontLeft} position="FL" />
         </div>
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-2 right-2">
           <TireIndicator tire={tires.frontRight} position="FR" />
         </div>
-        <div className="absolute bottom-4 left-4">
+        <div className="absolute bottom-2 left-2">
           <TireIndicator tire={tires.rearLeft} position="RL" />
         </div>
-        <div className="absolute bottom-4 right-4">
+        <div className="absolute bottom-2 right-2">
           <TireIndicator tire={tires.rearRight} position="RR" />
         </div>
       </div>
 
       {/* Legend */}
-      <div className="mt-3 flex justify-center gap-2 text-xs">
+      <div className="mt-2 flex justify-center gap-3 text-[10px]">
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-green-500" />
-          <span className="text-slate-300">Optimal</span>
+          <div className="w-2 h-2 rounded-sm bg-emerald-500" />
+          <span className="text-muted-foreground">Optimal</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-yellow-500" />
-          <span className="text-slate-300">Acceptable</span>
+          <div className="w-2 h-2 rounded-sm bg-amber-500" />
+          <span className="text-muted-foreground">Acceptable</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-red-500" />
-          <span className="text-slate-300">Low/High</span>
+          <div className="w-2 h-2 rounded-sm bg-rose-500" />
+          <span className="text-muted-foreground">Low/High</span>
         </div>
       </div>
     </div>

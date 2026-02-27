@@ -353,7 +353,7 @@ CREATE TABLE IF NOT EXISTS personal_use_data (
     fair_market_value_daily DECIMAL(10,2),
 
     -- Policy compliance
-    policy_id UUID REFERENCES personal_use_policies(id),
+    policy_id UUID, -- FK to personal_use_policies deferred (table may not exist yet)
     exceeds_limit BOOLEAN DEFAULT false,
     limit_exceeded_by DECIMAL(10,2),
 
@@ -456,13 +456,17 @@ CREATE POLICY personal_use_data_tenant_isolation ON personal_use_data
 -- Grants
 -- ============================================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON quality_gates TO webapp;
-GRANT SELECT, INSERT, UPDATE, DELETE ON teams TO webapp;
-GRANT SELECT, INSERT, UPDATE, DELETE ON team_members TO webapp;
-GRANT SELECT, INSERT, UPDATE, DELETE ON cost_analysis TO webapp;
-GRANT SELECT, INSERT, UPDATE, DELETE ON billing_reports TO webapp;
-GRANT SELECT, INSERT, UPDATE, DELETE ON mileage_reimbursement TO webapp;
-GRANT SELECT, INSERT, UPDATE, DELETE ON personal_use_data TO webapp;
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'webapp') THEN
+    GRANT SELECT, INSERT, UPDATE, DELETE ON quality_gates TO webapp;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON teams TO webapp;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON team_members TO webapp;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON cost_analysis TO webapp;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON billing_reports TO webapp;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON mileage_reimbursement TO webapp;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON personal_use_data TO webapp;
+  END IF;
+END $$;
 
 -- ============================================================================
 -- END OF MIGRATION

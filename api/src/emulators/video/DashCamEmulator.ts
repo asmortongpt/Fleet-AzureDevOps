@@ -23,6 +23,8 @@
 import crypto from 'crypto';
 import { EventEmitter } from 'events';
 
+import logger from '../../config/logger';
+
 export interface DashCamConfig {
   vehicleId: string;
   cameraPositions: CameraPosition[];
@@ -173,9 +175,9 @@ export class DashCamEmulator extends EventEmitter {
     this.isPaused = false;
     this.stats.recordingStartTime = new Date();
 
-    console.log(`[DashCam] Starting emulator for vehicle ${this.config.vehicleId}`);
-    console.log(`[DashCam] Cameras: ${this.config.cameraPositions.join(', ')}`);
-    console.log(`[DashCam] Quality: ${this.config.recordingQuality} @ ${this.config.fps} FPS`);
+    logger.info(`[DashCam] Starting emulator for vehicle ${this.config.vehicleId}`);
+    logger.info(`[DashCam] Cameras: ${this.config.cameraPositions.join(', ')}`);
+    logger.info(`[DashCam] Quality: ${this.config.recordingQuality} @ ${this.config.fps} FPS`);
 
     // Start continuous recording if enabled
     if (this.config.continuousRecording) {
@@ -201,7 +203,7 @@ export class DashCamEmulator extends EventEmitter {
       return;
     }
 
-    console.log(`[DashCam] Stopping emulator for vehicle ${this.config.vehicleId}`);
+    logger.info(`[DashCam] Stopping emulator for vehicle ${this.config.vehicleId}`);
 
     // Stop all cameras
     this.config.cameraPositions.forEach(position => {
@@ -230,7 +232,7 @@ export class DashCamEmulator extends EventEmitter {
 
     // Switch to parking mode if enabled
     if (this.config.parkingModeEnabled) {
-      console.log(`[DashCam] Entering parking mode`);
+      logger.info(`[DashCam] Entering parking mode`);
       this.emit('parking-mode-enabled', {
         vehicleId: this.config.vehicleId,
         timestamp: new Date(),
@@ -243,7 +245,7 @@ export class DashCamEmulator extends EventEmitter {
    */
   async resume(): Promise<void> {
     this.isPaused = false;
-    console.log(`[DashCam] Resuming normal recording`);
+    logger.info(`[DashCam] Resuming normal recording`);
 
     this.emit('parking-mode-disabled', {
       vehicleId: this.config.vehicleId,
@@ -315,7 +317,7 @@ export class DashCamEmulator extends EventEmitter {
       camera.framesRecorded = 0;
     }
 
-    console.log(`[DashCam] Started recording: ${videoFile.fileName}`);
+    logger.info(`[DashCam] Started recording: ${videoFile.fileName}`);
 
     this.emit('recording-started', {
       videoFile,
@@ -355,7 +357,7 @@ export class DashCamEmulator extends EventEmitter {
       camera.isRecording = false;
     }
 
-    console.log(`[DashCam] Stopped recording: ${videoFile.fileName} (${videoFile.duration.toFixed(1)}s, ${(videoFile.fileSize / (1024 * 1024)).toFixed(1)} MB)`);
+    logger.info(`[DashCam] Stopped recording: ${videoFile.fileName} (${videoFile.duration.toFixed(1)}s, ${(videoFile.fileSize / (1024 * 1024)).toFixed(1)} MB)`);
 
     this.emit('recording-completed', {
       videoFile,
@@ -412,7 +414,7 @@ export class DashCamEmulator extends EventEmitter {
    * Trigger event recording
    */
   triggerEvent(trigger: EventTrigger, eventId?: string): VideoFile[] {
-    console.log(`[DashCam] Event triggered: ${trigger}${eventId ? ` (${eventId})` : ''}`);
+    logger.info(`[DashCam] Event triggered: ${trigger}${eventId ? ` (${eventId})` : ''}`);
 
     this.stats.totalEvents++;
 
@@ -455,7 +457,9 @@ export class DashCamEmulator extends EventEmitter {
   private processEventQueue(): void {
     while (this.eventQueue.length > 0) {
       const event = this.eventQueue.shift();
-      if (!event) break;
+      if (!event) {
+break;
+}
 
       // Events are already processed when triggered
       // This is just for cleanup
@@ -468,7 +472,9 @@ export class DashCamEmulator extends EventEmitter {
   private updateOngoingRecordings(): void {
     this.recordingFiles.forEach((videoFile, position) => {
       const camera = this.cameraStatus.get(position);
-      if (!camera) return;
+      if (!camera) {
+return;
+}
 
       // Update frame count
       const elapsedSeconds = (Date.now() - videoFile.timestamp.getTime()) / 1000;
@@ -542,7 +548,7 @@ export class DashCamEmulator extends EventEmitter {
           file.metadata.storageLocation = 'cloud';
           this.stats.totalUploaded++;
 
-          console.log(`[DashCam] Upload completed: ${file.fileName}`);
+          logger.info(`[DashCam] Upload completed: ${file.fileName}`);
 
           this.emit('upload-completed', {
             videoFile: file,
@@ -560,7 +566,7 @@ export class DashCamEmulator extends EventEmitter {
     file.metadata.storageLocation = 'uploading';
     file.metadata.uploadProgress = 0;
 
-    console.log(`[DashCam] Starting upload: ${file.fileName}`);
+    logger.info(`[DashCam] Starting upload: ${file.fileName}`);
 
     this.emit('upload-started', {
       videoFile: file,
@@ -595,7 +601,7 @@ export class DashCamEmulator extends EventEmitter {
         const oldestFile = continuousFiles[0];
         this.deleteFile(oldestFile.id);
 
-        console.log(`[DashCam] Deleted old file to free space: ${oldestFile.fileName}`);
+        logger.info(`[DashCam] Deleted old file to free space: ${oldestFile.fileName}`);
 
         this.emit('file-deleted', {
           videoFile: oldestFile,
@@ -611,7 +617,9 @@ export class DashCamEmulator extends EventEmitter {
    */
   deleteFile(fileId: string): boolean {
     const index = this.completedFiles.findIndex(f => f.id === fileId);
-    if (index === -1) return false;
+    if (index === -1) {
+return false;
+}
 
     const file = this.completedFiles[index];
     this.storageUsedGB -= file.fileSize / this.BYTES_PER_GB;

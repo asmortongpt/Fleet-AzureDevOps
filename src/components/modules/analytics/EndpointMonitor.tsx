@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { formatTime } from '@/utils/format-helpers'
 
 interface EndpointStatus {
   endpoint: string
@@ -243,7 +244,7 @@ export function EndpointMonitor() {
       case 'down':
         return { variant: 'destructive' as const, className: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800', icon: XCircle }
       default:
-        return { variant: 'outline' as const, className: 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700', icon: Circle }
+        return { variant: 'outline' as const, className: 'bg-white/[0.05] text-white/40 border-white/[0.08] dark:bg-[#18181b] dark:text-white/40 dark:border-white/[0.08]', icon: Circle }
     }
   }
 
@@ -292,7 +293,7 @@ export function EndpointMonitor() {
             <div className="flex items-center gap-2">
               {lastUpdate && (
                 <span className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  Updated {lastUpdate.toLocaleTimeString()}
+                  Updated {formatTime(lastUpdate)}
                 </span>
               )}
               <Button
@@ -337,9 +338,9 @@ export function EndpointMonitor() {
               <div className="text-sm font-bold text-red-700 dark:text-red-400">{healthMetrics.down}</div>
               <div className="text-xs text-red-600 dark:text-red-500">Down</div>
             </div>
-            <div className="text-center p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-              <div className="text-sm font-bold text-blue-700 dark:text-blue-700">{Math.round(healthMetrics.avgLatency)}ms</div>
-              <div className="text-xs text-blue-800 dark:text-blue-800">Avg Latency</div>
+            <div className="text-center p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+              <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{Math.round(healthMetrics.avgLatency)}ms</div>
+              <div className="text-xs text-emerald-400 dark:text-emerald-400">Avg Latency</div>
             </div>
           </div>
         </CardContent>
@@ -349,7 +350,7 @@ export function EndpointMonitor() {
       <Card className="border-border/50 bg-card dark:bg-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Radio className="w-4 h-4 text-blue-800 dark:text-blue-700" />
+            <Radio className="w-4 h-4 text-emerald-400 dark:text-emerald-400" />
             WebSocket Connections
           </CardTitle>
         </CardHeader>
@@ -360,9 +361,9 @@ export function EndpointMonitor() {
               className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-muted/30 dark:bg-muted/10 hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-full ${ws.isConnected ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-800'}`}>
+                <div className={`p-2 rounded-full ${ws.isConnected ? 'bg-green-100 dark:bg-green-900/30' : 'bg-white/[0.05] dark:bg-[#18181b]'}`}>
                   <Zap
-                    className={`w-4 h-4 ${ws.isConnected ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-slate-700'}`}
+                    className={`w-4 h-4 ${ws.isConnected ? 'text-green-600 dark:text-green-400' : 'text-white/40 dark:text-white/40'}`}
                    
                   />
                 </div>
@@ -371,7 +372,7 @@ export function EndpointMonitor() {
                     <span className="text-sm font-medium dark:text-foreground">{ws.name}</span>
                     <Badge
                       variant="outline"
-                      className={`text-[10px] h-5 ${ws.isConnected ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : 'bg-gray-100 text-slate-700 border-gray-300 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700'}`}
+                      className={`text-[10px] h-5 ${ws.isConnected ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : 'bg-white/[0.05] text-white/40 border-white/[0.08] dark:bg-[#18181b] dark:text-white/40 dark:border-white/[0.08]'}`}
                     >
                       <Circle className={`w-2 h-2 mr-1 ${ws.isConnected ? 'fill-green-500 animate-pulse' : 'fill-gray-400'}`} />
                       {ws.isConnected ? 'Connected' : 'Disconnected'}
@@ -479,7 +480,7 @@ export function EndpointMonitor() {
                                   <div className="text-right hidden sm:block">
                                     <div className="flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
                                       <Clock className="w-3 h-3" />
-                                      {endpoint.lastChecked.toLocaleTimeString()}
+                                      {formatTime(endpoint.lastChecked)}
                                     </div>
                                   </div>
                                 )}

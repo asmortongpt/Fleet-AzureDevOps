@@ -82,9 +82,9 @@ async function runWebhookRenewal(): Promise<void> {
 
         successCount++
         logger.info(`✅ Renewed: ${subscription.subscription_id}`)
-      } catch (error: any) {
+      } catch (error: unknown) {
         failureCount++
-        logger.error(`❌ Failed to renew ${subscription.subscription_id}:`, error.message)
+        logger.error(`❌ Failed to renew ${subscription.subscription_id}:`, error instanceof Error ? error.message : 'An unexpected error occurred')
 
         // Check if renewal has failed too many times
         const failureResult = await pool.query(
@@ -123,8 +123,8 @@ async function runWebhookRenewal(): Promise<void> {
 
                 logger.info('✅ Successfully recreated Teams subscription')
               }
-            } catch (recreateError: any) {
-              logger.error('Failed to recreate subscription:', recreateError.message)
+            } catch (recreateError: unknown) {
+              logger.error('Failed to recreate subscription:', recreateError instanceof Error ? recreateError.message : 'An unexpected error occurred')
             }
           } else if (subscription.subscription_type === 'outlook_emails' && subscription.user_email) {
             logger.info(`Attempting to recreate failed Outlook subscription for ${subscription.user_email}`)
@@ -145,8 +145,8 @@ async function runWebhookRenewal(): Promise<void> {
 
                 logger.info('✅ Successfully recreated Outlook subscription')
               }
-            } catch (recreateError: any) {
-              logger.error('Failed to recreate subscription:', recreateError.message)
+            } catch (recreateError: unknown) {
+              logger.error('Failed to recreate subscription:', recreateError instanceof Error ? recreateError.message : 'An unexpected error occurred')
             }
           }
         }
@@ -163,9 +163,9 @@ async function runWebhookRenewal(): Promise<void> {
     // Log statistics
     await logRenewalStats(successCount, failureCount, duration)
 
-  } catch (error: any) {
-    logger.error(`Fatal error in webhook renewal job:`, error.message)
-    logger.error(error.stack)
+  } catch (error: unknown) {
+    logger.error(`Fatal error in webhook renewal job:`, error instanceof Error ? error.message : 'An unexpected error occurred')
+    logger.error(error instanceof Error ? error.stack : undefined)
   }
 }
 

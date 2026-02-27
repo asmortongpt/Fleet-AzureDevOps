@@ -30,7 +30,7 @@ export function MapFirstLayout({
 
   return (
     <div
-      className="flex flex-col md:flex-row h-screen w-full overflow-hidden bg-background"
+      className="flex flex-col md:flex-row h-full w-full overflow-hidden bg-background"
       data-testid="map-first-layout"
     >
       {/* AI Assistant Floating Button */}
@@ -74,7 +74,7 @@ export function MapFirstLayout({
             variant="default"
             size="icon"
             onClick={() => setIsMapFullscreen(!isMapFullscreen)}
-            className="h-8 w-10 rounded-full shadow-sm bg-card text-foreground hover:bg-muted"
+            className="h-8 w-10 rounded-full bg-card text-foreground hover:bg-muted"
             data-testid="map-fullscreen-toggle"
             aria-label={isMapFullscreen ? "Exit fullscreen map" : "Enter fullscreen map"}
           >
@@ -89,7 +89,7 @@ export function MapFirstLayout({
               variant="default"
               size="sm"
               onClick={() => setIsDrawerOpen(true)}
-              className="shadow-sm rounded-full px-2 h-8"
+              className=" rounded-full px-2 h-8"
               data-testid="open-drawer-btn"
             >
               <ChevronUp className="h-4 w-4 mr-2" />
@@ -102,7 +102,7 @@ export function MapFirstLayout({
       {/* Side Panel - Desktop/Tablet */}
       <div
         className={cn(
-          'bg-card shadow-sm overflow-hidden',
+          'bg-card overflow-hidden',
           // Mobile: Hidden (drawer instead)
           'hidden md:flex md:flex-col',
           // Tablet: 40% width

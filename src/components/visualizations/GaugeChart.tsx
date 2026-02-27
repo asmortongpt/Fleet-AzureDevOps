@@ -3,11 +3,12 @@
  * Radial gauge for displaying single metric with threshold zones
  */
 
-import { motion } from 'framer-motion'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useThemeContext } from '@/components/providers/ThemeProvider'
-import { Skeleton } from '@/components/ui/skeleton'
+// motion removed - React 19 incompatible
 import { useMemo } from 'react'
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+
 
 interface GaugeChartProps {
   title: string
@@ -38,15 +39,12 @@ export function GaugeChart({
   loading = false,
   size = 200,
 }: GaugeChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    low: 'hsl(0, 84%, 60%)',      // Red
-    medium: 'hsl(45, 93%, 47%)',  // Yellow
-    high: 'hsl(142, 76%, 36%)',   // Green
-    background: isDark ? '#1f2937' : '#f3f4f6',
+    text: 'var(--foreground)',
+    low: '#EF4444',
+    medium: '#F59E0B',
+    high: '#10B981',
+    background: 'var(--muted)',
   }
 
   // Calculate percentage and angle
@@ -105,12 +103,8 @@ export function GaugeChart({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4 }}
-    >
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+    <div>
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="text-center">
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}
@@ -127,16 +121,13 @@ export function GaugeChart({
                 strokeLinecap="round"
               />
 
-              {/* Value arc with animation */}
-              <motion.path
+              {/* Value arc */}
+              <path
                 d={createArc(-135, angle)}
                 fill="none"
                 stroke={getColor}
                 strokeWidth={strokeWidth}
                 strokeLinecap="round"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 1.5, ease: 'easeInOut' }}
               />
 
               {/* Center text */}
@@ -147,13 +138,9 @@ export function GaugeChart({
                 className="font-bold"
                 style={{ fontSize: size * 0.15, fill: chartColors.text }}
               >
-                <motion.tspan
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5, duration: 0.5 }}
-                >
+                <tspan>
                   {value.toFixed(1)}
-                </motion.tspan>
+                </tspan>
               </text>
               <text
                 x={center}
@@ -202,6 +189,6 @@ export function GaugeChart({
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }

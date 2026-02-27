@@ -10,7 +10,9 @@ export const documentsMcpServer: MCPServer = {
     const orgId = userCtx.orgId;
     if (toolName === "search") {
       const q = String(args.query ?? "").trim();
-      if (!q) return { ok: true, result: { matches: [] } };
+      if (!q) {
+return { ok: true, result: { matches: [] } };
+}
 
       const rows = await pool.query(
         `SELECT id, title, source, doc_type, version

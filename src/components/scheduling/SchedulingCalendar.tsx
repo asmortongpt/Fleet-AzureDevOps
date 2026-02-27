@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, MaintenanceAppointment } from '@/types/scheduling'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 export type CalendarView = 'day' | 'week' | 'month'
 
@@ -48,21 +49,21 @@ interface SchedulingCalendarProps {
 const EVENT_COLORS = {
   reservation: {
     pending: 'bg-yellow-100 border-yellow-300 text-yellow-900',
-    confirmed: 'bg-blue-100 border-blue-300 text-blue-900',
+    confirmed: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
     active: 'bg-green-100 border-green-300 text-green-900',
-    completed: 'bg-gray-100 border-gray-300 text-slate-700',
+    completed: 'bg-white/[0.05] border-white/[0.08] text-white/70',
     cancelled: 'bg-red-100 border-red-300 text-red-900',
   },
   maintenance: {
-    scheduled: 'bg-purple-100 border-purple-300 text-purple-900',
+    scheduled: 'bg-amber-100 border-amber-300 text-amber-900',
     in_progress: 'bg-orange-100 border-orange-300 text-orange-900',
-    completed: 'bg-gray-100 border-gray-300 text-slate-700',
+    completed: 'bg-white/[0.05] border-white/[0.08] text-white/70',
     cancelled: 'bg-red-100 border-red-300 text-red-900',
   },
 }
 
 const PRIORITY_COLORS = {
-  low: 'bg-blue-500',
+  low: 'bg-emerald-500',
   medium: 'bg-yellow-500',
   high: 'bg-orange-500',
   urgent: 'bg-red-500',
@@ -89,7 +90,7 @@ export function SchedulingCalendar({
     const reservationEvents: ScheduleEvent[] = reservations.map((res) => ({
       id: res.id,
       type: 'reservation' as const,
-      title: `${res.make || ''} ${res.model || ''} ${res.license_plate || ''}`.trim() || 'Vehicle Reservation',
+      title: formatVehicleShortName({ make: res.make, model: res.model, number: res.license_plate }) || 'Vehicle Reservation',
       start: typeof res.start_time === 'string' ? parseISO(res.start_time) : res.start_time,
       end: typeof res.end_time === 'string' ? parseISO(res.end_time) : res.end_time,
       vehicleId: res.vehicle_id,
@@ -102,7 +103,7 @@ export function SchedulingCalendar({
     const appointmentEvents: ScheduleEvent[] = appointments.map((appt) => ({
       id: appt.id,
       type: 'maintenance' as const,
-      title: `${appt.appointment_type || 'Maintenance'} - ${appt.make || ''} ${appt.model || ''}`.trim(),
+      title: `${appt.appointment_type || 'Maintenance'} - ${formatVehicleShortName({ make: appt.make, model: appt.model })}`.trim(),
       start: typeof appt.scheduled_start === 'string' ? parseISO(appt.scheduled_start) : appt.scheduled_start,
       end: typeof appt.scheduled_end === 'string' ? parseISO(appt.scheduled_end) : appt.scheduled_end,
       vehicleId: appt.vehicle_id || '',

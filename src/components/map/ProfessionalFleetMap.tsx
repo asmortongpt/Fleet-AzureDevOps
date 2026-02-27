@@ -27,14 +27,8 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
 
-  // Load vehicles from API or test environment
+  // Load vehicles from API
   useEffect(() => {
-    // Check for test data injection (Visual Regression Tests)
-    if (typeof window !== 'undefined' && (window as any).__TEST_DATA__?.vehicles) {
-      setVehicles((window as any).__TEST_DATA__.vehicles);
-      return;
-    }
-
     if (!isLoading) {
       let vehicleArray: Vehicle[] = [];
       if (Array.isArray(data)) {
@@ -51,20 +45,38 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
 
   // Removed timeout fallback to demo data
 
+  const getCoords = (vehicle: Vehicle) => {
+    const latRaw =
+      (vehicle as any).latitude ??
+      (vehicle as any).gps_latitude ??
+      (vehicle as any).lat ??
+      vehicle.location?.lat ??
+      (vehicle as any).location?.latitude
+    const lngRaw =
+      (vehicle as any).longitude ??
+      (vehicle as any).gps_longitude ??
+      (vehicle as any).lng ??
+      vehicle.location?.lng ??
+      (vehicle as any).location?.longitude
+    const lat = Number(latRaw)
+    const lng = Number(lngRaw)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+    return { lat, lng }
+  }
+
   // Filter vehicles with coordinates
   const vehiclesWithCoords = vehicles.filter((v: Vehicle) => {
-    const lat = v.latitude ?? v.location?.lat;
-    const lng = v.longitude ?? v.location?.lng;
-    return lat != null && lng != null;
+    const coords = getCoords(v)
+    return !!coords
   });
 
   const getMarkerColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-emerald-500 shadow-emerald-500/50';
+      case 'active': return 'bg-emerald-500';
       case 'maintenance':
-      case 'service': return 'bg-amber-500 shadow-amber-500/50';
-      case 'inactive': return 'bg-slate-400 shadow-slate-400/50';
-      default: return 'bg-blue-500 shadow-blue-500/50';
+      case 'service': return 'bg-amber-500';
+      case 'inactive': return 'bg-white/[0.15]';
+      default: return 'bg-emerald-500/50';
     }
   };
 
@@ -76,17 +88,15 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
 
   // Normalize coordinates - map lat/lng to grid position
   const normalizePosition = (vehicle: Vehicle, index: number) => {
-    const lat = vehicle.latitude ?? vehicle.location?.lat ?? 0;
-    const lng = vehicle.longitude ?? vehicle.location?.lng ?? 0;
-    // For demo, spread them across the map area
+    const coords = getCoords(vehicle)
+    const lat = coords?.lat ?? 0
+    const lng = coords?.lng ?? 0
+    // Normalize positions across the viewport
     const baseLeft = ((lng + 180) / 360) * 100;
     const baseTop = ((90 - lat) / 180) * 100;
-    // Add some jitter based on index to prevent overlap
-    const jitterLeft = ((index * 37) % 20) - 10;
-    const jitterTop = ((index * 23) % 20) - 10;
     return {
-      left: Math.max(5, Math.min(90, 30 + (baseLeft % 60) + jitterLeft)),
-      top: Math.max(5, Math.min(90, 20 + (baseTop % 60) + jitterTop))
+      left: Math.max(5, Math.min(90, 30 + (baseLeft % 60))),
+      top: Math.max(5, Math.min(90, 20 + (baseTop % 60)))
     };
   };
 
@@ -95,11 +105,11 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
       {/* Map Background - Professional dark theme */}
       <div
         ref={mapRef}
-        className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950"
+        className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#111] to-[#0a0a0a]"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(71, 85, 105, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(71, 85, 105, 0.1) 1px, transparent 1px)
+            linear-gradient(hsl(var(--border) / 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, hsl(var(--border) / 0.1) 1px, transparent 1px)
           `,
           backgroundSize: `${zoom * 4}px ${zoom * 4}px`
         }}
@@ -109,7 +119,7 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
           <svg className="w-full h-full">
             <defs>
               <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
-                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(148, 163, 184, 0.3)" strokeWidth="0.5" />
+                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="hsl(var(--border) / 0.3)" strokeWidth="0.5" />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
@@ -135,13 +145,13 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
                 {vehicle.status === 'active' && (
                   <div className={`absolute inset-0 rounded-full ${getMarkerColor(vehicle.status)} animate-ping opacity-40`} aria-hidden="true" />
                 )}
-                <div className={`relative p-2 rounded-full shadow-sm ${getMarkerColor(vehicle.status)} ${isSelected ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900' : ''}`}>
+                <div className={`relative p-2 rounded-full ${getMarkerColor(vehicle.status)} ${isSelected ? 'ring-2 ring-white ring-offset-2 ring-offset-[#111]' : ''}`}>
                   <Navigation className="h-4 w-4 text-white" style={{ transform: `rotate(${(index * 45) % 360}deg)` }} aria-hidden="true" />
                 </div>
               </div>
               {/* Vehicle label on hover/select */}
               {isSelected && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-white rounded shadow-sm text-xs font-medium text-slate-800 whitespace-nowrap" aria-live="polite">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-[#1a1a1a] rounded text-xs font-medium text-white/80 whitespace-nowrap border border-white/[0.04]" aria-live="polite">
                   {vehicle.vehicleNumber || `Vehicle ${String(vehicle.id).slice(0, 6)}`}
                 </div>
               )}
@@ -150,9 +160,9 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
         })}
 
         {/* Legend */}
-        <div className="absolute bottom-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md rounded-lg p-3 border border-slate-700">
-          <div className="text-xs font-semibold text-slate-300 mb-2">Fleet Status</div>
-          <div className="flex flex-col gap-1.5 text-xs text-slate-700">
+        <div className="absolute bottom-4 left-4 z-20 bg-[#111111] rounded-lg p-3 border border-white/[0.04]">
+          <div className="text-xs font-semibold text-white/60 mb-2">Fleet Status</div>
+          <div className="flex flex-col gap-1.5 text-xs text-white/70">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-emerald-500" />
               <span>Active ({vehiclesWithCoords.filter(v => v.status === 'active').length})</span>
@@ -162,16 +172,16 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
               <span>Maintenance ({vehiclesWithCoords.filter(v => v.status === 'maintenance' || v.status === 'service').length})</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-slate-400" />
+              <div className="w-3 h-3 rounded-full bg-white/[0.15]" />
               <span>Inactive ({vehiclesWithCoords.filter(v => v.status === 'inactive').length})</span>
             </div>
           </div>
         </div>
 
         {/* Stats overlay */}
-        <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md rounded-lg px-2 py-2 border border-slate-700">
-          <span className="text-sm font-semibold text-emerald-700">{vehiclesWithCoords.length}</span>
-          <span className="text-sm text-slate-700 ml-1">vehicles tracked</span>
+        <div className="absolute top-4 left-4 z-20 bg-[#111111] rounded-lg px-2 py-2 border border-white/[0.04]">
+          <span className="text-sm font-semibold text-emerald-300">{vehiclesWithCoords.length}</span>
+          <span className="text-sm text-white/70 ml-1">vehicles tracked</span>
         </div>
       </div>
 
@@ -180,31 +190,31 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
         <Button
           size="icon"
           variant="secondary"
-          className="bg-slate-900/80 border-slate-700 hover:bg-slate-800"
+          className="bg-[#111111] border-white/[0.04] hover:bg-[#161616]"
           onClick={() => setZoom(Math.min(zoom + 2, 24))}
           data-testid="map-zoom-in"
           aria-label="Zoom in"
         >
-          <ZoomIn className="h-4 w-4 text-slate-300" />
+          <ZoomIn className="h-4 w-4 text-white/60" />
         </Button>
         <Button
           size="icon"
           variant="secondary"
-          className="bg-slate-900/80 border-slate-700 hover:bg-slate-800"
+          className="bg-[#111111] border-white/[0.04] hover:bg-[#161616]"
           onClick={() => setZoom(Math.max(zoom - 2, 4))}
           data-testid="map-zoom-out"
           aria-label="Zoom out"
         >
-          <ZoomOut className="h-4 w-4 text-slate-300" />
+          <ZoomOut className="h-4 w-4 text-white/60" />
         </Button>
         <Button
           size="icon"
           variant="secondary"
-          className="bg-slate-900/80 border-slate-700 hover:bg-slate-800"
+          className="bg-[#111111] border-white/[0.04] hover:bg-[#161616]"
           data-testid="map-locate"
           aria-label="Locate me"
         >
-          <Locate className="h-4 w-4 text-slate-300" />
+          <Locate className="h-4 w-4 text-white/60" />
         </Button>
       </div>
 

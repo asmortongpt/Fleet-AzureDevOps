@@ -1,9 +1,10 @@
 // Typed Database Query Wrapper
 // Provides type-safe database operations with proper error handling
 
-import { Pool, PoolClient } from 'pg';
+import { Pool, PoolClient, QueryResultRow } from 'pg';
 
 import pool from '../config/database';
+import logger from '../config/logger';
 import { QueryResult, SqlValue, SqlParams } from '../types/database';
 
 import { monitoredQuery } from './query-monitor';
@@ -14,7 +15,7 @@ import { monitoredQuery } from './query-monitor';
  * @param params Query parameters
  * @returns Typed query result
  */
-export async function query<T = unknown>(
+export async function query<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params?: SqlParams
 ): Promise<QueryResult<T>> {
@@ -23,7 +24,7 @@ export async function query<T = unknown>(
     const result = await monitoredQuery<T>(pool, text, params);
     return result as QueryResult<T>;
   } catch (error) {
-    console.error('Database query error:', {
+    logger.error('Database query error', {
       query: text,
       params,
       error: error instanceof Error ? error.message : error
@@ -38,7 +39,7 @@ export async function query<T = unknown>(
  * @param params Query parameters
  * @returns Single row or null
  */
-export async function queryOne<T = unknown>(
+export async function queryOne<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params?: SqlParams
 ): Promise<T | null> {
@@ -52,7 +53,7 @@ export async function queryOne<T = unknown>(
  * @param params Query parameters
  * @returns Array of rows
  */
-export async function queryMany<T = unknown>(
+export async function queryMany<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params?: SqlParams
 ): Promise<T[]> {
@@ -67,7 +68,7 @@ export async function queryMany<T = unknown>(
  * @returns Single row
  * @throws Error if no rows found
  */
-export async function queryOneRequired<T = unknown>(
+export async function queryOneRequired<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params?: SqlParams
 ): Promise<T> {
@@ -109,7 +110,7 @@ export async function transaction<T>(
     return result;
   } catch (error) {
     await monitoredQuery(client, 'ROLLBACK', []);
-    console.error('Transaction error:', error);
+    logger.error('Transaction error', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   } finally {
     client.release();
@@ -123,7 +124,7 @@ export async function transaction<T>(
  * @param params Query parameters
  * @returns Typed query result
  */
-export async function clientQuery<T = unknown>(
+export async function clientQuery<T extends QueryResultRow = QueryResultRow>(
   client: PoolClient,
   text: string,
   params?: SqlParams
@@ -133,7 +134,7 @@ export async function clientQuery<T = unknown>(
     const result = await monitoredQuery<T>(client, text, params);
     return result as QueryResult<T>;
   } catch (error) {
-    console.error(`Client query error:`, {
+    logger.error('Client query error', {
       query: text,
       params,
       error: error instanceof Error ? error.message : error
@@ -214,7 +215,7 @@ export function sanitizeIdentifier(name: string): string {
  * @param limit Items per page
  * @returns Paginated result with metadata
  */
-export async function queryPaginated<T = unknown>(
+export async function queryPaginated<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params: SqlParams = [],
   page: number = 1,
@@ -297,7 +298,7 @@ export async function testConnection(): Promise<boolean> {
     await query(`SELECT 1`);
     return true;
   } catch (error) {
-    console.error('Database connection test failed:', error);
+    logger.error('Database connection test failed', { error: error instanceof Error ? error.message : String(error) });
     return false;
   }
 }

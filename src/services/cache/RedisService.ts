@@ -3,6 +3,7 @@
 
 import { LRUCache } from 'lru-cache';
 import { createClient, RedisClientType } from 'redis';
+
 import logger from '@/utils/logger';
 
 interface CacheConfig {
@@ -28,7 +29,7 @@ export class RedisService {
 
   private config: CacheConfig = {
     redis: {
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
+      url: import.meta.env.VITE_REDIS_URL || 'redis://localhost:6379',
       maxRetries: 10,
       retryDelay: 2000,
       commandTimeout: 5000,

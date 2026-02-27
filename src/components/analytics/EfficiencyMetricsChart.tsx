@@ -78,16 +78,16 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
         if (!active || !payload) return null
 
         return (
-            <div className="bg-slate-800/95 border border-slate-700 rounded-lg p-2 shadow-sm">
-                <p className="text-slate-300 font-medium mb-2">{label}</p>
-                {payload.map((entry: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between gap-2 text-sm">
+            <div className="bg-[#1a1a1a]/95 border border-white/[0.15] rounded-lg p-2">
+                <p className="text-white/60 font-medium mb-2">{label}</p>
+                {payload.map((entry: any) => (
+                    <div key={entry.name} className="flex items-center justify-between gap-2 text-sm">
                         <span className="flex items-center gap-2">
                             <div
                                 className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: entry.color }}
                             />
-                            <span className="text-slate-700">{entry.name}:</span>
+                            <span className="text-white/70">{entry.name}:</span>
                         </span>
                         <span className="font-semibold text-white">
                             {entry.dataKey === 'mpg' ? `${entry.value} MPG` :
@@ -106,24 +106,24 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
             data={data}
             margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
         >
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
-            <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-            <YAxis yAxisId="left" stroke="#94a3b8" fontSize={12} />
-            <YAxis yAxisId="right" orientation="right" stroke="#94a3b8" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+            <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+            <YAxis yAxisId="left" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+            <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--muted-foreground))" fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
             <Legend wrapperStyle={{ fontSize: '12px' }} />
 
             <Bar
                 yAxisId="left"
                 dataKey="utilization"
-                fill="#3b82f6"
+                fill="hsl(var(--chart-1))"
                 fillOpacity={0.6}
                 name="Utilization %"
             />
             <Bar
                 yAxisId="left"
                 dataKey="idleTime"
-                fill="#ef4444"
+                fill="hsl(var(--chart-6))"
                 fillOpacity={0.6}
                 name="Idle Time (hrs)"
             />
@@ -131,7 +131,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                 yAxisId="right"
                 type="monotone"
                 dataKey="mpg"
-                stroke="#10b981"
+                stroke="hsl(var(--chart-2))"
                 strokeWidth={3}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
@@ -141,7 +141,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                 yAxisId="left"
                 type="monotone"
                 dataKey="efficiencyScore"
-                stroke="#f59e0b"
+                stroke="hsl(var(--chart-3))"
                 strokeWidth={3}
                 dot={{ r: 4 }}
                 name="Efficiency Score"
@@ -152,7 +152,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
     const renderRadarChart = () => {
         if (!radarData || radarData.length === 0) {
             return (
-                <div className="flex items-center justify-center h-full text-slate-700">
+                <div className="flex items-center justify-center h-full text-white/70">
                     <p>No radar data available</p>
                 </div>
             )
@@ -160,14 +160,14 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
 
         return (
             <RadarChart data={radarData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
-                <PolarGrid stroke="#334155" />
-                <PolarAngleAxis dataKey="category" stroke="#94a3b8" fontSize={12} />
-                <PolarRadiusAxis stroke="#94a3b8" fontSize={12} />
+                <PolarGrid stroke="hsl(var(--border))" />
+                <PolarAngleAxis dataKey="category" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <PolarRadiusAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <Radar
                     name="Efficiency Metrics"
                     dataKey="value"
-                    stroke="#3b82f6"
-                    fill="#3b82f6"
+                    stroke="hsl(var(--chart-1))"
+                    fill="hsl(var(--chart-1))"
                     fillOpacity={0.6}
                 />
                 <Tooltip content={<CustomTooltip />} />
@@ -177,7 +177,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
 
     if (!data || data.length === 0) {
         return (
-            <div className="flex items-center justify-center h-full text-slate-700">
+            <div className="flex items-center justify-center h-full text-white/70">
                 <p>No efficiency data available</p>
             </div>
         )
@@ -188,8 +188,8 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
             {/* Summary Stats */}
             {stats && type === 'trend' && (
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                    <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
                             <Gauge className="w-4 h-4" />
                             <span>Avg MPG</span>
                         </div>
@@ -197,8 +197,8 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                             {stats.avgMPG}
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
                             <Activity className="w-4 h-4" />
                             <span>Utilization</span>
                         </div>
@@ -206,8 +206,8 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                             {stats.avgUtilization}%
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
                             <Clock className="w-4 h-4" />
                             <span>Idle Time</span>
                         </div>
@@ -215,8 +215,8 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                             {stats.avgIdleTime}h
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
                             <Zap className="w-4 h-4" />
                             <span>Efficiency</span>
                         </div>
@@ -224,8 +224,8 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                             {stats.avgEfficiencyScore}
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
                             <span>Improvement</span>
                         </div>
                         <p className={`text-sm font-bold ${parseFloat(stats.improvement) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -236,7 +236,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
             )}
 
             {/* Chart */}
-            <div className="bg-slate-800/40 rounded-lg p-3">
+            <div className="bg-[#1a1a1a]/40 rounded-lg p-3">
                 <ResponsiveContainer width="100%" height={400}>
                     {type === 'trend' ? renderTrendChart() : renderRadarChart()}
                 </ResponsiveContainer>

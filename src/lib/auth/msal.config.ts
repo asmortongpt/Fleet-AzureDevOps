@@ -11,6 +11,8 @@
 
 import { Configuration, LogLevel } from '@azure/msal-browser'
 
+import logger from '@/utils/logger'
+
 // Azure AD Configuration from environment variables
 const AZURE_AD_CLIENT_ID = import.meta.env.VITE_AZURE_AD_CLIENT_ID
 const AZURE_AD_TENANT_ID = import.meta.env.VITE_AZURE_AD_TENANT_ID
@@ -46,16 +48,10 @@ export const msalConfig: Configuration = {
 
         switch (level) {
           case LogLevel.Error:
-            console.error('[MSAL]', message)
+            logger.error('[MSAL]', message)
             break
           case LogLevel.Warning:
-            console.warn('[MSAL]', message)
-            break
-          case LogLevel.Info:
-            if (import.meta.env.DEV) console.info('[MSAL]', message)
-            break
-          case LogLevel.Verbose:
-            if (import.meta.env.DEV) console.debug('[MSAL]', message)
+            logger.warn('[MSAL]', message)
             break
         }
       },

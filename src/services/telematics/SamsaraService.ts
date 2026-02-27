@@ -33,7 +33,7 @@ export class SamsaraService {
 
   constructor() {
     this.config = {
-      apiToken: process.env.SAMSARA_API_TOKEN || '',
+      apiToken: import.meta.env.VITE_SAMSARA_API_TOKEN || '',
       baseUrl: 'https://api.samsara.com',
     };
   }
@@ -81,7 +81,7 @@ export class SamsaraService {
     const locations = await this.getVehicleLocations();
 
     for (const location of locations) {
-      await fetch('/api/v1/vehicles/location', {
+      await fetch('/api/gps/location', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

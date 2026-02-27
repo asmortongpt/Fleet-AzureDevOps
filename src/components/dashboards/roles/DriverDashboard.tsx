@@ -9,20 +9,25 @@
  * - Quick access to common driver tasks
  */
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Car, MapPin, Fuel, AlertTriangle, CheckCircle, PlayCircle, Clipboard, Clock, Route, Gauge, Calendar, AlertCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
+import React, { useState } from 'react';
+// motion removed - React 19 incompatible
+import { toast } from 'sonner';
+
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useAuth } from '@/contexts';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { secureFetch } from '@/hooks/use-api';
 import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { DriverVehicle, DriverTrip } from '@/services/dashboardApi';
+import { formatNumber, formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface InspectionItem {
   id: string;
@@ -31,8 +36,9 @@ interface InspectionItem {
 }
 
 export function DriverDashboard() {
-  const navigate = useNavigate();
-  const [driverName] = useState('John Smith');
+  const { navigateTo } = useNavigation();
+  const { user } = useAuth();
+  const driverName = (user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : null) || user?.email || 'Driver';
 
   // React Query hooks for real-time data fetching
   const { data: vehicleData, isLoading: vehicleLoading, error: vehicleError } = useQuery({
@@ -57,7 +63,7 @@ export function DriverDashboard() {
     fuel_level: 0,
     mileage: 0,
     status: 'unavailable',
-    last_inspection: 'N/A'
+    last_inspection: '—'
   };
 
   const todaysTrips: DriverTrip[] = tripsData ?? [];
@@ -70,29 +76,17 @@ export function DriverDashboard() {
     { id: 'emergency_equipment', label: 'Emergency Equipment', completed: false }
   ]);
 
-  // Quick actions - Now with proper navigation
-  const handleStartTrip = (tripId: number) => {
-    // Navigate to operations hub with trip start flow
-    navigate('/operations-hub-consolidated', {
-      state: { action: 'start-trip', tripId }
-    });
-    toast(`Starting Trip #${tripId}...`);
+  // Quick actions - Navigate to specific pages
+  const handleStartTrip = (_tripId: number) => {
+    navigateTo('operations');
   };
 
   const handleLogFuel = () => {
-    // Navigate to fleet hub with fuel logging view
-    navigate('/fleet-hub-consolidated', {
-      state: { action: 'log-fuel', vehicleId: assignedVehicle.id }
-    });
-    toast('Opening fuel log form...');
+    navigateTo('fleet');
   };
 
   const handleReportIssue = () => {
-    // Navigate to maintenance hub with incident report form
-    navigate('/maintenance-hub-consolidated', {
-      state: { action: 'report-issue', vehicleId: assignedVehicle.id }
-    });
-    toast('Opening incident report...');
+    navigateTo('safety-compliance-hub');
   };
 
   const handleCompleteInspection = async () => {
@@ -105,26 +99,22 @@ export function DriverDashboard() {
     toast.loading('Submitting inspection...');
 
     try {
-      // Uncomment when API is ready:
-      /*
-      const response = await fetch('/api/inspections', {
+      const response = await secureFetch('/api/inspections', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           vehicle_id: assignedVehicle.id,
-          inspection_items: inspectionItems.map(item => ({
+          inspection_type: 'pre_trip',
+          status: 'completed',
+          passed: inspectionItems.every(item => item.completed),
+          checklist_data: inspectionItems.map(item => ({
             item: item.id,
             status: item.completed ? 'pass' : 'fail'
           })),
-          timestamp: new Date().toISOString()
+          completed_at: new Date().toISOString()
         })
       });
 
       if (!response.ok) throw new Error('Inspection submission failed');
-      */
-
-      // Mock delay for demo
-      await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success('Pre-trip inspection completed!');
 
       // Reset checklist after successful submission
@@ -137,12 +127,8 @@ export function DriverDashboard() {
     }
   };
 
-  const handleViewRoute = (tripId: number) => {
-    // Navigate to operations hub with route map view
-    navigate('/operations-hub-consolidated', {
-      state: { action: 'view-route', tripId }
-    });
-    toast(`Loading route map for Trip #${tripId}...`);
+  const handleViewRoute = (_tripId: number) => {
+    navigateTo('operations');
   };
 
   const toggleInspectionItem = (itemId: string) => {
@@ -155,27 +141,15 @@ export function DriverDashboard() {
 
   const allInspectionsDone = inspectionItems.every(item => item.completed);
 
-  // Helper function to format ISO datetime to time string
-  const formatTime = (isoString: string) => {
-    try {
-      const date = new Date(isoString);
-      return date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-    } catch {
-      return isoString; // Return original if parsing fails
-    }
-  };
+  // formatTime imported from @/utils/format-helpers
 
   // Loading state - show spinner while fetching initial data
   if (vehicleLoading || tripsLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 p-2 flex items-center justify-center">
+      <div className="min-h-screen bg-[#111] p-2 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto mb-2"></div>
-          <p className="text-sm text-slate-300">Loading your dashboard...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-2"></div>
+          <p className="text-sm text-white/60">Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -184,7 +158,7 @@ export function DriverDashboard() {
   // Error state - show error if vehicle data fails to load
   if (vehicleError) {
     return (
-      <div className="min-h-screen bg-slate-900 p-2">
+      <div className="min-h-screen bg-[#111] p-2">
         <Alert variant="destructive" className="bg-red-950/50 border-red-500/50">
           <AlertCircle className="h-4 w-4 text-red-400" />
           <AlertTitle className="text-red-400">Error Loading Data</AlertTitle>
@@ -197,28 +171,28 @@ export function DriverDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-2">
+    <div className="min-h-screen bg-[#111] p-2">
       {/* Header */}
       <div className="mb-2">
         <h1 className="text-sm font-bold text-white mb-1">My Dashboard</h1>
-        <p className="text-sm text-slate-700">Driver: {driverName}</p>
+        <p className="text-sm text-white/40">Driver: {driverName}</p>
       </div>
 
       {/* Assigned Vehicle */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mb-3">
+      <Card className="bg-[#111111] border-white/[0.04] p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
-          <Car className="w-4 h-4 text-cyan-400" />
+          <Car className="w-4 h-4 text-emerald-400" />
           <h2 className="text-sm font-bold text-white">My Assigned Vehicle</h2>
         </div>
 
-        <div className="bg-slate-900/50 rounded-md p-2 border border-slate-700">
+        <div className="bg-white/[0.03] rounded-md p-2 border border-white/[0.04]">
           <div className="flex items-start justify-between mb-3">
             <div>
               <h3 className="text-sm font-bold text-white mb-1">
                 {assignedVehicle.name}
               </h3>
-              <p className="text-sm text-slate-300">
-                {assignedVehicle.year} {assignedVehicle.make} {assignedVehicle.model}
+              <p className="text-sm text-white/60">
+                {formatVehicleName(assignedVehicle)}
               </p>
             </div>
             <div className={cn(
@@ -235,11 +209,11 @@ export function DriverDashboard() {
             {/* Fuel Level */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Fuel className="w-4 h-4 text-slate-700" />
-                <span className="text-sm text-slate-300 text-sm">Fuel</span>
+                <Fuel className="w-4 h-4 text-white/40" />
+                <span className="text-sm text-white/60 text-sm">Fuel</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-white/[0.1] rounded-full overflow-hidden">
                   <div
                     className="h-full bg-green-500 rounded-full"
                     style={{ width: `${assignedVehicle.fuel_level}%` }}
@@ -252,19 +226,19 @@ export function DriverDashboard() {
             {/* Mileage */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Gauge className="w-4 h-4 text-slate-700" />
-                <span className="text-sm text-slate-300 text-sm">Mileage</span>
+                <Gauge className="w-4 h-4 text-white/40" />
+                <span className="text-sm text-white/60 text-sm">Mileage</span>
               </div>
               <p className="text-sm font-bold text-white">
-                {assignedVehicle.mileage.toLocaleString()} mi
+                {formatNumber(assignedVehicle.mileage)} mi
               </p>
             </div>
 
             {/* Last Inspection */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-slate-700" />
-                <span className="text-sm text-slate-300 text-sm">Last Inspection</span>
+                <Calendar className="w-4 h-4 text-white/40" />
+                <span className="text-sm text-white/60 text-sm">Last Inspection</span>
               </div>
               <p className="text-sm font-bold text-white flex items-center gap-2">
                 {assignedVehicle.last_inspection}
@@ -276,25 +250,24 @@ export function DriverDashboard() {
       </Card>
 
       {/* Today's Trips */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mb-3">
+      <Card className="bg-[#111111] border-white/[0.04] p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
-          <Route className="w-4 h-4 text-violet-400" />
+          <Route className="w-4 h-4 text-amber-400" />
           <h2 className="text-sm font-bold text-white">Today's Trips</h2>
         </div>
 
         <div className="space-y-3">
           {todaysTrips.map((trip) => (
-            <motion.div
+            <div
               key={trip.id}
-              whileHover={{ scale: 1.01 }}
-              className="bg-slate-900/50 rounded-md p-2 border border-slate-700 hover:border-violet-500/50 transition-all"
+              className="bg-white/[0.03] rounded-md p-2 border border-white/[0.04] hover:border-amber-500/50 transition-all"
             >
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <h3 className="text-sm font-bold text-white mb-1">
                     Trip #{trip.id} - {trip.route_name}
                   </h3>
-                  <div className="flex items-center gap-2 text-sm text-slate-300">
+                  <div className="flex items-center gap-2 text-sm text-white/60">
                     <MapPin className="w-4 h-4" />
                     <span className="text-sm">
                       {trip.origin} → {trip.destination}
@@ -305,13 +278,13 @@ export function DriverDashboard() {
                   "px-3 py-1 rounded-full text-xs font-semibold",
                   trip.status === 'pending'
                     ? "bg-green-950/50 text-green-400 border border-green-500/30"
-                    : "bg-slate-700 text-sm text-slate-300"
+                    : "bg-white/[0.1] text-sm text-white/60"
                 )}>
                   {trip.status === 'pending' ? 'Ready to Start' : 'Scheduled'}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-slate-700 text-sm mb-3">
+              <div className="flex items-center gap-2 text-white/40 text-sm mb-3">
                 <Clock className="w-4 h-4" />
                 <span>
                   Scheduled: {formatTime(trip.scheduled_start)} - {formatTime(trip.scheduled_end)}
@@ -330,14 +303,14 @@ export function DriverDashboard() {
                 )}
                 <Button size="sm"
                   variant="outline"
-                  className="border-violet-400 text-violet-400 hover:bg-violet-400/10"
+                  className="border-amber-400 text-amber-400 hover:bg-amber-400/10"
                   onClick={() => handleViewRoute(trip.id)}
                 >
                   <MapPin className="w-4 h-4 mr-2" />
                   View Route
                 </Button>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </Card>
@@ -346,7 +319,7 @@ export function DriverDashboard() {
       <div className="mb-3 flex flex-wrap gap-3">
         <Button size="sm"
           onClick={handleLogFuel}
-          className="bg-cyan-600 hover:bg-cyan-700 text-white"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <Fuel className="w-4 h-4 mr-2" />
           Log Fuel
@@ -361,7 +334,7 @@ export function DriverDashboard() {
       </div>
 
       {/* Pre-Trip Inspection Checklist */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+      <Card className="bg-[#111111] border-white/[0.04] p-2">
         <div className="flex items-center gap-2 mb-3">
           <Clipboard className="w-4 h-4 text-amber-400" />
           <h2 className="text-sm font-bold text-white">Pre-Trip Inspection Checklist</h2>
@@ -376,14 +349,14 @@ export function DriverDashboard() {
                 "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
                 item.completed
                   ? "bg-green-950/30 border border-green-500/30"
-                  : "bg-slate-900/50 border border-slate-700 hover:border-slate-600"
+                  : "bg-white/[0.03] border border-white/[0.04] hover:border-white/[0.12]"
               )}
             >
               <div className={cn(
                 "w-4 h-4 rounded border-2 flex items-center justify-center",
                 item.completed
                   ? "bg-green-500 border-green-500"
-                  : "border-slate-600"
+                  : "border-white/[0.12]"
               )}>
                 {item.completed && <CheckCircle className="w-4 h-4 text-white" />}
               </div>
@@ -404,7 +377,7 @@ export function DriverDashboard() {
             "w-full",
             allInspectionsDone
               ? "bg-green-600 hover:bg-green-700 text-white"
-              : "bg-slate-700 text-slate-700 cursor-not-allowed"
+              : "bg-white/[0.1] text-white/40 cursor-not-allowed"
           )}
         >
           <CheckCircle className="w-4 h-4 mr-2" />

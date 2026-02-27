@@ -9,6 +9,18 @@ import { Request, Response, NextFunction } from 'express';
 import { permissionEngine } from '../permissions/engine';
 import { User } from '../permissions/types';
 import { auditService } from '../services/auditService';
+import { logger } from '../utils/logger';
+
+/**
+ * Extended request with permissions and filtered query data
+ */
+interface PermissionRequest extends Request {
+  permissions?: {
+    modules: string[];
+    roles: string[];
+  };
+  filteredQuery?: Record<string, unknown>;
+}
 
 /**
  * Require user to have access to a specific module
@@ -54,7 +66,7 @@ export function requireModule(moduleName: string) {
 
       next();
     } catch (error) {
-      console.error('Error in requireModule middleware:', error);
+      logger.error('Error in requireModule middleware:', error);
       res.status(500).json({
         error: 'Internal Server Error',
         message: 'Failed to check module permission'
@@ -112,7 +124,7 @@ export function requireAction(actionName: string, resourceGetter?: (req: Request
 
       next();
     } catch (error) {
-      console.error('Error in requireAction middleware:', error);
+      logger.error('Error in requireAction middleware:', error);
       res.status(500).json({
         error: 'Internal Server Error',
         message: 'Failed to check action permission'
@@ -165,7 +177,7 @@ export function filterResponse(resourceType: string) {
             return originalJson(filteredData);
           })
           .catch(error => {
-            console.error('Error filtering response:', error);
+            logger.error('Error filtering response:', error);
             return originalJson(data); // Fail open - return original data
           });
 
@@ -174,7 +186,7 @@ export function filterResponse(resourceType: string) {
 
       next();
     } catch (error) {
-      console.error('Error in filterResponse middleware:', error);
+      logger.error('Error in filterResponse middleware:', error);
       next();
     }
   };
@@ -195,14 +207,14 @@ export async function attachPermissions(req: Request, res: Response, next: NextF
     const { modules } = await permissionEngine.visibleModules(user);
 
     // Attach to request
-    (req as any).permissions = {
+    (req as PermissionRequest).permissions = {
       modules,
       roles: user.roles
     };
 
     next();
   } catch (error) {
-    console.error('Error in attachPermissions middleware:', error);
+    logger.error('Error in attachPermissions middleware:', error);
     next(); // Don't block request if permission attachment fails
   }
 }
@@ -236,7 +248,7 @@ export function requireRole(...roles: string[]) {
           requiredRoles: roles,
           userRoles: user.roles
         }
-      }).catch(console.error);
+      }).catch((err) => logger.error(err));
 
       return res.status(403).json({
         error: 'Forbidden',
@@ -272,7 +284,7 @@ export async function applyRecordFilters(
     const resourceType = req.params.resourceType || req.baseUrl.split('/').pop() || 'unknown';
 
     // Get existing query from request
-    const baseQuery = (req as any).query || {};
+    const baseQuery = req.query || {};
 
     // Apply filters
     const filteredQuery = await permissionEngine.applyRecordFilter(
@@ -282,11 +294,11 @@ export async function applyRecordFilters(
     );
 
     // Store filtered query
-    (req as any).filteredQuery = filteredQuery;
+    (req as PermissionRequest).filteredQuery = filteredQuery;
 
     next();
   } catch (error) {
-    console.error('Error applying record filters:', error);
+    logger.error('Error applying record filters:', error);
     next(); // Don't block request
   }
 }

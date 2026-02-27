@@ -9,9 +9,8 @@ import { requirePermission } from '../middleware/permissions'
 const router = express.Router()
 router.use(authenticateJWT)
 
-// GET /security/events
-router.get(
-  '/events',
+// Shared handler for fetching security events
+const getSecurityEvents = [
   requirePermission('security:view:global'),
   auditLog({ action: 'READ', resourceType: 'security_events' }),
   async (req: AuthRequest, res: Response) => {
@@ -33,6 +32,12 @@ router.get(
       res.status(500).json({ error: 'Internal server error' })
     }
   }
-)
+]
+
+// GET / — handles /api/security-events
+router.get('/', ...getSecurityEvents)
+
+// GET /events — handles /api/security/events and /api/security-events/events
+router.get('/events', ...getSecurityEvents)
 
 export default router

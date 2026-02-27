@@ -214,19 +214,24 @@ export function InstallPrompt({
       });
     }
 
-    // Send to backend analytics
-    fetch('/api/v1/analytics/pwa-install', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action,
-        platform,
-        timestamp: Date.now(),
-        userAgent: navigator.userAgent,
-      }),
-    }).catch((error) => {
-      logger.error('[InstallPrompt] Failed to track installation:', error);
-    });
+    // Send to backend analytics (fire-and-forget, endpoint may not exist)
+    try {
+      fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'pwa-install',
+          action,
+          platform,
+          timestamp: Date.now(),
+          userAgent: navigator.userAgent,
+        }),
+      }).catch(() => {
+        // Silently ignore - analytics tracking is non-critical
+      });
+    } catch {
+      // Silently ignore - analytics tracking is non-critical
+    }
   };
 
   // Don't render if not showing
@@ -236,7 +241,7 @@ export function InstallPrompt({
 
   return (
     <div className="fixed bottom-4 right-4 z-50 max-w-sm animate-in slide-in-from-bottom-5">
-      <Card className="shadow-sm border-2 border-primary/20">
+      <Card className=" border-2 border-primary/20">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">

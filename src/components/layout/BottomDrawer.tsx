@@ -2,9 +2,10 @@
  * BottomDrawer - Collapsible activity panel at the bottom of the content area
  *
  * Shows a thin 32px grab bar by default. Expands to ~280px for timeline/activity log.
- * Glass-morphism design consistent with ArchonY branding.
+ * Glass-morphism design consistent with CTA Fleet branding.
  */
 import { ChevronUp, ChevronDown, Clock } from 'lucide-react'
+
 import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
@@ -16,7 +17,7 @@ export function BottomDrawer() {
     <div
       className={cn(
         'absolute bottom-0 left-0 right-0 z-10',
-        'bg-[#0A0E27]/95 backdrop-blur-xl border-t border-white/[0.06]',
+        'bg-[#0e0e0e] border-t border-white/[0.04]',
         'transition-all duration-300 ease-in-out',
         open ? 'h-[200px] sm:h-[280px]' : 'h-8'
       )}
@@ -24,10 +25,10 @@ export function BottomDrawer() {
       {/* Grab bar */}
       <button
         onClick={toggleBottomDrawer}
-        className="w-full flex items-center justify-center gap-2 h-8 text-white/25 hover:text-white/45 transition-colors"
+        className="w-full flex items-center justify-center gap-2 h-8 text-white/40 hover:text-white transition-colors"
         aria-label={open ? 'Collapse activity panel' : 'Expand activity panel'}
       >
-        <div className="w-8 h-0.5 rounded-full bg-white/10" />
+        <div className="w-8 h-0.5 rounded-full bg-white/[0.08]" />
         {open ? (
           <ChevronDown className="w-3 h-3" />
         ) : (
@@ -50,22 +51,22 @@ export function BottomDrawer() {
               { time: '12m ago', text: 'New work order WO-7823 created', type: 'info' },
               { time: '15m ago', text: 'Speed violation detected: VEH-2341', type: 'alert' },
               { time: '20m ago', text: 'Vehicle VEH-0456 started trip', type: 'info' },
-            ].map((item, i) => (
+            ].map((item) => (
               <div
-                key={i}
+                key={item.text}
                 className="flex items-start gap-3 py-2 text-xs border-b border-white/[0.04] last:border-0"
               >
-                <span className="text-white/20 shrink-0 w-12 sm:w-14 text-right tabular-nums font-mono text-[10px] sm:text-[11px]">
+                <span className="text-white/35 shrink-0 w-12 sm:w-14 text-right tabular-nums font-mono text-[10px] sm:text-[11px]">
                   {item.time}
                 </span>
                 <div className={cn(
                   'w-1.5 h-1.5 rounded-full mt-1 shrink-0',
                   item.type === 'success' ? 'bg-emerald-400' :
-                  item.type === 'warning' ? 'bg-[#F0A000]' :
-                  item.type === 'alert' ? 'bg-[#DD3903]' :
-                  'bg-[#41B2E3]/50'
+                  item.type === 'warning' ? 'bg-white/80' :
+                  item.type === 'alert' ? 'bg-white/40' :
+                  'bg-white/20'
                 )} />
-                <span className="text-white/50">{item.text}</span>
+                <span className="text-white/60">{item.text}</span>
               </div>
             ))}
           </div>

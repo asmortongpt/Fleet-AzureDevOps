@@ -59,17 +59,17 @@ export class FuelCardReconciliationService {
             result.unmatched_count++;
             result.unmatched_transactions.push(fct.id);
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           result.errors.push({
             transaction_id: fct.id,
-            error: error.message
+            error: error instanceof Error ? error.message : 'An unexpected error occurred'
           });
         }
       }
 
       return result;
-    } catch (error: any) {
-      throw new Error(`Reconciliation failed: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Reconciliation failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 

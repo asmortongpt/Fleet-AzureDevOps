@@ -14,8 +14,8 @@
  * Created: 2025-11-23
  */
 
-import { Search, Car, User, Wrench, Package, Truck, MapPin, FileText, Keyboard, ChevronRight, Loader2, Loader2 as Spinner } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { Search, Car, User, Wrench, Package, Truck, MapPin, FileText, Keyboard, ChevronRight, Loader2 as Spinner } from 'lucide-react'
+// motion removed - React 19 incompatible
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -33,6 +33,8 @@ import { useFleetData } from '@/hooks/use-fleet-data'
 import { useDebounce } from '@/hooks/useDebounce'
 import { Vehicle, Driver, WorkOrder } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -58,7 +60,7 @@ interface SearchMatch {
 interface SearchCategory {
   type: EntityType
   label: string
-  icon: React.ElementType
+  icon: React.ComponentType<{ className?: string }>
   color: string
 }
 
@@ -83,13 +85,13 @@ interface Route {
 // ============================================================================
 
 const SEARCH_CATEGORIES: SearchCategory[] = [
-  { type: 'vehicle', label: 'Vehicles', icon: Car, color: 'text-blue-800' },
+  { type: 'vehicle', label: 'Vehicles', icon: Car, color: 'text-emerald-800' },
   { type: 'driver', label: 'Drivers', icon: User, color: 'text-green-500' },
   { type: 'work-order', label: 'Work Orders', icon: Wrench, color: 'text-orange-500' },
-  { type: 'part', label: 'Parts', icon: Package, color: 'text-cyan-500' },
-  { type: 'vendor', label: 'Vendors', icon: Truck, color: 'text-indigo-500' },
-  { type: 'route', label: 'Routes', icon: MapPin, color: 'text-purple-500' },
-  { type: 'document', label: 'Documents', icon: FileText, color: 'text-gray-700' }
+  { type: 'part', label: 'Parts', icon: Package, color: 'text-emerald-500' },
+  { type: 'vendor', label: 'Vendors', icon: Truck, color: 'text-emerald-500' },
+  { type: 'route', label: 'Routes', icon: MapPin, color: 'text-amber-500' },
+  { type: 'document', label: 'Documents', icon: FileText, color: 'text-white/40' }
 ]
 
 // ============================================================================
@@ -147,9 +149,9 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
           searchResults.push({
             type: 'vehicle',
             id: vehicle.id,
-            title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+            title: formatVehicleName(vehicle),
             subtitle: vehicle.number,
-            description: `${vehicle.status} | ${vehicle.region}`,
+            description: `${formatEnum(vehicle.status)} | ${vehicle.region}`,
             score,
             data: vehicle,
             matches
@@ -220,7 +222,7 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
             id: wo.id,
             title: `WO-${String(wo.id).slice(-6)} - ${wo.serviceType}`,
             subtitle: wo.vehicleNumber,
-            description: `${wo.status} | ${wo.priority} priority`,
+            description: `${formatEnum(wo.status)} | ${formatEnum(wo.priority)} priority`,
             score,
             data: wo,
             matches
@@ -304,10 +306,11 @@ function SearchResultItem({ result, isSelected, onClick }: SearchResultItemProps
   const Icon = category?.icon || FileText
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
+    <div
       onClick={onClick}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
+      role="button"
+      tabIndex={0}
       className={cn(
         "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
         "border border-transparent hover:border-primary/20 hover:bg-muted/50",
@@ -338,7 +341,7 @@ function SearchResultItem({ result, isSelected, onClick }: SearchResultItemProps
       </div>
 
       <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-    </motion.div>
+    </div>
   )
 }
 

@@ -92,30 +92,30 @@ export const AdvancedGeofencing: React.FC<AdvancedGeofencingProps> = ({
       drawingMode: null,
       drawingControl: false, // We'll use custom controls
       circleOptions: {
-        fillColor: '#FF6B6B',
+        fillColor: 'hsl(var(--chart-6))',
         fillOpacity: 0.3,
         strokeWeight: 2,
-        strokeColor: '#FF6B6B',
+        strokeColor: 'hsl(var(--chart-6))',
         clickable: true,
         editable: false,
         draggable: false,
         zIndex: 1
       },
       polygonOptions: {
-        fillColor: '#4ECDC4',
+        fillColor: 'hsl(var(--chart-5))',
         fillOpacity: 0.3,
         strokeWeight: 2,
-        strokeColor: '#4ECDC4',
+        strokeColor: 'hsl(var(--chart-5))',
         clickable: true,
         editable: false,
         draggable: false,
         zIndex: 1
       },
       rectangleOptions: {
-        fillColor: '#95E1D3',
+        fillColor: 'hsl(var(--chart-2))',
         fillOpacity: 0.3,
         strokeWeight: 2,
-        strokeColor: '#95E1D3',
+        strokeColor: 'hsl(var(--chart-2))',
         clickable: true,
         editable: false,
         draggable: false,
@@ -163,7 +163,7 @@ export const AdvancedGeofencing: React.FC<AdvancedGeofencingProps> = ({
         lng: center.lng()
       },
       radius: circle.getRadius(),
-      color: '#FF6B6B',
+      color: 'hsl(var(--chart-6))',
       visible: true,
       editable: false,
       createdAt: new Date(),
@@ -205,7 +205,7 @@ export const AdvancedGeofencing: React.FC<AdvancedGeofencingProps> = ({
       name: `Zone ${geofences.length + 1}`,
       type: 'polygon',
       coordinates,
-      color: '#4ECDC4',
+      color: 'hsl(var(--chart-5))',
       visible: true,
       editable: false,
       createdAt: new Date(),
@@ -252,7 +252,7 @@ export const AdvancedGeofencing: React.FC<AdvancedGeofencingProps> = ({
         south: sw.lat(),
         west: sw.lng()
       },
-      color: '#95E1D3',
+      color: 'hsl(var(--chart-2))',
       visible: true,
       editable: false,
       createdAt: new Date(),

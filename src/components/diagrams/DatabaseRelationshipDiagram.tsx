@@ -160,11 +160,11 @@ export function DatabaseRelationshipDiagram() {
       startOnLoad: true,
       theme: "base",
       themeVariables: {
-        primaryColor: "#3b82f6",
+        primaryColor: "#10b981",
         primaryTextColor: "#fff",
-        primaryBorderColor: "#2563eb",
-        lineColor: "#94a3b8",
-        secondaryColor: "#8b5cf6",
+        primaryBorderColor: "#059669",
+        lineColor: "#9CA3AF",
+        secondaryColor: "#f59e0b",
         tertiaryColor: "#10b981",
         fontSize: "12px",
         fontFamily: "Inter, system-ui, sans-serif"
@@ -592,7 +592,7 @@ erDiagram
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">
+            <div className="text-sm font-bold text-emerald-800">
               {Object.values(POLICY_TABLES).reduce((sum, t) => sum + t.relationships.length, 0)}
             </div>
           </CardContent>
@@ -604,7 +604,7 @@ erDiagram
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-purple-600">
+            <div className="text-sm font-bold text-amber-600">
               {Object.values(POLICY_TABLES).reduce((sum, t) => sum + t.fields.length, 0)}
             </div>
           </CardContent>

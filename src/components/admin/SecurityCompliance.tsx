@@ -33,6 +33,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface ComplianceItem {
   id: string;
@@ -285,7 +286,7 @@ export function SecurityCompliance() {
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Last checked: {item.lastChecked.toLocaleString()}
+                      Last checked: {formatDateTime(item.lastChecked)}
                     </p>
                   </div>
                 </div>
@@ -308,7 +309,7 @@ export function SecurityCompliance() {
                   <AlertTriangle className={`h-5 w-5 mt-0.5 ${
                     alert.severity === 'critical' ? 'text-red-500' :
                     alert.severity === 'high' ? 'text-orange-500' :
-                    alert.severity === 'medium' ? 'text-yellow-500' : 'text-blue-800'
+                    alert.severity === 'medium' ? 'text-yellow-500' : 'text-emerald-800'
                   }`} />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
@@ -324,7 +325,7 @@ export function SecurityCompliance() {
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">{alert.description}</p>
                     <p className="text-xs text-muted-foreground mt-2">
-                      {alert.timestamp.toLocaleString()}
+                      {formatDateTime(alert.timestamp)}
                     </p>
                   </div>
                 </div>
@@ -362,7 +363,7 @@ export function SecurityCompliance() {
                     <TableCell className="text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {log.timestamp.toLocaleString()}
+                        {formatDateTime(log.timestamp)}
                       </div>
                     </TableCell>
                     <TableCell>

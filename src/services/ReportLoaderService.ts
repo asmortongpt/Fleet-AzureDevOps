@@ -3,6 +3,8 @@
  * Loads and manages report definitions from the reporting library
  */
 
+import logger from '@/utils/logger';
+
 export interface ReportFilter {
   name: string;
   type: 'dateRange' | 'select' | 'multiSelect';
@@ -168,10 +170,9 @@ class ReportLoaderService {
 
       const registry: ReportRegistry = await response.json();
       this.registry = registry;
-      console.log(`✓ Loaded report registry: ${registry.totalReports} reports`);
       return registry;
     } catch (error) {
-      console.error('Error loading report registry:', error);
+      logger.error('Error loading report registry:', error);
       throw error;
     }
   }
@@ -232,11 +233,10 @@ class ReportLoaderService {
 
       // Cache the report
       this.cachedReports.set(reportId, reportDef);
-      console.log(`✓ Loaded report: ${reportDef.title} (${reportDef.id})`);
 
       return reportDef;
     } catch (error) {
-      console.error(`Error loading report ${reportId}:`, error);
+      logger.error(`Error loading report ${reportId}:`, error);
       throw error;
     }
   }
@@ -280,7 +280,6 @@ class ReportLoaderService {
   public clearCache(): void {
     this.cachedReports.clear();
     this.registry = null;
-    console.log('✓ Report cache cleared');
   }
 
   /**
@@ -288,11 +287,10 @@ class ReportLoaderService {
    */
   public async preloadReports(reportIds: string[]): Promise<void> {
     const promises = reportIds.map(id => this.loadReport(id).catch(err => {
-      console.warn(`Failed to preload report ${id}:`, err);
+      logger.warn('Failed to preload report', { reportId: id, error: String(err) });
     }));
 
     await Promise.all(promises);
-    console.log(`✓ Preloaded ${reportIds.length} reports`);
   }
 
   /**

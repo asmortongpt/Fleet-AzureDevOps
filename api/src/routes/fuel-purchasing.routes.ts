@@ -68,7 +68,7 @@ router.get(
       }
 
       const stations = await fuelPurchasingService.getNearbyStations(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         parseFloat(lat as string),
         parseFloat(lng as string),
         parseFloat(radius as string),
@@ -97,7 +97,7 @@ router.get(
       }
 
       const result = await fuelPurchasingService.findCheapestFuel(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         parseFloat(lat as string),
         parseFloat(lng as string),
         fuelType as string,
@@ -138,7 +138,7 @@ router.post(
       }
 
       const recommendation = await fuelPurchasingService.getOptimalFuelingRecommendation(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         vehicleLocation,
         destination,
         fuelType,
@@ -168,7 +168,7 @@ router.get(
       const { fuelType = 'regular', region = 'national', days = '30' } = req.query
 
       const forecasts = await fuelPriceForecastingModel.forecastPrices(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         fuelType as string,
         region as string,
         parseInt(days as string)
@@ -196,7 +196,7 @@ router.get(
       }
 
       const recommendation = await fuelPriceForecastingModel.generatePurchaseRecommendation(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         fuelType as string,
         parseFloat(currentPrice as string),
         region as string
@@ -239,7 +239,7 @@ router.get(
       const { fuelType = 'regular' } = req.query
 
       const variations = await fuelPriceForecastingModel.analyzeRegionalPriceVariations(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         fuelType as string
       )
 
@@ -259,7 +259,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const order = await fuelPurchasingService.createPurchaseOrder(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.body
       )
 
@@ -282,7 +282,7 @@ router.get(
       const { status } = req.query
 
       const contracts = await fuelPurchasingService.getContracts(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         status as string | undefined
       )
 
@@ -303,7 +303,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const alert = await fuelPurchasingService.createPriceAlert(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         req.body
       )
@@ -330,7 +330,7 @@ router.get(
       }
 
       const savings = await fuelPurchasingService.calculateSavings(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         new Date(startDate as string),
         new Date(endDate as string)
       )
@@ -353,7 +353,7 @@ router.get(
       const { vehicleIds } = req.query
 
       const recommendations = await fuelOptimizationService.calculateOptimalRefuelingLocations(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         vehicleIds ? (vehicleIds as string).split(',') : undefined
       )
 
@@ -379,7 +379,7 @@ router.get(
       }
 
       const analysis = await fuelOptimizationService.analyzeBulkVsRetail(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         parseFloat(monthlyGallons as string)
       )
 
@@ -405,7 +405,7 @@ router.get(
       }
 
       const optimization = await fuelOptimizationService.optimizeFleetCardUsage(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         parseFloat(annualGallons as string)
       )
 
@@ -431,7 +431,7 @@ router.get(
       }
 
       const analysis = await fuelOptimizationService.analyzeCrossBorderArbitrage(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         state as string
       )
 
@@ -457,7 +457,7 @@ router.get(
       }
 
       const recommendations = await fuelOptimizationService.generateHedgingRecommendations(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         parseFloat(annualGallons as string),
         fuelType as string
       )
@@ -478,7 +478,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const report = await fuelOptimizationService.generateOptimizationReport(
-        req.user!.tenant_id
+        req.user!.tenant_id ?? ''
       )
 
       res.json(report)

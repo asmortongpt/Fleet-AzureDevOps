@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AIInsight } from '@/hooks/useSystemStatus'
+import { formatTime } from '@/utils/format-helpers'
 
 interface AIInsightsPanelProps {
   insights: AIInsight[]
@@ -49,7 +50,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
       case 'medium':
         return 'border-l-4 border-l-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/20'
       case 'low':
-        return 'border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+        return 'border-l-4 border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-950/20'
     }
   }
 
@@ -62,16 +63,16 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
       case 'medium':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
       case 'low':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700'
+        return 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700'
     }
   }
 
   const getTypeColor = (type: AIInsight['type']) => {
     switch (type) {
       case 'prediction':
-        return 'text-purple-600 dark:text-purple-400'
+        return 'text-amber-600 dark:text-amber-400'
       case 'recommendation':
-        return 'text-blue-800 dark:text-blue-700'
+        return 'text-emerald-800 dark:text-emerald-700'
       case 'alert':
         return 'text-red-600 dark:text-red-400'
       case 'optimization':
@@ -88,7 +89,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
   })
 
   return (
-    <Card className="shadow-sm border-border/50">
+    <Card className="border-border/50">
       <CardHeader className="px-2 py-3 border-b border-border/50 bg-muted/30">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-primary" />
@@ -116,7 +117,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
             {sortedInsights.map((insight) => (
               <div
                 key={insight.id}
-                className={`p-3 rounded-lg transition-all duration-200 hover:shadow-sm ${getPriorityColor(
+                className={`p-3 rounded-lg transition-all duration-200 ${getPriorityColor(
                   insight.priority
                 )}`}
               >
@@ -155,7 +156,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
                       {(insight.confidence * 100).toFixed(0)}% confidence
                     </Badge>
                     <span className="text-[9px] text-muted-foreground">
-                      {insight.timestamp.toLocaleTimeString()}
+                      {formatTime(insight.timestamp)}
                     </span>
                   </div>
                   {insight.actionable && (

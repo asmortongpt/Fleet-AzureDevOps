@@ -4,6 +4,7 @@
  */
 
 import dotenv from 'dotenv'
+import logger from './logger'
 
 dotenv.config()
 
@@ -92,7 +93,7 @@ export interface DocumentSystemConfig {
 export function loadDocumentSystemConfig(): DocumentSystemConfig {
   return {
     storage: {
-      provider: (process.env.STORAGE_PROVIDER as any) || 'local',
+      provider: (process.env.STORAGE_PROVIDER as DocumentSystemConfig['storage']['provider']) || 'local',
       localPath: process.env.STORAGE_LOCAL_PATH || './uploads',
       enableDeduplication: process.env.STORAGE_ENABLE_DEDUPLICATION === 'true',
       enableAutoTiering: process.env.STORAGE_ENABLE_AUTO_TIERING === 'true',
@@ -103,7 +104,7 @@ export function loadDocumentSystemConfig(): DocumentSystemConfig {
     },
 
     ocr: {
-      provider: (process.env.OCR_PROVIDER as any) || 'tesseract',
+      provider: (process.env.OCR_PROVIDER as DocumentSystemConfig['ocr']['provider']) || 'tesseract',
       enableAsync: process.env.OCR_ENABLE_ASYNC !== 'false',
       enableBatchProcessing: process.env.OCR_ENABLE_BATCH !== 'false',
       maxConcurrentJobs: parseInt(process.env.OCR_MAX_CONCURRENT_JOBS || '5'),
@@ -112,10 +113,10 @@ export function loadDocumentSystemConfig(): DocumentSystemConfig {
     },
 
     ai: {
-      embeddingProvider: (process.env.AI_EMBEDDING_PROVIDER as any) || 'openai',
+      embeddingProvider: (process.env.AI_EMBEDDING_PROVIDER as DocumentSystemConfig['ai']['embeddingProvider']) || 'openai',
       embeddingModel: process.env.AI_EMBEDDING_MODEL || 'text-embedding-3-small',
       embeddingDimensions: parseInt(process.env.AI_EMBEDDING_DIMENSIONS || '1536'),
-      vectorSearchProvider: (process.env.AI_VECTOR_SEARCH_PROVIDER as any) || 'pgvector',
+      vectorSearchProvider: (process.env.AI_VECTOR_SEARCH_PROVIDER as DocumentSystemConfig['ai']['vectorSearchProvider']) || 'pgvector',
       enableSemanticSearch: process.env.AI_ENABLE_SEMANTIC_SEARCH !== 'false',
       enableClassification: process.env.AI_ENABLE_CLASSIFICATION !== 'false',
       enableSummarization: process.env.AI_ENABLE_SUMMARIZATION !== 'false',
@@ -136,7 +137,7 @@ export function loadDocumentSystemConfig(): DocumentSystemConfig {
 
     geo: {
       enableGeospatial: process.env.GEO_ENABLE !== 'false',
-      geocodingProvider: (process.env.GEO_PROVIDER as any) || 'nominatim',
+      geocodingProvider: (process.env.GEO_PROVIDER as DocumentSystemConfig['geo']['geocodingProvider']) || 'nominatim',
       enableAutoExtraction: process.env.GEO_AUTO_EXTRACT !== 'false',
       defaultRadius: parseInt(process.env.GEO_DEFAULT_RADIUS || '5000') // 5km
     },
@@ -233,9 +234,8 @@ export const documentSystemConfig = loadDocumentSystemConfig()
 // Validate on load and log warnings
 const configErrors = validateDocumentSystemConfig(documentSystemConfig)
 if (configErrors.length > 0) {
-  console.warn(`⚠️  Document System Configuration Warnings:`)
-  configErrors.forEach(error => console.warn(`   - ${error}`))
-  console.warn(`   Some features may be disabled until configuration is complete.`)
+  logger.warn('Document System Configuration Warnings', { warnings: configErrors })
+  logger.warn('Some features may be disabled until configuration is complete')
 }
 
-console.log(getConfigSummary(documentSystemConfig))
+logger.info(getConfigSummary(documentSystemConfig))

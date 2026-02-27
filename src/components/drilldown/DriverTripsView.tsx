@@ -18,6 +18,9 @@ import useSWR from 'swr'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatTime } from '@/utils/format-helpers'
 
 interface DriverTripsViewProps {
   driverId: string
@@ -44,13 +47,13 @@ interface Trip {
   highlights?: string[]
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
 export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) {
   const { data: trips, error, isLoading, mutate } = useSWR(
     `/api/drivers/${driverId}/trips`,
-    fetcher
+    apiFetcher
   )
+
+  const tripsArr = Array.isArray(trips) ? trips : []
 
   const getScoreBadge = (score: number) => {
     if (score >= 90) return { variant: 'default' as const, label: 'Excellent' }
@@ -60,7 +63,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {trips && (
+      {trips !== undefined && (
         <div className="space-y-2">
           {/* Header */}
           <div>
@@ -68,12 +71,12 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
               Trip History {driverName && `for ${driverName}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {trips.length} trip{trips.length !== 1 ? 's' : ''} found
+              {tripsArr.length} trip{tripsArr.length !== 1 ? 's' : ''} found
             </p>
           </div>
 
           {/* Trip List */}
-          {trips.length === 0 ? (
+          {tripsArr.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <Route className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
@@ -82,10 +85,10 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
             </Card>
           ) : (
             <div className="space-y-3">
-              {trips.map((trip: Trip) => {
+              {tripsArr.map((trip: Trip) => {
                 const scoreBadge = getScoreBadge(trip.performance_score || 0)
                 return (
-                  <Card key={trip.id} className="hover:shadow-md transition-shadow">
+                  <Card key={trip.id} className="hover:border-white/[0.12] transition-colors">
                     <CardContent className="p-2">
                       <div className="space-y-2">
                         {/* Trip Header */}
@@ -93,7 +96,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <Badge variant={trip.status === 'completed' ? 'default' : 'default'}>
-                                {trip.status}
+                                {formatEnum(trip.status)}
                               </Badge>
                               <span className="text-xs text-muted-foreground">
                                 Trip #{String(trip.id).slice(0, 8)}
@@ -113,14 +116,12 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                             <span>
-                              {trip.start_time
-                                ? new Date(trip.start_time).toLocaleDateString()
-                                : 'N/A'}
+                              {formatDate(trip.start_time)}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span>{trip.duration || 'N/A'}</span>
+                            <span>{trip.duration || '—'}</span>
                           </div>
                         </div>
 
@@ -131,13 +132,13 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                             <div className="flex items-center gap-2">
                               <span className="font-medium">From:</span>
                               <span className="text-muted-foreground truncate">
-                                {trip.start_location || 'Unknown'}
+                                {trip.start_location || '—'}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="font-medium">To:</span>
                               <span className="text-muted-foreground truncate">
-                                {trip.end_location || 'Unknown'}
+                                {trip.end_location || '—'}
                               </span>
                             </div>
                           </div>
@@ -148,19 +149,19 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                           <div>
                             <p className="text-xs text-muted-foreground">Distance</p>
                             <p className="font-medium">
-                              {trip.distance ? `${trip.distance.toFixed(1)} mi` : 'N/A'}
+                              {trip.distance ? `${trip.distance.toFixed(1)} mi` : '—'}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Avg Speed</p>
                             <p className="font-medium">
-                              {trip.avg_speed ? `${trip.avg_speed.toFixed(0)} mph` : 'N/A'}
+                              {trip.avg_speed ? `${trip.avg_speed.toFixed(0)} mph` : '—'}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Fuel</p>
                             <p className="font-medium">
-                              {trip.fuel_used ? `${trip.fuel_used.toFixed(1)} gal` : 'N/A'}
+                              {trip.fuel_used ? `${trip.fuel_used.toFixed(1)} gal` : '—'}
                             </p>
                           </div>
                         </div>
@@ -182,15 +183,15 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                                 >
                                   <AlertTriangle className="h-3 w-3 text-destructive mt-0.5 flex-shrink-0" />
                                   <div className="flex-1">
-                                    <p className="font-medium">{incident.type}</p>
+                                    <p className="font-medium">{formatEnum(incident.type)}</p>
                                     {incident.severity && (
                                       <p className="text-muted-foreground">
-                                        Severity: {incident.severity}
+                                        Severity: {formatEnum(incident.severity)}
                                       </p>
                                     )}
                                     {incident.timestamp && (
                                       <p className="text-muted-foreground">
-                                        {new Date(incident.timestamp).toLocaleTimeString()}
+                                        {formatTime(incident.timestamp)}
                                       </p>
                                     )}
                                   </div>

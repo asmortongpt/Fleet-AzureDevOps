@@ -21,6 +21,7 @@ import {
   ExternalLink
 } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
+import { toast } from 'sonner';
 
 import {
   AlertDialog,
@@ -62,7 +63,7 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
-
+import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
@@ -114,15 +115,15 @@ const PROVIDER_INFO = {
   smartcar: {
     name: 'Smartcar',
     icon: Car,
-    color: 'text-blue-800',
-    bgColor: 'bg-blue-500/10',
+    color: 'text-emerald-800',
+    bgColor: 'bg-emerald-500/10',
     description: 'Connect via Smartcar OAuth for OEM telematics'
   },
   samsara: {
     name: 'Samsara',
     icon: Cpu,
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-500/10',
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
     description: 'Connect to Samsara fleet management platform'
   },
   teltonika: {
@@ -172,7 +173,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
   const Icon = info.icon
 
   return (
-    <Card className="transition-all duration-200 hover:shadow-sm">
+    <Card className="transition-all duration-200 ">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -208,7 +209,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
         {/* Connection Details */}
         {provider.lastSyncTime && (
           <div className="text-sm text-muted-foreground">
-            Last sync: {new Date(provider.lastSyncTime).toLocaleString()}
+            Last sync: {formatDateTime(provider.lastSyncTime)}
           </div>
         )}
 
@@ -297,13 +298,15 @@ interface AddProviderDialogProps {
   onOpenChange: (open: boolean) => void
   onAdd: (type: ProviderType, config: ProviderConfig) => Promise<void>
   isAdding: boolean
+  vehicleId: number
 }
 
 const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
   open,
   onOpenChange,
   onAdd,
-  isAdding
+  isAdding,
+  vehicleId
 }) => {
   const [selectedProvider, setSelectedProvider] = useState<ProviderType | ''>('')
   const [config, setConfig] = useState<ProviderConfig>({})
@@ -321,16 +324,36 @@ const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
       case 'smartcar':
         return (
           <div className="space-y-2">
-            <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-3 h-3 text-blue-800 mt-0.5" />
+                <AlertCircle className="w-3 h-3 text-emerald-800 mt-0.5" />
                 <div className="space-y-2">
                   <p className="text-sm font-medium">OAuth Connection Required</p>
                   <p className="text-xs text-muted-foreground">
                     Click the button below to authorize this vehicle with Smartcar.
                     You'll be redirected to Smartcar's authorization page.
                   </p>
-                  <Button variant="outline" size="sm" className="mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/smartcar/connect?vehicle_id=${vehicleId}`, { credentials: 'include' })
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+                        const json = await res.json()
+                        const authUrl = json?.data?.authUrl || json?.authUrl
+                        if (authUrl) {
+                          const w = 500, h = 700
+                          const left = window.screenX + (window.outerWidth - w) / 2
+                          const top = window.screenY + (window.outerHeight - h) / 2
+                          window.open(authUrl, 'smartcar-connect', `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`)
+                        }
+                      } catch (err) {
+                        toast.error('Failed to start Smartcar connection')
+                      }
+                    }}
+                  >
                     <ExternalLink className="w-4 h-4" />
                     Connect to Smartcar
                   </Button>
@@ -546,6 +569,9 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   const [isAdding, setIsAdding] = useState(false)
   const [testingConnectionId, setTestingConnectionId] = useState<string | null>(null)
   const [providerToRemove, setProviderToRemove] = useState<string | null>(null)
+  const [configuringProvider, setConfiguringProvider] = useState<HardwareProvider | null>(null)
+  const [configFormData, setConfigFormData] = useState<Record<string, any>>({})
+  const [isSavingConfig, setIsSavingConfig] = useState(false)
 
   // Fetch providers on mount
   useEffect(() => {
@@ -556,7 +582,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config`)
+      const response = await fetch(`/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config`, { credentials: 'include' })
       if (!response.ok) {
         throw new Error(`Failed to fetch providers: ${response.statusText}`)
       }
@@ -573,9 +599,10 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   const handleAddProvider = async (type: ProviderType, config: ProviderConfig) => {
     setIsAdding(true)
     try {
-      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config/providers`, {
+      const response = await fetch(`/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ type, configuration: config })
       })
 
@@ -589,7 +616,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       onProviderAdded?.(type)
     } catch (err) {
       logger.error('Error adding provider:', err)
-      alert(err instanceof Error ? err.message : 'Failed to add provider')
+      toast.error(err instanceof Error ? err.message : 'Failed to add provider')
     } finally {
       setIsAdding(false)
     }
@@ -598,7 +625,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   const handleRemoveProvider = async (providerId: string) => {
     try {
       const response = await fetch(
-        `/api/vehicles/${vehicleId}/hardware-config/providers/${providerId}`,
+        `/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers/${providerId}`,
         { method: 'DELETE' }
       )
 
@@ -612,7 +639,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       onProviderRemoved?.(removedProvider?.type || '')
     } catch (err) {
       logger.error('Error removing provider:', err)
-      alert(err instanceof Error ? err.message : 'Failed to remove provider')
+      toast.error(err instanceof Error ? err.message : 'Failed to remove provider')
     }
   }
 
@@ -620,29 +647,66 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     setTestingConnectionId(providerId)
     try {
       const response = await fetch(
-        `/api/vehicles/${vehicleId}/hardware-config/providers/${providerId}/test`,
+        `/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers/${providerId}/test`,
         { method: 'POST' }
       )
 
       const data = await response.json()
 
       if (data.success) {
-        alert('Connection test successful!')
+        toast.success('Connection test successful!')
         // Update provider status
         setProviders(providers.map(p =>
           p.id === providerId ? { ...p, status: 'online' } : p
         ))
       } else {
-        alert(`Connection test failed: ${data.message}`)
+        toast.error(`Connection test failed: ${data.message}`)
         setProviders(providers.map(p =>
           p.id === providerId ? { ...p, status: 'error' } : p
         ))
       }
     } catch (err) {
       logger.error('Error testing connection:', err)
-      alert('Connection test failed')
+      toast.error('Connection test failed')
     } finally {
       setTestingConnectionId(null)
+    }
+  }
+
+  const openConfigureDialog = (provider: HardwareProvider) => {
+    setConfiguringProvider(provider)
+    setConfigFormData({ ...provider.configuration })
+  }
+
+  const handleSaveConfiguration = async () => {
+    if (!configuringProvider) return
+    setIsSavingConfig(true)
+    try {
+      const response = await fetch(
+        `/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers/${configuringProvider.id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ configuration: configFormData })
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error(`Failed to update configuration: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      setProviders(providers.map(p =>
+        p.id === configuringProvider.id
+          ? { ...p, configuration: data.provider?.configuration ?? configFormData }
+          : p
+      ))
+      setConfiguringProvider(null)
+      setConfigFormData({})
+    } catch (err) {
+      logger.error('Error saving configuration:', err)
+    } finally {
+      setIsSavingConfig(false)
     }
   }
 
@@ -714,10 +778,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
               provider={provider}
               onTest={() => handleTestConnection(provider.id)}
               onRemove={() => setProviderToRemove(provider.id)}
-              onConfigure={() => {
-                // TODO: Implement configuration dialog
-                alert('Configuration dialog coming soon!')
-              }}
+              onConfigure={() => openConfigureDialog(provider)}
               isTestingConnection={testingConnectionId === provider.id}
             />
           ))}
@@ -730,6 +791,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
         onOpenChange={setIsAddDialogOpen}
         onAdd={handleAddProvider}
         isAdding={isAdding}
+        vehicleId={vehicleId}
       />
 
       {/* Remove Confirmation Dialog */}
@@ -756,6 +818,124 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Provider Configuration Dialog */}
+      <Dialog
+        open={!!configuringProvider}
+        onOpenChange={(open) => {
+          if (!open) {
+            setConfiguringProvider(null)
+            setConfigFormData({})
+          }
+        }}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              Configure {configuringProvider ? PROVIDER_INFO[configuringProvider.type].name : ''} Provider
+            </DialogTitle>
+            <DialogDescription>
+              Update the configuration settings for this hardware provider
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {configuringProvider && (
+              <>
+                {/* Provider Status Info */}
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                  {(() => {
+                    const info = PROVIDER_INFO[configuringProvider.type]
+                    const Icon = info.icon
+                    return (
+                      <>
+                        <div className={cn('p-2 rounded-md', info.bgColor)}>
+                          <Icon className={cn('w-4 h-4', info.color)} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{info.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Status: {configuringProvider.status} | ID: {configuringProvider.id}
+                          </p>
+                        </div>
+                        <StatusBadge status={configuringProvider.status === 'error' ? 'offline' : configuringProvider.status === 'connected' ? 'online' : configuringProvider.status} />
+                      </>
+                    )
+                  })()}
+                </div>
+
+                {/* Configuration Fields */}
+                {Object.entries(configFormData).map(([key, value]) => (
+                  <div key={key}>
+                    <Label htmlFor={`config-${key}`} className="text-sm capitalize">
+                      {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim()}
+                    </Label>
+                    {typeof value === 'boolean' ? (
+                      <div className="flex items-center gap-3 mt-2">
+                        <Checkbox
+                          id={`config-${key}`}
+                          checked={value}
+                          onCheckedChange={(checked) =>
+                            setConfigFormData({ ...configFormData, [key]: checked })
+                          }
+                        />
+                        <Label htmlFor={`config-${key}`} className="cursor-pointer text-sm">
+                          {value ? 'Enabled' : 'Disabled'}
+                        </Label>
+                      </div>
+                    ) : (
+                      <Input
+                        id={`config-${key}`}
+                        value={typeof value === 'string' ? value : JSON.stringify(value)}
+                        onChange={(e) =>
+                          setConfigFormData({ ...configFormData, [key]: e.target.value })
+                        }
+                        className="mt-2"
+                        type={key.toLowerCase().includes('token') || key.toLowerCase().includes('secret') ? 'password' : 'text'}
+                      />
+                    )}
+                  </div>
+                ))}
+
+                {Object.keys(configFormData).length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No configurable settings for this provider. Configuration is managed automatically.
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setConfiguringProvider(null)
+                setConfigFormData({})
+              }}
+              disabled={isSavingConfig}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveConfiguration}
+              disabled={isSavingConfig || Object.keys(configFormData).length === 0}
+            >
+              {isSavingConfig ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Settings className="w-4 h-4" />
+                  Save Configuration
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
 import { usePersonalUsePolicies, useCreateTripUsage, type TripUsageData } from "@/hooks/usePersonalUseQueries"
+import { formatCurrency } from "@/utils/format-helpers"
 
 interface TripUsageDialogProps {
   trigger?: React.ReactNode
@@ -135,7 +136,7 @@ export function TripUsageDialog({
         // Show charge estimate if applicable
         const charge = calculateEstimatedCharge()
         if (charge > 0) {
-          toast(`Estimated personal use charge: $${charge.toFixed(2)}`)
+          toast(`Estimated personal use charge: ${formatCurrency(charge)}`)
         }
 
         setOpen(false)
@@ -391,10 +392,10 @@ export function TripUsageDialog({
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                <strong>Estimated Personal Use Charge:</strong> ${calculateEstimatedCharge().toFixed(2)}
+                <strong>Estimated Personal Use Charge:</strong> {formatCurrency(calculateEstimatedCharge())}
                 <br />
                 <span className="text-xs text-muted-foreground">
-                  Based on {personalMiles.toFixed(1)} personal miles at ${policy?.personal_use_rate_per_mile ?? 0}/mile
+                  Based on {personalMiles.toFixed(1)} personal miles at {formatCurrency(policy?.personal_use_rate_per_mile ?? 0)}/mile
                 </span>
               </AlertDescription>
             </Alert>

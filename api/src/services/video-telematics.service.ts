@@ -3,7 +3,7 @@
  * Multi-camera video processing, storage, and evidence management
  */
 
-import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
+import { BlobServiceClient, BlobSASPermissions, ContainerClient } from '@azure/storage-blob';
 import { Pool } from 'pg';
 
 import logger from '../config/logger';
@@ -61,7 +61,7 @@ class VideoTelematicsService {
 
   constructor(db: Pool) {
     this.db = db;
-    this.initializeAzureStorage();
+    void this.initializeAzureStorage();
   }
 
   /**
@@ -81,8 +81,8 @@ class VideoTelematicsService {
       await this.containerClient.createIfNotExists();
 
       logger.info(`Azure Blob Storage initialized: container=${AZURE_STORAGE_CONTAINER}`);
-    } catch (error: any) {
-      logger.error(`Failed to initialize Azure Storage:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Failed to initialize Azure Storage:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       this.blobService = null;
       this.containerClient = null;
     }
@@ -215,7 +215,7 @@ class VideoTelematicsService {
     limit?: number;
   }) {
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: (string | number | boolean | Date)[] = [];
     let paramIndex = 1;
 
     if (filters.vehicleId) {
@@ -381,8 +381,8 @@ class VideoTelematicsService {
       logger.info(`Video archived for event ${eventId}: ${storagePath} (${fileSizeMb.toFixed(2)} MB)`);
 
       return storagePath;
-    } catch (error: any) {
-      logger.error(`Failed to download/archive video for event ${eventId}:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Failed to download/archive video for event ${eventId}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
 
       await this.db.query(
         `UPDATE video_safety_events
@@ -424,13 +424,13 @@ class VideoTelematicsService {
         expiresOn.setHours(expiresOn.getHours() + 1);
 
         const sasUrl = await blockBlobClient.generateSasUrl({
-          permissions: { read: true },
+          permissions: BlobSASPermissions.parse('r'),
           expiresOn
-        } as any);
+        });
 
         return sasUrl;
-      } catch (error: any) {
-        logger.error(`Failed to generate SAS URL for event ${eventId}:`, error.message);
+      } catch (error: unknown) {
+        logger.error(`Failed to generate SAS URL for event ${eventId}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       }
     }
 
@@ -565,7 +565,7 @@ class VideoTelematicsService {
     limit?: number;
   }) {
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: (string | boolean | number)[] = [];
     let paramIndex = 1;
 
     if (filters.status) {
@@ -727,8 +727,8 @@ class VideoTelematicsService {
         );
 
         deleted++;
-      } catch (error: any) {
-        logger.error(`Failed to delete video for event ${event.id}:`, error.message);
+      } catch (error: unknown) {
+        logger.error(`Failed to delete video for event ${event.id}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       }
     }
 

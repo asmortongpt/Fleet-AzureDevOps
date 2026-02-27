@@ -5,15 +5,16 @@
  * @module monitoring/sentry
  */
 
+import type { Span } from '@sentry/core';
 import * as Sentry from '@sentry/react';
 import {
   browserTracingIntegration,
   replayIntegration,
   getClient,
 } from '@sentry/react';
-import type { Span } from '@sentry/core';
 
 import type { User } from '@/types';
+import logger from '@/utils/logger';
 
 /**
  * Sentry Configuration
@@ -33,7 +34,7 @@ export interface SentryConfig {
  * Default Sentry Configuration
  */
 const DEFAULT_SENTRY_CONFIG: SentryConfig = {
-  dsn: import.meta.env.VITE_SENTRY_DSN,
+  dsn: import.meta.env.VITE_SENTRY_DSN || '',
   environment: import.meta.env.MODE,
   release: import.meta.env.VITE_APP_VERSION || '1.0.0',
   tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0, // 10% in prod, 100% in dev
@@ -50,9 +51,6 @@ export function initSentry(config: Partial<SentryConfig> = {}): void {
   const finalConfig = { ...DEFAULT_SENTRY_CONFIG, ...config };
 
   if (!finalConfig.enabled || !finalConfig.dsn) {
-    if (import.meta.env.DEV) {
-      console.log('[Sentry] Not initialized - disabled or missing DSN');
-    }
     return;
   }
 
@@ -215,13 +213,8 @@ export function initSentry(config: Partial<SentryConfig> = {}): void {
       attachStacktrace: true,
     });
 
-    if (import.meta.env.DEV) {
-      console.log('[Sentry] Initialized successfully');
-      console.log('[Sentry] Environment:', finalConfig.environment);
-      console.log('[Sentry] Release:', finalConfig.release);
-    }
   } catch (error) {
-    console.error('[Sentry] Failed to initialize:', error);
+    logger.error('[Sentry] Failed to initialize:', error);
   }
 }
 
@@ -370,7 +363,7 @@ export async function flushSentry(timeout: number = 2000): Promise<boolean> {
   try {
     return await Sentry.flush(timeout);
   } catch (error) {
-    console.error('[Sentry] Failed to flush events:', error);
+    logger.error('[Sentry] Failed to flush events:', error);
     return false;
   }
 }
@@ -382,7 +375,7 @@ export async function closeSentry(timeout: number = 2000): Promise<boolean> {
   try {
     return await Sentry.close(timeout);
   } catch (error) {
-    console.error('[Sentry] Failed to close:', error);
+    logger.error('[Sentry] Failed to close:', error);
     return false;
   }
 }
@@ -451,7 +444,7 @@ export class SentryPerformanceMarks {
         );
       }
     } catch (error) {
-      console.warn('[Sentry] Failed to measure performance:', error);
+      logger.warn('[Sentry] Failed to measure performance:', { error: String(error) });
     }
   }
 

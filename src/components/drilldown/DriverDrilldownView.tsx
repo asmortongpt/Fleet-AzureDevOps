@@ -1,8 +1,11 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { Phone, Mail, Calendar, Award, AlertCircle } from 'lucide-react';
+import { Phone, Calendar, Award, AlertCircle } from 'lucide-react';
 import React from 'react';
 
+import { EmailButton } from '@/components/email/EmailButton';
 import { ExcelDataTable } from '../shared/ExcelDataTable';
+
+import { formatDate, formatNumber } from '@/utils/format-helpers';
 
 
 export interface Driver {
@@ -40,7 +43,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       cell: ({ row }) => {
         const avatarUrl = row.original.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.original.driver_id}`;
         return (
-          <div className="w-10 h-8 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center border-2 border-slate-700">
+          <div className="w-10 h-8 rounded-full overflow-hidden bg-[#1a1a1a] flex items-center justify-center border-2 border-white/[0.04]">
             <img
               src={avatarUrl}
               alt={`${row.original.first_name} ${row.original.last_name}`}
@@ -49,7 +52,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
                 // Fallback to initials if image fails
                 const initials = `${row.original.first_name[0]}${row.original.last_name[0]}`.toUpperCase();
                 e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-blue-600 text-white text-sm font-bold">${initials}</div>`;
+                e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-emerald-600 text-white text-sm font-bold">${initials}</div>`;
               }}
             />
           </div>
@@ -60,7 +63,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       accessorKey: 'driver_id',
       header: 'Driver ID',
       cell: ({ getValue }) => (
-        <span className="font-semibold text-blue-300">{getValue<string>()}</span>
+        <span className="font-semibold text-emerald-300">{getValue<string>()}</span>
       ),
     },
     {
@@ -76,12 +79,21 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
     {
       accessorKey: 'email',
       header: 'Email',
-      cell: ({ getValue }) => (
+      cell: ({ row, getValue }) => (
         <div className="flex items-center gap-2">
-          <Mail className="w-4 h-4 text-slate-700" />
-          <a href={`mailto:${getValue<string>()}`} className="text-blue-700 hover:text-blue-300 hover:underline">
-            {getValue<string>()}
-          </a>
+          <EmailButton
+            to={getValue<string>()}
+            context={{
+              type: 'driver_notice',
+              recipientName: `${row.original.first_name} ${row.original.last_name}`,
+              details: 'Driver communication',
+            }}
+            label={getValue<string>()}
+            variant="link"
+            size="sm"
+            className="h-auto p-0 text-sm text-emerald-400 hover:text-emerald-300"
+            ariaLabel={`Email ${row.original.first_name} ${row.original.last_name}`}
+          />
         </div>
       ),
     },
@@ -90,7 +102,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Phone',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
-          <Phone className="w-4 h-4 text-slate-700" />
+          <Phone className="w-4 h-4 text-white/40" />
           {getValue<string>()}
         </div>
       ),
@@ -102,7 +114,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
         const status = getValue<string>();
         const statusColors: Record<string, string> = {
           active: 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30',
-          inactive: 'bg-slate-500/20 text-slate-700 border-slate-500/30',
+          inactive: 'bg-white/[0.05] text-white/40 border-white/[0.12]/30',
           'on-leave': 'bg-amber-500/20 text-amber-400 border-amber-500/30',
           terminated: 'bg-red-500/20 text-red-400 border-red-500/30',
         };
@@ -118,14 +130,14 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Assigned Vehicle',
       cell: ({ getValue }) => {
         const vehicle = getValue<string>();
-        return vehicle || <span className="text-slate-500">Unassigned</span>;
+        return vehicle || <span className="text-white/40">Unassigned</span>;
       },
     },
     {
       accessorKey: 'license_number',
       header: 'License #',
       cell: ({ getValue }) => (
-        <span className="font-mono text-xs text-slate-700">{getValue<string>()}</span>
+        <span className="font-mono text-xs text-white/40">{getValue<string>()}</span>
       ),
     },
     {
@@ -137,7 +149,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'License Exp.',
       cell: ({ getValue }) => {
         const date = getValue<string>();
-        if (!date) return 'N/A';
+        if (!date) return '—';
         const daysUntil = Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
         const isExpired = daysUntil < 0;
         const isExpiringSoon = daysUntil < 30 && daysUntil >= 0;
@@ -145,7 +157,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
           <div className="flex items-center gap-2">
             {(isExpired || isExpiringSoon) && <AlertCircle className={`w-4 h-4 ${isExpired ? 'text-red-400' : 'text-amber-400'}`} />}
             <span className={isExpired ? 'text-red-400 font-semibold' : isExpiringSoon ? 'text-amber-400' : ''}>
-              {new Date(date).toLocaleDateString()}
+              {formatDate(date)}
               {isExpired && ' (EXPIRED)'}
               {isExpiringSoon && ` (${daysUntil}d)`}
             </span>
@@ -158,8 +170,8 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Hire Date',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-slate-700" />
-          {new Date(getValue<string>()).toLocaleDateString()}
+          <Calendar className="w-4 h-4 text-white/40" />
+          {formatDate(getValue<string>())}
         </div>
       ),
     },
@@ -170,18 +182,18 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
         const certs = getValue<string[]>();
         return certs && certs.length > 0 ? (
           <div className="flex flex-wrap gap-1">
-            {certs.slice(0, 2).map((cert, idx) => (
-              <span key={idx} className="px-2 py-0.5 bg-blue-600/20 text-blue-700 rounded text-xs border border-blue-500/30">
+            {certs.slice(0, 2).map((cert) => (
+              <span key={cert} className="px-2 py-0.5 bg-emerald-600/20 text-emerald-400 rounded text-xs border border-emerald-500/30">
                 {cert}
               </span>
             ))}
             {certs.length > 2 && (
-              <span className="px-2 py-0.5 bg-slate-600/50 text-slate-700 rounded text-xs">
+              <span className="px-2 py-0.5 bg-white/[0.08] text-white/40 rounded text-xs">
                 +{certs.length - 2}
               </span>
             )}
           </div>
-        ) : <span className="text-slate-500">None</span>;
+        ) : <span className="text-white/40">None</span>;
       },
     },
     {
@@ -205,7 +217,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Total Miles',
       cell: ({ getValue }) => {
         const miles = getValue<number>();
-        return miles ? `${miles.toLocaleString()} mi` : 'N/A';
+        return miles ? `${formatNumber(miles)} mi` : '—';
       },
     },
     {
@@ -213,7 +225,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Performance',
       cell: ({ getValue }) => {
         const score = getValue<number>();
-        if (!score) return 'N/A';
+        if (!score) return '—';
         return (
           <div className="flex items-center gap-2">
             <Award className={`w-4 h-4 ${score >= 90 ? 'text-emerald-700' : score >= 75 ? 'text-amber-400' : 'text-red-400'}`} />
@@ -229,7 +241,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Last Training',
       cell: ({ getValue }) => {
         const date = getValue<string>();
-        return date ? new Date(date).toLocaleDateString() : 'N/A';
+        return formatDate(date);
       },
     },
   ];

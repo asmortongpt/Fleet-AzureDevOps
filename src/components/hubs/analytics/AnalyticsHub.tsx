@@ -30,7 +30,7 @@ export const AnalyticsHub: React.FC = () => {
               <p className="text-sm text-muted-foreground">Total Records</p>
               <p className="text-sm font-bold">1,247</p>
             </div>
-            <Database className="w-4 h-4 text-blue-800" />
+            <Database className="w-4 h-4 text-emerald-800" />
           </div>
         </div>
 

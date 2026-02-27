@@ -40,7 +40,7 @@ export class MapErrorBoundary extends Component<
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center h-full w-full bg-gray-50 dark:bg-gray-900 p-3">
+        <div className="flex flex-col items-center justify-center h-full w-full bg-white/[0.03] dark:bg-[#111113] p-3">
           <div className="max-w-md text-center">
             <div className="mb-2 text-red-500">
               <svg
@@ -58,15 +58,15 @@ export class MapErrorBoundary extends Component<
                 />
               </svg>
             </div>
-            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            <h2 className="text-base font-semibold text-white/80 dark:text-white/80 mb-2">
               Map Failed to Load
             </h2>
-            <p className="text-slate-700 dark:text-gray-700 mb-2">
+            <p className="text-white/70 dark:text-white/40 mb-2">
               {this.state.error?.message || "An unexpected error occurred while loading the map."}
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-2 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              className="px-2 py-2 bg-emerald-500/50 text-white rounded hover:bg-emerald-600 transition-colors"
             >
               Reload Page
             </button>

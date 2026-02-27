@@ -111,7 +111,7 @@ describe('SQL Injection Prevention', () => {
       expect(call[0]).toContain('$2');
       expect(call[0]).toContain('$3');
       expect(call[0]).toContain('$4');
-      expect(call[1]).toContain('DROP TABLE');
+      expect(call[1].some((p: unknown) => String(p).includes('DROP TABLE'))).toBe(true);
       expect(call[0]).not.toContain('DROP TABLE');
     });
   });
@@ -356,7 +356,8 @@ describe('SQL Injection Prevention', () => {
         return query.includes(' + ') || query.includes('${');
       };
 
-      const badQuery = 'SELECT * FROM users WHERE id = ' + '1';
+      // Use an array join to prevent JS from evaluating the concatenation at parse time
+      const badQuery = ['SELECT * FROM users WHERE id = ', '1'].join(' + ');
       const goodQuery = 'SELECT * FROM users WHERE id = $1';
 
       expect(detectStringConcatenation(badQuery)).toBe(true);

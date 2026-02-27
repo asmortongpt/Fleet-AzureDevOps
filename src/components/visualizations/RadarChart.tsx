@@ -3,7 +3,7 @@
  * Multi-dimensional comparison chart for performance metrics
  */
 
-import { motion } from 'framer-motion'
+// motion removed - React 19 incompatible
 import {
   Radar,
   RadarChart as RechartsRadar,
@@ -14,8 +14,8 @@ import {
   Tooltip,
   Legend,
 } from 'recharts'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface RadarDataPoint {
@@ -42,18 +42,15 @@ export function RadarChart({
   dataKeys = ['value'],
   height = 400,
   loading = false,
-  colors = ['hsl(210, 100%, 56%)', 'hsl(142, 76%, 36%)', 'hsl(291, 64%, 42%)'],
+  colors = ['#10b981', '#10B981', '#D97706'],
 }: RadarChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    grid: isDark ? '#4b5563' : '#d1d5db',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#e5e7eb' : '#111827',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -62,7 +59,7 @@ export function RadarChart({
 
     return (
       <div
-        className="rounded-lg border shadow-lg p-3"
+        className="rounded-lg border p-3"
         style={{
           backgroundColor: chartColors.tooltip.background,
           borderColor: chartColors.tooltip.border,
@@ -70,8 +67,8 @@ export function RadarChart({
         }}
       >
         <p className="font-semibold mb-2">{payload[0].payload.subject}</p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
+        {payload.map((entry: any) => (
+          <div key={entry.name} className="flex items-center gap-2 text-sm">
             <div
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: entry.color }}
@@ -99,12 +96,8 @@ export function RadarChart({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4 }}
-    >
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+    <div>
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}
@@ -140,6 +133,6 @@ export function RadarChart({
           </ResponsiveContainer>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }

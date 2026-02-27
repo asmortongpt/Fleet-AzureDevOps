@@ -15,6 +15,7 @@ import {
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 
+
 import { DataGrid } from '@/components/common/DataGrid'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -27,11 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => r.json())
-    .then((data) => data?.data ?? data)
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
 
 // ============ TYPE DEFINITIONS ============
 
@@ -74,17 +73,19 @@ export function TrainingRecordsMatrixView() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const { data: trainingRecords } = useSWR<TrainingRecord[]>(
-    '/api/training/records',
-    fetcher,
+    '/api/training/progress',
+    apiFetcher,
     {
       shouldRetryOnError: false,
     }
   )
 
-  const filteredData = useMemo(() => {
-    if (!trainingRecords) return []
+  const safeTrainingRecords = Array.isArray(trainingRecords) ? trainingRecords : []
 
-    return trainingRecords.filter((record) => {
+  const filteredData = useMemo(() => {
+    if (!safeTrainingRecords.length) return []
+
+    return safeTrainingRecords.filter((record) => {
       const matchesStatus = statusFilter === 'all' || record.status === statusFilter
       const matchesCategory = categoryFilter === 'all' || record.category === categoryFilter
       const matchesSearch =
@@ -95,7 +96,7 @@ export function TrainingRecordsMatrixView() {
 
       return matchesStatus && matchesCategory && matchesSearch
     })
-  }, [trainingRecords, statusFilter, categoryFilter, searchQuery])
+  }, [safeTrainingRecords, statusFilter, categoryFilter, searchQuery])
 
   const columns: ColumnDef<TrainingRecord>[] = [
     {
@@ -116,7 +117,7 @@ export function TrainingRecordsMatrixView() {
     {
       accessorKey: 'date_completed',
       header: 'Date Completed',
-      cell: ({ row }) => new Date(row.original.date_completed).toLocaleDateString(),
+      cell: ({ row }) => formatDate(row.original.date_completed),
     },
     {
       accessorKey: 'score',
@@ -160,7 +161,7 @@ export function TrainingRecordsMatrixView() {
 
         return (
           <div>
-            <div>{expiryDate.toLocaleDateString()}</div>
+            <div>{formatDate(expiryDate)}</div>
             {daysUntil <= 30 && daysUntil > 0 && (
               <div className="text-xs text-amber-500 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
@@ -189,8 +190,8 @@ export function TrainingRecordsMatrixView() {
             ? 'destructive'
             : 'secondary'
         return (
-          <Badge variant={variant} className="capitalize">
-            {status}
+          <Badge variant={variant}>
+            {formatEnum(status)}
           </Badge>
         )
       },
@@ -220,11 +221,11 @@ export function TrainingRecordsMatrixView() {
       record.employee_name,
       record.course_name,
       record.course_code,
-      new Date(record.date_completed).toLocaleDateString(),
+      formatDate(record.date_completed),
       record.score !== undefined ? `${record.score}%` : '',
       record.instructor_name || '',
       record.certification_number || '',
-      record.date_expires ? new Date(record.date_expires).toLocaleDateString() : '',
+      record.date_expires ? formatDate(record.date_expires) : '',
       record.status,
       record.hours.toString(),
     ])
@@ -261,10 +262,10 @@ export function TrainingRecordsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-[#111111] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalRecords}</div>
-            <div className="text-xs text-slate-700">Total Records</div>
+            <div className="text-xs text-white/40">Total Records</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -273,7 +274,7 @@ export function TrainingRecordsMatrixView() {
               <CheckCircle className="w-3 h-3 text-green-400" />
               <div className="text-sm font-bold text-green-400">{completedCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Completed</div>
+            <div className="text-xs text-white/40">Completed</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -282,19 +283,19 @@ export function TrainingRecordsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-amber-400" />
               <div className="text-sm font-bold text-amber-400">{expiringCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Expiring Soon</div>
+            <div className="text-xs text-white/40">Expiring Soon</div>
           </CardContent>
         </Card>
-        <Card className="bg-blue-900/30 border-blue-700/50">
+        <Card className="bg-white/[0.04] border-white/[0.04]">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-blue-700">{avgScore.toFixed(1)}%</div>
-            <div className="text-xs text-slate-700">Average Score</div>
+            <div className="text-sm font-bold text-emerald-400">{avgScore.toFixed(1)}%</div>
+            <div className="text-xs text-white/40">Average Score</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3">
             <div className="flex-1">
@@ -337,10 +338,10 @@ export function TrainingRecordsMatrixView() {
       </Card>
 
       {/* Excel-Style Training Records Matrix */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <GraduationCap className="w-3 h-3 text-blue-700" />
+            <GraduationCap className="w-3 h-3 text-emerald-400" />
             All Training Records - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>
@@ -369,16 +370,18 @@ export function CertificationsMatrixView() {
 
   const { data: certifications } = useSWR<Certification[]>(
     '/api/certifications',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false,
     }
   )
 
-  const filteredData = useMemo(() => {
-    if (!certifications) return []
+  const safeCertifications = Array.isArray(certifications) ? certifications : []
 
-    return certifications.filter((cert) => {
+  const filteredData = useMemo(() => {
+    if (!safeCertifications.length) return []
+
+    return safeCertifications.filter((cert) => {
       const matchesStatus = statusFilter === 'all' || cert.status === statusFilter
       const matchesType = typeFilter === 'all' || cert.certification_type === typeFilter
       const matchesSearch =
@@ -389,7 +392,7 @@ export function CertificationsMatrixView() {
 
       return matchesStatus && matchesType && matchesSearch
     })
-  }, [certifications, statusFilter, typeFilter, searchQuery])
+  }, [safeCertifications, statusFilter, typeFilter, searchQuery])
 
   const columns: ColumnDef<Certification>[] = [
     {
@@ -410,7 +413,7 @@ export function CertificationsMatrixView() {
     {
       accessorKey: 'issue_date',
       header: 'Issue Date',
-      cell: ({ row }) => new Date(row.original.issue_date).toLocaleDateString(),
+      cell: ({ row }) => formatDate(row.original.issue_date),
     },
     {
       accessorKey: 'expiry_date',
@@ -423,7 +426,7 @@ export function CertificationsMatrixView() {
 
         return (
           <div>
-            <div className="font-medium">{expiryDate.toLocaleDateString()}</div>
+            <div className="font-medium">{formatDate(expiryDate)}</div>
             {daysUntil <= 60 && daysUntil > 0 && (
               <div className="text-xs text-amber-500 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
@@ -481,8 +484,8 @@ export function CertificationsMatrixView() {
             {status === 'active' && <CheckCircle className="w-4 h-4 text-green-500" />}
             {status === 'expiring-soon' && <AlertTriangle className="w-4 h-4 text-amber-500" />}
             {status === 'expired' && <XCircle className="w-4 h-4 text-red-500" />}
-            <Badge variant={variant} className="capitalize">
-              {status.replace('-', ' ')}
+            <Badge variant={variant}>
+              {formatEnum(status)}
             </Badge>
           </div>
         )
@@ -493,7 +496,7 @@ export function CertificationsMatrixView() {
       header: 'Renewal Cost',
       cell: ({ row }) =>
         row.original.renewal_cost ? (
-          <div className="text-right font-medium">${row.original.renewal_cost.toFixed(2)}</div>
+          <div className="text-right font-medium">{formatCurrency(row.original.renewal_cost)}</div>
         ) : (
           <div className="text-center text-muted-foreground">-</div>
         ),
@@ -516,13 +519,13 @@ export function CertificationsMatrixView() {
     const csvData = filteredData.map((cert) => [
       cert.employee_name,
       cert.certification_name,
-      new Date(cert.issue_date).toLocaleDateString(),
-      new Date(cert.expiry_date).toLocaleDateString(),
+      formatDate(cert.issue_date),
+      formatDate(cert.expiry_date),
       (cert.days_until_expiry || 0).toString(),
       cert.issuing_authority,
       cert.certification_number,
       cert.status,
-      cert.renewal_cost ? `$${cert.renewal_cost.toFixed(2)}` : '',
+      cert.renewal_cost ? formatCurrency(cert.renewal_cost) : '',
     ])
 
     const csv = [headers, ...csvData].map((row) => row.join(',')).join('\n')
@@ -548,10 +551,10 @@ export function CertificationsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-[#111111] border-white/[0.04]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalCerts}</div>
-            <div className="text-xs text-slate-700">Total Certifications</div>
+            <div className="text-xs text-white/40">Total Certifications</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -560,7 +563,7 @@ export function CertificationsMatrixView() {
               <CheckCircle className="w-3 h-3 text-green-400" />
               <div className="text-sm font-bold text-green-400">{activeCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Active</div>
+            <div className="text-xs text-white/40">Active</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -569,19 +572,19 @@ export function CertificationsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-amber-400" />
               <div className="text-sm font-bold text-amber-400">{expiringCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Expiring Soon</div>
+            <div className="text-xs text-white/40">Expiring Soon</div>
           </CardContent>
         </Card>
-        <Card className="bg-blue-900/30 border-blue-700/50">
+        <Card className="bg-white/[0.04] border-white/[0.04]">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-blue-700">${renewalCost.toFixed(0)}</div>
-            <div className="text-xs text-slate-700">Renewal Cost</div>
+            <div className="text-sm font-bold text-emerald-400">{formatCurrency(renewalCost)}</div>
+            <div className="text-xs text-white/40">Renewal Cost</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3">
             <div className="flex-1">
@@ -625,7 +628,7 @@ export function CertificationsMatrixView() {
       </Card>
 
       {/* Excel-Style Certifications Matrix */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Medal className="w-3 h-3 text-amber-400" />

@@ -7,9 +7,9 @@ import pool from '../src/config/database'
 import authRoutes from '../src/routes/auth'
 
 // Mock dependencies
-jest.mock('../src/config/database')
-jest.mock('../src/middleware/audit')
-jest.mock('../src/config/rate-limiters', () => ({
+vi.mock('../src/config/database')
+vi.mock('../src/middleware/audit')
+vi.mock('../src/config/rate-limiters', () => ({
   loginLimiter: (req: any, res: any, next: any) => next(),
   registrationLimiter: (req: any, res: any, next: any) => next()
 }))
@@ -39,7 +39,7 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Login with Refresh Token', () => {
@@ -47,10 +47,10 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
       // Mock bcrypt.compare to return true
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const bcrypt = require('bcrypt')
-      bcrypt.compare = jest.fn().mockResolvedValue(true)
+      bcrypt.compare = vi.fn().mockResolvedValue(true)
 
       // Mock database queries
-      const mockQuery = pool.query as jest.MockedFunction<typeof pool.query>
+      const mockQuery = pool.query as import('vitest').MockedFunction<typeof pool.query>
 
       // User lookup
       mockQuery.mockResolvedValueOnce({ rows: [mockUser], rowCount: 1 } as any)
@@ -82,9 +82,9 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
 
     it('should store refresh token with tenant_id, IP, and user agent', async () => {
       const bcrypt = require('bcrypt')
-      bcrypt.compare = jest.fn().mockResolvedValue(true)
+      bcrypt.compare = vi.fn().mockResolvedValue(true)
 
-      const mockQuery = pool.query as jest.MockedFunction<typeof pool.query>
+      const mockQuery = pool.query as import('vitest').MockedFunction<typeof pool.query>
       mockQuery.mockResolvedValueOnce({ rows: [mockUser], rowCount: 1 } as any)
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 } as any)
 
@@ -126,7 +126,7 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
 
       const tokenHash = Buffer.from(refreshToken).toString('base64').substring(0, 64)
 
-      const mockQuery = pool.query as jest.MockedFunction<typeof pool.query>
+      const mockQuery = pool.query as import('vitest').MockedFunction<typeof pool.query>
 
       // Check token in DB
       mockQuery.mockResolvedValueOnce({
@@ -207,7 +207,7 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
         { expiresIn: '7d' }
       )
 
-      const mockQuery = pool.query as jest.MockedFunction<typeof pool.query>
+      const mockQuery = pool.query as import('vitest').MockedFunction<typeof pool.query>
 
       // Token is revoked
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 } as any)
@@ -255,7 +255,7 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
 
       const tokenHash = Buffer.from(refreshToken).toString('base64').substring(0, 64)
 
-      const mockQuery = pool.query as jest.MockedFunction<typeof pool.query>
+      const mockQuery = pool.query as import('vitest').MockedFunction<typeof pool.query>
 
       // Token exists
       mockQuery.mockResolvedValueOnce({
@@ -295,7 +295,7 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
         { expiresIn: '15m' }
       )
 
-      const mockQuery = pool.query as jest.MockedFunction<typeof pool.query>
+      const mockQuery = pool.query as import('vitest').MockedFunction<typeof pool.query>
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 } as any)
 
       const response = await request(app)
@@ -323,7 +323,7 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
         { expiresIn: '15m' }
       )
 
-      const mockQuery = pool.query as jest.MockedFunction<typeof pool.query>
+      const mockQuery = pool.query as import('vitest').MockedFunction<typeof pool.query>
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 } as any)
 
       await request(app)
@@ -353,7 +353,7 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
 
       const tokenHash = Buffer.from(refreshToken).toString('base64').substring(0, 64)
 
-      const mockQuery = pool.query as jest.MockedFunction<typeof pool.query>
+      const mockQuery = pool.query as import('vitest').MockedFunction<typeof pool.query>
       mockQuery.mockResolvedValueOnce({
         rows: [{
           id: '123',
@@ -392,9 +392,9 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
       process.env.NODE_ENV = 'production'
 
       const bcrypt = require('bcrypt')
-      bcrypt.compare = jest.fn().mockResolvedValue(true)
+      bcrypt.compare = vi.fn().mockResolvedValue(true)
 
-      const mockQuery = pool.query as jest.MockedFunction<typeof pool.query>
+      const mockQuery = pool.query as import('vitest').MockedFunction<typeof pool.query>
       mockQuery.mockResolvedValueOnce({ rows: [mockUser], rowCount: 1 } as any)
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 } as any)
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 } as any)
@@ -418,9 +418,9 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
   describe('Multi-Tenancy Isolation', () => {
     it('should store tenant_id with refresh token', async () => {
       const bcrypt = require('bcrypt')
-      bcrypt.compare = jest.fn().mockResolvedValue(true)
+      bcrypt.compare = vi.fn().mockResolvedValue(true)
 
-      const mockQuery = pool.query as jest.MockedFunction<typeof pool.query>
+      const mockQuery = pool.query as import('vitest').MockedFunction<typeof pool.query>
       mockQuery.mockResolvedValueOnce({ rows: [mockUser], rowCount: 1 } as any)
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 } as any)
 
@@ -442,9 +442,9 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
 
     it('should include tenant_id in both access and refresh tokens', async () => {
       const bcrypt = require('bcrypt')
-      bcrypt.compare = jest.fn().mockResolvedValue(true)
+      bcrypt.compare = vi.fn().mockResolvedValue(true)
 
-      const mockQuery = pool.query as jest.MockedFunction<typeof pool.query>
+      const mockQuery = pool.query as import('vitest').MockedFunction<typeof pool.query>
       mockQuery.mockResolvedValueOnce({ rows: [mockUser], rowCount: 1 } as any)
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 } as any)
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 } as any)

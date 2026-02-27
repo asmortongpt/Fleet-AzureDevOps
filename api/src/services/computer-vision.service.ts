@@ -311,7 +311,9 @@ export class ComputerVisionService extends EventEmitter {
    * Start processing vision analysis
    */
   public start(): void {
-    if (this.isRunning) return;
+    if (this.isRunning) {
+return;
+}
 
     this.isRunning = true;
     const intervalMs = 1000 / this.config.processingFps;
@@ -327,7 +329,9 @@ export class ComputerVisionService extends EventEmitter {
    * Stop processing
    */
   public stop(): void {
-    if (!this.isRunning) return;
+    if (!this.isRunning) {
+return;
+}
 
     this.isRunning = false;
     if (this.processingInterval) {
@@ -491,7 +495,7 @@ export class ComputerVisionService extends EventEmitter {
       eyeGaze = 'forward';
     } else if (attentionRoll < 0.85) {
       attentionLevel = 'distracted';
-      eyeGaze = ['left', 'right', 'down'][Math.floor(Math.random() * 3)] as any;
+      eyeGaze = (['left', 'right', 'down'] as const)[Math.floor(Math.random() * 3)];
       alerts.push('looking_away');
     } else if (attentionRoll < 0.95) {
       attentionLevel = 'drowsy';
@@ -514,10 +518,18 @@ export class ComputerVisionService extends EventEmitter {
     const handsOnWheel: 'both' | 'one' | 'none' =
       Math.random() < 0.85 ? 'both' : Math.random() < 0.5 ? 'one' : 'none';
 
-    if (!seatbeltOn) alerts.push('no_seatbelt');
-    if (phoneInHand) alerts.push('phone_use');
-    if (smoking) alerts.push('smoking');
-    if (eating) alerts.push('eating');
+    if (!seatbeltOn) {
+alerts.push('no_seatbelt');
+}
+    if (phoneInHand) {
+alerts.push('phone_use');
+}
+    if (smoking) {
+alerts.push('smoking');
+}
+    if (eating) {
+alerts.push('eating');
+}
 
     // Facial recognition
     const recognized = this.config.enableFacialRecognition && Math.random() < 0.9;
@@ -556,7 +568,7 @@ export class ComputerVisionService extends EventEmitter {
         handsOnWheel
       },
       emotion: {
-        primary: ['neutral', 'happy', 'angry', 'stressed', 'tired'][Math.floor(Math.random() * 5)] as any,
+        primary: (['neutral', 'happy', 'angry', 'stressed', 'tired'] as const)[Math.floor(Math.random() * 5)],
         confidence: 0.6 + Math.random() * 0.4
       },
       facialRecognition
@@ -731,12 +743,12 @@ export class ComputerVisionService extends EventEmitter {
       timestamp: new Date(),
       surface: {
         type: surface,
-        quality: ['excellent', 'good', 'fair', 'poor'][Math.floor(Math.random() * 4)] as any,
+        quality: (['excellent', 'good', 'fair', 'poor'] as const)[Math.floor(Math.random() * 4)],
         visibility: weather === 'fog' ? 20 + Math.random() * 50 : 100 + Math.random() * 400
       },
       weather: {
         condition: weather,
-        intensity: ['light', 'moderate', 'heavy'][Math.floor(Math.random() * 3)] as any
+        intensity: (['light', 'moderate', 'heavy'] as const)[Math.floor(Math.random() * 3)]
       },
       lighting: {
         level: isDaylight ? 'daylight' : hour < 6 || hour > 20 ? 'night' : 'dusk',
@@ -864,7 +876,7 @@ interface VehicleVisionContext {
   cameraPositions: string[];
   lastFrame: VisionAnalysisFrame | null;
   trackedObjects: Map<string, ObjectDetection>;
-  alertHistory: any[];
+  alertHistory: Array<{ type: string; timestamp: Date; details?: Record<string, unknown> }>;
   statistics: {
     framesProcessed: number;
     objectsDetected: number;

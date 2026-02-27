@@ -17,7 +17,7 @@ interface EntityBadgeProps {
 
 const ENTITY_CONFIG = {
   UNIT: {
-    color: 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300',
+    color: 'bg-emerald-500/10 text-emerald-800 hover:bg-emerald-500/20 dark:bg-emerald-900 dark:text-emerald-300',
     icon: Hash,
     label: 'Unit'
   },
@@ -32,7 +32,7 @@ const ENTITY_CONFIG = {
     label: 'Code'
   },
   PERSON: {
-    color: 'bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-300',
+    color: 'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-300',
     icon: User,
     label: 'Person'
   },
@@ -42,7 +42,7 @@ const ENTITY_CONFIG = {
     label: 'Time'
   },
   OTHER: {
-    color: 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300',
+    color: 'bg-white/[0.05] text-white/60 hover:bg-white/[0.06] dark:bg-[#18181b] dark:text-white/60',
     icon: Hash,
     label: 'Other'
   }
@@ -62,7 +62,7 @@ export function EntityBadge({ entity, onClick, className }: EntityBadgeProps) {
       className={cn(
         'inline-flex items-center gap-1 px-2 py-1 cursor-pointer transition-colors',
         config.color,
-        onClick && 'hover:shadow-sm',
+        onClick && '',
         className
       )}
       onClick={onClick}
@@ -113,7 +113,7 @@ export function EntityBadgeList({
         />
       ))}
       {remainingCount > 0 && (
-        <Badge variant="outline" className="bg-gray-50 dark:bg-gray-900">
+        <Badge variant="outline" className="bg-white/[0.03] dark:bg-[#111113]">
           +{remainingCount} more
         </Badge>
       )}

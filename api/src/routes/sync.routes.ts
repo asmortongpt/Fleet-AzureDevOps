@@ -63,9 +63,9 @@ router.use(authenticateJWT)
 router.post(`/teams/:teamId/channels/:channelId`, csrfProtection, async (req: Request, res: Response) => {
   try {
     const { teamId, channelId } = req.params
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
 
-    console.log(`Manual Teams sync requested: ${teamId}/${channelId} by user ${userId}`)
+    logger.info(`Manual Teams sync requested: ${teamId}/${channelId} by user ${userId}`)
 
     const result = await syncService.syncTeamsMessages(teamId, channelId)
 
@@ -75,7 +75,7 @@ router.post(`/teams/:teamId/channels/:channelId`, csrfProtection, async (req: Re
       errors: result.errors,
       message: `Synced ${result.synced} messages with ${result.errors} errors`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error syncing Teams channel:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -111,9 +111,9 @@ router.post(`/teams/:teamId/channels/:channelId`, csrfProtection, async (req: Re
 router.post(`/outlook/folders/:folderId`, csrfProtection, async (req: Request, res: Response) => {
   try {
     const { folderId } = req.params
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
 
-    console.log(`Manual Outlook sync requested: ${folderId} by user ${userId}`)
+    logger.info(`Manual Outlook sync requested: ${folderId} by user ${userId}`)
 
     const result = await syncService.syncOutlookEmails(folderId)
 
@@ -123,7 +123,7 @@ router.post(`/outlook/folders/:folderId`, csrfProtection, async (req: Request, r
       errors: result.errors,
       message: `Synced ${result.synced} emails with ${result.errors} errors`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error syncing Outlook folder:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -156,7 +156,7 @@ router.get('/status', async (req: Request, res: Response) => {
       status,
       totalResources: status.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting sync status:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -184,7 +184,8 @@ router.get('/status', async (req: Request, res: Response) => {
  */
 router.post('/full',csrfProtection, async (req: Request, res: Response) => {
   try {
-    const userRole = (req as any).user?.role
+    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
+    const userRole = req.user?.role
 
     // Only admins can trigger full re-sync
     if (userRole !== 'admin' && userRole !== 'fleet_manager') {
@@ -194,10 +195,10 @@ router.post('/full',csrfProtection, async (req: Request, res: Response) => {
       })
     }
 
-    console.log(`Full re-sync requested by ${(req as any).user?.email}`)
+    logger.info(`Full re-sync requested by ${req.user?.email}`)
 
-    // Clear all delta tokens
-    await pool.query(`UPDATE sync_state SET delta_token = NULL`)
+    // Clear all delta tokens for this tenant
+    await pool.query(`UPDATE sync_state SET delta_token = NULL WHERE tenant_id = $1`, [tenantId])
 
     // Trigger both sync jobs
     const teamsResult = await syncService.syncAllTeamsChannels()
@@ -215,7 +216,7 @@ router.post('/full',csrfProtection, async (req: Request, res: Response) => {
       },
       message: `Full re-sync completed`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error during full re-sync:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -256,7 +257,7 @@ router.get('/errors', async (req: Request, res: Response) => {
       errors,
       totalErrors: errors.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting sync errors:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -289,6 +290,7 @@ router.get('/errors', async (req: Request, res: Response) => {
  */
 router.get('/jobs', async (req: Request, res: Response) => {
   try {
+    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
     const limit = parseInt(req.query.limit as string) || 50
 
     const result = await pool.query(`
@@ -297,16 +299,17 @@ router.get('/jobs', async (req: Request, res: Response) => {
         total_records, processed_records, failed_records, error_message,
         started_at, completed_at, created_at
       FROM sync_jobs
+      WHERE tenant_id = $1
       ORDER BY started_at DESC
-      LIMIT $1
-    `, [limit])
+      LIMIT $2
+    `, [tenantId, limit])
 
     res.json({
       success: true,
       jobs: result.rows,
       totalJobs: result.rows.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting sync jobs:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -332,9 +335,9 @@ router.get('/jobs', async (req: Request, res: Response) => {
  */
 router.post(`/teams/all`, csrfProtection, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
 
-    console.log(`Manual sync all Teams channels requested by user ${userId}`)
+    logger.info(`Manual sync all Teams channels requested by user ${userId}`)
 
     const result = await syncService.syncAllTeamsChannels()
 
@@ -344,7 +347,7 @@ router.post(`/teams/all`, csrfProtection, async (req: Request, res: Response) =>
       errors: result.totalErrors,
       message: `Synced ${result.totalSynced} messages with ${result.totalErrors} errors`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error syncing all Teams channels:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -370,9 +373,9 @@ router.post(`/teams/all`, csrfProtection, async (req: Request, res: Response) =>
  */
 router.post(`/outlook/all`, csrfProtection, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
 
-    console.log(`Manual sync all Outlook folders requested by user ${userId}`)
+    logger.info(`Manual sync all Outlook folders requested by user ${userId}`)
 
     const result = await syncService.syncAllOutlookFolders()
 
@@ -382,7 +385,7 @@ router.post(`/outlook/all`, csrfProtection, async (req: Request, res: Response) 
       errors: result.totalErrors,
       message: `Synced ${result.totalSynced} emails with ${result.totalErrors} errors`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error syncing all Outlook folders:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -415,18 +418,19 @@ router.post(`/outlook/all`, csrfProtection, async (req: Request, res: Response) 
  */
 router.delete('/errors/:id',csrfProtection, async (req: Request, res: Response) => {
   try {
+    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
     const { id } = req.params
 
     await pool.query(
-      `UPDATE sync_errors SET resolved = true WHERE id = $1`,
-      [id]
+      `UPDATE sync_errors SET resolved = true WHERE id = $1 AND tenant_id = $2`,
+      [id, tenantId]
     )
 
     res.json({
       success: true,
       message: `Error marked as resolved`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error resolving sync error:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -452,6 +456,8 @@ router.delete('/errors/:id',csrfProtection, async (req: Request, res: Response) 
  */
 router.get('/health', async (req: Request, res: Response) => {
   try {
+    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
+
     // Check webhook health
     const webhooksHealthy = await syncService.areWebhooksHealthy()
 
@@ -465,9 +471,9 @@ router.get('/health', async (req: Request, res: Response) => {
         AVG(duration_ms) as avg_duration_ms,
         MAX(started_at) as last_run_at
       FROM sync_jobs
-      WHERE started_at > NOW() - INTERVAL '24 hours'
+      WHERE tenant_id = $1 AND started_at > NOW() - INTERVAL '24 hours'
       GROUP BY job_type
-    `)
+    `, [tenantId])
 
     // Get error stats
     const errorStats = await pool.query(`
@@ -475,8 +481,8 @@ router.get('/health', async (req: Request, res: Response) => {
         COUNT(*) as total_errors,
         COUNT(*) FILTER (WHERE resolved = false) as unresolved_errors
       FROM sync_errors
-      WHERE created_at > NOW() - INTERVAL '24 hours'
-    `)
+      WHERE tenant_id = $1 AND created_at > NOW() - INTERVAL '24 hours'
+    `, [tenantId])
 
     // Get sync state stats
     const syncStateStats = await pool.query(`
@@ -487,8 +493,9 @@ router.get('/health', async (req: Request, res: Response) => {
         COUNT(*) FILTER (WHERE sync_status = 'failed') as failed_syncs,
         MAX(last_sync_at) as last_sync_at
       FROM sync_state
+      WHERE tenant_id = $1
       GROUP BY resource_type
-    `)
+    `, [tenantId])
 
     const teamsStatus = teamsSync.getStatus()
     const outlookStatus = outlookSync.getStatus()
@@ -512,7 +519,7 @@ router.get('/health', async (req: Request, res: Response) => {
         syncState: syncStateStats.rows
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting sync health:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,

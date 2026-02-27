@@ -1,0 +1,536 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================================================
+  # Build and Run Lighthouse CI
+  # ============================================================================
+  lighthouse-ci:
+    name: Lighthouse CI Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build frontend
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: npm run build
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.12.0
+
+      - name: Run Lighthouse CI
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          lhci autorun \
+            --config ./lighthouserc.json \
+            --upload.token=${{ secrets.LHCI_GITHUB_TOKEN }} || true
+        continue-on-error: true
+
+      - name: Generate Lighthouse reports
+        run: |
+          echo "## Lighthouse CI Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f ".lighthouse/report-latest.json" ]; then
+            echo "### Performance Scores" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            node scripts/parse-lighthouse-results.js >> $GITHUB_STEP_SUMMARY || true
+          fi
+        continue-on-error: true
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouse/
+          retention-days: 30
+        if: always()
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const reportPath = '.lighthouse/report-latest.json';
+            if (!fs.existsSync(reportPath)) {
+              return;
+            }
+
+            const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            const audits = report.audits;
+
+            const scores = {
+              performance: Math.round((audits['performance']?.score || 0) * 100),
+              accessibility: Math.round((audits['accessibility']?.score || 0) * 100),
+              best_practices: Math.round((audits['best-practices']?.score || 0) * 100),
+              seo: Math.round((audits['seo']?.score || 0) * 100),
+            };
+
+            const getEmoji = (score) => {
+              if (score >= 90) return '🟢';
+              if (score >= 80) return '🟡';
+              return '🔴';
+            };
+
+            const comment = `## 🔍 Lighthouse CI Results
+
+| Category | Score |
+|----------|-------|
+| ${getEmoji(scores.performance)} Performance | ${scores.performance} |
+| ${getEmoji(scores.accessibility)} Accessibility | ${scores.accessibility} |
+| ${getEmoji(scores.best_practices)} Best Practices | ${scores.best_practices} |
+| ${getEmoji(scores.seo)} SEO | ${scores.seo} |
+
+### Core Web Vitals
+- LCP: ${Math.round(audits['largest-contentful-paint']?.numericValue || 0)}ms
+- FID: ${Math.round(audits['first-input-delay']?.numericValue || 0)}ms
+- CLS: ${(audits['cumulative-layout-shift']?.numericValue || 0).toFixed(3)}
+
+[View detailed report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+        continue-on-error: true
+
+  # ============================================================================
+  # Lighthouse Desktop Analysis
+  # ============================================================================
+  lighthouse-desktop:
+    name: Lighthouse Desktop Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build frontend
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: npm run build
+
+      - name: Install Lighthouse
+        run: npm install -g lighthouse
+
+      - name: Start production server
+        run: |
+          npm install -g http-server
+          http-server dist -p 8080 &
+          sleep 5
+        continue-on-error: true
+
+      - name: Run Lighthouse Desktop audit
+        run: |
+          mkdir -p .lighthouse/desktop
+          lighthouse \
+            http://localhost:8080 \
+            --output=json \
+            --output-path=.lighthouse/desktop/report.json \
+            --config-path=./lighthouse-config.js \
+            --emulated-form-factor=desktop \
+            --throttling-method=provided \
+            || true
+        continue-on-error: true
+
+      - name: Generate Desktop HTML report
+        run: |
+          lighthouse \
+            http://localhost:8080 \
+            --output=html \
+            --output-path=.lighthouse/desktop/report.html \
+            --config-path=./lighthouse-config.js \
+            --emulated-form-factor=desktop \
+            --throttling-method=provided \
+            || true
+        continue-on-error: true
+
+      - name: Upload Desktop report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-desktop-report
+          path: .lighthouse/desktop/report.html
+          retention-days: 30
+        if: always()
+
+  # ============================================================================
+  # Lighthouse Mobile Analysis
+  # ============================================================================
+  lighthouse-mobile:
+    name: Lighthouse Mobile Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build frontend
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: npm run build
+
+      - name: Install Lighthouse
+        run: npm install -g lighthouse
+
+      - name: Start production server
+        run: |
+          npm install -g http-server
+          http-server dist -p 8080 &
+          sleep 5
+        continue-on-error: true
+
+      - name: Run Lighthouse Mobile audit
+        run: |
+          mkdir -p .lighthouse/mobile
+          lighthouse \
+            http://localhost:8080 \
+            --output=json \
+            --output-path=.lighthouse/mobile/report.json \
+            --config-path=./lighthouse-config.js \
+            --emulated-form-factor=mobile \
+            --throttling-method=provided \
+            || true
+        continue-on-error: true
+
+      - name: Generate Mobile HTML report
+        run: |
+          lighthouse \
+            http://localhost:8080 \
+            --output=html \
+            --output-path=.lighthouse/mobile/report.html \
+            --config-path=./lighthouse-config.js \
+            --emulated-form-factor=mobile \
+            --throttling-method=provided \
+            || true
+        continue-on-error: true
+
+      - name: Upload Mobile report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-mobile-report
+          path: .lighthouse/mobile/report.html
+          retention-days: 30
+        if: always()
+
+  # ============================================================================
+  # Accessibility Audit
+  # ============================================================================
+  accessibility-audit:
+    name: Accessibility & WCAG Compliance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build frontend
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: npm run build
+
+      - name: Install axe-core CLI
+        run: npm install -g @axe-core/cli
+
+      - name: Start production server
+        run: |
+          npm install -g http-server
+          http-server dist -p 8080 &
+          sleep 5
+        continue-on-error: true
+
+      - name: Run accessibility audit
+        run: |
+          mkdir -p .lighthouse/accessibility
+          axe http://localhost:8080 \
+            --exit \
+            --output-format=json \
+            --output-format=csv \
+            --tags=wcag2aa \
+            > .lighthouse/accessibility/report.json 2>&1 || true
+        continue-on-error: true
+
+      - name: Run frontend a11y tests
+        run: npm run test:a11y || true
+        continue-on-error: true
+
+      - name: Upload accessibility reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: accessibility-reports
+          path: .lighthouse/accessibility/
+          retention-days: 30
+        if: always()
+
+  # ============================================================================
+  # Security Headers & Best Practices
+  # ============================================================================
+  security-audit:
+    name: Security & Headers Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build frontend
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: npm run build
+
+      - name: Start production server
+        run: |
+          npm install -g http-server
+          http-server dist -p 8080 &
+          sleep 5
+        continue-on-error: true
+
+      - name: Check security headers
+        run: |
+          mkdir -p .lighthouse/security
+
+          echo "# Security Headers Check" > .lighthouse/security/headers.md
+          echo "" >> .lighthouse/security/headers.md
+
+          headers=$(curl -sI http://localhost:8080)
+          echo "## Response Headers" >> .lighthouse/security/headers.md
+          echo '```' >> .lighthouse/security/headers.md
+          echo "$headers" >> .lighthouse/security/headers.md
+          echo '```' >> .lighthouse/security/headers.md
+
+          # Check for security headers
+          echo "" >> .lighthouse/security/headers.md
+          echo "## Security Headers Checklist" >> .lighthouse/security/headers.md
+          echo "" >> .lighthouse/security/headers.md
+
+          echo -n "- Content-Security-Policy: "
+          if echo "$headers" | grep -qi "content-security-policy"; then
+            echo "✅"
+          else
+            echo "❌"
+          fi >> .lighthouse/security/headers.md
+
+          echo -n "- X-Content-Type-Options: "
+          if echo "$headers" | grep -qi "x-content-type-options"; then
+            echo "✅"
+          else
+            echo "❌"
+          fi >> .lighthouse/security/headers.md
+
+          echo -n "- X-Frame-Options: "
+          if echo "$headers" | grep -qi "x-frame-options"; then
+            echo "✅"
+          else
+            echo "❌"
+          fi >> .lighthouse/security/headers.md
+
+          echo -n "- X-XSS-Protection: "
+          if echo "$headers" | grep -qi "x-xss-protection"; then
+            echo "✅"
+          else
+            echo "❌"
+          fi >> .lighthouse/security/headers.md
+
+          echo -n "- Strict-Transport-Security: "
+          if echo "$headers" | grep -qi "strict-transport-security"; then
+            echo "✅"
+          else
+            echo "❌"
+          fi >> .lighthouse/security/headers.md
+        continue-on-error: true
+
+      - name: Run security scan (ESLint)
+        run: npm run lint || true
+        continue-on-error: true
+
+      - name: Upload security audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-report
+          path: .lighthouse/security/
+          retention-days: 30
+        if: always()
+
+  # ============================================================================
+  # Performance Budgets Check
+  # ============================================================================
+  performance-budgets:
+    name: Performance Budgets Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build frontend
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: npm run build
+
+      - name: Check bundle sizes
+        run: node scripts/check-bundle-budgets.js
+        continue-on-error: true
+
+      - name: Check Core Web Vitals budgets
+        run: node scripts/check-cwv-budgets.js
+        continue-on-error: true
+
+  # ============================================================================
+  # Generate Historical Data
+  # ============================================================================
+  store-metrics:
+    name: Store Historical Metrics
+    runs-on: ubuntu-latest
+    needs: [lighthouse-ci, lighthouse-desktop, lighthouse-mobile]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouse/
+
+      - name: Store metrics in CSV
+        run: |
+          mkdir -p .lighthouse/history
+          node scripts/store-lighthouse-metrics.js
+        continue-on-error: true
+
+      - name: Generate trends chart
+        run: |
+          node scripts/generate-performance-trends.js
+        continue-on-error: true
+
+      - name: Commit metrics to history
+        run: |
+          git config user.name "Lighthouse CI Bot"
+          git config user.email "lighthouse-ci@github.local"
+          git add .lighthouse/history/
+          git commit -m "chore: update Lighthouse metrics" || true
+          git push || true
+        continue-on-error: true
+
+  # ============================================================================
+  # Generate Summary Report
+  # ============================================================================
+  summary-report:
+    name: Generate Summary Report
+    runs-on: ubuntu-latest
+    needs: [lighthouse-ci, lighthouse-desktop, lighthouse-mobile, accessibility-audit, security-audit]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+        continue-on-error: true
+
+      - name: Generate summary
+        run: |
+          echo "## 🔍 Lighthouse CI Summary Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lighthouse CI | ${{ needs.lighthouse-ci.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Desktop Audit | ${{ needs.lighthouse-desktop.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Mobile Audit | ${{ needs.lighthouse-mobile.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Accessibility | ${{ needs.accessibility-audit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security | ${{ needs.security-audit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 [Lighthouse Reports](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "- 🖥️ [Desktop Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "- 📱 [Mobile Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "- ♿ [Accessibility Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔒 [Security Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { commonSchemas } from '../middleware/validation';
+import { commonSchemas, flexUuid } from '../middleware/validation';
 
 /**
  * Comprehensive Zod validation schemas for Geofences
@@ -297,9 +297,9 @@ export const geofenceEventQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(1000).default(100),
 
   // Filtering
-  geofence_id: z.string().uuid().optional(),
-  vehicle_id: z.string().uuid().optional(),
-  driver_id: z.string().uuid().optional(),
+  geofence_id: flexUuid.optional(),
+  vehicle_id: flexUuid.optional(),
+  driver_id: flexUuid.optional(),
 
   event_type: z.enum(['entry', 'exit', 'dwell']).optional(),
 
@@ -327,7 +327,7 @@ export const geofenceEventQuerySchema = z.object({
  * Geofence ID parameter schema
  */
 export const geofenceIdSchema = z.object({
-  id: z.string().uuid('Invalid geofence ID format')
+  id: flexUuid
 });
 
 // Type exports

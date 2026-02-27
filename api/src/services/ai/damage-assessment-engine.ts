@@ -94,8 +94,8 @@ interface ModelPrediction {
 // AI Assessment Engine
 export class DamageAssessmentEngine extends EventEmitter {
   private models: Map<string, tf.LayersModel> = new Map()
-  private openai: OpenAI
-  private azureCV: ComputerVisionClient
+  private openai: OpenAI | null
+  private azureCV: ComputerVisionClient | null
   private concurrencyLimit: ReturnType<typeof pLimit>
   private modelVersions: Map<string, string> = new Map()
   private cache: Map<string, DamageAssessmentResult> = new Map()
@@ -104,18 +104,27 @@ export class DamageAssessmentEngine extends EventEmitter {
     super()
     this.concurrencyLimit = pLimit(5)
 
-    // Initialize OpenAI
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    })
+    // Initialize OpenAI (guarded)
+    this.openai = process.env.OPENAI_API_KEY
+      ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+      : null
 
-    // Initialize Azure Computer Vision
-    this.azureCV = new ComputerVisionClient(
-      new ApiKeyCredentials({
-        inHeader: { 'Ocp-Apim-Subscription-Key': process.env.AZURE_CV_KEY! },
-      }),
-      process.env.AZURE_CV_ENDPOINT!
-    )
+    if (!this.openai) {
+      console.warn('[DamageAssessmentEngine] OpenAI API key not configured - GPT-based recommendations disabled')
+    }
+
+    // Initialize Azure Computer Vision (guarded)
+    if (process.env.AZURE_CV_KEY && process.env.AZURE_CV_ENDPOINT) {
+      this.azureCV = new ComputerVisionClient(
+        new ApiKeyCredentials({
+          inHeader: { 'Ocp-Apim-Subscription-Key': process.env.AZURE_CV_KEY },
+        }),
+        process.env.AZURE_CV_ENDPOINT
+      )
+    } else {
+      this.azureCV = null
+      console.warn('[DamageAssessmentEngine] Azure CV not configured - computer vision analysis disabled')
+    }
 
     // Load models on initialization
     this.loadModels().catch(err => {
@@ -266,6 +275,10 @@ export class DamageAssessmentEngine extends EventEmitter {
 
   // Azure Computer Vision analysis
   private async analyzeWithAzureCV(imageBuffer: Buffer): Promise<any> {
+    if (!this.azureCV) {
+      return null
+    }
+
     try {
       const stream = require('stream')
       const readableStream = new stream.Readable()
@@ -295,7 +308,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     try {
       // Convert buffer to OpenCV matrix
       const image = await sharp(imageBuffer).raw().toBuffer()
-      const mat = cv.matFromImageData(image)
+      const mat = cv.matFromImageData(image as unknown as ImageData)
 
       // Edge detection for damage boundaries
       const edges = new cv.Mat()
@@ -350,14 +363,16 @@ export class DamageAssessmentEngine extends EventEmitter {
     const detections = []
 
     for (const analysis of imageAnalyses) {
-      if (!analysis.url) continue
+      if (!analysis.url) {
+continue
+}
 
       // Prepare image for model
       const imageBuffer = await this.downloadImage(analysis.url)
       const tensor = await this.preprocessImageForModel(imageBuffer, [640, 640])
 
       // Run inference
-      const predictions = await model.predict(tensor) as tf.Tensor
+      const predictions = await model.predict(tensor)
       const predictionData = await predictions.array()
 
       // Process predictions
@@ -392,7 +407,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     const tensor = tf.tensor2d([features])
 
     // Predict
-    const prediction = await model.predict(tensor) as tf.Tensor
+    const prediction = await model.predict(tensor)
     const scores = await prediction.array() as number[][]
 
     // Cleanup
@@ -426,7 +441,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     const tensor = tf.tensor2d([features])
 
     // Predict
-    const prediction = await model.predict(tensor) as tf.Tensor
+    const prediction = await model.predict(tensor)
     const [predicted] = await prediction.array() as number[][]
 
     // Cleanup
@@ -459,7 +474,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     const features = this.extractTimeFeatures(detections, severity)
     const tensor = tf.tensor2d([features])
 
-    const prediction = await model.predict(tensor) as tf.Tensor
+    const prediction = await model.predict(tensor)
     const [hours, confidence] = await prediction.array() as number[][]
 
     tensor.dispose()
@@ -491,7 +506,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     if (model) {
       const features = this.extractFraudFeatures(indicators)
       const tensor = tf.tensor2d([features])
-      const prediction = await model.predict(tensor) as tf.Tensor
+      const prediction = await model.predict(tensor)
       const [score] = await prediction.array() as number[][]
       riskScore = score[0]
       tensor.dispose()
@@ -531,6 +546,10 @@ export class DamageAssessmentEngine extends EventEmitter {
 
     Format as JSON array.
     `
+
+    if (!this.openai) {
+      return this.generateFallbackRecommendations(detections, severity)
+    }
 
     try {
       const response = await this.openai.chat.completions.create({
@@ -601,7 +620,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     )
 
     // Normalize to [0, 1]
-    return tensor.div(255.0).expandDims(0)
+    return (tensor as unknown as { div(n: number): { expandDims(n: number): tf.Tensor } }).div(255.0).expandDims(0)
   }
 
   private extractExifData(imageBuffer: Buffer): any {
@@ -709,7 +728,9 @@ export class DamageAssessmentEngine extends EventEmitter {
   private calculateFraudRiskScore(indicators: any): number {
     // Rule-based fraud scoring
     let score = 0
-    if (indicators.imageManipulation.detected) score += 0.4
+    if (indicators.imageManipulation.detected) {
+score += 0.4
+}
     score += indicators.inconsistencies.length * 0.1
     score += indicators.suspiciousPatterns.length * 0.05
     return Math.min(score, 1)
@@ -756,9 +777,9 @@ export class DamageAssessmentEngine extends EventEmitter {
     const types = detections.map(d => d.type)
     const primary = types[0] || 'unknown'
     const secondary = types.slice(1)
-    const confidence = {}
-    types.forEach(t => {
-      confidence[t] = detections.filter(d => d.type === t).length / detections.length
+    const confidence: Record<string, number> = {}
+    types.forEach((t: string) => {
+      confidence[t] = detections.filter((d: { type: string }) => d.type === t).length / detections.length
     })
     return { primary, secondary, confidence }
   }
@@ -787,7 +808,7 @@ export class DamageAssessmentEngine extends EventEmitter {
   ): any {
     // Statistical cost estimation
     const baseCost = vehicleInfo.currentValue * 0.01
-    const severityMultiplier = { minor: 1, moderate: 3, major: 7, critical: 15 }[severity.class] || 1
+    const severityMultiplier = ({ minor: 1, moderate: 3, major: 7, critical: 15 } as Record<string, number>)[severity.class] || 1
     const predicted = baseCost * severityMultiplier * detections.length
 
     return {
@@ -799,7 +820,7 @@ export class DamageAssessmentEngine extends EventEmitter {
 
   private lookupBasedTimeEstimation(detections: any[], severity: any): any {
     // Lookup-based time estimation
-    const baseHours = { minor: 8, moderate: 24, major: 72, critical: 120 }[severity.class] || 8
+    const baseHours = ({ minor: 8, moderate: 24, major: 72, critical: 120 } as Record<string, number>)[severity.class] || 8
     return {
       hours: baseHours * Math.log(detections.length + 1),
       confidence: 0.5,

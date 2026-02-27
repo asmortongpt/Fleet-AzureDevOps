@@ -62,7 +62,7 @@ export const validateClientState = async (
     const notifications = req.body?.value
 
     if (!notifications || !Array.isArray(notifications)) {
-      console.error('❌ Invalid webhook payload - no notifications array')
+      logger.error('Invalid webhook payload - no notifications array')
       return res.status(400).json({ error: 'Invalid webhook payload' })
     }
 
@@ -71,7 +71,7 @@ export const validateClientState = async (
       const { clientState, subscriptionId } = notification
 
       if (!clientState || !subscriptionId) {
-        console.error('❌ Missing clientState or subscriptionId in notification')
+        logger.error('Missing clientState or subscriptionId in notification')
         return res.status(400).json({ error: 'Missing required fields' })
       }
 
@@ -90,7 +90,7 @@ export const validateClientState = async (
 
       if (subscription.client_state !== clientState) {
         logger.error('❌ Client state mismatch for subscription:', { error: subscriptionId })
-        console.error('Expected:', subscription.client_state)
+        logger.error('Expected:', { error: subscription.client_state })
         logger.error('Received:', { error: clientState })
 
         // Log security incident
@@ -214,7 +214,7 @@ export const logWebhookActivity = (
   const startTime = Date.now()
 
   // Log request
-  console.log('🔔 Webhook request received:', {
+  logger.info('Webhook request received', {
     method: req.method,
     path: req.path,
     ip: req.ip,
@@ -229,7 +229,7 @@ export const logWebhookActivity = (
   // Override to log response
   res.json = function(body: any) {
     const duration = Date.now() - startTime
-    console.log(`📤 Webhook response:`, {
+    logger.info('Webhook response', {
       statusCode: res.statusCode,
       duration: `${duration}ms`,
       success: res.statusCode >= 200 && res.statusCode < 300
@@ -239,7 +239,7 @@ export const logWebhookActivity = (
 
   res.send = function(body: any) {
     const duration = Date.now() - startTime
-    console.log(`📤 Webhook response:`, {
+    logger.info('Webhook response', {
       statusCode: res.statusCode,
       duration: `${duration}ms`,
       success: res.statusCode >= 200 && res.statusCode < 300

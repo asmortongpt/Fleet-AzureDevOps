@@ -10,8 +10,8 @@
  * - Alert rules management
  */
 
-import { Bell, Check, CheckCircle, AlertTriangle, Info, ArrowUp, Search, Filter } from 'lucide-react'
 import { AxiosResponse } from 'axios'
+import { Bell, Check, CheckCircle, AlertTriangle, Info, ArrowUp, Search, Filter } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -37,6 +37,8 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { apiClient } from '@/lib/api-client'
 import { useInspect } from '@/services/inspect/InspectContext'
+import { formatDateTime } from '@/utils/format-helpers'
+import logger from '@/utils/logger'
 
 interface Alert {
   id: string
@@ -88,7 +90,8 @@ export function Notifications() {
       const response: AxiosResponse<AlertsResponse> = await apiClient.get('/api/alerts', { params })
       setAlerts(response.data?.alerts || [])
     } catch (_error) {
-      // Silent failure - alerts data will retry on next fetch
+      // Alerts data will retry on next fetch
+      logger.warn('Failed to fetch alerts', { error: String(_error) })
     } finally {
       setIsLoading(false)
     }
@@ -99,7 +102,8 @@ export function Notifications() {
       const response: AxiosResponse<AlertStats> = await apiClient.get('/api/alerts/stats')
       setStats(response.data)
     } catch (_error) {
-      // Silent failure - stats data is optional
+      // Stats data is optional - log and continue
+      logger.warn('Failed to fetch alert stats', { error: String(_error) })
     }
   }
 
@@ -114,7 +118,8 @@ export function Notifications() {
       fetchAlerts()
       fetchStats()
     } catch (_error) {
-      // Silent failure - user will retry if needed
+      // User can retry if needed
+      logger.warn('Failed to acknowledge alert', { alertId, error: String(_error) })
     }
   }
 
@@ -131,7 +136,8 @@ export function Notifications() {
       fetchAlerts()
       fetchStats()
     } catch (_error) {
-      // Silent failure - user will retry if needed
+      // User can retry if needed
+      logger.warn('Failed to resolve alert', { alertId: selectedAlert.id, error: String(_error) })
     }
   }
 
@@ -158,7 +164,7 @@ export function Notifications() {
         return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20'
       case 'info':
       default:
-        return 'text-blue-800 bg-blue-100 dark:bg-blue-900/20'
+        return 'text-emerald-800 bg-emerald-500/10 dark:bg-emerald-900/20'
     }
   }
 
@@ -167,17 +173,13 @@ export function Notifications() {
       case 'resolved':
         return 'text-green-600 bg-green-100'
       case 'acknowledged':
-        return 'text-blue-800 bg-blue-100'
+        return 'text-emerald-800 bg-emerald-500/10'
       case 'sent':
-        return 'text-purple-600 bg-purple-100'
+        return 'text-amber-600 bg-amber-100'
       case 'pending':
       default:
-        return 'text-slate-700 bg-gray-100'
+        return 'text-white/70 bg-white/[0.05]'
     }
-  }
-
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString()
   }
 
   const filteredAlerts = alerts.filter(alert => {
@@ -220,7 +222,7 @@ export function Notifications() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-blue-800" />
+              <Bell className="w-4 h-4 text-emerald-800" />
               <div className="text-base font-bold">
                 {stats?.by_status.find(s => s.status === 'sent')?.count || 0}
               </div>

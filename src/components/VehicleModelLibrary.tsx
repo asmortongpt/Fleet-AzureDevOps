@@ -17,6 +17,7 @@ import {
   Check,
 } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
+import { toast } from 'sonner';
 
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getVehicleModelsService, type Vehicle3DModel } from '@/services/vehicle-models';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 interface VehicleModelLibraryProps extends React.HTMLAttributes<HTMLDivElement> {
   onSelectModel?: (model: Vehicle3DModel) => void;
   selectedModelId?: string;
@@ -59,7 +61,7 @@ export function VehicleModelLibrary({
 
   const memoizedComputation = useMemo(() => (compute ? compute() : null), [compute]);
 
-  if (process.env.NODE_ENV === 'test') {
+  if (import.meta.env.MODE === 'test') {
     const { invalidProp, onClick, onKeyDown, onSubmit, ...safeRest } = rest as Record<string, unknown>;
     const [uiStatus, setUiStatus] = useState('');
     const sanitizeValue = (input?: string) =>
@@ -127,7 +129,7 @@ export function VehicleModelLibrary({
 
   // Load models
   useEffect(() => {
-    if (process.env.NODE_ENV === 'test') return;
+    if (import.meta.env.MODE === 'test') return;
     loadModels();
   }, [searchQuery, vehicleType, make, source, quality, page, activeTab]);
 
@@ -166,7 +168,7 @@ export function VehicleModelLibrary({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(0);
-    if (process.env.NODE_ENV !== 'test') {
+    if (import.meta.env.MODE !== 'test') {
       loadModels();
     }
   };
@@ -183,7 +185,7 @@ export function VehicleModelLibrary({
       await service.downloadModel(model.id, `${model.name}.${model.fileFormat}`);
     } catch (error) {
       logger.error('Download error:', error);
-      alert('Failed to download model');
+      toast.error('Failed to download model');
     }
   };
 
@@ -211,6 +213,7 @@ export function VehicleModelLibrary({
             variant="outline"
             size="icon"
             onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+            aria-label={viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}
           >
             {viewMode === 'grid' ? <List className="h-4 w-4" /> : <Grid3x3 className="h-4 w-4" />}
           </Button>
@@ -393,7 +396,7 @@ function ModelCard({
   if (viewMode === 'list') {
     return (
       <Card
-        className={`cursor-pointer hover:shadow-sm transition-shadow ${
+        className={`cursor-pointer hover:border-white/[0.12] transition-colors ${
           isSelected ? 'ring-2 ring-primary' : ''
         }`}
         onClick={onSelect}
@@ -419,7 +422,7 @@ function ModelCard({
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold truncate">{model.name}</h3>
               <p className="text-sm text-muted-foreground truncate">
-                {[model.make, model.model, model.year].filter(Boolean).join(' ')}
+                {formatVehicleName({ year: model.year as unknown as number, make: model.make, model: model.model })}
               </p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant="secondary">{model.source}</Badge>
@@ -467,7 +470,7 @@ function ModelCard({
   // Grid view
   return (
     <Card
-      className={`cursor-pointer hover:shadow-sm transition-shadow overflow-hidden ${
+      className={`cursor-pointer hover:border-white/[0.12] transition-colors overflow-hidden ${
         isSelected ? 'ring-2 ring-primary' : ''
       }`}
       onClick={onSelect}
@@ -507,7 +510,7 @@ function ModelCard({
           {model.name}
         </h3>
         <p className="text-sm text-muted-foreground truncate">
-          {[model.make, model.model, model.year].filter(Boolean).join(' ') || 'No details'}
+          {formatVehicleName({ year: model.year as unknown as number, make: model.make, model: model.model }) || 'No details'}
         </p>
 
         <div className="flex items-center gap-2 mt-3">

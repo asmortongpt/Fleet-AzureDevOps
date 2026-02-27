@@ -4,12 +4,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import apiClient from '../../lib/api-client';
 
+
 import AlertsPanel from './AlertsPanel';
 import EmulatorMonitor from './EmulatorMonitor';
 import ErrorRateChart from './ErrorRateChart';
 import PerformanceMetrics from './PerformanceMetrics';
 import SystemHealthWidget from './SystemHealthWidget';
 
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 // Import proper interfaces from child components
@@ -98,11 +100,11 @@ const MonitoringDashboard: React.FC = () => {
 
       // Fetch all monitoring data in parallel
       const [healthRes, metricsRes, emulatorsRes, errorsRes, alertsRes] = await Promise.all([
-        apiClient.get<SystemHealth>('/monitoring/health'),
-        apiClient.get<Metrics>('/monitoring/metrics'),
-        apiClient.get<EmulatorGroup>('/monitoring/emulators'),
-        apiClient.get<DashboardError[]>('/monitoring/errors'),
-        apiClient.get<DashboardAlert[]>('/monitoring/alerts')
+        apiClient.get<SystemHealth>('/monitoring/health').catch(() => null),
+        apiClient.get<Metrics>('/monitoring/metrics').catch(() => null),
+        apiClient.get<EmulatorGroup>('/monitoring/emulators').catch(() => null),
+        apiClient.get<DashboardError[]>('/monitoring/errors').catch(() => null as unknown as DashboardError[]),
+        apiClient.get<DashboardAlert[]>('/monitoring/alerts').catch(() => null as unknown as DashboardAlert[])
       ]);
 
       setData({
@@ -145,7 +147,7 @@ const MonitoringDashboard: React.FC = () => {
 
   const exportToCSV = () => {
     const csvContent = `Monitoring Report - ${new Date().toISOString()}\n\n` +
-      `System Health: ${data.health?.status || 'Unknown'}\n` +
+      `System Health: ${data.health?.status || '—'}\n` +
       `Uptime: ${data.health?.uptime || 0} seconds\n` +
       `API Response Time: ${data.health?.components?.api?.responseTime || 0}ms\n` +
       `Active Emulators: ${data.emulators?.instances?.filter(i => i.status === 'active')?.length || 0}\n` +
@@ -179,7 +181,7 @@ const MonitoringDashboard: React.FC = () => {
             <div>
               <Typography variant="h4">System Monitoring Dashboard</Typography>
               <Typography variant="body2" color="text.secondary">
-                Last updated: {lastRefresh.toLocaleTimeString()}
+                Last updated: {formatTime(lastRefresh)}
               </Typography>
             </div>
           </Box>

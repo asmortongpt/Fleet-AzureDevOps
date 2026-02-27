@@ -12,6 +12,8 @@ import { defaultResource, resourceFromAttributes } from '@opentelemetry/resource
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 
+import logger from './logger';
+
 /**
  * Custom span creation helper
  * Use this to create manual spans for business logic
@@ -42,14 +44,14 @@ if (azureConnectionString) {
     },
   });
 
-  console.log(`OpenTelemetry: Configured for Azure Application Insights`);
+  logger.info('OpenTelemetry: Configured for Azure Application Insights');
 } else {
   // Use generic OTLP endpoint (Jaeger, Tempo, etc.)
   traceExporter = new OTLPTraceExporter({
     url: otlpEndpoint,
   });
 
-  console.log(`OpenTelemetry: Configured for OTLP endpoint: ${otlpEndpoint}`);
+  logger.info('OpenTelemetry: Configured for OTLP endpoint', { otlpEndpoint });
 }
 
 // Create resource with service information
@@ -103,12 +105,15 @@ const sdk = new NodeSDK({
   ],
 });
 
-// Graceful shutdown
+// Graceful shutdown (guarded to prevent "shutdown may only be called once" spam)
+let isShuttingDown = false;
 process.on('SIGTERM', () => {
-  sdk
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  void sdk
     .shutdown()
-    .then(() => console.log('OpenTelemetry SDK shut down successfully'))
-    .catch((error) => console.error('Error shutting down OpenTelemetry SDK', error))
+    .then(() => logger.info('OpenTelemetry SDK shut down successfully'))
+    .catch((error) => logger.error('Error shutting down OpenTelemetry SDK', { error }))
     .finally(() => process.exit(0));
 });
 
@@ -137,11 +142,11 @@ export function traced(name: string) {
           const result = await originalMethod.apply(this, args);
           span.setStatus({ code: SpanStatusCode.OK });
           return result;
-        } catch (error: any) {
-          span.recordException(error);
+        } catch (error: unknown) {
+          span.recordException(error instanceof Error ? error : new Error(String(error)));
           span.setStatus({
             code: SpanStatusCode.ERROR,
-            message: error.message,
+            message: error instanceof Error ? error.message : 'An unexpected error occurred',
           });
           throw error;
         } finally {
@@ -178,11 +183,11 @@ export async function traceAsync<T>(
       const result = await operation();
       span.setStatus({ code: SpanStatusCode.OK });
       return result;
-    } catch (error: any) {
-      span.recordException(error);
+    } catch (error: unknown) {
+      span.recordException(error instanceof Error ? error : new Error(String(error)));
       span.setStatus({
         code: SpanStatusCode.ERROR,
-        message: error.message,
+        message: error instanceof Error ? error.message : 'An unexpected error occurred',
       });
       throw error;
     } finally {

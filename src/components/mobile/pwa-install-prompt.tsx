@@ -93,7 +93,7 @@ export function PWAInstallPrompt() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[9998] bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-sm"
+      className="fixed bottom-0 left-0 right-0 z-[9998] bg-[#111111] text-white border-t border-white/[0.04]"
       role="dialog"
       aria-labelledby="pwa-install-title"
       aria-describedby="pwa-install-description"
@@ -118,7 +118,7 @@ export function PWAInstallPrompt() {
               {!isIOS && deferredPrompt && (
                 <button
                   onClick={handleInstallClick}
-                  className="flex items-center gap-2 px-2 py-2 bg-white text-blue-700 rounded-lg font-medium hover:bg-blue-50 transition-colors text-sm md:text-base"
+                  className="flex items-center gap-2 px-2 py-2 bg-emerald-500 text-white rounded-lg font-medium hover:bg-emerald-400 transition-colors text-sm md:text-base"
                 >
                   <Download className="w-4 h-4" aria-hidden="true" />
                   Install Now
@@ -146,7 +146,7 @@ export function PWAInstallPrompt() {
 
       {/* iOS Instructions Visual */}
       {isIOS && (
-        <div className="border-t border-white/20 bg-white/5 px-2 py-3">
+        <div className="border-t border-white/[0.04] bg-white/[0.03] px-2 py-3">
           <div className="flex items-center gap-3 text-xs md:text-sm">
             <span>Tap</span>
             <div className="p-1.5 bg-white/20 rounded">

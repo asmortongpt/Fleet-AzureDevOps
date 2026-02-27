@@ -4,6 +4,7 @@
  */
 
 import express, { Response } from 'express';
+import { z } from 'zod';
 
 import logger from '../config/logger';
 import { pool } from '../db/connection';
@@ -25,6 +26,76 @@ import {
   PolicyExpirationAlert,
 } from '../types/insurance';
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety';
+
+// ============================================================================
+// ZOD VALIDATION SCHEMAS
+// ============================================================================
+
+const policyTypeEnum = z.enum(['liability', 'collision', 'comprehensive', 'cargo', 'workers-comp']);
+const policyStatusEnum = z.enum(['active', 'expired', 'cancelled', 'pending-renewal']);
+const premiumFrequencyEnum = z.enum(['monthly', 'quarterly', 'annual']);
+const claimTypeEnum = z.enum(['property-damage', 'bodily-injury', 'comprehensive', 'collision']);
+const claimStatusEnum = z.enum(['filed', 'under-review', 'approved', 'denied', 'settled', 'closed']);
+const atFaultPartyEnum = z.enum(['our-driver', 'third-party', 'unknown', 'both']);
+
+const coverageLimitsSchema = z.record(z.string(), z.number().optional());
+
+const createPolicySchema = z.object({
+  policy_number: z.string().min(1).max(100),
+  policy_type: policyTypeEnum,
+  insurance_carrier: z.string().min(1).max(200),
+  carrier_contact_name: z.string().max(200).optional(),
+  carrier_contact_phone: z.string().max(50).optional(),
+  carrier_contact_email: z.string().email().max(200).optional(),
+  policy_start_date: z.string().min(1),
+  policy_end_date: z.string().min(1),
+  premium_amount: z.number().nonnegative().max(10_000_000),
+  premium_frequency: premiumFrequencyEnum.optional(),
+  deductible_amount: z.number().nonnegative().max(1_000_000).optional(),
+  coverage_limits: coverageLimitsSchema,
+  covered_vehicles: z.union([z.array(z.string()), z.literal('all')]).optional(),
+  covered_drivers: z.union([z.array(z.string()), z.literal('all')]).optional(),
+  policy_document_url: z.string().url().max(2000).optional(),
+  auto_renew: z.boolean().optional(),
+  renewal_notice_days: z.number().int().min(0).max(365).optional(),
+  notes: z.string().max(5000).optional(),
+}).passthrough();
+
+const updatePolicySchema = createPolicySchema.partial().extend({
+  status: policyStatusEnum.optional(),
+}).passthrough();
+
+const fileClaimSchema = z.object({
+  claim_number: z.string().max(100).optional(),
+  incident_id: z.string().min(1),
+  policy_id: z.string().min(1),
+  claim_type: claimTypeEnum,
+  filed_date: z.string().min(1),
+  claim_amount_requested: z.number().nonnegative().max(100_000_000).optional(),
+  at_fault_party: atFaultPartyEnum.optional(),
+  at_fault_percentage: z.number().min(0).max(100).optional(),
+  total_loss: z.boolean().optional(),
+  claim_notes: z.string().max(10_000).optional(),
+}).passthrough();
+
+const updateClaimStatusSchema = z.object({
+  status: claimStatusEnum,
+  denial_reason: z.string().max(5000).optional(),
+  claim_amount_approved: z.number().nonnegative().max(100_000_000).optional(),
+  payout_amount: z.number().nonnegative().max(100_000_000).optional(),
+  payout_date: z.string().optional(),
+  insurance_adjuster_name: z.string().max(200).optional(),
+  insurance_adjuster_phone: z.string().max(50).optional(),
+  insurance_adjuster_email: z.string().email().max(200).optional(),
+  notes: z.string().max(5000).optional(),
+}).passthrough();
+
+const coverageVerificationSchema = z.object({
+  vehicle_id: z.string().optional(),
+  driver_id: z.string().optional(),
+  date: z.string().optional(),
+  policy_type: policyTypeEnum.optional(),
+});
 
 const router = express.Router();
 router.use(authenticateJWT);
@@ -119,7 +190,11 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'insurance_policies' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data: CreatePolicyRequest = req.body;
+      const parsed = createPolicySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+      }
+      const data = parsed.data as unknown as CreatePolicyRequest;
 
       // Validate dates
       if (new Date(data.policy_end_date) < new Date(data.policy_start_date)) {
@@ -139,9 +214,9 @@ router.post(
 
       logger.info(`Insurance policy created: ${result.rows[0].policy_number}`);
       res.status(201).json(result.rows[0]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Create insurance policy error:', error);
-      if (error.code === '23505') {
+      if ((error as Record<string, unknown>).code === '23505') {
         return res.status(409).json({ error: 'Policy number already exists' });
       }
       res.status(500).json({ error: 'Internal server error' });
@@ -193,7 +268,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'insurance_policies' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data: UpdatePolicyRequest = req.body;
+      const parsed = updatePolicySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+      }
+      const data = parsed.data as unknown as UpdatePolicyRequest;
       const { fields, values } = buildUpdateClause(data, 3);
 
       const result = await pool.query(
@@ -270,7 +349,12 @@ router.post(
     try {
       await client.query('BEGIN');
 
-      const data: FileClaimRequest = req.body;
+      const parsed = fileClaimSchema.safeParse(req.body);
+      if (!parsed.success) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+      }
+      const data = parsed.data as unknown as FileClaimRequest;
 
       // Generate claim number if not provided
       let claim_number = data.claim_number;
@@ -348,10 +432,10 @@ router.post(
 
       logger.info(`Insurance claim filed: ${claim_number}`);
       res.status(201).json(claimResult.rows[0]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       await client.query('ROLLBACK');
       logger.error('File insurance claim error:', error);
-      if (error.code === '23505') {
+      if ((error as Record<string, unknown>).code === '23505') {
         return res.status(409).json({ error: 'Claim number already exists' });
       }
       res.status(500).json({ error: 'Internal server error' });
@@ -415,7 +499,12 @@ router.put(
     try {
       await client.query('BEGIN');
 
-      const data: UpdateClaimStatusRequest = req.body;
+      const parsed = updateClaimStatusSchema.safeParse(req.body);
+      if (!parsed.success) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+      }
+      const data = parsed.data as unknown as UpdateClaimStatusRequest;
 
       // Get current claim
       const currentResult = await client.query(
@@ -657,7 +746,11 @@ router.post(
   auditLog({ action: 'READ', resourceType: 'insurance_policies' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data: CoverageVerificationRequest = req.body;
+      const parsed = coverageVerificationSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+      }
+      const data = parsed.data as unknown as CoverageVerificationRequest;
       const checkDate = data.date || new Date().toISOString().split('T')[0];
 
       let policies: any[] = [];

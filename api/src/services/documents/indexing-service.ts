@@ -2,6 +2,7 @@
 // Extracts entities, generates summaries, and creates searchable indexes
 
 import { getAIService } from '../api-bus/ai-service'
+import logger from '../../config/logger'
 
 import {
   Document,
@@ -113,7 +114,7 @@ Text: ${text.substring(0, 4000)}`
       })
 
       // Parse JSON response
-      const content = response.choices[0]?.message?.content || '[]'
+      const content = response.choices?.[0]?.message?.content || '[]'
       let entities: ExtractedEntity[] = []
 
       try {
@@ -123,7 +124,7 @@ Text: ${text.substring(0, 4000)}`
           entities = JSON.parse(jsonMatch[0])
         }
       } catch (parseError) {
-        console.error('[Indexing] Failed to parse entities:', parseError)
+        logger.error('[Indexing] Failed to parse entities', { error: parseError })
       }
 
       // Enrich with fleet-specific entity detection
@@ -132,7 +133,7 @@ Text: ${text.substring(0, 4000)}`
       return entities
 
     } catch (error) {
-      console.error('[Indexing] Error extracting entities:', error)
+      logger.error('[Indexing] Error extracting entities', { error })
       return []
     }
   }
@@ -219,10 +220,10 @@ ${text.substring(0, 8000)}`
         maxTokens: 200
       })
 
-      return response.choices[0]?.message?.content || ''
+      return response.choices?.[0]?.message?.content || ''
 
     } catch (error) {
-      console.error('[Indexing] Error generating summary:', error)
+      logger.error('[Indexing] Error generating summary', { error })
       return ''
     }
   }
@@ -257,7 +258,7 @@ Text: ${text.substring(0, 4000)}`
         maxTokens: 100
       })
 
-      const content = response.choices[0]?.message?.content || '{}'
+      const content = response.choices?.[0]?.message?.content || '{}'
       const jsonMatch = content.match(/\{[\s\S]*\}/)
 
       if (jsonMatch) {
@@ -272,7 +273,7 @@ Text: ${text.substring(0, 4000)}`
       }
 
     } catch (error) {
-      console.error('[Indexing] Error analyzing sentiment:', error)
+      logger.error('[Indexing] Error analyzing sentiment', { error })
       return {
         score: 0,
         magnitude: 0,
@@ -306,7 +307,7 @@ Text: ${text.substring(0, 6000)}`
         maxTokens: 150
       })
 
-      const content = response.choices[0]?.message?.content || '[]'
+      const content = response.choices?.[0]?.message?.content || '[]'
       const jsonMatch = content.match(/\[[\s\S]*\]/)
 
       if (jsonMatch) {
@@ -316,7 +317,7 @@ Text: ${text.substring(0, 6000)}`
       return []
 
     } catch (error) {
-      console.error('[Indexing] Error extracting topics:', error)
+      logger.error('[Indexing] Error extracting topics', { error })
       return []
     }
   }
@@ -389,7 +390,7 @@ Text: ${text.substring(0, 6000)}`
       return []
 
     } catch (error) {
-      console.error('[Indexing] Error generating semantic vector:', error)
+      logger.error('[Indexing] Error generating semantic vector', { error })
       return []
     }
   }
@@ -452,10 +453,14 @@ Text: ${text.substring(0, 6000)}`
     status: 'processing' | 'completed' | 'failed'
   ): Promise<void> {
     const job = this.activeJobs.get(jobId)
-    if (!job) return
+    if (!job) {
+return
+}
 
     const step = job.steps.find(s => s.name === stepName)
-    if (!step) return
+    if (!step) {
+return
+}
 
     step.status = status
 
@@ -479,7 +484,7 @@ Text: ${text.substring(0, 6000)}`
    * Re-index all documents (bulk operation)
    */
   async reindexAllDocuments(documents: Document[]): Promise<void> {
-    console.log(`[Indexing] Re-indexing ${documents.length} documents...`)
+    logger.info('[Indexing] Re-indexing documents', { count: documents.length })
 
     const batchSize = 10
     for (let i = 0; i < documents.length; i += batchSize) {
@@ -487,14 +492,14 @@ Text: ${text.substring(0, 6000)}`
 
       await Promise.all(
         batch.map(doc => this.indexDocument(doc).catch(err => {
-          console.error(`[Indexing] Failed to index document ${doc.id}:`, err)
+          logger.error('[Indexing] Failed to index document', { documentId: doc.id, error: err })
         }))
       )
 
-      console.log(`[Indexing] Processed ${Math.min(i + batchSize, documents.length)} / ${documents.length}`)
+      logger.info('[Indexing] Batch progress', { processed: Math.min(i + batchSize, documents.length), total: documents.length })
     }
 
-    console.log('[Indexing] Re-indexing complete')
+    logger.info('[Indexing] Re-indexing complete')
   }
 }
 

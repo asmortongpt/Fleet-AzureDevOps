@@ -28,14 +28,14 @@ export class AuthzMiddleware {
         }
 
         const hasPermission = await this.authzService.hasPermission(
-          req.user.userUuid,
+          req.user.userUuid ?? req.user.id,
           permission,
           resource || req.params
         );
 
         if (!hasPermission) {
           await this.auditService.log({
-            userId: req.user.userId.toString(),
+            userId: (req.user.userId ?? req.user.id).toString(),
             action: 'permission_check',
             category: AuditCategory.AUTHORIZATION,
             severity: AuditSeverity.WARNING,
@@ -70,7 +70,7 @@ export class AuthzMiddleware {
           return;
         }
 
-        const userRoles = await this.authzService.getUserRoles(req.user.userUuid);
+        const userRoles = await this.authzService.getUserRoles(req.user.userUuid ?? req.user.id);
         const hasRole = userRoles.some(role => roles.includes(role.name));
 
         if (!hasRole) {

@@ -1,6 +1,7 @@
 import { Package, DollarSign, TrendingDown } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
+import { formatCurrency } from "@/utils/format-helpers"
 
 interface AssetStatsBarProps {
   totalAssets: number
@@ -59,7 +60,7 @@ export function AssetStatsBar({
             <DollarSign className="w-3 h-3 text-primary" />
           </div>
           <div>
-            <p className="text-sm font-bold">${totalValue.toLocaleString()}</p>
+            <p className="text-sm font-bold">{formatCurrency(totalValue)}</p>
             <p className="text-xs text-muted-foreground">Total Value</p>
           </div>
         </div>

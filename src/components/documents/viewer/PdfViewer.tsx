@@ -24,8 +24,8 @@ export function PdfViewer({ document, state, onStateChange }: PdfViewerProps) {
   const [showAnnotations, setShowAnnotations] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const pageCount = document.pageCount ?? state.pageCount ?? 1;
-  const hasPageCount = typeof document.pageCount === 'number' || typeof state.pageCount === 'number';
+  const pageCount = document.pageCount ?? 1;
+  const hasPageCount = typeof document.pageCount === 'number';
   const currentPage = state.currentPage || 1;
   const pdfSrc = document.url ? `${document.url}#page=${currentPage}&zoom=${state.zoom}` : null;
 
@@ -152,7 +152,7 @@ export function PdfViewer({ document, state, onStateChange }: PdfViewerProps) {
             {pdfSrc ? (
               <iframe
                 src={pdfSrc}
-                className="w-full h-[80vh] bg-white shadow-sm rounded-md"
+                className="w-full h-[80vh] bg-white rounded-md"
                 title={`PDF Preview: ${document.name}`}
               />
             ) : (

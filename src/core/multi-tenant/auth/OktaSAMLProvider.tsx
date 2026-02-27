@@ -1,4 +1,4 @@
-// @ts-ignore - Okta packages may not be installed in all environments
+// Type declarations for Okta provided by src/@types/okta.d.ts (packages not installed)
 import { OktaAuth, AuthState } from '@okta/okta-auth-js';
 // @ts-ignore - Okta packages may not be installed in all environments
 import { Security, LoginCallback } from '@okta/okta-react';
@@ -69,13 +69,13 @@ export interface AuthContextType {
 
 // Okta Configuration for DCF Production
 const oktaConfig = {
-  issuer: process.env.VITE_REACT_APP_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
-  clientId: process.env.VITE_REACT_APP_OKTA_CLIENT_ID || 'dcf-fleet-management-client',
-  redirectUri: process.env.VITE_REACT_APP_OKTA_REDIRECT_URI || (typeof window !== "undefined" ? window.location.origin + '/login/callback' : ''),
-  postLogoutRedirectUri: process.env.VITE_REACT_APP_OKTA_POST_LOGOUT_URI || (typeof window !== "undefined" ? window.location.origin : ''),
+  issuer: import.meta.env.VITE_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
+  clientId: import.meta.env.VITE_OKTA_CLIENT_ID || 'dcf-fleet-management-client',
+  redirectUri: import.meta.env.VITE_OKTA_REDIRECT_URI || (typeof window !== "undefined" ? window.location.origin + '/login/callback' : ''),
+  postLogoutRedirectUri: import.meta.env.VITE_OKTA_POST_LOGOUT_URI || (typeof window !== "undefined" ? window.location.origin : ''),
   scopes: ['openid', 'profile', 'email', 'groups', 'dcf.fleet.access'],
   pkce: true,
-  devMode: process.env.VITE_NODE_ENV === 'development',
+  devMode: import.meta.env.VITE_NODE_ENV === 'development',
 
   // SAML 2.0 Configuration
   features: {
@@ -104,7 +104,7 @@ const oktaConfig = {
     autoRenew: true,
     autoRemove: true,
     storage: 'sessionStorage', // Use sessionStorage for enhanced security
-    secure: process.env.VITE_NODE_ENV === 'production',
+    secure: import.meta.env.VITE_NODE_ENV === 'production',
     sameSite: 'strict',
     expireEarlySeconds: 60 // Renew tokens 1 minute before expiry
   },
@@ -234,6 +234,7 @@ const handleSecurityEvent = (event: string, data: any) => {
   if (import.meta.env.VITE_NODE_ENV === 'production') {
     fetch('/api/security/events', {
       method: 'POST',
+      credentials: 'include',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(securityLog)
     }).catch(err => logger.error('Security log failed:', err));
@@ -460,7 +461,7 @@ export const ProtectedRoute: React.FC<{
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-emerald-500"></div>
       </div>
     );
   }

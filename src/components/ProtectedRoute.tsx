@@ -21,6 +21,16 @@ import { Navigate } from 'react-router-dom';
 import { useAuth, UserRole } from '@/hooks/useAuth';
 import logger from '@/utils/logger';
 
+// SECURITY: Auth bypass strictly development-only
+// Production builds MUST NOT have SKIP_AUTH set
+if (import.meta.env.PROD && (import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true')) {
+  throw new Error('[SECURITY] Auth bypass is not permitted in production environments');
+}
+
+const SKIP_AUTH = !import.meta.env.PROD && (import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true');
+
+// SKIP_AUTH mode - all routes will bypass authentication when enabled
+
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAuth?: boolean; // Default: true
@@ -73,24 +83,29 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { user, isLoading, isAuthenticated, canAccess } = useAuth();
 
-  // CRITICAL DEBUG: Log auth state on every render
-  logger.debug('[ProtectedRoute] Render check:', {
-    isLoading,
-    isAuthenticated,
-    hasUser: !!user,
-    userId: user?.id,
-    requireAuth,
-    timestamp: new Date().toISOString()
-  });
+  // Auth state logging (development only, suppressed during loading to reduce noise)
+  if (import.meta.env.DEV && !isLoading) {
+    logger.debug('[ProtectedRoute] Auth state:', {
+      isAuthenticated,
+      hasUser: !!user,
+      requireAuth,
+    });
+  }
 
   // Show loading state while auth is initializing
   if (isLoading) {
     logger.debug('[ProtectedRoute] Showing loading state');
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600"></div>
       </div>
     );
+  }
+
+  // DEV: Skip authentication if VITE_SKIP_AUTH=true in .env.local
+  if (SKIP_AUTH) {
+    logger.info('[ProtectedRoute] SKIP_AUTH enabled - auto-authorizing');
+    return <>{children}</>;
   }
 
   // Check authentication requirement

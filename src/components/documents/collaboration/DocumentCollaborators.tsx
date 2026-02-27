@@ -11,6 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Collaborator } from '@/lib/documents/types';
 import { formatRelativeTime } from '@/lib/documents/utils';
+import { formatEnum } from '@/utils/format-enum';
 
 interface DocumentCollaboratorsProps {
   collaborators: Collaborator[];
@@ -131,7 +132,7 @@ function CollaboratorCard({ collaborator, isOnline }: CollaboratorCardProps) {
           </Avatar>
           <div
             className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${
-              isOnline ? 'bg-green-500' : 'bg-gray-400'
+              isOnline ? 'bg-green-500' : 'bg-white/[0.10]'
             }`}
           />
         </div>
@@ -148,8 +149,8 @@ function CollaboratorCard({ collaborator, isOnline }: CollaboratorCardProps) {
       </div>
 
       <div className="flex items-center gap-2">
-        <Badge variant="outline" className="text-xs capitalize">
-          {collaborator.role}
+        <Badge variant="outline" className="text-xs">
+          {formatEnum(collaborator.role)}
         </Badge>
         {isOnline && (
           <TooltipProvider>

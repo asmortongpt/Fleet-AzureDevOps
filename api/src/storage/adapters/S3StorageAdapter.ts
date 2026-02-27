@@ -15,10 +15,9 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
-  PutObjectCommand
+  PutObjectCommand,
 } from '@aws-sdk/client-s3';
-// Import commands that TypeScript incorrectly thinks don't exist
-// @ts-ignore - These commands exist at runtime despite TypeScript errors
+// @ts-expect-error TS2724 - These commands exist at runtime but TS 5.9 has re-export resolution issues
 import { CopyObjectCommand, DeleteObjectsCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -82,10 +81,10 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       const command = new PutObjectCommand({
         Bucket: this.bucket,
         Key: normalizedKey,
-        Body: data as any,
+        Body: data instanceof Buffer ? data : data as unknown as ReadableStream,
         ContentType: options?.contentType,
         Metadata: options?.metadata?.customMetadata || {},
-        ACL: options?.acl as any,
+        ACL: options?.acl as string | undefined,
         CacheControl: options?.cacheControl
       });
 
@@ -138,11 +137,11 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         lastModified: response.LastModified,
         contentLength: response.ContentLength || 0
       };
-    } catch (error: any) {
-      if (error.name === 'NoSuchKey' || error.Code === 'NoSuchKey') {
+    } catch (error: unknown) {
+      if ((error instanceof Error && error.name === 'NoSuchKey') || (error as Record<string, unknown>).Code === 'NoSuchKey') {
         throw new FileNotFoundError(normalizedKey);
       }
-      throw new StorageError(`Failed to download file from S3: ${error.message}`, 'DOWNLOAD_FAILED');
+      throw new StorageError(`Failed to download file from S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'DOWNLOAD_FAILED');
     }
   }
 
@@ -155,8 +154,8 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         Bucket: this.bucket,
         Key: normalizedKey
       }));
-    } catch (error: any) {
-      throw new StorageError(`Failed to delete file from S3: ${error.message}`, 'DELETE_FAILED');
+    } catch (error: unknown) {
+      throw new StorageError(`Failed to delete file from S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'DELETE_FAILED');
     }
   }
 
@@ -174,8 +173,8 @@ export class S3StorageAdapter extends BaseStorageAdapter {
           Quiet: true
         }
       }));
-    } catch (error: any) {
-      throw new StorageError(`Failed to delete multiple files from S3: ${error.message}`, 'DELETE_FAILED');
+    } catch (error: unknown) {
+      throw new StorageError(`Failed to delete multiple files from S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'DELETE_FAILED');
     }
   }
 
@@ -194,7 +193,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
 
       const response = await this.client.send(command);
 
-      const files: FileInfo[] = (response.Contents || []).map((obj: any) => ({
+      const files: FileInfo[] = (response.Contents || []).map((obj: { Key?: string; Size?: number; ETag?: string }) => ({
         key: obj.Key || '',
         name: (obj.Key || '').split('/').pop() || '',
         size: obj.Size || 0,
@@ -203,7 +202,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       }));
 
       const directories = (response.CommonPrefixes || [])
-        .map((prefix: any) => prefix.Prefix)
+        .map((prefix: { Prefix?: string }) => prefix.Prefix)
         .filter(Boolean) as string[];
 
       return {
@@ -212,8 +211,8 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         continuationToken: response.NextContinuationToken,
         isTruncated: response.IsTruncated || false
       };
-    } catch (error: any) {
-      throw new StorageError(`Failed to list files in S3: ${error.message}`, 'LIST_FAILED');
+    } catch (error: unknown) {
+      throw new StorageError(`Failed to list files in S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'LIST_FAILED');
     }
   }
 
@@ -240,8 +239,8 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         metadata: options?.metadata
       };
 
-    } catch (error: any) {
-      throw new StorageError(`Failed to copy file in S3: ${error.message}`, 'COPY_FAILED');
+    } catch (error: unknown) {
+      throw new StorageError(`Failed to copy file in S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'COPY_FAILED');
     }
   }
 
@@ -262,11 +261,12 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         contentType: response.ContentType,
         customMetadata: response.Metadata
       };
-    } catch (error: any) {
-      if (error.name === 'NotFound' || error.name === 'NoSuchKey' || (error.Code === 'NotFound')) {
+    } catch (error: unknown) {
+      const errName = error instanceof Error ? error.name : 'Error';
+      if (errName === 'NotFound' || errName === 'NoSuchKey' || (error as Record<string, unknown>).Code === 'NotFound') {
         throw new FileNotFoundError(normalizedKey);
       }
-      throw new StorageError(`Failed to get metadata from S3: ${error.message}`, 'METADATA_FAILED');
+      throw new StorageError(`Failed to get metadata from S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'METADATA_FAILED');
     }
   }
 
@@ -288,8 +288,8 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       });
 
       return await getSignedUrl(this.client, command, { expiresIn: options?.expiresIn || 3600 });
-    } catch (error: any) {
-      throw new StorageError(`Failed to generate signed URL for S3: ${error.message}`, 'URL_GENERATION_FAILED');
+    } catch (error: unknown) {
+      throw new StorageError(`Failed to generate signed URL for S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'URL_GENERATION_FAILED');
     }
   }
 
@@ -311,9 +311,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
 
   async dispose(): Promise<void> {
     if (this.client) {
-      if (typeof (this.client as any).destroy === 'function') {
-        (this.client as any).destroy();
-      }
+      (this.client as S3Client & { destroy?: () => void }).destroy?.();
     }
     await super.dispose();
   }

@@ -1,3 +1,5 @@
+import logger from './logger';
+
 /**
  * JWT Configuration
  *
@@ -134,10 +136,9 @@ export function validateJWTConfig(config: JWTConfig): void {
   }
 
   if (errors.length > 0) {
-    console.warn('⚠️  JWT Configuration Warnings:')
-    errors.forEach((error) => console.warn(`   - ${error}`))
+    logger.warn('JWT Configuration Warnings', { warnings: errors })
   } else {
-    console.log('✅ JWT Configuration validated successfully')
+    logger.info('JWT Configuration validated successfully')
   }
 }
 

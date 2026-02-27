@@ -3,6 +3,7 @@
  * Production-ready CSV, Excel, and PDF export functions
  */
 
+import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 /**
@@ -77,7 +78,7 @@ export function formatDataForExport(data: any[]): any[] {
         continue;
       }
       if (value instanceof Date) {
-        formatted[key] = value.toLocaleDateString();
+        formatted[key] = formatDate(value);
         continue;
       }
       if (typeof value === 'number' || typeof value === 'boolean') {
@@ -106,7 +107,7 @@ export function downloadFile(content: string | Blob | Uint8Array, filename: stri
   if (content instanceof Blob) {
     blob = content;
   } else if (content instanceof Uint8Array) {
-    blob = new Blob([content], { type: mimeType });
+    blob = new Blob([content as BlobPart], { type: mimeType });
   } else {
     blob = new Blob([content], { type: mimeType });
   }

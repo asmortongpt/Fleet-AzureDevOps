@@ -3,6 +3,8 @@
 import { AlertCircle, RefreshCw, Home, ChevronDown, ChevronUp } from 'lucide-react';
 import React, { ErrorInfo } from 'react';
 
+import { EmailButton } from '@/components/email/EmailButton';
+
 interface ErrorFallbackProps {
   error: Error | null;
   errorInfo: ErrorInfo | null;
@@ -15,7 +17,7 @@ interface ErrorFallbackProps {
  */
 export function ErrorFallback({ error, errorInfo, onReset }: ErrorFallbackProps) {
   const [showDetails, setShowDetails] = React.useState(false);
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = import.meta.env.MODE === 'development';
 
   const handleReload = () => {
     if (onReset) {
@@ -32,7 +34,7 @@ export function ErrorFallback({ error, errorInfo, onReset }: ErrorFallbackProps)
     <div className="min-h-screen bg-background flex items-center justify-center p-2">
       <div className="max-w-2xl w-full">
         {/* Error Card */}
-        <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-card border border-border rounded-lg overflow-hidden">
           {/* Header */}
           <div className="bg-destructive/10 border-b border-destructive/20 p-3">
             <div className="flex items-start gap-2">
@@ -131,14 +133,16 @@ export function ErrorFallback({ error, errorInfo, onReset }: ErrorFallbackProps)
 
           {/* Footer */}
           <div className="bg-muted/30 border-t border-border px-3 py-2">
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-xs text-muted-foreground text-center inline-flex items-center justify-center gap-1 w-full">
               If this issue continues, please contact{' '}
-              <a
-                href="mailto:support@capitaltechalliance.com"
-                className="text-primary hover:underline"
-              >
-                support@capitaltechalliance.com
-              </a>
+              <EmailButton
+                to="support@capitaltechalliance.com"
+                context={{ type: 'general', recipientName: 'Support Team', details: 'Radio dispatch error report' }}
+                label="support@capitaltechalliance.com"
+                variant="link"
+                size="sm"
+                className="h-auto p-0 text-xs text-primary"
+              />
             </p>
           </div>
         </div>

@@ -20,6 +20,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { captureException, addBreadcrumb } from '@/lib/sentry';
 import logger from '@/utils/logger';
 
 interface ErrorBoundaryProps {
@@ -115,7 +116,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   };
 
   logErrorToService = (error: Error, errorInfo: ErrorInfo) => {
-    // TODO: Integrate with error logging service (e.g., Sentry, LogRocket, Azure Application Insights)
+    // Add breadcrumb for Sentry context
+    addBreadcrumb({
+      category: 'error-boundary',
+      message: `ErrorBoundary caught: ${error.message}`,
+      level: 'error',
+      data: {
+        componentStack: errorInfo.componentStack,
+        componentName: this.props.componentName,
+        url: window.location.href,
+      },
+    });
+
+    // Report to Sentry error tracking
+    captureException(error);
+
+    // Also send to backend API for audit logging
     const errorData = {
       message: error.message,
       stack: error.stack,
@@ -123,16 +139,24 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
       url: window.location.href,
+      componentName: this.props.componentName,
     };
 
-    // Example: Send to API endpoint
-    // fetch('/api/log-error', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(errorData),
-    // }).catch(console.error);
+    // Error logging endpoint not registered — Sentry captures errors server-side.
+    // Fire-and-forget to /api/monitoring/errors; silently ignore if route doesn't exist.
+    try {
+      fetch('/api/monitoring/errors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(errorData),
+      }).catch(() => {
+        // Silently fail - error already captured by Sentry
+      });
+    } catch {
+      // Silently fail
+    }
 
-    logger.info('[ErrorBoundary] Would log to service:', errorData);
+    logger.error('[ErrorBoundary] Error reported to monitoring:', errorData);
   };
 
   render() {
@@ -147,15 +171,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       // Default error UI
       return (
-        <div className="min-h-screen flex items-center justify-center p-2 bg-gradient-to-br from-red-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
-          <Card className="max-w-2xl w-full shadow-sm border-red-200 dark:border-red-900">
+        <div className="min-h-screen flex items-center justify-center p-2 bg-[#0a0a0a]">
+          <Card className="max-w-2xl w-full border-white/[0.04] bg-[#111111]">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-9 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
-                  <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+                <div className="w-12 h-9 rounded-full bg-red-500/10 flex items-center justify-center">
+                  <AlertTriangle className="h-6 w-6 text-red-400" />
                 </div>
                 <div>
-                  <CardTitle className="text-red-900 dark:text-red-100">
+                  <CardTitle className="text-white">
                     Something Went Wrong
                   </CardTitle>
                   <CardDescription>
@@ -168,8 +192,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             </CardHeader>
             <CardContent className="space-y-2">
               {/* Error Message */}
-              <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-2">
-                <p className="font-mono text-sm text-red-900 dark:text-red-100">
+              <div className="bg-red-500/5 border border-white/[0.04] rounded-lg p-2">
+                <p className="font-mono text-sm text-red-400">
                   {error?.message || 'Unknown error'}
                 </p>
               </div>
@@ -224,7 +248,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                     <div className="mt-2 space-y-2">
                       <div>
                         <h4 className="text-sm font-semibold mb-2">Error Stack:</h4>
-                        <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-3 rounded overflow-x-auto border">
+                        <pre className="text-xs bg-[#0e0e0e] p-3 rounded overflow-x-auto border">
                           {error.stack}
                         </pre>
                       </div>
@@ -232,7 +256,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                       {errorInfo?.componentStack && (
                         <div>
                           <h4 className="text-sm font-semibold mb-2">Component Stack:</h4>
-                          <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-3 rounded overflow-x-auto border">
+                          <pre className="text-xs bg-[#0e0e0e] p-3 rounded overflow-x-auto border">
                             {errorInfo.componentStack}
                           </pre>
                         </div>

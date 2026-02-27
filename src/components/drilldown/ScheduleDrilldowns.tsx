@@ -12,6 +12,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
@@ -47,9 +48,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime, formatTime } from '@/utils/format-helpers'
 
-const fetcher = swrFetcher
+const fetcher = apiFetcher
 
 // ============================================
 // Scheduled Item Detail Panel
@@ -61,9 +64,43 @@ interface ScheduledItemDetailPanelProps {
 export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelProps) {
   const { push } = useDrilldown()
   const { data: item, error, isLoading, mutate } = useSWR<ScheduledItem>(
-    `/api/schedule/${itemId}`,
+    `/api/scheduling/${itemId}`,
     fetcher
   )
+
+  const handleReschedule = () => {
+    toast.info(`Rescheduling ${item?.title}...`)
+  }
+
+  const handleCancel = async () => {
+    try {
+      await fetch(`/api/scheduling/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'cancelled' }),
+      })
+      toast.success(`${item?.title} cancelled`)
+      mutate()
+    } catch {
+      toast.error('Failed to cancel item')
+    }
+  }
+
+  const handleMarkComplete = async () => {
+    try {
+      await fetch(`/api/scheduling/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'completed' }),
+      })
+      toast.success(`${item?.title} marked as complete`)
+      mutate()
+    } catch {
+      toast.error('Failed to update status')
+    }
+  }
 
   const getTypeVariant = (type: string) => {
     switch (type) {
@@ -106,11 +143,11 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{item.title}</h3>
               <p className="text-sm text-muted-foreground">
-                {item.type} • {item.item_number}
+                {formatEnum(item.type)} • {item.item_number}
               </p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant={getStatusVariant(item.status)}>{item.status}</Badge>
-                <Badge variant={getTypeVariant(item.type)}>{item.type}</Badge>
+                <Badge variant={getStatusVariant(item.status)}>{formatEnum(item.status)}</Badge>
+                <Badge variant={getTypeVariant(item.type)}>{formatEnum(item.type)}</Badge>
               </div>
             </div>
             <Calendar className="h-9 w-12 text-muted-foreground" />
@@ -127,9 +164,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
               </CardHeader>
               <CardContent>
                 <p className="text-sm font-semibold">
-                  {item.start_time
-                    ? new Date(item.start_time).toLocaleString()
-                    : 'N/A'}
+                  {formatDateTime(item.start_time)}
                 </p>
               </CardContent>
             </Card>
@@ -143,9 +178,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
               </CardHeader>
               <CardContent>
                 <p className="text-sm font-semibold">
-                  {item.end_time
-                    ? new Date(item.end_time).toLocaleString()
-                    : 'N/A'}
+                  {formatDateTime(item.end_time)}
                 </p>
               </CardContent>
             </Card>
@@ -177,7 +210,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Priority</p>
-                      <p className="font-medium capitalize">{item.priority || 'Normal'}</p>
+                      <p className="font-medium">{item.priority ? formatEnum(item.priority) : 'Normal'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Created By</p>
@@ -186,9 +219,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                     <div>
                       <p className="text-sm text-muted-foreground">Created Date</p>
                       <p className="font-medium">
-                        {item.created_date
-                          ? new Date(item.created_date).toLocaleDateString()
-                          : 'N/A'}
+                        {formatDate(item.created_date)}
                       </p>
                     </div>
                   </div>
@@ -329,11 +360,11 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
           {/* Action Buttons */}
           {item.status === 'scheduled' && (
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleReschedule}>
                 <Clock className="h-4 w-4 mr-2" />
                 Reschedule
               </Button>
-              <Button variant="destructive">
+              <Button variant="destructive" onClick={handleCancel}>
                 <AlertCircle className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
@@ -341,7 +372,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
           )}
 
           {item.status === 'in-progress' && (
-            <Button className="w-full">
+            <Button className="w-full" onClick={handleMarkComplete}>
               <CheckCircle className="h-4 w-4 mr-2" />
               Mark Complete
             </Button>
@@ -367,10 +398,11 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
     const params = new URLSearchParams()
     if (timeframe) params.append('timeframe', timeframe)
     if (type && type !== 'all') params.append('type', type)
-    return `/api/schedule?${params.toString()}`
+    return `/api/scheduling?${params.toString()}`
   }
 
-  const { data: items, error, isLoading } = useSWR<ScheduledItem[]>(buildUrl(), fetcher)
+  const { data: rawItems, error, isLoading } = useSWR<ScheduledItem[]>(buildUrl(), fetcher)
+  const items = Array.isArray(rawItems) ? rawItems : []
 
   const timeframeLabels = {
     today: "Today's Schedule",
@@ -429,7 +461,7 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
           {items &&
             Object.entries(
               items.reduce<Record<string, ScheduledItem[]>>((groups, item) => {
-                const date = new Date(item.start_time).toLocaleDateString()
+                const date = formatDate(item.start_time)
                 if (!groups[date]) groups[date] = []
                 groups[date].push(item)
                 return groups
@@ -462,8 +494,8 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
                               <p className="font-semibold">{item.title}</p>
                             </div>
                             <p className="text-sm text-muted-foreground">
-                              {new Date(item.start_time).toLocaleTimeString()} -{' '}
-                              {new Date(item.end_time).toLocaleTimeString()}
+                              {formatTime(item.start_time)} -{' '}
+                              {formatTime(item.end_time)}
                             </p>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               {item.assigned_driver && (
@@ -482,11 +514,11 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
                           </div>
                           <div className="text-right space-y-1">
                             <Badge variant={getStatusVariant(item.status)}>
-                              {item.status}
+                              {formatEnum(item.status)}
                             </Badge>
                             {item.priority && item.priority !== 'normal' && (
                               <p className="text-xs text-destructive font-semibold">
-                                {item.priority} priority
+                                {formatEnum(item.priority)} priority
                               </p>
                             )}
                           </div>

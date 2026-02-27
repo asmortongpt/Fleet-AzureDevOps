@@ -46,15 +46,29 @@ export class WorkOrderFactory extends BaseFactory {
     ]);
 
     const scheduledStart = this.faker.date.recent({ days: 30 });
-    const scheduledEnd = new Date(scheduledStart.getTime() + this.faker.number.int({ min: 2, max: 48 }) * 60 * 60 * 1000);
+    const scheduledEnd = new Date(
+      scheduledStart.getTime() + this.faker.number.int({ min: 2, max: 48 }) * 60 * 60 * 1000
+    );
 
     let actualStart: Date | null = null;
     let actualEnd: Date | null = null;
 
     if (status === 'in_progress' || status === 'completed') {
-      actualStart = this.faker.date.between({ from: scheduledStart, to: new Date() });
+      const now = new Date();
+      const cutoff = new Date(now.getTime() - 5 * 60 * 1000); // stay a few minutes behind NOW() to satisfy constraint
+      const endCap = cutoff > scheduledStart ? cutoff : scheduledStart;
+
+      actualStart = this.faker.date.between({ from: scheduledStart, to: endCap });
+
       if (status === 'completed') {
-        actualEnd = new Date(actualStart.getTime() + this.faker.number.int({ min: 1, max: 72 }) * 60 * 60 * 1000);
+        const rawEnd = new Date(
+          actualStart.getTime() + this.faker.number.int({ min: 1, max: 72 }) * 60 * 60 * 1000
+        );
+
+        // Honor database constraints: actual_end cannot be in the future and must be after start
+        const cappedEnd = rawEnd > cutoff ? cutoff : rawEnd;
+        const minEnd = new Date(actualStart.getTime() + 15 * 60 * 1000); // at least 15 minutes after start
+        actualEnd = cappedEnd <= minEnd ? minEnd : cappedEnd;
       }
     }
 

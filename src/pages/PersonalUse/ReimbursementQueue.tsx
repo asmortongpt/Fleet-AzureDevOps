@@ -1,21 +1,23 @@
-import { Receipt, Check, X, Eye, Download, Filter, CheckCircle, XCircle, Clock, CreditCard } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
+import { Receipt, Check, X, Eye, Download, Filter, CheckCircle, XCircle, Clock, CreditCard, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Section } from '@/components/ui/section'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
 import { usePermissions } from '@/hooks/usePermissions'
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 interface ReimbursementRequest {
@@ -45,20 +47,18 @@ interface QueueSummary {
 }
 
 const apiClient = async (url: string): Promise<any> => {
-  const token = localStorage.getItem('token')
   const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
+    credentials: 'include'
   })
   if (!response.ok) throw new Error('Failed to fetch')
   return response.json()
 }
 
 const apiMutation = async (url: string, method: string, data?: unknown): Promise<any> => {
-  const token = localStorage.getItem('token')
   const response = await fetch(url, {
     method,
+    credentials: 'include',
     headers: {
-      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
     body: data ? JSON.stringify(data) : undefined
@@ -91,14 +91,15 @@ export function ReimbursementQueue() {
   if (!canAccessQueue) {
     return (
       <div className="p-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Access Restricted</CardTitle>
-            <CardDescription>
-              You do not have permission to view the reimbursement queue.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <Section
+          title="Access Restricted"
+          description="You do not have permission to view the reimbursement queue."
+          icon={<XCircle className="h-5 w-5" />}
+        >
+          <div className="text-sm text-muted-foreground">
+            Please contact an administrator if you believe this is an error.
+          </div>
+        </Section>
       </div>
     )
   }
@@ -183,7 +184,7 @@ export function ReimbursementQueue() {
     onSuccess: () => {
       toast.success(
         reviewAction === 'approve'
-          ? `Approved $${approvedAmount}`
+          ? `Approved ${formatCurrency(parseFloat(approvedAmount))}`
           : 'Reimbursement rejected'
       )
       setReviewingRequest(null)
@@ -270,6 +271,7 @@ export function ReimbursementQueue() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="p-3 space-y-2">
       {/* Header */}
       <div>
@@ -282,50 +284,41 @@ export function ReimbursementQueue() {
       {/* Summary Cards */}
       {statusFilter === 'pending' && summary && (
         <div className="grid gap-2 md:grid-cols-3">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Requests</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm font-bold">{summary.total_pending}</div>
-              <p className="text-xs text-muted-foreground">Awaiting review</p>
-            </CardContent>
-          </Card>
+          <Section
+            title="Pending Requests"
+            icon={<Clock className="h-4 w-4" />}
+            contentClassName="space-y-1"
+          >
+            <div className="text-sm font-bold">{summary.total_pending}</div>
+            <p className="text-xs text-muted-foreground">Awaiting review</p>
+          </Section>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
-              <Receipt className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm font-bold">${summary.total_amount.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">Pending approval</p>
-            </CardContent>
-          </Card>
+          <Section
+            title="Total Amount"
+            icon={<Receipt className="h-4 w-4" />}
+            contentClassName="space-y-1"
+          >
+            <div className="text-sm font-bold">{formatCurrency(summary.total_amount)}</div>
+            <p className="text-xs text-muted-foreground">Pending approval</p>
+          </Section>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg Days Pending</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm font-bold">{summary.avg_days_pending?.toFixed(1) || '0.0'}</div>
-              <p className="text-xs text-muted-foreground">Average wait time</p>
-            </CardContent>
-          </Card>
+          <Section
+            title="Avg Days Pending"
+            icon={<Clock className="h-4 w-4" />}
+            contentClassName="space-y-1"
+          >
+            <div className="text-sm font-bold">{summary.avg_days_pending?.toFixed(1) || '0.0'}</div>
+            <p className="text-xs text-muted-foreground">Average wait time</p>
+          </Section>
         </div>
       )}
 
       {/* Filters and Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="w-3 h-3" />
-            Filters & Actions
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
+      <Section
+        title="Filters & Actions"
+        icon={<Filter className="w-3 h-3" />}
+        contentClassName="space-y-2"
+      >
           <div className="grid gap-2 md:grid-cols-4">
             <div className="space-y-2">
               <Label>Status</Label>
@@ -400,18 +393,19 @@ export function ReimbursementQueue() {
               </Alert>
             </div>
           )}
-        </CardContent>
-      </Card>
+      </Section>
 
       {/* Requests Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Reimbursement Requests</CardTitle>
-          <CardDescription>{filteredRequests.length} requests</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <Section
+        title="Reimbursement Requests"
+        description={`${filteredRequests.length} requests`}
+        icon={<Receipt className="h-5 w-5" />}
+      >
           {loading ? (
-            <div className="text-center py-3">Loading...</div>
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-sm text-muted-foreground">Loading reimbursements...</span>
+            </div>
           ) : filteredRequests.length === 0 ? (
             <div className="text-center py-3 text-muted-foreground">
               No reimbursement requests found
@@ -445,8 +439,8 @@ export function ReimbursementQueue() {
                       />
                     </TableCell>
                     <TableCell>{request.driver_name}</TableCell>
-                    <TableCell>${request.request_amount.toFixed(2)}</TableCell>
-                    <TableCell>{request.category || 'N/A'}</TableCell>
+                    <TableCell>{formatCurrency(request.request_amount)}</TableCell>
+                    <TableCell>{request.category || '—'}</TableCell>
                     <TableCell>{format(new Date(request.expense_date), 'MMM d, yyyy')}</TableCell>
                     <TableCell>{getStatusBadge(request.status)}</TableCell>
                     <TableCell>{format(new Date(request.submitted_at), 'MMM d, yyyy')}</TableCell>
@@ -485,8 +479,7 @@ export function ReimbursementQueue() {
               </TableBody>
             </Table>
           )}
-        </CardContent>
-      </Card>
+      </Section>
 
       {/* Review Dialog */}
       {reviewingRequest && (
@@ -509,7 +502,7 @@ export function ReimbursementQueue() {
               </div>
               <div className="space-y-2">
                 <Label>Requested Amount</Label>
-                <Input value={`$${reviewingRequest.request_amount.toFixed(2)}`} disabled />
+                <Input value={formatCurrency(reviewingRequest.request_amount)} disabled />
               </div>
               {reviewAction === 'approve' && (
                 <div className="space-y-2">
@@ -585,5 +578,6 @@ export function ReimbursementQueue() {
         </Dialog>
       )}
     </div>
+    </ErrorBoundary>
   )
 }

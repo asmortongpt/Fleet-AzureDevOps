@@ -12,6 +12,7 @@ import {
 } from '../errors/ApplicationError';
 import telemetryService from '../monitoring/applicationInsights';
 import { sanitizeForLog, sanitizeRequestForLog } from '../utils/logSanitizer';
+import { logger } from '../utils/logger';
 
 // Re-export error classes for convenience
 export {
@@ -150,7 +151,7 @@ export function errorHandler(
   if (isJWTError(err)) {
     const jwtError = mapJWTError(err)
 
-    console.warn('JWT authentication error', {
+    logger.warn('JWT authentication error', {
       correlationId,
       errorCode: jwtError.errorCode,
       errorName: err.name,
@@ -182,7 +183,7 @@ export function errorHandler(
   if (isApplicationError(err)) {
     // Log operational errors as warnings, non-operational as errors
     if (err.isOperational) {
-      console.warn('Operational error', {
+      logger.warn('Operational error', {
         correlationId,
         code: err.code,
         message: sanitizeForLog(err.message),
@@ -193,7 +194,7 @@ export function errorHandler(
     } else {
       // SECURITY FIX (P0): Sanitize error details to prevent log injection (CWE-117)
       // Fingerprint: b7c4e2f9a3d6b8c1
-      console.error('Non-operational error', {
+      logger.error('Non-operational error', {
         correlationId,
         code: err.code,
         message: sanitizeForLog(err.message),
@@ -221,7 +222,7 @@ export function errorHandler(
 
   // Handle unexpected errors (not ApplicationError)
   // SECURITY FIX (P0): Sanitize error details to prevent log injection (CWE-117)
-  console.error('Unexpected error', {
+  logger.error('Unexpected error', {
     correlationId,
     message: sanitizeForLog(err.message),
     name: sanitizeForLog(err.name),

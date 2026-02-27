@@ -44,6 +44,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { apiClient } from '@/lib/api-client'
 import { isSuccessResponse } from '@/lib/schemas/responses'
 import type { ApiResponse } from '@/lib/schemas/responses'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 
@@ -246,7 +247,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-muted-foreground" />
-                            {new Date(inspection.completed_date).toLocaleDateString()}
+                            {formatDate(inspection.completed_date)}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -283,7 +284,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                               <DialogHeader>
                                 <DialogTitle>Inspection Details</DialogTitle>
                                 <DialogDescription>
-                                  {new Date(inspection.completed_date).toLocaleString()}
+                                  {formatDateTime(inspection.completed_date)}
                                 </DialogDescription>
                               </DialogHeader>
                               {selectedInspection && (
@@ -327,8 +328,8 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                                   <div>
                                     <h4 className="font-semibold mb-3">Checklist Items</h4>
                                     <div className="space-y-2">
-                                      {selectedInspection.responses?.map((response, idx) => (
-                                        <Card key={idx}>
+                                      {selectedInspection.responses?.map((response) => (
+                                        <Card key={response.id}>
                                           <CardContent className="p-2">
                                             <div className="flex items-start justify-between">
                                               <div className="flex-1">
@@ -339,7 +340,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                                                   </p>
                                                 )}
                                                 {response.photo_url && (
-                                                  <div className="mt-2 flex items-center gap-2 text-sm text-blue-800">
+                                                  <div className="mt-2 flex items-center gap-2 text-sm text-emerald-800">
                                                     <Camera className="w-4 h-4" />
                                                     Photo attached
                                                   </div>
@@ -399,8 +400,8 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                   <div className="text-center text-muted-foreground py-2">
                     Last 5 inspections:
                     <div className="flex justify-center gap-2 mt-2">
-                      {inspections.slice(0, 5).map((insp, idx) => (
-                        <div key={idx} title={new Date(insp.completed_date).toLocaleDateString()}>
+                      {inspections.slice(0, 5).map((insp) => (
+                        <div key={insp.id} title={formatDate(insp.completed_date)}>
                           {getStatusIcon(insp.overall_status)}
                         </div>
                       ))}

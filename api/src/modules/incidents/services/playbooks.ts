@@ -576,7 +576,7 @@ export class PlaybooksService extends BaseService {
     let value: any = incident;
 
     for (const part of parts) {
-      if (value == null) {
+      if (value === null || value === undefined) {
 return null;
 }
       value = value[part as keyof typeof value];

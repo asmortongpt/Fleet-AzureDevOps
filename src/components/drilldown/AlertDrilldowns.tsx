@@ -15,6 +15,7 @@ import {
   Activity,
   Info,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
@@ -23,9 +24,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatDateTime } from '@/utils/format-helpers'
 
-const fetcher = swrFetcher
+const fetcher = apiFetcher
 
 // ============================================
 // Alert Data Interface
@@ -84,6 +86,36 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
     `/api/alerts/${alertId}`,
     fetcher
   )
+
+  const handleAcknowledge = async () => {
+    try {
+      await fetch(`/api/alerts/${alertId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'acknowledged' }),
+      })
+      toast.success('Alert acknowledged')
+      mutate()
+    } catch {
+      toast.error('Failed to acknowledge alert')
+    }
+  }
+
+  const handleResolve = async () => {
+    try {
+      await fetch(`/api/alerts/${alertId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'resolved' }),
+      })
+      toast.success('Alert resolved')
+      mutate()
+    } catch {
+      toast.error('Failed to resolve alert')
+    }
+  }
 
   const getSeverityVariant = (severity: string) => {
     switch (severity) {
@@ -174,9 +206,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
             </CardHeader>
             <CardContent>
               <p className="text-sm font-semibold">
-                {alertData.triggered_at
-                  ? new Date(alertData.triggered_at).toLocaleString()
-                  : 'N/A'}
+                {formatDateTime(alertData.triggered_at)}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {alertData.triggered_at &&
@@ -198,7 +228,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                   ? `${alertData.duration_minutes} min`
                   : alertData.status === 'active'
                     ? 'Ongoing'
-                    : 'N/A'}
+                    : '—'}
               </p>
             </CardContent>
           </Card>
@@ -226,15 +256,15 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-sm text-muted-foreground">Type</p>
-                    <p className="font-medium">{alertData.alert_type || 'N/A'}</p>
+                    <p className="font-medium">{alertData.alert_type || '—'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Category</p>
-                    <p className="font-medium">{alertData.category || 'N/A'}</p>
+                    <p className="font-medium">{alertData.category || '—'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Priority</p>
-                    <p className="font-medium capitalize">{alertData.priority || 'Normal'}</p>
+                    <p className="font-medium">{alertData.priority || 'Normal'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Auto-Clear</p>
@@ -252,7 +282,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                       <span className="font-semibold">{alertData.threshold_value}</span>
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Current value: {alertData.current_value || 'N/A'}
+                      Current value: {alertData.current_value || '—'}
                     </p>
                   </div>
                 )}
@@ -271,7 +301,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Vehicle</p>
-                        <p className="font-medium">{alertData.vehicle_name || 'Unknown'}</p>
+                        <p className="font-medium">{alertData.vehicle_name || '—'}</p>
                       </div>
                       <Button
                         variant="outline"
@@ -296,7 +326,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Driver</p>
-                        <p className="font-medium">{alertData.driver_name || 'Unknown'}</p>
+                        <p className="font-medium">{alertData.driver_name || '—'}</p>
                       </div>
                       <Button
                         variant="outline"
@@ -352,9 +382,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                     </div>
                     <p className="text-sm">By: {alertData.acknowledged_by}</p>
                     <p className="text-xs text-muted-foreground">
-                      {alertData.acknowledged_at
-                        ? new Date(alertData.acknowledged_at).toLocaleString()
-                        : ''}
+                      {formatDateTime(alertData.acknowledged_at)}
                     </p>
                   </div>
                 )}
@@ -367,7 +395,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                     </div>
                     <p className="text-sm">By: {alertData.resolved_by}</p>
                     <p className="text-xs text-muted-foreground">
-                      {alertData.resolved_at ? new Date(alertData.resolved_at).toLocaleString() : ''}
+                      {formatDateTime(alertData.resolved_at)}
                     </p>
                     {alertData.resolution_notes && (
                       <p className="text-sm mt-2">{alertData.resolution_notes}</p>
@@ -382,10 +410,10 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                       <p className="text-sm font-medium">Notifications Sent</p>
                     </div>
                     <ul className="text-xs space-y-1 mt-2">
-                      {alertData.notifications_sent.map((notification, idx) => (
-                        <li key={idx}>
+                      {alertData.notifications_sent.map((notification) => (
+                        <li key={`${notification.recipient}-${notification.sent_at}`}>
                           {notification.recipient} via {notification.method} at{' '}
-                          {new Date(notification.sent_at).toLocaleString()}
+                          {formatDateTime(notification.sent_at)}
                         </li>
                       ))}
                     </ul>
@@ -403,11 +431,11 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
             {/* Action Buttons */}
             {alertData.status === 'active' && (
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline">
+                <Button variant="outline" onClick={handleAcknowledge}>
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Acknowledge
                 </Button>
-                <Button>
+                <Button onClick={handleResolve}>
                   <XCircle className="h-4 w-4 mr-2" />
                   Resolve
                 </Button>
@@ -415,7 +443,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
             )}
 
             {alertData.status === 'acknowledged' && (
-              <Button className="w-full">
+              <Button className="w-full" onClick={handleResolve}>
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Mark as Resolved
               </Button>
@@ -429,13 +457,13 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {alertData.activity_log?.map((activity, idx) => (
-                    <div key={idx} className="flex items-start gap-2 p-2 rounded bg-muted/50">
+                  {alertData.activity_log?.map((activity) => (
+                    <div key={`${activity.action}-${activity.timestamp}`} className="flex items-start gap-2 p-2 rounded bg-muted/50">
                       <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm font-medium">{activity.action}</p>
                         <p className="text-xs text-muted-foreground">
-                          {activity.user} • {new Date(activity.timestamp).toLocaleString()}
+                          {activity.user} • {formatDateTime(activity.timestamp)}
                         </p>
                         {activity.notes && (
                           <p className="text-xs mt-1">{activity.notes}</p>
@@ -474,7 +502,8 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
     return `/api/alerts?${params.toString()}`
   }
 
-  const { data: alerts, error, isLoading } = useSWR<AlertData[]>(buildUrl(), fetcher)
+  const { data: rawAlerts, error, isLoading } = useSWR<AlertData[]>(buildUrl(), fetcher)
+  const alerts = Array.isArray(rawAlerts) ? rawAlerts : []
 
   const statusLabels = {
     active: 'Active Alerts',
@@ -574,7 +603,7 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
                       {alert.category} • Alert #{alert.alert_number}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Triggered {new Date(alert.triggered_at).toLocaleString()}
+                      Triggered {formatDateTime(alert.triggered_at)}
                     </p>
                     {alert.vehicle_name && (
                       <p className="text-xs text-muted-foreground">

@@ -1,1 +1,1 @@
-export * from "./GPSTracking";
+export { GPSTracking } from "../GPSTracking";

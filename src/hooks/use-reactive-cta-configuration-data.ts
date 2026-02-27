@@ -6,7 +6,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+import { secureFetch } from '@/hooks/use-api'
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 interface ConfigurationItem {
   id: string
@@ -52,7 +54,7 @@ export function useReactiveCTAConfigurationData() {
     queryKey: ['cta-configuration', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/configuration`)
+        const response = await secureFetch(`${API_BASE}/configuration`)
         if (!response.ok) {
           return []
         }
@@ -70,7 +72,7 @@ export function useReactiveCTAConfigurationData() {
     queryKey: ['cta-integrations', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/integrations`)
+        const response = await secureFetch(`${API_BASE}/integrations`)
         if (!response.ok) {
           return []
         }
@@ -88,7 +90,7 @@ export function useReactiveCTAConfigurationData() {
     queryKey: ['cta-monitoring', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/monitoring/metrics`)
+        const response = await secureFetch(`${API_BASE}/monitoring/metrics`)
         if (!response.ok) {
           return []
         }
@@ -126,16 +128,24 @@ export function useReactiveCTAConfigurationData() {
     return acc
   }, {} as Record<string, number>)
 
-  // Configuration trend (last 7 days - mock data)
-  const configTrendData = [
-    { name: 'Mon', configured: 45, policyDriven: 12, default: 8 },
-    { name: 'Tue', configured: 47, policyDriven: 13, default: 5 },
-    { name: 'Wed', configured: 48, policyDriven: 14, default: 3 },
-    { name: 'Thu', configured: 50, policyDriven: 15, default: 0 },
-    { name: 'Fri', configured: 52, policyDriven: 15, default: 0 },
-    { name: 'Sat', configured: 52, policyDriven: 16, default: 0 },
-    { name: 'Sun', configured: 53, policyDriven: 17, default: 0 },
-  ]
+  const configTrendData = Array.from({ length: 7 }, (_, i) => {
+    const day = new Date()
+    day.setDate(day.getDate() - (6 - i))
+    const label = day.toLocaleDateString('en-US', { weekday: 'short' })
+    const isSameDay = (dateString?: string) => {
+      if (!dateString) return false
+      const date = new Date(dateString)
+      return date.toDateString() === day.toDateString()
+    }
+
+    const dailyItems = configItems.filter((item) => isSameDay(item.lastModified))
+    return {
+      name: label,
+      configured: dailyItems.filter((item) => item.status === 'configured').length,
+      policyDriven: dailyItems.filter((item) => item.status === 'policy_driven').length,
+      default: dailyItems.filter((item) => item.status === 'default').length,
+    }
+  })
 
   // Integration status distribution
   const integrationStatusData = Object.entries(

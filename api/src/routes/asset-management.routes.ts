@@ -13,6 +13,7 @@
  */
 
 import { Router } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 28: Add Winston logger
 import { pool } from '../db/connection';
@@ -21,12 +22,16 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { setTenantContext } from '../middleware/tenant-context'
 
+
+import { flexUuid } from '../middleware/validation'
 
 const router = Router()
 
 // Apply authentication to all routes
 router.use(authenticateJWT)
+router.use(setTenantContext)
 
 /**
  * @openapi
@@ -55,6 +60,7 @@ router.use(authenticateJWT)
  */
 router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
+    const db = req.dbClient || pool
     const { type, status, location, assigned_to, search } = req.query
     const tenantId = req.user?.tenant_id
 
@@ -132,7 +138,7 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
 
     query += ` GROUP BY a.id, u.first_name, u.last_name, f.name ORDER BY a.created_at DESC`
 
-    const result = await pool.query(query, params)
+    const result = await db.query(query, params)
 
     res.json({
       data: result.rows,
@@ -153,9 +159,10 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
  */
 router.get('/analytics', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
+    const db = req.dbClient || pool
     const tenantId = req.user?.tenant_id
 
-    const result = await pool.query(
+    const result = await db.query(
       `SELECT
         a.id,
         a.asset_number as asset_tag,
@@ -208,33 +215,32 @@ router.get('/analytics', requirePermission('vehicle:view:fleet'), async (req: Au
  */
 router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
+    const db = req.dbClient || pool
     const { id } = req.params
     const tenantId = req.user?.tenant_id
 
-    const result = await pool.query(
+    const result = await db.query(
       `SELECT
         a.id,
-        a.asset_number as asset_tag,
-        a.name as asset_name,
+        a.asset_number,
+        a.name,
         a.description,
-        a.type as asset_type,
+        a.type,
         a.category,
         a.manufacturer,
         a.model,
         a.serial_number,
-        a.purchase_date,
+        a.purchase_date as acquisition_date,
         a.purchase_price,
         a.current_value,
         a.status,
-        a.condition,
-        a.assigned_to_id as assigned_to,
-        u.first_name || ' ' || u.last_name as assigned_to_name,
-        u.email as assigned_to_email,
-        a.assigned_facility_id as assigned_facility_id,
-        f.name as location,
+        a.condition as condition_score,
+        COALESCE(u.first_name || ' ' || u.last_name, '') as assigned_to,
+        f.name as current_location,
+        a.assigned_facility_id as department,
         a.warranty_expiry_date as warranty_expiration,
-        a.last_maintenance_date as last_maintenance,
-        a.next_maintenance_date as next_maintenance,
+        a.last_maintenance_date as last_service_date,
+        a.next_maintenance_date as next_service_date,
         a.metadata,
         a.created_at,
         a.updated_at
@@ -250,7 +256,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     }
 
     // Get maintenance requests linked to this asset
-    const maintenance = await pool.query(
+    const maintenance = await db.query(
       `SELECT id, request_number, request_type, priority, status, title, description,
               requested_date, scheduled_date, completed_date, total_cost
        FROM maintenance_requests
@@ -416,6 +422,33 @@ router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async
  *     summary: Update asset
  *     tags: [Assets]
  */
+const updateAssetSchema = z.object({
+  asset_name: z.string().max(200).optional(),
+  asset_type: z.string().max(100).optional(),
+  asset_tag: z.string().max(100).optional(),
+  asset_number: z.string().max(100).optional(),
+  category: z.string().max(100).optional(),
+  description: z.string().max(2000).optional(),
+  manufacturer: z.string().max(200).optional(),
+  model: z.string().max(200).optional(),
+  serial_number: z.string().max(200).optional(),
+  purchase_date: z.string().optional(),
+  purchase_price: z.number().min(0).optional(),
+  current_value: z.number().min(0).optional(),
+  status: z.string().max(50).optional(),
+  condition: z.string().max(50).optional(),
+  notes: z.string().max(2000).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  assigned_to: z.string().optional(),
+  assigned_to_id: flexUuid.optional(),
+  assigned_facility_id: flexUuid.optional(),
+  warranty_expiration: z.string().optional(),
+  warranty_expiry_date: z.string().optional(),
+  last_maintenance: z.string().optional(),
+  next_maintenance: z.string().optional(),
+  location: z.string().max(500).optional(),
+}).partial()
+
 router.put('/:id',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
@@ -423,7 +456,12 @@ router.put('/:id',csrfProtection, requirePermission('vehicle:update:fleet'), asy
     await client.query('BEGIN')
 
     const { id } = req.params
-    const updates = req.body || {}
+    const parsed = updateAssetSchema.safeParse(req.body)
+    if (!parsed.success) {
+      client.release()
+      return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+    }
+    const updates = parsed.data as Record<string, unknown>
     const tenantId = req.user?.tenant_id
 
     const fieldMap: Record<string, string> = {
@@ -633,10 +671,11 @@ router.post('/:id/transfer',csrfProtection, requirePermission('vehicle:update:fl
  */
 router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
+    const db = req.dbClient || pool
     const { id } = req.params
     const tenantId = req.user?.tenant_id
 
-    const result = await pool.query(
+    const result = await db.query(
       `SELECT 
         id,
         purchase_date,
@@ -704,24 +743,25 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
  */
 router.get('/analytics/summary', requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
+    const db = req.dbClient || pool
     const tenantId = req.user?.tenant_id
 
     const [statusCounts, typeCounts, totalValue, depreciationSum] = await Promise.all([
-      pool.query(
+      db.query(
         `SELECT status, COUNT(*) as count
          FROM assets
          WHERE tenant_id = $1
          GROUP BY status`,
         [tenantId]
       ),
-      pool.query(
+      db.query(
         `SELECT type as asset_type, COUNT(*) as count
          FROM assets
          WHERE tenant_id = $1
          GROUP BY type`,
         [tenantId]
       ),
-      pool.query(
+      db.query(
         `SELECT
            SUM(CAST(purchase_price AS DECIMAL)) as total_purchase_value,
            SUM(CAST(current_value AS DECIMAL)) as total_current_value,
@@ -730,7 +770,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
          WHERE tenant_id = $1 AND status != 'disposed'`,
         [tenantId]
       ),
-      pool.query(
+      db.query(
         `SELECT
            SUM(CAST(purchase_price AS DECIMAL) - CAST(current_value AS DECIMAL) as total_depreciation
          FROM assets

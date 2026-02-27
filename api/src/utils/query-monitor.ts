@@ -9,6 +9,7 @@ import { SpanStatusCode, Span } from '@opentelemetry/api';
 import * as appInsights from 'applicationinsights';
 import { Pool, QueryResult, PoolClient, QueryResultRow } from 'pg';
 
+import logger from '../config/logger';
 import { tracer } from '../config/telemetry';
 
 // Configuration
@@ -146,7 +147,7 @@ export class QueryMonitor {
       stackTrace: ctx.stackTrace
     };
 
-    console.warn('🐌 SLOW QUERY DETECTED:', logData);
+    logger.warn('SLOW QUERY DETECTED', logData);
 
     // Send to Application Insights
     if (appInsights.defaultClient) {
@@ -184,7 +185,7 @@ export class QueryMonitor {
    * Log N+1 query warning
    */
   private logNPlusOne(ctx: QueryContext): void {
-    console.warn('⚠️  POTENTIAL N+1 QUERY:', {
+    logger.warn('POTENTIAL N+1 QUERY', {
       query: ctx.query,
       duration: ctx.duration,
       stackTrace: ctx.stackTrace
@@ -234,7 +235,7 @@ export class QueryMonitor {
   /**
    * Monitor a query execution
    */
-  async monitorQuery<T>(
+  async monitorQuery<T extends QueryResultRow = any>(
     pool: Pool | PoolClient,
     query: string,
     params?: any[]
@@ -290,7 +291,7 @@ export class QueryMonitor {
 
         // Log all queries if configured
         if (LOG_ALL_QUERIES) {
-          console.log('📊 Query executed:', {
+          logger.info('Query executed', {
             query: queryKey,
             duration: ctx.duration,
             rows: ctx.rowCount
@@ -325,10 +326,12 @@ export class QueryMonitor {
         }
 
         return result;
-      } catch (error: any) {
-        ctx.error = error;
+      } catch (error: unknown) {
+        ctx.error = error instanceof Error ? error : new Error(String(error));
         ctx.endTime = Date.now();
         ctx.duration = ctx.endTime - ctx.startTime;
+
+        const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
 
         // Update error stats
         const stats = this.stats.get(queryKey);
@@ -337,25 +340,25 @@ export class QueryMonitor {
         }
 
         // Record error in span
-        span.recordException(error);
+        span.recordException(error instanceof Error ? error : new Error(String(error)));
         span.setStatus({
           code: SpanStatusCode.ERROR,
-          message: error.message
+          message: errMsg
         });
         span.setAttribute('db.error', true);
 
         // Log error
-        console.error('❌ Query error:', {
+        logger.error('Query error', {
           query: ctx.query,
           duration: ctx.duration,
-          error: error.message,
+          error: errMsg,
           stackTrace: ctx.stackTrace
         });
 
         // Track error in Application Insights
         if (appInsights.defaultClient) {
           appInsights.defaultClient.trackException({
-            exception: error,
+            exception: error instanceof Error ? error : new Error(String(error)),
             properties: {
               query: ctx.query,
               duration: ctx.duration?.toString() || '0'
@@ -553,7 +556,7 @@ export const queryMonitor = new QueryMonitor();
  * Monitored query wrapper
  * Use this instead of pool.query() to get automatic monitoring
  */
-export async function monitoredQuery<T extends QueryResultRow = any>(
+export async function monitoredQuery<T extends QueryResultRow = QueryResultRow>(
   pool: Pool | PoolClient,
   query: string,
   params?: any[]

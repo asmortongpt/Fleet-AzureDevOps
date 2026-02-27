@@ -3,15 +3,12 @@
  * Recharts-based bar chart with gradients, animations, and advanced features
  */
 
-import { motion } from 'framer-motion'
-import { BarChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-// Avoid Recharts chunk circularity warnings by importing Bar directly.
-import { Bar } from 'recharts/es6/cartesian/Bar.js'
+// motion removed - React 19 incompatible
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { Cell, LabelList } from 'recharts';
+
 interface DataPoint {
   name: string
   value?: number
@@ -33,15 +30,16 @@ export interface ResponsiveBarChartProps {
   showValues?: boolean
   stacked?: boolean
   horizontal?: boolean
+  compact?: boolean
 }
 
 const GRADIENT_COLORS = [
-  { id: 'bar-gradient-1', start: '#3b82f6', end: '#1d4ed8' },
-  { id: 'bar-gradient-2', start: '#10b981', end: '#059669' },
-  { id: 'bar-gradient-3', start: '#f59e0b', end: '#d97706' },
-  { id: 'bar-gradient-4', start: '#ef4444', end: '#dc2626' },
-  { id: 'bar-gradient-5', start: '#8b5cf6', end: '#6d28d9' },
-  { id: 'bar-gradient-6', start: '#06b6d4', end: '#0891b2' },
+  { id: 'bar-gradient-1', start: '#10B981', end: '#10B981' },
+  { id: 'bar-gradient-2', start: '#10B981', end: '#10B981' },
+  { id: 'bar-gradient-3', start: '#F59E0B', end: '#F59E0B' },
+  { id: 'bar-gradient-4', start: '#EF4444', end: '#EF4444' },
+  { id: 'bar-gradient-5', start: '#D97706', end: '#D97706' },
+  { id: 'bar-gradient-6', start: '#F97316', end: '#F97316' },
 ]
 
 export function ResponsiveBarChart({
@@ -57,17 +55,15 @@ export function ResponsiveBarChart({
   showValues = false,
   stacked = false,
   horizontal = false,
+  compact = false,
 }: ResponsiveBarChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    grid: isDark ? '#374151' : '#e5e7eb',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#e5e7eb' : '#111827',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -76,14 +72,12 @@ export function ResponsiveBarChart({
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-background border-2 border-border rounded-xl shadow-xl p-4"
+        <div
+          className="bg-background border-2 border-border rounded-xl p-4"
         >
           <p className="font-semibold text-sm mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center justify-between gap-4 mb-1">
+          {payload.map((entry: any) => (
+            <div key={entry.name} className="flex items-center justify-between gap-4 mb-1">
               <div className="flex items-center gap-2">
                 <div
                   className="w-3 h-3 rounded-full"
@@ -94,7 +88,7 @@ export function ResponsiveBarChart({
               <span className="font-bold text-sm">{entry.value}</span>
             </div>
           ))}
-        </motion.div>
+        </div>
       )
     }
     return null
@@ -116,100 +110,101 @@ export function ResponsiveBarChart({
     )
   }
 
+  const barChartContent = loading ? (
+    <div
+      className="w-full bg-white/[0.04] animate-pulse rounded-lg"
+      style={{ height: compact ? '100%' : height }}
+    />
+  ) : (
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart
+        data={data}
+        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        layout={horizontal ? 'vertical' : 'horizontal'}
+      >
+        <defs>
+          {GRADIENT_COLORS.map((gradient) => (
+            <linearGradient key={gradient.id} id={gradient.id} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={gradient.start} stopOpacity={1} />
+              <stop offset="100%" stopColor={gradient.end} stopOpacity={0.85} />
+            </linearGradient>
+          ))}
+        </defs>
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke={chartColors.grid}
+          strokeOpacity={0.3}
+          vertical={!horizontal}
+          horizontal={horizontal}
+        />
+        {horizontal ? (
+          <>
+            <XAxis type="number" stroke={chartColors.text} tick={{ fill: chartColors.text }} />
+            <YAxis
+              type="category"
+              dataKey={xAxisKey}
+              stroke={chartColors.text}
+              tick={{ fill: chartColors.text }}
+              width={100}
+            />
+          </>
+        ) : (
+          <>
+            <XAxis
+              dataKey={xAxisKey}
+              stroke={chartColors.text}
+              tick={{ fill: chartColors.text }}
+              angle={-45}
+              textAnchor="end"
+              height={80}
+            />
+            <YAxis stroke={chartColors.text} tick={{ fill: chartColors.text }} />
+          </>
+        )}
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+        <Legend
+          wrapperStyle={{ color: chartColors.text }}
+          iconType="square"
+          formatter={(value) => <span className="text-sm font-medium">{value}</span>}
+        />
+        {keysToRender.map((key, index) => (
+          <Bar
+            key={key}
+            dataKey={key}
+            fill={colors[index % colors.length]}
+            radius={[8, 8, 0, 0]}
+            animationDuration={1200}
+            animationBegin={index * 100}
+            stackId={stacked ? 'stack' : undefined}
+          >
+            {showValues && <LabelList content={<CustomLabel />} position="top" />}
+            {!stacked && data.map((entry, idx) => (
+              <Cell
+                key={`cell-${idx}`}
+                className="transition-opacity duration-300 hover:opacity-80"
+              />
+            ))}
+          </Bar>
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  )
+
+  if (compact) {
+    return <div className="w-full" style={{ minHeight: height || 140 }}>{barChartContent}</div>
+  }
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-      whileHover={{ scale: 1.01 }}
-    >
-      <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <div>
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <CardTitle className="text-xl font-bold">{title}</CardTitle>
           {description && <CardDescription className="text-sm">{description}</CardDescription>}
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div
-              className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
-              style={{ height }}
-            />
-          ) : (
-            <ResponsiveContainer width="100%" height={height}>
-              <BarChart
-                data={data}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                layout={horizontal ? 'vertical' : 'horizontal'}
-              >
-                <defs>
-                  {GRADIENT_COLORS.map((gradient) => (
-                    <linearGradient key={gradient.id} id={gradient.id} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={gradient.start} stopOpacity={1} />
-                      <stop offset="100%" stopColor={gradient.end} stopOpacity={0.85} />
-                    </linearGradient>
-                  ))}
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={chartColors.grid}
-                  strokeOpacity={0.3}
-                  vertical={!horizontal}
-                  horizontal={horizontal}
-                />
-                {horizontal ? (
-                  <>
-                    <XAxis type="number" stroke={chartColors.text} tick={{ fill: chartColors.text }} />
-                    <YAxis
-                      type="category"
-                      dataKey={xAxisKey}
-                      stroke={chartColors.text}
-                      tick={{ fill: chartColors.text }}
-                      width={100}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <XAxis
-                      dataKey={xAxisKey}
-                      stroke={chartColors.text}
-                      tick={{ fill: chartColors.text }}
-                      angle={-45}
-                      textAnchor="end"
-                      height={80}
-                    />
-                    <YAxis stroke={chartColors.text} tick={{ fill: chartColors.text }} />
-                  </>
-                )}
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)' }} />
-                <Legend
-                  wrapperStyle={{ color: chartColors.text }}
-                  iconType="square"
-                  formatter={(value) => <span className="text-sm font-medium">{value}</span>}
-                />
-                {keysToRender.map((key, index) => (
-                  <Bar
-                    key={key}
-                    dataKey={key}
-                    fill={colors[index % colors.length]}
-                    radius={[8, 8, 0, 0]}
-                    animationDuration={1200}
-                    animationBegin={index * 100}
-                    stackId={stacked ? 'stack' : undefined}
-                  >
-                    {showValues && <LabelList content={<CustomLabel />} position="top" />}
-                    {!stacked && data.map((entry, idx) => (
-                      <Cell
-                        key={`cell-${idx}`}
-                        className="transition-opacity duration-300 hover:opacity-80"
-                      />
-                    ))}
-                  </Bar>
-                ))}
-              </BarChart>
-            </ResponsiveContainer>
-          )}
+          {barChartContent}
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }

@@ -12,6 +12,10 @@ import {
   AuditResult
 } from '../types/document-storage.types'
 
+// Import dependencies for singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
 export class DocumentAuditService {
   constructor(private db: Pool, private logger: any) {}
   /**
@@ -465,10 +469,6 @@ export class DocumentAuditService {
     }
   }
 }
-
-// Import dependencies for singleton instance
-import pool from '../config/database'
-import logger from '../config/logger'
 
 // Export singleton instance
 export const documentAuditService = new DocumentAuditService(pool, logger)

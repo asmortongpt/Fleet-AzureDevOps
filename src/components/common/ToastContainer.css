@@ -23,7 +23,7 @@
   pointer-events: auto;
   animation: slideIn 0.3s ease-out;
   transition: all 0.3s ease;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #10b981;
 }
 
 .toast.success {
@@ -39,7 +39,7 @@
 }
 
 .toast.info {
-  border-left-color: #3b82f6;
+  border-left-color: #10b981;
 }
 
 .toast-icon {

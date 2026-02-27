@@ -10,10 +10,10 @@ import * as dotenv from 'dotenv';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
 
+import * as schema from '../schemas/production.schema';
+
 // Load environment variables
 dotenv.config();
-
-import * as schema from '../schemas/production.schema';
 
 
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://localhost:5432/fleet_dev';
@@ -54,7 +54,10 @@ async function main() {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432'),
     database: process.env.DB_NAME || 'fleet_management',
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    ssl: process.env.DB_SSL === 'true' ? {
+      rejectUnauthorized: process.env.NODE_ENV === 'production',
+      ...(process.env.DB_SSL_CA ? { ca: process.env.DB_SSL_CA } : {})
+    } : false,
   };
 
   const client = new Client(dbConfig);
@@ -66,8 +69,8 @@ async function main() {
     console.log('🧹 Clearing existing data...');
     try {
       await client.query('TRUNCATE TABLE audit_logs, tasks, charging_sessions, charging_stations, assets, invoices, purchase_orders, parts_inventory, vendors, notifications, announcements, documents, training_records, certifications, incidents, geofences, telemetry_data, gps_tracks, dispatches, routes, fuel_transactions, inspections, maintenance_schedules, work_orders, facilities, drivers, vehicles, users, tenants RESTART IDENTITY CASCADE');
-    } catch (error: any) {
-      if (error.code === '42P01') {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === '42P01') {
         console.warn('⚠️  Some tables do not exist, skipping truncate. Ensure migrations are applied.');
       } else {
         throw error;

@@ -54,7 +54,7 @@ const ReportDTCsSchema = z.object({
     description: z.string(),
     severity: z.enum(['critical', 'major', 'moderate', 'minor', 'informational']),
     is_mil_on: z.boolean(),
-    freeze_frame_data: z.any().optional(),
+    freeze_frame_data: z.record(z.string(), z.unknown()).optional(),
     detected_at: z.string().datetime()
   })),
 })
@@ -90,7 +90,7 @@ const LiveDataSchema = z.object({
       altitude: z.number().optional(),
       accuracy: z.number().optional()
     }).optional(),
-    all_pids: z.any().optional()
+    all_pids: z.record(z.string(), z.unknown()).optional()
   })
 })
 
@@ -171,13 +171,13 @@ const ConnectionLogSchema = z.object({
 router.post('/connect',csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = RegisterAdapterSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = Number(req.user!.tenant_id)
+    const userId = Number(req.user!.id)
 
     const adapter = await obd2Service.registerAdapter(tenantId, userId, validated)
 
     res.json(adapter)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error registering OBD2 adapter:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -199,13 +199,13 @@ router.post('/connect',csrfProtection, requirePermission('vehicle:update:fleet')
  */
 router.get('/adapters', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = Number(req.user!.tenant_id)
+    const userId = Number(req.user!.id)
 
     const adapters = await obd2Service.getUserAdapters(tenantId, userId)
 
     res.json(adapters)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting adapters:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -233,7 +233,7 @@ router.get('/adapters', requirePermission('vehicle:view:fleet'), async (req: Req
  */
 router.get('/adapters/:adapterId', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = Number(req.user!.tenant_id)
     const adapterId = parseInt(req.params.adapterId)
 
     const adapter = await obd2Service.getAdapterById(tenantId, adapterId)
@@ -243,7 +243,7 @@ router.get('/adapters/:adapterId', requirePermission('vehicle:view:fleet'), asyn
     }
 
     res.json(adapter)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting adapter:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -303,8 +303,8 @@ router.get('/adapters/:adapterId', requirePermission('vehicle:view:fleet'), asyn
 router.post('/dtcs',csrfProtection, requirePermission('maintenance:create:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = ReportDTCsSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = Number(req.user!.tenant_id)
+    const userId = Number(req.user!.id)
 
     const dtcs = await obd2Service.reportDiagnosticCodes(
       tenantId,
@@ -318,7 +318,7 @@ router.post('/dtcs',csrfProtection, requirePermission('maintenance:create:fleet'
     ))
 
     res.status(201).json(dtcs)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error reporting DTCs:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -349,14 +349,14 @@ router.post('/dtcs',csrfProtection, requirePermission('maintenance:create:fleet'
  */
 router.get('/dtcs/:vehicleId', requirePermission('maintenance:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = Number(req.user!.tenant_id)
     const vehicleId = parseInt(req.params.vehicleId)
-    const status = req.query.status as any
+    const status = req.query.status as 'active' | 'pending' | 'cleared' | 'resolved' | undefined
 
     const dtcs = await obd2Service.getVehicleDiagnosticCodes(tenantId, vehicleId, status)
 
     res.json(dtcs)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting DTCs:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -384,8 +384,8 @@ router.get('/dtcs/:vehicleId', requirePermission('maintenance:view:fleet'), asyn
  */
 router.delete(`/dtcs/:vehicleId`, csrfProtection, requirePermission(`maintenance:update:fleet`), auditLog, async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = Number(req.user!.tenant_id)
+    const userId = Number(req.user!.id)
     const vehicleId = parseInt(req.params.vehicleId)
 
     const count = await obd2Service.clearDiagnosticCodes(tenantId, vehicleId, userId)
@@ -395,7 +395,7 @@ router.delete(`/dtcs/:vehicleId`, csrfProtection, requirePermission(`maintenance
       cleared_count: count,
       message: `Cleared ${count} diagnostic code(s)`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error clearing DTCs:`, error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -461,8 +461,8 @@ router.delete(`/dtcs/:vehicleId`, csrfProtection, requirePermission(`maintenance
 router.post('/live-data',csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
     const validated = LiveDataSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = Number(req.user!.tenant_id)
+    const userId = Number(req.user!.id)
 
     const liveData = await obd2Service.storeLiveData(
       tenantId,
@@ -474,7 +474,7 @@ router.post('/live-data',csrfProtection, requirePermission('vehicle:view:fleet')
     )
 
     res.status(201).json(liveData)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error storing live data:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -505,14 +505,14 @@ router.post('/live-data',csrfProtection, requirePermission('vehicle:view:fleet')
  */
 router.get('/live-data/:vehicleId', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = Number(req.user!.tenant_id)
     const vehicleId = parseInt(req.params.vehicleId)
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 100
 
     const liveData = await obd2Service.getRecentLiveData(tenantId, vehicleId, limit)
 
     res.json(liveData)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting live data:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -566,8 +566,8 @@ router.get('/live-data/:vehicleId', requirePermission('vehicle:view:fleet'), asy
 router.post('/connection-log',csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
     const validated = ConnectionLogSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = Number(req.user!.tenant_id)
+    const userId = Number(req.user!.id)
 
     const log = await obd2Service.logConnection(
       tenantId,
@@ -589,7 +589,7 @@ router.post('/connection-log',csrfProtection, requirePermission('vehicle:view:fl
     )
 
     res.status(201).json(log)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error logging connection:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -615,7 +615,7 @@ router.post('/connection-log',csrfProtection, requirePermission('vehicle:view:fl
  */
 router.get('/health/:vehicleId', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = Number(req.user!.tenant_id)
     const vehicleId = parseInt(req.params.vehicleId)
 
     const health = await obd2Service.getVehicleHealthSummary(tenantId, vehicleId)
@@ -630,7 +630,7 @@ router.get('/health/:vehicleId', requirePermission('vehicle:view:fleet'), async 
     }
 
     res.json(health)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting vehicle health:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -661,14 +661,14 @@ router.get('/health/:vehicleId', requirePermission('vehicle:view:fleet'), async 
  */
 router.get('/fuel-economy/:vehicleId', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = Number(req.user!.tenant_id)
     const vehicleId = parseInt(req.params.vehicleId)
     const days = req.query.days ? parseInt(req.query.days as string) : 30
 
     const trends = await obd2Service.getFuelEconomyTrends(tenantId, vehicleId, days)
 
     res.json(trends)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting fuel economy trends:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -708,7 +708,7 @@ router.get('/dtc-info/:dtcCode', requirePermission('vehicle:view:fleet'), async 
     }
 
     res.json(info)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting DTC info:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }

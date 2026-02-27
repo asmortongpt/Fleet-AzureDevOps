@@ -2,6 +2,7 @@ import { performance } from 'perf_hooks';
 
 import { Request, Response, NextFunction } from 'express';
 
+import { logger } from '../utils/logger';
 import { sanitizeForLog } from '../utils/logSanitizer';
 
 interface RequestMetrics {
@@ -37,7 +38,7 @@ export function monitorRequests(req: Request, res: Response, next: NextFunction)
     // SECURITY FIX (P0): Sanitize request details to prevent log injection (CWE-117)
     // Fingerprint: e3f7a9b2c6d4e8f1
     if (duration > 1000) {
-      console.warn('Slow request detected', {
+      logger.warn('Slow request detected', {
         method: req.method,
         path: sanitizeForLog(req.path, 100),
         duration: duration.toFixed(2) + 'ms'

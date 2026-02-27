@@ -1,3 +1,5 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { formatDistanceToNow } from "date-fns"
 import {
   Plus,
   Search,
@@ -9,8 +11,6 @@ import {
   Image,
   File
 } from "lucide-react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { formatDistanceToNow } from "date-fns"
 import { useState, useRef } from "react"
 import { toast } from "sonner"
 
@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { apiClient } from "@/lib/api-client"
+import { formatDateTime } from "@/utils/format-helpers"
 import logger from '@/utils/logger'
 
 interface Document {
@@ -150,11 +151,9 @@ export function DocumentManagement() {
       formData.append('description', uploadData.description)
       formData.append('isPublic', uploadData.isPublic.toString())
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/documents/upload`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/documents/upload`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
+        credentials: 'include',
         body: formData
       })
 
@@ -206,14 +205,14 @@ export function DocumentManagement() {
   const handleDownloadDocument = (document: Document) => {
     // In production, this would trigger actual download
     toast('Download started')
-    window.open(`${import.meta.env.VITE_API_URL}${document.file_url}`, '_blank')
+    window.open(`${import.meta.env.VITE_API_URL || ''}${document.file_url}`, '_blank')
   }
 
   const getFileIcon = (fileType: string) => {
     if (fileType.includes('pdf')) return <FileText className="w-4 h-4 text-red-500" />
-    if (fileType.includes('word') || fileType.includes('document')) return <FileText className="w-4 h-4 text-blue-800" />
+    if (fileType.includes('word') || fileType.includes('document')) return <FileText className="w-4 h-4 text-emerald-800" />
     if (fileType.includes('image')) return <Image className="w-4 h-4 text-green-500" />
-    return <File className="w-4 h-4 text-gray-700" />
+    return <File className="w-4 h-4 text-white/40" />
   }
 
   const formatFileSize = (bytes: number): string => {
@@ -530,7 +529,7 @@ export function DocumentManagement() {
                 </div>
                 <div className="space-y-2">
                   <Label>Uploaded At</Label>
-                  <div className="text-sm">{new Date(selectedDocument.created_at).toLocaleString()}</div>
+                  <div className="text-sm">{formatDateTime(selectedDocument.created_at)}</div>
                 </div>
                 <div className="space-y-2">
                   <Label>Version</Label>

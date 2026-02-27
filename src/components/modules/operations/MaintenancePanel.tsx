@@ -104,9 +104,9 @@ export const MaintenancePanel: React.FC<MaintenancePanelProps> = ({ open, onOpen
                             <p>All systems operational</p>
                         </div>
                     ) : (
-                        filteredTasks.map((task, idx) => (
+                        filteredTasks.map((task) => (
                             <div
-                                key={idx}
+                                key={task.id}
                                 className="flex flex-col p-2 rounded-md border bg-card hover:bg-accent/50 transition-all group relative overflow-hidden"
                             >
                                 {task.status === 'overdue' && (

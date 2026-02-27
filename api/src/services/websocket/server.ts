@@ -1,9 +1,9 @@
-import url from 'url';
-
 import { config } from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { Pool, PoolClient } from 'pg';
 import WebSocket from 'ws';
+
+import logger from '../../config/logger';
 
 config();
 
@@ -25,12 +25,12 @@ const pool = new Pool({
 const wss = new WebSocket.Server({ port: 3001 });
 
 wss.on('connection', (ws: ExtendedWebSocket, req) => {
-  const parameters = url.parse(req.url!, true).query;
-  const token: string = parameters.token as string;
+  const parsedUrl = new URL(req.url!, `http://${req.headers.host || 'localhost'}`);
+  const token: string = parsedUrl.searchParams.get('token') as string;
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    ws.vehicleId = (decoded as any).vehicleId;
+    ws.vehicleId = (decoded as jwt.JwtPayload & { vehicleId?: string }).vehicleId;
   } catch (err) {
     ws.terminate();
     return;
@@ -52,18 +52,18 @@ wss.on('connection', (ws: ExtendedWebSocket, req) => {
         }
       });
     } catch (err) {
-      console.error(err);
+      logger.error('WebSocket message processing error', { error: err instanceof Error ? err.message : String(err) });
     } finally {
       client.release();
     }
   });
 
   ws.on('close', () => {
-    console.log(`Client disconnected: ${ws.vehicleId}`);
+    logger.info('Client disconnected', { vehicleId: ws.vehicleId });
   });
 
   ws.on('error', (err) => {
-    console.error(`Client error: ${err}`);
+    logger.error('Client error', { error: err instanceof Error ? err.message : String(err) });
   });
 });
 

@@ -1,9 +1,9 @@
 /**
  * CTA-Branded Header Component
- * Official Capital Technology Alliance branding with ArchonY logo
+ * Official Capital Technology Alliance branding with CTA Fleet logo
  *
  * Features:
- * - ArchonY logo with animated swoosh
+ * - CTA Fleet logo with animated swoosh
  * - Official CTA color palette
  * - Responsive design
  * - Reusable across all pages
@@ -32,18 +32,18 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
 
   return (
     <div className={`flex flex-col items-center justify-center ${className}`}>
-      {/* ArchonY Logo with Swoosh */}
+      {/* CTA Fleet Logo with Swoosh */}
       <div className={`relative ${s.container} flex flex-col items-center justify-center mb-2`}>
         {/* Curved Swoosh Element - CTA Official Gradient */}
         <svg
           className={`absolute top-0 left-1/2 -translate-x-1/2 ${s.swoosh}`}
           viewBox="0 0 80 80"
-          style={{ filter: 'drop-shadow(0 4px 8px rgba(253, 184, 19, 0.5))' }}
+          style={{ filter: 'drop-shadow(0 4px 8px hsl(var(--chart-3) / 0.5))' }}
         >
           <defs>
             <linearGradient id="ctaGradientHeader" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style={{ stopColor: '#F0A000' }} />
-              <stop offset="100%" style={{ stopColor: '#DD3903' }} />
+              <stop offset="0%" style={{ stopColor: 'hsl(var(--chart-3))' }} />
+              <stop offset="100%" style={{ stopColor: 'hsl(var(--chart-6))' }} />
             </linearGradient>
           </defs>
           <path
@@ -60,7 +60,7 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
           />
         </svg>
 
-        {/* ArchonY Typography */}
+        {/* CTA Fleet Typography */}
         <div className="relative z-10 mt-8">
           <div
             className={`${s.logo} font-bold tracking-wider mb-0.5`}
@@ -68,26 +68,26 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
               fontFamily: '"Inter", -apple-system, sans-serif',
               fontWeight: 700,
               letterSpacing: '0.15em',
-              color: '#ffffff',
-              textShadow: '0 2px 8px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(253, 184, 19, 0.4)',
-              background: 'linear-gradient(90deg, #ffffff 0%, #41B2E3 50%, #ffffff 100%)',
+              color: 'hsl(var(--foreground))',
+              textShadow: '0 2px 8px hsl(var(--chart-5) / 0.6), 0 4px 12px hsl(var(--chart-3) / 0.4)',
+              background: 'linear-gradient(90deg, hsl(var(--foreground)) 0%, hsl(var(--chart-1)) 50%, hsl(var(--foreground)) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text'
             }}
           >
-            ARCHON·Y
+            CTA FLEET
           </div>
           {showTagline && (
             <div
               className={`${s.tagline} font-semibold uppercase tracking-[0.2em] text-center`}
               style={{
-                color: '#41B2E3',
-                textShadow: '0 0 10px rgba(0, 212, 255, 0.8)',
+                color: 'hsl(var(--chart-1))',
+                textShadow: '0 0 10px hsl(var(--chart-5) / 0.8)',
                 fontWeight: 600
               }}
             >
-              INTELLIGENT PERFORMANCE
+              FLEET COMMAND
             </div>
           )}
         </div>
@@ -97,8 +97,8 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
       <div
         className="w-16 h-0.5 rounded-full"
         style={{
-          background: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',
-          boxShadow: '0 2px 8px rgba(253, 184, 19, 0.6)'
+          background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
+          boxShadow: '0 2px 8px hsl(var(--chart-3) / 0.6)'
         }}
       />
     </div>

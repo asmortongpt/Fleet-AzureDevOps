@@ -20,7 +20,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { useInspect } from "@/services/inspect/InspectContext"
+import { formatNumber } from "@/utils/format-helpers"
 
 interface DriverPerformanceProps {
   data?: ReturnType<typeof useFleetData>
@@ -55,10 +57,7 @@ interface LeaderboardEntry {
   achievementCount: number
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((res) => res.json())
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 const parseMetadata = (value: any) => {
   if (!value) return {}
@@ -68,6 +67,12 @@ const parseMetadata = (value: any) => {
   } catch {
     return {}
   }
+}
+
+/** Safely coerce a value to a finite number, returning fallback (default 0) if NaN/Infinity/undefined/null */
+const safeNum = (value: unknown, fallback = 0): number => {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : fallback
 }
 
 const mapTrend = (trend?: string): 'up' | 'down' => {
@@ -105,14 +110,14 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
       const metadata = parseMetadata((driver as any).metadata)
       const leaderboardEntry = leaderboardById[String(driver.id)] || {}
 
-      const safetyScore = leaderboardEntry.safetyScore ?? (driver as any).performance_score ?? (driver as any).safetyScore ?? 0
-      const overallScore = leaderboardEntry.overallScore ?? safetyScore
-      const incidents = metadata.incidents ?? metadata.incident_count ?? 0
-      const violations = metadata.violations ?? metadata.violation_count ?? 0
-      const trips = metadata.trips ?? metadata.trip_count ?? 0
-      const miles = metadata.miles ?? metadata.mileage ?? 0
-      const fuelEfficiency = metadata.fuelEfficiency ?? metadata.fuel_efficiency ?? 0
-      const onTimeDelivery = metadata.onTimeDelivery ?? metadata.on_time_delivery ?? 0
+      const safetyScore = safeNum(leaderboardEntry.safetyScore ?? (driver as any).performance_score ?? (driver as any).safetyScore)
+      const overallScore = safeNum(leaderboardEntry.overallScore ?? safetyScore)
+      const incidents = safeNum(metadata.incidents ?? metadata.incident_count)
+      const violations = safeNum(metadata.violations ?? metadata.violation_count)
+      const trips = safeNum(metadata.trips ?? metadata.trip_count)
+      const miles = safeNum(metadata.miles ?? metadata.mileage)
+      const fuelEfficiency = safeNum(metadata.fuelEfficiency ?? metadata.fuel_efficiency)
+      const onTimeDelivery = safeNum(metadata.onTimeDelivery ?? metadata.on_time_delivery)
 
       return {
         ...driver,
@@ -140,12 +145,12 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
   }, [enhancedDrivers])
 
   const metrics = useMemo(() => {
-    const totalTrips = enhancedDrivers.reduce((sum, d) => sum + (d as any).trips, 0)
-    const totalMiles = enhancedDrivers.reduce((sum, d) => sum + (d as any).miles, 0)
+    const totalTrips = enhancedDrivers.reduce((sum, d) => sum + safeNum((d as any).trips), 0)
+    const totalMiles = enhancedDrivers.reduce((sum, d) => sum + safeNum((d as any).miles), 0)
     const avgSafetyScore = enhancedDrivers.length > 0
-      ? Math.round(enhancedDrivers.reduce((sum, d) => sum + (d as any).safetyScore, 0) / enhancedDrivers.length)
+      ? Math.round(enhancedDrivers.reduce((sum, d) => sum + safeNum((d as any).safetyScore), 0) / enhancedDrivers.length)
       : 0
-    const totalIncidents = enhancedDrivers.reduce((sum, d) => sum + (d as any).incidents, 0)
+    const totalIncidents = enhancedDrivers.reduce((sum, d) => sum + safeNum((d as any).incidents), 0)
 
     return {
       totalDrivers: drivers.length,
@@ -164,7 +169,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
         `${(driver as any).first_name || ''} ${(driver as any).last_name || ''}`.trim() ||
         (driver as any).email ||
         String(driver.id)
-      return { name: driverName, score: (driver as any).safetyScore ?? 0 }
+      return { name: driverName, score: safeNum((driver as any).safetyScore) }
     })
   }, [topPerformers])
 
@@ -219,7 +224,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
         />
         <MetricCard
           title="Total Trips"
-          value={metrics.totalTrips.toLocaleString()}
+          value={formatNumber(metrics.totalTrips)}
           subtitle="completed"
           icon={<Target className="w-3 h-3" />}
           status="info"
@@ -275,8 +280,8 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                     <p className="text-xs text-muted-foreground">{driver.department}</p>
                   </div>
                   <div className="text-right">
-                    <p className={`font-semibold ${getScoreColor(driver.safetyScore)}`}>
-                      {driver.safetyScore}
+                    <p className={`font-semibold ${getScoreColor(safeNum(driver.safetyScore))}`}>
+                      {safeNum(driver.safetyScore)}
                     </p>
                   </div>
                 </div>
@@ -310,7 +315,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                     <div className="flex items-start justify-between">
                       <div className="flex gap-2 flex-1">
                         <div className="w-12 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                          {driver.name.split(' ').map((n: string) => n[0]).join('')}
+                          {(driver.name || 'U').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
@@ -328,31 +333,31 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                             <div>
                               <p className="text-muted-foreground">Safety Score</p>
-                              <p className={`font-semibold text-sm ${getScoreColor(driver.safetyScore)}`}>
-                                {driver.safetyScore}
+                              <p className={`font-semibold text-sm ${getScoreColor(safeNum(driver.safetyScore))}`}>
+                                {safeNum(driver.safetyScore)}
                               </p>
                             </div>
                             <div>
                               <p className="text-muted-foreground">Total Trips</p>
-                              <p className="font-semibold text-sm">{(driver as any).trips}</p>
+                              <p className="font-semibold text-sm">{safeNum((driver as any).trips)}</p>
                             </div>
                             <div>
                               <p className="text-muted-foreground">Miles Driven</p>
-                              <p className="font-semibold text-sm">{((driver as any).miles || 0).toLocaleString()}</p>
+                              <p className="font-semibold text-sm">{formatNumber(safeNum((driver as any).miles))}</p>
                             </div>
                             <div>
                               <p className="text-muted-foreground">Incidents</p>
-                              <p className={`font-semibold text-sm ${(driver as any).incidents > 2 ? "text-destructive" : ""}`}>
-                                {(driver as any).incidents}
+                              <p className={`font-semibold text-sm ${safeNum((driver as any).incidents) > 2 ? "text-destructive" : ""}`}>
+                                {safeNum((driver as any).incidents)}
                               </p>
                             </div>
                           </div>
                           <div className="mt-2">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs text-muted-foreground">On-Time Delivery</span>
-                              <span className="text-xs font-medium">{(driver as any).onTimeDelivery}%</span>
+                              <span className="text-xs font-medium">{safeNum((driver as any).onTimeDelivery)}%</span>
                             </div>
-                            <Progress value={(driver as any).onTimeDelivery} className="h-2" />
+                            <Progress value={safeNum((driver as any).onTimeDelivery)} className="h-2" />
                           </div>
                         </div>
                       </div>
@@ -409,9 +414,9 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                           <Badge className={badge.color}>{badge.label}</Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          Safety Score: <span className={`font-semibold ${getScoreColor(driver.safetyScore)}`}>
-                            {driver.safetyScore}
-                          </span> • {(driver as any).trips} trips • {((driver as any).miles || 0).toLocaleString()} miles
+                          Safety Score: <span className={`font-semibold ${getScoreColor(safeNum(driver.safetyScore))}`}>
+                            {safeNum(driver.safetyScore)}
+                          </span> • {safeNum((driver as any).trips)} trips • {formatNumber(safeNum((driver as any).miles))} miles
                         </p>
                       </div>
                       <Trophy className="w-4 h-4 text-warning" />

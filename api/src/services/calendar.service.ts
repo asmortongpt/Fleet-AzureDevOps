@@ -1,8 +1,10 @@
 import { Client } from '@microsoft/microsoft-graph-client'
 import axios from 'axios'
-import { createEvent as createICSEvent } from 'ics'
+import { createEvent as createICSEvent, EventAttributes } from 'ics'
 import nodemailer from 'nodemailer'
 import { Pool } from 'pg'
+
+import logger from '../config/logger'
 
 
 // Azure AD Configuration
@@ -58,7 +60,42 @@ interface CalendarEvent {
   location?: string
   body?: string
   isOnlineMeeting?: boolean
-  recurrence?: any
+  recurrence?: Record<string, unknown>
+}
+
+interface GraphCalendarEvent {
+  id: string
+  subject: string
+  body?: { contentType: string; content: string }
+  start: { dateTime: string; timeZone: string }
+  end: { dateTime: string; timeZone: string }
+  location?: { displayName: string }
+  attendees?: Array<{ emailAddress: { address: string }; type: string }>
+  isOnlineMeeting?: boolean
+  onlineMeetingProvider?: string
+  webLink?: string
+  onlineMeeting?: Record<string, unknown>
+  organizer?: Record<string, unknown>
+}
+
+interface GraphEventPayload {
+  subject: string
+  body?: { contentType: string; content: string }
+  start: { dateTime: string; timeZone: string }
+  end: { dateTime: string; timeZone: string }
+  location?: { displayName: string }
+  attendees: Array<{ emailAddress: { address: string }; type: string }>
+  isOnlineMeeting?: boolean
+  onlineMeetingProvider?: string
+}
+
+interface GraphEventUpdate {
+  subject?: string
+  body?: { contentType: string; content: string }
+  start?: { dateTime: string; timeZone: string }
+  end?: { dateTime: string; timeZone: string }
+  location?: { displayName: string }
+  attendees?: Array<{ emailAddress: { address: string }; type: string }>
 }
 
 export class CalendarService {
@@ -76,11 +113,11 @@ export class CalendarService {
   location?: string,
   body?: string,
   isOnlineMeeting: boolean = false
-): Promise<any> {
+): Promise<GraphCalendarEvent> {
   try {
     const client = await getGraphClient()
 
-    const event: any = {
+    const event: GraphEventPayload = {
       subject,
       body: {
         contentType: 'HTML',
@@ -111,7 +148,7 @@ export class CalendarService {
       .api(`/users/${userId}/calendar/events`)
       .post(event)
 
-    console.log(`Calendar event created:`, response.id)
+    logger.info('Calendar event created', { eventId: response.id })
 
     // Store in our database
     await this.db.query(
@@ -129,8 +166,8 @@ export class CalendarService {
     )
 
     return response
-  } catch (error: any) {
-    console.error(`Error creating calendar event:`, error.message)
+  } catch (error: unknown) {
+    logger.error('Error creating calendar event', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -142,7 +179,7 @@ export class CalendarService {
   userId: string,
   startDate: Date,
   endDate: Date
-): Promise<any[]> {
+): Promise<GraphCalendarEvent[]> {
   try {
     const client = await getGraphClient()
 
@@ -157,8 +194,8 @@ export class CalendarService {
       .get()
 
     return response.value
-  } catch (error: any) {
-    console.error(`Error fetching calendar events:`, error.message)
+  } catch (error: unknown) {
+    logger.error('Error fetching calendar events', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -166,7 +203,7 @@ export class CalendarService {
 /**
  * Get a specific event by ID
  */
-  async getEventById(userId: string, eventId: string): Promise<any> {
+  async getEventById(userId: string, eventId: string): Promise<GraphCalendarEvent> {
   try {
     const client = await getGraphClient()
 
@@ -175,8 +212,8 @@ export class CalendarService {
       .get()
 
     return response
-  } catch (error: any) {
-    console.error(`Error fetching calendar event:`, error.message)
+  } catch (error: unknown) {
+    logger.error('Error fetching calendar event', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -188,11 +225,11 @@ export class CalendarService {
   userId: string,
   eventId: string,
   updates: Partial<CalendarEvent>
-): Promise<any> {
+): Promise<GraphCalendarEvent> {
   try {
     const client = await getGraphClient()
 
-    const eventUpdate: any = {}
+    const eventUpdate: GraphEventUpdate = {}
 
     if (updates.subject) {
 eventUpdate.subject = updates.subject
@@ -241,10 +278,10 @@ eventUpdate.subject = updates.subject
       [eventId]
     )
 
-    console.log('Calendar event updated:', response.id)
+    logger.info('Calendar event updated', { eventId: response.id })
     return response
-  } catch (error: any) {
-    console.error(`Error updating calendar event:`, error.message)
+  } catch (error: unknown) {
+    logger.error('Error updating calendar event', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -268,9 +305,9 @@ eventUpdate.subject = updates.subject
       [eventId]
     )
 
-    console.log('Calendar event deleted:', eventId)
-  } catch (error: any) {
-    console.error(`Error deleting calendar event:`, error.message)
+    logger.info('Calendar event deleted', { eventId })
+  } catch (error: unknown) {
+    logger.error('Error deleting calendar event', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -289,9 +326,9 @@ eventUpdate.subject = updates.subject
         sendResponse: true
       })
 
-    console.log('Meeting accepted:', eventId)
-  } catch (error: any) {
-    console.error(`Error accepting meeting:`, error.message)
+    logger.info('Meeting accepted', { eventId })
+  } catch (error: unknown) {
+    logger.error('Error accepting meeting', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -310,9 +347,9 @@ eventUpdate.subject = updates.subject
         sendResponse: true
       })
 
-    console.log('Meeting declined:', eventId)
-  } catch (error: any) {
-    console.error(`Error declining meeting:`, error.message)
+    logger.info('Meeting declined', { eventId })
+  } catch (error: unknown) {
+    logger.error('Error declining meeting', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -331,9 +368,9 @@ eventUpdate.subject = updates.subject
         sendResponse: true
       })
 
-    console.log('Meeting tentatively accepted:', eventId)
-  } catch (error: any) {
-    console.error('Error tentatively accepting meeting:', error.message)
+    logger.info('Meeting tentatively accepted', { eventId })
+  } catch (error: unknown) {
+    logger.error('Error tentatively accepting meeting', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -350,7 +387,7 @@ eventUpdate.subject = updates.subject
     endTime?: Date
     maxCandidates?: number
   }
-): Promise<any[]> {
+): Promise<Record<string, unknown>[]> {
   try {
     const client = await getGraphClient()
 
@@ -386,8 +423,8 @@ eventUpdate.subject = updates.subject
       .post(requestBody)
 
     return response.meetingTimeSuggestions || []
-  } catch (error: any) {
-    console.error(`Error finding meeting times:`, error.message)
+  } catch (error: unknown) {
+    logger.error('Error finding meeting times', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -400,7 +437,7 @@ eventUpdate.subject = updates.subject
   startDate: Date,
   endDate: Date,
   availabilityViewInterval: number = 60
-): Promise<any> {
+): Promise<Record<string, unknown>[]> {
   try {
     const client = await getGraphClient()
 
@@ -422,8 +459,8 @@ eventUpdate.subject = updates.subject
       .post(requestBody)
 
     return response.value
-  } catch (error: any) {
-    console.error('Error getting availability:', error.message)
+  } catch (error: unknown) {
+    logger.error('Error getting availability', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -436,7 +473,7 @@ eventUpdate.subject = updates.subject
   durationMinutes: number,
   preferredDate?: Date,
   assignedMechanicEmail?: string
-): Promise<any> {
+): Promise<GraphCalendarEvent> {
   try {
     // Get vehicle details
     const vehicleResult = await this.db.query(
@@ -509,8 +546,8 @@ eventUpdate.subject = updates.subject
     )
 
     return event
-  } catch (error: any) {
-    console.error('Error scheduling maintenance:', error.message)
+  } catch (error: unknown) {
+    logger.error('Error scheduling maintenance', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -524,7 +561,7 @@ eventUpdate.subject = updates.subject
   trainingType?: string,
   preferredDate?: Date,
   trainerEmail?: string
-): Promise<any> {
+): Promise<GraphCalendarEvent> {
   try {
     // Get driver details
     const driverResult = await this.db.query(
@@ -588,8 +625,8 @@ attendees.push(trainerEmail)
     )
 
     return event
-  } catch (error: any) {
-    console.error('Error scheduling driver training:', error.message)
+  } catch (error: unknown) {
+    logger.error('Error scheduling driver training', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -618,9 +655,9 @@ attendees.push(trainerEmail)
       organizer: { name: 'Fleet Management System', email: process.env.SMTP_FROM || 'noreply@fleet.com' }
     }
 
-    createICSEvent(event as any, (error, value) => {
+    createICSEvent(event as EventAttributes, (error, value) => {
       if (error) {
-        console.error('Error creating ICS event:', error)
+        logger.error('Error creating ICS event', { error })
         return
       }
 
@@ -655,14 +692,14 @@ attendees.push(trainerEmail)
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.error('Error sending calendar invite email:', error)
+          logger.error('Error sending calendar invite email', { error })
         } else {
-          console.log('Calendar invite email sent:', info.messageId)
+          logger.info('Calendar invite email sent', { messageId: info.messageId })
         }
       })
     })
-  } catch (error: any) {
-    console.error('Error sending calendar invite:', error.message)
+  } catch (error: unknown) {
+    logger.error('Error sending calendar invite', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }

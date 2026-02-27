@@ -3,13 +3,15 @@
  * Uses HLS.js for adaptive bitrate streaming
  */
 
-import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Circle, Camera, AlertTriangle } from 'lucide-react'
 import Hls from 'hls.js'
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Circle, Camera, AlertTriangle } from 'lucide-react'
 import { useRef, useState, useEffect, useCallback } from 'react'
+
 
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
+import logger from '@/utils/logger'
 
 export interface VideoPlayerProps {
   /** HLS stream URL (.m3u8) or direct video URL (.mp4, .webm) */
@@ -97,7 +99,8 @@ export function VideoPlayer({
         setIsLoading(false)
         if (autoPlay) {
           video.play().catch(() => {
-            // Autoplay blocked, user needs to interact
+            // Browser autoplay policy blocked playback - user must interact first
+            logger.warn('Video autoplay blocked by browser policy')
             setIsPlaying(false)
           })
         }
@@ -124,7 +127,10 @@ export function VideoPlayer({
       const handleCanPlay = () => {
         setIsLoading(false)
         if (autoPlay) {
-          video.play().catch(() => setIsPlaying(false))
+          video.play().catch(() => {
+            logger.warn('Native video autoplay blocked by browser policy')
+            setIsPlaying(false)
+          })
         }
       }
 
@@ -217,8 +223,8 @@ export function VideoPlayer({
 
   const statusColors = {
     recording: 'bg-red-500',
-    standby: 'bg-yellow-500',
-    offline: 'bg-gray-500',
+    standby: 'bg-amber-500',
+    offline: 'bg-white/40',
     error: 'bg-red-700'
   }
 
@@ -263,8 +269,8 @@ export function VideoPlayer({
 
       {/* No Source - Demo Mode */}
       {!src && status !== 'offline' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-          <Camera className="w-12 h-9 text-slate-600" />
+        <div className="absolute inset-0 flex items-center justify-center bg-[#111111]">
+          <Camera className="w-12 h-9 text-white/50" />
         </div>
       )}
 
@@ -334,6 +340,7 @@ export function VideoPlayer({
                     variant="ghost"
                     className="h-8 w-8 text-white hover:bg-white/20"
                     onClick={(e) => { e.stopPropagation(); togglePlay() }}
+                    aria-label={isPlaying ? 'Pause' : 'Play'}
                   >
                     {isPlaying ? <Pause /> : <Play />}
                   </Button>
@@ -343,6 +350,7 @@ export function VideoPlayer({
                     variant="ghost"
                     className="h-8 w-8 text-white hover:bg-white/20"
                     onClick={(e) => { e.stopPropagation(); toggleMute() }}
+                    aria-label={isMuted ? 'Unmute' : 'Mute'}
                   >
                     {isMuted ? <VolumeX /> : <Volume2 />}
                   </Button>
@@ -361,6 +369,7 @@ export function VideoPlayer({
                       variant="ghost"
                       className="h-8 w-8 text-white hover:bg-white/20"
                       onClick={(e) => { e.stopPropagation(); toggleFullscreen() }}
+                      aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                     >
                       {isFullscreen ? <Minimize /> : <Maximize />}
                     </Button>

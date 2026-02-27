@@ -14,14 +14,18 @@ function sha256(buf: Buffer) {
 export const scanSessionsController = {
   async create(req: Request, res: Response) {
     const { vehicleId, captureType } = req.body || {};
-    if (!vehicleId || !captureType) return res.status(400).json({ error: 'vehicleId and captureType required' });
+    if (!vehicleId || !captureType) {
+return res.status(400).json({ error: 'vehicleId and captureType required' });
+}
     const session = await scanSessionRepository.create({ vehicleId, captureType });
     return res.status(201).json(session);
   },
 
   async get(req: Request, res: Response) {
     const session = await scanSessionRepository.getById(req.params.id);
-    if (!session) return res.status(404).json({ error: 'Not found' });
+    if (!session) {
+return res.status(404).json({ error: 'Not found' });
+}
     return res.json(session);
   },
 
@@ -32,9 +36,13 @@ export const scanSessionsController = {
 
   async createUploadCredentials(req: Request, res: Response) {
     const { files } = req.body || {};
-    if (!Array.isArray(files) || files.length === 0) return res.status(400).json({ error: 'files array required' });
+    if (!Array.isArray(files) || files.length === 0) {
+return res.status(400).json({ error: 'files array required' });
+}
     const session = await scanSessionRepository.getById(req.params.id);
-    if (!session) return res.status(404).json({ error: 'Not found' });
+    if (!session) {
+return res.status(404).json({ error: 'Not found' });
+}
 
     const container = process.env.AZURE_STORAGE_RAW_CONTAINER || 'scans-raw';
     const creds = files.map((f: any) => {
@@ -48,7 +56,9 @@ export const scanSessionsController = {
 
   async uploadComplete(req: Request, res: Response) {
     const session = await scanSessionRepository.getById(req.params.id);
-    if (!session) return res.status(404).json({ error: 'Not found' });
+    if (!session) {
+return res.status(404).json({ error: 'Not found' });
+}
     // in real system, we would verify blobs exist and compute server-side hashes with BlobClient downloads or Content-MD5.
     const updated = await scanSessionRepository.update(session.id, { status: 'uploaded' });
     await enqueueScanProcessing(session.id);
@@ -58,7 +68,9 @@ export const scanSessionsController = {
   async update(req: Request, res: Response) {
     const patch = req.body || {};
     const updated = await scanSessionRepository.update(req.params.id, patch);
-    if (!updated) return res.status(404).json({ error: 'Not found' });
+    if (!updated) {
+return res.status(404).json({ error: 'Not found' });
+}
     res.json(updated);
   }
 };

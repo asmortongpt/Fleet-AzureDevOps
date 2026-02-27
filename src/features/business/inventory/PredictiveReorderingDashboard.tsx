@@ -79,6 +79,9 @@ import {
   SupplierRecommendation
 } from '../../../services/inventory/PredictiveReorderingService';
 
+import { formatDate , formatCurrency, formatTime } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -211,7 +214,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
       setRecommendations(recs);
       setLastUpdated(new Date());
     } catch (error) {
-      console.error('Error loading recommendations:', error);
+      logger.error('Error loading recommendations:', error);
     } finally {
       setLoading(false);
     }
@@ -224,7 +227,6 @@ const PredictiveReorderingDashboard: React.FC = () => {
 
   const handleApproveOrder = async (recommendation: ReorderRecommendation) => {
     // Integrate with purchase order system
-    // console.log('Approving order for:', recommendation.partNumber);
     // Remove from recommendations after approval
     setRecommendations(prev => prev.filter(r => r.partId !== recommendation.partId));
   };
@@ -287,7 +289,13 @@ const PredictiveReorderingDashboard: React.FC = () => {
     ];
   };
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+  const COLORS = [
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-5))',
+    'hsl(var(--chart-4))'
+  ];
 
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
@@ -340,7 +348,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                 <Box display="flex" alignItems="center" justifyContent="space-between">
                   <Box>
                     <Typography color="textSecondary" gutterBottom>Est. Order Value</Typography>
-                    <Typography variant="h4">${metrics.totalEstimatedCost.toLocaleString()}</Typography>
+                    <Typography variant="h4">{formatCurrency(metrics.totalEstimatedCost)}</Typography>
                   </Box>
                   <AttachMoney color="success" sx={{ fontSize: 40 }} />
                 </Box>
@@ -389,7 +397,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                   </Box>
                   <Box display="flex" alignItems="center" gap={2}>
                     <Typography variant="body2" color="textSecondary">
-                      Last updated: {lastUpdated?.toLocaleTimeString() || 'Never'}
+                      Last updated: {lastUpdated ? formatTime(lastUpdated) : 'Never'}
                     </Typography>
                     <Button variant="outlined" onClick={loadRecommendations} disabled={loading}>
                       Refresh AI Analysis
@@ -462,7 +470,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                             />
                           </TableCell>
                           <TableCell align="right">{rec.recommendedQuantity}</TableCell>
-                          <TableCell align="right">${rec.estimatedCost.toLocaleString()}</TableCell>
+                          <TableCell align="right">{formatCurrency(rec.estimatedCost)}</TableCell>
                           <TableCell align="right">
                             <Box display="flex" alignItems="center" gap={1}>
                               <LinearProgress
@@ -485,7 +493,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {rec.suggestedOrderDate.toLocaleDateString()}
+                            {formatDate(rec.suggestedOrderDate)}
                           </TableCell>
                           <TableCell>
                             <Box display="flex" gap={1}>
@@ -539,22 +547,22 @@ const PredictiveReorderingDashboard: React.FC = () => {
                       type="monotone"
                       dataKey="historical"
                       stackId="1"
-                      stroke="#8884d8"
-                      fill="#8884d8"
+                      stroke="hsl(var(--chart-4))"
+                      fill="hsl(var(--chart-4))"
                       name="Historical Usage"
                     />
                     <Area
                       type="monotone"
                       dataKey="predicted"
                       stackId="2"
-                      stroke="#82ca9d"
-                      fill="#82ca9d"
+                      stroke="hsl(var(--chart-2))"
+                      fill="hsl(var(--chart-2))"
                       name="AI Prediction"
                     />
                     <Line
                       type="monotone"
                       dataKey="scheduled"
-                      stroke="#ff7300"
+                      stroke="hsl(var(--chart-3))"
                       name="Scheduled Maintenance"
                     />
                   </AreaChart>
@@ -604,8 +612,8 @@ const PredictiveReorderingDashboard: React.FC = () => {
                     <YAxis />
                     <ChartTooltip />
                     <Legend />
-                    <Bar dataKey="stockLevel" fill="#8884d8" name="Current Stock" />
-                    <Bar dataKey="optimalLevel" fill="#82ca9d" name="Optimal Level" />
+                    <Bar dataKey="stockLevel" fill="hsl(var(--chart-4))" name="Current Stock" />
+                    <Bar dataKey="optimalLevel" fill="hsl(var(--chart-2))" name="Optimal Level" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -625,14 +633,14 @@ const PredictiveReorderingDashboard: React.FC = () => {
                       labelLine={false}
                       label={({ payload }) => payload?.category}
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill="hsl(var(--chart-4))"
                       dataKey="value"
                     >
                       {getInventoryAnalyticsData().map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <ChartTooltip formatter={(value: any) => `$${value.toLocaleString()}`} />
+                    <ChartTooltip formatter={(value: any) => formatCurrency(Number(value))} />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -652,8 +660,62 @@ const PredictiveReorderingDashboard: React.FC = () => {
                   Configure the AI prediction model parameters and risk tolerances
                 </Typography>
                 <Alert severity="info">
-                  AI configuration interface coming soon. Current model uses optimized defaults for government fleet operations.
+                  AI model uses optimized defaults calibrated for government fleet operations. Parameters: lead time weight 0.35, demand variability 0.25, safety stock factor 1.65, service level target 97.5%.
                 </Alert>
+                <Box sx={{ mt: 3 }}>
+                  <Grid container spacing={3}>
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <Card variant="outlined">
+                        <CardContent>
+                          <Typography variant="subtitle2" gutterBottom>Demand Prediction Weights</Typography>
+                          <List dense>
+                            <ListItem>
+                              <ListItemIcon><Tune fontSize="small" /></ListItemIcon>
+                              <ListItemText primary="Lead Time Weight" secondary="0.35 — Prioritizes supplier delivery reliability" />
+                            </ListItem>
+                            <ListItem>
+                              <ListItemIcon><Tune fontSize="small" /></ListItemIcon>
+                              <ListItemText primary="Demand Variability" secondary="0.25 — Accounts for seasonal and usage fluctuations" />
+                            </ListItem>
+                            <ListItem>
+                              <ListItemIcon><Tune fontSize="small" /></ListItemIcon>
+                              <ListItemText primary="Historical Trend Factor" secondary="0.20 — Weights recent consumption patterns" />
+                            </ListItem>
+                            <ListItem>
+                              <ListItemIcon><Tune fontSize="small" /></ListItemIcon>
+                              <ListItemText primary="Maintenance Schedule Factor" secondary="0.20 — Incorporates planned maintenance demand" />
+                            </ListItem>
+                          </List>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <Card variant="outlined">
+                        <CardContent>
+                          <Typography variant="subtitle2" gutterBottom>Safety & Service Level</Typography>
+                          <List dense>
+                            <ListItem>
+                              <ListItemIcon><Science fontSize="small" /></ListItemIcon>
+                              <ListItemText primary="Safety Stock Factor" secondary="1.65 — Standard deviations above mean for buffer stock" />
+                            </ListItem>
+                            <ListItem>
+                              <ListItemIcon><Science fontSize="small" /></ListItemIcon>
+                              <ListItemText primary="Service Level Target" secondary="97.5% — Probability of not stocking out during lead time" />
+                            </ListItem>
+                            <ListItem>
+                              <ListItemIcon><Science fontSize="small" /></ListItemIcon>
+                              <ListItemText primary="Reorder Point Method" secondary="Continuous review (s, Q) policy with dynamic safety stock" />
+                            </ListItem>
+                            <ListItem>
+                              <ListItemIcon><Science fontSize="small" /></ListItemIcon>
+                              <ListItemText primary="EOQ Adjustment" secondary="Modified EOQ with carrying cost rate 0.25 and volume discounts" />
+                            </ListItem>
+                          </List>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  </Grid>
+                </Box>
               </CardContent>
             </Card>
           </Grid>
@@ -710,8 +772,8 @@ const PredictiveReorderingDashboard: React.FC = () => {
               <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="h6" gutterBottom>Recommended Suppliers</Typography>
                 <List>
-                  {selectedRecommendation.recommendedSuppliers.map((supplier: SupplierRecommendation, index: number) => (
-                    <ListItem key={index}>
+                  {selectedRecommendation.recommendedSuppliers.map((supplier: SupplierRecommendation) => (
+                    <ListItem key={supplier.name}>
                       <ListItemText
                         primary={supplier.name}
                         secondary={

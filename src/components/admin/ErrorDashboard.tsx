@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 
@@ -195,9 +196,9 @@ export function ErrorDashboard() {
       case 'medium':
         return 'text-yellow-600 bg-yellow-100 border-yellow-300';
       case 'low':
-        return 'text-blue-800 bg-blue-100 border-blue-300';
+        return 'text-emerald-800 bg-emerald-500/10 border-emerald-500/30';
       default:
-        return 'text-slate-700 bg-gray-100 border-gray-300';
+        return 'text-white/70 bg-white/[0.05] border-white/[0.08]';
     }
   }
 
@@ -400,7 +401,7 @@ export function ErrorDashboard() {
             filteredErrors.map((error) => (
               <div
                 key={error.id}
-                className="flex items-start justify-between p-2 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-start justify-between p-2 border rounded-lg hover:bg-white/[0.03] transition-colors"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -420,7 +421,7 @@ export function ErrorDashboard() {
                       Occurred {error.count} times • Affected {error.affectedUsers}{' '}
                       users
                     </p>
-                    <p>{new Date(error.timestamp).toLocaleString()}</p>
+                    <p>{formatDateTime(new Date(error.timestamp))}</p>
                   </div>
                 </div>
               </div>

@@ -22,6 +22,8 @@ import { promisify } from 'util';
 import express, { Request, Response } from 'express';
 import { Pool } from 'pg';
 
+import { logger } from '../utils/logger';
+
 
 
 
@@ -72,23 +74,28 @@ const requireAdmin = (req: Request, res: Response, next: express.NextFunction) =
     return next();
   }
 
-  // Check for JWT with admin role (if using JWT authentication)
-  const user = (req as any).user;
-  if (user && (user.role === 'admin' || user.role === 'system_admin')) {
+  // Check for JWT with privileged role
+  const user = req.user;
+  const normalizedRole = String(user?.role || '').toLowerCase();
+  const allowedRoles = new Set([
+    'superadmin',
+    'super-admin',
+    'admin',
+    'system_admin',
+    'system-admin',
+    'security-admin',
+    'security_admin',
+    'analyst'
+  ]);
+
+  if (user && allowedRoles.has(normalizedRole)) {
     return next();
   }
 
-  // Production mode requires authentication
-  if (process.env.NODE_ENV === 'production') {
-    return res.status(403).json({
-      error: 'Forbidden',
-      message: 'Admin access required'
-    });
-  }
-
-  // Development mode allows through (with warning)
-  console.warn('⚠️  Admin endpoint accessed without authentication in development mode');
-  next();
+  return res.status(403).json({
+    error: 'Forbidden',
+    message: 'Admin access required'
+  });
 };
 
 /**
@@ -158,13 +165,11 @@ async function checkDatabase(): Promise<ComponentHealth> {
       },
       lastCheck: new Date().toISOString()
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    logger.error('Database health check failed:', error);
     return {
       status: 'critical',
       message: 'Database connection failed',
-      details: {
-        error: error.message
-      },
       latency: Date.now() - startTime,
       lastCheck: new Date().toISOString()
     };
@@ -188,8 +193,8 @@ async function checkAzureAd(): Promise<ComponentHealth> {
       status: 'critical',
       message: 'Azure AD not fully configured',
       details: {
-        missingVariables: missingVars,
-        configured: requiredVars.filter(v => process.env[v])
+        missingCount: missingVars.length,
+        totalRequired: requiredVars.length
       }
     };
   }
@@ -198,8 +203,8 @@ async function checkAzureAd(): Promise<ComponentHealth> {
     status: 'healthy',
     message: 'Azure AD properly configured',
     details: {
-      clientId: process.env.AZURE_AD_CLIENT_ID?.substring(0, 8) + '...',
-      tenantId: process.env.AZURE_AD_TENANT_ID?.substring(0, 8) + '...',
+      clientIdConfigured: !!process.env.AZURE_AD_CLIENT_ID,
+      tenantIdConfigured: !!process.env.AZURE_AD_TENANT_ID,
       hasSecret: !!process.env.AZURE_AD_CLIENT_SECRET
     }
   };
@@ -286,12 +291,12 @@ async function checkCache(): Promise<ComponentHealth> {
         responseTime: `${latency}ms`
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    logger.error('Redis health check failed:', error);
     return {
       status: 'critical',
       message: 'Redis connection failed',
       details: {
-        error: error.message,
         configured: true
       }
     };
@@ -322,13 +327,11 @@ async function checkDisk(): Promise<ComponentHealth> {
         mountPoint: parts[5]
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    logger.error('Disk health check failed:', error);
     return {
       status: 'degraded',
-      message: `Could not check disk space`,
-      details: {
-        error: error.message
-      }
+      message: 'Could not check disk space'
     };
   }
 }
@@ -466,11 +469,11 @@ overallStatus = 'degraded';
 
     res.status(httpStatus).json(response);
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    logger.error('Health check failed:', error);
     res.status(500).json({
       status: 'critical',
       message: 'Health check failed',
-      error: error.message,
       timestamp: new Date().toISOString()
     });
   }
@@ -512,12 +515,12 @@ router.get('/component/:name', requireAdmin, async (req: Request, res: Response)
       ...result,
       timestamp: new Date().toISOString()
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    logger.error(`Health check for component ${name} failed:`, error);
     res.status(500).json({
       component: name,
       status: 'critical',
-      message: 'Check failed',
-      error: error.message
+      message: 'Check failed'
     });
   }
 });

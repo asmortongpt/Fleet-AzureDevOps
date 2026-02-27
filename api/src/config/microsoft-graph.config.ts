@@ -6,6 +6,7 @@
  */
 
 import { RetryPolicy, GraphServiceConfig, GraphPermissionScope } from '../types/microsoft-graph.types'
+import logger from './logger'
 
 /**
  * Microsoft Graph API Base URL
@@ -279,7 +280,7 @@ export const getGraphServiceConfig = (): GraphServiceConfig => {
       )
     }
     // Return mock configuration for development
-    console.warn('⚠️  Microsoft Graph credentials not configured - using development mode (SSO disabled)')
+    logger.warn('Microsoft Graph credentials not configured - using development mode (SSO disabled)')
     return {
       clientId: 'dev-client-id',
       clientSecret: 'dev-client-secret',

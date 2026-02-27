@@ -29,10 +29,10 @@
     }
   },
   "performance": {
-    "maxVehicles": 100,
-    "maxConcurrentEmulators": 50,
+    "maxVehicles": 25,
+    "maxConcurrentEmulators": 10,
     "updateInterval": 1000,
-    "memoryLimit": "2GB"
+    "memoryLimit": "256MB"
   },
   "logging": {
     "level": "info",

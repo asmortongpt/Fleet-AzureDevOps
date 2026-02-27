@@ -7,9 +7,11 @@
 
 import { toast } from 'sonner';
 
+
 import { checkPolicyCompliance, PolicyEvaluationContext } from './engine';
 import { Policy, PolicyType } from './types';
 
+import { formatCurrency } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 export interface PolicyEnforcementResult {
@@ -228,7 +230,7 @@ export async function enforcePaymentPolicy(
     });
   } else if (result.requiresApproval) {
     toast.warning('Approval Required', {
-      description: `Payment of $${paymentData.amount.toFixed(2)} requires supervisor approval`
+      description: `Payment of ${formatCurrency(paymentData.amount)} requires supervisor approval`
     });
   }
 

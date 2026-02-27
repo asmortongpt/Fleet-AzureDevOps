@@ -3,11 +3,13 @@
  * Correlation matrix or time-based heatmap visualization
  */
 
-import { motion } from 'framer-motion'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useThemeContext } from '@/components/providers/ThemeProvider'
-import { Skeleton } from '@/components/ui/skeleton'
+// motion removed - React 19 incompatible
 import { useMemo } from 'react'
+
+import { useThemeContext } from '@/components/providers/ThemeProvider'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+
 
 interface HeatmapDataPoint {
   x: string
@@ -32,16 +34,16 @@ export function HeatmapChart({
   data,
   height = 400,
   loading = false,
-  minColor = 'hsl(210, 100%, 90%)',
-  maxColor = 'hsl(210, 100%, 30%)',
+  minColor = 'hsl(160, 60%, 90%)',
+  maxColor = 'hsl(160, 60%, 30%)',
   showValues = true,
 }: HeatmapChartProps) {
   const { theme } = useThemeContext()
   const isDark = theme === 'dark'
 
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    border: isDark ? '#374151' : '#e5e7eb',
+    text: 'var(--foreground)',
+    border: 'var(--border)',
   }
 
   // Get unique x and y values
@@ -111,12 +113,8 @@ export function HeatmapChart({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4 }}
-    >
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+    <div>
+      <Card className="bg-[#111111] border-white/[0.04]">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}
@@ -142,13 +140,9 @@ export function HeatmapChart({
                         color: chartColors.text,
                       }}
                     >
-                      <motion.span
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.02 }}
-                      >
+                      <span>
                         {x}
-                      </motion.span>
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -176,12 +170,8 @@ export function HeatmapChart({
                       const color = getColor(value)
 
                       return (
-                        <motion.div
+                        <div
                           key={`${x}-${y}`}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: (yIdx * xValues.length + xIdx) * 0.005 }}
-                          whileHover={{ scale: 1.1, zIndex: 10 }}
                           className="relative group cursor-pointer"
                           style={{
                             width: cellSize,
@@ -195,7 +185,7 @@ export function HeatmapChart({
                               <span
                                 className="text-xs font-semibold"
                                 style={{
-                                  color: value > (minValue + maxValue) / 2 ? '#ffffff' : chartColors.text,
+                                  color: value > (minValue + maxValue) / 2 ? 'var(--background)' : chartColors.text,
                                 }}
                               >
                                 {value.toFixed(1)}
@@ -204,10 +194,10 @@ export function HeatmapChart({
                           )}
 
                           {/* Tooltip on hover */}
-                          <div className="absolute hidden group-hover:block bg-gray-900 text-white text-xs rounded px-2 py-1 -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-20 shadow-lg">
+                          <div className="absolute hidden group-hover:block bg-[#1a1a1a] text-white text-xs rounded px-2 py-1 -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-20">
                             {x} × {y}: {value.toFixed(2)}
                           </div>
-                        </motion.div>
+                        </div>
                       )
                     })}
                   </div>
@@ -230,6 +220,6 @@ export function HeatmapChart({
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }

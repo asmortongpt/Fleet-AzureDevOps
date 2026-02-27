@@ -6,6 +6,10 @@
 
 import { Pool } from 'pg'
 
+// Export singleton instance
+import logger from '../config/logger'
+import { pool } from '../db'
+
 
 export interface CognitionInsight {
   insight_type: string
@@ -42,7 +46,7 @@ class FleetCognitionService {
 
   constructor(
     private db: Pool,
-    private logger: any
+    private logger: import('winston').Logger
   ) {
     this.startContinuousAnalysis()
   }
@@ -84,8 +88,8 @@ class FleetCognitionService {
       this.logger.info('Fleet insights generated', { tenantId, count: insights.length })
 
       return insights
-    } catch (error: any) {
-      this.logger.error('Error generating fleet insights', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error generating fleet insights', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -123,8 +127,8 @@ class FleetCognitionService {
       this.logger.info('Patterns detected', { tenantId, count: patterns.length })
 
       return patterns
-    } catch (error: any) {
-      this.logger.error('Error detecting patterns', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error detecting patterns', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -162,8 +166,8 @@ class FleetCognitionService {
       this.logger.info('Anomalies detected', { tenantId, count: anomalies.length })
 
       return anomalies
-    } catch (error: any) {
-      this.logger.error('Error detecting anomalies', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error detecting anomalies', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -209,8 +213,8 @@ class FleetCognitionService {
       this.logger.info('Recommendations generated', { tenantId, count: recommendations.length })
 
       return recommendations
-    } catch (error: any) {
-      this.logger.error('Error generating recommendations', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error generating recommendations', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -245,17 +249,18 @@ class FleetCognitionService {
 
       // For each model type, assess if retraining is needed
       for (const [modelId, feedbacks] of Object.entries(feedbackByModel)) {
-        const shouldRetrain = await this.assessRetrainingNeed(modelId, feedbacks as any[])
+        const feedbackList = feedbacks as Record<string, unknown>[]
+        const shouldRetrain = await this.assessRetrainingNeed(modelId, feedbackList)
 
         if (shouldRetrain) {
-          this.logger.info('Scheduling model retraining', { modelId, feedbackCount: (feedbacks as any[]).length })
-          await this.scheduleModelRetraining(tenantId, modelId, feedbacks as any[])
+          this.logger.info('Scheduling model retraining', { modelId, feedbackCount: feedbackList.length })
+          await this.scheduleModelRetraining(tenantId, modelId, feedbackList)
         }
       }
 
       this.logger.info('Feedback loop processed', { tenantId, feedbackProcessed: feedbackItems.length })
-    } catch (error: any) {
-      this.logger.error('Error processing feedback loop', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error processing feedback loop', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -291,8 +296,8 @@ class FleetCognitionService {
         incident_rate_score: Math.round(incidentRate),
         timestamp: new Date().toISOString()
       }
-    } catch (error: any) {
-      this.logger.error('Error calculating fleet health score', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error calculating fleet health score', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -645,23 +650,23 @@ class FleetCognitionService {
     ]
   }
 
-  private groupFeedbackByModel(feedbackItems: any[]): Map<string, any[]> {
-    const grouped = new Map<string, any[]>()
+  private groupFeedbackByModel(feedbackItems: Record<string, unknown>[]): Map<string, Record<string, unknown>[]> {
+    const grouped = new Map<string, Record<string, unknown>[]>()
     for (const item of feedbackItems) {
-      if (!grouped.has(item.model_id)) {
-        grouped.set(item.model_id, [])
+      if (!grouped.has(item.model_id as string)) {
+        grouped.set(item.model_id as string, [])
       }
-      grouped.get(item.model_id)!.push(item)
+      grouped.get(item.model_id as string)!.push(item)
     }
     return grouped
   }
 
-  private async assessRetrainingNeed(modelId: string, feedbacks: any[]): Promise<boolean> {
+  private async assessRetrainingNeed(modelId: string, feedbacks: Record<string, unknown>[]): Promise<boolean> {
     // Retrain if we have 50+ feedback items or accuracy drops below threshold
     return feedbacks.length >= 50
   }
 
-  private async scheduleModelRetraining(tenantId: string, modelId: string, feedbacks: any[]): Promise<void> {
+  private async scheduleModelRetraining(tenantId: string, modelId: string, feedbacks: Record<string, unknown>[]): Promise<void> {
     // This would integrate with the ML training service
     this.logger.info('Model retraining scheduled', { modelId, feedbackCount: feedbacks.length })
   }
@@ -745,10 +750,6 @@ class FleetCognitionService {
     this.logger.info('Fleet cognition service shut down')
   }
 }
-
-// Export singleton instance
-import logger from '../config/logger'
-import { pool } from '../db'
 const fleetCognitionService = new FleetCognitionService(pool, logger)
 
 export default fleetCognitionService

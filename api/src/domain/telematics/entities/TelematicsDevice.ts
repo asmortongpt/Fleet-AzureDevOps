@@ -17,7 +17,9 @@ export class TelematicsDevice {
   }
 
   needsSync(intervalSeconds: number): boolean {
-    if (!this.lastSyncAt) return true;
+    if (!this.lastSyncAt) {
+return true;
+}
     const elapsed = (Date.now() - this.lastSyncAt.getTime()) / 1000;
     return elapsed >= intervalSeconds;
   }

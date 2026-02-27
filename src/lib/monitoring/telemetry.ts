@@ -7,6 +7,8 @@
 
 import React from 'react';
 
+import logger from '@/utils/logger';
+
 // Define OpenTelemetry-compatible types locally to avoid dependency on @opentelemetry/api
 export enum SpanStatusCode {
   UNSET = 0,
@@ -86,9 +88,6 @@ class TelemetryService {
    */
   init(): void {
     if (!this.config.enabled) {
-      if (import.meta.env.DEV) {
-        console.log('[Telemetry] Not initialized - disabled or missing endpoint');
-      }
       return;
     }
 
@@ -100,15 +99,8 @@ class TelemetryService {
       );
 
       this.initialized = true;
-
-      if (import.meta.env.DEV) {
-        console.log('[Telemetry] Initialized successfully');
-        console.log('[Telemetry] Service:', this.config.serviceName);
-        console.log('[Telemetry] Version:', this.config.serviceVersion);
-        console.log('[Telemetry] Environment:', this.config.environment);
-      }
     } catch (error) {
-      console.error('[Telemetry] Failed to initialize:', error);
+      logger.error('[Telemetry] Failed to initialize:', error);
     }
   }
 
@@ -132,7 +124,7 @@ class TelemetryService {
         attributes: options?.attributes,
       });
     } catch (error) {
-      console.error('[Telemetry] Failed to start span:', error);
+      logger.error('[Telemetry] Failed to start span:', error);
       return null;
     }
   }
@@ -162,7 +154,7 @@ class TelemetryService {
         fn
       );
     } catch (error) {
-      console.error('[Telemetry] Failed to start active span:', error);
+      logger.error('[Telemetry] Failed to start active span:', error);
       return fn(null);
     }
   }

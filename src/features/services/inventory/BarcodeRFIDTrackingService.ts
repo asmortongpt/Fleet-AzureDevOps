@@ -3,6 +3,8 @@
  * Service for managing physical inventory tracking with barcode and RFID technology
  */
 
+import { secureFetch } from '@/hooks/use-api';
+
 export interface ItemLocation {
   facility: string;
   building: string;
@@ -46,14 +48,14 @@ export interface InventoryItem {
   rfidTag?: string;
   location: ItemLocation;
   status: 'in_stock' | 'checked_out' | 'maintenance' | 'reserved' | 'disposed';
-  condition: 'new' | 'good' | 'fair' | 'poor' | 'defective';
+  condition?: 'new' | 'good' | 'fair' | 'poor' | 'defective';
   unitCost: number;
   currentValue: number;
-  lastScanned: Date;
-  lastMoved: Date;
-  scannedBy: string;
-  checkoutHistory: CheckoutRecord[];
-  maintenanceHistory: MaintenanceRecord[];
+  lastScanned?: Date;
+  lastMoved?: Date;
+  scannedBy?: string;
+  checkoutHistory?: CheckoutRecord[];
+  maintenanceHistory?: MaintenanceRecord[];
 }
 
 export interface ScanEvent {
@@ -118,11 +120,28 @@ class BarcodeRFIDTrackingService {
     size: 'small' | 'medium' | 'large';
     includeText: boolean;
   }): Promise<BarcodeGenerationResult> {
-    // Mock implementation
+    const response = await secureFetch(`/api/inventory/items/${options.itemId}`);
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(message || 'Failed to load inventory item for barcode generation');
+    }
+
+    const payload = await response.json();
+    const item = payload.data || payload;
+    const code =
+      item?.sku ||
+      item?.part_number ||
+      item?.manufacturer_part_number ||
+      options.partNumber;
+
+    if (!code) {
+      throw new Error('Inventory item is missing a barcode/part number');
+    }
+
     return {
-      code: `CTAFLEET-${options.partNumber}-${Date.now()}`,
+      code,
       format: options.format,
-      imageData: 'base64encodedimage'
+      imageData: item?.barcode_image || item?.qr_code_image
     };
   }
 
@@ -133,11 +152,54 @@ class BarcodeRFIDTrackingService {
     action: 'inventory' | 'checkout' | 'checkin' | 'transfer' | 'audit',
     userId: string
   ): Promise<ScanResult> {
-    // Mock implementation
+    const response = await secureFetch('/api/inventory/scan', {
+      method: 'POST',
+      body: JSON.stringify({ barcode: code }),
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      return {
+        success: false,
+        message: message || 'Item not found',
+      };
+    }
+
+    const payload = await response.json();
+    const item = payload.data || payload;
+    const quantityOnHand = Number(item?.quantity_on_hand ?? item?.quantityOnHand ?? 0);
+    const locationData = {
+      facility: item?.warehouse_location || item?.warehouseLocation || '',
+      building: item?.building || '',
+      room: item?.room || '',
+      shelf: item?.shelf || '',
+      bin: item?.bin_location || item?.binLocation || '',
+    };
+
+    const mappedItem: InventoryItem = {
+      id: item?.id,
+      partNumber: item?.part_number || item?.partNumber || '',
+      name: item?.name || '',
+      category: item?.category || '',
+      barcode: item?.sku || item?.part_number || item?.manufacturer_part_number || code,
+      qrCode: item?.qr_code || item?.qrCode || '',
+      rfidTag: item?.rfid_tag || item?.rfidTag,
+      location: locationData,
+      status: quantityOnHand > 0 ? 'in_stock' : 'reserved',
+      condition: item?.condition,
+      unitCost: Number(item?.unit_cost ?? item?.unitCost ?? 0),
+      currentValue: Number(item?.current_value ?? item?.currentValue ?? 0),
+      lastScanned: item?.last_used ? new Date(item.last_used) : undefined,
+      lastMoved: item?.updated_at ? new Date(item.updated_at) : undefined,
+      scannedBy: userId,
+      checkoutHistory: item?.checkout_history || item?.checkoutHistory,
+      maintenanceHistory: item?.maintenance_history || item?.maintenanceHistory,
+    };
+
     return {
       success: true,
       message: 'Item scanned successfully',
-      item: undefined
+      item: mappedItem,
     };
   }
 
@@ -147,41 +209,88 @@ class BarcodeRFIDTrackingService {
     purpose: string,
     expectedReturnDate?: Date,
     workOrderNumber?: string,
-    notes?: string
+    notes?: string,
+    quantity: number = 1,
+    condition?: string
   ): Promise<CheckoutRecord> {
-    // Mock implementation
+    const normalizedNotes = condition
+      ? `${notes ? `${notes} | ` : ''}Condition: ${condition}`
+      : notes;
+
+    const response = await secureFetch('/api/inventory/transactions', {
+      method: 'POST',
+      body: JSON.stringify({
+        item_id: itemId,
+        transaction_type: 'usage',
+        quantity: -Math.abs(quantity),
+        unit_cost: 0,
+        reason: purpose,
+        work_order_id: workOrderNumber,
+        reference_number: workOrderNumber,
+        notes: normalizedNotes,
+      }),
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(message || 'Failed to check out item');
+    }
+
+    const payload = await response.json();
+    const data = payload.data || payload;
+
     return {
-      id: `CHK-${Date.now()}`,
+      id: data.id,
       itemId,
-      checkedOutBy: 'current_user',
+      checkedOutBy: data.user_id || '',
       checkedOutTo,
-      checkedOutDate: new Date(),
+      checkedOutDate: data.created_at ? new Date(data.created_at) : new Date(),
       purpose,
       workOrderNumber,
       condition: {
-        checkoutCondition: 'good'
-      }
+        checkoutCondition: condition || data.condition || 'unknown',
+      },
     };
   }
 
   async checkInItem(
     itemId: string,
     condition: string,
-    notes?: string
+    notes?: string,
+    quantity: number = 1
   ): Promise<CheckoutRecord> {
-    // Mock implementation
+    const response = await secureFetch('/api/inventory/transactions', {
+      method: 'POST',
+      body: JSON.stringify({
+        item_id: itemId,
+        transaction_type: 'return',
+        quantity: Math.abs(quantity),
+        unit_cost: 0,
+        reason: notes || 'Return',
+        notes: condition ? `Condition: ${condition}${notes ? ` | ${notes}` : ''}` : notes,
+      }),
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(message || 'Failed to check in item');
+    }
+
+    const payload = await response.json();
+    const data = payload.data || payload;
+
     return {
-      id: `CHK-${Date.now()}`,
+      id: data.id,
       itemId,
-      checkedOutBy: 'previous_user',
+      checkedOutBy: data.user_id || '',
       checkedOutTo: 'returned',
-      checkedOutDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      checkedInDate: new Date(),
-      purpose: 'completed',
+      checkedOutDate: data.created_at ? new Date(data.created_at) : new Date(),
+      checkedInDate: data.created_at ? new Date(data.created_at) : new Date(),
+      purpose: notes || 'Return',
       condition: {
-        checkoutCondition: 'good',
-        checkinCondition: condition
-      }
+        checkoutCondition: condition || data.condition || 'unknown',
+        checkinCondition: condition,
+      },
     };
   }
 
@@ -191,19 +300,7 @@ class BarcodeRFIDTrackingService {
     assignedTeam: string[],
     supervisor: string
   ): Promise<InventoryAudit> {
-    // Mock implementation
-    return {
-      id: `AUDIT-${Date.now()}`,
-      type,
-      startDate: new Date(),
-      location,
-      assignedTeam,
-      supervisor,
-      status: 'in_progress',
-      expectedCount: 100,
-      actualCount: 0,
-      discrepancies: []
-    };
+    throw new Error('Inventory audit creation is not available in the backend yet');
   }
 
   async performRFIDSweep(
@@ -211,12 +308,7 @@ class BarcodeRFIDTrackingService {
     location: string,
     userId: string
   ): Promise<RFIDSweepResult> {
-    // Mock implementation
-    return {
-      foundItems: [],
-      missingItems: [],
-      sweepDuration: 1500
-    };
+    throw new Error('RFID sweep is not available in the backend yet');
   }
 }
 

@@ -4,7 +4,7 @@ import tseslint from 'typescript-eslint';
 import security from 'eslint-plugin-security';
 import importPlugin from 'eslint-plugin-import';
 import promisePlugin from 'eslint-plugin-promise';
-import nodePlugin from 'eslint-plugin-node';
+import nodePlugin from 'eslint-plugin-n';
 
 export default tseslint.config(
   {
@@ -37,7 +37,7 @@ export default tseslint.config(
       security,
       import: importPlugin,
       promise: promisePlugin,
-      node: nodePlugin,
+      n: nodePlugin,
     },
     extends: [
       ...tseslint.configs.recommended,
@@ -48,7 +48,7 @@ export default tseslint.config(
       sourceType: 'module',
       parser: tseslint.parser,
       parserOptions: {
-        project: './tsconfig.json',
+        project: './tsconfig.eslint.json',
         tsconfigRootDir: import.meta.dirname,
       },
       globals: {
@@ -60,7 +60,7 @@ export default tseslint.config(
       'import/resolver': {
         typescript: {
           alwaysTryTypes: true,
-          project: './tsconfig.json',
+          project: './tsconfig.eslint.json',
         },
         node: {
           extensions: ['.js', '.ts'],
@@ -143,18 +143,20 @@ export default tseslint.config(
       'promise/valid-params': 'error',
 
       // Node.js rules - prevent deprecated APIs
-      'node/no-deprecated-api': 'error',
-      'node/no-extraneous-import': 'off', // Handled by TypeScript/npm
-      'node/no-extraneous-require': 'off',
-      'node/no-missing-import': 'off', // TypeScript handles this
-      'node/no-missing-require': 'off',
-      'node/no-unpublished-import': 'off',
-      'node/no-unpublished-require': 'off',
-      'node/no-unsupported-features/es-syntax': 'off', // We use modern ES features
-      'node/process-exit-as-throw': 'error',
-      'node/shebang': 'off',
+      'n/no-deprecated-api': 'error',
+      'n/no-extraneous-import': 'off', // Handled by TypeScript/npm
+      'n/no-extraneous-require': 'off',
+      'n/no-missing-import': 'off', // TypeScript handles this
+      'n/no-missing-require': 'off',
+      'n/no-unpublished-import': 'off',
+      'n/no-unpublished-require': 'off',
+      'n/no-unsupported-features/es-syntax': 'off', // We use modern ES features
+      'n/process-exit-as-throw': 'error',
+      'n/hashbang': 'off',
 
       // General JavaScript rules
+      'no-useless-assignment': 'warn', // New in ESLint 9
+      'preserve-caught-error': 'warn', // New in ESLint 9
       'no-console': 'off',
       'prefer-const': 'error',
       'no-var': 'error',

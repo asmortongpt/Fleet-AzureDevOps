@@ -18,6 +18,7 @@
  * @version 2.0.0
  */
 
+import { useQuery } from "@tanstack/react-query"
 import {
   CloudRain,
   Construction,
@@ -25,7 +26,6 @@ import {
   Zap,
   AlertTriangle
 } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
 import { useState, useCallback, useMemo } from "react"
 
 import { UniversalMap } from "@/components/UniversalMap"
@@ -371,7 +371,7 @@ export function EnhancedMapLayers() {
 
       const weatherConditions: WeatherConditions = {
         temperature: currentPeriod.temperature || 0,
-        conditions: currentPeriod.shortForecast || 'Unknown',
+        conditions: currentPeriod.shortForecast || '—',
         windSpeed: parseInt(currentPeriod.windSpeed) || 0,
         windDirection: currentPeriod.windDirection || 'N',
         humidity: currentPeriod.relativeHumidity?.value || 0,

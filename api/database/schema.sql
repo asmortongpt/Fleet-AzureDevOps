@@ -350,6 +350,29 @@ CREATE INDEX idx_geofence_events_vehicle ON geofence_events(vehicle_id);
 CREATE INDEX idx_geofence_events_time ON geofence_events(event_time DESC);
 
 -- ============================================
+-- Radio Channels (Configuration)
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS radio_channels (
+    id SERIAL PRIMARY KEY,
+    channel_id VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    frequency VARCHAR(20) NOT NULL,
+    type VARCHAR(20) NOT NULL CHECK (type IN ('dispatch', 'emergency', 'tactical', 'maintenance', 'common')),
+    priority INTEGER DEFAULT 1,
+    encryption BOOLEAN DEFAULT false,
+    max_users INTEGER DEFAULT 100,
+    talk_group VARCHAR(50),
+    description TEXT,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_radio_channels_active_priority
+  ON radio_channels(is_active, priority DESC);
+
+-- ============================================
 -- Vehicle Telemetry (OBD2, Telematics)
 -- ============================================
 

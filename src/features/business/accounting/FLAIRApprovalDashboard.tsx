@@ -7,6 +7,8 @@
 import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/contexts';
+import { formatDate, formatDateTime } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 
 // FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
 export interface FLAIRExpenseEntry {
@@ -75,10 +77,10 @@ const ExpenseEntryCard: React.FC<{
   const getStatusBadge = () => {
     const statusConfig = {
       pending: { color: 'bg-yellow-100 text-yellow-800', text: 'Pending Review' },
-      supervisor_approved: { color: 'bg-blue-100 text-blue-800', text: 'Supervisor Approved' },
+      supervisor_approved: { color: 'bg-emerald-500/10 text-emerald-800', text: 'Supervisor Approved' },
       finance_approved: { color: 'bg-green-100 text-green-800', text: 'Finance Approved' },
-      submitted_to_flair: { color: 'bg-purple-100 text-purple-800', text: 'Submitted to FLAIR' },
-      processed: { color: 'bg-gray-100 text-gray-800', text: 'Processed' },
+      submitted_to_flair: { color: 'bg-amber-100 text-amber-800', text: 'Submitted to FLAIR' },
+      processed: { color: 'bg-white/[0.05] text-white/60', text: 'Processed' },
       rejected: { color: 'bg-red-100 text-red-800', text: 'Rejected' }
     };
 
@@ -119,16 +121,16 @@ const ExpenseEntryCard: React.FC<{
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+    <div className="bg-white border border-white/[0.08] rounded-lg p-3 hover:border-white/[0.12] transition-colors">
       {/* Header */}
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center space-x-3">
           <span className="text-sm">{getExpenseTypeIcon()}</span>
           <div>
-            <h3 className="font-semibold text-gray-900">
+            <h3 className="font-semibold text-white/80">
               {entry.expenseType.replace('_', ' ').toUpperCase()}
             </h3>
-            <p className="text-sm text-slate-700">
+            <p className="text-sm text-white/70">
               {entry.employeeName} • {entry.department}
             </p>
           </div>
@@ -142,33 +144,33 @@ const ExpenseEntryCard: React.FC<{
       {/* Details */}
       <div className="space-y-2 mb-2">
         <div className="text-sm">
-          <span className="font-medium text-gray-700">Date:</span>{' '}
-          {new Date(entry.transactionDate).toLocaleDateString()}
+          <span className="font-medium text-white/40">Date:</span>{' '}
+          {formatDate(entry.transactionDate)}
         </div>
         <div className="text-sm">
-          <span className="font-medium text-gray-700">Description:</span> {entry.description}
+          <span className="font-medium text-white/40">Description:</span> {entry.description}
         </div>
         {entry.travelDetails && (
           <div className="text-sm">
-            <span className="font-medium text-gray-700">Route:</span>{' '}
+            <span className="font-medium text-white/40">Route:</span>{' '}
             {entry.travelDetails.originAddress} → {entry.travelDetails.destinationAddress}
           </div>
         )}
         <div className="text-sm">
-          <span className="font-medium text-gray-700">Documents:</span>{' '}
+          <span className="font-medium text-white/40">Documents:</span>{' '}
           {entry.supportingDocuments.length} attached
         </div>
       </div>
 
       {/* Approval history */}
       {entry.approvalHistory.length > 0 && (
-        <div className="bg-gray-50 rounded-lg p-3 mb-2">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Approval History</h4>
+        <div className="bg-white/[0.03] rounded-lg p-3 mb-2">
+          <h4 className="text-sm font-medium text-white/80 mb-2">Approval History</h4>
           <div className="space-y-1">
-            {entry.approvalHistory.map((approval: ApprovalRecord, index: number) => (
-              <div key={index} className="text-xs text-slate-700">
+            {entry.approvalHistory.map((approval: ApprovalRecord) => (
+              <div key={`${approval.approverName}-${approval.approvedAt}`} className="text-xs text-white/70">
                 <strong>{approval.approverName}</strong> ({approval.approvalLevel}) approved on{' '}
-                {new Date(approval.approvedAt).toLocaleString()}
+                {formatDateTime(approval.approvedAt)}
                 {approval.comments && <div className="italic ml-2">"{approval.comments}"</div>}
               </div>
             ))}
@@ -177,10 +179,10 @@ const ExpenseEntryCard: React.FC<{
       )}
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+      <div className="flex items-center justify-between pt-2 border-t border-white/[0.08]">
         <button
           onClick={() => onViewDetails(entry.id)}
-          className="text-blue-800 hover:text-blue-800 text-sm transition-colors"
+          className="text-emerald-800 hover:text-emerald-800 text-sm transition-colors"
         >
           View details
         </button>
@@ -211,10 +213,10 @@ const ExpenseEntryCard: React.FC<{
 
       {/* Approval form */}
       {showApprovalForm && (
-        <div className="mt-2 pt-2 border-t border-gray-200">
+        <div className="mt-2 pt-2 border-t border-white/[0.08]">
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-white/40 mb-1">
                 Approval comments (Optional)
               </label>
               <textarea
@@ -222,13 +224,13 @@ const ExpenseEntryCard: React.FC<{
                 onChange={(e) => setComments(e.target.value)}
                 placeholder="Add any comments about this approval..."
                 rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
               />
             </div>
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setShowApprovalForm(false)}
-                className="px-3 py-1 text-slate-700 hover:text-gray-800 text-sm transition-colors"
+                className="px-3 py-1 text-white/70 hover:text-white/60 text-sm transition-colors"
               >
                 Cancel
               </button>
@@ -256,16 +258,16 @@ const FilterPanel: React.FC<{
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-2 space-y-2">
-      <h3 className="font-semibold text-gray-900">Filters</h3>
+    <div className="bg-white border border-white/[0.08] rounded-lg p-2 space-y-2">
+      <h3 className="font-semibold text-white/80">Filters</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <label className="block text-sm font-medium text-white/40 mb-1">Status</label>
           <select
             value={filters.status}
             onChange={(e) => updateFilter('status', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
           >
             <option value="all">All Statuses</option>
             <option value="pending">Pending Review</option>
@@ -276,11 +278,11 @@ const FilterPanel: React.FC<{
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Expense Type</label>
+          <label className="block text-sm font-medium text-white/40 mb-1">Expense Type</label>
           <select
             value={filters.expenseType}
             onChange={(e) => updateFilter('expenseType', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
           >
             <option value="all">All Types</option>
             <option value="travel_mileage">Travel Mileage</option>
@@ -291,11 +293,11 @@ const FilterPanel: React.FC<{
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Amount Range</label>
+          <label className="block text-sm font-medium text-white/40 mb-1">Amount Range</label>
           <select
             value={filters.amountRange}
             onChange={(e) => updateFilter('amountRange', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
           >
             <option value="all">All Amounts</option>
             <option value="under_100">Under $100</option>
@@ -305,11 +307,11 @@ const FilterPanel: React.FC<{
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+          <label className="block text-sm font-medium text-white/40 mb-1">Date Range</label>
           <select
             value={filters.dateRange}
             onChange={(e) => updateFilter('dateRange', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
           >
             <option value="all">All Dates</option>
             <option value="today">Today</option>
@@ -320,13 +322,13 @@ const FilterPanel: React.FC<{
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+        <label className="block text-sm font-medium text-white/40 mb-1">Department</label>
         <input
           type="text"
           value={filters.department}
           onChange={(e) => updateFilter('department', e.target.value)}
           placeholder="Filter by department..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
         />
       </div>
     </div>
@@ -346,21 +348,21 @@ const SummaryStats: React.FC<{
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
-      <div className="bg-white border border-gray-200 rounded-lg p-2">
-        <div className="text-sm font-bold text-blue-800">{stats.total}</div>
-        <div className="text-sm text-slate-700">Total Entries</div>
+      <div className="bg-white border border-white/[0.08] rounded-lg p-2">
+        <div className="text-sm font-bold text-emerald-800">{stats.total}</div>
+        <div className="text-sm text-white/70">Total Entries</div>
       </div>
-      <div className="bg-white border border-gray-200 rounded-lg p-2">
+      <div className="bg-white border border-white/[0.08] rounded-lg p-2">
         <div className="text-sm font-bold text-yellow-600">{stats.pending}</div>
-        <div className="text-sm text-slate-700">Pending Approval</div>
+        <div className="text-sm text-white/70">Pending Approval</div>
       </div>
-      <div className="bg-white border border-gray-200 rounded-lg p-2">
+      <div className="bg-white border border-white/[0.08] rounded-lg p-2">
         <div className="text-sm font-bold text-green-600">{stats.approved}</div>
-        <div className="text-sm text-slate-700">Approved</div>
+        <div className="text-sm text-white/70">Approved</div>
       </div>
-      <div className="bg-white border border-gray-200 rounded-lg p-2">
-        <div className="text-sm font-bold text-purple-600">${stats.totalAmount.toFixed(2)}</div>
-        <div className="text-sm text-slate-700">Total Amount</div>
+      <div className="bg-white border border-white/[0.08] rounded-lg p-2">
+        <div className="text-sm font-bold text-amber-600">${stats.totalAmount.toFixed(2)}</div>
+        <div className="text-sm text-white/70">Total Amount</div>
       </div>
     </div>
   );
@@ -434,7 +436,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
 
       setEntries(mapped);
     } catch (error) {
-      console.error('Error loading expense entries:', error);
+      logger.error('Error loading expense entries:', error);
       setEntries([]);
     } finally {
       setIsLoading(false);
@@ -537,7 +539,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
       await loadExpenseEntries();
       onApprovalComplete?.(entryId, true);
     } catch (error) {
-      console.error('Error approving expense:', error);
+      logger.error('Error approving expense:', error);
     }
   };
 
@@ -574,19 +576,19 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
       await loadExpenseEntries();
       onApprovalComplete?.(entryId, false);
     } catch (error) {
-      console.error('Error rejecting expense:', error);
+      logger.error('Error rejecting expense:', error);
     }
   };
 
-  const handleViewDetails = (entryId: string) => {
-    console.log('Viewing details for expense:', entryId);
+  const handleViewDetails = (_entryId: string) => {
+    // View details handler - integrate with expense detail panel
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2 text-slate-700">Loading expense entries...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+        <span className="ml-2 text-white/70">Loading expense entries...</span>
       </div>
     );
   }
@@ -596,10 +598,10 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-sm font-bold text-gray-900">FLAIR Approval Dashboard</h2>
-          <p className="text-slate-700">Review and approve expense submissions</p>
+          <h2 className="text-sm font-bold text-white/80">FLAIR Approval Dashboard</h2>
+          <p className="text-white/70">Review and approve expense submissions</p>
         </div>
-        <div className="text-sm text-gray-700">
+        <div className="text-sm text-white/40">
           Logged in as: {user ? `${user.firstName} ${user.lastName}`.trim() : ''} ({user?.role})
         </div>
       </div>
@@ -615,8 +617,8 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
         {filteredEntries.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-sm mb-2">📭</div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">No Expense Entries Found</h3>
-            <p className="text-slate-700">
+            <h3 className="text-sm font-semibold text-white/80 mb-2">No Expense Entries Found</h3>
+            <p className="text-white/70">
               Try adjusting your filters or check back later for new submissions.
             </p>
           </div>

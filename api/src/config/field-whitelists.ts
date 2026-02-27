@@ -571,7 +571,7 @@ export function filterToWhitelist(
   const filtered: Record<string, any> = {}
 
   for (const field of allowedFields) {
-    if (data.hasOwnProperty(field)) {
+    if (Object.prototype.hasOwnProperty.call(data, field)) {
       filtered[field] = data[field]
     }
   }

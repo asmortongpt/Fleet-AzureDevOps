@@ -1,7 +1,11 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Vehicle } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatNumber } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface FleetTableProps {
   vehicles: Vehicle[]
@@ -13,7 +17,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
 
   const handleDriverClick = (e: React.MouseEvent, driverName: string, driverId?: string) => {
     e.stopPropagation()
-    if (!driverName || driverName === "Unassigned") return
+    if (!driverName || driverName === "—") return
     push({
       type: 'driver',
       label: driverName,
@@ -39,6 +43,9 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
               <tr>
                 <th className="text-left p-2 font-medium">Vehicle</th>
                 <th className="text-left p-2 font-medium">Status</th>
+                <th className="text-left p-2 font-medium">Health</th>
+                <th className="text-left p-2 font-medium">Dept</th>
+                <th className="text-left p-2 font-medium">Op Status</th>
                 <th className="text-left p-2 font-medium">Fuel</th>
                 <th className="text-left p-2 font-medium">Mileage</th>
                 <th className="text-left p-2 font-medium">Location</th>
@@ -57,7 +64,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                     <div>
                       <p className="font-medium">{vehicle.number}</p>
                       <p className="text-sm text-muted-foreground">
-                        {vehicle.year} {vehicle.make} {vehicle.model}
+                        {formatVehicleName(vehicle)}
                       </p>
                     </div>
                   </td>
@@ -72,8 +79,77 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                             : "bg-muted text-muted-foreground"
                       }
                     >
-                      {vehicle.status}
+                      {formatEnum(vehicle.status)}
                     </Badge>
+                  </td>
+                  <td className="p-2">
+                    {vehicle.health_score != null ? (
+                      <div className="flex items-center gap-2">
+                        <Progress
+                          value={vehicle.health_score}
+                          className="h-1.5 w-12"
+                          indicatorClassName={
+                            vehicle.health_score >= 80
+                              ? "bg-success"
+                              : vehicle.health_score >= 60
+                                ? "bg-warning"
+                                : "bg-destructive"
+                          }
+                        />
+                        <span
+                          className={`text-xs font-medium ${
+                            vehicle.health_score >= 80
+                              ? "text-success"
+                              : vehicle.health_score >= 60
+                                ? "text-warning"
+                                : "text-destructive"
+                          }`}
+                        >
+                          {vehicle.health_score}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">--</span>
+                    )}
+                  </td>
+                  <td className="p-2">
+                    {vehicle.department ? (
+                      <Badge variant="outline" className="bg-muted/50 text-muted-foreground border-border/50 font-normal">
+                        {vehicle.department}
+                      </Badge>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">--</span>
+                    )}
+                  </td>
+                  <td className="p-2">
+                    {vehicle.operational_status ? (
+                      <Badge
+                        variant="outline"
+                        className={
+                          vehicle.operational_status === "AVAILABLE"
+                            ? "bg-success/10 text-success border-success/20"
+                            : vehicle.operational_status === "IN_USE"
+                              ? "bg-emerald-100 text-emerald-800 border-emerald-500/30"
+                              : vehicle.operational_status === "MAINTENANCE"
+                                ? "bg-warning/10 text-warning border-warning/20"
+                                : vehicle.operational_status === "RESERVED"
+                                  ? "bg-[#fef3c7] text-[#92400e] border-[#fcd34d]/30"
+                                  : "bg-muted text-muted-foreground"
+                        }
+                      >
+                        {vehicle.operational_status === "IN_USE"
+                          ? "In Use"
+                          : vehicle.operational_status === "AVAILABLE"
+                            ? "Available"
+                            : vehicle.operational_status === "MAINTENANCE"
+                              ? "Maintenance"
+                              : vehicle.operational_status === "RESERVED"
+                                ? "Reserved"
+                                : vehicle.operational_status}
+                      </Badge>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">--</span>
+                    )}
                   </td>
                   <td className="p-2">
                     <div className="flex items-center gap-2">
@@ -93,17 +169,22 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                     </div>
                   </td>
                   <td className="p-2">
-                    <span className="font-medium">{vehicle.mileage.toLocaleString()} mi</span>
+                    <span className="font-medium">{formatNumber(vehicle.mileage)} mi</span>
                   </td>
                   <td className="p-2">
-                    <span className="text-sm">{vehicle.region}</span>
+                    <div>
+                      <span className="text-sm">{vehicle.region}</span>
+                      {vehicle.location && typeof vehicle.location === 'object' && vehicle.location.address && (
+                        <p className="text-xs text-muted-foreground">{vehicle.location.address}</p>
+                      )}
+                    </div>
                   </td>
                   <td className="p-2">
                     <span
                       className={`text-sm ${vehicle.assignedDriver ? 'text-primary hover:underline cursor-pointer' : 'text-muted-foreground'}`}
-                      onClick={(e) => handleDriverClick(e, vehicle.assignedDriver || '', vehicle.assignedDriverId)}
+                      onClick={(e) => handleDriverClick(e, vehicle.assignedDriver || '')}
                     >
-                      {vehicle.assignedDriver || "Unassigned"}
+                      {vehicle.assignedDriver || "—"}
                     </span>
                   </td>
                   <td className="p-2">

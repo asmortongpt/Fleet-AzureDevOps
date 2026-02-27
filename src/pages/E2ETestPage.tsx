@@ -9,16 +9,20 @@
  * Use this page to verify the Fleet CTA application works end-to-end.
  */
 
+import { Loader2, CheckCircle, XCircle, RefreshCw, Database } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Loader2, CheckCircle, XCircle, RefreshCw, Database } from 'lucide-react'
+import { formatDateTime } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -92,12 +96,12 @@ export default function E2ETestPage() {
 
     try {
       const [usersRes, maintenanceRes, vehiclesRes] = await Promise.all([
-        fetch(`${API_BASE}/api/e2e-test/users`),
-        fetch(`${API_BASE}/api/e2e-test/maintenance-schedules`),
-        fetch(`${API_BASE}/api/e2e-test/vehicles`)
+        fetch(`${API_BASE}/api/e2e-test/users`).catch(() => null),
+        fetch(`${API_BASE}/api/e2e-test/maintenance-schedules`).catch(() => null),
+        fetch(`${API_BASE}/api/e2e-test/vehicles`).catch(() => null)
       ])
 
-      if (!usersRes.ok || !maintenanceRes.ok || !vehiclesRes.ok) {
+      if (!usersRes?.ok || !maintenanceRes?.ok || !vehiclesRes?.ok) {
         throw new Error('Failed to fetch data')
       }
 
@@ -216,6 +220,7 @@ export default function E2ETestPage() {
   }, [])
 
   return (
+    <ErrorBoundary>
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -377,7 +382,7 @@ export default function E2ETestPage() {
                   <SelectContent>
                     {vehicles.map((vehicle) => (
                       <SelectItem key={vehicle.id} value={vehicle.id}>
-                        {vehicle.year} {vehicle.make} {vehicle.model} ({vehicle.vin})
+                        {formatVehicleName(vehicle)} ({vehicle.vin})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -506,7 +511,7 @@ export default function E2ETestPage() {
                       </Badge>
                     </td>
                     <td className="p-2 text-muted-foreground text-xs">
-                      {new Date(user.created_at).toLocaleString()}
+                      {formatDateTime(user.created_at)}
                     </td>
                   </tr>
                 ))}
@@ -540,16 +545,16 @@ export default function E2ETestPage() {
                   <tr key={schedule.id} className="border-b hover:bg-accent/50">
                     <td className="p-2 font-medium">{schedule.name}</td>
                     <td className="p-2 text-xs">
-                      <div>{schedule.year} {schedule.make} {schedule.model}</div>
+                      <div>{formatVehicleName(schedule)}</div>
                       <div className="text-muted-foreground font-mono">{schedule.vin}</div>
                     </td>
                     <td className="p-2">
                       <Badge variant="outline">{schedule.type}</Badge>
                     </td>
                     <td className="p-2">${schedule.estimated_cost}</td>
-                    <td className="p-2">{schedule.interval_days ? `${schedule.interval_days} days` : 'N/A'}</td>
+                    <td className="p-2">{schedule.interval_days ? `${schedule.interval_days} days` : '—'}</td>
                     <td className="p-2 text-muted-foreground text-xs">
-                      {new Date(schedule.created_at).toLocaleString()}
+                      {formatDateTime(schedule.created_at)}
                     </td>
                   </tr>
                 ))}
@@ -592,5 +597,6 @@ export default function E2ETestPage() {
         </CardContent>
       </Card>
     </div>
+    </ErrorBoundary>
   )
 }

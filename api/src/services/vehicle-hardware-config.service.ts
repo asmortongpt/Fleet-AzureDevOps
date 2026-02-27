@@ -21,7 +21,7 @@ import crypto from 'crypto';
 import { Pool, PoolClient } from 'pg';
 
 import logger from '../config/logger';
-import { db } from '../db'
+import { pool as dbPool } from '../db'
 
 import SamsaraService from './samsara.service';
 import SmartcarService from './smartcar.service';
@@ -29,7 +29,11 @@ import SmartcarService from './smartcar.service';
 
 // Placeholder TeltonikaService class
 class TeltonikaService {
-  constructor(db: Pool) {}
+  constructor(_db: Pool) {}
+  async registerDevice(_vehicleId: number, _imei: string, _deviceModel: string, _serialNumber: string): Promise<void> {}
+  isConfigured(): boolean {
+ return false; 
+}
 }
 
 // ============================================================================
@@ -220,7 +224,7 @@ class VehicleHardwareConfigService {
           metadata.enableStarterDisable = config.enableStarterDisable || false;
 
           // Register Teltonika device
-          await (this as any).teltonikaService.registerDevice(
+          await this.teltonikaService.registerDevice(
             vehicleId,
             config.imei,
             config.deviceModel,
@@ -301,12 +305,12 @@ class VehicleHardwareConfigService {
         updatedAt: connection.updated_at
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       await client.query('ROLLBACK');
       logger.error('Failed to add provider', {
         vehicleId,
         provider: config.provider,
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
       throw error;
     } finally {
@@ -370,12 +374,12 @@ class VehicleHardwareConfigService {
         userId
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       await client.query('ROLLBACK');
       logger.error('Failed to remove provider', {
         vehicleId,
         provider,
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
       throw error;
     } finally {
@@ -419,10 +423,10 @@ class VehicleHardwareConfigService {
         updatedAt: row.updated_at
       }));
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to get vehicle providers', {
         vehicleId,
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
       throw error;
     }
@@ -506,19 +510,20 @@ class VehicleHardwareConfigService {
 
       return testResult;
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
       logger.error('Connection test failed', {
         vehicleId,
         provider,
-        error: error.message
+        error: errMsg
       });
 
       return {
         success: false,
         provider,
         vehicleId,
-        message: `Connection test failed: ${error.message}`,
-        error: error.message
+        message: `Connection test failed: ${errMsg}`,
+        error: errMsg
       };
     }
   }
@@ -548,11 +553,11 @@ class VehicleHardwareConfigService {
               if (data) {
                 telemetry.providers[p.provider] = data;
               }
-            } catch (error: any) {
+            } catch (error: unknown) {
               logger.warn(`Failed to get telemetry from ${p.provider}`, {
                 vehicleId,
                 provider: p.provider,
-                error: error.message
+                error: error instanceof Error ? error.message : 'An unexpected error occurred'
               });
             }
           })
@@ -563,10 +568,10 @@ class VehicleHardwareConfigService {
 
       return telemetry;
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to get unified telemetry', {
         vehicleId,
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
       throw error;
     }
@@ -666,12 +671,12 @@ class VehicleHardwareConfigService {
         updatedAt: updated.updated_at
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       await client.query('ROLLBACK');
       logger.error('Failed to update provider config', {
         vehicleId,
         provider,
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
       throw error;
     } finally {
@@ -755,13 +760,14 @@ class VehicleHardwareConfigService {
         lastSync: connection.last_sync_at
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
       return {
         success: false,
         provider: 'smartcar',
         vehicleId,
-        message: `Smartcar connection failed: ${error.message}`,
-        error: error.message
+        message: `Smartcar connection failed: ${errMsg}`,
+        error: errMsg
       };
     }
   }
@@ -795,13 +801,14 @@ class VehicleHardwareConfigService {
         lastSync: connection.last_sync_at
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
       return {
         success: false,
         provider: 'samsara',
         vehicleId,
-        message: `Samsara connection failed: ${error.message}`,
-        error: error.message
+        message: `Samsara connection failed: ${errMsg}`,
+        error: errMsg
       };
     }
   }
@@ -814,7 +821,7 @@ class VehicleHardwareConfigService {
     connection: any
   ): Promise<ConnectionTestResult> {
     try {
-      if (!(this as any).teltonikaService.isConfigured()) {
+      if (!this.teltonikaService.isConfigured()) {
         return {
           success: false,
           provider: 'teltonika',
@@ -851,13 +858,14 @@ class VehicleHardwareConfigService {
         lastSync: deviceInfo.last_seen
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
       return {
         success: false,
         provider: 'teltonika',
         vehicleId,
-        message: `Teltonika connection failed: ${error.message}`,
-        error: error.message
+        message: `Teltonika connection failed: ${errMsg}`,
+        error: errMsg
       };
     }
   }
@@ -937,8 +945,12 @@ class VehicleHardwareConfigService {
     const sortedProviders = Object.values(providers)
       .filter(p => p !== undefined)
       .sort((a, b) => {
-        if (a.status === 'current' && b.status !== 'current') return -1;
-        if (a.status !== 'current' && b.status === 'current') return 1;
+        if (a.status === 'current' && b.status !== 'current') {
+return -1;
+}
+        if (a.status !== 'current' && b.status === 'current') {
+return 1;
+}
         return b.timestamp.getTime() - a.timestamp.getTime();
       });
 
@@ -1104,20 +1116,20 @@ class VehicleHardwareConfigService {
         capabilities: config.capabilities || [],
         lastSync: config.last_sync_at
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
         provider,
         vehicleId,
         message: 'Connection test failed',
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       }
     }
   }
 }
 
 // Export singleton instance
-const vehicleHardwareConfigService = new VehicleHardwareConfigService(db as any)
+const vehicleHardwareConfigService = new VehicleHardwareConfigService(dbPool)
 
 export { VehicleHardwareConfigService }
 export default vehicleHardwareConfigService

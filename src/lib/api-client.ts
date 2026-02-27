@@ -55,6 +55,7 @@ class APIClient {
    * - Automatically retries on 403 errors
    */
   private async initializeCsrfToken(): Promise<void> {
+
     // If already fetching, return existing promise
     if (this.csrfTokenPromise) {
       return this.csrfTokenPromise
@@ -174,7 +175,12 @@ class APIClient {
               if (retryResponse.status === 204) {
                 return {} as T
               }
-              return await retryResponse.json()
+              const retryData = await retryResponse.json()
+              // Unwrap standard API envelope { success, data, meta }
+              if (retryData && typeof retryData === 'object' && 'success' in retryData && 'data' in retryData) {
+                return retryData.data as T;
+              }
+              return retryData as T
             }
           }
         }
@@ -191,7 +197,14 @@ class APIClient {
         return {} as T
       }
 
-      return await response.json()
+      const data = await response.json()
+
+      // Unwrap standard API envelope { success, data, meta }
+      if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
+        return data.data as T;
+      }
+
+      return data as T
     } catch (error) {
       clearTimeout(timeoutId)
 
@@ -572,15 +585,15 @@ class APIClient {
 
   // ArcGIS Layers integration endpoints
   arcgisLayers = {
-    list: (params?: Record<string, unknown>) => this.get('/api/arcgis/layers', params),
-    get: (id: string) => this.get(`/api/arcgis/layers/${id}`),
-    create: (data: unknown) => this.post('/api/arcgis/layers', data),
-    update: (id: string, data: unknown) => this.put(`/api/arcgis/layers/${id}`, data),
-    delete: (id: string) => this.delete(`/api/arcgis/layers/${id}`),
+    list: (params?: Record<string, unknown>) => this.get('/api/arcgis-layers', params),
+    get: (id: string) => this.get(`/api/arcgis-layers/${id}`),
+    create: (data: unknown) => this.post('/api/arcgis-layers', data),
+    update: (id: string, data: unknown) => this.put(`/api/arcgis-layers/${id}`, data),
+    delete: (id: string) => this.delete(`/api/arcgis-layers/${id}`),
     query: (layerId: string, params?: Record<string, unknown>) =>
-      this.get(`/api/arcgis/layers/${layerId}/query`, params),
+      this.get(`/api/arcgis-layers/${layerId}/query`, params),
     features: (layerId: string, params?: Record<string, unknown>) =>
-      this.get(`/api/arcgis/layers/${layerId}/features`, params)
+      this.get(`/api/arcgis-layers/${layerId}/features`, params)
   }
 
   // Traffic Cameras endpoints
@@ -658,10 +671,12 @@ class APIClient {
 
   // AI endpoints
   ai = {
-    processReceipt: (emailId: string) => this.post('/api/ai/process-receipt', { emailId }),
-    analyzeDocument: (documentId: string) => this.post('/api/ai/analyze-document', { documentId }),
-    extractData: (data: unknown) => this.post('/api/ai/extract-data', data),
-    generateInsights: (params: Record<string, unknown>) => this.post('/api/ai/insights', params)
+    chat: (message: string, context?: Record<string, unknown>) => this.post('/api/ai/chat/chat', { message, ...context }),
+    processReceipt: (emailId: string) => this.post('/api/ai/chat/chat', { message: `Process receipt from email ${emailId}`, emailId }),
+    analyzeDocument: (documentId: string) => this.post('/api/ai/chat/chat', { message: `Analyze document ${documentId}`, documentId }),
+    extractData: (data: unknown) => this.post('/api/ai/chat/chat', { message: 'Extract data', ...(data as Record<string, unknown>) }),
+    generateInsights: (params: Record<string, unknown>) => this.post('/api/ai-insights/generate', params),
+    getInsights: (params?: Record<string, unknown>) => this.get('/api/ai-insights', params)
   }
 }
 

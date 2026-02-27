@@ -153,7 +153,7 @@ export class AdvancedConfigEngine {
         reason: 'Update intervals below 5 seconds can overload servers. 10 seconds provides good balance.',
         category: 'performance',
         impact: 'medium',
-        source: 'industry-standard' as any
+        source: 'industry-standard'
       })
     }
 
@@ -236,7 +236,7 @@ export class AdvancedConfigEngine {
         reason: 'Batching notifications every 30 minutes reduces email costs by 50% without impacting operations',
         category: 'cost',
         impact: 'low',
-        source: 'industry-standard' as any
+        source: 'industry-standard'
       })
     }
 
@@ -312,7 +312,9 @@ export class AdvancedConfigEngine {
 
     while (queue.length > 0) {
       const current = queue.shift()!
-      if (visited.has(current)) continue
+      if (visited.has(current)) {
+continue
+}
       visited.add(current)
 
       const config = configurationService.getConfig(current)
@@ -347,23 +349,39 @@ export class AdvancedConfigEngine {
     let riskScore = 0
 
     // Category-based risk
-    if (config.category === 'security') riskScore += 3
-    if (config.category === 'system') riskScore += 2
-    if (config.category === 'branding') riskScore += 0
+    if (config.category === 'security') {
+riskScore += 3
+}
+    if (config.category === 'system') {
+riskScore += 2
+}
+    if (config.category === 'branding') {
+riskScore += 0
+}
 
     // Impact breadth
     riskScore += Math.min(impact.directImpacts.length, 3)
     riskScore += Math.min(impact.cascadingImpacts.length / 2, 2)
 
     // CTA Owner only configs are higher risk
-    if (config.requiresCTAOwner) riskScore += 2
+    if (config.requiresCTAOwner) {
+riskScore += 2
+}
 
     // Value change magnitude
-    if (typeof config.value === 'boolean' && config.value !== newValue) riskScore += 2
+    if (typeof config.value === 'boolean' && config.value !== newValue) {
+riskScore += 2
+}
 
-    if (riskScore >= 8) return 'critical'
-    if (riskScore >= 5) return 'high'
-    if (riskScore >= 3) return 'medium'
+    if (riskScore >= 8) {
+return 'critical'
+}
+    if (riskScore >= 5) {
+return 'high'
+}
+    if (riskScore >= 3) {
+return 'medium'
+}
     return 'low'
   }
 
@@ -372,15 +390,23 @@ export class AdvancedConfigEngine {
    */
   private estimateDowntime(config: ConfigItem, newValue: any): number {
     // Most changes require no downtime
-    if (config.category === 'branding') return 0
-    if (config.category === 'ui-ux') return 0
+    if (config.category === 'branding') {
+return 0
+}
+    if (config.category === 'ui-ux') {
+return 0
+}
 
     // System config changes may require restart
-    if (config.category === 'system') return 30
+    if (config.category === 'system') {
+return 30
+}
 
     // Security changes may require brief downtime
     if (config.category === 'security') {
-      if (config.key.includes('authentication')) return 60
+      if (config.key.includes('authentication')) {
+return 60
+}
       return 15
     }
 

@@ -11,6 +11,7 @@
 import express, { Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import { z } from 'zod';
 
 import { auditLog } from '../middleware/audit';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
@@ -18,6 +19,7 @@ import { doubleCsrfProtection } from '../middleware/csrf';
 import { requirePermission } from '../middleware/permissions';
 import { tenantSafeQuery } from '../utils/dbHelpers';
 import { applyFieldMasking } from '../utils/fieldMasking';
+import { logger } from '../utils/logger';
 
 import {
   CreateVehicleContractDTO,
@@ -26,6 +28,80 @@ import {
   UpdateLeaseEndInspectionDTO,
   VehicleContractListParams,
 } from '../types/contracts';
+
+// ============================================================================
+// ZOD VALIDATION SCHEMAS
+// ============================================================================
+
+const contractTypeEnum = z.enum(['lease', 'purchase', 'rental', 'service-contract']);
+const contractStatusEnum = z.enum(['active', 'expired', 'terminated', 'renewed']);
+const leaseDispositionEnum = z.enum(['returned', 'purchased', 'extended']);
+
+const excessWearItemSchema = z.object({
+  item: z.string().min(1).max(200),
+  description: z.string().min(1).max(1000),
+  charge: z.number().nonnegative().max(100_000),
+});
+
+const missingItemSchema = z.object({
+  item: z.string().min(1).max(200),
+  description: z.string().min(1).max(1000),
+  charge: z.number().nonnegative().max(100_000),
+});
+
+const createVehicleContractSchema = z.object({
+  contract_number: z.string().min(1).max(100),
+  contract_type: contractTypeEnum,
+  vehicle_id: z.string().optional(),
+  vendor_id: z.string().min(1),
+  start_date: z.string().min(1),
+  end_date: z.string().min(1),
+  term_months: z.number().int().min(1).max(600).optional(),
+  monthly_payment: z.number().nonnegative().max(1_000_000).optional(),
+  down_payment: z.number().nonnegative().max(10_000_000).optional(),
+  buyout_option: z.boolean().optional(),
+  buyout_amount: z.number().nonnegative().max(10_000_000).optional(),
+  mileage_allowance_annual: z.number().int().nonnegative().max(1_000_000).optional(),
+  excess_mileage_fee: z.number().nonnegative().max(100).optional(),
+  early_termination_fee: z.number().nonnegative().max(1_000_000).optional(),
+  wear_and_tear_coverage: z.boolean().optional(),
+  maintenance_included: z.boolean().optional(),
+  insurance_included: z.boolean().optional(),
+  contract_document_url: z.string().url().max(2000).optional(),
+  auto_renew: z.boolean().optional(),
+  renewal_notice_days: z.number().int().min(0).max(365).optional(),
+  notes: z.string().max(5000).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const updateVehicleContractSchema = createVehicleContractSchema.partial().extend({
+  status: contractStatusEnum.optional(),
+  termination_date: z.string().optional(),
+  termination_reason: z.string().max(2000).optional(),
+  total_paid: z.number().nonnegative().max(100_000_000).optional(),
+  final_buyout_exercised: z.boolean().optional(),
+});
+
+const createLeaseEndInspectionSchema = z.object({
+  contract_id: z.string().min(1),
+  vehicle_id: z.string().min(1),
+  inspection_date: z.string().min(1),
+  inspector_name: z.string().max(200).optional(),
+  inspector_company: z.string().max(200).optional(),
+  final_odometer: z.number().nonnegative().max(10_000_000),
+  mileage_overage: z.number().nonnegative().max(1_000_000).optional(),
+  mileage_penalty: z.number().nonnegative().max(1_000_000).optional(),
+  excess_wear_items: z.array(excessWearItemSchema).optional(),
+  excess_wear_total: z.number().nonnegative().max(1_000_000).optional(),
+  missing_items: z.array(missingItemSchema).optional(),
+  missing_items_total: z.number().nonnegative().max(1_000_000).optional(),
+  total_charges: z.number().nonnegative().max(10_000_000).optional(),
+  disposition: leaseDispositionEnum.optional(),
+  disposition_date: z.string().optional(),
+  final_invoice_url: z.string().url().max(2000).optional(),
+  notes: z.string().max(5000).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
 
 const router = express.Router();
 
@@ -147,7 +223,7 @@ router.get(
         },
       });
     } catch (error) {
-      console.error('Get vehicle contracts error:', error);
+      logger.error('Get vehicle contracts error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -164,15 +240,11 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'vehicle_contracts' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const contractData: CreateVehicleContractDTO = req.body;
-
-      // Validate required fields
-      if (!contractData.contract_number || !contractData.contract_type || !contractData.vendor_id ||
-          !contractData.start_date || !contractData.end_date) {
-        return res.status(400).json({
-          error: 'Missing required fields: contract_number, contract_type, vendor_id, start_date, end_date',
-        });
+      const parsed = createVehicleContractSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
       }
+      const contractData: CreateVehicleContractDTO = parsed.data;
 
       // Calculate term_months if not provided
       const term_months = contractData.term_months ||
@@ -217,7 +289,7 @@ router.post(
         contractData.renewal_notice_days || 60,
         contractData.notes || null,
         JSON.stringify(contractData.metadata || {}),
-        req.user!.id!,
+        req.user!.id,
       ];
 
       const result = await tenantSafeQuery(query, values, req.user!.tenant_id!);
@@ -243,9 +315,9 @@ router.post(
       }
 
       res.status(201).json(result.rows[0]);
-    } catch (error: any) {
-      console.error('Create vehicle contract error:', error);
-      if (error.code === '23505') { // Unique violation
+    } catch (error: unknown) {
+      logger.error('Create vehicle contract error:', error);
+      if ((error as Record<string, unknown>).code === '23505') { // Unique violation
         return res.status(409).json({ error: 'Contract number already exists' });
       }
       res.status(500).json({ error: 'Internal server error' });
@@ -277,7 +349,7 @@ router.get(
         total: result.rows.length,
       });
     } catch (error) {
-      console.error('Get expiring contracts error:', error);
+      logger.error('Get expiring contracts error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -320,7 +392,7 @@ router.get(
 
       res.json(result.rows[0]);
     } catch (error) {
-      console.error('Get vehicle contract error:', error);
+      logger.error('Get vehicle contract error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -337,7 +409,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'vehicle_contracts' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const contractData: UpdateVehicleContractDTO = req.body;
+      const parsed = updateVehicleContractSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+      }
+      const contractData: UpdateVehicleContractDTO = parsed.data;
       const contractId = req.params.id;
 
       // Build UPDATE query dynamically based on provided fields
@@ -370,7 +446,7 @@ router.put(
 
       updateFields.push(`updated_at = NOW()`);
       updateFields.push(`updated_by = $${paramIndex}`);
-      queryParams.push(req.user!.id!);
+      queryParams.push(req.user!.id);
       paramIndex++;
 
       queryParams.push(contractId, req.user!.tenant_id!);
@@ -389,9 +465,9 @@ router.put(
       }
 
       res.json(result.rows[0]);
-    } catch (error: any) {
-      console.error('Update vehicle contract error:', error);
-      if (error.code === '23505') {
+    } catch (error: unknown) {
+      logger.error('Update vehicle contract error:', error);
+      if ((error as Record<string, unknown>).code === '23505') {
         return res.status(409).json({ error: 'Contract number already exists' });
       }
       res.status(500).json({ error: 'Internal server error' });
@@ -541,7 +617,7 @@ router.get(
         },
       });
     } catch (error) {
-      console.error('Get lease status error:', error);
+      logger.error('Get lease status error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -562,15 +638,11 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'lease_end_inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const inspectionData: CreateLeaseEndInspectionDTO = req.body;
-
-      // Validate required fields
-      if (!inspectionData.contract_id || !inspectionData.vehicle_id ||
-          !inspectionData.inspection_date || inspectionData.final_odometer === undefined) {
-        return res.status(400).json({
-          error: 'Missing required fields: contract_id, vehicle_id, inspection_date, final_odometer',
-        });
+      const parsed = createLeaseEndInspectionSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
       }
+      const inspectionData: CreateLeaseEndInspectionDTO = parsed.data;
 
       // Calculate total charges
       const totalCharges = (inspectionData.mileage_penalty || 0) +
@@ -609,14 +681,14 @@ router.post(
         inspectionData.final_invoice_url || null,
         inspectionData.notes || null,
         JSON.stringify(inspectionData.metadata || {}),
-        req.user!.id!,
+        req.user!.id,
       ];
 
       const result = await tenantSafeQuery(query, values, req.user!.tenant_id!);
 
       res.status(201).json(result.rows[0]);
-    } catch (error: any) {
-      console.error('Create lease-end inspection error:', error);
+    } catch (error: unknown) {
+      logger.error('Create lease-end inspection error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -659,7 +731,7 @@ router.get(
 
       res.json(result.rows[0]);
     } catch (error) {
-      console.error('Get lease-end inspection error:', error);
+      logger.error('Get lease-end inspection error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }

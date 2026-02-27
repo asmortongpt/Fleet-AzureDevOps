@@ -94,8 +94,12 @@ export class CacheKeyBuilder {
   }
 
   private static sortObject(obj: any): any {
-    if (obj === null || typeof obj !== 'object') return obj
-    if (Array.isArray(obj)) return obj.map(item => this.sortObject(item))
+    if (obj === null || typeof obj !== 'object') {
+return obj
+}
+    if (Array.isArray(obj)) {
+return obj.map(item => this.sortObject(item))
+}
 
     return Object.keys(obj).sort().reduce((sorted: any, key) => {
       sorted[key] = this.sortObject(obj[key])
@@ -113,6 +117,7 @@ export class RedisCacheManager extends EventEmitter {
   private config: CacheConfig
   private compressionThreshold: number = 1024 // bytes
   private concurrencyLimit: ReturnType<typeof pLimit>
+  private scriptSHAs: Map<string, string> = new Map()
 
   constructor(config: CacheConfig) {
     super()
@@ -130,7 +135,7 @@ export class RedisCacheManager extends EventEmitter {
     }
 
     // Configure Redis settings
-    this.configureRedis()
+    void this.configureRedis()
 
     // Set up monitoring
     this.setupMonitoring()
@@ -172,7 +177,7 @@ export class RedisCacheManager extends EventEmitter {
     const replicaCount = parseInt(process.env.REDIS_READ_REPLICAS || '2')
     for (let i = 0; i < replicaCount; i++) {
       const replica = this.createRedisClient(this.config)
-      replica.config('SET', 'replica-read-only', 'yes')
+      void replica.config('SET', 'replica-read-only', 'yes')
       this.readReplicas.push(replica)
     }
   }
@@ -233,7 +238,7 @@ export class RedisCacheManager extends EventEmitter {
 
       // Decompress if needed
       if (entry.metadata.compressed && entry.data) {
-        entry.data = await this.decompress(entry.data as any)
+        entry.data = await this.decompress(entry.data as unknown as Buffer) as T
       }
 
       return entry.data
@@ -277,7 +282,7 @@ export class RedisCacheManager extends EventEmitter {
           lastAccessedAt: Date.now(),
           ttl,
           tags: options?.tags || [],
-          compressed: shouldCompress,
+          compressed: !!shouldCompress,
           version: this.generateVersion()
         }
       }
@@ -348,7 +353,9 @@ export class RedisCacheManager extends EventEmitter {
 
   async invalidateByPattern(pattern: string): Promise<number> {
     const keys = await this.scanKeys(pattern)
-    if (keys.length === 0) return 0
+    if (keys.length === 0) {
+return 0
+}
 
     const deleted = await this.delete(keys)
     this.emit('invalidation', { type: 'pattern', pattern, count: deleted })
@@ -401,7 +408,7 @@ export class RedisCacheManager extends EventEmitter {
       batch.forEach((key, index) => {
         if (values[index]) {
           try {
-            const entry: CacheEntry<T> = JSON.parse(values[index] as string)
+            const entry: CacheEntry<T> = JSON.parse(values[index])
             results.set(key, entry.data)
           } catch {
             results.set(key, null)
@@ -536,7 +543,7 @@ export class RedisCacheManager extends EventEmitter {
     switch (strategy) {
       case InvalidationStrategy.EVENT_DRIVEN:
         // Set up pub/sub for this key
-        this.client.subscribe(`invalidate:${key}`)
+        void this.client.subscribe(`invalidate:${key}`)
         break
 
       case InvalidationStrategy.CASCADE:
@@ -588,7 +595,7 @@ export class RedisCacheManager extends EventEmitter {
     return Buffer.from(JSON.stringify(data))
   }
 
-  private async decompress(data: Buffer): Promise<any> {
+  private async decompress(data: Buffer): Promise<unknown> {
     // Implementation would use zlib or similar
     // Placeholder for actual decompression
     return JSON.parse(data.toString())
@@ -669,8 +676,9 @@ export class RedisCacheManager extends EventEmitter {
 
     // Store script SHA hashes for later use
     Object.entries(scripts).forEach(([name, script]) => {
-      this.client.script('LOAD', script).then(sha => {
-        (this as any)[`${name}SHA`] = sha
+      void this.client.script('LOAD', script).then(sha => {
+        this.scriptSHAs.set(name, sha as string)
+        return sha
       })
     })
   }

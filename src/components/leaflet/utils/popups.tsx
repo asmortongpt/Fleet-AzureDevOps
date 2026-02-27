@@ -3,57 +3,29 @@
  * Extracted from LeafletMap.tsx for better maintainability
  */
 
-import { VEHICLE_STATUS_COLORS, escapeHtml } from "./icons"
+import { escapeHtml } from "./icons"
 
 import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
+
 
 /**
  * Creates HTML content for vehicle marker popup
  */
 export function createVehiclePopup(vehicle: Vehicle): string {
-  const color = VEHICLE_STATUS_COLORS[vehicle.status] || VEHICLE_STATUS_COLORS.idle
-  const statusLabel = vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1)
-  const typeLabel = vehicle.type.charAt(0).toUpperCase() + vehicle.type.slice(1)
-
-  return `
-    <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 240px;">
-      <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #111827;">
-        ${escapeHtml(vehicle.name)}
-      </div>
-      <div style="display: grid; gap: 8px; font-size: 14px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="color: #6b7280; font-weight: 500;">Type:</span>
-          <span style="color: #111827;">${typeLabel}</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="color: #6b7280; font-weight: 500;">Status:</span>
-          <span style="color: ${color}; font-weight: 700; text-transform: capitalize;">${statusLabel}</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="color: #6b7280; font-weight: 500;">Driver:</span>
-          <span style="color: #111827;">${escapeHtml(vehicle.driver || "Unassigned")}</span>
-        </div>
-        ${
-          vehicle.location?.address
-            ? `
-          <div style="margin-top: 8px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
-            <div style="color: #6b7280; font-weight: 500; margin-bottom: 6px; font-size: 13px;">Location:</div>
-            <div style="color: #111827; font-size: 13px; line-height: 1.4;">${escapeHtml(vehicle.location?.address)}</div>
-          </div>
-        `
-            : vehicle.location?.lat && vehicle.location?.lng
-              ? `
-          <div style="margin-top: 8px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
-            <div style="color: #9ca3af; font-size: 11px; font-family: 'Courier New', monospace;">
-              ${vehicle.location?.lat.toFixed(6)}, ${vehicle.location?.lng.toFixed(6)}
-            </div>
-          </div>
-        `
-              : ""
-        }
-      </div>
-    </div>
+  // Leaflet wraps popup content in .leaflet-popup-content-wrapper (white bg).
+  // Override it with a scoped style block to match the charcoal theme.
+  const overrides = `
+    <style>
+      .leaflet-popup-content-wrapper:has([data-popup-charcoal]) { background: #242424 !important; border-radius: 8px !important; box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important; padding: 0 !important; }
+      .leaflet-popup-content-wrapper:has([data-popup-charcoal]) .leaflet-popup-content { margin: 0 !important; }
+      .leaflet-popup-tip-container .leaflet-popup-tip { background: #242424 !important; }
+      .leaflet-popup-close-button { color: #9ca3af !important; font-size: 20px !important; }
+      .leaflet-popup-close-button:hover { color: #fff !important; }
+    </style>
+    <span data-popup-charcoal></span>
   `
+  return overrides + buildVehiclePopupHTML(vehicle, escapeHtml)
 }
 
 /**
@@ -70,13 +42,13 @@ export function createFacilityPopup(facility: GISFacility): string {
 
   return `
     <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 240px;">
-      <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #111827;">
+      <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #1a1a1a;">
         ${escapeHtml(facility.name)}
       </div>
       <div style="display: grid; gap: 8px; font-size: 14px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span style="color: #6b7280; font-weight: 500;">Type:</span>
-          <span style="color: #111827;">${typeLabel}</span>
+          <span style="color: #1a1a1a;">${typeLabel}</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span style="color: #6b7280; font-weight: 500;">Status:</span>
@@ -84,11 +56,11 @@ export function createFacilityPopup(facility: GISFacility): string {
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span style="color: #6b7280; font-weight: 500;">Capacity:</span>
-          <span style="color: #111827; font-weight: 600;">${facility.capacity} vehicles</span>
+          <span style="color: #1a1a1a; font-weight: 600;">${facility.capacity} vehicles</span>
         </div>
         <div style="margin-top: 8px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
           <div style="color: #6b7280; font-weight: 500; margin-bottom: 6px; font-size: 13px;">Address:</div>
-          <div style="color: #111827; font-size: 13px; line-height: 1.4;">${escapeHtml(facility.address)}</div>
+          <div style="color: #1a1a1a; font-size: 13px; line-height: 1.4;">${escapeHtml(facility.address)}</div>
         </div>
       </div>
     </div>
@@ -104,7 +76,7 @@ export function createCameraPopup(camera: TrafficCamera): string {
 
   return `
     <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 260px; max-width: 340px;">
-      <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #111827;">
+      <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #1a1a1a;">
         ${escapeHtml(camera.name)}
       </div>
       <div style="display: grid; gap: 8px; font-size: 14px;">
@@ -113,7 +85,7 @@ export function createCameraPopup(camera: TrafficCamera): string {
             ? `
           <div>
             <div style="color: #6b7280; font-weight: 500; margin-bottom: 4px; font-size: 13px;">Address:</div>
-            <div style="color: #111827; font-size: 13px; line-height: 1.4;">${escapeHtml(camera.address)}</div>
+            <div style="color: #1a1a1a; font-size: 13px; line-height: 1.4;">${escapeHtml(camera.address)}</div>
           </div>
         `
             : ""
@@ -123,7 +95,7 @@ export function createCameraPopup(camera: TrafficCamera): string {
             ? `
           <div>
             <div style="color: #6b7280; font-weight: 500; margin-bottom: 4px; font-size: 13px;">Cross Streets:</div>
-            <div style="color: #111827; font-size: 13px; line-height: 1.4;">${escapeHtml(camera.crossStreets)}</div>
+            <div style="color: #1a1a1a; font-size: 13px; line-height: 1.4;">${escapeHtml(camera.crossStreets)}</div>
           </div>
         `
             : ""
@@ -144,7 +116,7 @@ export function createCameraPopup(camera: TrafficCamera): string {
                 display: inline-flex;
                 align-items: center;
                 gap: 6px;
-                background-color: #3b82f6;
+                background-color: #10b981;
                 color: white;
                 padding: 10px 18px;
                 border-radius: 6px;
@@ -155,8 +127,8 @@ export function createCameraPopup(camera: TrafficCamera): string {
                 width: 100%;
                 justify-content: center;
               "
-              onmouseover="this.style.backgroundColor='#2563eb'"
-              onmouseout="this.style.backgroundColor='#3b82f6'"
+              onmouseover="this.style.backgroundColor='#059669'"
+              onmouseout="this.style.backgroundColor='#10b981'"
             >
               <span role="img" aria-hidden="true">📹</span>
               <span>View Live Feed</span>

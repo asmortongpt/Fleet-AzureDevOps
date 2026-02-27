@@ -1,0 +1,86 @@
+{
+  "project_context": {
+    "app_type": "e-commerce",
+    "expected_users": 10000,
+    "features": [
+      "cart",
+      "wishlist",
+      "auth",
+      "payments"
+    ],
+    "complexity": "medium",
+    "timeline_weeks": 12,
+    "team_size": 1
+  },
+  "research_date": "2026-02-10",
+  "recommendations": {
+    "state_management": {
+      "choice": "Zustand",
+      "reasoning": "Good balance of simplicity and features. Can migrate to Redux later if needed.",
+      "confidence": 85,
+      "alternatives": [
+        "Redux Toolkit",
+        "Jotai"
+      ]
+    },
+    "authentication": {
+      "choice": "Session-based",
+      "reasoning": "Simpler implementation, easier management. Sufficient for traditional web apps.",
+      "confidence": 90,
+      "alternatives": [
+        "JWT with Refresh Tokens",
+        "OAuth 2.0 / Social Login"
+      ]
+    },
+    "database": {
+      "choice": "PostgreSQL",
+      "reasoning": "Complex relationships (users, products, orders). JSONB for flexible fields. Proven multi-tenant patterns.",
+      "confidence": 88,
+      "alternatives": [
+        "MySQL",
+        "MongoDB"
+      ]
+    }
+  },
+  "tech_stack": {
+    "frontend": {
+      "framework": "React 18",
+      "language": "TypeScript",
+      "build_tool": "Vite",
+      "styling": "Tailwind CSS",
+      "state": "Zustand",
+      "routing": "React Router",
+      "server_state": "TanStack Query"
+    },
+    "backend": {
+      "runtime": "Node.js 20 LTS",
+      "framework": "Express",
+      "language": "TypeScript",
+      "database": "PostgreSQL",
+      "orm": "Prisma",
+      "auth": "Session-based",
+      "validation": "Zod",
+      "caching": "Redis"
+    },
+    "deployment": {
+      "containerization": "Docker",
+      "hosting": "Vercel (frontend), Render (backend)",
+      "cicd": "GitHub Actions",
+      "monitoring": "Sentry (errors), Vercel Analytics (frontend)"
+    }
+  },
+  "implementation_notes": [
+    "Start with Zustand for state - simple, proven",
+    "Use Session-based following OWASP best practices",
+    "PostgreSQL with Prisma ORM for type-safety",
+    "Implement Redis caching when scale demands it",
+    "Set up monitoring (Sentry) before production"
+  ],
+  "next_steps": [
+    "Initialize Vite + React + TypeScript project",
+    "Set up PostgreSQL with Docker Compose for local dev",
+    "Configure ESLint + Prettier + Husky pre-commit hooks",
+    "Implement authentication flow with refresh tokens",
+    "Set up CI/CD pipeline with automated testing"
+  ]
+}

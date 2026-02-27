@@ -1,0 +1,50 @@
+config:
+  target: "{{ $processEnvironment.BASE_URL || 'http://localhost:3001' }}"
+  phases:
+    - duration: 60    # 1 minute baseline
+      arrivalRate: 10
+      name: "Baseline load"
+    - duration: 30    # 30 seconds spike
+      arrivalRate: 100
+      name: "Traffic spike"
+    - duration: 60    # 1 minute recovery
+      arrivalRate: 10
+      name: "Recovery"
+  http:
+    timeout: 10
+  defaults:
+    headers:
+      User-Agent: "Artillery Spike Test"
+  ensure:
+    maxErrorRate: 2  # Allow 2% errors during spike
+
+scenarios:
+  - name: "Spike Scenario - Heavy Fleet Queries"
+    weight: 50
+    flow:
+      - get:
+          url: "/api/vehicles?limit=20"
+          expect:
+            - statusCode: 200
+          timeout: 5000
+      - think: 0.5
+
+  - name: "Spike Scenario - Heavy Driver Queries"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/drivers?limit=20"
+          expect:
+            - statusCode: 200
+          timeout: 5000
+      - think: 0.5
+
+  - name: "Spike Scenario - Dashboard"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/analytics/fleet-metrics"
+          expect:
+            - statusCode: 200
+          timeout: 10000
+      - think: 0.5

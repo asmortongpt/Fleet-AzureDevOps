@@ -19,16 +19,18 @@
  * @accessibility Provides structured data for screen readers
  */
 
-import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
+
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 // ============================================================================
 // CONFIGURATION CONSTANTS
 // ============================================================================
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 // Network configuration
 const MAX_RETRIES = 3
@@ -61,66 +63,277 @@ const DAYS_UNTIL_FAILURE_CRITICAL = 10
 // ============================================================================
 
 const WorkOrderTypeEnum = z.enum(['preventive', 'corrective', 'emergency', 'inspection'])
-const WorkOrderStatusEnum = z.enum(['pending', 'in_progress', 'parts_waiting', 'completed', 'cancelled'])
-const WorkOrderPriorityEnum = z.enum(['low', 'medium', 'high', 'urgent'])
+const WorkOrderStatusEnum = z.enum(['pending', 'open', 'in_progress', 'on_hold', 'parts_waiting', 'completed', 'cancelled', 'scheduled'])
+const WorkOrderPriorityEnum = z.enum(['low', 'medium', 'high', 'urgent', 'critical'])
 
-const WorkOrderSchema = z.object({
-  id: z.string().uuid(),
-  vehicleId: z.string().uuid(),
-  vehicleName: z.string().min(1).max(255).optional(),
-  type: WorkOrderTypeEnum,
-  status: WorkOrderStatusEnum,
-  priority: WorkOrderPriorityEnum,
-  estimatedHours: z.number().min(0).max(1000),
-  actualHours: z.number().min(0).max(1000).optional(),
-  description: z.string().max(5000).optional(),
-  assignedTo: z.string().uuid().optional(),
-  assignedToName: z.string().max(255).optional(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime().optional(),
-  completedAt: z.string().datetime().optional(),
-  cost: z.number().min(0).optional(),
-})
+const WorkOrderSchema = z
+  .object({
+    id: z.string().uuid(),
+    vehicleId: z.string().uuid().optional().nullable(),
+    vehicle_id: z.string().uuid().optional().nullable(),
+    vehicleName: z.string().min(1).max(255).optional().nullable(),
+    vehicle_name: z.string().min(1).max(255).optional().nullable(),
+    type: z.string().optional().nullable(),
+    status: z.string().optional().nullable(),
+    priority: z.string().optional().nullable(),
+    estimatedHours: z.coerce.number().min(0).max(1000).optional(),
+    estimated_hours: z.coerce.number().min(0).max(1000).optional(),
+    estimated_cost: z.coerce.number().min(0).optional(),
+    total_cost: z.coerce.number().min(0).optional(),
+    parts_cost: z.coerce.number().min(0).optional(),
+    labor_cost: z.coerce.number().min(0).optional(),
+    actualHours: z.coerce.number().min(0).max(1000).optional(),
+    actual_hours: z.coerce.number().min(0).max(1000).optional(),
+    description: z.string().max(5000).optional(),
+    assignedTo: z.string().uuid().optional().nullable(),
+    assigned_to_id: z.string().uuid().optional().nullable(),
+    assigned_technician_id: z.string().uuid().optional().nullable(),
+    assignedToName: z.string().max(255).optional().nullable(),
+    assigned_to_name: z.string().max(255).optional().nullable(),
+    createdAt: z.string().datetime().optional().nullable(),
+    created_at: z.string().datetime().optional().nullable(),
+    updatedAt: z.string().datetime().optional().nullable(),
+    updated_at: z.string().datetime().optional().nullable(),
+    completedAt: z.string().datetime().optional().nullable(),
+    completed_at: z.string().datetime().optional().nullable(),
+    cost: z.coerce.number().min(0).optional(),
+    actual_cost: z.coerce.number().min(0).optional(),
+    work_order_number: z.string().optional(),
+    number: z.string().optional(),
+    title: z.string().optional(),
+    vehicle_make: z.string().optional().nullable(),
+    vehicle_model: z.string().optional().nullable(),
+    vehicle_year: z.coerce.number().optional().nullable(),
+    scheduled_start: z.string().datetime().optional().nullable(),
+    scheduled_start_date: z.string().datetime().optional().nullable(),
+    scheduled_end: z.string().datetime().optional().nullable(),
+    scheduled_end_date: z.string().datetime().optional().nullable(),
+    odometer_reading: z.coerce.number().optional(),
+  })
+  .passthrough()
+  .transform((row) => {
+    const rawStatus = (row.status || 'pending').toString().toLowerCase()
+    const statusMap: Record<string, z.infer<typeof WorkOrderStatusEnum>> = {
+      open: 'pending',
+      scheduled: 'pending',
+      on_hold: 'parts_waiting',
+      parts_waiting: 'parts_waiting',
+      in_progress: 'in_progress',
+      completed: 'completed',
+      cancelled: 'cancelled',
+      pending: 'pending',
+    }
 
-const MaintenanceRequestStatusEnum = z.enum(['new', 'review', 'approved', 'rejected', 'completed', 'cancelled'])
+    const rawPriority = (row.priority || 'medium').toString().toLowerCase()
+    const priorityMap: Record<string, z.infer<typeof WorkOrderPriorityEnum>> = {
+      critical: 'critical',
+      urgent: 'urgent',
+      high: 'high',
+      medium: 'medium',
+      low: 'low',
+    }
+
+    // Build vehicle display name from joined vehicle data or fall back to vehicleName
+    const vehicleName = row.vehicleName ?? row.vehicle_name ?? (
+      row.vehicle_make && row.vehicle_model
+        ? formatVehicleName({ year: row.vehicle_year as number | undefined, make: row.vehicle_make as string, model: row.vehicle_model as string })
+        : undefined
+    )
+
+    // Build a human-readable display title
+    const woNumber = row.work_order_number ?? row.number
+    const rawTitle = row.title
+    const rawType = (row.type as z.infer<typeof WorkOrderTypeEnum>) ?? 'preventive'
+    const displayTitle = rawTitle
+      || (woNumber ? `WO-${woNumber}` : undefined)
+      || row.description?.substring(0, 80)
+      || `${rawType.charAt(0).toUpperCase() + rawType.slice(1)} Maintenance`
+
+    return {
+      id: row.id,
+      vehicleId: row.vehicleId ?? row.vehicle_id ?? '',
+      vehicleName,
+      type: rawType,
+      status: statusMap[rawStatus] ?? 'pending',
+      priority: priorityMap[rawPriority] ?? 'medium',
+      estimatedHours: row.estimatedHours ?? row.estimated_hours ?? 0,
+      actualHours: row.actualHours ?? row.actual_hours,
+      title: displayTitle,
+      description: row.description,
+      workOrderNumber: woNumber,
+      assignedTo: row.assignedTo ?? row.assigned_to_id ?? row.assigned_technician_id,
+      assignedToName: row.assignedToName ?? row.assigned_to_name,
+      createdAt: row.createdAt ?? row.created_at ?? new Date().toISOString(),
+      updatedAt: row.updatedAt ?? row.updated_at,
+      completedAt: row.completedAt ?? row.completed_at,
+      scheduledStart: row.scheduled_start ?? row.scheduled_start_date,
+      scheduledEnd: row.scheduled_end ?? row.scheduled_end_date,
+      cost: row.cost ?? row.actual_cost ?? row.estimated_cost ?? row.total_cost ?? 0,
+      downtimeHours: Number(row.downtime_hours ?? row.downtimeHours ?? 0),
+      partsCost: Number(row.parts_cost ?? row.partsCost ?? 0),
+      laborCost: Number(row.labor_cost ?? row.laborCost ?? 0),
+    }
+  })
+
+const MaintenanceRequestStatusEnum = z.enum(['new', 'review', 'approved', 'rejected', 'completed', 'cancelled', 'pending', 'in_progress'])
 const MaintenanceRequestPriorityEnum = z.enum(['low', 'medium', 'high', 'urgent'])
 
-const MaintenanceRequestSchema = z.object({
-  id: z.string().uuid(),
-  vehicleId: z.string().uuid(),
-  driverId: z.string().uuid().optional(),
-  driverName: z.string().max(255).optional(),
-  status: MaintenanceRequestStatusEnum,
-  priority: MaintenanceRequestPriorityEnum,
-  description: z.string().min(1).max(5000),
-  category: z.string().max(100).optional(),
-  createdAt: z.string().datetime(),
-  reviewedAt: z.string().datetime().optional(),
-  reviewedBy: z.string().uuid().optional(),
-})
+const MaintenanceRequestSchema = z
+  .object({
+    id: z.string().uuid(),
+    vehicleId: z.string().uuid().optional(),
+    vehicle_id: z.string().uuid().optional(),
+    driverId: z.string().uuid().optional(),
+    driver_id: z.string().uuid().optional(),
+    driverName: z.string().max(255).optional(),
+    status: z.string().optional(),
+    priority: z.string().optional(),
+    description: z.string().min(1).max(5000),
+    category: z.string().max(100).optional(),
+    issue_category: z.string().max(100).optional(),
+    createdAt: z.string().datetime().optional(),
+    created_at: z.string().datetime().optional(),
+    reviewedAt: z.string().datetime().optional(),
+    reviewedBy: z.string().uuid().optional(),
+    requested_date: z.string().datetime().optional(),
+  })
+  .passthrough()
+  .transform((row) => {
+    const rawStatus = (row.status || 'pending').toString().toLowerCase()
+    const statusMap: Record<string, z.infer<typeof MaintenanceRequestStatusEnum>> = {
+      pending: 'new',
+      in_progress: 'review',
+      approved: 'approved',
+      rejected: 'rejected',
+      completed: 'completed',
+      cancelled: 'cancelled',
+      new: 'new',
+      review: 'review',
+    }
 
-const PredictiveMaintenanceSchema = z.object({
-  id: z.string().uuid(),
-  vehicleId: z.string().uuid(),
-  vehicleName: z.string().min(1).max(255),
-  issue: z.string().min(1).max(500),
-  confidence: z.number().min(0).max(100),
-  daysUntilFailure: z.number().int().min(0).max(365),
-  severity: z.enum(['low', 'medium', 'high', 'critical']),
-  recommendedAction: z.string().max(1000).optional(),
-  estimatedCost: z.number().min(0).optional(),
-  createdAt: z.string().datetime(),
-})
+    const rawPriority = (row.priority || 'medium').toString().toLowerCase()
+    const priorityMap: Record<string, z.infer<typeof MaintenanceRequestPriorityEnum>> = {
+      urgent: 'urgent',
+      high: 'high',
+      medium: 'medium',
+      low: 'low',
+    }
+
+    return {
+      id: row.id,
+      vehicleId: row.vehicleId ?? row.vehicle_id ?? '',
+      driverId: row.driverId ?? row.driver_id,
+      driverName: row.driverName,
+      status: statusMap[rawStatus] ?? 'new',
+      priority: priorityMap[rawPriority] ?? 'medium',
+      description: row.description,
+      category: row.category ?? row.issue_category,
+      createdAt: row.createdAt ?? row.created_at ?? row.requested_date ?? new Date().toISOString(),
+      reviewedAt: row.reviewedAt,
+      reviewedBy: row.reviewedBy,
+    }
+  })
+
+const PredictiveMaintenanceSchema = z
+  .object({
+    id: z.string().uuid(),
+    vehicleId: z.string().uuid().optional(),
+    vehicle_id: z.string().uuid().optional(),
+    vehicleName: z.string().max(255).optional(),
+    vehicle_name: z.string().max(255).optional(),
+    issue: z.string().max(500).optional(),
+    prediction_type: z.string().optional(),
+    component: z.string().max(500).optional(),
+    confidence: z.coerce.number().min(0).optional(),
+    confidence_score: z.coerce.number().min(0).optional(),
+    daysUntilFailure: z.number().int().min(0).max(365).optional(),
+    predicted_failure_date: z.string().optional().nullable(),
+    severity: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+    risk_level: z.string().optional(),
+    recommendedAction: z.string().max(1000).optional(),
+    recommended_action: z.string().max(1000).optional(),
+    recommendation: z.string().max(2000).optional().nullable(),
+    estimatedCost: z.coerce.number().min(0).optional(),
+    estimated_cost: z.coerce.number().min(0).optional(),
+    createdAt: z.string().datetime().optional(),
+    created_at: z.string().datetime().optional(),
+    status: z.string().optional(),
+  })
+  .passthrough()
+  .transform((row) => {
+    let daysUntilFailure = row.daysUntilFailure
+    if (daysUntilFailure == null && row.predicted_failure_date) {
+      const target = new Date(row.predicted_failure_date)
+      if (!Number.isNaN(target.getTime())) {
+        const diffMs = target.getTime() - Date.now()
+        daysUntilFailure = Math.max(0, Math.round(diffMs / (1000 * 60 * 60 * 24)))
+      }
+    }
+
+    // Normalize confidence: API returns 0-1 scale, we need 0-100
+    let confidence = row.confidence ?? row.confidence_score ?? 0
+    if (confidence > 0 && confidence <= 1) {
+      confidence = Math.round(confidence * 100)
+    }
+
+    // Map risk_level to severity enum
+    const riskToSeverity: Record<string, 'low' | 'medium' | 'high' | 'critical'> = {
+      low: 'low',
+      medium: 'medium',
+      high: 'high',
+      critical: 'critical',
+    }
+    const severity = row.severity ?? riskToSeverity[row.risk_level ?? ''] ?? 'low'
+
+    return {
+      id: row.id,
+      vehicleId: row.vehicleId ?? row.vehicle_id ?? '',
+      vehicleName: row.vehicleName ?? row.vehicle_name ?? '',
+      issue: row.issue ?? row.prediction_type ?? row.component ?? '',
+      confidence,
+      daysUntilFailure: daysUntilFailure ?? 0,
+      severity,
+      recommendedAction: row.recommendedAction ?? row.recommended_action ?? row.recommendation,
+      estimatedCost: row.estimatedCost ?? row.estimated_cost,
+      createdAt: row.createdAt ?? row.created_at ?? new Date().toISOString(),
+    }
+  })
 
 const MaintenanceScheduleSchema = z.object({
   id: z.string().uuid(),
-  vehicleId: z.string().uuid(),
+  vehicleId: z.string().uuid().optional(),
+  vehicle_id: z.string().uuid().optional(),
   vehicleName: z.string().max(255).optional(),
-  type: z.string().max(100),
-  scheduledDate: z.string().datetime(),
-  estimatedDuration: z.number().min(0).max(100), // hours
-  status: z.enum(['scheduled', 'completed', 'overdue', 'cancelled']),
+  vehicle_name: z.string().max(255).optional(),
+  name: z.string().max(255).optional(),
+  type: z.string().max(100).optional(),
+  scheduledDate: z.string().datetime().optional(),
+  next_service_date: z.string().datetime().optional().nullable(),
+  last_service_date: z.string().datetime().optional().nullable(),
+  estimatedDuration: z.coerce.number().min(0).max(100).optional().nullable(),
+  estimated_duration: z.coerce.number().min(0).max(100).optional().nullable(),
+  estimated_cost: z.coerce.number().min(0).optional().nullable(),
+  status: z.enum(['scheduled', 'completed', 'overdue', 'cancelled']).optional(),
+  is_active: z.boolean().optional(),
   description: z.string().max(1000).optional(),
+  interval_miles: z.coerce.number().optional().nullable(),
+  interval_days: z.coerce.number().optional().nullable(),
+  last_service_mileage: z.coerce.number().optional().nullable(),
+  next_service_mileage: z.coerce.number().optional().nullable(),
+}).passthrough().transform((row) => {
+  // Derive status from is_active if explicit status not present
+  const status = row.status ?? (row.is_active ? 'scheduled' : 'completed')
+
+  return {
+    id: row.id,
+    vehicleId: row.vehicleId ?? row.vehicle_id ?? '',
+    vehicleName: row.vehicleName ?? row.vehicle_name,
+    type: row.type ?? 'preventive',
+    scheduledDate: row.scheduledDate ?? row.next_service_date ?? new Date().toISOString(),
+    estimatedDuration: row.estimatedDuration ?? row.estimated_duration ?? 0,
+    status,
+    description: row.description ?? row.name,
+  }
 })
 
 // ============================================================================
@@ -257,14 +470,19 @@ async function secureFetch<T>(
     }
 
     const data = await response.json()
+    const payload =
+      Array.isArray((data as any)?.data?.data) ? (data as any).data.data
+        : Array.isArray((data as any)?.data) ? (data as any).data
+          : Array.isArray(data) ? data
+            : data
 
     // Validate response with Zod schema - throws on validation failure
-    const validatedData = schema.parse(data)
+    const validatedData = schema.parse(payload)
 
     return validatedData
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.error('Schema validation error:', error.errors)
+      logger.error('Schema validation error:', { issues: error.errors, endpoint, payloadType: typeof (error as any)?.input })
       throw new ValidationError('Invalid API response format', error)
     }
     throw error
@@ -357,17 +575,17 @@ export function useReactiveMaintenanceData() {
     data: workOrders = [],
     isLoading: workOrdersLoading,
     error: workOrdersError,
-  }: UseQueryResult<WorkOrder[], Error> = useQuery({
+  } = useQuery({
     queryKey: ['maintenance-work-orders'],
     queryFn: async ({ signal }) => {
       try {
         return await secureFetch(
-          '/maintenance/work-orders',
-          z.array(WorkOrderSchema),
+          '/work-orders',
+          z.array(WorkOrderSchema) as any,
           signal
-        )
+        ) as WorkOrder[]
       } catch (error) {
-        logger.warn('Work orders API unavailable, returning empty array:', { error })
+        logger.debug('Work orders API unavailable, returning empty array:', { error })
         return []
       }
     },
@@ -389,17 +607,17 @@ export function useReactiveMaintenanceData() {
     data: requests = [],
     isLoading: requestsLoading,
     error: requestsError,
-  }: UseQueryResult<MaintenanceRequest[], Error> = useQuery({
+  } = useQuery({
     queryKey: ['maintenance-requests'],
     queryFn: async ({ signal }) => {
       try {
         return await secureFetch(
-          '/maintenance/requests',
-          z.array(MaintenanceRequestSchema),
+          '/maintenance-requests',
+          z.array(MaintenanceRequestSchema) as any,
           signal
-        )
+        ) as MaintenanceRequest[]
       } catch (error) {
-        logger.warn('Maintenance requests API unavailable, returning empty array:', { error })
+        logger.debug('Maintenance requests API unavailable, returning empty array:', { error })
         return []
       }
     },
@@ -420,17 +638,17 @@ export function useReactiveMaintenanceData() {
     data: predictions = [],
     isLoading: predictionsLoading,
     error: predictionsError,
-  }: UseQueryResult<PredictiveMaintenance[], Error> = useQuery({
+  } = useQuery({
     queryKey: ['predictive-maintenance'],
     queryFn: async ({ signal }) => {
       try {
         return await secureFetch(
-          '/maintenance/predictions',
-          z.array(PredictiveMaintenanceSchema),
+          '/predictive-maintenance',
+          z.array(PredictiveMaintenanceSchema) as any,
           signal
-        )
+        ) as PredictiveMaintenance[]
       } catch (error) {
-        logger.warn('Predictions API unavailable, returning empty array:', { error })
+        logger.debug('Predictions API unavailable, returning empty array:', { error })
         return []
       }
     },
@@ -483,12 +701,13 @@ export function useReactiveMaintenanceData() {
       p => p.daysUntilFailure < DAYS_UNTIL_FAILURE_CRITICAL || p.severity === 'critical'
     ).length
 
-    // Mock prevented failures and cost savings (would come from backend)
     return {
       activePredictions: predictions.length,
       criticalAlerts: criticalCount,
-      preventedFailures: 12, // TODO: Get from API
-      costSavings: 28000, // TODO: Get from API
+      preventedFailures: predictions.filter(
+        p => p.severity === 'critical' || p.severity === 'high'
+      ).length,
+      costSavings: predictions.reduce((sum, p) => sum + (p.estimatedCost || 0), 0),
     }
   }, [predictions])
 

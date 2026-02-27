@@ -12,6 +12,7 @@
  */
 
 import { Component, ReactNode, ErrorInfo } from 'react'
+import { toast } from 'sonner'
 
 import type { MapProvider } from './UniversalMap'
 
@@ -188,7 +189,7 @@ function getErrorDetails(error: CategorizedError, provider?: MapProvider): {
  */
 function reportError(error: Error, errorInfo: ErrorInfo, provider?: MapProvider): void {
   // In production, send to monitoring service (Sentry, LogRocket, etc.)
-  if (process.env.NODE_ENV === 'production') {
+  if (import.meta.env.MODE === 'production') {
     logger.error('Map Error Report:', {
       error: {
         message: error.message,
@@ -399,15 +400,15 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
 
   private handleCheckNetwork = (): void => {
     if (navigator.onLine) {
-      alert('You appear to be online. The issue may be with the map service.')
+      toast.info('You appear to be online. The issue may be with the map service.')
     } else {
-      alert('You are currently offline. Please check your internet connection.')
+      toast.error('You are currently offline. Please check your internet connection.')
     }
   }
 
   private handleOfflineMode = (): void => {
     // FUTURE: Implement offline mode
-    alert('Offline mode is not yet implemented.')
+    toast.info('Offline mode is not yet implemented.')
   }
 
   private handleClearCache = (): void => {
@@ -415,7 +416,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
     try {
       localStorage.removeItem('fleet_map_provider')
       localStorage.removeItem('fleet_map_cache')
-      alert('Cache cleared. Reloading page...')
+      toast.success('Cache cleared. Reloading page...')
       window.location.reload()
     } catch (error) {
       logger.error('Failed to clear cache:', error)
@@ -426,7 +427,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
     try {
       localStorage.removeItem('fleet_map_provider')
       localStorage.removeItem('fleet_map_settings')
-      alert('Settings reset. Reloading page...')
+      toast.success('Settings reset. Reloading page...')
       window.location.reload()
     } catch (error) {
       logger.error('Failed to reset settings:', error)
@@ -437,7 +438,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
     const { error, errorInfo } = this.state
     if (error && errorInfo) {
       reportError(error, errorInfo, this.props.provider)
-      alert('Error reported. Thank you!')
+      toast.success('Error reported. Thank you!')
     }
   }
 
@@ -493,7 +494,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
       const errorDetails = getErrorDetails(categorizedError, provider)
 
       return (
-        <div className="flex items-center justify-center w-full h-full bg-gray-50 dark:bg-gray-900 p-3">
+        <div className="flex items-center justify-center w-full h-full bg-white/[0.03] dark:bg-[#111113] p-3">
           <Card className="max-w-2xl w-full">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -515,19 +516,19 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
                     </Badge>
                   </div>
                   {provider && (
-                    <div className="text-sm text-gray-700 dark:text-gray-700">
+                    <div className="text-sm text-white/40 dark:text-white/40">
                       Provider: {provider === 'google' ? 'Google Maps' : 'Leaflet/OpenStreetMap'}
                     </div>
                   )}
                 </div>
                 <div className="ml-2">
                   {isRetrying ? (
-                    <div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-700">
-                      <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                    <div className="flex items-center gap-2 text-sm text-emerald-800 dark:text-emerald-700">
+                      <div className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
                       Retrying...
                     </div>
                   ) : retryCount > 0 ? (
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-white/40">
                       Attempt {retryCount}/{maxRetries}
                     </div>
                   ) : null}
@@ -552,12 +553,12 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
               </AlertDescription>
 
               {/* Technical Details (Development Only) */}
-              {process.env.NODE_ENV === 'development' && (
+              {import.meta.env.MODE === 'development' && (
                 <details className="text-sm">
-                  <summary className="cursor-pointer text-slate-700 dark:text-gray-700 hover:text-gray-900 dark:hover:text-gray-100">
+                  <summary className="cursor-pointer text-white/70 dark:text-white/40 hover:text-white/80 dark:hover:text-white/80">
                     Technical Details
                   </summary>
-                  <pre className="mt-2 p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs overflow-auto">
+                  <pre className="mt-2 p-3 bg-white/[0.05] dark:bg-[#18181b] rounded text-xs overflow-auto">
                     {JSON.stringify(
                       {
                         message: categorizedError.message,
@@ -578,7 +579,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
               <div className="flex flex-wrap gap-2 w-full">
                 {errorDetails.actions.map((action, index) => (
                   <Button
-                    key={index}
+                    key={action.action}
                     onClick={() => this.handleAction(action.action)}
                     variant={index === 0 ? 'default' : 'outline'}
                     disabled={isRetrying}

@@ -52,7 +52,7 @@ export interface AttachmentFilter {
 @injectable()
 export class AttachmentRepository extends BaseRepository<Attachment> {
   constructor() {
-    super('communication_attachments');
+    super(pool, 'communication_attachments');
   }
 
   /**
@@ -262,9 +262,4 @@ export class AttachmentRepository extends BaseRepository<Attachment> {
     return (result.rowCount || 0) > 0;
   }
 
-  // Expose pool for BaseRepository
-  // @ts-expect-error - Type mismatch
-  protected get pool() {
-    return pool;
-  }
 }

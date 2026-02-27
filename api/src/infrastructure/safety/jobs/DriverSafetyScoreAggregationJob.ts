@@ -32,7 +32,7 @@ export class DriverSafetyScoreAggregationJob {
 
   stop(): void {
     if (this.job) {
-      this.job.stop();
+      void this.job.stop();
       this.job = null;
       this.logger.info('Safety score job stopped');
     }

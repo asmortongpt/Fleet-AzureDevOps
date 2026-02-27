@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react'
-import useSWR from 'swr'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { EntityAvatar } from '@/shared/design-system/EntityAvatar'
 import { RowExpandPanel } from '@/shared/design-system/RowExpandPanel'
 import { StatusChip } from '@/shared/design-system/StatusChip'
 import type { VehicleRow } from '@/shared/design-system/types'
-import { swrFetcher } from '@/lib/fetcher'
+import { formatNumber } from '@/utils/format-helpers'
 
 /**
  * STANDALONE FLEET DESIGN SYSTEM DEMO
@@ -15,56 +16,57 @@ import { swrFetcher } from '@/lib/fetcher'
 export default function FleetDesignDemo() {
     const [expandedRow, setExpandedRow] = useState<string | null>(null)
 
-    const { data: vehiclesPayload } = useSWR<any>('/api/vehicles?limit=25', swrFetcher, {
-        revalidateOnFocus: false
-    })
-
-    const vehicles = useMemo<VehicleRow[]>(() => {
-        const raw =
-            (Array.isArray(vehiclesPayload?.data) && vehiclesPayload.data) ||
-            (Array.isArray(vehiclesPayload?.data?.data) && vehiclesPayload.data.data) ||
-            []
-
-        const now = Date.now()
-
-        return raw.map((v: any) => {
-            const updatedAtMs = v.updated_at ? new Date(v.updated_at).getTime() : now
-            const diffMinutes = Math.max(0, Math.round((now - updatedAtMs) / 60000))
-            const updatedAgo = diffMinutes < 60 ? `${diffMinutes}m ago` : `${Math.round(diffMinutes / 60)}h ago`
-
-            const fuelPct = Math.max(0, Math.min(100, Math.round(Number(v.fuel_level || 0))))
-            const alerts = Number(v.metadata?.open_alerts || v.metadata?.alerts || 0) || 0
-            const status: VehicleRow['status'] =
-                v.status === 'active' ? 'good' : v.status === 'maintenance' ? 'warn' : v.status === 'retired' ? 'bad' : 'info'
-
-            // NOTE: healthScore is a derived proxy until a dedicated health-scoring model exists.
-            const healthScore = Math.max(0, Math.min(100, Math.round(fuelPct)))
-
-            return {
-                entityType: 'vehicle',
-                id: String(v.id),
-                displayName: String(v.name || v.number || v.unit_number || v.vehicle_number || v.id),
-                status,
-                kind: String(v.type || 'Vehicle'),
-                odometer: Number(v.odometer || 0),
-                fuelPct,
-                healthScore,
-                alerts,
-                updatedAgo
-            }
-        })
-    }, [vehiclesPayload])
+    // Sample vehicle data showcasing the design system
+    const vehicles: VehicleRow[] = [
+        {
+            entityType: 'vehicle',
+            id: 'VEH-001',
+            displayName: 'Truck 42',
+            status: 'good',
+            kind: 'Semi Truck',
+            odometer: 142500,
+            fuelPct: 72,
+            healthScore: 94,
+            alerts: 0,
+            updatedAgo: '2m ago'
+        },
+        {
+            entityType: 'vehicle',
+            id: 'VEH-002',
+            displayName: 'Van 18',
+            status: 'warn',
+            kind: 'Cargo Van',
+            odometer: 89200,
+            fuelPct: 45,
+            healthScore: 78,
+            alerts: 2,
+            updatedAgo: '8m ago'
+        },
+        {
+            entityType: 'vehicle',
+            id: 'VEH-003',
+            displayName: 'Truck 07',
+            status: 'bad',
+            kind: 'Box Truck',
+            odometer: 201000,
+            fuelPct: 15,
+            healthScore: 62,
+            alerts: 5,
+            updatedAgo: '12m ago'
+        },
+    ]
 
     const toggleRow = (id: string) => {
         setExpandedRow(expandedRow === id ? null : id)
     }
 
     return (
+        <ErrorBoundary>
         <div style={{
             padding: 24,
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
             minHeight: '100vh',
-            color: '#e2e8f0'
+            color: '#e5e5e5'
         }}>
             {/* Header */}
             <div style={{
@@ -78,13 +80,13 @@ export default function FleetDesignDemo() {
                     fontSize: 32,
                     fontWeight: 900,
                     marginBottom: 8,
-                    background: 'linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%)',
+                    background: 'linear-gradient(135deg, #10b981 0%, #f59e0b 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent'
                 }}>
                     Fleet Design System - Live Demo
                 </h1>
-                <p style={{ color: '#94a3b8', fontSize: 14 }}>
+                <p style={{ color: '#9CA3AF', fontSize: 14 }}>
                     Professional table-first navigation with EntityAvatar, StatusChip, and RowExpandPanel components
                 </p>
             </div>
@@ -110,7 +112,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Vehicle</th>
                             <th style={{
@@ -120,7 +122,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Type</th>
                             <th style={{
@@ -130,7 +132,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Odometer</th>
                             <th style={{
@@ -140,7 +142,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Fuel</th>
                             <th style={{
@@ -150,7 +152,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Health</th>
                             <th style={{
@@ -160,7 +162,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Alerts</th>
                             <th style={{
@@ -170,7 +172,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Updated</th>
                         </tr>
@@ -183,7 +185,7 @@ export default function FleetDesignDemo() {
                                     onClick={() => toggleRow(vehicle.id)}
                                     style={{
                                         cursor: 'pointer',
-                                        background: expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'transparent',
+                                        background: expandedRow === vehicle.id ? 'rgba(16,185,129,0.08)' : 'transparent',
                                         borderBottom: '1px solid rgba(255,255,255,0.06)',
                                         transition: 'background 0.2s'
                                     }}
@@ -203,12 +205,12 @@ export default function FleetDesignDemo() {
                                             <EntityAvatar entity={vehicle} size={38} />
                                             <div>
                                                 <div style={{ fontWeight: 600, fontSize: 14 }}>{vehicle.displayName}</div>
-                                                <div style={{ fontSize: 12, color: '#94a3b8' }}>{vehicle.id}</div>
+                                                <div style={{ fontSize: 12, color: '#9CA3AF' }}>{vehicle.id}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td style={{ padding: 16, fontSize: 14 }}>{vehicle.kind}</td>
-                                    <td style={{ padding: 16, fontSize: 14 }}>{vehicle.odometer.toLocaleString()} mi</td>
+                                    <td style={{ padding: 16, fontSize: 14 }}>{formatNumber(vehicle.odometer)} mi</td>
                                     <td style={{ padding: 16 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                             <div style={{
@@ -225,7 +227,7 @@ export default function FleetDesignDemo() {
                                                     transition: 'width 0.3s'
                                                 }} />
                                             </div>
-                                            <span style={{ fontSize: 12, color: '#94a3b8' }}>{vehicle.fuelPct}%</span>
+                                            <span style={{ fontSize: 12, color: '#9CA3AF' }}>{vehicle.fuelPct}%</span>
                                         </div>
                                     </td>
                                     <td style={{ padding: 16 }}>
@@ -244,7 +246,7 @@ export default function FleetDesignDemo() {
                                             <StatusChip status="good" label="No alerts" />
                                         )}
                                     </td>
-                                    <td style={{ padding: 16, fontSize: 12, color: '#94a3b8' }}>{vehicle.updatedAgo}</td>
+                                    <td style={{ padding: 16, fontSize: 12, color: '#9CA3AF' }}>{vehicle.updatedAgo}</td>
                                 </tr>
                                 {expandedRow === vehicle.id && (
                                     <tr>
@@ -269,7 +271,7 @@ export default function FleetDesignDemo() {
                                                         severity: 'warn'
                                                     },
                                                 ]}
-                                                onOpenRecord={(id) => alert(`Opening record: ${id}`)}
+                                                onOpenRecord={(id) => toast.info(`Opening record: ${id}`)}
                                             />
                                         </td>
                                     </tr>
@@ -291,19 +293,20 @@ export default function FleetDesignDemo() {
                 <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>Design System Components</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
                     <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#60a5fa' }}>EntityAvatar</div>
-                        <div style={{ fontSize: 12, color: '#94a3b8' }}>Status-indicating conic gradient rings around entity identifiers</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#10b981' }}>EntityAvatar</div>
+                        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Status-indicating conic gradient rings around entity identifiers</div>
                     </div>
                     <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#60a5fa' }}>StatusChip</div>
-                        <div style={{ fontSize: 12, color: '#94a3b8' }}>Semantic color-coded status indicators with labels</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#10b981' }}>StatusChip</div>
+                        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Semantic color-coded status indicators with labels</div>
                     </div>
                     <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#60a5fa' }}>RowExpandPanel</div>
-                        <div style={{ fontSize: 12, color: '#94a3b8' }}>Expandable drilldown with telemetry and nested records</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#10b981' }}>RowExpandPanel</div>
+                        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Expandable drilldown with telemetry and nested records</div>
                     </div>
                 </div>
             </div>
         </div>
+        </ErrorBoundary>
     )
 }

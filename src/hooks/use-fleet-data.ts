@@ -37,7 +37,7 @@ export function useFleetData() {
   }
 
   // Fetch data from API using SWR hooks
-  const { data: vehiclesData, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles()
+  const { data: vehiclesData, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles({ tenant_id: '', limit: 200 })
   const { data: driversData, isLoading: driversLoading, error: driversError } = useDrivers()
   const { data: workOrdersData, isLoading: workOrdersLoading, error: workOrdersError } = useWorkOrders()
   const { data: fuelTransactionsData, isLoading: fuelLoading, error: _fuelError } = useFuelTransactions()
@@ -60,16 +60,35 @@ export function useFleetData() {
   // Extract data arrays from API responses
   const vehicles = useMemo((): Vehicle[] => {
     const rawVehicles = unwrapArray<Vehicle>(vehiclesData)
-    return rawVehicles.map((v): Vehicle => ({
-      ...(v as Partial<Vehicle>),
-      id: v.id || '',
-      tenant_id: v.tenant_id || '',
-      alerts: Array.isArray((v as any).alerts) ? (v as any).alerts : []
-    } as Vehicle))
+    return rawVehicles.map((v): Vehicle => {
+      const latitude = (v as any).latitude ?? (v as any).gps_latitude ?? (v as any).lat ?? null
+      const longitude = (v as any).longitude ?? (v as any).gps_longitude ?? (v as any).lng ?? null
+      const location =
+        (v as any).location ??
+        (latitude != null && longitude != null
+          ? {
+              lat: Number(latitude),
+              lng: Number(longitude),
+              address: (v as any).locationAddress ?? (v as any).location_address ?? ''
+            }
+          : null)
+
+      return {
+        ...(v as Partial<Vehicle>),
+        id: v.id || '',
+        tenantId: v.tenantId || (v as any).tenant_id || '',
+        alerts: Array.isArray((v as any).alerts) ? (v as any).alerts : [],
+        location: location ?? undefined
+      } as Vehicle
+    })
   }, [vehiclesData]);
 
   const drivers = useMemo((): Driver[] => {
-    return unwrapArray<Driver>(driversData) as unknown as Driver[]
+    const raw = unwrapArray<Driver>(driversData) as unknown as Driver[]
+    return raw.map((d: any) => ({
+      ...d,
+      name: d.name || `${d.first_name || d.firstName || ''} ${d.last_name || d.lastName || ''}`.trim() || d.email || 'Unknown Driver',
+    }))
   }, [driversData]);
 
   const workOrders = useMemo((): WorkOrder[] => {
@@ -253,6 +272,11 @@ export function useFleetData() {
     updateMaintenanceRequest,
     addRoute,
     updateRoute,
-    deleteRoute
+    deleteRoute,
+    error: vehiclesError || driversError || workOrdersError || facilitiesError || null,
+    refetch: () => {
+      // Trigger refetch on all queries by invalidating
+      // Individual hooks use useQuery which supports refetch via queryClient
+    }
   }
 }

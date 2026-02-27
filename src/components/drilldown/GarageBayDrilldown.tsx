@@ -21,7 +21,6 @@ import {
   Users,
   AlertCircle,
   Phone,
-  Mail,
   MapPin,
   CheckCircle2,
   XCircle,
@@ -34,6 +33,7 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -41,6 +41,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDateTime, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface GarageBayDrilldownProps {
   bayId: string
@@ -132,19 +136,15 @@ interface GarageBay {
   equipment: string[]
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
 export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('overview')
 
   // Fetch garage bay data
-  const { data: bayData, error, isLoading, mutate } = useSWR<{ data: GarageBay }>(
+  const { data: bay, error, isLoading, mutate } = useSWR<GarageBay>(
     `/api/garage-bays/${bayId}`,
-    fetcher
+    apiFetcher
   )
-
-  const bay = bayData?.data
   const currentWorkOrder = bay?.work_orders?.[0] // Primary active work order
 
   const handleViewWorkOrder = (workOrder: WorkOrder) => {
@@ -160,7 +160,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
     push({
       id: `vehicle-${vehicle.id}`,
       type: 'vehicle',
-      label: `${vehicle.make} ${vehicle.model}`,
+      label: formatVehicleName(vehicle),
       data: { vehicleId: vehicle.id },
     })
   }
@@ -218,27 +218,15 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
       case 'completed':
         return <CheckCircle2 className="h-5 w-5 text-green-500" />
       case 'in_progress':
-        return <Clock className="h-5 w-5 text-blue-800" />
+        return <Clock className="h-5 w-5 text-emerald-400" />
       case 'pending':
       case 'on_hold':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />
       case 'cancelled':
         return <XCircle className="h-5 w-5 text-red-500" />
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-700" />
+        return <AlertCircle className="h-5 w-5 text-white/40" />
     }
-  }
-
-  const formatDate = (date: string | undefined) => {
-    if (!date) return 'N/A'
-    const d = new Date(date)
-    return d.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
   }
 
   const totalPartsCost = currentWorkOrder?.parts.reduce((sum, part) => sum + (part.quantity * part.unit_cost), 0) || 0
@@ -258,8 +246,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
               <h3 className="text-sm font-bold">Garage Bay {bay.bay_number}</h3>
               <p className="text-sm text-muted-foreground">{bay.bay_name}</p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant={getStatusColor(bay.status)} className="capitalize">
-                  {bay.status}
+                <Badge variant={getStatusColor(bay.status)}>
+                  {formatEnum(bay.status)}
                 </Badge>
                 <Badge variant="outline">
                   <MapPin className="h-3 w-3 mr-1" />
@@ -291,11 +279,11 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                       {currentWorkOrder.description}
                     </p>
                     <div className="mt-3 flex gap-2">
-                      <Badge variant={getPriorityColor(currentWorkOrder.priority)} className="capitalize">
-                        {currentWorkOrder.priority}
+                      <Badge variant={getPriorityColor(currentWorkOrder.priority)}>
+                        {formatEnum(currentWorkOrder.priority)}
                       </Badge>
-                      <Badge variant="outline" className="capitalize">
-                        {currentWorkOrder.type}
+                      <Badge variant="outline">
+                        {formatEnum(currentWorkOrder.type)}
                       </Badge>
                     </div>
                   </CardContent>
@@ -314,7 +302,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                       <div>
                         <p className="text-xs text-muted-foreground">Estimated Completion</p>
                         <p className="font-semibold text-primary">
-                          {formatDate(currentWorkOrder.estimated_completion)}
+                          {formatDateTime(currentWorkOrder.estimated_completion)}
                         </p>
                       </div>
                       <div>
@@ -329,7 +317,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                 </Card>
 
                 {/* Vehicle being worked on */}
-                <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewVehicle(currentWorkOrder.vehicle)}>
+                <Card className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={() => handleViewVehicle(currentWorkOrder.vehicle)}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
                       <Car className="h-4 w-4" />
@@ -338,7 +326,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   </CardHeader>
                   <CardContent>
                     <p className="font-semibold text-sm">
-                      {currentWorkOrder.vehicle.year} {currentWorkOrder.vehicle.make} {currentWorkOrder.vehicle.model}
+                      {formatVehicleName(currentWorkOrder.vehicle)}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       Unit #{currentWorkOrder.vehicle.vehicle_number}
@@ -346,7 +334,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     {currentWorkOrder.vehicle.odometer_reading && (
                       <div className="mt-2 flex items-center gap-2 text-xs">
                         <Gauge className="h-3 w-3" />
-                        <span>{currentWorkOrder.vehicle.odometer_reading.toLocaleString()} miles</span>
+                        <span>{formatNumber(currentWorkOrder.vehicle.odometer_reading)} miles</span>
                       </div>
                     )}
                   </CardContent>
@@ -382,15 +370,17 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                           <Phone className="h-4 w-4" />
                           {currentWorkOrder.primary_technician.phone}
                         </Button>
-                        <Button
+                        <EmailButton
+                          to={currentWorkOrder.primary_technician.email}
+                          context={{
+                            type: 'work_order_update',
+                            recipientName: currentWorkOrder.primary_technician.name,
+                          }}
+                          label={currentWorkOrder.primary_technician.email}
                           variant="outline"
                           size="sm"
-                          className="gap-2"
-                          onClick={() => window.location.href = `mailto:${currentWorkOrder.primary_technician.email}`}
-                        >
-                          <Mail className="h-4 w-4" />
-                          {currentWorkOrder.primary_technician.email}
-                        </Button>
+                          className="text-xs"
+                        />
                       </div>
                       {currentWorkOrder.primary_technician.certifications && currentWorkOrder.primary_technician.certifications.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1">
@@ -416,7 +406,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm font-bold">${totalPartsCost.toFixed(2)}</div>
+                    <div className="text-sm font-bold">{formatCurrency(totalPartsCost)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {currentWorkOrder.parts.length} item{currentWorkOrder.parts.length !== 1 ? 's' : ''}
                     </p>
@@ -431,7 +421,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm font-bold">${totalLaborCost.toFixed(2)}</div>
+                    <div className="text-sm font-bold">{formatCurrency(totalLaborCost)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {totalHoursLogged.toFixed(1)} / {totalHoursEstimated.toFixed(1)} hrs
                     </p>
@@ -446,7 +436,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm font-bold text-primary">${totalCost.toFixed(2)}</div>
+                    <div className="text-sm font-bold text-primary">{formatCurrency(totalCost)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       Current total
                     </p>
@@ -461,7 +451,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm font-bold">${currentWorkOrder.estimated_cost.toFixed(2)}</div>
+                    <div className="text-sm font-bold">{formatCurrency(currentWorkOrder.estimated_cost)}</div>
                     <p className={`text-xs mt-1 ${totalCost > currentWorkOrder.estimated_cost ? 'text-destructive' : 'text-muted-foreground'}`}>
                       {totalCost > currentWorkOrder.estimated_cost ? 'Over budget' : 'On budget'}
                     </p>
@@ -500,35 +490,35 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                           <p className="text-sm text-muted-foreground">Work Order Status</p>
                           <div className="flex items-center gap-2 mt-1">
                             {getStatusIcon(currentWorkOrder.status)}
-                            <Badge variant={getStatusColor(currentWorkOrder.status)} className="capitalize">
-                              {currentWorkOrder.status.replace('_', ' ')}
+                            <Badge variant={getStatusColor(currentWorkOrder.status)}>
+                              {formatEnum(currentWorkOrder.status)}
                             </Badge>
                           </div>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Priority Level</p>
-                          <Badge variant={getPriorityColor(currentWorkOrder.priority)} className="mt-1 capitalize">
-                            {currentWorkOrder.priority}
+                          <Badge variant={getPriorityColor(currentWorkOrder.priority)} className="mt-1">
+                            {formatEnum(currentWorkOrder.priority)}
                           </Badge>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Scheduled Start</p>
-                          <p className="font-medium mt-1">{formatDate(currentWorkOrder.scheduled_start)}</p>
+                          <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.scheduled_start)}</p>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Scheduled End</p>
-                          <p className="font-medium mt-1">{formatDate(currentWorkOrder.scheduled_end)}</p>
+                          <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.scheduled_end)}</p>
                         </div>
                         {currentWorkOrder.actual_start && (
                           <div>
                             <p className="text-sm text-muted-foreground">Actual Start</p>
-                            <p className="font-medium mt-1">{formatDate(currentWorkOrder.actual_start)}</p>
+                            <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.actual_start)}</p>
                           </div>
                         )}
                         {currentWorkOrder.actual_end && (
                           <div>
                             <p className="text-sm text-muted-foreground">Actual End</p>
-                            <p className="font-medium mt-1">{formatDate(currentWorkOrder.actual_end)}</p>
+                            <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.actual_end)}</p>
                           </div>
                         )}
                       </div>
@@ -559,7 +549,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                 {/* Parts Tab */}
                 <TabsContent value="parts" className="space-y-2">
                   {currentWorkOrder.parts.map((part) => (
-                    <Card key={part.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewPart(part)}>
+                    <Card key={part.id} className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={() => handleViewPart(part)}>
                       <CardContent className="p-2">
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
@@ -570,8 +560,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                                 <p className="text-xs text-muted-foreground">Part #: {part.part_number}</p>
                               </div>
                             </div>
-                            <Badge variant={getStatusColor(part.status)} className="capitalize">
-                              {part.status}
+                            <Badge variant={getStatusColor(part.status)}>
+                              {formatEnum(part.status)}
                             </Badge>
                           </div>
 
@@ -588,11 +578,11 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Unit Cost</p>
-                              <p className="font-medium">${part.unit_cost.toFixed(2)}</p>
+                              <p className="font-medium">{formatCurrency(part.unit_cost)}</p>
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Total</p>
-                              <p className="font-medium text-primary">${(part.quantity * part.unit_cost).toFixed(2)}</p>
+                              <p className="font-medium text-primary">{formatCurrency(part.quantity * part.unit_cost)}</p>
                             </div>
                           </div>
 
@@ -613,23 +603,23 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                                   <Phone className="h-3 w-3" />
                                   {part.supplier_phone}
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-7 text-xs gap-1"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    window.location.href = `mailto:${part.supplier_email}`
+                                <EmailButton
+                                  to={part.supplier_email}
+                                  context={{
+                                    type: 'vendor_contact',
+                                    entityName: part.supplier,
+                                    recipientName: part.supplier_contact,
                                   }}
-                                >
-                                  <Mail className="h-3 w-3" />
-                                  {part.supplier_email}
-                                </Button>
+                                  label={part.supplier_email}
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-xs"
+                                />
                               </div>
                             </div>
                             {part.delivery_date && (
                               <p className="text-xs text-muted-foreground mt-2">
-                                Expected: {formatDate(part.delivery_date)}
+                                Expected: {formatDateTime(part.delivery_date)}
                               </p>
                             )}
                           </div>
@@ -642,7 +632,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     <CardContent className="p-2">
                       <div className="flex items-center justify-between">
                         <span className="font-semibold">Total Parts Cost</span>
-                        <span className="text-sm font-bold text-primary">${totalPartsCost.toFixed(2)}</span>
+                        <span className="text-sm font-bold text-primary">{formatCurrency(totalPartsCost)}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -667,8 +657,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                                 <p className="text-xs text-muted-foreground">{entry.task_description}</p>
                               </div>
                             </div>
-                            <Badge variant={getStatusColor(entry.status)} className="capitalize">
-                              {entry.status.replace('_', ' ')}
+                            <Badge variant={getStatusColor(entry.status)}>
+                              {formatEnum(entry.status)}
                             </Badge>
                           </div>
 
@@ -683,17 +673,17 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Rate</p>
-                              <p className="font-medium">${entry.rate.toFixed(2)}/hr</p>
+                              <p className="font-medium">{formatCurrency(entry.rate)}/hr</p>
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Total</p>
-                              <p className="font-medium text-primary">${(entry.hours_logged * entry.rate).toFixed(2)}</p>
+                              <p className="font-medium text-primary">{formatCurrency(entry.hours_logged * entry.rate)}</p>
                             </div>
                           </div>
 
                           <div className="pt-2 border-t">
                             <p className="text-xs text-muted-foreground">
-                              Date: {formatDate(entry.date)}
+                              Date: {formatDateTime(entry.date)}
                             </p>
                           </div>
                         </div>
@@ -712,11 +702,11 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <span>Estimated Labor Cost</span>
-                          <span className="font-semibold">${estimatedLaborCost.toFixed(2)}</span>
+                          <span className="font-semibold">{formatCurrency(estimatedLaborCost)}</span>
                         </div>
                         <div className="flex items-center justify-between pt-2 border-t">
                           <span className="font-semibold">Actual Labor Cost</span>
-                          <span className="text-sm font-bold text-primary">${totalLaborCost.toFixed(2)}</span>
+                          <span className="text-sm font-bold text-primary">{formatCurrency(totalLaborCost)}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -816,8 +806,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                           <p className="text-sm text-muted-foreground">{wo.title}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant={getStatusColor(wo.status)} className="capitalize">
-                            {wo.status.replace('_', ' ')}
+                          <Badge variant={getStatusColor(wo.status)}>
+                            {formatEnum(wo.status)}
                           </Badge>
                           {idx === 0 && <Badge variant="default">Active</Badge>}
                         </div>

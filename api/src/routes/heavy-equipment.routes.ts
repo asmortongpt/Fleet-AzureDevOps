@@ -22,19 +22,21 @@ import { getErrorMessage } from '../utils/error-handler'
 import { HeavyEquipmentService } from '../services/heavy-equipment.service'
 
 const router = Router()
-const service = new HeavyEquipmentService(pool as any)
+const service = new HeavyEquipmentService(pool)
 
 router.use(authenticateJWT)
 
 router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
-    if (!tenantId) return res.status(401).json({ error: 'Authentication required' })
+    if (!tenantId) {
+return res.status(401).json({ error: 'Authentication required' })
+}
 
     const filters = {
       equipment_type: req.query.equipment_type as string | undefined,
       availability_status: req.query.availability_status as string | undefined,
-      is_rental: req.query.is_rental != null ? String(req.query.is_rental) === 'true' : undefined,
+      is_rental: req.query.is_rental !== null && req.query.is_rental !== undefined ? String(req.query.is_rental) === 'true' : undefined,
     }
 
     const equipment = await service.getAllEquipment(tenantId, filters)
@@ -48,7 +50,9 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
 router.get('/maintenance/schedules', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
-    if (!tenantId) return res.status(401).json({ error: 'Authentication required' })
+    if (!tenantId) {
+return res.status(401).json({ error: 'Authentication required' })
+}
 
     const schedules = await service.getMaintenanceSchedules(tenantId)
     res.json({ schedules })
@@ -61,7 +65,9 @@ router.get('/maintenance/schedules', requirePermission('vehicle:view:fleet'), as
 router.get('/certifications/expiring', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
-    if (!tenantId) return res.status(401).json({ error: 'Authentication required' })
+    if (!tenantId) {
+return res.status(401).json({ error: 'Authentication required' })
+}
 
     const days = Number(req.query.days ?? 60)
     const alerts = await service.getExpiringCertifications(tenantId, Number.isFinite(days) ? days : 60)
@@ -75,7 +81,9 @@ router.get('/certifications/expiring', requirePermission('vehicle:view:fleet'), 
 router.get('/certifications/matrix', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
-    if (!tenantId) return res.status(401).json({ error: 'Authentication required' })
+    if (!tenantId) {
+return res.status(401).json({ error: 'Authentication required' })
+}
 
     const matrix = await service.getCertificationMatrix(tenantId)
     res.json({ matrix })
@@ -88,7 +96,9 @@ router.get('/certifications/matrix', requirePermission('vehicle:view:fleet'), as
 router.get('/:id/cost-analysis', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
-    if (!tenantId) return res.status(401).json({ error: 'Authentication required' })
+    if (!tenantId) {
+return res.status(401).json({ error: 'Authentication required' })
+}
 
     const { id } = req.params
     const startDate = (req.query.start_date as string | undefined) || undefined
@@ -104,7 +114,9 @@ router.get('/:id/cost-analysis', requirePermission('vehicle:view:fleet'), async 
 router.get('/:id/utilization', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
-    if (!tenantId) return res.status(401).json({ error: 'Authentication required' })
+    if (!tenantId) {
+return res.status(401).json({ error: 'Authentication required' })
+}
 
     const { id } = req.params
     const startDate = (req.query.start_date as string | undefined) || undefined
@@ -121,7 +133,9 @@ router.get('/:id/utilization', requirePermission('vehicle:view:fleet'), async (r
 router.get('/:id/telemetrics', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
-    if (!tenantId) return res.status(401).json({ error: 'Authentication required' })
+    if (!tenantId) {
+return res.status(401).json({ error: 'Authentication required' })
+}
 
     const { id } = req.params
     const limit = Number(req.query.limit ?? 50)
@@ -136,7 +150,9 @@ router.get('/:id/telemetrics', requirePermission('vehicle:view:fleet'), async (r
 router.get('/:id/inspection', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
-    if (!tenantId) return res.status(401).json({ error: 'Authentication required' })
+    if (!tenantId) {
+return res.status(401).json({ error: 'Authentication required' })
+}
 
     const { id } = req.params
     const limit = Number(req.query.limit ?? 50)

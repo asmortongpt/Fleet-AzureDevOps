@@ -53,7 +53,9 @@ export class SamsaraTelematicsAdapter implements ITelematicsProviderAdapter {
 
       for (const location of response.data.data) {
         const device = deviceMap.get(location.id);
-        if (!device) continue;
+        if (!device) {
+continue;
+}
 
         const event = AssetPositionEvent.create(
           device.assetId,
@@ -80,9 +82,9 @@ export class SamsaraTelematicsAdapter implements ITelematicsProviderAdapter {
       }
 
       return events;
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('Samsara API error:', error);
-      throw new Error(`Failed to fetch positions from Samsara: ${error.message}`);
+      throw new Error(`Failed to fetch positions from Samsara: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -93,7 +95,7 @@ export class SamsaraTelematicsAdapter implements ITelematicsProviderAdapter {
         signal: ct
       });
       return [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('Samsara history API error:', error);
       throw error;
     }

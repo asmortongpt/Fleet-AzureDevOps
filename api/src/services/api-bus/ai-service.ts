@@ -19,6 +19,7 @@ import type {
   AICompletionRequest,
   AICompletionResponse,
 } from './types'
+import logger from '../../config/logger'
 
 export interface AIServiceConfig {
   defaultProvider: AIProvider
@@ -42,14 +43,14 @@ export class AIService {
    */
   registerProvider(adapter: AIProviderAdapter): void {
     this.adapters.set(adapter.provider, adapter)
-    console.log(`[AI Service] Registered provider: ${adapter.provider}`)
+    logger.info('[AI Service] Registered provider', { provider: adapter.provider })
   }
 
   /**
    * Initialize all registered providers
    */
   async initialize(): Promise<void> {
-    console.log('[AI Service] Initializing...')
+    logger.info('[AI Service] Initializing...')
 
     // Initialize OpenAI as default
     const openaiKey = process.env.OPENAI_API_KEY
@@ -69,12 +70,13 @@ export class AIService {
 
     const results = await Promise.all(availabilityChecks)
     results.forEach(({ provider, available }) => {
-      console.log(
-        `[AI Service] Provider ${provider}: ${available ? '✅ Available' : '❌ Unavailable'}`
-      )
+      logger.info('[AI Service] Provider status', {
+        provider,
+        available: available ? 'Available' : 'Unavailable'
+      })
     })
 
-    console.log('[AI Service] Initialization complete')
+    logger.info('[AI Service] Initialization complete')
   }
 
   /**
@@ -85,7 +87,7 @@ export class AIService {
     if (this.config.enableCaching) {
       const cached = this.getFromCache(request)
       if (cached) {
-        console.log('[AI Service] Cache hit')
+        logger.debug('[AI Service] Cache hit')
         return cached
       }
     }
@@ -101,18 +103,18 @@ export class AIService {
     for (const providerName of providers) {
       const adapter = this.adapters.get(providerName)
       if (!adapter) {
-        console.warn(`[AI Service] Provider ${providerName} not registered, skipping`)
+        logger.warn('[AI Service] Provider not registered, skipping', { provider: providerName })
         continue
       }
 
       try {
         const available = await adapter.isAvailable()
         if (!available) {
-          console.warn(`[AI Service] Provider ${providerName} unavailable, trying next`)
+          logger.warn('[AI Service] Provider unavailable, trying next', { provider: providerName })
           continue
         }
 
-        console.log(`[AI Service] Using provider: ${providerName}`)
+        logger.info('[AI Service] Using provider', { provider: providerName })
         const response = await adapter.complete(request)
 
         // Cache successful response
@@ -121,9 +123,9 @@ export class AIService {
         }
 
         return response
-      } catch (error: any) {
-        console.error(`[AI Service] Provider ${providerName} failed:`, error.message)
-        lastError = error
+      } catch (error: unknown) {
+        logger.error('[AI Service] Provider failed', { provider: providerName, error: error instanceof Error ? error.message : 'An unexpected error occurred' })
+        lastError = error instanceof Error ? error : new Error(String(error))
         continue
       }
     }
@@ -178,7 +180,7 @@ export class AIService {
       throw new Error(`[AI Service] Provider ${provider} not registered`)
     }
     this.config.defaultProvider = provider
-    console.log(`[AI Service] Switched default provider to: ${provider}`)
+    logger.info('[AI Service] Switched default provider', { provider })
   }
 
   // ============================================================================
@@ -197,7 +199,9 @@ export class AIService {
     const key = this.getCacheKey(request)
     const cached = this.cache.get(key)
 
-    if (!cached) return null
+    if (!cached) {
+return null
+}
 
     // Check if expired
     if (Date.now() > cached.expiresAt) {

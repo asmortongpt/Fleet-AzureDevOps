@@ -54,6 +54,31 @@ CREATE TABLE IF NOT EXISTS permissions (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Add missing columns if table was created by earlier migration with different schema
+DO $$ BEGIN
+  ALTER TABLE permissions ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+  ALTER TABLE permissions ADD COLUMN IF NOT EXISTS description TEXT;
+
+  -- Make permission_name and permission_code nullable if they exist (1000 created them as NOT NULL)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='permissions' AND column_name='permission_name') THEN
+    ALTER TABLE permissions ALTER COLUMN permission_name DROP NOT NULL;
+    UPDATE permissions SET name = permission_name WHERE name IS NULL AND permission_name IS NOT NULL;
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='permissions' AND column_name='permission_code') THEN
+    ALTER TABLE permissions ALTER COLUMN permission_code DROP NOT NULL;
+  END IF;
+END $$;
+
+-- Create unique index on name if not exists (handle case where constraint may already exist)
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'permissions_name_key') THEN
+    BEGIN
+      ALTER TABLE permissions ADD CONSTRAINT permissions_name_key UNIQUE (name);
+    EXCEPTION WHEN duplicate_table THEN NULL;
+    END;
+  END IF;
+END $$;
+
 -- Create index for faster permission lookups
 CREATE INDEX IF NOT EXISTS idx_permissions_resource_action ON permissions(resource, action);
 

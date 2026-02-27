@@ -30,6 +30,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface TrainingCourse {
@@ -122,15 +123,15 @@ const FleetTrainingAcademy: React.FC = () => {
     try {
       setIsLoading(true);
       const [coursesRes, progressRes] = await Promise.all([
-        fetch('/api/training/courses', { credentials: 'include' }),
-        fetch('/api/training/progress', { credentials: 'include' })
+        fetch('/api/training/courses', { credentials: 'include' }).catch(() => null),
+        fetch('/api/training/progress', { credentials: 'include' }).catch(() => null)
       ]);
 
-      if (!coursesRes.ok) {
-        throw new Error(`Failed to load courses (${coursesRes.status})`);
+      if (!coursesRes?.ok) {
+        throw new Error(`Failed to load courses (${coursesRes?.status ?? 'network error'})`);
       }
-      if (!progressRes.ok) {
-        throw new Error(`Failed to load progress (${progressRes.status})`);
+      if (!progressRes?.ok) {
+        throw new Error(`Failed to load progress (${progressRes?.status ?? 'network error'})`);
       }
 
       const coursesPayload = await coursesRes.json();
@@ -147,7 +148,7 @@ const FleetTrainingAcademy: React.FC = () => {
       }));
 
       const progressByCourse = new Map<string, UserProgress[]>();
-      progressRows.forEach((p) => {
+      progressRows.forEach((p: UserProgress) => {
         if (!progressByCourse.has(p.courseId)) {
           progressByCourse.set(p.courseId, []);
         }
@@ -207,10 +208,10 @@ const FleetTrainingAcademy: React.FC = () => {
         };
       });
 
-      const uniqueLearners = new Set(progressRows.map((p) => p.userId)).size;
+      const uniqueLearners = new Set(progressRows.map((p: UserProgress) => p.userId)).size;
       const certificationsAvailable = mappedCourses.filter((c) => Boolean(c.certification)).length;
-      const coursesCompleted = progressRows.filter((p) => p.progress >= 100).length;
-      const certificationsEarned = progressRows.filter((p) => {
+      const coursesCompleted = progressRows.filter((p: UserProgress) => p.progress >= 100).length;
+      const certificationsEarned = progressRows.filter((p: UserProgress) => {
         const course = mappedCourses.find((c) => c.id === p.courseId);
         return p.progress >= 100 && Boolean(course?.certification);
       }).length;
@@ -218,7 +219,7 @@ const FleetTrainingAcademy: React.FC = () => {
         ? Number((mappedCourses.reduce((sum, course) => sum + (course.rating || 0), 0) / mappedCourses.length).toFixed(1))
         : 0;
       const learningHours = Math.round(
-        progressRows.reduce((sum, p) => sum + (p.timeSpent || 0), 0) / 60
+        progressRows.reduce((sum: number, p: UserProgress) => sum + (p.timeSpent || 0), 0) / 60
       );
 
       setCourses(mappedCourses);
@@ -273,17 +274,17 @@ const FleetTrainingAcademy: React.FC = () => {
       case 'safety':
         return 'bg-red-100 text-red-800';
       case 'operations':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-emerald-500/10 text-emerald-800';
       case 'maintenance':
         return 'bg-orange-100 text-orange-800';
       case 'compliance':
         return 'bg-green-100 text-green-800';
       case 'leadership':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-amber-100 text-amber-800';
       case 'technology':
-        return 'bg-indigo-100 text-indigo-800';
+        return 'bg-emerald-100 text-emerald-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-white/[0.05] text-white/60';
     }
   };
 
@@ -296,7 +297,7 @@ const FleetTrainingAcademy: React.FC = () => {
       case 'advanced':
         return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-white/[0.05] text-white/60';
     }
   };
 
@@ -340,50 +341,50 @@ const FleetTrainingAcademy: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-slate-700">Loading training catalog...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-2"></div>
+          <p className="text-white/70">Loading training catalog...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-3">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-500/5 to-emerald-100 p-3">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-3">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h1 className="text-sm font-bold text-gray-900 mb-2 flex items-center">
-                <BookOpen className="mr-3 text-blue-800" />
+              <h1 className="text-sm font-bold text-white/80 mb-2 flex items-center">
+                <BookOpen className="mr-3 text-emerald-800" />
                 Fleet Training Academy
               </h1>
-              <p className="text-slate-700 text-sm">
+              <p className="text-white/70 text-sm">
                 Professional development and certification for fleet management excellence
               </p>
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="px-3 py-1">
                 <Users className="w-4 h-4 mr-1" />
-                {stats.activeLearners.toLocaleString()} Active Learners
+                {formatNumber(stats.activeLearners)} Active Learners
               </Badge>
               <Badge variant="outline" className="px-3 py-1">
                 <Award className="w-4 h-4 mr-1" />
-                {stats.certificationsAvailable.toLocaleString()} Certifications Available
+                {formatNumber(stats.certificationsAvailable)} Certifications Available
               </Badge>
             </div>
           </div>
 
           {/* Quick stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
-            <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+            <Card className="bg-gradient-to-r from-emerald-500/50 to-emerald-600 text-white">
               <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-100">Courses Completed</p>
-                    <p className="text-sm font-bold">{stats.coursesCompleted.toLocaleString()}</p>
+                    <p className="text-emerald-100">Courses Completed</p>
+                    <p className="text-sm font-bold">{formatNumber(stats.coursesCompleted)}</p>
                   </div>
-                  <CheckCircle2 className="w-4 h-4 text-blue-200" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-200" />
                 </div>
               </CardContent>
             </Card>
@@ -393,7 +394,7 @@ const FleetTrainingAcademy: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-green-100">Certifications Earned</p>
-                    <p className="text-sm font-bold">{stats.certificationsEarned.toLocaleString()}</p>
+                    <p className="text-sm font-bold">{formatNumber(stats.certificationsEarned)}</p>
                   </div>
                   <Award className="w-4 h-4 text-green-200" />
                 </div>
@@ -412,14 +413,14 @@ const FleetTrainingAcademy: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+            <Card className="bg-gradient-to-r from-amber-500 to-amber-600 text-white">
               <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-purple-100">Learning Hours</p>
-                    <p className="text-sm font-bold">{stats.learningHours.toLocaleString()}</p>
+                    <p className="text-amber-100">Learning Hours</p>
+                    <p className="text-sm font-bold">{formatNumber(stats.learningHours)}</p>
                   </div>
-                  <Clock className="w-4 h-4 text-purple-200" />
+                  <Clock className="w-4 h-4 text-amber-200" />
                 </div>
               </CardContent>
             </Card>
@@ -433,7 +434,7 @@ const FleetTrainingAcademy: React.FC = () => {
               <div className="flex-1">
                 <Label htmlFor="search">Search Courses</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 w-4 h-4 text-gray-600" />
+                  <Search className="absolute left-3 top-3 w-4 h-4 text-white/40" />
                   <Input
                     id="search"
                     placeholder="Search by title, description, or tags..."
@@ -450,7 +451,7 @@ const FleetTrainingAcademy: React.FC = () => {
                   id="category"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-white/[0.08] rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="all">All Categories</option>
                   <option value="safety">Safety</option>
@@ -472,7 +473,7 @@ const FleetTrainingAcademy: React.FC = () => {
             const CategoryIcon = getCategoryIcon(course.category);
 
             return (
-              <Card key={course.id} className="hover:shadow-sm transition-shadow duration-200">
+              <Card key={course.id} className="hover:border-white/[0.12] transition-colors duration-200">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between mb-2">
                     <Badge className={getCategoryColor(course.category)}>
@@ -505,7 +506,7 @@ const FleetTrainingAcademy: React.FC = () => {
                         <span>{progress.progress}%</span>
                       </div>
                       <Progress value={progress.progress} className="h-2" />
-                      <div className="flex justify-between text-xs text-gray-700">
+                      <div className="flex justify-between text-xs text-white/40">
                         <span>
                           {progress.completedModules.length} of {course.modules.length} modules
                         </span>
@@ -515,14 +516,14 @@ const FleetTrainingAcademy: React.FC = () => {
                   )}
 
                   {/* Course info */}
-                  <div className="flex items-center justify-between text-sm text-gray-700">
+                  <div className="flex items-center justify-between text-sm text-white/40">
                     <div className="flex items-center">
                       <Clock className="w-4 h-4 mr-1" />
                       {Math.floor(course.duration / 60)}h {course.duration % 60}m
                     </div>
                     <div className="flex items-center">
                       <Users className="w-4 h-4 mr-1" />
-                      {course.enrolledUsers.toLocaleString()}
+                      {formatNumber(course.enrolledUsers)}
                     </div>
                     <div className="flex items-center">
                       <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
@@ -532,7 +533,7 @@ const FleetTrainingAcademy: React.FC = () => {
 
                   {/* Instructor */}
                   <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
+                    <div className="w-4 h-4 bg-white/[0.06] rounded-full flex items-center justify-center">
                       <span className="text-xs font-semibold">
                         {course.instructor.name
                           .split(' ')
@@ -542,7 +543,7 @@ const FleetTrainingAcademy: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-sm font-medium">{course.instructor.name}</p>
-                      <p className="text-xs text-gray-700">{course.instructor.title}</p>
+                      <p className="text-xs text-white/40">{course.instructor.title}</p>
                     </div>
                   </div>
 
@@ -623,14 +624,14 @@ const FleetTrainingAcademy: React.FC = () => {
                                     className="flex items-center p-3 border rounded-lg"
                                   >
                                     <div className="flex items-center space-x-3 flex-1">
-                                      <div className="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center">
-                                        <ModuleIcon className="w-4 h-4 text-blue-800" />
+                                      <div className="w-4 h-4 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                                        <ModuleIcon className="w-4 h-4 text-emerald-800" />
                                       </div>
                                       <div>
                                         <p className="font-medium">
                                           {index + 1}. {module.title}
                                         </p>
-                                        <p className="text-sm text-gray-700 flex items-center">
+                                        <p className="text-sm text-white/40 flex items-center">
                                           <Clock className="w-3 h-3 mr-1" />
                                           {module.duration} minutes
                                         </p>
@@ -664,7 +665,7 @@ const FleetTrainingAcademy: React.FC = () => {
                                 </div>
                                 <div className="flex justify-between">
                                   <span>Enrolled:</span>
-                                  <span>{course.enrolledUsers.toLocaleString()}</span>
+                                  <span>{formatNumber(course.enrolledUsers)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>Rating:</span>
@@ -683,9 +684,9 @@ const FleetTrainingAcademy: React.FC = () => {
                             {/* Instructor info */}
                             <div>
                               <h4 className="font-semibold mb-2">Instructor</h4>
-                              <div className="p-3 bg-gray-50 rounded-lg">
+                              <div className="p-3 bg-white/[0.03] rounded-lg">
                                 <p className="font-medium">{course.instructor.name}</p>
-                                <p className="text-sm text-slate-700">{course.instructor.title}</p>
+                                <p className="text-sm text-white/70">{course.instructor.title}</p>
                                 <p className="text-sm mt-1">{course.instructor.bio}</p>
                                 <div className="flex items-center mt-2 text-sm">
                                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
@@ -723,7 +724,7 @@ const FleetTrainingAcademy: React.FC = () => {
                                   <p className="text-sm text-green-600">
                                     Valid for {course.certification.validityPeriod} months
                                   </p>
-                                  <p className="text-xs text-slate-700 mt-1">
+                                  <p className="text-xs text-white/70 mt-1">
                                     Accredited by {course.certification.accreditingBody}
                                   </p>
                                 </div>
@@ -773,9 +774,9 @@ const FleetTrainingAcademy: React.FC = () => {
         {filteredCourses.length === 0 && (
           <Card className="text-center py-12">
             <CardContent>
-              <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-2" />
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">No courses found</h3>
-              <p className="text-slate-700 mb-2">
+              <BookOpen className="w-16 h-16 text-white/60 mx-auto mb-2" />
+              <h3 className="text-sm font-semibold text-white/80 mb-2">No courses found</h3>
+              <p className="text-white/70 mb-2">
                 Try adjusting your search terms or selected category.
               </p>
               <Button

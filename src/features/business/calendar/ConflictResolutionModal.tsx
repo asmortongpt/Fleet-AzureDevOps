@@ -1,6 +1,8 @@
 import { AlertTriangle, Calendar, Clock, Car, Users, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import React, { useState } from 'react';
 
+import { formatDate, formatDateTime, formatTime } from '@/utils/format-helpers';
+
 interface ConflictResolutionModalProps {
   currentTheme: any;
   conflicts: any[];
@@ -100,13 +102,13 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
-        return '#dc2626';
+        return 'hsl(var(--chart-6))';
       case 'high':
-        return '#f59e0b';
+        return 'hsl(var(--chart-3))';
       case 'medium':
-        return '#3b82f6';
+        return 'hsl(var(--chart-1))';
       default:
-        return '#374151';
+        return 'hsl(var(--muted-foreground))';
     }
   };
 
@@ -117,7 +119,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'rgba(0, 0, 0, 0.5)',
+      background: 'hsl(var(--foreground) / 0.5)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -131,7 +133,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
         width: '90%',
         maxHeight: '80vh',
         overflow: 'auto',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+        boxShadow: '0 20px 25px -5px hsl(var(--foreground) / 0.1)'
       }}>
         {/* Header */}
         <div style={{
@@ -142,7 +144,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
           paddingBottom: '16px',
           borderBottom: `1px solid ${currentTheme.border}`
         }}>
-          <AlertTriangle size={24} color="#f59e0b" />
+          <AlertTriangle size={24} color="hsl(var(--chart-3))" />
           <div>
             <h2 style={{ margin: 0, color: currentTheme.text }}>
               Scheduling Conflict Detected
@@ -186,14 +188,11 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Calendar size={14} />
-              {originalEvent.start.toLocaleDateString()}
+              {formatDate(originalEvent.start)}
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Clock size={14} />
-              {originalEvent.start.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+              {formatTime(originalEvent.start)}
             </span>
           </div>
         </div>
@@ -234,10 +233,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
                       color: currentTheme.textMuted,
                       marginTop: '4px'
                     }}>
-                      {conflict.start.toLocaleTimeString()} - {conflict.end.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      {formatTime(conflict.start)} - {formatTime(conflict.end)}
                     </div>
                   </div>
                   <span style={{
@@ -319,9 +315,9 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
                 </div>
                 <div style={{ fontSize: '13px', color: currentTheme.textMuted }}>
                   <strong>Suggested times:</strong>
-                  {suggestAlternativeTimes().map((suggestion, idx) => (
+                  {suggestAlternativeTimes().map((suggestion) => (
                     <button
-                      key={idx}
+                      key={suggestion.reason}
                       onClick={() => {
                         setNewDate(suggestion.time.toISOString().split('T')[0]);
                         setNewTime(suggestion.time.toTimeString().slice(0, 5));
@@ -338,7 +334,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
                         color: currentTheme.text
                       }}
                     >
-                      {suggestion.time.toLocaleString()} - {suggestion.reason}
+                      {formatDateTime(suggestion.time)} - {suggestion.reason}
                     </button>
                   ))}
                 </div>
@@ -419,7 +415,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
                     <option value="">Select event to merge with</option>
                     {conflicts.filter(c => c.type === originalEvent.type).map(conflict => (
                       <option key={conflict.id} value={conflict.id}>
-                        {conflict.title} - {conflict.start.toLocaleString()}
+                        {conflict.title} - {formatDateTime(conflict.start)}
                       </option>
                     ))}
                   </select>

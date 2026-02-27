@@ -15,7 +15,9 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { toast } from 'sonner'
+
 
 import { DamageReport3DViewer } from './DamageReport3DViewer'
 
@@ -24,12 +26,16 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+import { useNavigation } from '@/contexts/NavigationContext'
 import { damageReportsApi, DamageReport } from '@/services/damageReportsApi'
+import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 export function DamageReportDetails() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
+  const { push } = useDrilldown()
   const [report, setReport] = useState<DamageReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -59,22 +65,22 @@ export function DamageReportDetails() {
   }
 
   const handleEdit = () => {
-    navigate(`/damage-reports/${id}/edit`)
+    navigateTo('damage-reports')
   }
 
   const handleGenerateModel = async () => {
     if (!id || !report || !report.photos || report.photos.length === 0) {
-      alert('Photos are required to generate a 3D model')
+      toast.error('Photos are required to generate a 3D model')
       return
     }
 
     try {
       await damageReportsApi.generateModel(id)
-      alert('3D model generation started. This may take several minutes.')
+      toast.success('3D model generation started. This may take several minutes.')
       fetchReportDetails()
     } catch (err) {
       logger.error('Error generating 3D model:', err)
-      alert('Failed to start 3D model generation')
+      toast.error('Failed to start 3D model generation')
     }
   }
 
@@ -106,7 +112,7 @@ export function DamageReportDetails() {
   if (error || !report) {
     return (
       <div className="space-y-2">
-        <Button variant="ghost" onClick={() => navigate('/damage-reports')}>
+        <Button variant="ghost" onClick={() => navigateTo('damage-reports')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Reports
         </Button>
@@ -129,7 +135,7 @@ export function DamageReportDetails() {
         <div className="space-y-1">
           <Button
             variant="ghost"
-            onClick={() => navigate('/damage-reports')}
+            onClick={() => navigateTo('damage-reports')}
             className="mb-2"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -225,7 +231,7 @@ export function DamageReportDetails() {
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <p className="font-medium">
-                      {new Date(report.created_at || '').toLocaleString()}
+                      {formatDateTime(report.created_at || '')}
                     </p>
                   </div>
                 </div>
@@ -233,7 +239,7 @@ export function DamageReportDetails() {
                   <div>
                     <p className="text-sm text-muted-foreground">Last Updated</p>
                     <p className="font-medium">
-                      {new Date(report.updated_at).toLocaleString()}
+                      {formatDateTime(report.updated_at)}
                     </p>
                   </div>
                 )}
@@ -278,7 +284,7 @@ export function DamageReportDetails() {
                     <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
                       {report.photos.map((photo, index) => (
                         <button
-                          key={index}
+                          key={photo}
                           onClick={() => setSelectedPhotoIndex(index)}
                           className={`aspect-square overflow-hidden rounded-md border-2 transition-all ${
                             index === selectedPhotoIndex
@@ -313,7 +319,7 @@ export function DamageReportDetails() {
               <CardContent>
                 <div className="space-y-2">
                   {report.videos.map((video, index) => (
-                    <div key={index} className="space-y-2">
+                    <div key={video} className="space-y-2">
                       <video
                         controls
                         className="w-full rounded-lg"
@@ -418,7 +424,12 @@ export function DamageReportDetails() {
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        navigate(`/work-orders/${report.linked_work_order_id}`)
+                        push({
+                          id: report.linked_work_order_id!,
+                          type: 'work-order',
+                          label: `Work Order ${String(report.linked_work_order_id).slice(0, 8)}`,
+                          data: { workOrderId: report.linked_work_order_id },
+                        })
                       }
                     >
                       View Work Order
@@ -445,7 +456,14 @@ export function DamageReportDetails() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => navigate(`/inspections/${report.inspection_id}`)}
+                      onClick={() =>
+                        push({
+                          id: report.inspection_id!,
+                          type: 'inspection',
+                          label: `Inspection ${String(report.inspection_id).slice(0, 8)}`,
+                          data: { inspectionId: report.inspection_id },
+                        })
+                      }
                     >
                       View Inspection
                     </Button>

@@ -67,7 +67,7 @@ router.get('/', requirePermission('geofence:view:fleet'), async (req: AuthReques
       success: true,
       layers: result.rows
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Failed to fetch ArcGIS layers`, {
       error: getErrorMessage(error),
       tenantId
@@ -98,7 +98,7 @@ router.get('/enabled/list', requirePermission('geofence:view:fleet'), async (req
       success: true,
       layers: result.rows
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Failed to fetch enabled ArcGIS layers`, {
       error: getErrorMessage(error),
       tenantId
@@ -132,7 +132,7 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
       success: true,
       layer: result.rows[0]
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to fetch ArcGIS layer', {
       error: getErrorMessage(error),
       layerId: id
@@ -189,7 +189,7 @@ router.post(
         success: true,
         layer: result.rows[0]
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: `Validation failed`,
@@ -303,7 +303,7 @@ router.put(
         success: true,
         layer: result.rows[0]
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation failed',
@@ -353,7 +353,7 @@ router.delete(
         success: true,
         message: 'Layer deleted successfully'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to delete ArcGIS layer', {
         error: getErrorMessage(error),
         layerId: id

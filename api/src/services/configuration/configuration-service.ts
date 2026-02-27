@@ -6,6 +6,7 @@
  * Provides complete system configurability
  */
 
+import logger from '../../config/logger'
 import type {
   ConfigItem,
   ConfigProfile,
@@ -38,7 +39,7 @@ export class ConfigurationService {
       this.config.set(item.key, item)
     })
 
-    console.log(`Configuration Service initialized with ${this.config.size} items`)
+    logger.info('Configuration Service initialized', { itemCount: this.config.size })
   }
 
   /**
@@ -189,7 +190,7 @@ export class ConfigurationService {
       }
       if (filter.visibleToRole) {
         items = items.filter(item =>
-          !item.visibleToRoles || item.visibleToRoles.includes(filter.visibleToRole)
+          !item.visibleToRoles || item.visibleToRoles.includes(filter.visibleToRole!)
         )
       }
     }
@@ -253,7 +254,7 @@ export class ConfigurationService {
       await this.handleAffectedConfigs(item.affects, value)
     }
 
-    console.log(`Configuration "${key}" updated: ${oldValue} → ${value} (by ${changedBy})`)
+    logger.info('Configuration updated', { key, oldValue, newValue: value, changedBy })
 
     return change
   }
@@ -325,7 +326,7 @@ export class ConfigurationService {
       await this.updateConfig(key, value, appliedBy, 'manual', `Applied profile: ${profile.name}`)
     }
 
-    console.log(`Profile "${profile.name}" applied by ${appliedBy}`)
+    logger.info('Profile applied', { profileName: profile.name, appliedBy })
   }
 
   // =========================================================================
@@ -341,7 +342,7 @@ export class ConfigurationService {
     const applies = this.evaluatePolicyConditions(rule.conditions, rule.conditionLogic)
 
     if (!applies) {
-      console.log(`Policy rule "${rule.name}" does not apply in current context`)
+      logger.info('Policy rule does not apply in current context', { ruleName: rule.name })
       return
     }
 
@@ -358,7 +359,7 @@ export class ConfigurationService {
       }
     }
 
-    console.log(`Policy rule "${rule.name}" applied`)
+    logger.info('Policy rule applied', { ruleName: rule.name })
   }
 
   /**
@@ -368,7 +369,9 @@ export class ConfigurationService {
     conditions: PolicyCondition[],
     logic: 'AND' | 'OR' = 'AND'
   ): boolean {
-    if (conditions.length === 0) return true
+    if (conditions.length === 0) {
+return true
+}
 
     const results = conditions.map(condition => {
       // Get current value for the field
@@ -436,7 +439,9 @@ export class ConfigurationService {
    */
   private validateConfigValue(item: ConfigItem, value: any): void {
     const validation = item.validation
-    if (!validation) return
+    if (!validation) {
+return
+}
 
     // Required check
     if (validation.required && (value === null || value === undefined || value === '')) {
@@ -484,20 +489,22 @@ export class ConfigurationService {
         }
         break
 
-      case 'email':
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      case 'email': {
+        const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{1,63}$/
         if (!emailRegex.test(value)) {
           throw new Error(`Configuration "${item.label}" must be a valid email`)
         }
         break
+      }
 
-      case 'url':
+      case 'url': {
         try {
           new URL(value)
         } catch {
           throw new Error(`Configuration "${item.label}" must be a valid URL`)
         }
         break
+      }
     }
 
     // Custom validator
@@ -517,7 +524,7 @@ export class ConfigurationService {
     for (const key of affectedKeys) {
       const item = this.config.get(key)
       if (item) {
-        console.log(`Configuration "${key}" affected by change, current value: ${item.value}`)
+        logger.info('Configuration affected by change', { key, currentValue: item.value })
         // TODO: Implement automatic recalculation or notification
       }
     }

@@ -18,31 +18,31 @@ export const enhancedDesignTokens = {
   colors: {
     // Primary brand colors
     primary: {
-      50: '#e3f2fd',
-      100: '#bbdefb',
-      200: '#90caf9',
-      300: '#64b5f6',
-      400: '#42a5f5',
-      500: '#2196f3',  // Main brand
-      600: '#1e88e5',
-      700: '#1976d2',
-      800: '#1565c0',
-      900: '#0d47a1',
-      950: '#0a3880',
+      50: '#ecfdf5',
+      100: '#d1fae5',
+      200: '#a7f3d0',
+      300: '#6ee7b7',
+      400: '#34d399',
+      500: '#10b981',  // Main brand
+      600: '#059669',
+      700: '#047857',
+      800: '#065f46',
+      900: '#064e3b',
+      950: '#022c22',
     },
 
     // Secondary/Accent colors
     secondary: {
-      50: '#f3e5f5',
-      100: '#e1bee7',
-      200: '#ce93d8',
-      300: '#ba68c8',
-      400: '#ab47bc',
-      500: '#9c27b0',
-      600: '#8e24aa',
-      700: '#7b1fa2',
-      800: '#6a1b9a',
-      900: '#4a148c',
+      50: '#fffbeb',
+      100: '#fef3c7',
+      200: '#fde68a',
+      300: '#fcd34d',
+      400: '#fbbf24',
+      500: '#f59e0b',
+      600: '#d97706',
+      700: '#b45309',
+      800: '#92400e',
+      900: '#78350f',
     },
 
     // Semantic status colors
@@ -86,16 +86,16 @@ export const enhancedDesignTokens = {
     },
 
     info: {
-      50: '#e1f5fe',
-      100: '#b3e5fc',
-      200: '#81d4fa',
-      300: '#4fc3f7',
-      400: '#29b6f6',
-      500: '#03a9f4',  // Main info
-      600: '#039be5',
-      700: '#0288d1',
-      800: '#0277bd',
-      900: '#01579b',
+      50: '#ecfdf5',
+      100: '#d1fae5',
+      200: '#a7f3d0',
+      300: '#6ee7b7',
+      400: '#34d399',
+      500: '#10b981',  // Main info
+      600: '#059669',
+      700: '#047857',
+      800: '#065f46',
+      900: '#064e3b',
     },
 
     // Neutral grays
@@ -118,28 +118,28 @@ export const enhancedDesignTokens = {
     // Data visualization colors (color-blind friendly)
     dataViz: {
       categorical: [
-        '#2196F3',  // Blue
+        '#10b981',  // Emerald
         '#4CAF50',  // Green
         '#FF9800',  // Orange
-        '#9C27B0',  // Purple
+        '#D97706',  // Amber
         '#F44336',  // Red
-        '#00BCD4',  // Cyan
+        '#14b8a6',  // Teal
         '#FFEB3B',  // Yellow
         '#795548',  // Brown
-        '#607D8B',  // Blue Gray
+        '#6B7280',  // Gray
         '#E91E63',  // Pink
       ],
       sequential: {
-        blue: ['#E3F2FD', '#BBDEFB', '#90CAF9', '#64B5F6', '#42A5F5', '#2196F3', '#1E88E5', '#1976D2', '#1565C0', '#0D47A1'],
+        teal: ['#ecfdf5', '#d1fae5', '#a7f3d0', '#6ee7b7', '#34d399', '#10b981', '#059669', '#047857', '#065f46', '#064e3b'],
         green: ['#E8F5E9', '#C8E6C9', '#A5D6A7', '#81C784', '#66BB6A', '#4CAF50', '#43A047', '#388E3C', '#2E7D32', '#1B5E20'],
         red: ['#FFEBEE', '#FFCDD2', '#EF9A9A', '#E57373', '#EF5350', '#F44336', '#E53935', '#D32F2F', '#C62828', '#B71C1C'],
-        purple: ['#F3E5F5', '#E1BEE7', '#CE93D8', '#BA68C8', '#AB47BC', '#9C27B0', '#8E24AA', '#7B1FA2', '#6A1B9A', '#4A148C'],
+        amber: ['#fffbeb', '#fef3c7', '#fde68a', '#fcd34d', '#fbbf24', '#f59e0b', '#d97706', '#b45309', '#92400e', '#78350f'],
       },
       diverging: {
-        redBlue: ['#B71C1C', '#D32F2F', '#E57373', '#FFCDD2', '#EEEEEE', '#BBDEFB', '#64B5F6', '#1976D2', '#0D47A1'],
+        redTeal: ['#B71C1C', '#D32F2F', '#E57373', '#FFCDD2', '#EEEEEE', '#A7F3D0', '#34D399', '#059669', '#064E3B'],
         orangeTeal: ['#E65100', '#F57C00', '#FFA726', '#FFE0B2', '#EEEEEE', '#B2EBF2', '#4DD0E1', '#0097A7', '#006064'],
       },
-      heatmap: ['#1A237E', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688', '#4CAF50', '#CDDC39', '#FFEB3B', '#FF9800', '#DD3903'],
+      heatmap: ['#022C22', '#064E3B', '#10B981', '#14B8A6', '#2DD4BF', '#009688', '#4CAF50', '#CDDC39', '#FFEB3B', '#FF9800', '#e0e0e0'],
     },
   },
 
@@ -147,28 +147,28 @@ export const enhancedDesignTokens = {
   // GRADIENTS - Beautiful gradient definitions
   // ============================================================================
   gradients: {
-    primary: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    secondary: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    primary: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    secondary: 'linear-gradient(135deg, #fbbf24 0%, #f5576c 100%)',
     success: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
     warning: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
     danger: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)',
-    info: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    info: 'linear-gradient(135deg, #34d399 0%, #2dd4bf 100%)',
 
     // Glassmorphism backgrounds
     glass: {
       light: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
       dark: 'linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1))',
       colored: {
-        blue: 'linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05))',
+        teal: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))',
         green: 'linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05))',
-        purple: 'linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(156, 39, 176, 0.05))',
+        amber: 'linear-gradient(135deg, rgba(217, 119, 6, 0.1), rgba(217, 119, 6, 0.05))',
       },
     },
 
     // Dashboard backgrounds
     dashboard: {
-      primary: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
-      dark: 'linear-gradient(180deg, #0a0e27 0%, #1a1f3a 100%)',
+      primary: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #fbbf24 100%)',
+      dark: 'linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%)',
       subtle: 'linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%)',
     },
   },
@@ -266,7 +266,7 @@ export const enhancedDesignTokens = {
 
     // Colored shadows for emphasis
     colored: {
-      primary: '0 10px 25px -5px rgba(33, 150, 243, 0.3)',
+      primary: '0 10px 25px -5px rgba(16, 185, 129, 0.3)',
       success: '0 10px 25px -5px rgba(76, 175, 80, 0.3)',
       warning: '0 10px 25px -5px rgba(255, 152, 0, 0.3)',
       error: '0 10px 25px -5px rgba(244, 67, 54, 0.3)',
@@ -274,9 +274,9 @@ export const enhancedDesignTokens = {
 
     // Glow effects
     glow: {
-      sm: '0 0 10px rgba(33, 150, 243, 0.5)',
-      md: '0 0 20px rgba(33, 150, 243, 0.5)',
-      lg: '0 0 30px rgba(33, 150, 243, 0.5)',
+      sm: '0 0 10px rgba(16, 185, 129, 0.5)',
+      md: '0 0 20px rgba(16, 185, 129, 0.5)',
+      lg: '0 0 30px rgba(16, 185, 129, 0.5)',
     },
   },
 

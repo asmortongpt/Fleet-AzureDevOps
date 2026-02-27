@@ -35,6 +35,7 @@ import dotenv from 'dotenv'
 import { Pool } from 'pg'
 
 import { connectionManager, initializeConnectionManager, PoolType } from './connection-manager'
+import { logger } from '../utils/logger'
 
 dotenv.config()
 
@@ -43,13 +44,13 @@ dotenv.config()
  * This should be called once during application startup
  */
 export async function initializeDatabase(): Promise<void> {
-  console.log('🔄 Initializing database connections...')
+  logger.info('🔄 Initializing database connections...')
 
   try {
     await initializeConnectionManager()
-    console.log('✅ Database initialization complete')
+    logger.info('✅ Database initialization complete')
   } catch (error) {
-    console.error('❌ Database initialization failed:', error)
+    logger.error('❌ Database initialization failed:', error)
     throw error
   }
 }
@@ -87,10 +88,13 @@ export const getPoolStats = () => connectionManager.getAllPoolStats()
  *
  * DEPRECATED: Use getWritePool() for new code
  */
+const isInitializing = false
+const initializationPromise: Promise<void> | null = null
+
 const poolProxy = new Proxy({} as Pool, {
   get(_target, prop) {
     const pool = connectionManager.getWritePool()
-    const value = (pool as any)[prop]
+    const value = (pool as unknown as Record<string | symbol, unknown>)[prop]
     return typeof value === 'function' ? value.bind(pool) : value
   },
 })

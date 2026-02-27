@@ -5,49 +5,49 @@ import { ComponentProps } from "react"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-lg border px-2.5 py-0.5 text-xs font-semibold w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1.5 [&>svg]:pointer-events-none transition-all duration-200 overflow-hidden",
+  "inline-flex items-center justify-center rounded-full border px-3 py-1 text-xs font-bold w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1.5 [&>svg]:pointer-events-none transition-all duration-200 overflow-hidden",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground shadow-sm [a&]:hover:bg-primary/90",
+          "border-transparent bg-white/90 text-[#1a1a1a] font-bold",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+          "border-transparent bg-white/10 text-white/90 font-bold",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow-sm [a&]:hover:bg-destructive/90",
+          "border-transparent bg-rose-600 text-white font-bold",
         success:
-          "border-transparent bg-success text-white shadow-sm [a&]:hover:bg-success/90",
+          "border-transparent bg-emerald-600 text-white font-bold",
         warning:
-          "border-transparent bg-warning text-white shadow-sm [a&]:hover:bg-warning/90",
+          "border-transparent bg-amber-500 text-white font-bold",
         info:
-          "border-transparent bg-[#dbeafe] text-[#1e3a8a] shadow-sm [a&]:hover:bg-[#bfdbfe]",
+          "border-transparent bg-teal-600 text-white font-bold",
         outline:
-          "text-foreground border-border/50 bg-transparent [a&]:hover:bg-muted/50",
+          "text-white/80 border-white/[0.04] bg-transparent hover:bg-white/[0.04]",
         ghost:
-          "border-transparent text-muted-foreground bg-muted/50 [a&]:hover:bg-muted",
+          "border-transparent text-muted-foreground bg-muted/50 hover:bg-muted",
         // Subtle variants with lighter backgrounds
         "primary-subtle":
-          "border-transparent bg-primary/10 text-primary [a&]:hover:bg-primary/20",
+          "border-transparent bg-white/10 text-white/80 hover:bg-white/15 font-bold ring-1 ring-white/10",
         "destructive-subtle":
-          "border-transparent bg-destructive/10 text-destructive [a&]:hover:bg-destructive/20",
+          "border-transparent bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 font-bold ring-1 ring-rose-500/20",
         "success-subtle":
-          "border-transparent bg-success/10 text-success [a&]:hover:bg-success/20",
+          "border-transparent bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 font-bold ring-1 ring-emerald-500/20",
         "warning-subtle":
-          "border-transparent bg-warning/10 text-warning [a&]:hover:bg-warning/20",
+          "border-transparent bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 font-bold ring-1 ring-amber-500/20",
         // Status variants for real-time indicators
         online:
-          "border-transparent bg-success/20 text-success animate-pulse",
+          "border-transparent bg-emerald-600 text-white animate-pulse font-bold",
         offline:
-          "border-transparent bg-muted text-muted-foreground",
+          "border-transparent bg-muted text-muted-foreground font-bold",
         pending:
-          "border-transparent bg-warning/20 text-warning",
+          "border-transparent bg-amber-500 text-white font-bold",
         error:
-          "border-transparent bg-destructive/20 text-destructive",
+          "border-transparent bg-rose-600 text-white font-bold",
       },
       size: {
-        default: "h-6 text-xs",
-        sm: "h-5 text-[10px] px-2",
-        lg: "h-7 text-sm px-3",
+        default: "h-7 text-xs px-3",
+        sm: "h-6 text-[10px] px-2.5 py-0.5",
+        lg: "h-8 text-sm px-4 py-1",
       },
     },
     defaultVariants: {
@@ -106,7 +106,7 @@ function DotBadge({
       data-slot="dot-badge"
       className={cn(
         "inline-flex items-center justify-center min-w-3 h-3 px-1.5 rounded-full text-[10px] font-bold",
-        "shadow-sm animate-scale-in",
+        "animate-scale-in",
         variants[variant],
         className
       )}

@@ -54,11 +54,11 @@ export function DataFlowDiagram() {
       startOnLoad: true,
       theme: "base",
       themeVariables: {
-        primaryColor: "#3b82f6",
+        primaryColor: "#10b981",
         primaryTextColor: "#fff",
-        primaryBorderColor: "#2563eb",
-        lineColor: "#94a3b8",
-        secondaryColor: "#8b5cf6",
+        primaryBorderColor: "#059669",
+        lineColor: "#9CA3AF",
+        secondaryColor: "#f59e0b",
         tertiaryColor: "#10b981",
         fontSize: "13px",
         fontFamily: "Inter, system-ui, sans-serif"
@@ -161,12 +161,12 @@ flowchart LR
     AUDIT -.->|Response| UI
     AUDIT --> QUERY
 
-    classDef frontend fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
-    classDef api fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+    classDef frontend fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    classDef api fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
     classDef auth fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
     classDef policy fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
-    classDef database fill:#6366f1,stroke:#4f46e5,stroke-width:2px,color:#fff
-    classDef ai fill:#ec4899,stroke:#db2777,stroke-width:2px,color:#fff
+    classDef database fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    classDef ai fill:#d97706,stroke:#b45309,stroke-width:2px,color:#fff
     classDef execution fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
 
     class UI,STATE,CACHE frontend
@@ -244,9 +244,9 @@ flowchart LR
 
   const metrics: DataFlowMetric[] = [
     { label: "Avg Latency", value: "245ms", trend: "down", color: "text-green-600" },
-    { label: "Throughput", value: "1,234/min", trend: "up", color: "text-blue-800" },
+    { label: "Throughput", value: "1,234/min", trend: "up", color: "text-emerald-800" },
     { label: "Success Rate", value: "99.7%", trend: "stable", color: "text-emerald-600" },
-    { label: "Policy Checks", value: "45,678", trend: "up", color: "text-purple-600" }
+    { label: "Policy Checks", value: "45,678", trend: "up", color: "text-amber-600" }
   ]
 
   const integrationPoints = [
@@ -285,13 +285,13 @@ flowchart LR
   const getStepIcon = (status: FlowStep["status"]) => {
     switch (status) {
       case "processing":
-        return <Zap className="w-4 h-4 text-blue-800 animate-pulse" />
+        return <Zap className="w-4 h-4 text-emerald-800 animate-pulse" />
       case "complete":
         return <CheckCircle className="w-4 h-4 text-green-500" />
       case "error":
         return <AlertTriangle className="w-4 h-4 text-red-500" />
       default:
-        return <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
+        return <div className="w-4 h-4 rounded-full border-2 border-white/[0.08]" />
     }
   }
 
@@ -397,9 +397,9 @@ flowchart LR
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <span className={`text-sm font-medium ${
-                      step.status === "processing" ? "text-blue-800" :
+                      step.status === "processing" ? "text-emerald-800" :
                       step.status === "complete" ? "text-green-600" :
-                      "text-slate-700"
+                      "text-white/70"
                     }`}>
                       {step.label}
                     </span>
@@ -464,11 +464,11 @@ flowchart LR
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-blue-500" />
+              <div className="w-4 h-4 rounded bg-emerald-500/50" />
               <span className="text-sm">Frontend Layer</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-purple-500" />
+              <div className="w-4 h-4 rounded bg-amber-500" />
               <span className="text-sm">API Gateway</span>
             </div>
             <div className="flex items-center gap-2">
@@ -480,7 +480,7 @@ flowchart LR
               <span className="text-sm">Policy Engine</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-indigo-500" />
+              <div className="w-4 h-4 rounded bg-emerald-500" />
               <span className="text-sm">Database</span>
             </div>
             <div className="flex items-center gap-2">
@@ -492,7 +492,7 @@ flowchart LR
               <span className="text-sm">Execution</span>
             </div>
             <div className="flex items-center gap-2">
-              <Database className="w-4 h-4 text-gray-700" />
+              <Database className="w-4 h-4 text-white/40" />
               <span className="text-sm">Data Store</span>
             </div>
           </div>

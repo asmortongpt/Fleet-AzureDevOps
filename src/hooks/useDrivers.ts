@@ -16,12 +16,36 @@ export interface Driver {
   azureAdId?: string
   assignedVehicleId?: number
   department?: string
+  region?: string
+  positionTitle?: string
+  employmentType?: string
   employeeId?: string
   rating?: number
   totalTrips?: number
   totalMiles?: number
   safetyScore?: number
   hireDate?: Date | string
+  medicalCardExpiry?: string
+  drugTestDate?: string
+  drugTestResult?: string
+  alcoholTestDate?: string
+  alcoholTestResult?: string
+  backgroundCheckDate?: string
+  backgroundCheckStatus?: string
+  mvrCheckDate?: string
+  mvrCheckStatus?: string
+  hosStatus?: string
+  hoursAvailable?: number
+  cycleHoursUsed?: number
+  endorsements?: string
+  avatarUrl?: string
+  addressLine1?: string
+  city?: string
+  state?: string
+  zipCode?: string
+  supervisorId?: number
+  costCenter?: string
+  facilityId?: number
 }
 
 const mapDriverRow = (row: any): Driver => {
@@ -56,13 +80,37 @@ const mapDriverRow = (row: any): Driver => {
     licenseClass: row.cdl ? 'CDL' : 'Standard',
     licenseState: row.license_state,
     status,
-    department: metadata.department,
+    department: row.department || metadata.department,
+    region: row.region || metadata.region,
+    positionTitle: row.position_title || metadata.position_title,
+    employmentType: row.employment_type || metadata.employment_type,
     employeeId: row.employee_number,
     rating: metadata.rating,
     totalTrips: metadata.totalTrips,
     totalMiles: metadata.totalMiles,
-    safetyScore: row.performance_score ? Number(row.performance_score) : undefined,
-    hireDate: row.hire_date
+    safetyScore: row.safety_score ? Number(row.safety_score) : (row.performance_score ? Number(row.performance_score) : undefined),
+    hireDate: row.hire_date,
+    medicalCardExpiry: row.medical_card_expiry,
+    drugTestDate: row.drug_test_date,
+    drugTestResult: row.drug_test_result,
+    alcoholTestDate: row.alcohol_test_date,
+    alcoholTestResult: row.alcohol_test_result,
+    backgroundCheckDate: row.background_check_date,
+    backgroundCheckStatus: row.background_check_status,
+    mvrCheckDate: row.mvr_check_date,
+    mvrCheckStatus: row.mvr_check_status,
+    hosStatus: row.hos_status || metadata.hos_status,
+    hoursAvailable: row.hours_available != null ? Number(row.hours_available) : undefined,
+    cycleHoursUsed: row.cycle_hours_used != null ? Number(row.cycle_hours_used) : undefined,
+    endorsements: row.endorsements,
+    avatarUrl: row.avatar_url,
+    addressLine1: row.address_line1,
+    city: row.city,
+    state: row.state,
+    zipCode: row.zip_code,
+    supervisorId: row.supervisor_id,
+    costCenter: row.cost_center,
+    facilityId: row.facility_id
   }
 }
 
@@ -93,8 +141,11 @@ export function useDriver(id: number) {
   return useQuery({
     queryKey: ['driver', id],
     queryFn: async () => {
-      const response = await (api.get as <T>(endpoint: string) => Promise<T>)(`/drivers/${id}`)
-      return mapDriverRow(response)
+      const response = await api.get(`/drivers/${id}`)
+      const row = response && typeof response === 'object' && 'data' in (response as Record<string, unknown>)
+        ? (response as { data: unknown }).data
+        : response
+      return mapDriverRow(row)
     },
     enabled: !!id,
   })
@@ -118,8 +169,11 @@ export function useCreateDriver() {
         status: normalizeStatusForApi(data.status),
         department: data.department
       }
-      const response = await (api.post as <T>(endpoint: string, data: unknown) => Promise<T>)<Driver>('/drivers', payload)
-      return mapDriverRow(response)
+      const response = await api.post('/drivers', payload)
+      const row = response && typeof response === 'object' && 'data' in (response as Record<string, unknown>)
+        ? (response as { data: unknown }).data
+        : response
+      return mapDriverRow(row)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })
@@ -145,8 +199,11 @@ export function useUpdateDriver() {
         status: normalizeStatusForApi(data.status),
         department: data.department
       }
-      const response = await (api.put as <T>(endpoint: string, data: unknown) => Promise<T>)<Driver>(`/drivers/${id}`, payload)
-      return mapDriverRow(response)
+      const response = await api.put(`/drivers/${id}`, payload)
+      const row = response && typeof response === 'object' && 'data' in (response as Record<string, unknown>)
+        ? (response as { data: unknown }).data
+        : response
+      return mapDriverRow(row)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })

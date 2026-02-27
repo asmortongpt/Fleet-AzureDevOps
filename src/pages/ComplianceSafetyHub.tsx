@@ -16,8 +16,6 @@
  * - Performance optimized
  */
 
-import { useState, Suspense, lazy, memo, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   Shield,
   AlertTriangle,
@@ -33,53 +31,46 @@ import {
   TrendingUp,
   TrendingDown,
   AlertCircle,
-  CheckSquare,
   FileCheck,
   ScrollText,
   Gavel,
   BookMarked,
-  BarChart
+  BarChart,
+  Plus,
 } from 'lucide-react'
-import HubPage from '@/components/ui/hub-page'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { getCsrfToken } from '@/hooks/use-api'
+import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
-import logger from '@/utils/logger';
-import {
-  StatCard,
-  ResponsiveBarChart,
-  ResponsiveLineChart,
-  ResponsivePieChart,
-} from '@/components/visualizations'
 import useSWR from 'swr'
 
+import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import HubPage from '@/components/ui/hub-page'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  StatCard,
+  RadialProgressChart,
+  ResponsiveBarChart,
+  ResponsiveLineChart,
+} from '@/components/visualizations'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+import { getCsrfToken } from '@/hooks/use-api'
+import { useFleetData } from '@/hooks/use-fleet-data'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate } from '@/utils/format-helpers'
+import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
+
+
+const fetcher = apiFetcher
+
 // ============================================================================
-// ANIMATION VARIANTS
+// SHARED COMPONENTS
 // ============================================================================
 
-const fadeInVariant = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-}
-
-const staggerContainerVariant = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05 },
-  },
-}
-
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((res) => res.json())
-    .then((data) => data?.data ?? data)
+// KpiCard removed — using StatCard from @/components/visualizations for consistency
 
 // ============================================================================
 // TAB CONTENT COMPONENTS
@@ -89,197 +80,446 @@ const fetcher = (url: string) =>
  * Compliance Tab - Regulatory compliance and certifications
  */
 const ComplianceTabContent = memo(function ComplianceTabContent() {
+  const { push } = useDrilldown()
+  const { drivers, vehicles, isLoading, error: fleetDataError } = useFleetData()
   const { data: complianceDashboard } = useSWR<any>(
     '/api/compliance/dashboard',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: trainingStats } = useSWR<any>(
-    '/api/safety-training/compliance-stats',
-    fetcher,
-    { shouldRetryOnError: false }
-  )
-  const { data: expiringTraining } = useSWR<any[]>(
-    '/api/safety-training/expiring?days=30',
-    fetcher,
-    { shouldRetryOnError: false }
-  )
-  const { data: documents } = useSWR<any[]>(
-    '/api/documents?limit=200',
-    fetcher,
-    { shouldRetryOnError: false }
-  )
 
-  const complianceMetrics = Array.isArray(complianceDashboard?.metrics) ? complianceDashboard.metrics : []
-  const complianceRate = complianceMetrics.length > 0
-    ? Math.round(complianceMetrics.reduce((sum: number, metric: any) => sum + Number(metric.score || 0), 0) / complianceMetrics.length)
-    : 0
+  const now = useMemo(() => new Date(), [])
+  const msPerDay = 86400000
 
-  const expiringTrainingList = Array.isArray(expiringTraining) ? expiringTraining : []
-  const documentsList = Array.isArray(documents) ? documents : []
+  const isWithinMonths = (dateStr: string | undefined, months: number): boolean => {
+    if (!dateStr) return false
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return false
+    const cutoff = new Date(now)
+    cutoff.setMonth(cutoff.getMonth() - months)
+    return date >= cutoff
+  }
 
-  const expiringDocuments = useMemo(() => {
-    const now = new Date()
-    const threshold = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
-    return documentsList.filter((doc: any) => {
-      const expiry = doc.expires_at || doc.expiry_date
-      if (!expiry) return false
-      const date = new Date(expiry)
-      return date >= now && date <= threshold
+  const isExpired = (dateStr: string | undefined): boolean => {
+    if (!dateStr) return true
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return true
+    return date < now
+  }
+
+  const isExpiringSoon = (dateStr: string | undefined, days: number): boolean => {
+    if (!dateStr) return false
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return false
+    const threshold = new Date(now.getTime() + days * msPerDay)
+    return date >= now && date <= threshold
+  }
+
+  const daysUntil = (dateStr: string): number => {
+    const date = new Date(dateStr)
+    return Math.max(0, Math.ceil((date.getTime() - now.getTime()) / msPerDay))
+  }
+
+  // Compliance stats computed from real driver/vehicle data
+  const complianceStats = useMemo(() => {
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
+    const totalDrivers = activeDrivers.length
+
+    const compliantDrivers = activeDrivers.filter((d: any) => {
+      const drugTestCurrent = isWithinMonths(d.drug_test_date, 12)
+      const bgCheckCleared = (d.background_check_status || '').toLowerCase() === 'cleared'
+      const mvrCurrent = (d.mvr_check_status || '').toLowerCase() === 'satisfactory'
+      const medicalCardValid = !isExpired(d.medical_card_expiry)
+      return drugTestCurrent && bgCheckCleared && mvrCurrent && medicalCardValid
     })
-  }, [documentsList])
 
-  const expiringSoonCount = Number(trainingStats?.expiring_soon || 0) + expiringDocuments.length
-  const activeCertifications = Number(trainingStats?.compliant_employees || 0)
-  const nonCompliantCount = Number(trainingStats?.expired_certifications || 0)
+    const complianceRate = totalDrivers > 0
+      ? Math.round((compliantDrivers.length / totalDrivers) * 100)
+      : 0
 
-  const renewals = useMemo(() => {
-    const now = new Date()
-    const items = [
-      ...expiringTrainingList.map((record: any) => {
-        const expiry = record.expiry_date ? new Date(record.expiry_date) : null
-        const daysLeft = expiry ? Math.max(0, Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0
-        return {
-          item: `${record.employee_name || 'Driver'} - ${record.training_name || 'Training'}`,
-          daysLeft
-        }
-      }),
-      ...expiringDocuments.map((doc: any) => {
-        const expiry = doc.expires_at || doc.expiry_date
-        const expiryDate = expiry ? new Date(expiry) : null
-        const daysLeft = expiryDate ? Math.max(0, Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0
-        return {
-          item: `${doc.file_name || doc.name || 'Document'} - Expiring`,
-          daysLeft
-        }
-      })
+    const activeCerts = activeDrivers.filter((d: any) => !isExpired(d.medical_card_expiry)).length
+
+    const driverExpiring = activeDrivers.filter((d: any) =>
+      isExpiringSoon(d.medical_card_expiry, 30)
+    ).length
+    const vehicleExpiring = vehicles.filter((v: any) =>
+      isExpiringSoon(v.registration_expiry, 30)
+    ).length
+    const expiringSoon = driverExpiring + vehicleExpiring
+
+    const nonCompliant = activeDrivers.filter((d: any) => {
+      const medExpired = isExpired(d.medical_card_expiry)
+      const drugOverdue = !isWithinMonths(d.drug_test_date, 12)
+      return medExpired || drugOverdue
+    }).length
+
+    return { complianceRate, activeCerts, expiringSoon, nonCompliant }
+  }, [drivers, vehicles, now])
+
+  // Status by Category - real breakdowns
+  const categoryBreakdowns = useMemo(() => {
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
+
+    const medValid = activeDrivers.filter((d: any) =>
+      d.medical_card_expiry && !isExpired(d.medical_card_expiry) && !isExpiringSoon(d.medical_card_expiry, 30)
+    ).length
+    const medExpiring = activeDrivers.filter((d: any) =>
+      isExpiringSoon(d.medical_card_expiry, 30)
+    ).length
+    const medExpired = activeDrivers.filter((d: any) =>
+      isExpired(d.medical_card_expiry)
+    ).length
+
+    const drugCurrent = activeDrivers.filter((d: any) =>
+      isWithinMonths(d.drug_test_date, 12)
+    ).length
+    const drugOverdue = activeDrivers.length - drugCurrent
+
+    const bgCleared = activeDrivers.filter((d: any) =>
+      (d.background_check_status || '').toLowerCase() === 'cleared'
+    ).length
+    const bgPending = activeDrivers.filter((d: any) =>
+      (d.background_check_status || '').toLowerCase() === 'pending'
+    ).length
+    const bgFailed = activeDrivers.filter((d: any) =>
+      (d.background_check_status || '').toLowerCase() === 'failed'
+    ).length
+
+    const mvrSatisfactory = activeDrivers.filter((d: any) =>
+      (d.mvr_check_status || '').toLowerCase() === 'satisfactory'
+    ).length
+    const mvrNeedsReview = activeDrivers.filter((d: any) => {
+      const status = (d.mvr_check_status || '').toLowerCase()
+      return status && status !== 'satisfactory'
+    }).length
+
+    const regValid = vehicles.filter((v: any) =>
+      (v as any).registration_expiry && !isExpired((v as any).registration_expiry) && !isExpiringSoon((v as any).registration_expiry, 30)
+    ).length
+    const regExpiring = vehicles.filter((v: any) =>
+      isExpiringSoon((v as any).registration_expiry, 30)
+    ).length
+    const regExpired = vehicles.filter((v: any) =>
+      isExpired((v as any).registration_expiry)
+    ).length
+
+    return [
+      {
+        category: 'Medical Cards',
+        icon: Users,
+        details: `${medValid} valid, ${medExpiring} expiring, ${medExpired} expired`,
+        rate: activeDrivers.length > 0 ? Math.round((medValid / activeDrivers.length) * 100) : 0,
+        status: medExpired === 0 ? 'good' : 'warning'
+      },
+      {
+        category: 'Drug Testing',
+        icon: ClipboardCheck,
+        details: `${drugCurrent} current, ${drugOverdue} overdue`,
+        rate: activeDrivers.length > 0 ? Math.round((drugCurrent / activeDrivers.length) * 100) : 0,
+        status: drugOverdue === 0 ? 'good' : 'warning'
+      },
+      {
+        category: 'Background Checks',
+        icon: Shield,
+        details: `${bgCleared} cleared, ${bgPending} pending, ${bgFailed} failed`,
+        rate: activeDrivers.length > 0 ? Math.round((bgCleared / activeDrivers.length) * 100) : 0,
+        status: bgFailed === 0 ? 'good' : 'warning'
+      },
+      {
+        category: 'MVR Checks',
+        icon: FileCheck,
+        details: `${mvrSatisfactory} satisfactory, ${mvrNeedsReview} needs review`,
+        rate: activeDrivers.length > 0 ? Math.round((mvrSatisfactory / activeDrivers.length) * 100) : 0,
+        status: mvrNeedsReview === 0 ? 'good' : 'warning'
+      },
+      {
+        category: 'Vehicle Registration',
+        icon: Car,
+        details: `${regValid} valid, ${regExpiring} expiring, ${regExpired} expired`,
+        rate: vehicles.length > 0 ? Math.round((regValid / vehicles.length) * 100) : 0,
+        status: regExpired === 0 ? 'good' : 'warning'
+      }
     ]
+  }, [drivers, vehicles, now])
 
-    return items.sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 6)
-  }, [expiringDocuments, expiringTrainingList])
+  // Upcoming Renewals - real data sorted by urgency (within 60 days)
+  const renewals = useMemo(() => {
+    const items: { item: string; type: string; daysLeft: number }[] = []
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
 
-  const categoryItems = useMemo(() => {
-    return complianceMetrics.map((metric: any) => ({
-      category: metric.category,
-      status: metric.status,
-      rate: Math.round(Number(metric.score || 0))
-    }))
-  }, [complianceMetrics])
+    activeDrivers.forEach((d: any) => {
+      if (d.medical_card_expiry && isExpiringSoon(d.medical_card_expiry, 60)) {
+        items.push({
+          item: `${d.name || d.first_name + ' ' + d.last_name} - Medical Card`,
+          type: 'driver',
+          daysLeft: daysUntil(d.medical_card_expiry)
+        })
+      }
+    })
 
-  // Handler for scheduling renewals
-  const handleScheduleRenewal = (itemName: string) => {
-    toast.success(`Scheduling renewal for: ${itemName}`)
-    // TODO: Open scheduling dialog or navigate to scheduling page
-    logger.info('Schedule renewal clicked:', itemName)
+    vehicles.forEach((v: any) => {
+      if ((v as any).registration_expiry && isExpiringSoon((v as any).registration_expiry, 60)) {
+        const rawVName = formatVehicleName(v as any)
+        const vName = v.name || (rawVName !== 'Unknown Vehicle' ? rawVName : `Vehicle #${String(v.id).slice(0, 8)}`)
+        items.push({
+          item: `${vName} - Registration`,
+          type: 'vehicle',
+          daysLeft: daysUntil((v as any).registration_expiry)
+        })
+      }
+    })
+
+    return items.sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 10)
+  }, [drivers, vehicles, now])
+
+  const handleScheduleRenewal = (itemName: string, daysLeft?: number) => {
+    const parts = itemName.split(' - ')
+    const entityName = parts[0] || itemName
+    const renewalType = parts[1] || 'Renewal'
+    const targetDate = new Date()
+    targetDate.setDate(targetDate.getDate() + Math.max(0, (daysLeft ?? 14) - 7))
+    const formattedDate = formatDate(targetDate)
+    toast.success(`${renewalType} renewal scheduled for ${entityName} — target date: ${formattedDate}`)
+    push({
+      id: `renewal-${itemName}`,
+      type: 'compliance-renewal',
+      label: `Renew: ${entityName}`,
+      data: { entityName, renewalType, item: itemName, scheduledDate: targetDate.toISOString() },
+    })
+  }
+
+  // Extract dashboard metrics for radial charts (P0-2)
+  const dashMetrics = useMemo(() => {
+    if (!complianceDashboard) return null
+    const metrics = complianceDashboard?.metrics
+    if (!metrics) return null
+    // metrics could be an object with named keys or an array
+    if (Array.isArray(metrics)) {
+      return {
+        vehicleCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('vehicle'))?.score || 0),
+        driverCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('driver'))?.score || 0),
+        safetyCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('safety'))?.score || 0),
+        regulatoryCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('regulatory'))?.score || 0),
+      }
+    }
+    return {
+      vehicleCompliance: Number(metrics.vehicleCompliance ?? metrics.vehicle_compliance ?? 0),
+      driverCompliance: Number(metrics.driverCompliance ?? metrics.driver_compliance ?? 0),
+      safetyCompliance: Number(metrics.safetyCompliance ?? metrics.safety_compliance ?? 0),
+      regulatoryCompliance: Number(metrics.regulatoryCompliance ?? metrics.regulatory_compliance ?? 0),
+    }
+  }, [complianceDashboard])
+
+  const dashAlerts = useMemo(() => {
+    if (!complianceDashboard) return []
+    const alerts = complianceDashboard?.alerts || complianceDashboard?.data?.alerts
+    return Array.isArray(alerts) ? alerts : []
+  }, [complianceDashboard])
+
+  if (fleetDataError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
+
+  // P0-1: Loading skeleton for Compliance tab
+  if (isLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <div className="grid grid-cols-4 gap-3">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Skeleton className="h-48 rounded-md" />
+          <Skeleton className="h-48 rounded-md" />
+        </div>
+      </div>
+    )
   }
 
   return (
-    <motion.div
-      variants={staggerContainerVariant}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
-      {/* Compliance Statistics */}
-      <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           title="Compliance Rate"
-          value={complianceRate > 0 ? `${complianceRate}%` : "—"}
+          value={complianceStats.complianceRate != null ? `${complianceStats.complianceRate}%` : '\u2014'}
           icon={CheckCircle}
-          description="Overall compliance"
+          description="All checks current"
         />
         <StatCard
           title="Active Certifications"
-          value={activeCertifications || "—"}
+          value={complianceStats.activeCerts != null ? complianceStats.activeCerts : '\u2014'}
           icon={Award}
-          description="Valid certificates"
+          description="Valid medical cards"
         />
         <StatCard
           title="Expiring Soon"
-          value={expiringSoonCount || "—"}
+          value={complianceStats.expiringSoon != null ? complianceStats.expiringSoon : '\u2014'}
           icon={Clock}
           description="Within 30 days"
         />
         <StatCard
           title="Non-Compliant"
-          value={nonCompliantCount || "—"}
+          value={complianceStats.nonCompliant != null ? complianceStats.nonCompliant : '\u2014'}
           icon={XCircle}
-          description="Needs attention"
+          description="Expired or overdue"
         />
-      </motion.div>
+      </div>
 
-      {/* Compliance Status by Category */}
-      <motion.div variants={fadeInVariant}>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ClipboardCheck className="h-5 w-5" />
-              Compliance Status by Category
-            </CardTitle>
-            <CardDescription>Breakdown of compliance across different areas</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {categoryItems.length === 0 ? (
-                <div className="text-sm text-muted-foreground">No compliance metrics available.</div>
-              ) : (
-                categoryItems.map((item) => (
-                  <div key={item.category} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <CheckSquare className={`h-5 w-5 ${
-                        item.status === 'excellent' || item.status === 'good' ? 'text-green-500' : 'text-yellow-500'
+      {/* Main Content: Categories + Renewals */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Compliance Status by Category */}
+        <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+          <div className="flex items-center gap-2 mb-2">
+            <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">Compliance by Category</h3>
+          </div>
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3">
+            {categoryBreakdowns.length === 0 ? (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+            ) : (
+              categoryBreakdowns.map((item) => {
+                const IconComponent = item.icon
+                return (
+                  <div
+                    key={item.category}
+                    className="flex items-center justify-between rounded-md border border-white/[0.04] bg-[#111111] p-2 cursor-pointer hover:bg-white/[0.04]"
+                    onClick={() => push({
+                      id: item.category,
+                      type: 'compliance-item',
+                      label: item.category,
+                      data: { category: item.category, rate: item.rate, status: item.status, details: item.details },
+                    })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        push({
+                          id: item.category,
+                          type: 'compliance-item',
+                          label: item.category,
+                          data: { category: item.category, rate: item.rate, status: item.status, details: item.details },
+                        })
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for ${item.category}`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <IconComponent className={`h-4 w-4 shrink-0 ${
+                        item.status === 'good' ? 'text-emerald-500' : 'text-yellow-500'
                       }`} />
-                      <div>
-                        <p className="font-semibold">{item.category}</p>
-                        <p className="text-sm text-muted-foreground">{item.rate}% compliant</p>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground">{item.category}</p>
+                        <p className="text-xs text-muted-foreground truncate">{item.details}</p>
                       </div>
                     </div>
-                    <Badge variant={item.status === 'excellent' || item.status === 'good' ? 'default' : 'secondary'}>
-                      {item.status === 'excellent' || item.status === 'good' ? 'Compliant' : 'Review Needed'}
-                    </Badge>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="w-16">
+                        <div className="h-2 bg-white/10 rounded-full">
+                          <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${item.rate}%` }} />
+                        </div>
+                      </div>
+                      <span className="text-xs font-medium text-foreground w-8 text-right">{item.rate}%</span>
+                      <Badge variant={item.status === 'good' ? 'default' : 'secondary'}>
+                        {item.status === 'good' ? 'Compliant' : 'Review'}
+                      </Badge>
+                    </div>
                   </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+                )
+              })
+            )}
+          </div>
+        </div>
 
-      {/* Upcoming Renewals */}
-      <motion.div variants={fadeInVariant}>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Upcoming Renewals
-            </CardTitle>
-            <CardDescription>Certifications and licenses expiring soon</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {renewals.length === 0 ? (
-                <div className="text-sm text-muted-foreground">No upcoming renewals.</div>
-              ) : (
-                renewals.map((renewal, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <FileCheck className="h-5 w-5 text-blue-500" />
-                      <div>
-                        <p className="font-semibold">{renewal.item}</p>
-                        <p className="text-sm text-muted-foreground">Expires in {renewal.daysLeft} days</p>
-                      </div>
-                    </div>
-                    <Button size="sm" variant="outline" onClick={() => handleScheduleRenewal(renewal.item)}>
-                      Schedule
-                    </Button>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </motion.div>
+        {/* Upcoming Renewals */}
+        <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+          <div className="flex items-center gap-2 mb-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">Upcoming Renewals</h3>
+            <span className="text-xs text-muted-foreground ml-auto">Within 60 days</span>
+          </div>
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {renewals.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-32 gap-2">
+                <CheckCircle className="h-6 w-6 text-emerald-500" />
+                <span className="text-sm text-muted-foreground">All certifications current. No renewals due within 60 days.</span>
+              </div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-[#111111]">
+                  <tr className="border-b border-white/[0.04]">
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Item</th>
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Type</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Days Left</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {renewals.map((renewal, index) => (
+                    <tr key={index} className="border-b border-white/[0.06]">
+                      <td className="py-1.5 px-2 text-foreground text-xs">{renewal.item}</td>
+                      <td className="py-1.5 px-2">
+                        <Badge variant="outline">{formatEnum(renewal.type)}</Badge>
+                      </td>
+                      <td className="py-1.5 px-2 text-right">
+                        <span className={`text-xs font-medium ${
+                          renewal.daysLeft <= 14 ? 'text-red-400' : renewal.daysLeft <= 30 ? 'text-yellow-400' : 'text-foreground'
+                        }`}>
+                          {renewal.daysLeft}d
+                        </span>
+                        {renewal.daysLeft <= 14 && (
+                          <Badge variant="destructive" className="ml-1.5 text-[10px] px-1 py-0">
+                            {formatEnum('urgent')}
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="py-1.5 px-2 text-right">
+                        <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => handleScheduleRenewal(renewal.item, renewal.daysLeft)}>
+                          Schedule
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* P0-2: Compliance Scores — radial gauge charts */}
+      {dashMetrics && (dashMetrics.vehicleCompliance > 0 || dashMetrics.driverCompliance > 0 || dashMetrics.safetyCompliance > 0 || dashMetrics.regulatoryCompliance > 0) && (
+        <div className="grid grid-cols-4 gap-3">
+          <RadialProgressChart title="Vehicle" value={dashMetrics.vehicleCompliance} size="sm" height={120} />
+          <RadialProgressChart title="Driver" value={dashMetrics.driverCompliance} size="sm" height={120} />
+          <RadialProgressChart title="Safety" value={dashMetrics.safetyCompliance} size="sm" height={120} />
+          <RadialProgressChart title="Regulatory" value={dashMetrics.regulatoryCompliance} size="sm" height={120} />
+        </div>
+      )}
+
+      {/* P0-2: Alert banner from compliance dashboard */}
+      {dashAlerts.length > 0 && (
+        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-2.5">
+          <div className="flex items-center gap-2 mb-1">
+            <AlertTriangle className="h-4 w-4 text-yellow-500 shrink-0" />
+            <h4 className="text-xs font-semibold text-yellow-400">Compliance Alerts</h4>
+          </div>
+          <div className="flex flex-col gap-1">
+            {dashAlerts.slice(0, 3).map((alert: any, i: number) => (
+              <p key={i} className="text-xs text-white/60">{alert.message || alert.description || String(alert)}</p>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   )
 })
 
@@ -287,12 +527,9 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
  * Safety Tab - Safety metrics and incident management
  */
 const SafetyTabContent = memo(function SafetyTabContent() {
-  const { data: complianceDashboard } = useSWR<any>(
-    '/api/compliance/dashboard',
-    fetcher,
-    { shouldRetryOnError: false }
-  )
-  const { data: safetyIncidents } = useSWR<any[]>(
+  const { push } = useDrilldown()
+  const { drivers, incidents: fleetIncidents, isLoading, error: fleetDataError } = useFleetData()
+  const { data: safetyIncidents, isLoading: safetyIncidentsLoading } = useSWR<any>(
     '/api/safety-incidents?limit=200',
     fetcher,
     { shouldRetryOnError: false }
@@ -313,12 +550,69 @@ const SafetyTabContent = memo(function SafetyTabContent() {
     { shouldRetryOnError: false }
   )
 
-  const incidents = Array.isArray(safetyIncidents) ? safetyIncidents : []
-  const safetyMetric = Array.isArray(complianceDashboard?.metrics)
-    ? complianceDashboard.metrics.find((metric: any) => (metric.category || '').toLowerCase().includes('safety'))
-    : null
+  // P0-5: Properly unwrap safetyIncidents — API may return { data: [...] } envelope
+  const incidents = useMemo(() => {
+    const unwrapped = Array.isArray(safetyIncidents)
+      ? safetyIncidents
+      : (safetyIncidents?.data && Array.isArray(safetyIncidents.data) ? safetyIncidents.data : [])
+    if (unwrapped.length > 0) return unwrapped
+    return Array.isArray(fleetIncidents) ? fleetIncidents : []
+  }, [safetyIncidents, fleetIncidents])
 
-  const safetyScore = safetyMetric ? Math.round(Number(safetyMetric.score || 0)) : 0
+  const safetyScoreStats = useMemo(() => {
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
+    const driversWithScores = activeDrivers.filter((d: any) =>
+      d.safety_score != null || d.safetyScore != null
+    )
+    if (driversWithScores.length === 0) return { average: 0, count: 0 }
+
+    const total = driversWithScores.reduce((sum: number, d: any) => {
+      const score = Number(d.safety_score ?? d.safetyScore ?? 0)
+      return sum + score
+    }, 0)
+
+    return {
+      average: Math.round(total / driversWithScores.length),
+      count: driversWithScores.length
+    }
+  }, [drivers])
+
+  const scoreDistribution = useMemo(() => {
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
+    const buckets = [
+      { name: '90-100', range: [90, 100], count: 0 },
+      { name: '80-89', range: [80, 89], count: 0 },
+      { name: '70-79', range: [70, 79], count: 0 },
+      { name: '60-69', range: [60, 69], count: 0 },
+      { name: '<60', range: [0, 59], count: 0 }
+    ]
+    activeDrivers.forEach((d: any) => {
+      const score = Number(d.safety_score ?? d.safetyScore ?? 0)
+      if (score <= 0) return
+      for (const bucket of buckets) {
+        if (score >= bucket.range[0] && score <= bucket.range[1]) {
+          bucket.count++
+          break
+        }
+      }
+    })
+    return buckets.map((b) => ({ name: b.name, drivers: b.count }))
+  }, [drivers])
+
+  const driverRankings = useMemo(() => {
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
+    return activeDrivers
+      .filter((d: any) => (d.safety_score ?? d.safetyScore) != null)
+      .map((d: any) => ({
+        id: d.id,
+        name: d.name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || '\u2014',
+        safetyScore: Number(d.safety_score ?? d.safetyScore ?? 0),
+        hosStatus: d.hos_status || '\u2014',
+        incidents: Number(d.total_incidents ?? d.incidents ?? 0)
+      }))
+      .sort((a: any, b: any) => a.safetyScore - b.safetyScore)
+  }, [drivers])
+
   const latestIncidentDate = incidents
     .map((incident: any) => incident.incident_date || incident.created_at)
     .filter(Boolean)
@@ -337,10 +631,10 @@ const SafetyTabContent = memo(function SafetyTabContent() {
   const trainingCompletion = Number(trainingStats?.compliance_rate || 0)
 
   const incidentTrendData = useMemo(() => {
-    const now = new Date()
+    const nowDate = new Date()
     const months: { label: string; month: number; year: number }[] = []
     for (let i = 5; i >= 0; i -= 1) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const date = new Date(nowDate.getFullYear(), nowDate.getMonth() - i, 1)
       months.push({ label: date.toLocaleString('default', { month: 'short' }), month: date.getMonth(), year: date.getFullYear() })
     }
     return months.map((item) => {
@@ -357,7 +651,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
   const recentIncidents = incidents
     .slice()
     .sort((a: any, b: any) => new Date(b.incident_date || b.created_at).getTime() - new Date(a.incident_date || a.created_at).getTime())
-    .slice(0, 5)
+    .slice(0, 8)
 
   const trainingProgressData = useMemo(() => {
     const courses = Array.isArray(trainingCourses) ? trainingCourses : []
@@ -383,144 +677,338 @@ const SafetyTabContent = memo(function SafetyTabContent() {
     }).filter((course: any) => course.total > 0)
   }, [trainingCourses, trainingProgress])
 
+  if (fleetDataError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
+
+  // P0-1: Loading skeleton for Safety tab
+  if (isLoading && safetyIncidentsLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <div className="grid grid-cols-4 gap-3">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Skeleton className="h-48 rounded-md" />
+          <Skeleton className="h-48 rounded-md" />
+        </div>
+      </div>
+    )
+  }
+
+  // Visible driver rankings capped to 5 (P0-6)
+  const visibleDriverRankings = driverRankings.slice(0, 5)
+  // Visible recent incidents capped to 5 (P0-6)
+  const visibleRecentIncidents = recentIncidents.slice(0, 5)
+
   return (
-    <motion.div
-      variants={staggerContainerVariant}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
-      {/* Safety Statistics */}
-      <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+      {/* P1-8: Report Incident action header */}
+      <div className="flex items-center justify-between">
+        <div />
+        <Button
+          size="sm"
+          className="h-7 text-xs gap-1"
+          onClick={() => push({
+            id: 'new-incident',
+            type: 'incidents',
+            label: 'Report Incident',
+            data: {},
+          })}
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Report Incident
+        </Button>
+      </div>
+
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           title="Safety Score"
-          value={safetyScore > 0 ? `${safetyScore}` : "—"}
+          value={safetyScoreStats.average > 0 ? String(safetyScoreStats.average) : '\u2014'}
           icon={Shield}
-          description="Fleet average"
+          description={`Avg across ${safetyScoreStats.count} drivers`}
         />
         <StatCard
-          title="Days Since Incident"
-          value={daysSinceIncident !== null ? daysSinceIncident : "—"}
+          title="Days Since Last Report"
+          value={daysSinceIncident !== null ? String(daysSinceIncident) : '\u2014'}
           icon={Award}
-          description="Accident-free streak"
+          description="Since last incident reported"
         />
         <StatCard
           title="Open Incidents"
-          value={openIncidents}
+          value={String(openIncidents)}
           icon={AlertTriangle}
           description="Under investigation"
         />
         <StatCard
           title="Training Completion"
-          value={trainingCompletion > 0 ? `${trainingCompletion}%` : "—"}
+          value={trainingCompletion > 0 ? `${trainingCompletion}%` : '\u2014'}
           icon={BookOpen}
           description="Safety training"
         />
-      </motion.div>
+      </div>
 
-      {/* Incident Trends */}
-      <motion.div variants={fadeInVariant}>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingDown className="h-5 w-5" />
-              Incident Trends
-            </CardTitle>
-            <CardDescription>Safety incidents over time (trending down is good)</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveLineChart
-              title="Incident Trends"
-              data={incidentTrendData}
-              dataKeys={['incidents']}
-              colors={['#ef4444']}
-              height={300}
+      {/* Main Content: Charts row */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Left: Score Distribution + Driver Rankings */}
+        <div className="flex flex-col gap-3 min-h-0">
+          {/* Score Distribution Chart */}
+          <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Score Distribution</h3>
+            </div>
+            <ResponsiveBarChart
+              title=""
+              data={scoreDistribution}
+              dataKeys={['drivers']}
+              colors={['hsl(var(--primary))']}
+              height={140}
+              compact
             />
-          </CardContent>
-        </Card>
-      </motion.div>
+          </div>
 
-      {/* Recent Incidents */}
-      <motion.div variants={fadeInVariant}>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" />
-              Recent Incidents
-            </CardTitle>
-            <CardDescription>Latest safety incidents and their status</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentIncidents.length === 0 ? (
-                <div className="text-sm text-muted-foreground">No recent incidents.</div>
+          {/* Driver Safety Rankings — capped to 5 rows (P0-6) */}
+          <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Driver Rankings</h3>
+              <span className="text-xs text-muted-foreground ml-auto">Lowest first</span>
+            </div>
+            <div className="max-h-[200px] overflow-y-auto">
+              {driverRankings.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
-                recentIncidents.map((incident: any) => {
-                  const severity = (incident.severity || '').toString().toLowerCase()
-                  const status = incident.status || 'Open'
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-[#111111]">
+                    <tr className="border-b border-white/[0.04]">
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Driver</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Score</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">HOS</th>
+                      <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Incidents</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleDriverRankings.map((driver: any) => (
+                      <tr
+                        key={driver.id}
+                        className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                        onClick={() => push({
+                          id: driver.id,
+                          type: 'driver',
+                          label: driver.name,
+                          data: { driverId: driver.id, safetyScore: driver.safetyScore, hosStatus: driver.hosStatus, incidents: driver.incidents },
+                        })}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            push({
+                              id: driver.id,
+                              type: 'driver',
+                              label: driver.name,
+                              data: { driverId: driver.id, safetyScore: driver.safetyScore, hosStatus: driver.hosStatus, incidents: driver.incidents },
+                            })
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`View details for driver ${driver.name}`}
+                      >
+                        <td className="py-1.5 px-2 text-xs text-foreground">{driver.name}</td>
+                        <td className="py-1.5 px-2">
+                          <span className={`text-xs font-medium ${
+                            driver.safetyScore >= 90 ? 'text-emerald-400' :
+                            driver.safetyScore >= 70 ? 'text-yellow-400' :
+                            'text-red-400'
+                          }`}>
+                            {driver.safetyScore}
+                          </span>
+                        </td>
+                        <td className="py-1.5 px-2">
+                          <Badge variant="outline" className="text-[10px] px-1 py-0">
+                            {formatEnum(driver.hosStatus)}
+                          </Badge>
+                        </td>
+                        <td className="py-1.5 px-2 text-right">
+                          <span className={`text-xs ${driver.incidents > 0 ? 'text-red-400 font-medium' : 'text-foreground'}`}>
+                            {driver.incidents}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+            {driverRankings.length > 5 && (
+              <div className="pt-1.5 border-t border-white/[0.06] mt-1">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="w-full h-6 text-xs text-muted-foreground hover:text-foreground"
+                  onClick={() => push({
+                    id: 'all-driver-rankings',
+                    type: 'driver-rankings',
+                    label: 'All Driver Rankings',
+                    data: { rankings: driverRankings },
+                  })}
+                >
+                  View All ({driverRankings.length})
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Training Progress — moved alongside charts to reduce vertical height (P0-6) */}
+          {trainingProgressData.length > 0 && (
+            <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold text-foreground">Training Progress</h3>
+              </div>
+              <div className="flex flex-col gap-3">
+                {trainingProgressData.slice(0, 4).map((training: any) => {
+                  const pct = training.total > 0 ? Math.round((training.completed / training.total) * 100) : 0
                   return (
-                    <div key={incident.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <AlertTriangle className={`h-5 w-5 ${
-                          severity === 'minor' || severity === 'low' ? 'text-yellow-500' :
-                          severity === 'moderate' || severity === 'medium' ? 'text-orange-500' : 'text-red-500'
-                        }`} />
-                        <div>
-                          <p className="font-semibold">{incident.incident_type || 'Incident'}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {incident.vehicle_id ? `Vehicle ${incident.vehicle_id.slice(0, 8)}` : 'Vehicle'}
-                          </p>
-                        </div>
+                    <div key={training.course}>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-xs text-foreground truncate mr-2">{training.course}</span>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {training.completed}/{training.total} ({pct}%)
+                        </span>
                       </div>
-                      <Badge variant={status === 'Resolved' || status === 'Closed' ? 'default' : 'secondary'}>
-                        {status}
-                      </Badge>
+                      <div className="h-2 bg-white/10 rounded-full">
+                        <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${pct}%` }} />
+                      </div>
                     </div>
                   )
-                })
-              )}
+                })}
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+          )}
+        </div>
 
-      {/* Safety Training Progress */}
-      <motion.div variants={fadeInVariant}>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
-              Safety Training Progress
-            </CardTitle>
-            <CardDescription>Driver safety training completion status</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {trainingProgressData.length === 0 ? (
-                <div className="text-sm text-muted-foreground">No training progress available.</div>
+        {/* Right: Incident Trends + Recent Incidents */}
+        <div className="flex flex-col gap-3 min-h-0">
+          {/* Incident Trends */}
+          <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingDown className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Incident Trends</h3>
+            </div>
+            <ResponsiveLineChart
+              title=""
+              data={incidentTrendData}
+              dataKeys={['incidents']}
+              colors={['hsl(var(--destructive))']}
+              height={140}
+              compact
+            />
+          </div>
+
+          {/* Recent Incidents — capped to 5 rows (P0-6) */}
+          <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Recent Incidents</h3>
+            </div>
+            <div className="max-h-[200px] overflow-y-auto">
+              {recentIncidents.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
-                trainingProgressData.map((training: any) => (
-                  <div key={training.course} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium">{training.course}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {training.completed}/{training.total} ({Math.round((training.completed / training.total) * 100)}%)
-                      </p>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-primary rounded-full h-2 transition-all"
-                        style={{ width: `${training.total > 0 ? (training.completed / training.total) * 100 : 0}%` }}
-                      />
-                    </div>
-                  </div>
-                ))
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-[#111111]">
+                    <tr className="border-b border-white/[0.04]">
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Type</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Severity</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Date</th>
+                      <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleRecentIncidents.map((incident: any) => {
+                      const severity = (incident.severity || '').toString().toLowerCase()
+                      const status = incident.status || 'open'
+                      const incidentLabel = incident.incident_type || 'Incident'
+                      return (
+                        <tr
+                          key={incident.id}
+                          className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                          onClick={() => push({
+                            id: incident.id,
+                            type: 'incident',
+                            label: incidentLabel,
+                            data: { incidentId: incident.id, severity, status, vehicleId: incident.vehicle_id },
+                          })}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              push({
+                                id: incident.id,
+                                type: 'incident',
+                                label: incidentLabel,
+                                data: { incidentId: incident.id, severity, status, vehicleId: incident.vehicle_id },
+                              })
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`View details for incident: ${incidentLabel}`}
+                        >
+                          <td className="py-1.5 px-2 text-xs text-foreground">{formatEnum(incidentLabel)}</td>
+                          <td className="py-1.5 px-2">
+                            <Badge variant={
+                              severity === 'minor' || severity === 'low' ? 'secondary' :
+                              severity === 'moderate' || severity === 'medium' ? 'outline' : 'destructive'
+                            }>
+                              {formatEnum(severity)}
+                            </Badge>
+                          </td>
+                          <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                            {formatDate(incident.incident_date || incident.created_at)}
+                          </td>
+                          <td className="py-1.5 px-2 text-right">
+                            <Badge variant={['resolved', 'closed'].includes(status.toLowerCase()) ? 'default' : 'secondary'}>
+                              {formatEnum(status)}
+                            </Badge>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
               )}
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </motion.div>
+            {recentIncidents.length > 5 && (
+              <div className="pt-1.5 border-t border-white/[0.06] mt-1">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="w-full h-6 text-xs text-muted-foreground hover:text-foreground"
+                  onClick={() => push({
+                    id: 'all-incidents',
+                    type: 'incidents',
+                    label: 'All Incidents',
+                    data: { incidents: recentIncidents },
+                  })}
+                >
+                  View All ({incidents.length})
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 })
 
@@ -528,7 +1016,8 @@ const SafetyTabContent = memo(function SafetyTabContent() {
  * Policies Tab - Policy management and enforcement
  */
 const PoliciesTabContent = memo(function PoliciesTabContent() {
-  const { data: policies } = useSWR<any[]>(
+  const { push } = useDrilldown()
+  const { data: policies, isLoading: policiesLoading } = useSWR<any>(
     '/api/policies?limit=200',
     fetcher,
     { shouldRetryOnError: false }
@@ -538,13 +1027,18 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: securityEvents } = useSWR<any[]>(
+  const { data: securityEvents } = useSWR<any>(
     '/api/security/events?limit=50',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const policyRows = Array.isArray(policies) ? policies : []
+  // Unwrap policies from potential { data: [...] } envelope
+  const policyRows = useMemo(() => {
+    if (Array.isArray(policies)) return policies
+    if (policies?.data && Array.isArray(policies.data)) return policies.data
+    return []
+  }, [policies])
   const activePolicies = policyRows.filter((policy: any) => policy.is_active)
   const underReview = policyRows.filter((policy: any) => !policy.is_active)
 
@@ -552,136 +1046,268 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
     ? Math.round(complianceDashboard.metrics.reduce((sum: number, metric: any) => sum + Number(metric.score || 0), 0) / complianceDashboard.metrics.length)
     : 0
 
-  const policyViolations = (Array.isArray(securityEvents) ? securityEvents : []).filter((event: any) => {
+  // Unwrap security events from potential { data: [...] } envelope
+  const securityEventsList = useMemo(() => {
+    if (Array.isArray(securityEvents)) return securityEvents
+    if (securityEvents?.data && Array.isArray(securityEvents.data)) return securityEvents.data
+    return []
+  }, [securityEvents])
+
+  const policyViolations = securityEventsList.filter((event: any) => {
     const type = (event.event_type || '').toString().toLowerCase()
     return type.includes('policy') || type.includes('violation')
   })
 
+  // P1-9: Per-category adherence instead of identical global score
   const policyCategories = useMemo(() => {
-    const categoryMap = new Map<string, number>()
+    const categoryMap = new Map<string, { active: number; total: number }>()
     policyRows.forEach((policy: any) => {
       const category = policy.category || 'General'
-      categoryMap.set(category, (categoryMap.get(category) || 0) + 1)
+      const existing = categoryMap.get(category) || { active: 0, total: 0 }
+      existing.total += 1
+      if (policy.is_active) existing.active += 1
+      categoryMap.set(category, existing)
     })
-    return Array.from(categoryMap.entries()).map(([category, count]) => ({
+    return Array.from(categoryMap.entries()).map(([category, stats]) => ({
       category,
-      policies: count,
-      adherence: complianceScore || 0
+      policies: stats.total,
+      adherence: stats.total > 0 ? Math.round((stats.active / stats.total) * 100) : 0
     }))
-  }, [policyRows, complianceScore])
+  }, [policyRows])
 
-  // Handler for viewing policy categories
   const handleViewPolicy = (category: string) => {
     toast.success(`Opening policy details for: ${category}`)
-    // TODO: Open policy details modal or navigate to policy page
     logger.info('View policy clicked:', category)
+    push({
+      id: category,
+      type: 'policy-category',
+      label: category,
+      data: { category },
+    })
+  }
+
+  // P0-1: Loading skeleton for Policies tab
+  if (policiesLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <div className="grid grid-cols-4 gap-3">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Skeleton className="h-48 rounded-md" />
+          <Skeleton className="h-48 rounded-md" />
+        </div>
+      </div>
+    )
   }
 
   return (
-    <motion.div
-      variants={staggerContainerVariant}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
-      {/* Policy Statistics */}
-      <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           title="Active Policies"
-          value={activePolicies.length}
+          value={String(activePolicies.length)}
           icon={FileText}
           description="Currently enforced"
         />
         <StatCard
           title="Policy Adherence"
-          value={complianceScore > 0 ? `${complianceScore}%` : "—"}
+          value={complianceScore > 0 ? `${complianceScore}%` : '\u2014'}
           icon={CheckCircle}
           description="Compliance rate"
         />
         <StatCard
           title="Under Review"
-          value={underReview.length}
+          value={String(underReview.length)}
           icon={ScrollText}
           description="Pending approval"
         />
         <StatCard
           title="Violations"
-          value={policyViolations.length}
+          value={String(policyViolations.length)}
           icon={Gavel}
-          description="This month"
+          description="Total violations"
         />
-      </motion.div>
+      </div>
 
-      {/* Policy Categories */}
-      <motion.div variants={fadeInVariant}>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookMarked className="h-5 w-5" />
-              Policy Categories
-            </CardTitle>
-            <CardDescription>Fleet policies organized by category</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {policyCategories.length === 0 ? (
-                <div className="text-sm text-muted-foreground">No policy categories available.</div>
-              ) : (
-                policyCategories.map((item) => (
-                  <div key={item.category} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-blue-500" />
-                      <div>
-                        <p className="font-semibold">{item.category}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {item.policies} policies · {item.adherence}% adherence
-                        </p>
-                      </div>
-                    </div>
-                    <Button size="sm" variant="outline" onClick={() => handleViewPolicy(item.category)}>
-                      View
-                    </Button>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+      {/* Main Content: Categories + Violations */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Policy Categories */}
+        <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+          <div className="flex items-center gap-2 mb-2">
+            <BookMarked className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">Policy Categories</h3>
+          </div>
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {policyCategories.length === 0 ? (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-[#111111]">
+                  <tr className="border-b border-white/[0.04]">
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Policies</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Adherence</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {policyCategories.map((item) => (
+                    <tr key={item.category} className="border-b border-white/[0.06]">
+                      <td className="py-1.5 px-2 text-xs text-foreground">{formatEnum(item.category)}</td>
+                      <td className="py-1.5 px-2 text-right text-xs text-foreground">{item.policies}</td>
+                      <td className="py-1.5 px-2 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <div className="w-12">
+                            <div className="h-2 bg-white/10 rounded-full">
+                              <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${item.adherence}%` }} />
+                            </div>
+                          </div>
+                          <span className="text-xs text-foreground">{item.adherence}%</span>
+                        </div>
+                      </td>
+                      <td className="py-1.5 px-2 text-right">
+                        <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => handleViewPolicy(item.category)}>
+                          View
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
 
-      {/* Recent Policy Violations */}
-      <motion.div variants={fadeInVariant}>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Gavel className="h-5 w-5" />
-              Recent Policy Violations
-            </CardTitle>
-            <CardDescription>Latest policy violations and corrective actions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {policyViolations.length === 0 ? (
-                <div className="text-sm text-muted-foreground">No recent policy violations.</div>
-              ) : (
-                policyViolations.slice(0, 5).map((violation: any) => (
-                  <div key={violation.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <XCircle className="h-5 w-5 text-red-500" />
-                      <div>
-                        <p className="font-semibold">{violation.event_type || 'Policy Violation'}</p>
-                        <p className="text-sm text-muted-foreground">{violation.message || 'Violation recorded'}</p>
-                      </div>
-                    </div>
-                    <Badge variant="destructive">Review</Badge>
-                  </div>
-                ))
-              )}
+        {/* Recent Policy Violations */}
+        <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+          <div className="flex items-center gap-2 mb-2">
+            <Gavel className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">Recent Violations</h3>
+          </div>
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {policyViolations.length === 0 ? (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-[#111111]">
+                  <tr className="border-b border-white/[0.04]">
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Violation</th>
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Details</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {policyViolations.slice(0, 8).map((violation: any) => {
+                    const violationLabel = violation.event_type || 'Policy Violation'
+                    const violationStatus = (violation.status || '').toString().toLowerCase()
+                    return (
+                      <tr
+                        key={violation.id}
+                        className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                        onClick={() => push({
+                          id: violation.id,
+                          type: 'violation',
+                          label: violationLabel,
+                          data: { violationId: violation.id, eventType: violation.event_type, message: violation.message },
+                        })}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            push({
+                              id: violation.id,
+                              type: 'violation',
+                              label: violationLabel,
+                              data: { violationId: violation.id, eventType: violation.event_type, message: violation.message },
+                            })
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`View details for violation: ${violationLabel}`}
+                      >
+                        <td className="py-1.5 px-2 text-xs text-foreground">{formatEnum(violationLabel)}</td>
+                        <td className="py-1.5 px-2 text-xs text-muted-foreground truncate max-w-[200px]">
+                          {violation.message || '\u2014'}
+                        </td>
+                        <td className="py-1.5 px-2 text-right">
+                          <Badge variant={violationStatus === 'resolved' ? 'default' : 'destructive'}>
+                            {formatEnum(violationStatus || 'Review')}
+                          </Badge>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* P0-3: Active Policies list to fill dead space */}
+      {activePolicies.length > 0 && (
+        <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+          <div className="flex items-center gap-2 mb-2">
+            <FileCheck className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">Active Policies</h3>
+            <span className="text-xs text-muted-foreground ml-auto">{activePolicies.length} policies</span>
+          </div>
+          <div className="max-h-[240px] overflow-y-auto">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-[#111111]">
+                <tr className="border-b border-white/[0.04]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Policy Name</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activePolicies.slice(0, 10).map((policy: any) => (
+                  <tr
+                    key={policy.id}
+                    className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                    onClick={() => push({
+                      id: policy.id,
+                      type: 'policy',
+                      label: policy.name || policy.title || 'Policy',
+                      data: { policyId: policy.id, category: policy.category },
+                    })}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View policy: ${policy.name || policy.title}`}
+                  >
+                    <td className="py-1.5 px-2 text-xs text-foreground font-medium">{policy.name || policy.title || '\u2014'}</td>
+                    <td className="py-1.5 px-2 text-xs text-muted-foreground">{formatEnum(policy.category || 'General')}</td>
+                    <td className="py-1.5 px-2 text-right">
+                      <Badge variant="default">Active</Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {activePolicies.length > 10 && (
+            <div className="pt-1.5 border-t border-white/[0.06] mt-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="w-full h-6 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => push({
+                  id: 'all-policies',
+                  type: 'policies',
+                  label: 'All Policies',
+                  data: { policies: activePolicies },
+                })}
+              >
+                View All ({activePolicies.length})
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </motion.div>
+          )}
+        </div>
+      )}
+    </div>
   )
 })
 
@@ -689,19 +1315,28 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
  * Reporting Tab - Compliance and safety reporting
  */
 const ReportingTabContent = memo(function ReportingTabContent() {
-  const { data: reportTemplates } = useSWR<any[]>(
+  const { data: reportTemplates, isLoading: templatesLoading } = useSWR<any>(
     '/api/reports/templates',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: reportHistory } = useSWR<any[]>(
+  const { data: reportHistory, isLoading: historyLoading } = useSWR<any>(
     '/api/reports/history',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const templates = Array.isArray(reportTemplates) ? reportTemplates : []
-  const history = Array.isArray(reportHistory) ? reportHistory : []
+  // Unwrap from potential { data: [...] } envelope
+  const templates = useMemo(() => {
+    if (Array.isArray(reportTemplates)) return reportTemplates
+    if (reportTemplates?.data && Array.isArray(reportTemplates.data)) return reportTemplates.data
+    return []
+  }, [reportTemplates])
+  const history = useMemo(() => {
+    if (Array.isArray(reportHistory)) return reportHistory
+    if (reportHistory?.data && Array.isArray(reportHistory.data)) return reportHistory.data
+    return []
+  }, [reportHistory])
 
   const complianceTemplates = templates.filter((template: any) => {
     const domain = (template.domain || template.category || '').toString().toLowerCase()
@@ -719,7 +1354,6 @@ const ReportingTabContent = memo(function ReportingTabContent() {
     return map
   }, [history])
 
-  // Handler for viewing reports
   const handleViewReport = (reportName: string, downloadUrl?: string) => {
     if (!downloadUrl) {
       toast.error('No download link available for this report')
@@ -730,7 +1364,6 @@ const ReportingTabContent = memo(function ReportingTabContent() {
     logger.info('View report clicked:', reportName)
   }
 
-  // Handler for generating reports
   const handleGenerateReport = async (reportId: string, reportName: string) => {
     try {
       const csrfToken = await getCsrfToken()
@@ -757,61 +1390,121 @@ const ReportingTabContent = memo(function ReportingTabContent() {
     }
   }
 
+  // P0-1: Loading skeleton for Reports tab
+  if (templatesLoading && historyLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <Skeleton className="h-48 rounded-md" />
+        <Skeleton className="h-48 rounded-md" />
+      </div>
+    )
+  }
+
   return (
-    <motion.div
-      variants={staggerContainerVariant}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Compliance & Safety Reports
-          </CardTitle>
-          <CardDescription>Generate and view compliance and safety reports</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {complianceTemplates.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No compliance report templates available.</div>
-            ) : (
-              complianceTemplates.map((report: any) => {
-                const lastGenerated = lastGeneratedMap.get(report.id)
-                return (
-                  <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-blue-500" />
-                      <div>
-                        <p className="font-semibold">{report.title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {report.category || report.domain || 'Compliance'} · Last generated:{' '}
-                          {lastGenerated?.generatedAt ? new Date(lastGenerated.generatedAt).toLocaleDateString() : '—'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleViewReport(report.title, lastGenerated?.downloadUrl)}
-                        disabled={!lastGenerated?.downloadUrl}
-                      >
-                        View
-                      </Button>
-                      <Button size="sm" onClick={() => handleGenerateReport(report.id, report.title)}>
-                        Generate
-                      </Button>
-                    </div>
-                  </div>
-                )
-              })
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+      <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+        <div className="flex items-center gap-2 mb-2">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold text-foreground">Compliance & Safety Reports</h3>
+        </div>
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          {complianceTemplates.length === 0 ? (
+            <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-[#111111]">
+                <tr className="border-b border-white/[0.04]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Report</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Last Generated</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {complianceTemplates.map((report: any) => {
+                  const lastGenerated = lastGeneratedMap.get(report.id)
+                  return (
+                    <tr key={report.id} className="border-b border-white/[0.06]">
+                      <td className="py-1.5 px-2 text-xs text-foreground font-medium">{report.title}</td>
+                      <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                        {formatEnum(report.category || report.domain || 'compliance')}
+                      </td>
+                      <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                        {formatDate(lastGenerated?.generatedAt)}
+                      </td>
+                      <td className="py-1.5 px-2 text-right">
+                        <div className="flex gap-1 justify-end">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-6 text-xs px-2"
+                            onClick={() => handleViewReport(report.title, lastGenerated?.downloadUrl)}
+                            disabled={!lastGenerated?.downloadUrl}
+                          >
+                            View
+                          </Button>
+                          <Button size="sm" className="h-6 text-xs px-2" onClick={() => handleGenerateReport(report.id, report.title)}>
+                            Generate
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {/* P0-4: Recent History section to fill dead space */}
+      <div className="rounded-lg border border-white/[0.04] bg-[#111111] p-3 flex flex-col min-h-0">
+        <div className="flex items-center gap-2 mb-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold text-foreground">Recent History</h3>
+          <span className="text-xs text-muted-foreground ml-auto">{history.length} reports</span>
+        </div>
+        <div className="max-h-[240px] overflow-y-auto">
+          {history.length === 0 ? (
+            <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No report history available</div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-[#111111]">
+                <tr className="border-b border-white/[0.04]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Report Name</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Generated</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Generated By</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.slice(0, 10).map((entry: any, idx: number) => (
+                  <tr key={entry.id || idx} className="border-b border-white/[0.06]">
+                    <td className="py-1.5 px-2 text-xs text-foreground font-medium">
+                      {entry.title || entry.reportName || entry.name || '\u2014'}
+                    </td>
+                    <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                      {formatDate(entry.generatedAt || entry.created_at || entry.timestamp)}
+                    </td>
+                    <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                      {entry.generatedBy || entry.created_by || entry.user || '\u2014'}
+                    </td>
+                    <td className="py-1.5 px-2 text-right">
+                      <Badge variant={
+                        (entry.status || '').toLowerCase() === 'completed' || (entry.status || '').toLowerCase() === 'success'
+                          ? 'default' : 'secondary'
+                      }>
+                        {formatEnum(entry.status || 'completed')}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
   )
 })
 
@@ -822,26 +1515,112 @@ const ReportingTabContent = memo(function ReportingTabContent() {
 export default function ComplianceSafetyHub() {
   const [activeTab, setActiveTab] = useState('compliance')
 
+  // P1-12: Badge counts for tabs
+  const { drivers, vehicles, incidents: fleetIncidents, isLoading: fleetLoading } = useFleetData()
+  const { data: safetyIncidentsRaw } = useSWR<any>(
+    '/api/safety-incidents?limit=200',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: securityEventsRaw } = useSWR<any>(
+    '/api/security/events?limit=50',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const tabBadges = useMemo(() => {
+    // Safety: open incidents count
+    const allSafetyIncidents = Array.isArray(safetyIncidentsRaw)
+      ? safetyIncidentsRaw
+      : (safetyIncidentsRaw?.data && Array.isArray(safetyIncidentsRaw.data) ? safetyIncidentsRaw.data : [])
+    const incidentsToUse = allSafetyIncidents.length > 0
+      ? allSafetyIncidents
+      : (Array.isArray(fleetIncidents) ? fleetIncidents : [])
+    const openCount = incidentsToUse.filter((inc: any) => {
+      const status = (inc.status || '').toString().toLowerCase()
+      return status && !['resolved', 'closed', 'completed'].includes(status)
+    }).length
+
+    // Policies: violation count
+    const secEventsList = Array.isArray(securityEventsRaw)
+      ? securityEventsRaw
+      : (securityEventsRaw?.data && Array.isArray(securityEventsRaw.data) ? securityEventsRaw.data : [])
+    const violationCount = secEventsList.filter((event: any) => {
+      const type = (event.event_type || '').toString().toLowerCase()
+      return type.includes('policy') || type.includes('violation')
+    }).length
+
+    // Compliance: non-compliant + expiring soon
+    const now = new Date()
+    const msPerDay = 86400000
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
+    const isExpired = (dateStr: string | undefined): boolean => {
+      if (!dateStr) return true
+      const date = new Date(dateStr)
+      if (isNaN(date.getTime())) return true
+      return date < now
+    }
+    const isWithinMonths = (dateStr: string | undefined, months: number): boolean => {
+      if (!dateStr) return false
+      const date = new Date(dateStr)
+      if (isNaN(date.getTime())) return false
+      const cutoff = new Date(now)
+      cutoff.setMonth(cutoff.getMonth() - months)
+      return date >= cutoff
+    }
+    const isExpiringSoon = (dateStr: string | undefined, days: number): boolean => {
+      if (!dateStr) return false
+      const date = new Date(dateStr)
+      if (isNaN(date.getTime())) return false
+      const threshold = new Date(now.getTime() + days * msPerDay)
+      return date >= now && date <= threshold
+    }
+    const nonCompliant = activeDrivers.filter((d: any) => {
+      return isExpired(d.medical_card_expiry) || !isWithinMonths(d.drug_test_date, 12)
+    }).length
+    const driverExpiring = activeDrivers.filter((d: any) => isExpiringSoon(d.medical_card_expiry, 30)).length
+    const vehicleExpiring = vehicles.filter((v: any) => isExpiringSoon((v as any).registration_expiry, 30)).length
+    const complianceAlertCount = nonCompliant + driverExpiring + vehicleExpiring
+
+    return { openCount, violationCount, complianceAlertCount }
+  }, [safetyIncidentsRaw, fleetIncidents, securityEventsRaw, drivers, vehicles])
+
   return (
     <HubPage
       title="Compliance & Safety"
       description="Comprehensive compliance monitoring, safety management, and policy enforcement"
       icon={<Shield className="h-6 w-6" />}
+      className="cta-hub"
     >
-      <div className="space-y-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <div className="flex flex-col h-full gap-3 overflow-hidden">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="compliance" className="flex items-center gap-2" data-testid="hub-tab-compliance">
               <ClipboardCheck className="h-4 w-4" />
               <span className="hidden sm:inline">Compliance</span>
+              {!fleetLoading && tabBadges.complianceAlertCount > 0 && (
+                <Badge variant="destructive" className="ml-1 h-4 min-w-4 px-1 text-[10px] leading-none">
+                  {tabBadges.complianceAlertCount}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="safety" className="flex items-center gap-2" data-testid="hub-tab-safety">
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">Safety</span>
+              {!fleetLoading && tabBadges.openCount > 0 && (
+                <Badge variant="destructive" className="ml-1 h-4 min-w-4 px-1 text-[10px] leading-none">
+                  {tabBadges.openCount}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="policies" className="flex items-center gap-2" data-testid="hub-tab-policies">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Policies</span>
+              {tabBadges.violationCount > 0 && (
+                <Badge variant="secondary" className="ml-1 h-4 min-w-4 px-1 text-[10px] leading-none">
+                  {tabBadges.violationCount}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="reporting" className="flex items-center gap-2" data-testid="hub-tab-reports">
               <BarChart className="h-4 w-4" />
@@ -849,39 +1628,29 @@ export default function ComplianceSafetyHub() {
             </TabsTrigger>
           </TabsList>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              <TabsContent value="compliance" className="mt-6">
-                <ErrorBoundary>
-                  <ComplianceTabContent />
-                </ErrorBoundary>
-              </TabsContent>
+          <TabsContent value="compliance" className="flex-1 min-h-0 overflow-y-auto">
+            <QueryErrorBoundary>
+              <ComplianceTabContent />
+            </QueryErrorBoundary>
+          </TabsContent>
 
-              <TabsContent value="safety" className="mt-6">
-                <ErrorBoundary>
-                  <SafetyTabContent />
-                </ErrorBoundary>
-              </TabsContent>
+          <TabsContent value="safety" className="flex-1 min-h-0 overflow-y-auto">
+            <QueryErrorBoundary>
+              <SafetyTabContent />
+            </QueryErrorBoundary>
+          </TabsContent>
 
-              <TabsContent value="policies" className="mt-6">
-                <ErrorBoundary>
-                  <PoliciesTabContent />
-                </ErrorBoundary>
-              </TabsContent>
+          <TabsContent value="policies" className="flex-1 min-h-0 overflow-y-auto">
+            <QueryErrorBoundary>
+              <PoliciesTabContent />
+            </QueryErrorBoundary>
+          </TabsContent>
 
-              <TabsContent value="reporting" className="mt-6">
-                <ErrorBoundary>
-                  <ReportingTabContent />
-                </ErrorBoundary>
-              </TabsContent>
-            </motion.div>
-          </AnimatePresence>
+          <TabsContent value="reporting" className="flex-1 min-h-0 overflow-y-auto">
+            <QueryErrorBoundary>
+              <ReportingTabContent />
+            </QueryErrorBoundary>
+          </TabsContent>
         </Tabs>
       </div>
     </HubPage>

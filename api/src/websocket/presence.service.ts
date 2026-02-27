@@ -2,6 +2,8 @@ import type { RedisClientType } from "redis";
 import { Server, Socket } from "socket.io";
 import { z } from "zod";
 
+import logger from "../config/logger";
+
 interface Presence {
   userId: string;
   taskId: string;
@@ -30,7 +32,7 @@ export class PresenceService {
           const validatedData = presenceSchema.parse(data);
           await this.joinTask(socket, validatedData.userId, validatedData.taskId);
         } catch (error) {
-          console.error("Error joining task:", error);
+          logger.error("Error joining task", { error: error instanceof Error ? error.message : String(error) });
           socket.emit("ERROR", { message: "Invalid data format for joining task." });
         }
       });
@@ -40,7 +42,7 @@ export class PresenceService {
           const validatedData = presenceSchema.parse(data);
           await this.leaveTask(socket, validatedData.userId, validatedData.taskId);
         } catch (error) {
-          console.error("Error leaving task:", error);
+          logger.error("Error leaving task", { error: error instanceof Error ? error.message : String(error) });
           socket.emit("ERROR", { message: "Invalid data format for leaving task." });
         }
       });
@@ -49,7 +51,7 @@ export class PresenceService {
         try {
           await this.handleDisconnect(socket);
         } catch (error) {
-          console.error("Error handling disconnect:", error);
+          logger.error("Error handling disconnect", { error: error instanceof Error ? error.message : String(error) });
         }
       });
     });
@@ -61,7 +63,7 @@ export class PresenceService {
       this.presenceMap.set(taskId, []);
     }
     this.presenceMap.get(taskId)!.push(presence);
-    socket.join(taskId);
+    void socket.join(taskId);
     this.io.to(taskId).emit("USER_JOINED", { userId, taskId });
     await this.redis.sAdd(`task:${taskId}:viewers`, userId);
   }
@@ -81,7 +83,7 @@ export class PresenceService {
         await this.redis.sRem(`task:${taskId}:viewers`, userId);
       }
     }
-    socket.leave(taskId);
+    void socket.leave(taskId);
   }
 
   private async handleDisconnect(socket: Socket): Promise<void> {

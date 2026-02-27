@@ -283,13 +283,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
       const canRetry = retryCount < MAX_RETRIES
 
       return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-2">
-          <Card className="max-w-2xl w-full shadow-sm">
+        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-2">
+          <Card className="max-w-2xl w-full border-white/[0.04] bg-[#111111]">
             <CardHeader className="text-center">
-              <div className="mx-auto mb-2 w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
+              <div className="mx-auto mb-2 w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-red-400" />
               </div>
-              <CardTitle className="text-sm font-bold text-red-600 dark:text-red-400">
+              <CardTitle className="text-sm font-bold text-red-400">
                 Something Went Wrong
               </CardTitle>
               <CardDescription className="text-base mt-2">
@@ -332,7 +332,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
 
               {/* Technical Details (Dev Mode) */}
               {showDetails && error && (
-                <details className="bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
+                <details className="bg-muted/40 p-2 rounded-lg border border-border/40">
                   <summary className="cursor-pointer font-semibold mb-2 flex items-center gap-2">
                     <Bug className="w-4 h-4" />
                     Technical Details (Development Only)
@@ -340,13 +340,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
                   <div className="space-y-3 mt-3">
                     <div>
                       <div className="text-sm font-semibold mb-1">Error Type:</div>
-                      <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-2 rounded">
+                      <pre className="text-xs bg-background/80 border border-border/40 p-2 rounded">
                         {error.name}
                       </pre>
                     </div>
                     <div>
                       <div className="text-sm font-semibold mb-1">Stack Trace:</div>
-                      <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-3 rounded overflow-x-auto max-h-48 overflow-y-auto">
+                      <pre className="text-xs bg-background/80 border border-border/40 p-3 rounded overflow-x-auto max-h-48 overflow-y-auto">
                         {error.stack}
                       </pre>
                     </div>
@@ -355,7 +355,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
                         <div className="text-sm font-semibold mb-1">
                           Component Stack:
                         </div>
-                        <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-3 rounded overflow-x-auto max-h-48 overflow-y-auto">
+                        <pre className="text-xs bg-background/80 border border-border/40 p-3 rounded overflow-x-auto max-h-48 overflow-y-auto">
                           {errorInfo.componentStack}
                         </pre>
                       </div>
@@ -424,7 +424,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
                   If this problem persists, please contact support with the error
                   code:
                 </p>
-                <code className="mt-1 inline-block bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded font-mono">
+                <code className="mt-1 inline-block bg-muted/40 border border-border/40 px-3 py-1 rounded font-mono">
                   {Date.now().toString(36).toUpperCase()}
                 </code>
               </div>

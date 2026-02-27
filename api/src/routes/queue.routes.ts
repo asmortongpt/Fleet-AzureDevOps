@@ -31,7 +31,7 @@ const requireAdmin = (req: Request, res: Response, next: any) => {
   }
 
   // Check for JWT with admin role
-  const user = (req as any).user;
+  const user = req.user;
   if (user && (user.role === 'admin' || user.role === 'system_admin')) {
     return next();
   }
@@ -45,7 +45,7 @@ const requireAdmin = (req: Request, res: Response, next: any) => {
   }
 
   // Development mode allows through (with warning)
-  console.warn('⚠️  Admin endpoint accessed without authentication in development mode');
+  logger.warn('⚠️  Admin endpoint accessed without authentication in development mode');
   next();
 };
 
@@ -83,7 +83,7 @@ router.get(`/stats`, requireAdmin, async (req: Request, res: Response) => {
         timestamp: new Date()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error getting queue stats:`, error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get queue statistics', message: getErrorMessage(error) });
   }
@@ -101,7 +101,7 @@ router.get('/health', async (req: Request, res: Response) => {
       success: true,
       data: health
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting queue health:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get queue health', message: getErrorMessage(error) });
   }
@@ -149,7 +149,7 @@ router.get(`/:queueName/jobs`, requireAdmin, async (req: Request, res: Response)
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting jobs:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get jobs', message: getErrorMessage(error) });
   }
@@ -188,7 +188,7 @@ router.get('/:queueName/failed', requireAdmin, async (req: Request, res: Respons
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error getting failed jobs:`, error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get failed jobs', message: getErrorMessage(error) });
   }
@@ -249,7 +249,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting dead letter jobs:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get dead letter jobs', message: getErrorMessage(error) });
   }
@@ -259,7 +259,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
  * POST /api/queue/:queueName/retry/:jobId
  * Retry a failed job
  */
-router.post('/:queueName/retry/:jobId', csrfProtection, csrfProtection, requireAdmin, async (req: Request, res: Response) => {
+router.post('/:queueName/retry/:jobId', csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params;
 
@@ -273,7 +273,7 @@ router.post('/:queueName/retry/:jobId', csrfProtection, csrfProtection, requireA
         newJobId
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error retrying job:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to retry job', message: getErrorMessage(error) });
   }
@@ -297,7 +297,7 @@ router.post(`/:queueName/pause`, csrfProtection, requireAdmin, async (req: Reque
         pausedAt: new Date()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error pausing queue:`, error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to pause queue', message: getErrorMessage(error) });
   }
@@ -321,7 +321,7 @@ router.post(`/:queueName/resume`, csrfProtection, requireAdmin, async (req: Requ
         resumedAt: new Date()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error resuming queue:`, error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to resume queue', message: getErrorMessage(error) });
   }
@@ -331,7 +331,7 @@ router.post(`/:queueName/resume`, csrfProtection, requireAdmin, async (req: Requ
  * DELETE /api/queue/:queueName/clear
  * Clear all jobs from a queue (admin only, dangerous operation)
  */
-router.delete('/:queueName/clear', csrfProtection, csrfProtection, requireAdmin, async (req: Request, res: Response) => {
+router.delete('/:queueName/clear', csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { queueName } = req.params;
     const { confirm } = req.query;
@@ -354,7 +354,7 @@ router.delete('/:queueName/clear', csrfProtection, csrfProtection, requireAdmin,
         clearedAt: new Date()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error clearing queue:`, error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to clear queue', message: getErrorMessage(error) });
   }
@@ -364,7 +364,7 @@ router.delete('/:queueName/clear', csrfProtection, csrfProtection, requireAdmin,
  * POST /api/queue/dead-letter/:jobId/review
  * Mark a dead letter job as reviewed
  */
-router.post('/dead-letter/:jobId/review', csrfProtection, csrfProtection, requireAdmin, async (req: Request, res: Response) => {
+router.post('/dead-letter/:jobId/review', csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params;
     const { reviewedBy, resolutionNotes } = req.body;
@@ -388,7 +388,7 @@ router.post('/dead-letter/:jobId/review', csrfProtection, csrfProtection, requir
         reviewedAt: new Date()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error reviewing dead letter job:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to review job', message: getErrorMessage(error) });
   }
@@ -460,7 +460,7 @@ router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
         timestamp: new Date()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting metrics:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get metrics', message: getErrorMessage(error) });
   }
@@ -504,7 +504,7 @@ router.get('/:queueName/job/:jobId', requireAdmin, async (req: Request, res: Res
       success: true,
       data: result.rows[0]
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting job:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get job', message: getErrorMessage(error) });
   }

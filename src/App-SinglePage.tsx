@@ -10,6 +10,7 @@ import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { formatCurrency, formatTime } from "@/utils/format-helpers"
 
 /**
  * SINGLE-PAGE FLEET MANAGEMENT DASHBOARD
@@ -36,13 +37,13 @@ export default function App() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-[#888] to-[#777] dark:from-[#0a0a0a] dark:to-[#111]">
       {/* Header - Fixed height */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 py-2">
+      <header className="bg-white dark:bg-[#111] border-b border-white/[0.04] dark:border-white/[0.15] px-3 py-2">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
             <Truck className="w-4 h-4 text-primary" weight="duotone" />
-            <h1 className="text-sm font-bold text-slate-900 dark:text-white">
+            <h1 className="text-sm font-bold text-white/90 dark:text-white">
               Fleet Management
             </h1>
           </div>
@@ -59,111 +60,108 @@ export default function App() {
         {/* KPI Grid - 3x2 layout */}
         <div className="grid grid-cols-3 gap-2 mb-3">
           {/* Vehicles */}
-          <Card className="border-slate-200 dark:border-slate-800">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
-                <span className="text-slate-600 dark:text-slate-400">Total Vehicles</span>
-                <Truck className="w-4 h-4 text-blue-800" weight="duotone" />
+                <span className="text-white/50 dark:text-white/50">Total Vehicles</span>
+                <Truck className="w-4 h-4 text-emerald-800" weight="duotone" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-base font-bold text-slate-900 dark:text-white">
+              <div className="text-base font-bold text-white/90 dark:text-white">
                 {stats.totalVehicles}
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-sm text-white/40 dark:text-white/50 mt-1">
                 Active fleet
               </p>
             </CardContent>
           </Card>
 
           {/* Drivers */}
-          <Card className="border-slate-200 dark:border-slate-800">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
-                <span className="text-slate-600 dark:text-slate-400">Active Drivers</span>
+                <span className="text-white/50 dark:text-white/50">Active Drivers</span>
                 <Users className="w-4 h-4 text-green-600" weight="duotone" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-base font-bold text-slate-900 dark:text-white">
+              <div className="text-base font-bold text-white/90 dark:text-white">
                 {stats.activeDrivers}
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-sm text-white/40 dark:text-white/50 mt-1">
                 On duty today
               </p>
             </CardContent>
           </Card>
 
           {/* Maintenance */}
-          <Card className="border-slate-200 dark:border-slate-800">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
-                <span className="text-slate-600 dark:text-slate-400">Maintenance Due</span>
+                <span className="text-white/50 dark:text-white/50">Maintenance Due</span>
                 <Wrench className="w-4 h-4 text-orange-600" weight="duotone" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-base font-bold text-slate-900 dark:text-white">
+              <div className="text-base font-bold text-white/90 dark:text-white">
                 {stats.maintenanceDue}
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-sm text-white/40 dark:text-white/50 mt-1">
                 Needs attention
               </p>
             </CardContent>
           </Card>
 
           {/* Facilities */}
-          <Card className="border-slate-200 dark:border-slate-800">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
-                <span className="text-slate-600 dark:text-slate-400">Facilities</span>
-                <MapPin className="w-4 h-4 text-purple-600" weight="duotone" />
+                <span className="text-white/50 dark:text-white/50">Facilities</span>
+                <MapPin className="w-4 h-4 text-amber-600" weight="duotone" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-base font-bold text-slate-900 dark:text-white">
+              <div className="text-base font-bold text-white/90 dark:text-white">
                 {stats.facilities}
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-sm text-white/40 dark:text-white/50 mt-1">
                 Locations
               </p>
             </CardContent>
           </Card>
 
           {/* Fuel Cost */}
-          <Card className="border-slate-200 dark:border-slate-800">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
-                <span className="text-slate-600 dark:text-slate-400">Avg Fuel Cost</span>
+                <span className="text-white/50 dark:text-white/50">Avg Fuel Cost</span>
                 <TrendUp className="w-4 h-4 text-teal-600" weight="duotone" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-base font-bold text-slate-900 dark:text-white">
-                ${stats.avgFuelCost.toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })}
+              <div className="text-base font-bold text-white/90 dark:text-white">
+                {formatCurrency(stats.avgFuelCost)}
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-sm text-white/40 dark:text-white/50 mt-1">
                 Per gallon
               </p>
             </CardContent>
           </Card>
 
           {/* Alerts */}
-          <Card className="border-slate-200 dark:border-slate-800">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
-                <span className="text-slate-600 dark:text-slate-400">Alerts Today</span>
+                <span className="text-white/50 dark:text-white/50">Alerts Today</span>
                 <Bell className="w-4 h-4 text-red-600" weight="duotone" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-base font-bold text-slate-900 dark:text-white">
+              <div className="text-base font-bold text-white/90 dark:text-white">
                 {stats.alertsToday}
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-sm text-white/40 dark:text-white/50 mt-1">
                 Requires review
               </p>
             </CardContent>
@@ -188,13 +186,13 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-3 py-3">
+      <footer className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#111] border-t border-white/[0.04] dark:border-white/[0.15] px-3 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-white/40 dark:text-white/50">
             Capital Tech Alliance Fleet Management System
           </p>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Last updated: {new Date().toLocaleTimeString('en-US')}
+          <p className="text-sm text-white/40 dark:text-white/50">
+            Last updated: {formatTime(new Date())}
           </p>
         </div>
       </footer>

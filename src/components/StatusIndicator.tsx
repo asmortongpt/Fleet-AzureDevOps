@@ -1,5 +1,5 @@
 import { CheckCircle, AlertTriangle, XCircle, Circle } from "lucide-react"
-import { motion } from "framer-motion"
+// motion removed - React 19 incompatible
 
 import { Badge } from "@/components/ui/badge"
 
@@ -44,13 +44,11 @@ export function StatusIndicator({ status, label, uptime }: StatusIndicatorProps)
   return (
     <div className="flex items-center justify-between py-3 px-2 rounded-lg border bg-card">
       <div className="flex items-center gap-3">
-        <motion.div
-          animate={status === "healthy" ? {} : { scale: [1, 1.1, 1] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className={config.color}
+        <div
+          className={`${config.color} ${status !== "healthy" ? "animate-pulse" : ""}`}
         >
           {config.icon}
-        </motion.div>
+        </div>
         <div>
           <p className="text-sm font-medium">{label}</p>
           {uptime && (

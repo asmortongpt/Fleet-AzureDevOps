@@ -241,7 +241,7 @@ export function PolicyEngineWorkbench() {
 
   const getModeColor = (mode: PolicyMode) => {
     const colors = {
-      monitor: "bg-blue-100 text-blue-700",
+      monitor: "bg-emerald-500/10 text-emerald-700",
       "human-in-loop": "bg-yellow-100 text-yellow-700",
       autonomous: "bg-green-100 text-green-700"
     }
@@ -250,12 +250,12 @@ export function PolicyEngineWorkbench() {
 
   const getStatusColor = (status: PolicyStatus) => {
     const colors = {
-      draft: "bg-gray-100 text-gray-700",
-      testing: "bg-blue-100 text-blue-700",
+      draft: "bg-white/[0.05] text-white/40",
+      testing: "bg-emerald-500/10 text-emerald-700",
       approved: "bg-green-100 text-green-700",
       active: "bg-green-500 text-white",
       deprecated: "bg-orange-100 text-orange-700",
-      archived: "bg-gray-100 text-gray-700"
+      archived: "bg-white/[0.05] text-white/40"
     }
     return colors[status]
   }
@@ -527,7 +527,7 @@ export function PolicyEngineWorkbench() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">{totalExecutions}</div>
+            <div className="text-sm font-bold text-emerald-800">{totalExecutions}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Brain className="w-3 h-3" />
               All time

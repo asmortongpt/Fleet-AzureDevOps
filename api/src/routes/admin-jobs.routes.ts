@@ -94,7 +94,7 @@ router.get('/:queueName/jobs', async (req: Request, res: Response, next: NextFun
 
     const queue = queueName === 'email' ? emailQueue : queueName === 'notification' ? notificationQueue : reportQueue
 
-    let jobs: any[] = []
+    let jobs: Awaited<ReturnType<typeof queue.getWaiting>> = []
 
     switch (status) {
       case 'waiting':
@@ -314,7 +314,7 @@ router.get('/:queueName/job/:jobId', async (req: Request, res: Response, next: N
       data: job.data,
       opts: job.opts,
       progress: job.progress(),
-      delay: (job as any).delay,
+      delay: job.opts?.delay,
       timestamp: job.timestamp,
       attemptsMade: job.attemptsMade,
       failedReason: job.failedReason,

@@ -7,7 +7,7 @@
 
 -- Maintenance Table (Main maintenance records)
 CREATE TABLE IF NOT EXISTS maintenance (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL,
 
   -- Vehicle reference
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS maintenance (
   actual_duration_minutes INTEGER,
 
   -- Assignment
-  assigned_to INTEGER, -- Mechanic/technician user_id
+  assigned_to UUID, -- Mechanic/technician user_id
   assigned_shop VARCHAR(255),
   work_order_number VARCHAR(100),
 
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS maintenance (
   warranty_claim_number VARCHAR(100),
 
   -- Vendor/Provider
-  vendor_id INTEGER,
+  vendor_id UUID,
   vendor_name VARCHAR(255),
   invoice_number VARCHAR(100),
   invoice_date DATE,
@@ -92,11 +92,11 @@ CREATE TABLE IF NOT EXISTS maintenance (
   is_recurring BOOLEAN DEFAULT FALSE,
   recurrence_pattern VARCHAR(50), -- daily, weekly, monthly, mileage_based
   recurrence_interval INTEGER, -- Number of days/weeks/months or miles
-  parent_maintenance_id INTEGER, -- Reference to parent recurring maintenance
+  parent_maintenance_id UUID, -- Reference to parent recurring maintenance
 
   -- Approval workflow
   requires_approval BOOLEAN DEFAULT FALSE,
-  approved_by INTEGER,
+  approved_by UUID,
   approved_at TIMESTAMP,
   rejection_reason TEXT,
 
@@ -107,8 +107,8 @@ CREATE TABLE IF NOT EXISTS maintenance (
   -- Audit fields
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  created_by INTEGER,
-  updated_by INTEGER,
+  created_by UUID,
+  updated_by UUID,
 
   -- Foreign keys
   CONSTRAINT fk_maintenance_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
@@ -136,62 +136,29 @@ CREATE INDEX IF NOT EXISTS idx_maintenance_tags ON maintenance USING gin(tags);
 
 -- Maintenance Schedule Table
 -- Defines preventive maintenance schedules
-CREATE TABLE IF NOT EXISTS maintenance_schedules (
-  id SERIAL PRIMARY KEY,
-  tenant_id UUID NOT NULL,
-
-  -- Vehicle/Fleet reference
-  vehicle_id UUID, -- Specific vehicle (null for fleet-wide schedules)
-  vehicle_type VARCHAR(100), -- truck, van, sedan, etc. (for fleet-wide schedules)
-
-  -- Schedule details
-  schedule_name VARCHAR(255) NOT NULL,
-  description TEXT,
-  service_type VARCHAR(100) NOT NULL, -- oil_change, tire_rotation, inspection, etc.
-
-  -- Trigger conditions (at least one must be met)
-  trigger_type VARCHAR(50) NOT NULL, -- time_based, mileage_based, engine_hours, both
-  interval_days INTEGER, -- For time-based
-  interval_miles INTEGER, -- For mileage-based
-  interval_engine_hours INTEGER, -- For equipment
-
-  -- Tolerance/buffer
-  early_warning_days INTEGER DEFAULT 7, -- Warn N days before due
-  early_warning_miles INTEGER DEFAULT 500, -- Warn N miles before due
-
-  -- Status
-  is_active BOOLEAN DEFAULT TRUE,
-
-  -- Auto-creation
-  auto_create_work_orders BOOLEAN DEFAULT TRUE,
-  lead_time_days INTEGER DEFAULT 7, -- Create work order N days before due
-
-  -- Default values for created maintenance
-  default_priority VARCHAR(20) DEFAULT 'normal',
-  default_duration_minutes INTEGER,
-  default_cost_estimate_cents INTEGER,
-  default_assigned_shop VARCHAR(255),
-
-  -- Checklist template
-  checklist_template JSONB DEFAULT '[]', -- Array of checklist items
-
-  -- Required parts/supplies
-  required_parts JSONB DEFAULT '[]', -- Array of {part_id, quantity}
-
-  -- Vendor preference
-  preferred_vendor_id INTEGER,
-
-  -- Metadata
-  metadata JSONB DEFAULT '{}',
-
-  -- Audit fields
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW(),
-  created_by INTEGER,
-
-  CONSTRAINT fk_maintenance_schedule_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
-  CONSTRAINT fk_maintenance_schedule_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
-);
+-- maintenance_schedules already exists from initial schema; add missing columns
+DO $$ BEGIN
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS schedule_name VARCHAR(255);
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS vehicle_type VARCHAR(100);
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS service_type VARCHAR(100);
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS trigger_type VARCHAR(50);
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS interval_days INTEGER;
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS interval_miles INTEGER;
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS interval_engine_hours INTEGER;
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS early_warning_days INTEGER DEFAULT 7;
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS early_warning_miles INTEGER DEFAULT 500;
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS auto_create_work_orders BOOLEAN DEFAULT TRUE;
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS lead_time_days INTEGER DEFAULT 7;
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS default_priority VARCHAR(20) DEFAULT 'normal';
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS default_duration_minutes INTEGER;
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS default_cost_estimate_cents INTEGER;
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS default_assigned_shop VARCHAR(255);
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS checklist_template JSONB DEFAULT '[]';
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS required_parts JSONB DEFAULT '[]';
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS preferred_vendor_id UUID;
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+  ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS created_by UUID;
+END $$;
 
 -- Indexes for maintenance_schedules
 CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_tenant_id ON maintenance_schedules(tenant_id);
@@ -200,18 +167,22 @@ CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_vehicle_type ON maintenance
 CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_service_type ON maintenance_schedules(service_type);
 CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_active ON maintenance_schedules(is_active);
 
--- Update triggers
+-- Update triggers (drop first to avoid duplicates)
+DROP TRIGGER IF EXISTS update_maintenance_updated_at ON maintenance;
 CREATE TRIGGER update_maintenance_updated_at BEFORE UPDATE ON maintenance
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_maintenance_schedules_updated_at ON maintenance_schedules;
 CREATE TRIGGER update_maintenance_schedules_updated_at BEFORE UPDATE ON maintenance_schedules
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Grant permissions
-GRANT SELECT, INSERT, UPDATE, DELETE ON maintenance TO webapp;
-GRANT SELECT, INSERT, UPDATE, DELETE ON maintenance_schedules TO webapp;
-GRANT USAGE, SELECT ON SEQUENCE maintenance_id_seq TO webapp;
-GRANT USAGE, SELECT ON SEQUENCE maintenance_schedules_id_seq TO webapp;
+-- Grant permissions (only if webapp role exists)
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'webapp') THEN
+    GRANT SELECT, INSERT, UPDATE, DELETE ON maintenance TO webapp;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON maintenance_schedules TO webapp;
+  END IF;
+END $$;
 
 -- Comments
 COMMENT ON TABLE maintenance IS 'Main maintenance records for vehicles';

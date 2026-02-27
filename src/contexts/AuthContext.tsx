@@ -5,11 +5,13 @@
  * SECURITY (CRIT-F-003): Implements RBAC with role hierarchy and permissions
  */
 
+import { InteractionStatus } from '@azure/msal-browser';
+import { useMsal } from '@azure/msal-react';
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 
-import { useMsal } from '@azure/msal-react';
-import { InteractionStatus } from '@azure/msal-browser';
+
 import { getCsrfToken, refreshCsrfToken, clearCsrfToken } from '@/hooks/use-api';
+import { startSessionTimeout, trackActivity } from '@/lib/auth/session-timeout';
 import { initializeTokenRefresh, stopTokenRefresh } from '@/lib/auth/token-refresh';
 import { getMicrosoftLoginUrl } from '@/lib/microsoft-auth';
 import { loginRequest } from '@/lib/msal-config';
@@ -65,31 +67,34 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Development auth bypass flag
-// NOTE: This bypass is DEV-only. Production builds must never allow auth bypass.
-const SKIP_AUTH = import.meta.env.DEV && import.meta.env.VITE_SKIP_AUTH === 'true';
+// SECURITY: Auth bypass strictly development-only
+// Production builds MUST NOT have SKIP_AUTH set
+if (import.meta.env.PROD && (import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true')) {
+  throw new Error('[SECURITY] Auth bypass is not permitted in production environments');
+}
 
-const DEV_LOGIN_EMAIL = 'admin@fleet.local';
+const SKIP_AUTH = !import.meta.env.PROD && (import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true');
 
-// Mock user for development when SKIP_AUTH is enabled
-const MOCK_DEV_USER: User = {
-  id: 'dev-user-001',
-  email: DEV_LOGIN_EMAIL,
+// Dev user for local testing only
+const DEV_USER: User = {
+  id: '00000000-0000-0000-0000-000000000001',
+  email: 'dev@fleetcta.local',
   firstName: 'Dev',
-  lastName: 'Admin',
+  lastName: 'User',
   role: 'SuperAdmin',
   permissions: ['*'],
-  tenantId: 'dev-tenant-001',
-  tenantName: 'Development'
+  tenantId: '11111111-1111-1111-1111-111111111111',
+  tenantName: 'Demo Fleet',
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUserState] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUserState] = useState<User | null>(SKIP_AUTH ? DEV_USER : null);
+  const [isLoading, setIsLoading] = useState(SKIP_AUTH ? false : true);
   const [authRefreshNonce, setAuthRefreshNonce] = useState(0);
+  const [showSessionWarning, setShowSessionWarning] = useState(false);
 
   // MSAL hooks for Azure AD authentication
-  const { instance, accounts, inProgress } = useMsal();
+  const { instance, accounts, inProgress} = useMsal();
 
   // Allow external triggers (e.g., SSO callback) to force a session refresh
   useEffect(() => {
@@ -98,6 +103,34 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     window.addEventListener('fleet-auth-refresh', handler);
     return () => window.removeEventListener('fleet-auth-refresh', handler);
   }, []);
+
+  // Track user activity to reset session timeout
+  useEffect(() => {
+    if (!user) return;
+
+    const activityTracker = () => {
+      trackActivity({
+        onWarning: () => setShowSessionWarning(true),
+        onTimeout: () => {
+          logger.warn('[Auth] Session timeout - auto logout');
+          logout();
+        }
+      });
+    };
+
+    // Track mouse, keyboard, and touch events
+    window.addEventListener('mousemove', activityTracker);
+    window.addEventListener('keypress', activityTracker);
+    window.addEventListener('click', activityTracker);
+    window.addEventListener('touchstart', activityTracker);
+
+    return () => {
+      window.removeEventListener('mousemove', activityTracker);
+      window.removeEventListener('keypress', activityTracker);
+      window.removeEventListener('click', activityTracker);
+      window.removeEventListener('touchstart', activityTracker);
+    };
+  }, [user]);
 
   // SECURITY (CRIT-F-001): Initialize auth state from MSAL or httpOnly cookies
   useEffect(() => {
@@ -164,11 +197,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
 
         return true;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const msalError = error as { message?: string; errorCode?: string; name?: string };
         logger.error('[Auth] Failed to sync server session from MSAL:', {
-          error: error.message,
-          errorCode: error.errorCode,
-          name: error.name,
+          error: msalError.message,
+          errorCode: msalError.errorCode,
+          name: msalError.name,
         });
         return false;
       }
@@ -209,10 +243,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         if (cancelled) return;
 
-        // DEV: Use mock user directly when SKIP_AUTH=true (no backend required)
-        if (SKIP_AUTH) {
-          logger.info('[Auth] SKIP_AUTH enabled - using mock dev user');
-          setUserState(MOCK_DEV_USER);
+        // DEV: Skip all auth initialization when SKIP_AUTH is enabled
+        if (SKIP_AUTH && !import.meta.env.PROD) {
+          logger.info('[Auth] SKIP_AUTH enabled - using dev user, skipping auth initialization');
+          setUserState(DEV_USER);
           setIsLoading(false);
           return;
         }
@@ -227,6 +261,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const sessionUser = await fetchSessionUser();
         if (sessionUser) {
           setUserState(sessionUser);
+
+          // Initialize session timeout (30 min idle = logout)
+          startSessionTimeout({
+            onWarning: () => {
+              setShowSessionWarning(true);
+            },
+            onTimeout: () => {
+              logger.warn('[Auth] Session timeout - auto logout');
+              logout();
+            }
+          });
+
           initializeTokenRefresh({
             onRefresh: (success) => {
               if (!success) {
@@ -359,11 +405,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         ...loginRequest,
         redirectStartPage: window.location.href,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msalError = error as { message?: string; errorCode?: string; errorMessage?: string };
       logger.error('[Auth] MSAL login failed:', {
-        error: error.message,
-        errorCode: error.errorCode,
-        errorMessage: error.errorMessage,
+        error: msalError.message,
+        errorCode: msalError.errorCode,
+        errorMessage: msalError.errorMessage,
       });
 
       // Fallback to old OAuth flow if MSAL fails

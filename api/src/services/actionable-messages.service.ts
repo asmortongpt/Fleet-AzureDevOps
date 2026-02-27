@@ -159,14 +159,15 @@ export class ActionableMessagesService {
       }
 
       return result
-    } catch (error: any) {
-      logger.error('Error handling card action:', error.message)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      logger.error('Error handling card action:', errorMessage)
 
       await this.logCardAction(cardId, action, userId, 'error')
 
       return {
         success: false,
-        message: `Error processing action: ${error.message}`
+        message: `Error processing action: ${errorMessage}`
       }
     }
   }
@@ -296,7 +297,6 @@ export class ActionableMessagesService {
       await createAuditLog(
         tenantId,
         userId,
-        // @ts-ignore - 'APPROVE' might not be in the enum but used in legacy code
         'APPROVE',
         'approvals',
         approvalId || '',
@@ -336,7 +336,6 @@ export class ActionableMessagesService {
       await createAuditLog(
         tenantId,
         userId,
-        // @ts-ignore
         'REJECT',
         'approvals',
         approvalId || '',
@@ -683,8 +682,8 @@ return
          VALUES ($1, $2, $3, $4, $5, NOW())`,
         [cardId, action.action, JSON.stringify(action), userId, result]
       )
-    } catch (error: any) {
-      logger.error('Error logging card action:', error.message)
+    } catch (error: unknown) {
+      logger.error('Error logging card action:', error instanceof Error ? error.message : 'An unexpected error occurred')
     }
   }
 
