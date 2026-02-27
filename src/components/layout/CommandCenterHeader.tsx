@@ -36,7 +36,11 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
     }, []);
 
     return (
-        <header className="relative shrink-0" style={{ backgroundColor: 'var(--surface-1)' }}>
+        <header className="relative shrink-0" style={{
+            background: 'linear-gradient(180deg, var(--surface-1) 0%, var(--surface-0) 100%)',
+            backdropFilter: 'blur(12px) saturate(1.2)',
+            WebkitBackdropFilter: 'blur(12px) saturate(1.2)',
+        }}>
             <div className={cn(
                 "flex items-center justify-between",
                 isMobile ? "px-3" : "px-4"

@@ -2,15 +2,16 @@ import { ComponentProps, forwardRef } from "react"
 
 import { cn } from "@/lib/utils"
 
-const Card = forwardRef<HTMLDivElement, ComponentProps<"div">>(({ className, ...props }, ref) => {
+const Card = forwardRef<HTMLDivElement, ComponentProps<"div">>(({ className, style, ...props }, ref) => {
   return (
     <div
       ref={ref}
       data-slot="card"
       className={cn(
-        "bg-[var(--surface-2)] text-[var(--text-primary)] rounded-xl border border-[var(--border-subtle)] flex flex-col gap-2 p-4 transition-colors duration-[var(--duration-fast)]",
+        "premium-card text-[var(--text-primary)] flex flex-col gap-2 p-4",
         className
       )}
+      style={style}
       {...props}
     />
   )
@@ -115,7 +116,7 @@ function CardPremium({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="card-premium"
       className={cn(
-        "bg-[var(--surface-2)] text-[var(--text-primary)] flex flex-col gap-3 rounded-xl border border-[var(--border-default)] p-4",
+        "premium-section text-[var(--text-primary)] flex flex-col gap-3 p-4",
         className
       )}
       {...props}

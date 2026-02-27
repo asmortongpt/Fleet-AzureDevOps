@@ -91,6 +91,17 @@
   --accent-active: #047857;
   --accent-muted: rgba(16, 185, 129, 0.12);
   --accent-subtle: rgba(16, 185, 129, 0.06);
+
+  /* ── Premium Gradients ── */
+  --gradient-accent: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  --gradient-accent-subtle: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
+  --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
+  --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+
+  /* ── Premium Effects ── */
+  --glass-blur: 12px;
+  --glass-saturate: 1.2;
+  --noise-opacity: 0.02;
 }
 
 
@@ -145,6 +156,17 @@
   --scrollbar-thumb: rgba(255, 255, 255, 0.12);
   --scrollbar-thumb-hover: rgba(255, 255, 255, 0.20);
   --scrollbar-track: transparent;
+
+  /* ── Premium Card Effects ── */
+  --card-bg: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-border-hover: rgba(255, 255, 255, 0.10);
+  --card-glow: 0 0 0 1px rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.3);
+  --card-glow-hover: 0 0 0 1px rgba(16,185,129,0.15), 0 8px 32px rgba(0,0,0,0.4), 0 0 24px rgba(16,185,129,0.05);
+
+  /* ── Premium Surface Blurs ── */
+  --surface-frosted: rgba(14, 14, 17, 0.80);
+  --surface-elevated: rgba(20, 20, 23, 0.90);
 }
 
 

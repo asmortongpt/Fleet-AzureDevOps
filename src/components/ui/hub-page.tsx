@@ -1,9 +1,8 @@
 /**
- * HubPage — Standardized hub layout
+ * HubPage — Premium hub layout
  *
- * Tesla/Rivian minimal: spacious header, clean tab bar, dark content area.
- * Large title, description as subtle secondary text.
- * Tabs use a minimal underline-style active indicator.
+ * Gradient-accented header, frosted tab bar with emerald active indicator,
+ * smooth content transitions, staggered child animations.
  */
 
 import React, { ReactNode, useState } from 'react'
@@ -92,27 +91,28 @@ export function HubPage({
     return (
         <div
             className={cn(
-                'flex flex-col bg-[#0a0a0a]',
+                'flex flex-col',
                 fullHeight && 'h-full',
                 className
             )}
+            style={{ background: 'var(--surface-0)' }}
             data-testid="hub-page"
         >
-            {/* Hub Header — spacious, minimal */}
+            {/* Premium Hub Header */}
             <header
-                className="flex items-center justify-between px-6 py-4 bg-[#0a0a0a]"
+                className="premium-hub-header flex items-center justify-between"
                 data-testid="hub-header"
             >
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-4 min-w-0">
                     {icon && (
-                        <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-white/[0.04] text-white/50">
-                            {React.isValidElement(icon) ? icon : React.createElement(icon as React.ComponentType<{ className: string }>, { className: 'h-4 w-4' })}
+                        <div className="premium-hub-icon">
+                            {React.isValidElement(icon) ? icon : React.createElement(icon as React.ComponentType<{ className: string }>, { className: 'h-5 w-5' })}
                         </div>
                     )}
                     <div className="min-w-0">
-                        <h1 className="text-lg font-semibold text-white tracking-tight">{title}</h1>
+                        <h1 className="text-xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>{title}</h1>
                         {description && (
-                            <p className="text-[13px] text-white/30 mt-0.5">{description}</p>
+                            <p className="text-[13px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{description}</p>
                         )}
                     </div>
                 </div>
@@ -134,7 +134,7 @@ export function HubPage({
                     className="flex flex-col flex-1 min-h-0"
                 >
                     <TabsList
-                        className="w-full justify-start rounded-none border-b border-white/[0.04] px-6 h-10 bg-transparent"
+                        className="premium-tabs w-full justify-start rounded-none h-11"
                         data-testid="hub-tabs"
                     >
                         {allTabs.map((tab) => (
@@ -143,7 +143,7 @@ export function HubPage({
                                 value={tab.id}
                                 disabled={tab.disabled}
                                 aria-label={tab.ariaLabel || tab.label}
-                                className="gap-2 rounded-none border-b-2 border-transparent px-4 text-[13px] font-medium text-white/30 data-[state=active]:border-white data-[state=active]:text-white transition-colors duration-150"
+                                className="premium-tab-trigger gap-2 px-4 text-[13px] font-medium rounded-none border-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                                 data-testid={`hub-tab-${tab.id}`}
                             >
                                 {tab.icon && (React.isValidElement(tab.icon) ? tab.icon : typeof tab.icon === 'function' ? React.createElement(tab.icon as React.ComponentType<{ className: string }>, { className: 'h-4 w-4' }) : null)}
@@ -156,15 +156,18 @@ export function HubPage({
                         <TabsContent
                             key={tab.id}
                             value={tab.id}
-                            className="flex-1 min-h-0 m-0 outline-none overflow-y-auto bg-[#0a0a0a]"
+                            className="flex-1 min-h-0 m-0 outline-none overflow-y-auto"
+                            style={{ background: 'var(--surface-0)' }}
                             data-testid={`hub-content-${tab.id}`}
                         >
-                            {tab.content}
+                            <div className="premium-stagger">
+                                {tab.content}
+                            </div>
                         </TabsContent>
                     ))}
                 </Tabs>
             ) : (
-                <div className="flex flex-col flex-1 min-h-0 p-6 overflow-y-auto bg-[#0a0a0a]">
+                <div className="flex flex-col flex-1 min-h-0 p-6 overflow-y-auto" style={{ background: 'var(--surface-0)' }}>
                     {children}
                 </div>
             )}
@@ -203,10 +206,10 @@ export function HubSection({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                     <div className="min-w-0">
                         {title && (
-                            <h2 className="text-[15px] font-semibold text-white">{title}</h2>
+                            <h2 className="text-[15px] font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h2>
                         )}
                         {description && (
-                            <p className="text-[13px] text-white/30 mt-0.5">{description}</p>
+                            <p className="text-[13px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{description}</p>
                         )}
                     </div>
                     {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
@@ -232,7 +235,7 @@ export function HubGrid({ children, className, columns = 4 }: HubGridProps) {
     }
 
     return (
-        <div className={cn('grid gap-4', gridCols[columns], className)}>
+        <div className={cn('grid gap-4 premium-stagger', gridCols[columns], className)}>
             {children}
         </div>
     )

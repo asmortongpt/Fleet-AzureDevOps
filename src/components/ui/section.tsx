@@ -1,8 +1,8 @@
 /**
- * Section — Content card with optional header
+ * Section — Premium content card with glass depth
  *
- * Tesla/Rivian minimal: very subtle border, generous padding,
- * clean typography hierarchy. No visual decoration.
+ * Gradient background, subtle border glow on hover,
+ * frosted header bar, smooth transitions.
  */
 import React from 'react'
 
@@ -30,21 +30,28 @@ export function Section({
   return (
     <section
       className={cn(
-        'flex flex-col rounded-2xl bg-[var(--surface-1)] border border-[var(--border-subtle)]',
+        'premium-section flex flex-col',
         className
       )}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[var(--border-subtle)]">
+      <div className="section-header flex flex-wrap items-center justify-between gap-3 px-5 py-4">
         <div className="flex items-center gap-3">
           {icon ? (
-            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--surface-glass)] text-[var(--text-tertiary)]">
+            <div
+              className="flex h-7 w-7 items-center justify-center rounded-lg"
+              style={{
+                background: 'rgba(16, 185, 129, 0.08)',
+                border: '1px solid rgba(16, 185, 129, 0.12)',
+                color: 'var(--accent-primary)',
+              }}
+            >
               {icon}
             </div>
           ) : null}
           <div>
-            <h3 className="text-[14px] font-semibold text-white">{title}</h3>
+            <h3 className="text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
             {description ? (
-              <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">{description}</p>
+              <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{description}</p>
             ) : null}
           </div>
         </div>

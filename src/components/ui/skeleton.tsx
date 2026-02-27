@@ -7,9 +7,10 @@ function Skeleton({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton"
       className={cn(
-        "bg-muted/60 animate-pulse rounded-lg",
+        "animate-pulse rounded-lg",
         className
       )}
+      style={{ background: 'rgba(255,255,255,0.04)' }}
       {...props}
     />
   )
@@ -55,7 +56,7 @@ function SkeletonCard({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton-card"
       className={cn(
-        "rounded-md border border-border/50 bg-card/50 p-2 sm:p-3 space-y-2",
+        "premium-card rounded-xl p-2 sm:p-3 space-y-2",
         className
       )}
       {...props}
@@ -78,7 +79,7 @@ function SkeletonStatCard({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton-stat-card"
       className={cn(
-        "rounded-md border border-border/50 bg-card/50 p-2 space-y-3",
+        "premium-stat rounded-xl p-3 space-y-3",
         className
       )}
       {...props}
@@ -212,7 +213,7 @@ function SkeletonChart({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton-chart"
       className={cn(
-        "rounded-md border border-border/50 bg-card/50 p-2 sm:p-3",
+        "premium-section rounded-xl p-2 sm:p-3",
         className
       )}
       {...props}

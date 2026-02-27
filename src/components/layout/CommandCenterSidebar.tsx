@@ -51,13 +51,14 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 aria-label={item.label}
                 aria-current={isActive ? "page" : undefined}
             >
-                {/* Emerald active indicator bar */}
+                {/* Emerald active indicator bar with glow */}
                 <div className={cn(
                     "absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full transition-all duration-[var(--duration-normal)]",
                     isActive ? "opacity-100" : "opacity-0"
                 )}
                 style={{
-                    backgroundColor: 'var(--accent-primary)',
+                    background: 'linear-gradient(180deg, #10b981, #059669)',
+                    boxShadow: isActive ? '0 0 8px rgba(16, 185, 129, 0.4)' : 'none',
                 }}
                 />
 
@@ -127,8 +128,10 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                     isSidebarOpen ? "w-[var(--sidebar-width)]" : "w-[var(--sidebar-collapsed)]"
                 )}
                 style={{
-                    backgroundColor: 'var(--surface-1)',
+                    background: 'linear-gradient(180deg, var(--surface-1) 0%, var(--surface-0) 100%)',
                     borderRight: '1px solid var(--border-subtle)',
+                    backdropFilter: 'blur(20px) saturate(1.2)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(1.2)',
                 }}
             >
                 {/* Logo Area */}

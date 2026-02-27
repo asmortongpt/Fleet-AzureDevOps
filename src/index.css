@@ -13,6 +13,9 @@
 /* Design Token System - must load before all other styles */
 @import "./styles/design-tokens.css";
 
+/* Premium visual layer - glass, gradients, depth effects */
+@import "./styles/premium.css";
+
 /* Enterprise Design System - Core styles */
 @import "./styles/enterprise-design-system.css";
 
