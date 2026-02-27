@@ -1,64 +1,38 @@
 /**
- * PeopleCommunicationHub - Consolidated People & Communication Dashboard
+ * PeopleCommunicationHub - Command Center Redesign
  *
- * Consolidates:
- * - PeopleHub (HR, team management, employee data)
- * - CommunicationHub (messaging, notifications, announcements)
- * - WorkHub (tasks, schedules, collaboration)
- *
- * Features:
- * - Team and employee management
- * - Internal communication and messaging
- * - Task and schedule coordination
- * - Collaboration tools
- * - WCAG 2.1 AA accessibility
- * - Performance optimized
+ * People-focused directory layout with:
+ * - HeroMetrics inline strip (Total Employees, On Duty, Avg Tenure)
+ * - Responsive people directory grid (3-4 cols) with avatar, name, role, department, status dot
+ * - Click-to-open profile flyout (via DrilldownContext)
+ * - Communication tab: Slack-style message thread list
+ * - Simple horizontal tabs: People, Communication
  */
 
 import {
   Users,
   MessageSquare,
-  Briefcase,
-  User,
-  Calendar,
-  CheckSquare,
-  Inbox,
-  UserPlus,
-  UserCheck,
-  UserX,
   Clock,
+  UserCheck,
   Award,
-  Target,
-  TrendingUp,
+  Search,
+  Inbox,
   Hash,
   Megaphone,
   BookOpen,
-  Plus,
-  Video,
-  ExternalLink,
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
-import { toast } from 'sonner'
-import useSWR, { mutate } from 'swr'
+import useSWR from 'swr'
 
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import HubPage from '@/components/ui/hub-page'
+import { HeroMetrics, type HeroMetric } from '@/components/ui/hero-metrics'
 import { Input } from '@/components/ui/input'
-import { Section } from '@/components/ui/section'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  StatCard,
-} from '@/components/visualizations'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
-import { formatDate, formatDateTime , formatNumber } from '@/utils/format-helpers'
-
-
+import { formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers'
 
 const fetcher = apiFetcher
 
@@ -70,13 +44,45 @@ const rawFetcher = (url: string) =>
     })
 
 // ============================================================================
-// TAB CONTENT COMPONENTS
+// HELPERS
 // ============================================================================
 
-/**
- * People Tab - HR and team management
- */
+/** Extract initials from a name string (up to 2 chars). */
+function getInitials(name: string): string {
+  if (!name) return '?'
+  const parts = name.trim().split(/\s+/)
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  return parts[0].slice(0, 2).toUpperCase()
+}
+
+/** Deterministic color for avatar backgrounds based on name hash. */
+const avatarColors = [
+  'bg-emerald-600',
+  'bg-amber-600',
+  'bg-rose-600',
+  'bg-teal-600',
+  'bg-orange-600',
+  'bg-cyan-600',
+  'bg-fuchsia-600',
+  'bg-lime-600',
+]
+
+function avatarColor(name: string): string {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return avatarColors[Math.abs(hash) % avatarColors.length]
+}
+
+// ============================================================================
+// PEOPLE DIRECTORY TAB
+// ============================================================================
+
 const PeopleTabContent = memo(function PeopleTabContent() {
+  const { push } = useDrilldown()
+  const [searchQuery, setSearchQuery] = useState('')
+
   const { data: users, error: usersError, isLoading: usersLoading } = useSWR<any[]>(
     '/api/users?limit=200',
     fetcher,
@@ -105,7 +111,6 @@ const PeopleTabContent = memo(function PeopleTabContent() {
   const teamRows = Array.isArray(teams) ? teams : []
 
   const activeUsers = userRows.filter((user: any) => user.status === 'active')
-  const inactiveUsers = userRows.filter((user: any) => user.status !== 'active')
 
   const avgTenureYears = useMemo(() => {
     const tenureYears = userRows
@@ -121,22 +126,14 @@ const PeopleTabContent = memo(function PeopleTabContent() {
     return tenureYears.reduce((sum, years) => sum + years, 0) / tenureYears.length
   }, [userRows])
 
-  // P1-6: Renamed to "Recently Added Users" — sorted by created_at desc
-  const recentUsers = useMemo(() => {
-    return userRows
-      .slice()
-      .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
-      .slice(0, 4)
-      .map((user: any) => {
-        return {
-          isActive: user.status === 'active',
-          name: user.name || `${user.first_name} ${user.last_name}`.trim(),
-          department: user.role ? formatEnum(user.role) : 'Team Member',
-          createdAt: user.created_at
-        }
-      })
-  }, [userRows])
+  // Build a lookup: team id -> team name
+  const teamNameById = useMemo(() => {
+    const map: Record<string, string> = {}
+    teamRows.forEach((t: any) => { if (t.id && t.name) map[t.id] = t.name })
+    return map
+  }, [teamRows])
 
+  // Training progress data
   const trainingProgressData = useMemo(() => {
     const courses = Array.isArray(trainingCourses) ? trainingCourses : []
     const progressRows = Array.isArray(trainingProgress) ? trainingProgress : []
@@ -145,8 +142,6 @@ const PeopleTabContent = memo(function PeopleTabContent() {
       if (!courseId) return acc
       if (!acc[courseId]) acc[courseId] = { completed: 0, total: 0 }
       acc[courseId].total += 1
-      // P1-8: Fix training completion — completed_modules is a string (status column alias), not array
-      // Only check numeric progress >= 100 or status string === 'completed'
       if (Number(row.progress) >= 100 || row.completed_modules === 'completed') {
         acc[courseId].completed += 1
       }
@@ -163,185 +158,196 @@ const PeopleTabContent = memo(function PeopleTabContent() {
     }).filter((course: any) => course.enrolled > 0)
   }, [trainingCourses, trainingProgress])
 
+  // Normalize people list
+  const people = useMemo(() => {
+    return userRows.map((user: any) => {
+      const name = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown'
+      const role = user.role ? formatEnum(user.role) : 'Team Member'
+      const department = user.team_id ? (teamNameById[user.team_id] || 'Unassigned') : (user.department || 'Unassigned')
+      const isActive = user.status === 'active'
+      return { id: user.id, name, role, department, isActive, email: user.email }
+    })
+  }, [userRows, teamNameById])
+
+  // Filter by search
+  const filteredPeople = useMemo(() => {
+    if (!searchQuery.trim()) return people
+    const q = searchQuery.toLowerCase()
+    return people.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.role.toLowerCase().includes(q) ||
+        p.department.toLowerCase().includes(q)
+    )
+  }, [people, searchQuery])
+
+  // HeroMetrics data
+  const heroMetrics: HeroMetric[] = useMemo(() => [
+    {
+      label: 'Total Employees',
+      value: formatNumber(userRows.length),
+      icon: Users,
+      accent: 'emerald' as const,
+    },
+    {
+      label: 'On Duty',
+      value: formatNumber(activeUsers.length),
+      icon: UserCheck,
+      accent: 'emerald' as const,
+    },
+    {
+      label: 'Avg Tenure',
+      value: avgTenureYears > 0 ? `${avgTenureYears.toFixed(1)} yrs` : '\u2014',
+      icon: Award,
+      accent: 'amber' as const,
+    },
+  ], [userRows.length, activeUsers.length, avgTenureYears])
+
+  const handlePersonClick = (person: typeof people[0]) => {
+    push({
+      id: person.id,
+      type: 'user',
+      label: person.name,
+      data: {
+        userId: person.id,
+        userName: person.name,
+        role: person.role,
+        department: person.department,
+        email: person.email,
+      },
+    })
+  }
+
   if (peopleError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-white/40 text-sm">
         Unable to load people data. Please try again.
       </div>
     )
   }
 
-  // P1-5: Loading state
   if (peopleLoading) {
     return (
-      <div className="flex flex-col gap-3 p-4 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-3">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+      <div className="flex flex-col gap-4 p-6">
+        <div className="flex gap-8">
+          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 flex-1" />)}
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Skeleton className="h-64" />
-          <Skeleton className="h-64" />
+        <Skeleton className="h-10 w-full max-w-sm" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {[...Array(12)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
-      {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-3">
-        <StatCard
-          title="Total Employees"
-          value={formatNumber(userRows.length)}
-          icon={Users}
-          description="Active team members"
-        />
-        <StatCard
-          title="On Duty"
-          value={formatNumber(activeUsers.length)}
-          icon={UserCheck}
-          description="Currently working"
-        />
-        {/* P0-2: Fix "On Leave" → "Inactive" — is_active===false means deactivated, not on leave */}
-        <StatCard
-          title="Inactive"
-          value={formatNumber(inactiveUsers.length)}
-          icon={UserX}
-          description="Deactivated accounts"
-        />
-        <StatCard
-          title="Avg Tenure"
-          value={avgTenureYears > 0 ? `${avgTenureYears.toFixed(1)} yrs` : '\u2014'}
-          icon={Award}
-          description="Employee retention"
-        />
+    <div className="flex flex-col gap-0">
+      {/* Hero Metrics Strip */}
+      <HeroMetrics metrics={heroMetrics} className="border-b border-white/[0.08]" />
+
+      {/* Search Bar */}
+      <div className="px-6 py-4">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+          <Input
+            placeholder="Search people by name, role, or department..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/30 focus:border-emerald-500/50"
+          />
+        </div>
       </div>
 
-      {/* Main Content: Two columns */}
-      <div className="grid grid-cols-2 gap-3">
-        {/* Left Column: Team Overview */}
-        {/* P1-11: Action button placeholder for team management */}
-        <Section
-          title="Team Overview"
-          description="Department breakdown and headcount"
-          icon={<Users className="h-4 w-4" />}
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {teamRows.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-            ) : (
-              <div className="space-y-1.5">
-                {teamRows.map((dept: any) => (
-                  <div
-                    key={dept.id}
-                    className="flex items-center justify-between rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5"
-                    title="Team details coming soon"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{dept.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Lead: {dept.team_lead_name || '\u2014'} -- {formatNumber(dept.member_count || 0)} members
-                        </p>
-                      </div>
-                    </div>
-                    <Badge variant={dept.is_active ? 'default' : 'secondary'}>
-                      {dept.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            )}
+      {/* People Directory Grid */}
+      <div className="px-6 pb-6 overflow-y-auto">
+        {filteredPeople.length === 0 ? (
+          <div className="flex items-center justify-center h-32 text-white/40 text-sm">
+            {searchQuery ? 'No people match your search.' : 'No people found.'}
           </div>
-        </Section>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {filteredPeople.map((person) => (
+              <div
+                key={person.id}
+                className="group flex items-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.03] p-3 cursor-pointer hover:bg-white/[0.07] transition-colors"
+                onClick={() => handlePersonClick(person)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handlePersonClick(person)
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`View profile for ${person.name}`}
+              >
+                {/* Avatar circle */}
+                <div className={`relative flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold ${avatarColor(person.name)}`}>
+                  {getInitials(person.name)}
+                  {/* Status dot */}
+                  <span
+                    className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#242424] ${person.isActive ? 'bg-emerald-400' : 'bg-white/20'}`}
+                  />
+                </div>
 
-        {/* Right Column: Recently Added Users + Training */}
-        <div className="flex flex-col gap-3 min-h-0">
-          {/* P1-6: Renamed from "Recent Activity" to "Recently Added Users" */}
-          <Section
-            title="Recently Added Users"
-            description="Newest team members"
-            icon={<UserPlus className="h-4 w-4" />}
-          >
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              {recentUsers.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-              ) : (
-                <div className="space-y-1.5">
-                  {recentUsers.map((user, index) => (
-                    <div
-                      key={index}
-                      className="flex items-start gap-2 rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5"
-                      title="User details coming soon"
-                    >
-                      {/* P1-6: UserPlus for active, UserX for inactive */}
-                      {user.isActive ? (
-                        <UserPlus className="h-4 w-4 text-emerald-400 mt-0.5" />
-                      ) : (
-                        <UserX className="h-4 w-4 text-muted-foreground mt-0.5" />
-                      )}
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {user.department}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Added on {formatDate(user.createdAt)}</p>
-                      </div>
+                {/* Name / Role / Department */}
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-white/80 truncate group-hover:text-white transition-colors">
+                    {person.name}
+                  </p>
+                  <p className="text-xs text-white/40 truncate">{person.role}</p>
+                  <p className="text-xs text-white/30 truncate">{person.department}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Training & Development section below directory */}
+        {trainingProgressData.length > 0 && (
+          <div className="mt-6 rounded-lg border border-white/[0.08] bg-white/[0.03] p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <BookOpen className="h-4 w-4 text-white/40" />
+              <h3 className="text-sm font-semibold text-white/60">Training & Development</h3>
+            </div>
+            <div className="space-y-2.5">
+              {trainingProgressData.map((training) => {
+                const completionPct = training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0
+                return (
+                  <div key={training.program}>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-white/60">{training.program}</p>
+                      <p className="text-[11px] text-white/35">
+                        {formatNumber(training.completed)}/{formatNumber(training.enrolled)} ({Math.round(completionPct)}%)
+                      </p>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <div className="w-full bg-white/[0.06] rounded-full h-1.5 mt-1">
+                      <div
+                        className={`rounded-full h-1.5 ${
+                          completionPct > 75 ? 'bg-emerald-500' :
+                          completionPct > 50 ? 'bg-amber-500' : 'bg-rose-500'
+                        }`}
+                        style={{ width: `${completionPct}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-          </Section>
-
-          <Section
-            title="Training & Development"
-            description="Ongoing training programs"
-            icon={<BookOpen className="h-4 w-4" />}
-          >
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              {trainingProgressData.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-              ) : (
-                <div className="space-y-1.5">
-                  {trainingProgressData.map((training) => {
-                    // P1-7: Conditional progress bar colors
-                    const completionPct = training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0
-                    return (
-                      <div key={training.program} className="rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-foreground">{training.program}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatNumber(training.completed)}/{formatNumber(training.enrolled)} ({Math.round(completionPct)}%)
-                          </p>
-                        </div>
-                        <div className="w-full bg-white/[0.06] rounded-full h-1.5 mt-1.5">
-                          <div
-                            className={`rounded-full h-1.5 ${
-                              completionPct > 75 ? 'bg-emerald-500' :
-                              completionPct > 50 ? 'bg-amber-500' : 'bg-rose-500'
-                            }`}
-                            style={{ width: `${completionPct}%` }}
-                          />
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          </Section>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   )
 })
 
-/**
- * Communication Tab - Messaging and announcements
- */
+// ============================================================================
+// COMMUNICATION TAB (Slack-style thread list)
+// ============================================================================
+
 const CommunicationTabContent = memo(function CommunicationTabContent() {
+  const { push } = useDrilldown()
+
   const { data: communicationLogs, error: communicationLogsError, isLoading: commLogsLoading } = useSWR<any[]>(
     '/api/communication-logs?limit=50',
     fetcher,
@@ -371,7 +377,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
   const channelRows = Array.isArray(teams) ? teams : []
   const unreadCount = typeof notifications?.data?.unread_count === 'number' ? notifications.data.unread_count : (typeof notifications?.unread_count === 'number' ? notifications.unread_count : 0)
 
-  // Compute average response time from message timestamps (proxy: avg gap between consecutive messages)
+  // Avg response time computation
   const avgResponseTime = useMemo(() => {
     if (messages.length < 2) return null
     const timestamps = messages
@@ -390,585 +396,220 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
     return hours < 24 ? `${hours}h` : `${Math.round(hours / 24)}d`
   }, [messages])
 
+  // HeroMetrics for communication
+  const commMetrics: HeroMetric[] = useMemo(() => [
+    {
+      label: 'Unread',
+      value: formatNumber(unreadCount),
+      icon: Inbox,
+      accent: unreadCount > 0 ? 'rose' as const : 'gray' as const,
+    },
+    {
+      label: 'Channels',
+      value: formatNumber(channelRows.length),
+      icon: Hash,
+      accent: 'emerald' as const,
+    },
+    {
+      label: 'Announcements',
+      value: formatNumber(announcementRows.length),
+      icon: Megaphone,
+      accent: 'amber' as const,
+    },
+    {
+      label: 'Avg Response',
+      value: avgResponseTime || '\u2014',
+      icon: Clock,
+      accent: 'gray' as const,
+    },
+  ], [unreadCount, channelRows.length, announcementRows.length, avgResponseTime])
+
   if (communicationError) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+      <div className="flex items-center justify-center h-32 text-white/40 text-sm">
         Unable to load communication data. Please try again.
       </div>
     )
   }
 
-  // P1-5: Loading state
   if (communicationLoading) {
     return (
-      <div className="flex flex-col gap-3 p-4 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-3">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+      <div className="flex flex-col gap-4 p-6">
+        <div className="flex gap-8">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 flex-1" />)}
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Skeleton className="h-64" />
-          <Skeleton className="h-64" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 space-y-2">
+            {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-16" />)}
+          </div>
+          <div className="space-y-2">
+            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-14" />)}
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
-      {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-3">
-        <StatCard
-          title="Unread Messages"
-          value={formatNumber(unreadCount)}
-          icon={Inbox}
-          description="Team inbox"
-        />
-        <StatCard
-          title="Active Channels"
-          value={formatNumber(channelRows.length)}
-          icon={Hash}
-          description="Communication channels"
-        />
-        {/* P1-9: Fix "Announcements" KPI description — no date filter exists */}
-        <StatCard
-          title="Announcements"
-          value={formatNumber(announcementRows.length)}
-          icon={Megaphone}
-          description="Total published"
-        />
-        <StatCard
-          title="Response Time"
-          value={avgResponseTime || '\u2014'}
-          icon={Clock}
-          description="Avg response"
-        />
-      </div>
+    <div className="flex flex-col gap-0">
+      {/* Hero Metrics Strip */}
+      <HeroMetrics metrics={commMetrics} className="border-b border-white/[0.08]" />
 
-      {/* Main Content: Two columns */}
-      <div className="grid grid-cols-2 gap-3">
-        {/* Left Column: Communication Log */}
-        {/* P1-11: Add "Compose" button */}
-        <Section
-          title="Recent Messages"
-          description="Latest team communications"
-          icon={<MessageSquare className="h-4 w-4" />}
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {messages.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-            ) : (
-              <div className="space-y-1.5">
-                {messages.slice(0, 8).map((msg: any) => (
+      {/* Two-column layout: threads + sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 min-h-0">
+        {/* Message Thread List (Slack-style) */}
+        <div className="lg:col-span-2 border-r border-white/[0.08] overflow-y-auto">
+          <div className="px-6 py-4 border-b border-white/[0.08]">
+            <h3 className="text-sm font-semibold text-white/80">Messages</h3>
+            <p className="text-xs text-white/30 mt-0.5">Recent team communications</p>
+          </div>
+
+          {messages.length === 0 ? (
+            <div className="flex items-center justify-center h-32 text-white/40 text-sm">
+              No messages yet.
+            </div>
+          ) : (
+            <div className="divide-y divide-white/[0.05]">
+              {messages.slice(0, 15).map((msg: any) => {
+                const senderName = msg.sender_name || 'System'
+                const isUnread = msg.status === 'pending'
+                const preview = msg.subject || msg.message_body || 'Message'
+                const timestamp = msg.created_at || msg.createdAt || msg.timestamp
+
+                return (
                   <div
                     key={msg.id}
-                    className="flex items-start gap-2 rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5"
-                    title="Message details coming soon"
+                    className={`flex items-start gap-3 px-6 py-3 cursor-pointer hover:bg-white/[0.04] transition-colors ${isUnread ? 'bg-white/[0.02]' : ''}`}
+                    onClick={() => push({
+                      id: msg.id,
+                      type: 'message',
+                      label: senderName,
+                      data: { messageId: msg.id, sender: senderName, subject: msg.subject },
+                    })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        push({
+                          id: msg.id,
+                          type: 'message',
+                          label: senderName,
+                          data: { messageId: msg.id, sender: senderName, subject: msg.subject },
+                        })
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Message from ${senderName}: ${preview}`}
                   >
-                    <User className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <div className="flex-1 min-w-0">
+                    {/* Sender Avatar */}
+                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold ${avatarColor(senderName)}`}>
+                      {getInitials(senderName)}
+                    </div>
+
+                    {/* Thread Content */}
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        {/* P0-3: Fix from_address → sender_name */}
-                        <p className="text-sm font-medium text-foreground truncate">{msg.sender_name || 'System'}</p>
-                        {/* P1-12: Fix is_read badge — use status field instead of non-existent is_read */}
-                        {msg.status === 'pending' && <Badge variant="default">New</Badge>}
+                        <span className={`text-sm truncate ${isUnread ? 'font-semibold text-white' : 'font-medium text-white/70'}`}>
+                          {senderName}
+                        </span>
+                        <span className="text-[11px] text-white/30 flex-shrink-0">
+                          {formatDateTime(timestamp)}
+                        </span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{msg.subject || msg.message_body || 'Message'}</p>
-                      {/* P0-3: Fix sent_at → created_at */}
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {formatDateTime(msg.created_at)}
+                      <p className={`text-xs mt-0.5 truncate ${isUnread ? 'text-white/60' : 'text-white/40'}`}>
+                        {preview}
                       </p>
                     </div>
+
+                    {/* Unread Badge */}
+                    {isUnread && (
+                      <div className="flex-shrink-0 mt-1">
+                        <span className="inline-flex items-center justify-center w-2 h-2 rounded-full bg-emerald-400" />
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
-            )}
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Sidebar: Channels + Announcements */}
+        <div className="overflow-y-auto">
+          {/* Channels */}
+          <div className="px-5 py-4 border-b border-white/[0.08]">
+            <h3 className="text-sm font-semibold text-white/80 flex items-center gap-2">
+              <Hash className="h-3.5 w-3.5 text-white/40" />
+              Channels
+            </h3>
           </div>
-        </Section>
-
-        {/* Right Column: Announcements + Channels */}
-        <div className="flex flex-col gap-3 min-h-0">
-          <Section
-            title="Announcements"
-            description="Company-wide notifications"
-            icon={<Megaphone className="h-4 w-4" />}
-          >
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              {announcementRows.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-              ) : (
-                <div className="space-y-1.5">
-                  {announcementRows.slice(0, 5).map((announcement: any) => (
-                    <div key={announcement.id} className="rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5">
-                      <div className="flex items-center justify-between mb-1">
-                        <Badge variant="secondary">{formatEnum(announcement.type) || 'Announcement'}</Badge>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(announcement.published_at)}
-                        </p>
-                      </div>
-                      <p className="text-sm font-medium text-foreground">{announcement.title}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Section>
-
-          <Section
-            title="Communication Channels"
-            description="Team channels and groups"
-            icon={<Hash className="h-4 w-4" />}
-          >
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              {channelRows.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-              ) : (
-                <div className="space-y-1.5">
-                  {channelRows.map((channel: any) => (
-                    <div
-                      key={channel.id}
-                      className="flex items-center justify-between rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5"
-                      title="Channel details coming soon"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Hash className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium text-foreground">#{channel.name}</p>
-                          <p className="text-xs text-muted-foreground">{formatNumber(channel.member_count || 0)} members</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Section>
-        </div>
-      </div>
-    </div>
-  )
-})
-
-/**
- * Work Tab - Tasks, schedules, and collaboration
- */
-const WorkTabContent = memo(function WorkTabContent() {
-  const { push } = useDrilldown()
-  const { data: tasks, error: tasksError, isLoading: tasksLoading } = useSWR<any[]>(
-    '/api/tasks?limit=200',
-    fetcher,
-    { shouldRetryOnError: false }
-  )
-
-  // Calendar events for upcoming meetings
-  const now = new Date()
-  const calendarKey = useMemo(() => {
-    const start = new Date()
-    start.setHours(0, 0, 0, 0)
-    const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000)
-    return `/api/calendar/events?startDate=${start.toISOString()}&endDate=${end.toISOString()}`
-  }, [])
-  const { data: calendarData } = useSWR<any>(
-    calendarKey,
-    fetcher,
-    { shouldRetryOnError: false }
-  )
-  const meetings = useMemo(() => {
-    const events = Array.isArray(calendarData?.events) ? calendarData.events : (Array.isArray(calendarData) ? calendarData : [])
-    return events
-      .filter((e: any) => e.event_type === 'meeting' || e.event_type === 'conference' || e.subject || e.attendees)
-      .slice(0, 5)
-  }, [calendarData])
-
-  // Meeting detail dialog
-  const [selectedMeeting, setSelectedMeeting] = useState<any>(null)
-
-  const handleJoinMeeting = (meeting: any) => {
-    const meetingUrl = meeting.onlineMeetingUrl || meeting.online_meeting_url || meeting.location
-    if (meetingUrl && (meetingUrl.startsWith('http://') || meetingUrl.startsWith('https://'))) {
-      window.open(meetingUrl, '_blank', 'noopener,noreferrer')
-    } else {
-      // Show meeting details dialog if no URL available
-      setSelectedMeeting(meeting)
-    }
-  }
-
-  // P0-4: Add Task dialog state
-  const [showAddTask, setShowAddTask] = useState(false)
-  const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'medium', status: 'pending' })
-
-  const taskRows = Array.isArray(tasks) ? tasks : []
-
-  const activeTasks = taskRows.filter((task: any) => (task.status || '').toLowerCase() !== 'completed')
-  const completedThisWeek = taskRows.filter((task: any) => {
-    if ((task.status || '').toLowerCase() !== 'completed') return false
-    const completedAt = task.completedAt ? new Date(task.completedAt) : null
-    if (!completedAt) return false
-    return completedAt.getTime() >= now.getTime() - 7 * 24 * 60 * 60 * 1000
-  })
-  const upcomingDeadlines = taskRows.filter((task: any) => {
-    if (!task.dueDate) return false
-    const due = new Date(task.dueDate)
-    return due.getTime() >= now.getTime() && due.getTime() <= now.getTime() + 7 * 24 * 60 * 60 * 1000
-  })
-
-  // P1-10: Fix productivity calculation — use tasks due this week as denominator
-  const dueThisWeek = taskRows.filter((task: any) => {
-    if (!task.dueDate) return false
-    const due = new Date(task.dueDate)
-    return due.getTime() >= now.getTime() - 7 * 24 * 60 * 60 * 1000 && due.getTime() <= now.getTime() + 7 * 24 * 60 * 60 * 1000
-  })
-  const productivity = dueThisWeek.length > 0
-    ? Math.round((completedThisWeek.length / dueThisWeek.length) * 100)
-    : (taskRows.length > 0 ? Math.round((completedThisWeek.length / taskRows.length) * 100) : 0)
-
-  // P1-13: Cap tasks at 5 per column
-  const taskColumns = useMemo(() => {
-    const columns = [
-      { status: 'To Do', key: 'pending' },
-      { status: 'In Progress', key: 'in_progress' },
-      { status: 'Completed', key: 'completed' },
-    ]
-
-    return columns.map((column) => {
-      const tasksForColumn = taskRows.filter((task: any) => (task.status || '').toLowerCase() === column.key)
-      return {
-        ...column,
-        count: tasksForColumn.length,
-        tasks: tasksForColumn.slice(0, 5)
-      }
-    })
-  }, [taskRows])
-
-  const handleViewTask = (task: any) => {
-    push({
-      id: task.id,
-      type: 'task',
-      label: task.title,
-      data: { taskId: task.id, status: task.status, priority: task.priority, dueDate: task.dueDate },
-    })
-  }
-
-  // P0-4: Create task handler
-  const handleCreateTask = async () => {
-    if (!newTask.title.trim()) {
-      toast.error('Task title is required')
-      return
-    }
-    try {
-      const res = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(newTask)
-      })
-      if (res.ok) {
-        toast.success('Task created')
-        setShowAddTask(false)
-        setNewTask({ title: '', description: '', priority: 'medium', status: 'pending' })
-        mutate('/api/tasks?limit=200')
-      } else {
-        toast.error('Failed to create task')
-      }
-    } catch {
-      toast.error('Failed to create task')
-    }
-  }
-
-  if (tasksError) {
-    return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
-        Unable to load tasks data. Please try again.
-      </div>
-    )
-  }
-
-  // P1-5: Loading state
-  if (tasksLoading) {
-    return (
-      <div className="flex flex-col gap-3 p-4 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-3">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Skeleton className="h-64" />
-          <Skeleton className="h-64" />
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
-      {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-3">
-        <StatCard
-          title="Active Tasks"
-          value={formatNumber(activeTasks.length)}
-          icon={CheckSquare}
-          description="Assigned to team"
-        />
-        <StatCard
-          title="Completed This Week"
-          value={formatNumber(completedThisWeek.length)}
-          icon={Target}
-          description="Task completion"
-        />
-        <StatCard
-          title="Upcoming Deadlines"
-          value={formatNumber(upcomingDeadlines.length)}
-          icon={Calendar}
-          description="Next 7 days"
-        />
-        {/* P1-10: Renamed to "Weekly Completion Rate" */}
-        <StatCard
-          title="Weekly Completion Rate"
-          value={`${productivity}%`}
-          icon={TrendingUp}
-          description="Of all tasks"
-        />
-      </div>
-
-      {/* Main Content: Two columns */}
-      <div className="grid grid-cols-2 gap-3">
-        {/* Left Column: Task Board */}
-        {/* P0-4: Add Task button in Section actions */}
-        <Section
-          title="Task Board"
-          description="Team tasks organized by status"
-          icon={<CheckSquare className="h-4 w-4" />}
-          actions={
-            <Button size="sm" variant="outline" onClick={() => setShowAddTask(true)}>
-              <Plus className="h-3 w-3 mr-1" /> Add Task
-            </Button>
-          }
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="grid grid-cols-3 gap-3">
-              {taskColumns.map((column) => (
-                <div key={column.status}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <h3 className="text-xs font-semibold text-foreground">{column.status}</h3>
-                    <Badge variant="outline" className="text-[10px]">{formatNumber(column.count)}</Badge>
-                  </div>
-                  <div className="space-y-1">
-                    {column.tasks.length === 0 ? (
-                      <div className="text-xs text-muted-foreground">No tasks</div>
-                    ) : (
-                      column.tasks.map((task: any) => {
-                        // P1-13: Show due date, color red if overdue
-                        const dueDate = task.dueDate ? new Date(task.dueDate) : null
-                        const isOverdue = dueDate ? dueDate.getTime() < now.getTime() : false
-                        return (
-                          <div
-                            key={task.id}
-                            className="rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2 cursor-pointer hover:bg-[var(--surface-glass-hover)]"
-                            onClick={() => push({
-                              id: task.id,
-                              type: 'task',
-                              label: task.title,
-                              data: { taskId: task.id, status: task.status, priority: task.priority, assignedTo: task.assignedToId },
-                            })}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault()
-                                push({
-                                  id: task.id,
-                                  type: 'task',
-                                  label: task.title,
-                                  data: { taskId: task.id, status: task.status, priority: task.priority, assignedTo: task.assignedToId },
-                                })
-                              }
-                            }}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={`View details for task: ${task.title}`}
-                          >
-                            <p className="text-xs font-medium text-foreground">{task.title}</p>
-                            <div className="flex items-center justify-between mt-1">
-                              <Badge variant={
-                                task.priority === 'high' || task.priority === 'urgent' ? 'destructive' :
-                                task.priority === 'medium' ? 'secondary' : 'outline'
-                              } className="text-[10px]">
-                                {formatEnum(task.priority || 'low')}
-                              </Badge>
-                            </div>
-                            {dueDate && (
-                              <p className={`text-[10px] mt-1 ${isOverdue ? 'text-rose-400' : 'text-muted-foreground'}`}>
-                                {isOverdue ? 'Overdue: ' : 'Due: '}{formatDate(task.dueDate)}
-                              </p>
-                            )}
-                          </div>
-                        )
+          {channelRows.length === 0 ? (
+            <div className="px-5 py-4 text-xs text-white/30">No channels</div>
+          ) : (
+            <div className="divide-y divide-white/[0.05]">
+              {channelRows.map((channel: any) => (
+                <div
+                  key={channel.id}
+                  className="flex items-center justify-between px-5 py-2.5 hover:bg-white/[0.04] transition-colors cursor-pointer"
+                  onClick={() => push({
+                    id: channel.id,
+                    type: 'channel',
+                    label: `#${channel.name}`,
+                    data: { channelId: channel.id, channelName: channel.name },
+                  })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      push({
+                        id: channel.id,
+                        type: 'channel',
+                        label: `#${channel.name}`,
+                        data: { channelId: channel.id, channelName: channel.name },
                       })
-                    )}
-                    {/* P1-13: "View All" link when more tasks exist */}
-                    {column.count > 5 && (
-                      <button
-                        className="text-xs text-emerald-400 hover:underline w-full text-center py-1"
-                        onClick={() => push({
-                          id: `tasks-${column.key}`,
-                          type: 'tasks',
-                          label: column.status,
-                          data: { filter: column.key },
-                        })}
-                      >
-                        View All ({formatNumber(column.count)})
-                      </button>
-                    )}
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Channel ${channel.name}`}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Hash className="h-3.5 w-3.5 text-white/30 flex-shrink-0" />
+                    <span className="text-sm text-white/60 truncate">{channel.name}</span>
                   </div>
+                  <span className="text-[11px] text-white/25 flex-shrink-0">{formatNumber(channel.member_count || 0)}</span>
                 </div>
               ))}
             </div>
+          )}
+
+          {/* Announcements */}
+          <div className="px-5 py-4 border-b border-t border-white/[0.08]">
+            <h3 className="text-sm font-semibold text-white/80 flex items-center gap-2">
+              <Megaphone className="h-3.5 w-3.5 text-white/40" />
+              Announcements
+            </h3>
           </div>
-        </Section>
-
-        {/* Right Column: Upcoming Deadlines */}
-        <div className="flex flex-col gap-3 min-h-0">
-          {/* P1-13: Rename "This Week's Schedule" to "Upcoming Deadlines" */}
-          <Section
-            title="Upcoming Deadlines"
-            description="Tasks due in the next 7 days"
-            icon={<Calendar className="h-4 w-4" />}
-          >
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              {upcomingDeadlines.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-              ) : (
-                <div className="space-y-1.5">
-                  {upcomingDeadlines.slice(0, 5).map((item: any) => (
-                    <div key={item.id} className="flex items-center justify-between rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{item.title}</p>
-                          <p className="text-xs text-muted-foreground">
-                            Due {formatDateTime(item.dueDate)}
-                          </p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => handleViewTask(item)}>View</Button>
-                    </div>
-                  ))}
+          {announcementRows.length === 0 ? (
+            <div className="px-5 py-4 text-xs text-white/30">No announcements</div>
+          ) : (
+            <div className="divide-y divide-white/[0.05]">
+              {announcementRows.slice(0, 8).map((ann: any) => (
+                <div key={ann.id} className="px-5 py-3">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <Badge variant="secondary" className="text-[10px]">
+                      {formatEnum(ann.type) || 'Announcement'}
+                    </Badge>
+                    <span className="text-[11px] text-white/25">
+                      {formatDate(ann.published_at)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-white/60 leading-snug">{ann.title}</p>
                 </div>
-              )}
+              ))}
             </div>
-          </Section>
-
-          {/* Upcoming Meetings */}
-          <Section
-            title="Upcoming Meetings"
-            description="Scheduled meetings this week"
-            icon={<Video className="h-4 w-4" />}
-          >
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              {meetings.length === 0 ? (
-                <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No upcoming meetings</div>
-              ) : (
-                <div className="space-y-1.5">
-                  {meetings.map((meeting: any) => (
-                    <div key={meeting.id} className="flex items-center justify-between rounded border border-[var(--border-subtle)] bg-[var(--surface-2)] p-2.5">
-                      <div className="flex items-center gap-2">
-                        <Video className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{meeting.subject || meeting.title || 'Meeting'}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatDateTime(meeting.start || meeting.start_time)}
-                          </p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => handleJoinMeeting(meeting)}>
-                        {(meeting.onlineMeetingUrl || meeting.online_meeting_url || (meeting.location && meeting.location.startsWith('http'))) ? (
-                          <><ExternalLink className="h-3 w-3 mr-1" />Join</>
-                        ) : (
-                          'Details'
-                        )}
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Section>
+          )}
         </div>
       </div>
-
-      {/* Meeting Details Dialog */}
-      <Dialog open={!!selectedMeeting} onOpenChange={(open) => { if (!open) setSelectedMeeting(null); }}>
-        <DialogContent className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
-          <DialogHeader>
-            <DialogTitle>{selectedMeeting?.subject || selectedMeeting?.title || 'Meeting Details'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 text-sm">
-            <div>
-              <p className="text-muted-foreground text-xs">Time</p>
-              <p className="text-foreground">{formatDateTime(selectedMeeting?.start || selectedMeeting?.start_time)} - {formatDateTime(selectedMeeting?.end || selectedMeeting?.end_time)}</p>
-            </div>
-            {selectedMeeting?.location && (
-              <div>
-                <p className="text-muted-foreground text-xs">Location</p>
-                <p className="text-foreground">{selectedMeeting.location}</p>
-              </div>
-            )}
-            {selectedMeeting?.description && (
-              <div>
-                <p className="text-muted-foreground text-xs">Description</p>
-                <p className="text-foreground text-xs">{selectedMeeting.description}</p>
-              </div>
-            )}
-            {selectedMeeting?.attendees && (
-              <div>
-                <p className="text-muted-foreground text-xs">Attendees</p>
-                <p className="text-foreground text-xs">
-                  {Array.isArray(selectedMeeting.attendees)
-                    ? selectedMeeting.attendees.map((a: any) => typeof a === 'string' ? a : (a.name || a.email || '')).join(', ')
-                    : String(selectedMeeting.attendees)
-                  }
-                </p>
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedMeeting(null)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* P0-4: Add Task Dialog */}
-      <Dialog open={showAddTask} onOpenChange={setShowAddTask}>
-        <DialogContent className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
-          <DialogHeader>
-            <DialogTitle>Create Task</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <Input
-              placeholder="Task title"
-              value={newTask.title}
-              onChange={e => setNewTask(p => ({...p, title: e.target.value}))}
-              className="bg-[var(--surface-3)] border-[var(--border-subtle)]"
-            />
-            <Input
-              placeholder="Description"
-              value={newTask.description}
-              onChange={e => setNewTask(p => ({...p, description: e.target.value}))}
-              className="bg-[var(--surface-3)] border-[var(--border-subtle)]"
-            />
-            <select
-              className="w-full rounded-md bg-[var(--surface-3)] border border-[var(--border-subtle)] text-[var(--text-primary)] p-2 text-sm"
-              value={newTask.priority}
-              onChange={e => setNewTask(p => ({...p, priority: e.target.value}))}
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="urgent">Urgent</option>
-            </select>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddTask(false)}>Cancel</Button>
-            <Button onClick={handleCreateTask}>Create</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 })
@@ -978,51 +619,53 @@ const WorkTabContent = memo(function WorkTabContent() {
 // ============================================================================
 
 export default function PeopleCommunicationHub() {
-  const [activeTab, setActiveTab] = useState('people')
+  const [activeTab, setActiveTab] = useState<'people' | 'communication'>('people')
 
   return (
-    <HubPage
-      title="People & Communication"
-      description="Team management, internal communication, and work coordination"
-      icon={Users}
-      className="cta-hub"
-    >
-      <div className="flex flex-col h-full gap-3 overflow-hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="people" className="flex items-center gap-2" data-testid="hub-tab-people">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">People</span>
-            </TabsTrigger>
-            <TabsTrigger value="communication" className="flex items-center gap-2" data-testid="hub-tab-communication">
-              <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Communication</span>
-            </TabsTrigger>
-            <TabsTrigger value="work" className="flex items-center gap-2" data-testid="hub-tab-work">
-              <Briefcase className="h-4 w-4" />
-              <span className="hidden sm:inline">Tasks</span>
-            </TabsTrigger>
-          </TabsList>
-
-              <TabsContent value="people" className="flex-1 min-h-0 overflow-y-auto">
-                <QueryErrorBoundary>
-                  <PeopleTabContent />
-                </QueryErrorBoundary>
-              </TabsContent>
-
-              <TabsContent value="communication" className="flex-1 min-h-0 overflow-y-auto">
-                <QueryErrorBoundary>
-                  <CommunicationTabContent />
-                </QueryErrorBoundary>
-              </TabsContent>
-
-              <TabsContent value="work" className="flex-1 min-h-0 overflow-y-auto">
-                <QueryErrorBoundary>
-                  <WorkTabContent />
-                </QueryErrorBoundary>
-              </TabsContent>
-        </Tabs>
+    <div className="flex flex-col h-full bg-[#111] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08]">
+        <div>
+          <h1 className="text-lg font-semibold text-white/80">People & Communication</h1>
+          <p className="text-xs text-white/30 mt-0.5">Team directory and internal messaging</p>
+        </div>
       </div>
-    </HubPage>
+
+      {/* Horizontal Tabs */}
+      <div className="flex items-center gap-0 border-b border-white/[0.08] px-6">
+        <button
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'people'
+              ? 'border-emerald-400 text-emerald-400'
+              : 'border-transparent text-white/40 hover:text-white/60'
+          }`}
+          onClick={() => setActiveTab('people')}
+          data-testid="hub-tab-people"
+        >
+          <Users className="h-4 w-4" />
+          People
+        </button>
+        <button
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'communication'
+              ? 'border-emerald-400 text-emerald-400'
+              : 'border-transparent text-white/40 hover:text-white/60'
+          }`}
+          onClick={() => setActiveTab('communication')}
+          data-testid="hub-tab-communication"
+        >
+          <MessageSquare className="h-4 w-4" />
+          Communication
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <QueryErrorBoundary>
+          {activeTab === 'people' && <PeopleTabContent />}
+          {activeTab === 'communication' && <CommunicationTabContent />}
+        </QueryErrorBoundary>
+      </div>
+    </div>
   )
 }
