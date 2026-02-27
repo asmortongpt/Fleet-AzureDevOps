@@ -268,7 +268,13 @@ const OverviewTabContent = memo(function OverviewTabContent() {
         if (!loc) return '--'
         if (typeof loc === 'string') return loc
         if (typeof loc === 'object' && loc !== null) {
-          return loc.address ?? loc.name ?? loc.city ?? loc.formatted_address ?? JSON.stringify(loc)
+          if (loc.address) return loc.address
+          if (loc.name) return loc.name
+          if (loc.city) return loc.city
+          if (loc.formatted_address) return loc.formatted_address
+          if (loc.lat != null && loc.lng != null) return `${Number(loc.lat).toFixed(4)}, ${Number(loc.lng).toFixed(4)}`
+          if (loc.latitude != null && loc.longitude != null) return `${Number(loc.latitude).toFixed(4)}, ${Number(loc.longitude).toFixed(4)}`
+          return '--'
         }
         return String(loc)
       })(),
