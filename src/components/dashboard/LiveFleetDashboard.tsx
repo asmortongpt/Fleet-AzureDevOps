@@ -108,7 +108,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       if (!r.ok) throw new Error(`Request failed: ${r.status}`)
       return r.json()
     }),
-    { revalidateOnFocus: false, dedupingInterval: 5000 }
+    { revalidateOnFocus: false, dedupingInterval: 1000, refreshInterval: 2000 }
   );
   // Also fetch dashboard stats for accurate counts (DB-aggregated)
   const { data: dashboardStats } = useSWR(
@@ -567,6 +567,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             ? `${Number(selectedVehicle.location.lat).toFixed(4)}, ${Number(selectedVehicle.location.lng).toFixed(4)}`
             : null
         );
+        const vLastGpsUpdate = selectedVehicle.lastGpsUpdate || selectedVehicle.last_gps_update || selectedVehicle.updatedAt || selectedVehicle.updated_at;
         const fuelPct = vFuel != null ? Math.round(vFuel) : null;
         const healthPct = typeof vHealth === 'number' ? Math.round(vHealth) : null;
         const vVin = selectedVehicle.vin;
@@ -773,11 +774,23 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 </div>
               )}
 
-              {/* Location */}
-              {vLocation && (
-                <div className="flex items-start gap-1.5 pt-1 border-t border-white/[0.06]">
-                  <MapPin className="h-3 w-3 text-[var(--text-muted)] shrink-0 mt-0.5" />
-                  <span className="text-[11px] text-[var(--text-secondary)] leading-snug">{vLocation}</span>
+              {/* Location + GPS Timestamp */}
+              {(vLocation || vLastGpsUpdate) && (
+                <div className="pt-1 border-t border-white/[0.06] space-y-1">
+                  {vLocation && (
+                    <div className="flex items-start gap-1.5">
+                      <MapPin className="h-3 w-3 text-[var(--text-muted)] shrink-0 mt-0.5" />
+                      <span className="text-[11px] text-[var(--text-secondary)] leading-snug">{vLocation}</span>
+                    </div>
+                  )}
+                  {vLastGpsUpdate && (
+                    <div className="flex items-center gap-1.5">
+                      <Activity className="h-3 w-3 text-emerald-400 shrink-0 animate-pulse" />
+                      <span className="text-[10px] text-emerald-400/80 font-medium">
+                        GPS: {new Date(vLastGpsUpdate).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 

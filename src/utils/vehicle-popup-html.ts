@@ -220,7 +220,7 @@ export function buildVehiclePopupHTML(
   const label = statusLabel(vehicle.status)
   const fuel = typeof vehicle.fuelLevel === "number" ? Math.round(vehicle.fuelLevel) : null
   const odo = vehicle.mileage ?? vehicle.odometer ?? null
-  const lastSeen = (vehicle as any).updatedAt ?? (vehicle as any).last_metric_update ?? null
+  const lastSeen = (vehicle as any).lastGpsUpdate ?? (vehicle as any).last_gps_update ?? (vehicle as any).updatedAt ?? (vehicle as any).last_metric_update ?? null
   const fleetNum = vehicle.number || null
   const driverName = vehicle.driver || vehicle.assignedDriver || null
   const locationText =
