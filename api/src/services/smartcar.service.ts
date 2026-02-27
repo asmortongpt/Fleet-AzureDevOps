@@ -651,13 +651,13 @@ class SmartcarService {
 
   async getAllConnections(tenantId?: string): Promise<any[]> {
     const query = tenantId
-      ? `SELECT vtc.*, v.name as vehicle_name, v.make, v.model, v.year, v.license_plate
+      ? `SELECT vtc.*, (v.year || ' ' || v.make || ' ' || v.model) as vehicle_name, v.make, v.model, v.year, v.license_plate
          FROM vehicle_telematics_connections vtc
          JOIN vehicles v ON v.id = vtc.vehicle_id
          WHERE vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')
          AND v.tenant_id = $1
          ORDER BY vtc.updated_at DESC`
-      : `SELECT vtc.*, v.name as vehicle_name, v.make, v.model, v.year, v.license_plate
+      : `SELECT vtc.*, (v.year || ' ' || v.make || ' ' || v.model) as vehicle_name, v.make, v.model, v.year, v.license_plate
          FROM vehicle_telematics_connections vtc
          JOIN vehicles v ON v.id = vtc.vehicle_id
          WHERE vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')
@@ -723,8 +723,20 @@ class SmartcarService {
     const smartcarVehicleId = connection.external_vehicle_id
 
     try {
-      // Get location
+      // Get location from Smartcar API
       const location = await this.getLocation(smartcarVehicleId, accessToken)
+
+      // In test mode, override with Tallahassee, FL coordinates (with slight randomization per vehicle)
+      let lat = location.latitude
+      let lng = location.longitude
+      if (SMARTCAR_MODE === 'test') {
+        // Tallahassee, FL area: ~30.4383, -84.2807 with ±0.05 degree spread (~3 miles)
+        const vehicleHash = smartcarVehicleId.charCodeAt(0) + smartcarVehicleId.charCodeAt(smartcarVehicleId.length - 1)
+        const latOffset = ((vehicleHash % 100) / 100 - 0.5) * 0.1
+        const lngOffset = (((vehicleHash * 7) % 100) / 100 - 0.5) * 0.1
+        lat = 30.4383 + latOffset
+        lng = -84.2807 + lngOffset
+      }
 
       // Get odometer
       const odometer = await this.getOdometer(smartcarVehicleId, accessToken)
@@ -761,13 +773,21 @@ class SmartcarService {
           odometer_miles, battery_percent, fuel_percent, estimated_range_miles)
          VALUES ($1, (SELECT id FROM telematics_providers WHERE name = 'smartcar'),
                  NOW(), $2, $3, $4, $5, $6, $7)`,
-        [vehicleId, location.latitude, location.longitude, odometerRounded, batteryPercent, fuelPercent, rangeRounded]
+        [vehicleId, lat, lng, odometerRounded, batteryPercent, fuelPercent, rangeRounded]
+      )
+
+      // Update vehicle's current position and odometer
+      await this.db.query(
+        `UPDATE vehicles
+         SET latitude = $2, longitude = $3, odometer = $4, last_gps_update = NOW(), updated_at = NOW()
+         WHERE id = $1`,
+        [vehicleId, lat, lng, odometerRounded]
       )
 
       // Update last sync time
       await this.db.query(
         `UPDATE vehicle_telematics_connections
-         SET sync_status = 'active', sync_error = NULL, updated_at = NOW()
+         SET sync_status = 'active', sync_error = NULL, last_sync_at = NOW(), updated_at = NOW()
          WHERE vehicle_id = $1
          AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')`,
         [vehicleId]

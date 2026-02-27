@@ -175,7 +175,16 @@ router.get('/callback', async (req: Request, res: Response) => {
     } else if (queryUserId) {
       // Smartcar test mode: user_id and tenant_id passed as query parameters
       user_id = queryUserId as string
-      tenant_id = (queryTenantId as string) || '874954c7-b68b-5485-8ddd-183932497849'
+      tenant_id = (queryTenantId as string) || DEV_TENANT_ID
+    }
+
+    // Fallback for dev mode: if no state or query params, use dev defaults
+    if (!user_id || !tenant_id) {
+      if (process.env.SKIP_AUTH === 'true') {
+        user_id = user_id || '00000000-0000-0000-0000-000000000001'
+        tenant_id = tenant_id || DEV_TENANT_ID
+        logger.info('Using dev defaults for Smartcar callback (SKIP_AUTH=true)')
+      }
     }
 
     // Validate user_id and tenant_id are present
@@ -286,11 +295,65 @@ router.get('/callback', async (req: Request, res: Response) => {
       return res.redirect(safeSuccessUrl)
     }
 
-    // No specific vehicle was selected - show success page or redirect to vehicles list
-    // In the future, this could show a vehicle selection UI
+    // No specific vehicle was selected - auto-connect all Smartcar vehicles
+    let connectedCount = 0
+    for (const scVehicleId of smartcarVehicles) {
+      try {
+        const info = await smartcarService.getVehicleInfo(scVehicleId, tokens.access_token)
+        const scVin = await smartcarService.getVehicleVin(scVehicleId, tokens.access_token)
+
+        // Try to find existing fleet vehicle by VIN
+        let fleetVehicleResult = await pool.query(
+          `SELECT id FROM vehicles WHERE vin = $1 AND tenant_id = $2 LIMIT 1`,
+          [scVin, tenant_id]
+        )
+
+        let fleetVehicleId: string
+        if (fleetVehicleResult.rows.length > 0) {
+          fleetVehicleId = fleetVehicleResult.rows[0].id
+        } else {
+          // Create a new fleet vehicle from Smartcar info
+          const insertResult = await pool.query(
+            `INSERT INTO vehicles (tenant_id, vin, make, model, year, vehicle_type, fuel_type, status)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, 'active')
+             RETURNING id`,
+            [
+              tenant_id,
+              scVin,
+              info.make || 'Unknown',
+              info.model || 'Unknown',
+              info.year || new Date().getFullYear(),
+              'sedan',
+              'gasoline'
+            ]
+          )
+          fleetVehicleId = insertResult.rows[0].id
+          logger.info(`Created new fleet vehicle ${fleetVehicleId} for Smartcar VIN ${scVin}`)
+        }
+
+        // Store the connection
+        await smartcarService.storeVehicleConnection(
+          fleetVehicleId as any,
+          scVehicleId,
+          tokens.access_token,
+          tokens.refresh_token,
+          tokens.expires_in,
+          {
+            ...info,
+            vin: scVin,
+            connected_at: new Date().toISOString()
+          }
+        )
+        connectedCount++
+        logger.info(`Connected Smartcar vehicle ${scVehicleId} (VIN: ${scVin}) to fleet vehicle ${fleetVehicleId}`)
+      } catch (vehicleError: unknown) {
+        logger.error(`Failed to connect Smartcar vehicle ${scVehicleId}:`, vehicleError)
+      }
+    }
+
     const safeSuccessUrl = buildSafeRedirectUrl('/vehicles', {
       smartcar_auth_success: 'true',
-      message: 'Smartcar account authenticated successfully'
+      message: `${connectedCount} vehicle(s) connected successfully`
     })
     res.redirect(safeSuccessUrl)
   } catch (error: unknown) {
@@ -455,7 +518,7 @@ router.post(
     }
 
     try {
-      const vehicleId = parseInt(req.params.id)
+      const vehicleId = req.params.id
       const accessToken = await smartcarService.ensureValidToken(vehicleId)
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
@@ -483,7 +546,7 @@ router.post(
     }
 
     try {
-      const vehicleId = parseInt(req.params.id)
+      const vehicleId = req.params.id
       const accessToken = await smartcarService.ensureValidToken(vehicleId)
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
@@ -511,7 +574,7 @@ router.post(
     }
 
     try {
-      const vehicleId = parseInt(req.params.id)
+      const vehicleId = req.params.id
       const accessToken = await smartcarService.ensureValidToken(vehicleId)
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
@@ -539,7 +602,7 @@ router.post(
     }
 
     try {
-      const vehicleId = parseInt(req.params.id)
+      const vehicleId = req.params.id
       const accessToken = await smartcarService.ensureValidToken(vehicleId)
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
@@ -571,7 +634,7 @@ router.post(
     }
 
     try {
-      const vehicleId = parseInt(req.params.id)
+      const vehicleId = req.params.id
       await smartcarService.syncVehicleData(vehicleId)
       res.json({ success: true, data: { message: 'Vehicle data synced successfully' } })
     } catch (error: unknown) {
@@ -592,7 +655,7 @@ router.delete(
     }
 
     try {
-      const vehicleId = parseInt(req.params.id)
+      const vehicleId = req.params.id
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
@@ -751,6 +814,54 @@ router.post('/callback', async (req: Request, res: Response) => {
     res.status(400).json({ error: 'Unknown event type' })
   } catch (error: unknown) {
     logger.error('Smartcar webhook error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// ===========================================================================
+// Dev-only: Trigger Sync for All Connected Vehicles
+// ===========================================================================
+
+router.post('/sync/trigger', async (req: Request, res: Response) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Not found' })
+  }
+
+  if (!smartcarService) {
+    return res.status(503).json({ error: 'Smartcar service not available' })
+  }
+
+  try {
+    const connectionsResult = await pool.query(
+      `SELECT vtc.vehicle_id, v.make, v.model, v.year
+       FROM vehicle_telematics_connections vtc
+       JOIN vehicles v ON v.id = vtc.vehicle_id
+       JOIN telematics_providers tp ON vtc.provider_id = tp.id
+       WHERE tp.name = 'smartcar' AND vtc.sync_status != 'disconnected'`
+    )
+
+    let synced = 0
+    const errors: string[] = []
+    for (const row of connectionsResult.rows) {
+      try {
+        await smartcarService.syncVehicleData(row.vehicle_id)
+        synced++
+      } catch (err: unknown) {
+        errors.push(`${row.vehicle_id}: ${err instanceof Error ? err.message : 'unknown error'}`)
+      }
+    }
+
+    res.json({
+      success: true,
+      data: {
+        synced,
+        total: connectionsResult.rows.length,
+        errors: errors.length > 0 ? errors : undefined,
+        message: `Synced ${synced}/${connectionsResult.rows.length} vehicles`
+      }
+    })
+  } catch (error: unknown) {
+    logger.error('Sync trigger error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
