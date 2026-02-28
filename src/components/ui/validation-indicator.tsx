@@ -34,27 +34,27 @@ const STATE_STYLES = {
   idle: {
     icon: null,
     iconColor: '',
-    textColor: 'text-[rgba(255,255,255,0.40)]',
+    textColor: 'text-muted-foreground',
   },
   validating: {
     icon: Loader2,
-    iconColor: 'text-[#00CCFE] animate-spin',
-    textColor: 'text-[#00CCFE]',
+    iconColor: 'text-emerald-800 animate-spin',
+    textColor: 'text-emerald-800 dark:text-emerald-700',
   },
   success: {
     icon: Check,
-    iconColor: 'text-[#10B981]',
-    textColor: 'text-[#10B981]',
+    iconColor: 'text-green-500',
+    textColor: 'text-green-600 dark:text-green-400',
   },
   warning: {
     icon: AlertCircle,
-    iconColor: 'text-[#FDC016]',
-    textColor: 'text-[#FDC016]',
+    iconColor: 'text-amber-500',
+    textColor: 'text-amber-600 dark:text-amber-400',
   },
   error: {
     icon: X,
-    iconColor: 'text-[#FF4300]',
-    textColor: 'text-[#FF4300]',
+    iconColor: 'text-red-500',
+    textColor: 'text-red-600 dark:text-red-400',
   },
 }
 
@@ -118,9 +118,9 @@ export function ValidationIndicator({
         <div
           className={cn(
             'text-xs',
-            isOverLimit && 'text-[#FF4300] font-medium',
-            isNearLimit && !isOverLimit && 'text-[#FDC016]',
-            !isNearLimit && 'text-[rgba(255,255,255,0.40)]'
+            isOverLimit && 'text-red-600 dark:text-red-400 font-medium',
+            isNearLimit && !isOverLimit && 'text-amber-600 dark:text-amber-400',
+            !isNearLimit && 'text-muted-foreground'
           )}
         >
           {characterCount}

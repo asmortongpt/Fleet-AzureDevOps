@@ -39,7 +39,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#888] to-[#777] dark:from-[#0a0a0a] dark:to-[#111]">
       {/* Header - Fixed height */}
-      <header className="bg-white dark:bg-[#111] border-b border-white/[0.08] dark:border-white/[0.15] px-3 py-2">
+      <header className="bg-white dark:bg-[#111] border-b border-white/[0.04] dark:border-white/[0.15] px-3 py-2">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
             <Truck className="w-4 h-4 text-primary" weight="duotone" />
@@ -60,7 +60,7 @@ export default function App() {
         {/* KPI Grid - 3x2 layout */}
         <div className="grid grid-cols-3 gap-2 mb-3">
           {/* Vehicles */}
-          <Card className="border-white/[0.08] dark:border-white/[0.15]">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
                 <span className="text-white/50 dark:text-white/50">Total Vehicles</span>
@@ -78,7 +78,7 @@ export default function App() {
           </Card>
 
           {/* Drivers */}
-          <Card className="border-white/[0.08] dark:border-white/[0.15]">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
                 <span className="text-white/50 dark:text-white/50">Active Drivers</span>
@@ -96,7 +96,7 @@ export default function App() {
           </Card>
 
           {/* Maintenance */}
-          <Card className="border-white/[0.08] dark:border-white/[0.15]">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
                 <span className="text-white/50 dark:text-white/50">Maintenance Due</span>
@@ -114,11 +114,11 @@ export default function App() {
           </Card>
 
           {/* Facilities */}
-          <Card className="border-white/[0.08] dark:border-white/[0.15]">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
                 <span className="text-white/50 dark:text-white/50">Facilities</span>
-                <MapPin className="w-4 h-4 text-purple-600" weight="duotone" />
+                <MapPin className="w-4 h-4 text-amber-600" weight="duotone" />
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -132,7 +132,7 @@ export default function App() {
           </Card>
 
           {/* Fuel Cost */}
-          <Card className="border-white/[0.08] dark:border-white/[0.15]">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
                 <span className="text-white/50 dark:text-white/50">Avg Fuel Cost</span>
@@ -150,7 +150,7 @@ export default function App() {
           </Card>
 
           {/* Alerts */}
-          <Card className="border-white/[0.08] dark:border-white/[0.15]">
+          <Card className="border-white/[0.04] dark:border-white/[0.15]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
                 <span className="text-white/50 dark:text-white/50">Alerts Today</span>
@@ -186,7 +186,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#111] border-t border-white/[0.08] dark:border-white/[0.15] px-3 py-3">
+      <footer className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#111] border-t border-white/[0.04] dark:border-white/[0.15] px-3 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <p className="text-sm text-white/40 dark:text-white/50">
             Capital Tech Alliance Fleet Management System

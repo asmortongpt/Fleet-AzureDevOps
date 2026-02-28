@@ -1,8 +1,7 @@
 /**
- * FlyoutMenu - Sub-module listing that flies out from the IconRail
+ * FlyoutMenu — Module picker that flies out from the IconRail
  *
- * Positioned below the header (top offset matches header height).
- * Lists sub-modules for the hovered category from module-registry.
+ * Minimal panel: category label + module list. No visual noise.
  */
 import { useCallback } from 'react'
 
@@ -41,21 +40,21 @@ export function FlyoutMenu() {
 
   return (
     <nav
-      className="absolute left-12 lg:left-14 top-0 bottom-0 z-40 flex"
+      className="absolute left-16 top-0 bottom-0 z-40 flex"
       role="navigation"
       aria-label={flyoutCategory ? `${categoryLabels[flyoutCategory]} modules` : 'Module navigation'}
     >
       <div
         className={cn(
-          'w-48 lg:w-56 h-full bg-[#1A0648]/95 backdrop-blur-2xl',
-          'border-r border-[rgba(0,204,254,0.08)]',
-          'shadow-[4px_0_24px_rgba(0,0,0,0.5)]',
+          'w-52 h-full bg-[var(--surface-1)]',
+          'border-r border-[var(--border-subtle)]',
+          'shadow-[4px_0_32px_rgba(0,0,0,0.5)]',
           'overflow-y-auto scrollbar-none',
         )}
       >
         {/* Category header */}
-        <div className="sticky top-0 bg-[#1A0648]/95 backdrop-blur px-3 pt-3 pb-1.5 lg:px-4 lg:pt-4 lg:pb-2 border-b border-[rgba(0,204,254,0.08)]">
-          <h2 className="text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.15em] text-white/80">
+        <div className="sticky top-0 bg-[var(--surface-1)] px-5 pt-5 pb-3 border-b border-[var(--border-subtle)]">
+          <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
             {categoryLabels[flyoutCategory]}
           </h2>
         </div>
@@ -66,11 +65,7 @@ export function FlyoutMenu() {
             <li key={mod.id}>
               <button
                 onClick={() => handleSelectModule(mod.id)}
-                className={cn(
-                  'w-full text-left px-2.5 py-2 lg:px-3 lg:py-2.5 rounded-lg text-xs lg:text-[13px] transition-all duration-150',
-                  'text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]/40',
-                  'focus:outline-none focus:ring-1 focus:ring-white/40',
-                )}
+                className="w-full text-left px-3 py-2.5 rounded-lg text-[13px] text-[var(--text-tertiary)] hover:text-white hover:bg-[var(--surface-glass)] transition-colors duration-150 focus:outline-none"
               >
                 {mod.label}
               </button>
@@ -78,7 +73,7 @@ export function FlyoutMenu() {
           ))}
 
           {modules.length === 0 && (
-            <p className="text-xs text-[rgba(255,255,255,0.40)] px-3 py-6 text-center">
+            <p className="text-[13px] text-[var(--text-quaternary)] px-3 py-8 text-center">
               No modules available
             </p>
           )}

@@ -117,7 +117,7 @@ export function PullToRefresh({
             flex items-center justify-center
             w-10 h-8 rounded-full
             bg-emerald-600 text-white
-            shadow-sm
+           
             transition-transform duration-200
             ${isPulling || isRefreshing ? 'scale-110' : 'scale-100'}
           `}

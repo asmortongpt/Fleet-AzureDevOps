@@ -201,11 +201,11 @@ export function ReceiptProcessing() {
     const colors: Record<ReceiptType["category"], string> = {
       fuel: "bg-orange-100 text-orange-700",
       maintenance: "bg-emerald-500/10 text-emerald-700",
-      parts: "bg-purple-100 text-purple-700",
+      parts: "bg-amber-100 text-amber-700",
       service: "bg-green-100 text-green-700",
-      toll: "bg-cyan-100 text-cyan-700",
+      toll: "bg-emerald-100 text-emerald-700",
       parking: "bg-pink-100 text-pink-700",
-      other: "bg-gray-100 text-gray-700"
+      other: "bg-white/[0.05] text-[var(--text-tertiary)]"
     }
     return colors[category]
   }

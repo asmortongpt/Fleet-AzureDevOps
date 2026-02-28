@@ -27,7 +27,12 @@ const getSecurityEvents = [
       )
 
       res.json({ data: result.rows })
-    } catch (error) {
+    } catch (error: any) {
+      // Handle missing table gracefully
+      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
+        logger.warn('security_events table not found, returning empty data')
+        return res.json({ data: [] })
+      }
       logger.error('Get security events error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }

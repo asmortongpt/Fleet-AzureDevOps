@@ -76,7 +76,7 @@ export const LiveFleetMap: React.FC<LiveFleetMapProps> = ({
 
   if (isLoading) {
     return (
-      <div className="w-full h-full p-2 space-y-3 bg-gradient-to-b from-[#111]/50 to-transparent">
+      <div className="w-full h-full p-2 space-y-3 bg-[var(--surface-0)]">
         <Skeleton className="h-8 w-1/4" />
         <Skeleton className="h-full w-full" />
       </div>
@@ -85,11 +85,11 @@ export const LiveFleetMap: React.FC<LiveFleetMapProps> = ({
 
   if (error) {
     return (
-      <div className="flex items-center justify-center w-full h-full bg-gradient-to-b from-[#111]/50 to-transparent p-3">
+      <div className="flex items-center justify-center w-full h-full bg-[var(--surface-0)] p-3">
         <div className="text-center max-w-md p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
           <AlertCircle className="w-12 h-9 text-red-500 mx-auto mb-2" />
           <h3 className="text-base font-bold text-white mb-2">Failed to Load Vehicles</h3>
-          <p className="text-sm text-white/70 mb-2">
+          <p className="text-sm text-[var(--text-primary)] mb-2">
             {error instanceof Error ? error.message : 'An unknown error occurred'}
           </p>
           <Button onClick={handleRefresh} variant="outline" size="sm">
@@ -103,11 +103,11 @@ export const LiveFleetMap: React.FC<LiveFleetMapProps> = ({
 
   if (!filteredVehicles || filteredVehicles.length === 0) {
     return (
-      <div className="flex items-center justify-center w-full h-full bg-gradient-to-b from-[#111]/50 to-transparent p-3">
-        <div className="text-center max-w-md p-3 bg-[#1a1a1a]/60 border border-white/[0.08] rounded-lg">
-          <Filter className="w-12 h-9 text-white/40 mx-auto mb-2" />
+      <div className="flex items-center justify-center w-full h-full bg-[var(--surface-0)] p-3">
+        <div className="text-center max-w-md p-3 bg-[var(--surface-3)]/60 border border-[var(--border-subtle)] rounded-lg">
+          <Filter className="w-12 h-9 text-[var(--text-tertiary)] mx-auto mb-2" />
           <h3 className="text-base font-bold text-white mb-2">No Vehicles Found</h3>
-          <p className="text-sm text-white/70">
+          <p className="text-sm text-[var(--text-primary)]">
             {filterStatus || filterType
               ? 'Try adjusting your filters to see more vehicles.'
               : 'No vehicles are currently available in your fleet.'}
@@ -125,7 +125,7 @@ export const LiveFleetMap: React.FC<LiveFleetMapProps> = ({
           onClick={handleRefresh}
           variant="outline"
           size="sm"
-          className="bg-white/90 backdrop-blur hover:bg-white"
+          className="bg-[var(--surface-2)] border-[var(--border-subtle)] hover:bg-[#161616] text-[var(--text-secondary)]"
         >
           <RefreshCw className="w-4 h-4 mr-2" />
           Refresh

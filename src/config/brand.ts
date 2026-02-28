@@ -1,12 +1,12 @@
 /**
- * CTA / ArchonY Brand Configuration
+ * CTA Fleet Brand Configuration
  *
  * Centralized brand tokens for Capital Technology Alliance.
  * Source: ADELE Branding Document, January 26, 2026 (Second Look)
  *
  * To update branding for a different organization:
  * 1. Update the color palette below
- * 2. Update the logo SVG paths in CompactHeader.tsx (ArchonYLogo, CTAMark)
+ * 2. Update the logo SVG paths in CompactHeader.tsx (CTAFleetLogo, CTAMark)
  * 3. Update CSS variables in src/index.css :root block
  * 4. Update favicon at public/favicon.ico
  *
@@ -16,11 +16,11 @@
 
 /** Brand color palette - ADELE Vibrant Palette */
 export const brandColors = {
-  /** DAYTIME - Navy blue. Used for primary surfaces, icon rail bg, text on light */
+  /** DAYTIME - Dark charcoal. Used for primary surfaces, icon rail bg, text on light */
   daytime: 'hsl(var(--muted-foreground))',
-  /** BLUE SKIES - Cyan. Used for interactive elements, active states, links */
-  blueSkies: 'hsl(var(--primary))',
-  /** MIDNIGHT - Deep dark blue (client-adjusted darker than ADELE original).
+  /** SILVER - Muted accent. Used for interactive elements, active states, links */
+  silver: 'hsl(var(--primary))',
+  /** MIDNIGHT - Deep dark (client-adjusted darker than ADELE original).
    *  Used for app background, deep surfaces, overlays */
   midnight: 'hsl(var(--background))',
   /** NOON - Orange. Used for alerts, warnings, CTAs, gradient end */
@@ -35,7 +35,7 @@ export const surfaceColors = {
   card: 'hsl(var(--card))',
   /** Slightly lighter than midnight for icon rail */
   rail: 'hsl(var(--card))',
-  /** Muted navy for disabled/inactive states */
+  /** Muted gray for disabled/inactive states */
   muted: 'hsl(var(--muted))',
 } as const
 
@@ -43,10 +43,10 @@ export const surfaceColors = {
 export const brandGradients = {
   /** Dawn gradient - Golden Hour → Noon. The signature CTA accent bar */
   dawn: `linear-gradient(90deg, ${brandColors.goldenHour} 0%, ${brandColors.noon} 100%)`,
-  /** Secondary gradient - Blue Skies → Daytime */
-  secondary: `linear-gradient(135deg, ${brandColors.blueSkies} 0%, ${brandColors.daytime} 100%)`,
+  /** Secondary gradient - Silver → Daytime */
+  secondary: `linear-gradient(135deg, ${brandColors.silver} 0%, ${brandColors.daytime} 100%)`,
   /** Full cityscape skyline gradient */
-  skyline: `linear-gradient(90deg, ${brandColors.daytime} 0%, ${brandColors.blueSkies} 30%, ${brandColors.goldenHour} 70%, ${brandColors.noon} 100%)`,
+  skyline: `linear-gradient(90deg, ${brandColors.daytime} 0%, ${brandColors.silver} 30%, ${brandColors.goldenHour} 70%, ${brandColors.noon} 100%)`,
 } as const
 
 /** Brand identity */
@@ -56,13 +56,13 @@ export const brandIdentity = {
   /** Parent brand abbreviation */
   parentAbbrev: 'CTA',
   /** Product name for the fleet/enterprise suite */
-  productName: 'ArchonY',
+  productName: 'CTA Fleet',
   /** Product tagline */
   tagline: 'Intelligent Performance',
   /** Primary tagline for CTA */
   ctaTagline: 'Intelligent Technology. Integrated Partnership.',
   /** Page title format */
-  pageTitle: 'ArchonY | Fleet Management',
+  pageTitle: 'CTA Fleet | Fleet Management',
 } as const
 
 /** Tailwind-compatible CSS class helpers using the brand */

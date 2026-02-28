@@ -119,7 +119,7 @@ export function VehicleFleetTableExample() {
           active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
           idle: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
           service: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-          offline: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+          offline: 'bg-[var(--surface-glass-hover)] text-[var(--text-secondary)] dark:bg-[var(--surface-glass)] dark:text-[var(--text-tertiary)]',
         }
         return (
           <span className={`px-2 py-1 text-xs rounded-full ${statusColors[value as keyof typeof statusColors]}`}>
@@ -148,7 +148,7 @@ export function VehicleFleetTableExample() {
       filterable: true,
       render: (value) => (
         <div className="flex items-center gap-2">
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-white/[0.08] rounded-full h-2">
             <div
               className={`h-2 rounded-full ${value > 50 ? 'bg-green-500' : value > 25 ? 'bg-yellow-500' : 'bg-red-500'}`}
               style={{ width: `${value}%` }}
@@ -223,7 +223,7 @@ export function VehicleFleetTableExample() {
     <div className="p-3 space-y-2">
       <div>
         <h2 className="text-sm font-bold">Fleet Vehicles</h2>
-        <p className="text-muted-foreground">
+        <p className="text-[var(--text-secondary)]">
           Click on any row to view detailed vehicle information
         </p>
       </div>
@@ -351,7 +351,7 @@ export function WorkOrderTableExample() {
           open: 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
           'in-progress': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
           completed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-          cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+          cancelled: 'bg-[var(--surface-glass-hover)] text-[var(--text-secondary)] dark:bg-[var(--surface-glass)] dark:text-[var(--text-tertiary)]',
         }
         return (
           <span className={`px-2 py-1 text-xs rounded-full ${statusColors[value as keyof typeof statusColors]}`}>
@@ -466,7 +466,7 @@ export function WorkOrderTableExample() {
     <div className="p-3 space-y-2">
       <div>
         <h2 className="text-sm font-bold">Work Orders</h2>
-        <p className="text-muted-foreground">
+        <p className="text-[var(--text-secondary)]">
           Manage and track all vehicle maintenance work orders
         </p>
       </div>
@@ -552,7 +552,7 @@ export function VirtualizedTableExample() {
     <div className="p-3 space-y-2">
       <div>
         <h2 className="text-sm font-bold">Virtualized Table (10,000 rows)</h2>
-        <p className="text-muted-foreground">
+        <p className="text-[var(--text-secondary)]">
           Demonstrating performance with large datasets
         </p>
       </div>

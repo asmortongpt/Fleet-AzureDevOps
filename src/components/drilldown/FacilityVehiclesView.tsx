@@ -48,7 +48,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
             <h3 className="text-sm font-semibold">
               Vehicles {facilityName && `at ${facilityName}`}
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
               {vehiclesArr.length} vehicle{vehiclesArr.length !== 1 ? 's' : ''}
             </p>
           </div>
@@ -56,8 +56,8 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
           {vehiclesArr.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Car className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">No vehicles at this facility</p>
+                <Car className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                <p className="text-sm text-[var(--text-secondary)]">No vehicles at this facility</p>
               </CardContent>
             </Card>
           ) : (
@@ -69,7 +69,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                       <div className="flex items-start justify-between">
                         <div>
                           <p className="font-medium">{vehicle.name}</p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-[var(--text-secondary)]">
                             {formatVehicleName(vehicle)}
                           </p>
                         </div>
@@ -80,7 +80,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
 
                       <div className="grid grid-cols-3 gap-2">
                         <div>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                          <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)] mb-1">
                             <Gauge className="h-3 w-3" />
                             <span>Mileage</span>
                           </div>
@@ -89,14 +89,14 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                           </p>
                         </div>
                         <div>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                          <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)] mb-1">
                             <Fuel className="h-3 w-3" />
                             <span>Fuel</span>
                           </div>
                           <p className="text-sm font-medium">{vehicle.fuel_level ?? 0}%</p>
                         </div>
                         <div>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                          <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)] mb-1">
                             <Activity className="h-3 w-3" />
                             <span>Health</span>
                           </div>
@@ -105,7 +105,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                       </div>
 
                       {vehicle.assigned_to && (
-                        <p className="text-xs text-muted-foreground pt-2 border-t">
+                        <p className="text-xs text-[var(--text-secondary)] pt-2 border-t">
                           Assigned to: {vehicle.assigned_to}
                         </p>
                       )}

@@ -41,7 +41,7 @@ describe('Color Blind Palettes', () => {
     })
 
     it('should handle 6-digit hex colors', () => {
-      expect(() => calculateLuminance('#2563EB')).not.toThrow()
+      expect(() => calculateLuminance('#10b981')).not.toThrow()
     })
   })
 
@@ -66,7 +66,7 @@ describe('Color Blind Palettes', () => {
       const colorPairs = [
         ['#000000', '#111111'],
         ['#FFFFFF', '#EEEEEE'],
-        ['#2563EB', '#7C3AED'],
+        ['#10b981', '#D97706'],
       ]
       colorPairs.forEach(([color1, color2]) => {
         const ratio = calculateContrastRatio(color1, color2)

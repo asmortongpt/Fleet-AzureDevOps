@@ -140,7 +140,7 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
       {!expanded ? (
         <button
           onClick={() => setExpanded(true)}
-          className="flex items-center gap-2 bg-[#242424]/95 backdrop-blur-md text-white/90 rounded-lg px-3 py-2 text-xs font-medium border border-white/[0.12] shadow-lg hover:bg-[#2a2a2a] transition-colors"
+          className="flex items-center gap-2 bg-[var(--surface-2)] text-[var(--text-primary)] rounded-lg px-3 py-2 text-xs font-medium border border-[var(--border-subtle)] hover:bg-[#161616] transition-colors"
         >
           <Filter className="h-3.5 w-3.5" />
           <span>Filter Vehicles</span>
@@ -149,16 +149,16 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
               {activeFilterCount}
             </Badge>
           )}
-          <span className="text-white/40 ml-1">{visibleCount}/{vehicles.length}</span>
+          <span className="text-[var(--text-tertiary)] ml-1">{visibleCount}/{vehicles.length}</span>
         </button>
       ) : (
-        <div className="bg-[#242424]/95 backdrop-blur-md rounded-lg border border-white/[0.12] shadow-xl overflow-hidden">
+        <div className="bg-[var(--surface-2)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.08]">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
-              <Filter className="h-3.5 w-3.5 text-white/60" />
-              <span className="text-xs font-semibold text-white/90">Vehicle Filters</span>
-              <span className="text-[10px] text-white/40">{visibleCount}/{vehicles.length}</span>
+              <Filter className="h-3.5 w-3.5 text-[var(--text-secondary)]" />
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Vehicle Filters</span>
+              <span className="text-[10px] text-[var(--text-tertiary)]">{visibleCount}/{vehicles.length}</span>
             </div>
             <div className="flex items-center gap-1">
               {activeFilterCount > 0 && (
@@ -171,7 +171,7 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
               )}
               <button
                 onClick={() => setExpanded(false)}
-                className="p-0.5 rounded hover:bg-white/[0.08] text-white/40 hover:text-white/60"
+                className="p-0.5 rounded hover:bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -179,22 +179,22 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
           </div>
 
           {/* Search */}
-          <div className="px-3 py-2 border-b border-white/[0.08]">
+          <div className="px-3 py-2 border-b border-[var(--border-subtle)]">
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-white/30" />
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-[var(--text-muted)]" />
               <input
                 type="text"
                 value={filters.search}
                 onChange={(e) => onFiltersChange({ ...filters, search: e.target.value })}
                 placeholder="Search name, number..."
-                className="w-full bg-white/[0.05] border border-white/[0.08] rounded text-xs text-white/90 placeholder:text-white/30 pl-7 pr-2 py-1.5 focus:outline-none focus:border-emerald-500/50"
+                className="w-full bg-white/[0.05] border border-[var(--border-subtle)] rounded text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] pl-7 pr-2 py-1.5 focus:outline-none focus:border-emerald-500/50"
               />
             </div>
           </div>
 
           {/* Vehicle Types */}
-          <div className="px-3 py-2 border-b border-white/[0.08]">
-            <div className="text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-1.5">Vehicle Type</div>
+          <div className="px-3 py-2 border-b border-[var(--border-subtle)]">
+            <div className="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-1.5">Vehicle Type</div>
             <div className="flex flex-wrap gap-1">
               {availableTypes.map((type) => {
                 const isActive = filters.visibleTypes.size === 0 || filters.visibleTypes.has(type);
@@ -204,12 +204,12 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
                     onClick={() => toggleType(type)}
                     className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium transition-colors ${
                       isActive
-                        ? 'bg-white/[0.1] text-white/90 border border-white/[0.15]'
-                        : 'bg-white/[0.03] text-white/30 border border-white/[0.05]'
+                        ? 'bg-white/[0.1] text-[var(--text-primary)] border border-[var(--border-strong)]'
+                        : 'bg-white/[0.03] text-[var(--text-muted)] border border-white/[0.05]'
                     }`}
                   >
                     <span>{VEHICLE_TYPE_LABELS[type] || type}</span>
-                    <span className={`text-[10px] ${isActive ? 'text-emerald-400' : 'text-white/20'}`}>
+                    <span className={`text-[10px] ${isActive ? 'text-emerald-400' : 'text-[var(--text-muted)]'}`}>
                       {typeCounts[type]}
                     </span>
                   </button>
@@ -222,7 +222,7 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
           <div className="px-3 py-2">
             <button
               onClick={() => setShowStatuses(!showStatuses)}
-              className="flex items-center justify-between w-full text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-1.5"
+              className="flex items-center justify-between w-full text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-1.5"
             >
               <span>Status</span>
               {showStatuses ? (
@@ -242,8 +242,8 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
                       onClick={() => toggleStatus(status)}
                       className={`flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-medium transition-colors ${
                         isActive
-                          ? 'bg-white/[0.1] text-white/90 border border-white/[0.15]'
-                          : 'bg-white/[0.03] text-white/30 border border-white/[0.05]'
+                          ? 'bg-white/[0.1] text-[var(--text-primary)] border border-[var(--border-strong)]'
+                          : 'bg-white/[0.03] text-[var(--text-muted)] border border-white/[0.05]'
                       }`}
                     >
                       <span
@@ -251,7 +251,7 @@ export const VehicleTypeFilter = memo(function VehicleTypeFilter({
                         style={{ backgroundColor: isActive ? dotColor : '#4b5563' }}
                       />
                       <span>{STATUS_LABELS[status] || status}</span>
-                      <span className={`text-[10px] ${isActive ? 'text-white/50' : 'text-white/20'}`}>
+                      <span className={`text-[10px] ${isActive ? 'text-[var(--text-secondary)]' : 'text-[var(--text-muted)]'}`}>
                         {statusCounts[status]}
                       </span>
                     </button>

@@ -96,12 +96,12 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent
-                className="w-[400px] sm:w-[480px] flex flex-col p-0 text-foreground border-l glass-panel border-white/10"
+                className="w-[400px] sm:w-[480px] flex flex-col p-0 text-foreground border-l glass-panel border-[var(--border-default)]"
                 side="right"
                 // Override default bg to allow glass effect
                 style={{ backgroundColor: 'transparent' }}
             >
-                <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
+                <SheetHeader className="p-3 border-b border-[var(--border-default)] bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
                             <Radio className="w-4 h-4 text-emerald-700" />

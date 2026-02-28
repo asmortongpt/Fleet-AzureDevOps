@@ -129,7 +129,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
       case 'fuel':
         return <Fuel className="w-4 h-4 text-orange-600" />
       case 'service':
-        return <CheckCircle className="w-4 h-4 text-purple-600" />
+        return <CheckCircle className="w-4 h-4 text-amber-600" />
       default:
         return <MapPin className="w-4 h-4" />
     }
@@ -155,43 +155,43 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
+    <div className="h-full overflow-y-auto bg-[var(--surface-0)]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-cyan-600 to-cyan-800 text-white p-3">
+      <div className="bg-[var(--surface-2)] text-white p-3">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <Navigation className="w-4 h-4" />
               <div>
                 <h1 className="text-sm font-bold">{routeDetails.name || 'Route Details'}</h1>
-                <p className="text-cyan-100">Route ID: {routeDetails.id}</p>
+                <p className="text-[var(--text-secondary)]">Route ID: {routeDetails.id}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
               <div>
-                <p className="text-xs text-cyan-200">Distance</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Distance</p>
                 <p className="text-sm font-semibold">{routeOverview.totalDistance || 0} mi</p>
               </div>
               <div>
-                <p className="text-xs text-cyan-200">Duration</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Duration</p>
                 <p className="text-sm font-semibold">{routeOverview.totalDuration}</p>
               </div>
               <div>
-                <p className="text-xs text-cyan-200">Avg Speed</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Avg Speed</p>
                 <p className="text-sm font-semibold">{routeOverview.avgSpeed || 0} mph</p>
               </div>
               <div>
-                <p className="text-xs text-cyan-200">Stops</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Stops</p>
                 <p className="text-sm font-semibold">{routeOverview.stops || 0}</p>
               </div>
               <div>
-                <p className="text-xs text-cyan-200">Fuel Efficiency</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Fuel Efficiency</p>
                 <p className="text-sm font-semibold">{routeOverview.fuelEfficiency || 0} MPG</p>
               </div>
             </div>
           </div>
           {onClose && (
-            <Button variant="ghost" onClick={onClose} className="text-white hover:bg-cyan-700">
+            <Button variant="ghost" onClick={onClose} className="text-white hover:bg-white/[0.06]">
               <XCircle className="w-3 h-3" />
             </Button>
           )}
@@ -222,10 +222,10 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-2">
+                <div className="aspect-video bg-white/[0.04] rounded-lg flex items-center justify-center mb-2">
                   <div className="text-center">
-                    <MapPin className="w-12 h-9 text-gray-700 mx-auto mb-2" />
-                    <p className="text-sm text-gray-700">Route geometry unavailable.</p>
+                    <MapPin className="w-12 h-9 text-[var(--text-tertiary)] mx-auto mb-2" />
+                    <p className="text-sm text-[var(--text-tertiary)]">Route geometry unavailable.</p>
                   </div>
                 </div>
 
@@ -252,7 +252,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Speed</span>
+                    <span className="text-[var(--text-secondary)]">Speed</span>
                     <div className="flex items-center gap-2">
                       <Button size="sm" variant="outline" onClick={() => setPlaybackSpeed(0.5)}>0.5x</Button>
                       <Button size="sm" variant={playbackSpeed === 1 ? "default" : "outline"} onClick={() => setPlaybackSpeed(1)}>1x</Button>
@@ -273,17 +273,17 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               </CardHeader>
               <CardContent className="space-y-2">
                 {stops.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">No stop data available.</div>
+                  <div className="text-sm text-[var(--text-secondary)]">No stop data available.</div>
                 ) : (
                   stops.map((stop: any) => (
-                    <div key={stop.id || stop.name} className="flex items-start gap-2 p-2 bg-muted rounded-md">
+                    <div key={stop.id || stop.name} className="flex items-start gap-2 p-2 bg-white/[0.04] rounded-md">
                       {getStopIcon(stop.type || 'stop')}
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <p className="font-medium">{stop.name || 'Stop'}</p>
-                          <span className="text-xs text-muted-foreground">{stop.arrivalTime || stop.arrival_time || ''}</span>
+                          <span className="text-xs text-[var(--text-secondary)]">{stop.arrivalTime || stop.arrival_time || ''}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground">{stop.address || stop.location || ''}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{stop.address || stop.location || ''}</p>
                       </div>
                     </div>
                   ))
@@ -300,18 +300,18 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               </CardHeader>
               <CardContent className="space-y-2">
                 {events.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">No events available.</div>
+                  <div className="text-sm text-[var(--text-secondary)]">No events available.</div>
                 ) : (
                   events.map((event: any, idx: number) => (
-                    <div key={`${event.time}-${idx}`} className="flex items-start gap-2 p-2 bg-muted rounded-md">
+                    <div key={`${event.time}-${idx}`} className="flex items-start gap-2 p-2 bg-white/[0.04] rounded-md">
                       <AlertTriangle className="w-4 h-4 text-orange-600 mt-0.5" />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <p className="font-medium">{event.description}</p>
                           {getEventBadge(event.severity)}
                         </div>
-                        <p className="text-xs text-muted-foreground">{event.location}</p>
-                        <p className="text-xs text-muted-foreground">{event.time}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{event.location}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{event.time}</p>
                       </div>
                     </div>
                   ))
@@ -327,28 +327,28 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                 <CardTitle className="text-sm">Route Analytics</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-2 text-sm">
-                <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                <div className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                   <div className="flex items-center gap-2">
                     <Gauge className="w-4 h-4 text-emerald-400" />
                     Avg Speed
                   </div>
                   <span>{routeOverview.avgSpeed || 0} mph</span>
                 </div>
-                <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                <div className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                   <div className="flex items-center gap-2">
                     <Gauge className="w-4 h-4 text-emerald-400" />
                     Max Speed
                   </div>
                   <span>{routeOverview.maxSpeed || 0} mph</span>
                 </div>
-                <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                <div className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-emerald-400" />
                     Idle Time
                   </div>
                   <span>{routeOverview.idleTime}</span>
                 </div>
-                <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                <div className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                   <div className="flex items-center gap-2">
                     <Fuel className="w-4 h-4 text-emerald-400" />
                     Fuel Used
@@ -365,7 +365,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   {gpsTracks.slice(0, 10).map((track: any, idx: number) => (
-                    <div key={track.id || idx} className="flex items-center justify-between p-2 bg-muted rounded-md">
+                    <div key={track.id || idx} className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                       <span>{track.timestamp || track.time || 'Time'}</span>
                       <span>{track.speed || 0} mph</span>
                     </div>
@@ -383,13 +383,13 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               </CardHeader>
               <CardContent className="space-y-2">
                 {geofences.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">No geofence data available.</div>
+                  <div className="text-sm text-[var(--text-secondary)]">No geofence data available.</div>
                 ) : (
                   geofences.map((fence: any) => (
-                    <div key={fence.id || fence.name} className="flex items-center justify-between p-2 bg-muted rounded-md">
+                    <div key={fence.id || fence.name} className="flex items-center justify-between p-2 bg-white/[0.04] rounded-md">
                       <div>
                         <p className="font-medium">{fence.name || 'Geofence'}</p>
-                        <p className="text-xs text-muted-foreground">{fence.type || 'unknown'}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{fence.type || 'unknown'}</p>
                       </div>
                       <Badge variant="outline">{fence.interactions || 0}</Badge>
                     </div>

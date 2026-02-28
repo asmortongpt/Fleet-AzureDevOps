@@ -124,7 +124,7 @@ export const TeamsChatButton: React.FC<{
   return (
     <button
       onClick={startChat}
-      className="flex items-center gap-2 px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+      className="flex items-center gap-2 px-2 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
     >
       <MessageSquare className="w-4 h-4" />
       Teams Chat

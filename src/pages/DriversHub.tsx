@@ -324,10 +324,10 @@ export default function DriversHub() {
         </div>
         <div className="grid grid-cols-4 gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-16 bg-[#242424] border border-white/[0.08] animate-pulse rounded" />
+            <div key={i} className="h-16 bg-[var(--surface-2)] border border-[var(--border-subtle)] animate-pulse rounded" />
           ))}
         </div>
-        <div className="flex-1 min-h-0 bg-[#242424] border border-white/[0.08] animate-pulse rounded" />
+        <div className="flex-1 min-h-0 bg-[var(--surface-2)] border border-[var(--border-subtle)] animate-pulse rounded" />
       </div>
     )
   }
@@ -348,7 +348,7 @@ export default function DriversHub() {
           <Button
             variant="outline"
             size="sm"
-            className="border-white/[0.08] text-foreground"
+            className="border-[var(--border-subtle)] text-foreground"
           >
             Export Data
           </Button>
@@ -425,7 +425,7 @@ interface KPICardProps {
 
 function KPICard({ label, value, icon }: KPICardProps) {
   return (
-    <div className="bg-[#242424] border border-white/[0.08] rounded px-3 py-2">
+    <div className="bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded px-3 py-2">
       <div className="flex items-center justify-between mb-1">
         <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
           {label}

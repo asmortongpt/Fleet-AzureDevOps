@@ -89,7 +89,7 @@ function createChromeMaterial(quality: 'low' | 'medium' | 'high'): THREE.MeshSta
 // Glass Material for windows
 function createGlassMaterial(quality: 'low' | 'medium' | 'high'): THREE.MeshPhysicalMaterial {
   return new THREE.MeshPhysicalMaterial({
-    color: 0x88ccff,
+    color: 0xffffff,
     metalness: 0,
     roughness: quality === 'high' ? 0 : 0.05,
     transmission: quality === 'high' ? 0.95 : quality === 'medium' ? 0.8 : 0.5,  // Transparency
@@ -260,7 +260,7 @@ function DamageMarker({
         <Html distanceFactor={10}>
           <div className="bg-black/90 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap">
             <div className="font-semibold">{type}</div>
-            <div className="text-xs text-gray-300">{severity}</div>
+            <div className="text-xs text-[var(--text-secondary)]">{severity}</div>
             {description && <div className="text-xs mt-1">{description}</div>}
           </div>
         </Html>
@@ -369,7 +369,7 @@ function Scene({
       />
 
       {/* Rim Light */}
-      <pointLight position={[0, 5, -10]} intensity={0.8} color="#88ccff" />
+      <pointLight position={[0, 5, -10]} intensity={0.8} color="#ffffff" />
 
       {/* Ground Bounce Light */}
       <hemisphereLight
@@ -466,7 +466,7 @@ function Scene({
 function LoadingPlaceholder() {
   return (
     <Html center>
-      <div className="rounded-md bg-[#111]/80 px-3 py-2 text-xs text-white/70">
+      <div className="rounded-md bg-[var(--surface-2)]/80 px-3 py-2 text-xs text-[var(--text-primary)]">
         Loading 3D model...
       </div>
     </Html>
@@ -532,17 +532,17 @@ export default function Vehicle3DViewer({
   return (
     <div className={`relative w-full h-[500px] ${className || ''}`}>
       {loadError && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[#0a0a0a]/80 text-sm text-white/70">
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[var(--surface-0)]/80 text-sm text-[var(--text-primary)]">
           {loadError}
         </div>
       )}
       {isLoading && !loadError && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[#0a0a0a]/50 text-sm text-white/70">
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[var(--surface-0)]/50 text-sm text-[var(--text-primary)]">
           Loading 3D model...
         </div>
       )}
       {!canRender3d && !isLoading && !loadError && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[#0a0a0a]/50 text-sm text-white/70">
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-[var(--surface-0)]/50 text-sm text-[var(--text-primary)]">
           No 3D model available.
         </div>
       )}

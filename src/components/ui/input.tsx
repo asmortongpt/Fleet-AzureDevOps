@@ -15,27 +15,27 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         className={cn(
           // Base styles
-          "flex h-11 w-full min-w-0 rounded-lg border bg-[#1A0648] px-3 py-2.5 text-sm text-white font-['Montserrat',sans-serif]",
-          // Border
-          "border-[rgba(0,204,254,0.15)]",
-          // Placeholder
-          "placeholder:text-[rgba(255,255,255,0.40)]",
-          // Selection
-          "selection:bg-[#00CCFE]/20 selection:text-white",
+          "flex h-9 w-full min-w-0 rounded-[var(--radius-md)] border px-3 py-2 text-[var(--text-base)]",
+          "bg-[var(--surface-3)] text-[var(--text-primary)]",
+          // Typography
+          "placeholder:text-[var(--text-muted)]",
+          "selection:bg-emerald-500/20 selection:text-white",
           // File input styles
-          "file:text-white file:inline-flex file:h-8 file:border-0 file:bg-[#2A1878] file:px-3 file:rounded-lg file:text-sm file:font-medium file:mr-3",
+          "file:text-white file:inline-flex file:h-8 file:border-0 file:bg-[var(--surface-glass-hover)] file:px-3 file:rounded-[var(--radius-md)] file:text-sm file:font-medium file:mr-3",
+          // Border
+          "border-[var(--border-default)]",
           // Transitions
-          "transition-all duration-200 ease-out",
+          "transition-all duration-[var(--duration-fast)]",
           // Focus states
-          "focus-visible:outline-none focus-visible:border-[#00CCFE] focus-visible:ring-2 focus-visible:ring-[#00CCFE]/20 focus-visible:ring-offset-0",
+          "focus:outline-none focus:border-[var(--border-focus)] focus:shadow-[0_0_0_2px_rgba(16,185,129,0.15)]",
           // Hover state
-          "hover:border-[rgba(0,204,254,0.3)]",
+          "hover:border-[var(--border-strong)]",
           // Disabled state
           "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
           // Error state
-          error && "border-destructive/50 focus-visible:border-destructive focus-visible:ring-destructive/20",
+          error && "border-[var(--status-danger)]/30 focus:border-[var(--status-danger)]/50",
           // Aria-invalid state
-          "aria-invalid:border-destructive/50 aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20",
+          "aria-invalid:border-[var(--status-danger)]/30 aria-invalid:focus:border-[var(--status-danger)]/50",
           className
         )}
         {...props}
@@ -56,19 +56,18 @@ const SearchInput = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         className={cn(
           // Base styles
-          "flex h-11 w-full min-w-0 rounded-lg border bg-[#1A0648] pl-10 pr-3 py-2.5 text-sm text-white font-['Montserrat',sans-serif]",
+          "flex h-9 w-full min-w-0 rounded-[var(--radius-md)] border pl-10 pr-3 py-2 text-[var(--text-base)]",
+          "bg-[var(--surface-3)] text-[var(--text-primary)]",
+          // Typography
+          "placeholder:text-[var(--text-muted)]",
           // Border
-          "border-[rgba(0,204,254,0.15)]",
-          // Placeholder
-          "placeholder:text-[rgba(255,255,255,0.40)]",
+          "border-[var(--border-default)]",
           // Transitions
-          "transition-all duration-200 ease-out",
+          "transition-all duration-[var(--duration-fast)]",
           // Focus states
-          "focus-visible:outline-none focus-visible:border-[#00CCFE] focus-visible:ring-2 focus-visible:ring-[#00CCFE]/20 focus-visible:ring-offset-0",
+          "focus:outline-none focus:border-[var(--border-focus)] focus:bg-[var(--surface-4)] focus:shadow-[0_0_0_2px_rgba(16,185,129,0.15)]",
           // Hover state
-          "hover:border-[rgba(0,204,254,0.3)]",
-          // Disabled state
-          "disabled:cursor-not-allowed disabled:opacity-50",
+          "hover:border-[var(--border-strong)]",
           // Search cancel button
           "[&::-webkit-search-cancel-button]:appearance-none",
           className

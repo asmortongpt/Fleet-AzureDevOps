@@ -244,7 +244,7 @@ export function EndpointMonitor() {
       case 'down':
         return { variant: 'destructive' as const, className: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800', icon: XCircle }
       default:
-        return { variant: 'outline' as const, className: 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700', icon: Circle }
+        return { variant: 'outline' as const, className: 'bg-white/[0.05] text-[var(--text-tertiary)] border-[var(--border-default)] dark:bg-[var(--surface-3)] dark:text-[var(--text-tertiary)] dark:border-[var(--border-default)]', icon: Circle }
     }
   }
 
@@ -361,9 +361,9 @@ export function EndpointMonitor() {
               className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-muted/30 dark:bg-muted/10 hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-full ${ws.isConnected ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-800'}`}>
+                <div className={`p-2 rounded-full ${ws.isConnected ? 'bg-green-100 dark:bg-green-900/30' : 'bg-white/[0.05] dark:bg-[var(--surface-3)]'}`}>
                   <Zap
-                    className={`w-4 h-4 ${ws.isConnected ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-white/40'}`}
+                    className={`w-4 h-4 ${ws.isConnected ? 'text-green-600 dark:text-green-400' : 'text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]'}`}
                    
                   />
                 </div>
@@ -372,7 +372,7 @@ export function EndpointMonitor() {
                     <span className="text-sm font-medium dark:text-foreground">{ws.name}</span>
                     <Badge
                       variant="outline"
-                      className={`text-[10px] h-5 ${ws.isConnected ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : 'bg-gray-100 text-white/40 border-gray-300 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700'}`}
+                      className={`text-[10px] h-5 ${ws.isConnected ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : 'bg-white/[0.05] text-[var(--text-tertiary)] border-[var(--border-default)] dark:bg-[var(--surface-3)] dark:text-[var(--text-tertiary)] dark:border-[var(--border-default)]'}`}
                     >
                       <Circle className={`w-2 h-2 mr-1 ${ws.isConnected ? 'fill-green-500 animate-pulse' : 'fill-gray-400'}`} />
                       {ws.isConnected ? 'Connected' : 'Disconnected'}

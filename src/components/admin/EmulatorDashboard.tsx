@@ -716,10 +716,10 @@ const EmulatorDashboard: React.FC = () => {
           {/* Emulator Types */}
           <Grid container spacing={2}>
             {[
-              { icon: <Speed />, label: 'OBD2', color: '#2196f3' },
+              { icon: <Speed />, label: 'OBD2', color: '#10b981' },
               { icon: <MyLocation />, label: 'GPS', color: '#4caf50' },
               { icon: <Sensors />, label: 'IoT Sensors', color: '#ff9800' },
-              { icon: <Radio />, label: 'Radio', color: '#9c27b0' },
+              { icon: <Radio />, label: 'Radio', color: '#f59e0b' },
               { icon: <Person />, label: 'Driver', color: '#f44336' },
               { icon: <Timer />, label: 'Events', color: '#00bcd4' }
             ].map((emType) => (

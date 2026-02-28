@@ -682,7 +682,7 @@ export default function ChargingHub() {
                     </div>
                     <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-emerald-500/50 to-emerald-500 transition-all"
+                        className="h-full bg-emerald-500 transition-all"
                         style={{ width: `${Math.min(100, ((s.end_soc_percent || s.start_soc_percent) / s.target_soc_percent) * 100)}%` }}
                       />
                     </div>

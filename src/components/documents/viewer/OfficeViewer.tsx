@@ -51,8 +51,8 @@ export function OfficeViewer({ document }: OfficeViewerProps) {
       default:
         return {
           icon: 'Document',
-          color: 'text-white/70',
-          bgColor: 'bg-gray-100',
+          color: 'text-[var(--text-primary)]',
+          bgColor: 'bg-white/[0.05]',
           description: 'Office Document'
         };
     }

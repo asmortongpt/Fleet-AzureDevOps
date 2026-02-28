@@ -150,9 +150,9 @@ export function VehicleConditionPanel({
   const colors = statusColor(healthScore);
 
   return (
-    <div className="bg-[#1a1a1a] rounded-md shadow-sm overflow-hidden">
+    <div className="bg-[var(--surface-3)] rounded-md overflow-hidden">
       {/* Header */}
-      <div className="bg-[#242424] border-b border-white/[0.08] p-3">
+      <div className="bg-[var(--surface-2)] border-b border-[var(--border-subtle)] p-3">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-foreground mb-1">Vehicle Condition</h2>
@@ -167,7 +167,7 @@ export function VehicleConditionPanel({
               <span className="text-xs text-muted-foreground">Health</span>
               <span className={`text-sm font-bold ${colors.text}`}>{healthScore}%</span>
             </div>
-            <div className="h-2 rounded-full bg-[#1a1a1a] overflow-hidden">
+            <div className="h-2 rounded-full bg-[var(--surface-3)] overflow-hidden">
               <div
                 className={`h-full rounded-full ${colors.bar} transition-[width] duration-500`}
                 style={{ width: `${Math.min(healthScore, 100)}%` }}
@@ -226,7 +226,7 @@ export function VehicleConditionPanel({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-white/[0.08]">
+      <div className="flex border-b border-[var(--border-subtle)]">
         {([
           { id: 'overview' as const, label: 'Overview' },
           { id: 'details' as const, label: 'Details' },
@@ -237,7 +237,7 @@ export function VehicleConditionPanel({
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 px-3 py-2.5 text-xs font-medium ${
               activeTab === tab.id
-                ? 'text-foreground bg-[#242424] border-b-2 border-emerald-500'
+                ? 'text-foreground bg-[var(--surface-2)] border-b-2 border-emerald-500'
                 : 'text-muted-foreground'
             }`}
           >
@@ -300,7 +300,7 @@ function OverviewTab({ condition, onScheduleService }: OverviewTabProps) {
       </div>
 
       {/* Fuel Level (if available via mileage proxy, show as visual bar) */}
-      <div className="bg-[#242424] rounded-md border border-white/[0.08] p-3">
+      <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">
         <div className="flex items-center gap-2 mb-2">
           <Fuel size={16} className="text-muted-foreground" />
           <h3 className="text-xs font-semibold text-foreground">Fluid Levels</h3>
@@ -315,14 +315,14 @@ function OverviewTab({ condition, onScheduleService }: OverviewTabProps) {
       </div>
 
       {/* Tire Pressure Visual */}
-      <div className="bg-[#242424] rounded-md border border-white/[0.08] p-3">
+      <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">
         <h3 className="text-xs font-semibold text-foreground mb-2">Tire Pressure</h3>
         <TirePressureVisual tires={condition.tires} />
       </div>
 
       {/* Upcoming Service */}
       {condition.nextScheduledService && (
-        <div className="bg-[#242424] rounded-md border border-white/[0.08] p-3">
+        <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs font-semibold text-foreground">Next Scheduled Service</h3>
             {onScheduleService && (
@@ -442,7 +442,7 @@ function DetailsTab({ condition }: DetailsTabProps) {
           {condition.diagnostics.diagnosticCodes.map((code) => (
             <div
               key={code.code}
-              className="flex items-start gap-3 p-2.5 bg-[#1a1a1a] rounded-md"
+              className="flex items-start gap-3 p-2.5 bg-[var(--surface-3)] rounded-md"
             >
               <div className="shrink-0 mt-0.5">
                 {code.resolved ? (
@@ -460,7 +460,7 @@ function DetailsTab({ condition }: DetailsTabProps) {
                         ? 'bg-rose-500/20 text-rose-400'
                         : code.severity === 'warning'
                         ? 'bg-amber-500/20 text-amber-400'
-                        : 'bg-sky-500/20 text-sky-400'
+                        : 'bg-teal-500/20 text-teal-400'
                     }`}
                   >
                     {code.severity}
@@ -503,15 +503,15 @@ function HistoryTab({ serviceHistory }: HistoryTabProps) {
     <div className="space-y-3">
       {/* Summary */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="bg-[#242424] rounded-md border border-white/[0.08] p-2 text-center">
+        <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-2 text-center">
           <p className="text-muted-foreground text-[10px] mb-0.5">Total Services</p>
           <p className="text-sm font-bold text-foreground">{filteredHistory.length}</p>
         </div>
-        <div className="bg-[#242424] rounded-md border border-white/[0.08] p-2 text-center">
+        <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-2 text-center">
           <p className="text-muted-foreground text-[10px] mb-0.5">Total Cost</p>
           <p className="text-sm font-bold text-emerald-400">{formatCurrency(totalCost)}</p>
         </div>
-        <div className="bg-[#242424] rounded-md border border-white/[0.08] p-2 text-center">
+        <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-2 text-center">
           <p className="text-muted-foreground text-[10px] mb-0.5">Avg Cost</p>
           <p className="text-sm font-bold text-foreground">
             {formatCurrency(Math.round(totalCost / (filteredHistory.length || 1)))}
@@ -543,12 +543,12 @@ function HistoryTab({ serviceHistory }: HistoryTabProps) {
           filteredHistory.map((record) => (
             <div
               key={record.id}
-              className="relative pl-4 pb-3 border-l-2 border-white/[0.08] last:border-0"
+              className="relative pl-4 pb-3 border-l-2 border-[var(--border-subtle)] last:border-0"
             >
               {/* Timeline dot */}
               <div className="absolute left-[-5px] top-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-[#1a1a1a]" />
 
-              <div className="bg-[#242424] rounded-md border border-white/[0.08] p-3">
+              <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <h4 className="text-foreground text-sm font-semibold">
@@ -581,7 +581,7 @@ function HistoryTab({ serviceHistory }: HistoryTabProps) {
                 </div>
 
                 {record.parts.length > 0 && (
-                  <div className="mt-2 pt-2 border-t border-white/[0.08]">
+                  <div className="mt-2 pt-2 border-t border-[var(--border-subtle)]">
                     <p className="text-muted-foreground text-[10px] mb-1">Parts Used</p>
                     <ul className="space-y-0.5">
                       {record.parts.map((part) => (
@@ -620,7 +620,7 @@ function StatCard({ icon, label, value, unit, pct }: StatCardProps) {
   const colors = statusColor(pct);
 
   return (
-    <div className="bg-[#242424] rounded-md border border-white/[0.08] p-2.5">
+    <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-2.5">
       <div className={`inline-flex p-1.5 rounded ${colors.bg} mb-2`}>
         <span className={colors.text}>{icon}</span>
       </div>
@@ -646,7 +646,7 @@ function FilterPill({ label, active, onClick }: FilterPillProps) {
       className={`px-2.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap ${
         active
           ? 'bg-emerald-600 text-white'
-          : 'bg-[#242424] text-muted-foreground border border-white/[0.08]'
+          : 'bg-[var(--surface-2)] text-muted-foreground border border-[var(--border-subtle)]'
       }`}
     >
       {label}
@@ -661,7 +661,7 @@ interface DetailSectionProps {
 
 function DetailSection({ title, children }: DetailSectionProps) {
   return (
-    <div className="bg-[#242424] rounded-md border border-white/[0.08] p-3">
+    <div className="bg-[var(--surface-2)] rounded-md border border-[var(--border-subtle)] p-3">
       <h3 className="text-xs font-semibold text-foreground mb-2">{title}</h3>
       <div className="space-y-0">{children}</div>
     </div>
@@ -675,7 +675,7 @@ interface DetailRowProps {
 
 function DetailRow({ label, value }: DetailRowProps) {
   return (
-    <div className="flex items-center justify-between py-1.5 border-b border-white/[0.08] last:border-0">
+    <div className="flex items-center justify-between py-1.5 border-b border-[var(--border-subtle)] last:border-0">
       <span className="text-muted-foreground text-xs">{label}</span>
       <span className="text-foreground text-xs font-medium">{value}</span>
     </div>
@@ -701,7 +701,7 @@ function FluidRow({ label, level }: { label: string; level: string }) {
   return (
     <div className="flex items-center gap-3">
       <span className="text-muted-foreground text-xs w-28 shrink-0">{label}</span>
-      <div className="flex-1 h-1.5 rounded-full bg-[#1a1a1a] overflow-hidden">
+      <div className="flex-1 h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden">
         <div
           className={`h-full rounded-full ${colors.bar} transition-[width] duration-500`}
           style={{ width: `${pct}%` }}
@@ -739,7 +739,7 @@ function TirePressureVisual({ tires }: { tires: VehicleCondition['tires'] }) {
     return (
       <div className="text-center">
         <div
-          className={`w-14 h-18 rounded-md border-2 ${borderColor} bg-[#1a1a1a] mx-auto mb-1 flex flex-col items-center justify-center p-1`}
+          className={`w-14 h-18 rounded-md border-2 ${borderColor} bg-[var(--surface-3)] mx-auto mb-1 flex flex-col items-center justify-center p-1`}
         >
           <div className={`font-bold text-xs ${textColor}`}>{tire.pressure}</div>
           <div className="text-[9px] text-muted-foreground">PSI</div>

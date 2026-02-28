@@ -119,7 +119,7 @@ export const defaultBrandingConfig: BrandingConfig = {
   },
 
   colors: {
-    primary: 'hsl(var(--primary))', // Blue-700
+    primary: 'hsl(var(--primary))', // Emerald-700
     secondary: 'hsl(var(--muted-foreground))', // Slate-500
     accent: 'hsl(var(--primary))', // Sky-500
     headerBackground: 'hsl(var(--card))', // Slate-800
@@ -282,13 +282,13 @@ export const brandingTemplates: Record<string, Partial<BrandingConfig>> = {
 
   educational: {
     colors: {
-      primary: 'hsl(var(--accent))', // Violet-600
-      secondary: 'hsl(var(--accent))', // Violet-500
-      accent: 'hsl(var(--accent))', // Violet-400
-      headerBackground: 'hsl(var(--accent))', // Violet-800
+      primary: 'hsl(var(--accent))', // Accent-600
+      secondary: 'hsl(var(--accent))', // Accent-500
+      accent: 'hsl(var(--accent))', // Accent-400
+      headerBackground: 'hsl(var(--accent))', // Accent-800
       headerText: 'hsl(var(--foreground))',
-      footerBackground: 'hsl(var(--accent) / 0.1)', // Violet-50
-      footerText: 'hsl(var(--accent))', // Violet-700
+      footerBackground: 'hsl(var(--accent) / 0.1)', // Accent-50
+      footerText: 'hsl(var(--accent))', // Accent-700
       linkColor: 'hsl(var(--accent))'
     },
     watermark: {

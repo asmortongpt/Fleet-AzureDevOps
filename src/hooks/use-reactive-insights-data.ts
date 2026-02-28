@@ -151,10 +151,10 @@ export function useReactiveInsightsData() {
 
   // Category distribution for pie chart
   const categoryDistribution = [
-    { name: 'Cost Optimization', value: metricsByCategory.cost.length, fill: '#3B82F6' },
+    { name: 'Cost Optimization', value: metricsByCategory.cost.length, fill: '#10b981' },
     { name: 'Efficiency', value: metricsByCategory.efficiency.length, fill: '#10B981' },
     { name: 'Safety', value: metricsByCategory.safety.length, fill: '#F59E0B' },
-    { name: 'Maintenance', value: metricsByCategory.maintenance.length, fill: '#8B5CF6' },
+    { name: 'Maintenance', value: metricsByCategory.maintenance.length, fill: '#D97706' },
     { name: 'Utilization', value: metricsByCategory.utilization.length, fill: '#F97316' },
   ].filter((item) => item.value > 0)
 

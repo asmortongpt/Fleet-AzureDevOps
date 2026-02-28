@@ -224,64 +224,64 @@ export const DriverToolbox: React.FC = () => {
       id: 'osha',
       title: 'OSHA Report',
       icon: FileText,
-      color: 'bg-purple-500',
+      color: 'bg-amber-500',
       action: () => window.location.href = '/mobile/osha-report',
     },
     {
       id: 'history',
       title: 'Trip History',
       icon: Clock,
-      color: 'bg-indigo-500',
+      color: 'bg-emerald-500',
       action: () => window.location.href = '/mobile/trip-history',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-20">
+    <div className="min-h-screen bg-[var(--surface-0)] pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white p-3 rounded-b-3xl shadow-sm">
+      <div className="bg-[var(--surface-2)] text-white p-3 rounded-b-3xl border-b border-[var(--border-subtle)]">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-sm font-bold">Driver Toolbox</h1>
-            <p className="text-emerald-200 text-sm">
+            <h1 className="text-sm font-bold text-white">Driver Toolbox</h1>
+            <p className="text-[var(--text-secondary)] text-sm">
               {isOffline ? 'Working Offline' : 'Connected'}
             </p>
           </div>
           <button
             onClick={handleManualSync}
-            className="bg-white/20 hover:bg-white/30 p-3 rounded-full transition-colors"
+            className="bg-white/[0.06] hover:bg-white/[0.1] p-3 rounded-full transition-colors"
             disabled={isOffline}
             aria-label="Sync now"
           >
-            <CheckCircle className={isOffline ? 'text-gray-300' : 'text-white'} size={24} />
+            <CheckCircle className={isOffline ? 'text-[var(--text-tertiary)]' : 'text-white'} size={24} />
           </button>
         </div>
 
         {/* Active Vehicle Card */}
         {activeVehicle ? (
-          <div className="bg-white/10 backdrop-blur-sm rounded-md p-2 mt-2">
+          <div className="bg-white/[0.05] rounded-md p-2 mt-2 border border-[var(--border-subtle)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-emerald-200">Active Vehicle</p>
-                <p className="text-sm font-semibold">
+                <p className="text-sm text-[var(--text-secondary)]">Active Vehicle</p>
+                <p className="text-sm font-semibold text-white">
                   {activeVehicle.vehicleNumber} - {formatVehicleShortName(activeVehicle)}
                 </p>
-                <p className="text-sm text-emerald-200">{activeVehicle.licensePlate}</p>
+                <p className="text-sm text-[var(--text-secondary)]">{activeVehicle.licensePlate}</p>
               </div>
               <div className="text-right">
                 {activeVehicle.mileage && (
-                  <p className="text-sm">{formatNumber(activeVehicle.mileage)} mi</p>
+                  <p className="text-sm text-white">{formatNumber(activeVehicle.mileage)} mi</p>
                 )}
                 {activeVehicle.fuelLevel && (
-                  <p className="text-sm">{activeVehicle.fuelLevel}% Fuel</p>
+                  <p className="text-sm text-white">{activeVehicle.fuelLevel}% Fuel</p>
                 )}
               </div>
             </div>
           </div>
         ) : (
-          <div className="bg-white/10 backdrop-blur-sm rounded-md p-2 mt-2 text-center">
-            <p className="text-emerald-200">No vehicle assigned</p>
-            <button className="mt-2 bg-white/20 hover:bg-white/30 px-2 py-2 rounded-lg text-sm transition-colors">
+          <div className="bg-white/[0.05] rounded-md p-2 mt-2 text-center border border-[var(--border-subtle)]">
+            <p className="text-[var(--text-secondary)]">No vehicle assigned</p>
+            <button className="mt-2 bg-white/[0.06] hover:bg-white/[0.1] px-2 py-2 rounded-lg text-sm transition-colors text-white">
               Select Vehicle
             </button>
           </div>
@@ -291,28 +291,28 @@ export const DriverToolbox: React.FC = () => {
       {/* Stats Overview */}
       <div className="px-3 py-3">
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-700 text-sm">Assigned Vehicles</p>
-            <p className="text-sm font-bold text-gray-800">{stats.assignedVehicles}</p>
+          <div className="bg-[var(--surface-2)] rounded-md p-2 border border-[var(--border-subtle)]">
+            <p className="text-[var(--text-secondary)] text-sm">Assigned Vehicles</p>
+            <p className="text-sm font-bold text-white">{stats.assignedVehicles}</p>
           </div>
-          <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-700 text-sm">Active Work Orders</p>
-            <p className="text-sm font-bold text-orange-600">{stats.activeWorkOrders}</p>
+          <div className="bg-[var(--surface-2)] rounded-md p-2 border border-[var(--border-subtle)]">
+            <p className="text-[var(--text-secondary)] text-sm">Active Work Orders</p>
+            <p className="text-sm font-bold text-orange-500">{stats.activeWorkOrders}</p>
           </div>
-          <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-700 text-sm">Pending Inspections</p>
-            <p className="text-sm font-bold text-emerald-800">{stats.pendingInspections}</p>
+          <div className="bg-[var(--surface-2)] rounded-md p-2 border border-[var(--border-subtle)]">
+            <p className="text-[var(--text-secondary)] text-sm">Pending Inspections</p>
+            <p className="text-sm font-bold text-emerald-500">{stats.pendingInspections}</p>
           </div>
-          <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-700 text-sm">Pending Sync</p>
-            <p className="text-sm font-bold text-purple-600">{stats.pendingSyncCount}</p>
+          <div className="bg-[var(--surface-2)] rounded-md p-2 border border-[var(--border-subtle)]">
+            <p className="text-[var(--text-secondary)] text-sm">Pending Sync</p>
+            <p className="text-sm font-bold text-amber-500">{stats.pendingSyncCount}</p>
           </div>
         </div>
       </div>
 
       {/* Quick Actions */}
       <div className="px-3">
-        <h2 className="text-sm font-semibold text-gray-800 mb-2">Quick Actions</h2>
+        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Quick Actions</h2>
         <div className="grid grid-cols-2 gap-2">
           {quickActions.map((action) => {
             const Icon = action.icon;
@@ -320,12 +320,12 @@ export const DriverToolbox: React.FC = () => {
               <button
                 key={action.id}
                 onClick={action.action}
-                className="relative bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-all active:scale-95"
+                className="relative bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)] hover:bg-[#161616] transition-all active:scale-95"
               >
                 <div className={`${action.color} w-12 h-9 rounded-md flex items-center justify-center mb-3`}>
                   <Icon className="text-white" size={24} />
                 </div>
-                <p className="text-gray-800 font-medium text-left">{action.title}</p>
+                <p className="text-[var(--text-primary)] font-medium text-left">{action.title}</p>
                 {action.badge !== undefined && action.badge > 0 && (
                   <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
                     {action.badge}
@@ -340,9 +340,9 @@ export const DriverToolbox: React.FC = () => {
       {/* Sync Status */}
       {lastSyncTime && (
         <div className="px-3 py-2">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center">
-            <CheckCircle className="text-green-600 mr-2" size={20} />
-            <p className="text-sm text-green-800">
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 flex items-center">
+            <CheckCircle className="text-emerald-500 mr-2" size={20} />
+            <p className="text-sm text-emerald-400">
               Last synced: {formatTime(lastSyncTime)}
             </p>
           </div>
@@ -354,7 +354,7 @@ export const DriverToolbox: React.FC = () => {
         <div className="px-3 py-2">
           <button
             onClick={handleTestNotification}
-            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg text-sm font-medium transition-colors"
+            className="w-full bg-white/[0.06] hover:bg-white/[0.1] text-[var(--text-primary)] py-3 rounded-lg text-sm font-medium transition-colors"
           >
             Test Notification
           </button>
@@ -363,7 +363,7 @@ export const DriverToolbox: React.FC = () => {
 
       {/* Offline Warning Banner */}
       {isOffline && (
-        <div className="fixed bottom-20 left-0 right-0 mx-3 bg-yellow-500 text-white px-2 py-3 rounded-lg shadow-sm z-50">
+        <div className="fixed bottom-20 left-0 right-0 mx-3 bg-yellow-500 text-white px-2 py-3 rounded-lg z-50">
           <p className="text-sm font-medium text-center">
             You are currently offline. Data will sync when connection is restored.
           </p>

@@ -22,10 +22,15 @@ export function ThemeProvider({
   storageKey = 'ctafleet-theme',
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(() => {
-    // Try to get theme from localStorage
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(storageKey) as Theme | null;
-      return stored || defaultTheme;
+      // Validate stored value is a valid theme
+      if (stored && ['light', 'dark', 'system'].includes(stored)) {
+        return stored;
+      }
+      // No valid stored preference — respect OS preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return prefersDark ? 'dark' : defaultTheme;
     }
     return defaultTheme;
   });
@@ -46,16 +51,15 @@ export function ThemeProvider({
     // Add new theme class
     root.classList.add(activeTheme);
 
-    // Update data attributes for Tailwind + ArchonY tokens
-    root.setAttribute('data-appearance', activeTheme);
+    // Update data attribute for design tokens (design-tokens.css uses data-theme)
     root.setAttribute('data-theme', activeTheme);
 
-    // Update meta theme-color (ArchonY Midnight for dark, warm gray for light)
+    // Update meta theme-color
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
       metaThemeColor.setAttribute(
         'content',
-        activeTheme === 'dark' ? '#1A0648' : '#F5F5F7'
+        activeTheme === 'dark' ? '#08080a' : '#f7f8fa'
       );
     }
   }, [theme]);
@@ -73,7 +77,7 @@ export function ThemeProvider({
       const root = window.document.documentElement;
       root.classList.remove('light', 'dark');
       root.classList.add(newTheme);
-      root.setAttribute('data-appearance', newTheme);
+      root.setAttribute('data-theme', newTheme);
     };
 
     mediaQuery.addEventListener('change', handleChange);

@@ -1,1 +1,1 @@
-export { ArchonYLogo } from './ArchonYLogo'
+export { CTAFleetLogo } from './ArchonYLogo'

@@ -58,7 +58,7 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
         <div
           className="lg:col-span-3 rounded-lg border overflow-hidden min-h-[500px]"
           style={{
-            borderColor: `${brandColors.cta.navy}20`,
+            borderColor: `${brandColors.cta.charcoal}20`,
           }}
         >
           {vehicles.length > 0 ? (
@@ -75,11 +75,11 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
               center={[25.7617, -80.1918]} // Miami default
             />
           ) : (
-            <div className="flex items-center justify-center h-full bg-gray-50">
+            <div className="flex items-center justify-center h-full bg-white/[0.03]">
               <div className="text-center">
-                <AlertCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                <p className="text-lg font-medium text-gray-700">No Vehicles Available</p>
-                <p className="text-sm mt-2 text-gray-500">
+                <AlertCircle className="w-12 h-12 mx-auto mb-4 text-[var(--text-tertiary)]" />
+                <p className="text-lg font-medium text-[var(--text-tertiary)]">No Vehicles Available</p>
+                <p className="text-sm mt-2 text-[var(--text-tertiary)]">
                   Load vehicles to display on map
                 </p>
               </div>
@@ -93,12 +93,12 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
             className="rounded-lg border p-4"
             style={{
               backgroundColor: brandColors.archon.lightGray,
-              borderColor: `${brandColors.cta.navy}20`,
+              borderColor: `${brandColors.cta.charcoal}20`,
             }}
           >
             <h3
               className="text-sm font-semibold uppercase tracking-wider mb-3"
-              style={{ color: brandColors.cta.navy }}
+              style={{ color: brandColors.cta.charcoal }}
             >
               Quick Stats
             </h3>
@@ -128,12 +128,12 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
             className="rounded-lg border p-4"
             style={{
               backgroundColor: brandColors.archon.lightGray,
-              borderColor: `${brandColors.cta.navy}20`,
+              borderColor: `${brandColors.cta.charcoal}20`,
             }}
           >
             <h3
               className="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center gap-2"
-              style={{ color: brandColors.cta.navy }}
+              style={{ color: brandColors.cta.charcoal }}
             >
               <Clock className="w-4 h-4" />
               Recent Activity

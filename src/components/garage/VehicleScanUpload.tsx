@@ -518,21 +518,21 @@ export function VehicleScanUpload({
 
   return (
     <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-2xl max-h-[90vh] bg-[#111]/95 backdrop-blur-md rounded-2xl border border-white/[0.08] shadow-2xl overflow-hidden flex flex-col">
+      <div className="w-full max-w-2xl max-h-[90vh] bg-[var(--surface-1)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.08]">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-2">
             <Camera className="w-4 h-4 text-emerald-400" />
             <h2 className="text-sm font-semibold text-white">Vehicle Scanner</h2>
             {make && model && (
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-[var(--text-tertiary)]">
                 {year} {make} {model}
               </span>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            className="p-1 rounded hover:bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
             aria-label="Close scanner"
           >
             <X className="w-4 h-4" />
@@ -545,14 +545,14 @@ export function VehicleScanUpload({
           {stage === 'idle' && (
             <>
               {/* Feature 4: Scan mode toggle */}
-              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-white/[0.03] border border-[var(--border-subtle)]">
                 <button
                   onClick={() => setScanMode('quick')}
                   className={cn(
                     'flex-1 py-1.5 rounded-md text-xs font-medium transition-colors',
                     scanMode === 'quick'
                       ? 'bg-emerald-500/20 text-emerald-400'
-                      : 'text-white/50 hover:text-white/70'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   )}
                 >
                   Quick Upload
@@ -563,7 +563,7 @@ export function VehicleScanUpload({
                     'flex-1 py-1.5 rounded-md text-xs font-medium transition-colors',
                     scanMode === 'guided'
                       ? 'bg-emerald-500/20 text-emerald-400'
-                      : 'text-white/50 hover:text-white/70'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   )}
                 >
                   Guided Scan
@@ -591,14 +591,14 @@ export function VehicleScanUpload({
                       'border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors',
                       isDragging
                         ? 'border-emerald-500/50 bg-emerald-500/5'
-                        : 'border-white/[0.12] hover:border-white/[0.20] bg-white/[0.02]'
+                        : 'border-[var(--border-subtle)] hover:border-white/[0.20] bg-white/[0.02]'
                     )}
                   >
-                    <Upload className="w-8 h-8 text-white/30 mx-auto mb-3" />
-                    <p className="text-sm text-white/60 mb-1">
+                    <Upload className="w-8 h-8 text-[var(--text-muted)] mx-auto mb-3" />
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">
                       Drop photos or videos here
                     </p>
-                    <p className="text-[10px] text-white/30">
+                    <p className="text-[10px] text-[var(--text-muted)]">
                       Supports MP4, MOV, JPG, PNG, HEIC (max 500MB)
                     </p>
                     <input
@@ -614,7 +614,7 @@ export function VehicleScanUpload({
                   {/* Camera capture button */}
                   <button
                     onClick={() => cameraInputRef.current?.click()}
-                    className="w-full py-2.5 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-white/60 hover:text-white/80 hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-2.5 rounded-lg bg-white/[0.05] border border-[var(--border-subtle)] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass-hover)] transition-colors flex items-center justify-center gap-2"
                   >
                     <Camera className="w-4 h-4" />
                     Take Photo with Camera
@@ -631,21 +631,21 @@ export function VehicleScanUpload({
                   {/* Selected files */}
                   {files.length > 0 && (
                     <div className="space-y-1.5">
-                      <p className="text-[10px] font-medium text-white/40 uppercase tracking-wide">
+                      <p className="text-[10px] font-medium text-[var(--text-tertiary)] uppercase tracking-wide">
                         {files.length} file{files.length !== 1 ? 's' : ''} selected
                       </p>
                       {files.map((f, i) => (
                         <div
                           key={`${f.name}-${i}`}
-                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06]"
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-[var(--border-subtle)]"
                         >
                           {f.type.startsWith('video') ? (
-                            <Video className="w-3.5 h-3.5 text-white/30" />
+                            <Video className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                           ) : (
-                            <ImageIcon className="w-3.5 h-3.5 text-white/30" />
+                            <ImageIcon className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                           )}
-                          <span className="text-xs text-white/60 flex-1 truncate">{f.name}</span>
-                          <span className="text-[10px] text-white/30">
+                          <span className="text-xs text-[var(--text-secondary)] flex-1 truncate">{f.name}</span>
+                          <span className="text-[10px] text-[var(--text-muted)]">
                             {(f.size / 1024 / 1024).toFixed(1)}MB
                           </span>
                           <button
@@ -653,7 +653,7 @@ export function VehicleScanUpload({
                               e.stopPropagation();
                               removeFile(i);
                             }}
-                            className="p-0.5 rounded hover:bg-white/[0.08] text-white/30 hover:text-white/50"
+                            className="p-0.5 rounded hover:bg-[var(--surface-glass-hover)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
                           >
                             <X className="w-3 h-3" />
                           </button>
@@ -680,8 +680,8 @@ export function VehicleScanUpload({
               {/* Overall progress bar */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-white/60">{STAGE_LABELS[stage]}</span>
-                  <span className="text-xs text-white/40">{Math.round(progress)}%</span>
+                  <span className="text-xs text-[var(--text-secondary)]">{STAGE_LABELS[stage]}</span>
+                  <span className="text-xs text-[var(--text-tertiary)]">{Math.round(progress)}%</span>
                 </div>
                 <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
                   <div
@@ -690,10 +690,10 @@ export function VehicleScanUpload({
                   />
                 </div>
                 {stageDescription && (
-                  <p className="text-[10px] text-white/30 mt-1">{stageDescription}</p>
+                  <p className="text-[10px] text-[var(--text-muted)] mt-1">{stageDescription}</p>
                 )}
                 {etaSeconds != null && etaSeconds > 0 && (
-                  <p className="text-[10px] text-white/30">
+                  <p className="text-[10px] text-[var(--text-muted)]">
                     ~{Math.ceil(etaSeconds)}s remaining
                   </p>
                 )}
@@ -713,7 +713,7 @@ export function VehicleScanUpload({
                       className={cn(
                         'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors',
                         isCurrent && 'bg-emerald-500/10 text-emerald-400',
-                        isDone && 'text-white/30',
+                        isDone && 'text-[var(--text-muted)]',
                         !isCurrent && !isDone && 'text-white/15'
                       )}
                     >
@@ -739,12 +739,12 @@ export function VehicleScanUpload({
                 <FileWarning className="w-5 h-5 text-rose-400 shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-rose-400">Scan Failed</p>
-                  <p className="text-xs text-white/40 mt-0.5">{errorMessage}</p>
+                  <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{errorMessage}</p>
                 </div>
               </div>
               <button
                 onClick={resetScan}
-                className="w-full py-2 rounded-lg bg-white/[0.06] text-sm text-white/60 hover:text-white/80 hover:bg-white/[0.10] transition-colors flex items-center justify-center gap-2"
+                className="w-full py-2 rounded-lg bg-white/[0.06] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.10] transition-colors flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 Try Again
@@ -757,12 +757,12 @@ export function VehicleScanUpload({
             <div className="space-y-4">
               {/* Score card */}
               {results.damage_report && (
-                <div className="rounded-xl bg-white/[0.04] border border-white/[0.08] p-4">
+                <div className="rounded-xl bg-white/[0.04] border border-[var(--border-subtle)] p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-medium text-white/40 uppercase tracking-wide">
+                    <span className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide">
                       Vehicle Condition
                     </span>
-                    <span className="text-xs text-white/30">
+                    <span className="text-xs text-[var(--text-muted)]">
                       {results.damage_report.frame_count} frames analyzed
                     </span>
                   </div>
@@ -778,14 +778,14 @@ export function VehicleScanUpload({
                       {Math.round(results.damage_report.overall_score)}
                     </div>
                     <div>
-                      <p className="text-sm text-white/60">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         {results.damage_report.overall_score >= 80
                           ? 'Good Condition'
                           : results.damage_report.overall_score >= 60
                           ? 'Fair Condition'
                           : 'Needs Attention'}
                       </p>
-                      <p className="text-[10px] text-white/30">
+                      <p className="text-[10px] text-[var(--text-muted)]">
                         {results.damage_report.items.length} damage item
                         {results.damage_report.items.length !== 1 ? 's' : ''} detected
                       </p>
@@ -811,7 +811,7 @@ export function VehicleScanUpload({
 
               {/* Annotated image */}
               {results.damage_report?.annotated_image_url && (
-                <div className="rounded-xl overflow-hidden border border-white/[0.08]">
+                <div className="rounded-xl overflow-hidden border border-[var(--border-subtle)]">
                   <img
                     src={`/api/vehicle-scanner${results.damage_report.annotated_image_url}`}
                     alt="Annotated damage view"
@@ -827,7 +827,7 @@ export function VehicleScanUpload({
                   {onViewDamageIn3D && (
                     <button
                       onClick={handleViewIn3D}
-                      className="flex-1 py-2 rounded-lg bg-white/[0.06] text-sm text-white/60 hover:text-white/80 hover:bg-white/[0.10] transition-colors flex items-center justify-center gap-2"
+                      className="flex-1 py-2 rounded-lg bg-white/[0.06] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.10] transition-colors flex items-center justify-center gap-2"
                     >
                       <Box className="w-3.5 h-3.5" />
                       View in 3D
@@ -837,7 +837,7 @@ export function VehicleScanUpload({
                     <button
                       onClick={createAllWorkOrders}
                       disabled={creatingAllWO}
-                      className="flex-1 py-2 rounded-lg bg-white/[0.06] text-sm text-white/60 hover:text-white/80 hover:bg-white/[0.10] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                      className="flex-1 py-2 rounded-lg bg-white/[0.06] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.10] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       {creatingAllWO ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -853,7 +853,7 @@ export function VehicleScanUpload({
               {/* Damage items list */}
               {results.damage_report && results.damage_report.items.length > 0 && (
                 <div className="space-y-1.5">
-                  <p className="text-[10px] font-medium text-white/40 uppercase tracking-wide">
+                  <p className="text-[10px] font-medium text-[var(--text-tertiary)] uppercase tracking-wide">
                     Damage Details
                   </p>
                   {results.damage_report.items.map((item, index) => {
@@ -861,7 +861,7 @@ export function VehicleScanUpload({
                     return (
                       <div
                         key={item.id}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06]"
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-[var(--border-subtle)]"
                       >
                         <AlertTriangle
                           className={cn(
@@ -875,7 +875,7 @@ export function VehicleScanUpload({
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs text-white/70 capitalize">
+                            <span className="text-xs text-[var(--text-primary)] capitalize">
                               {item.damage_type.replace(/_/g, ' ')}
                             </span>
                             <span
@@ -888,10 +888,10 @@ export function VehicleScanUpload({
                             </span>
                           </div>
                           {item.description && (
-                            <p className="text-[10px] text-white/30 truncate">{item.description}</p>
+                            <p className="text-[10px] text-[var(--text-muted)] truncate">{item.description}</p>
                           )}
                         </div>
-                        <span className="text-[10px] text-white/30 tabular-nums">
+                        <span className="text-[10px] text-[var(--text-muted)] tabular-nums">
                           {Math.round(item.confidence * 100)}%
                         </span>
                         {/* Feature 2: Per-item WO button */}
@@ -904,10 +904,10 @@ export function VehicleScanUpload({
                               woStatus === 'success'
                                 ? 'text-emerald-400 bg-emerald-500/10'
                                 : woStatus === 'loading'
-                                ? 'text-white/30'
+                                ? 'text-[var(--text-muted)]'
                                 : woStatus === 'error'
                                 ? 'text-rose-400 bg-rose-500/10 hover:bg-rose-500/20'
-                                : 'text-white/50 bg-white/[0.05] hover:bg-white/[0.08]'
+                                : 'text-[var(--text-secondary)] bg-white/[0.05] hover:bg-[var(--surface-glass-hover)]'
                             )}
                           >
                             {woStatus === 'success' ? (
@@ -934,7 +934,7 @@ export function VehicleScanUpload({
                     <button
                       onClick={requestAIAssessment}
                       disabled={aiLoading}
-                      className="w-full py-2 rounded-lg bg-white/[0.06] text-sm text-white/60 hover:text-white/80 hover:bg-white/[0.10] transition-colors flex items-center justify-center gap-2"
+                      className="w-full py-2 rounded-lg bg-white/[0.06] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.10] transition-colors flex items-center justify-center gap-2"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
                       Get AI Analysis
@@ -944,7 +944,7 @@ export function VehicleScanUpload({
                   {aiLoading && (
                     <div className="flex items-center justify-center gap-2 py-4">
                       <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
-                      <span className="text-xs text-white/50">Generating AI assessment...</span>
+                      <span className="text-xs text-[var(--text-secondary)]">Generating AI assessment...</span>
                     </div>
                   )}
 
@@ -953,7 +953,7 @@ export function VehicleScanUpload({
                       <p className="text-xs text-rose-400">{aiError}</p>
                       <button
                         onClick={requestAIAssessment}
-                        className="text-[10px] text-white/40 hover:text-white/60 mt-1 underline"
+                        className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] mt-1 underline"
                       >
                         Retry
                       </button>
@@ -961,10 +961,10 @@ export function VehicleScanUpload({
                   )}
 
                   {aiAssessment && (
-                    <div className="rounded-xl bg-white/[0.04] border border-white/[0.08] p-4 space-y-3">
+                    <div className="rounded-xl bg-white/[0.04] border border-[var(--border-subtle)] p-4 space-y-3">
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-emerald-400" />
-                        <span className="text-xs font-semibold text-white/80">AI Assessment</span>
+                        <span className="text-xs font-semibold text-[var(--text-primary)]">AI Assessment</span>
                         <span
                           className={cn(
                             'text-[9px] px-2 py-0.5 rounded-full font-medium border',
@@ -976,14 +976,14 @@ export function VehicleScanUpload({
                       </div>
 
                       {/* Summary */}
-                      <p className="text-xs text-white/60 leading-relaxed">
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                         {aiAssessment.summary}
                       </p>
 
                       {/* Cost estimate */}
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06]">
-                        <span className="text-[10px] text-white/40">Estimated Cost:</span>
-                        <span className="text-xs font-medium text-white/80">
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-[var(--border-subtle)]">
+                        <span className="text-[10px] text-[var(--text-tertiary)]">Estimated Cost:</span>
+                        <span className="text-xs font-medium text-[var(--text-primary)]">
                           {formatCurrency(aiAssessment.costEstimate.min)} &ndash;{' '}
                           {formatCurrency(aiAssessment.costEstimate.max)}
                         </span>
@@ -992,12 +992,12 @@ export function VehicleScanUpload({
                       {/* Recommendations */}
                       {aiAssessment.recommendations.length > 0 && (
                         <div>
-                          <p className="text-[10px] font-medium text-white/40 uppercase tracking-wide mb-1">
+                          <p className="text-[10px] font-medium text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                             Recommendations
                           </p>
                           <ol className="space-y-1 list-decimal list-inside">
                             {aiAssessment.recommendations.map((rec, i) => (
-                              <li key={i} className="text-xs text-white/60">
+                              <li key={i} className="text-xs text-[var(--text-secondary)]">
                                 {rec}
                               </li>
                             ))}
@@ -1010,7 +1010,7 @@ export function VehicleScanUpload({
                         <div>
                           <button
                             onClick={() => setAiDetailsExpanded(!aiDetailsExpanded)}
-                            className="flex items-center gap-1 text-[10px] text-white/40 hover:text-white/60 transition-colors"
+                            className="flex items-center gap-1 text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
                           >
                             {aiDetailsExpanded ? (
                               <ChevronUp className="w-3 h-3" />
@@ -1020,7 +1020,7 @@ export function VehicleScanUpload({
                             Detailed Findings
                           </button>
                           {aiDetailsExpanded && (
-                            <p className="text-xs text-white/50 mt-1.5 leading-relaxed whitespace-pre-line">
+                            <p className="text-xs text-[var(--text-secondary)] mt-1.5 leading-relaxed whitespace-pre-line">
                               {aiAssessment.detailedFindings}
                             </p>
                           )}
@@ -1034,14 +1034,14 @@ export function VehicleScanUpload({
               {/* Showroom images */}
               {results.showroom_images.length > 0 && (
                 <div className="space-y-1.5">
-                  <p className="text-[10px] font-medium text-white/40 uppercase tracking-wide">
+                  <p className="text-[10px] font-medium text-[var(--text-tertiary)] uppercase tracking-wide">
                     Showroom Images
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {results.showroom_images.map((url, i) => (
                       <div
                         key={i}
-                        className="rounded-lg overflow-hidden border border-white/[0.08] bg-[#0a0a0a]"
+                        className="rounded-lg overflow-hidden border border-[var(--border-subtle)] bg-[var(--surface-0)]"
                       >
                         <img
                           src={`/api/vehicle-scanner${url}`}
@@ -1059,7 +1059,7 @@ export function VehicleScanUpload({
               <div className="flex gap-2">
                 <button
                   onClick={resetScan}
-                  className="flex-1 py-2 rounded-lg bg-white/[0.06] text-sm text-white/60 hover:text-white/80 hover:bg-white/[0.10] transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-2 rounded-lg bg-white/[0.06] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.10] transition-colors flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   New Scan

@@ -151,10 +151,10 @@ export class SentryErrorBoundary extends Component<Props, State> {
     if (!showDetails || !error) return null
 
     return (
-      <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+      <div className="mt-2 p-2 bg-white/[0.03] dark:bg-[var(--surface-1)] rounded-lg">
         <div className="space-y-2">
           <div>
-            <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">
+            <h4 className="font-semibold text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]">
               Error Message:
             </h4>
             <p className="text-sm text-red-600 dark:text-red-400 font-mono">
@@ -164,10 +164,10 @@ export class SentryErrorBoundary extends Component<Props, State> {
 
           {import.meta.env.DEV && error.stack && (
             <div>
-              <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">
+              <h4 className="font-semibold text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]">
                 Stack Trace:
               </h4>
-              <pre className="text-xs text-white/70 dark:text-gray-700 overflow-x-auto whitespace-pre-wrap font-mono">
+              <pre className="text-xs text-[var(--text-primary)] dark:text-[var(--text-tertiary)] overflow-x-auto whitespace-pre-wrap font-mono">
                 {error.stack}
               </pre>
             </div>
@@ -175,10 +175,10 @@ export class SentryErrorBoundary extends Component<Props, State> {
 
           {import.meta.env.DEV && errorInfo?.componentStack && (
             <div>
-              <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">
+              <h4 className="font-semibold text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]">
                 Component Stack:
               </h4>
-              <pre className="text-xs text-white/70 dark:text-gray-700 overflow-x-auto whitespace-pre-wrap font-mono">
+              <pre className="text-xs text-[var(--text-primary)] dark:text-[var(--text-tertiary)] overflow-x-auto whitespace-pre-wrap font-mono">
                 {errorInfo.componentStack}
               </pre>
             </div>
@@ -186,10 +186,10 @@ export class SentryErrorBoundary extends Component<Props, State> {
 
           {this.state.eventId && (
             <div>
-              <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">
+              <h4 className="font-semibold text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]">
                 Error ID:
               </h4>
-              <p className="text-xs text-white/70 dark:text-gray-700 font-mono">
+              <p className="text-xs text-[var(--text-primary)] dark:text-[var(--text-tertiary)] font-mono">
                 {this.state.eventId}
               </p>
             </div>
@@ -216,7 +216,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
     if (level === 'page') {
       // Full page error
       return (
-        <div className="min-h-screen flex items-center justify-center p-2 bg-gray-50 dark:bg-gray-950">
+        <div className="min-h-screen flex items-center justify-center p-2 bg-white/[0.03] dark:bg-[var(--surface-0)]">
           <Card className="max-w-lg w-full">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -287,7 +287,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-white/70 dark:text-gray-700">
+            <p className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
               This section couldn't load properly.
             </p>
             {(showDetailsProp !== false || import.meta.env.DEV) && (
@@ -320,7 +320,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
             <AlertTriangle className="h-4 w-4" />
             <span className="text-sm font-medium">Component Error</span>
           </div>
-          <p className="mt-1 text-sm text-white/70 dark:text-gray-700">
+          <p className="mt-1 text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
             Failed to render this component.
           </p>
           <Button

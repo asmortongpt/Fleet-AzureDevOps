@@ -12,7 +12,7 @@ export function LoadingSkeleton({ className, count = 1 }: LoadingSkeletonProps) 
         <div
           key={i}
           className={cn(
-            "animate-pulse bg-gray-200 dark:bg-gray-700 rounded",
+            "animate-pulse bg-white/[0.06] dark:bg-white/[0.08] rounded",
             className
           )}
         />

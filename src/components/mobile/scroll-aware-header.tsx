@@ -30,7 +30,7 @@ export function ScrollAwareHeader({
         fixed top-0 left-0 right-0 z-50
         bg-white dark:bg-neutral-900
         border-b border-neutral-200 dark:border-neutral-800
-        shadow-sm
+       
         transition-transform duration-300 ease-in-out
         ${shouldShow ? 'translate-y-0' : '-translate-y-full'}
         ${className}

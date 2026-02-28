@@ -45,7 +45,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       header: 'Service Date',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-white/40" />
+          <Calendar className="w-4 h-4 text-[var(--text-tertiary)]" />
           {formatDate(getValue<string>())}
         </div>
       ),
@@ -57,14 +57,14 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
         const type = getValue<string>();
         const typeColors: Record<string, string> = {
           'oil change': 'bg-emerald-500/20 text-emerald-400',
-          'tire rotation': 'bg-purple-500/20 text-purple-400',
+          'tire rotation': 'bg-amber-500/20 text-amber-400',
           'brake service': 'bg-red-500/20 text-red-400',
           'engine repair': 'bg-orange-500/20 text-orange-400',
           'transmission': 'bg-amber-500/20 text-amber-400',
           'inspection': 'bg-green-500/20 text-green-400',
         };
         return (
-          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${typeColors[type?.toLowerCase()] || 'bg-white/[0.05] text-white/40'}`}>
+          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${typeColors[type?.toLowerCase()] || 'bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)]'}`}>
             {type}
           </span>
         );
@@ -175,7 +175,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
               </span>
             ))}
             {parts.length > 3 && (
-              <span className="px-2 py-0.5 bg-white/[0.08] text-white/40 rounded text-xs">
+              <span className="px-2 py-0.5 bg-white/[0.08] text-[var(--text-tertiary)] rounded text-xs">
                 +{parts.length - 3}
               </span>
             )}

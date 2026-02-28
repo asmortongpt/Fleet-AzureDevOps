@@ -7,9 +7,10 @@ function Skeleton({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton"
       className={cn(
-        "bg-[#221060] animate-[shimmer_1.5s_infinite] rounded-lg",
+        "animate-pulse rounded-lg",
         className
       )}
+      style={{ background: 'rgba(255,255,255,0.04)' }}
       {...props}
     />
   )
@@ -55,7 +56,7 @@ function SkeletonCard({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton-card"
       className={cn(
-        "rounded-md border border-[rgba(0,204,254,0.1)] bg-[#221060]/30 p-2 sm:p-3 space-y-2",
+        "premium-card rounded-xl p-2 sm:p-3 space-y-2",
         className
       )}
       {...props}
@@ -78,7 +79,7 @@ function SkeletonStatCard({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton-stat-card"
       className={cn(
-        "rounded-md border border-[rgba(0,204,254,0.1)] bg-[#221060]/30 p-2 space-y-3",
+        "premium-stat rounded-xl p-3 space-y-3",
         className
       )}
       {...props}
@@ -124,7 +125,7 @@ function SkeletonTableRow({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton-table-row"
       className={cn(
-        "flex items-center gap-2 py-3 px-2 border-b border-[rgba(0,204,254,0.08)]",
+        "flex items-center gap-2 py-3 px-2 border-b border-border/30",
         className
       )}
       {...props}
@@ -163,7 +164,7 @@ function SkeletonList({
     <div
       data-slot="skeleton-list"
       className={cn(
-        variant === "row" ? "divide-y divide-[rgba(0,204,254,0.08)]" : "space-y-3 sm:space-y-2",
+        variant === "row" ? "divide-y divide-border/30" : "space-y-3 sm:space-y-2",
         className
       )}
       {...props}
@@ -212,7 +213,7 @@ function SkeletonChart({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton-chart"
       className={cn(
-        "rounded-md border border-[rgba(0,204,254,0.1)] bg-[#221060]/30 p-2 sm:p-3",
+        "premium-section rounded-xl p-2 sm:p-3",
         className
       )}
       {...props}

@@ -33,10 +33,10 @@ export const MapMarkerSettings = memo(function MapMarkerSettings() {
       {/* Toggle button */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`flex items-center gap-1 h-7 px-2 rounded-md backdrop-blur-sm border transition-all shadow-lg text-[10px] font-medium ${
+        className={`flex items-center gap-1 h-7 px-2 rounded-md border transition-all text-[10px] font-medium ${
           open
             ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400'
-            : 'bg-[#242424]/90 border-white/[0.08] text-white/60 hover:text-white hover:border-white/[0.15]'
+            : 'bg-[var(--surface-2)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white hover:border-[var(--border-default)]'
         }`}
         title="Marker settings"
       >
@@ -46,13 +46,13 @@ export const MapMarkerSettings = memo(function MapMarkerSettings() {
 
       {/* Settings panel */}
       {open && (
-        <div className="absolute top-9 right-0 w-[240px] rounded-lg border border-white/[0.08] bg-[#242424]/95 backdrop-blur-sm shadow-xl">
+        <div className="absolute top-9 right-0 w-[240px] rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)]">
           {/* Header */}
-          <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.08]">
-            <span className="text-[11px] font-semibold text-white/80">Marker Settings</span>
+          <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border-subtle)]">
+            <span className="text-[11px] font-semibold text-[var(--text-primary)]">Marker Settings</span>
             <button
               onClick={() => setOpen(false)}
-              className="text-white/40 hover:text-white/80 transition-colors"
+              className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
             >
               <X className="h-3 w-3" />
             </button>
@@ -61,7 +61,7 @@ export const MapMarkerSettings = memo(function MapMarkerSettings() {
           <div className="p-3 space-y-3">
             {/* Style selector */}
             <div>
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-white/40 block mb-1.5">
+              <span className="text-[9px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] block mb-1.5">
                 Style
               </span>
               <div className="flex gap-2">
@@ -72,7 +72,7 @@ export const MapMarkerSettings = memo(function MapMarkerSettings() {
                     className={`flex-1 flex flex-col items-center gap-1.5 py-2 px-1 rounded-md border transition-all ${
                       markerStyle === value
                         ? 'border-emerald-500/40 bg-emerald-500/10'
-                        : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12]'
+                        : 'border-white/[0.06] bg-white/[0.02] hover:border-[var(--border-strong)]'
                     }`}
                   >
                     <img
@@ -82,7 +82,7 @@ export const MapMarkerSettings = memo(function MapMarkerSettings() {
                     />
                     <span
                       className={`text-[9px] font-medium ${
-                        markerStyle === value ? 'text-emerald-400' : 'text-white/50'
+                        markerStyle === value ? 'text-emerald-400' : 'text-[var(--text-secondary)]'
                       }`}
                     >
                       {label}
@@ -94,7 +94,7 @@ export const MapMarkerSettings = memo(function MapMarkerSettings() {
 
             {/* Size selector */}
             <div>
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-white/40 block mb-1.5">
+              <span className="text-[9px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] block mb-1.5">
                 Size
               </span>
               <div className="flex gap-1">
@@ -105,7 +105,7 @@ export const MapMarkerSettings = memo(function MapMarkerSettings() {
                     className={`flex-1 py-1 rounded-md border text-[10px] font-medium transition-all ${
                       markerSize === value
                         ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
-                        : 'border-white/[0.06] bg-white/[0.02] text-white/50 hover:border-white/[0.12]'
+                        : 'border-white/[0.06] bg-white/[0.02] text-[var(--text-secondary)] hover:border-[var(--border-strong)]'
                     }`}
                   >
                     {label}
@@ -116,7 +116,7 @@ export const MapMarkerSettings = memo(function MapMarkerSettings() {
 
             {/* Labels toggle */}
             <div className="flex items-center justify-between">
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-white/40">
+              <span className="text-[9px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
                 Vehicle Labels
               </span>
               <button
@@ -135,7 +135,7 @@ export const MapMarkerSettings = memo(function MapMarkerSettings() {
 
             {/* Live preview row */}
             <div>
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-white/40 block mb-1.5">
+              <span className="text-[9px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] block mb-1.5">
                 Preview
               </span>
               <div className="flex items-end gap-2 p-2 rounded-md bg-white/[0.03] border border-white/[0.06]">

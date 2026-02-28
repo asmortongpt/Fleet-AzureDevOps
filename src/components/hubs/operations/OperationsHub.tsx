@@ -202,7 +202,7 @@ export function OperationsHub() {
       {/* Header */}
       <div>
         <h2 className="text-sm font-bold text-white/95">Operations Hub</h2>
-        <p className="text-sm text-white/40 mt-1">Real-time fleet operations control center</p>
+        <p className="text-sm text-[var(--text-tertiary)] mt-1">Real-time fleet operations control center</p>
       </div>
 
       {/* Real-time Metrics Cards */}
@@ -212,7 +212,7 @@ export function OperationsHub() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm font-bold text-emerald-800">{metrics.activeJobs}</div>
-                <div className="text-xs text-white/60 mt-1">Active Jobs</div>
+                <div className="text-xs text-[var(--text-secondary)] mt-1">Active Jobs</div>
               </div>
               <Package className="h-8 w-8 text-emerald-800 opacity-20" />
             </div>
@@ -224,7 +224,7 @@ export function OperationsHub() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm font-bold text-amber-600">{metrics.pendingDispatch}</div>
-                <div className="text-xs text-white/60 mt-1">Pending Dispatch</div>
+                <div className="text-xs text-[var(--text-secondary)] mt-1">Pending Dispatch</div>
               </div>
               <Clock className="h-8 w-8 text-amber-500 opacity-20" />
             </div>
@@ -236,21 +236,21 @@ export function OperationsHub() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm font-bold text-green-600">{metrics.enRoute}</div>
-                <div className="text-xs text-white/60 mt-1">En Route</div>
+                <div className="text-xs text-[var(--text-secondary)] mt-1">En Route</div>
               </div>
               <Navigation className="h-8 w-8 text-green-500 opacity-20" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-purple-500">
+        <Card className="border-l-4 border-l-amber-500">
           <CardContent className="pt-2 pb-3 px-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-bold text-purple-600">{metrics.completed}</div>
-                <div className="text-xs text-white/60 mt-1">Completed Today</div>
+                <div className="text-sm font-bold text-amber-600">{metrics.completed}</div>
+                <div className="text-xs text-[var(--text-secondary)] mt-1">Completed Today</div>
               </div>
-              <CheckCircle className="h-8 w-8 text-purple-500 opacity-20" />
+              <CheckCircle className="h-8 w-8 text-amber-500 opacity-20" />
             </div>
           </CardContent>
         </Card>
@@ -311,7 +311,7 @@ export function OperationsHub() {
             {alerts.length === 0 ? (
               <div className="text-center py-4">
                 <CheckCircle className="h-6 w-6 mx-auto text-green-500 mb-2" />
-                <p className="text-xs text-white/40">No active alerts</p>
+                <p className="text-xs text-[var(--text-tertiary)]">No active alerts</p>
               </div>
             ) : alerts.map(alert => (
               <div
@@ -335,8 +335,8 @@ export function OperationsHub() {
                     }`}
                   />
                   <div className="flex-1">
-                    <p className="text-white/90 font-medium">{alert.message}</p>
-                    <p className="text-white/40 mt-1">{alert.timestamp}</p>
+                    <p className="text-[var(--text-primary)] font-medium">{alert.message}</p>
+                    <p className="text-[var(--text-tertiary)] mt-1">{alert.timestamp}</p>
                   </div>
                 </div>
               </div>
@@ -355,7 +355,7 @@ export function OperationsHub() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-white/60 flex items-center gap-2">
+            <span className="text-[var(--text-secondary)] flex items-center gap-2">
               <Truck className="h-4 w-4" />
               Active Vehicles
             </span>
@@ -364,14 +364,14 @@ export function OperationsHub() {
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-white/60 flex items-center gap-2">
+            <span className="text-[var(--text-secondary)] flex items-center gap-2">
               <Users className="h-4 w-4" />
               Available Drivers
             </span>
             <span className="font-semibold text-white/95">{metrics.availableDrivers}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-white/60 flex items-center gap-2">
+            <span className="text-[var(--text-secondary)] flex items-center gap-2">
               <Zap className="h-4 w-4" />
               Efficiency Score
             </span>
@@ -396,13 +396,13 @@ export function OperationsHub() {
           </CardHeader>
           <CardContent className="space-y-2 text-xs">
             <div className="flex justify-between">
-              <span className="text-white/60">Make/Model:</span>
+              <span className="text-[var(--text-secondary)]">Make/Model:</span>
               <span className="font-medium">
                 {formatVehicleShortName(selectedVehicle)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/60">Location:</span>
+              <span className="text-[var(--text-secondary)]">Location:</span>
               <span className="font-medium">
                 {selectedVehicle.latitude?.toFixed(4)}, {selectedVehicle.longitude?.toFixed(4)}
               </span>
@@ -421,7 +421,7 @@ export function OperationsHub() {
 
       {/* Quick Actions */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-white/70">Quick Actions</h3>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Quick Actions</h3>
         <div className="grid grid-cols-2 gap-2">
           <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => push({ type: 'work-order-create', label: 'New Job', data: {} })}>
             <Package className="h-4 w-4" />
@@ -473,13 +473,13 @@ export function OperationsHub() {
           </CardHeader>
           <CardContent className="text-sm space-y-2">
             <div className="flex justify-between">
-              <span className="text-white/60">Make/Model:</span>
+              <span className="text-[var(--text-secondary)]">Make/Model:</span>
               <span className="font-medium">
                 {formatVehicleShortName(selectedVehicle)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/60">Status:</span>
+              <span className="text-[var(--text-secondary)]">Status:</span>
               <Badge variant={selectedVehicle.status === 'active' ? 'default' : 'secondary'}>
                 {formatEnum(selectedVehicle.status)}
               </Badge>
@@ -495,11 +495,11 @@ export function OperationsHub() {
             {capacityLbs > 0 ? (
               <>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Capacity:</span>
+                  <span className="text-[var(--text-secondary)]">Capacity:</span>
                   <span className="font-medium">{formatNumber(capacityLbs)} lbs</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Current:</span>
+                  <span className="text-[var(--text-secondary)]">Current:</span>
                   <span className="font-medium text-green-600">
                     {formatNumber(currentLoadLbs)} lbs{loadPct != null ? ` (${loadPct}%)` : ''}
                   </span>
@@ -509,7 +509,7 @@ export function OperationsHub() {
                 </div>
               </>
             ) : (
-              <div className="text-white/40 text-xs">
+              <div className="text-[var(--text-tertiary)] text-xs">
                 Load telemetry not available for this vehicle.
               </div>
             )}
@@ -524,7 +524,7 @@ export function OperationsHub() {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <Package className="h-9 w-12 animate-spin mx-auto text-emerald-800" />
-          <p className="mt-2 text-white/60">Loading operations data...</p>
+          <p className="mt-2 text-[var(--text-secondary)]">Loading operations data...</p>
         </div>
       </div>
     );

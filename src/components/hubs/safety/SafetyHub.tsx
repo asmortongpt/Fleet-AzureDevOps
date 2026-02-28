@@ -331,11 +331,26 @@ export function SafetyHub() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => {
+              const headers = ['Date', 'Type', 'Severity', 'Status', 'OSHA Recordable', 'Days Lost', 'Location', 'Reported By']
+              const rows = filteredIncidents.map(i => [
+                formatDate(i.date), i.type, i.severity, i.status,
+                i.oshaRecordable ? 'Yes' : 'No', String(i.workDaysLost),
+                i.location?.address || '', i.reportedBy
+              ])
+              const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n')
+              const blob = new Blob([csv], { type: 'text/csv' })
+              const url = URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `safety-incidents-${new Date().toISOString().slice(0, 10)}.csv`
+              a.click()
+              URL.revokeObjectURL(url)
+            }}>
               <FileText className="w-4 h-4 mr-2" />
               Export Report
             </Button>
-            <Button>
+            <Button onClick={() => push({ type: 'incident-create' as any, label: 'Report New Incident', data: { createType: 'safety' } })}>
               <AlertTriangle className="w-4 h-4 mr-2" />
               Report Incident
             </Button>

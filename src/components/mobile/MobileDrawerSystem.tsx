@@ -185,7 +185,7 @@ export function SimpleMobileDrawer({
       >
         {/* Handle */}
         <div className="flex items-center justify-center py-3">
-          <GripHorizontal className="h-5 w-5 text-white/60" />
+          <GripHorizontal className="h-5 w-5 text-[var(--text-secondary)]" />
         </div>
 
         {title && (

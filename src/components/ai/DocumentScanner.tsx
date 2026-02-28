@@ -146,12 +146,12 @@ export function DocumentScanner({
       fuel_receipt: 'bg-emerald-500/50',
       parts_invoice: 'bg-green-500',
       service_invoice: 'bg-orange-500',
-      inspection_report: 'bg-purple-500',
-      driver_license: 'bg-indigo-500',
+      inspection_report: 'bg-amber-500',
+      driver_license: 'bg-emerald-500',
       vehicle_registration: 'bg-pink-500',
-      unknown: 'bg-gray-500'
+      unknown: 'bg-white/[0.03]0'
     }
-    return colors[type] || 'bg-gray-500'
+    return colors[type] || 'bg-white/[0.03]0'
   }
 
   const getConfidenceColor = (confidence: number) => {
@@ -167,7 +167,7 @@ export function DocumentScanner({
         <CardContent className="p-3">
           <div
             className={`border-2 border-dashed rounded-lg p-3 text-center transition-colors ${
-              isDragging ? 'border-primary bg-primary/5' : 'border-gray-300'
+              isDragging ? 'border-primary bg-primary/5' : 'border-[var(--border-default)]'
             }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -182,7 +182,7 @@ export function DocumentScanner({
               className="hidden"
             />
 
-            <Upload className="w-12 h-9 mx-auto mb-2 text-gray-700" />
+            <Upload className="w-12 h-9 mx-auto mb-2 text-[var(--text-tertiary)]" />
 
             <h3 className="text-sm font-semibold mb-2">
               Upload {documentType ? documentType.replace('_', ' ') : 'Document'}

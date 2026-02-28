@@ -24,6 +24,7 @@ import express, { Response } from 'express'
 import { z } from 'zod'
 
 import logger from '../config/logger'
+import { pool } from '../db/connection'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
@@ -537,6 +538,103 @@ router.get(
       res.json(result.rows)
     } catch (error) {
       logger.error('Failed to fetch work order labor', {
+        error,
+        workOrderId: req.params.id,
+        userId: req.user?.id
+      })
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+/**
+ * GET /work-orders/:id/timeline
+ *
+ * Gets timeline/audit trail for a specific work order
+ * Uses pool directly to avoid dbClient transaction state issues
+ */
+router.get(
+  '/:id/timeline',
+  requirePermission('work_order:view:team'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT id, event_type as type, description, created_at as timestamp, created_by as user_id
+         FROM work_order_timeline
+         WHERE work_order_id = $1 AND tenant_id = $2
+         ORDER BY created_at DESC`,
+        [req.params.id, req.user?.tenant_id]
+      )
+      res.json(result.rows)
+    } catch (e: any) {
+      if (e?.code === '42P01') {
+        return res.json([])
+      }
+      logger.error('Failed to fetch work order timeline', {
+        error: e,
+        workOrderId: req.params.id,
+        userId: req.user?.id
+      })
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+/**
+ * GET /work-orders/:id/related
+ *
+ * Gets related records (inspections, incidents) for a work order
+ * Uses pool directly to avoid dbClient transaction state issues
+ */
+router.get(
+  '/:id/related',
+  requirePermission('work_order:view:team'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const tenantId = req.user?.tenant_id
+
+      // Get the work order's vehicle_id first
+      const woResult = await pool.query(
+        `SELECT vehicle_id FROM work_orders WHERE id = $1 AND tenant_id = $2`,
+        [req.params.id, tenantId]
+      )
+
+      if (woResult.rows.length === 0) {
+        return res.json([])
+      }
+
+      const vehicleId = woResult.rows[0].vehicle_id
+      const related: any[] = []
+
+      try {
+        const inspections = await pool.query(
+          `SELECT id, 'inspection' as type, inspection_type as title, result as status, inspection_date as date
+           FROM vehicle_inspections
+           WHERE vehicle_id = $1 AND tenant_id = $2
+           ORDER BY inspection_date DESC LIMIT 5`,
+          [vehicleId, tenantId]
+        )
+        related.push(...inspections.rows)
+      } catch (e: any) {
+        if (e?.code !== '42P01') throw e
+      }
+
+      try {
+        const incidents = await pool.query(
+          `SELECT id, 'incident' as type, description as title, severity as status, incident_date as date
+           FROM safety_incidents
+           WHERE vehicle_id = $1 AND tenant_id = $2
+           ORDER BY incident_date DESC LIMIT 5`,
+          [vehicleId, tenantId]
+        )
+        related.push(...incidents.rows)
+      } catch (e: any) {
+        if (e?.code !== '42P01') throw e
+      }
+
+      res.json(related)
+    } catch (error) {
+      logger.error('Failed to fetch work order related records', {
         error,
         workOrderId: req.params.id,
         userId: req.user?.id

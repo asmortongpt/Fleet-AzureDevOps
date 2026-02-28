@@ -20,7 +20,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   rows = 1,
   className = '',
 }) => {
-  const baseClasses = 'animate-pulse bg-gray-200 dark:bg-gray-700';
+  const baseClasses = 'animate-pulse bg-white/[0.06] dark:bg-white/[0.08]';
 
   const getHeightClass = () => {
     if (height) return '';

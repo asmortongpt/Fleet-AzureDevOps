@@ -494,7 +494,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
       const errorDetails = getErrorDetails(categorizedError, provider)
 
       return (
-        <div className="flex items-center justify-center w-full h-full bg-gray-50 dark:bg-gray-900 p-3">
+        <div className="flex items-center justify-center w-full h-full bg-white/[0.03] dark:bg-[var(--surface-1)] p-3">
           <Card className="max-w-2xl w-full">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -516,7 +516,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
                     </Badge>
                   </div>
                   {provider && (
-                    <div className="text-sm text-gray-700 dark:text-gray-700">
+                    <div className="text-sm text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
                       Provider: {provider === 'google' ? 'Google Maps' : 'Leaflet/OpenStreetMap'}
                     </div>
                   )}
@@ -528,7 +528,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
                       Retrying...
                     </div>
                   ) : retryCount > 0 ? (
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-[var(--text-tertiary)]">
                       Attempt {retryCount}/{maxRetries}
                     </div>
                   ) : null}
@@ -555,10 +555,10 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
               {/* Technical Details (Development Only) */}
               {import.meta.env.MODE === 'development' && (
                 <details className="text-sm">
-                  <summary className="cursor-pointer text-white/70 dark:text-gray-700 hover:text-gray-900 dark:hover:text-gray-100">
+                  <summary className="cursor-pointer text-[var(--text-primary)] dark:text-[var(--text-tertiary)] hover:text-[var(--text-primary)] dark:hover:text-[var(--text-primary)]">
                     Technical Details
                   </summary>
-                  <pre className="mt-2 p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs overflow-auto">
+                  <pre className="mt-2 p-3 bg-white/[0.05] dark:bg-[var(--surface-3)] rounded text-xs overflow-auto">
                     {JSON.stringify(
                       {
                         message: categorizedError.message,

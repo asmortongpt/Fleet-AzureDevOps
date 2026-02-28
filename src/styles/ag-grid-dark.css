@@ -1,0 +1,71 @@
+/* AG Grid Fleet-CTA Dark Theme */
+.ag-theme-fleet-dark {
+  --ag-background-color: var(--surface-2);
+  --ag-header-background-color: var(--surface-3);
+  --ag-odd-row-background-color: var(--surface-2);
+  --ag-row-hover-color: var(--surface-3);
+  --ag-selected-row-background-color: var(--surface-4);
+  --ag-range-selection-background-color: rgba(16, 185, 129, 0.1);
+  --ag-range-selection-border-color: var(--accent-primary);
+  --ag-foreground-color: var(--text-primary);
+  --ag-secondary-foreground-color: var(--text-secondary);
+  --ag-header-foreground-color: var(--text-secondary);
+  --ag-border-color: var(--border-subtle);
+  --ag-header-column-separator-color: var(--border-subtle);
+  --ag-row-border-color: var(--border-subtle);
+  --ag-input-border-color: var(--border-default);
+  --ag-input-focus-border-color: var(--accent-primary);
+  --ag-checkbox-checked-color: var(--accent-primary);
+  --ag-font-family: var(--font-sans);
+  --ag-font-size: 13px;
+  --ag-header-height: 36px;
+  --ag-row-height: 40px;
+  --ag-cell-horizontal-padding: 12px;
+  --ag-borders: none;
+  --ag-row-border-style: solid;
+  --ag-row-border-width: 1px;
+  --ag-header-column-separator-display: block;
+  --ag-header-column-separator-width: 1px;
+  --ag-header-column-separator-height: 50%;
+}
+
+.ag-theme-fleet-dark .ag-header {
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.ag-theme-fleet-dark .ag-header-cell {
+  border-bottom: 1px solid var(--border-default);
+}
+
+.ag-theme-fleet-dark .ag-row-selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--accent-primary);
+}
+
+.ag-theme-fleet-dark .ag-sort-ascending-icon,
+.ag-theme-fleet-dark .ag-sort-descending-icon {
+  color: var(--accent-primary);
+}
+
+.ag-theme-fleet-dark .ag-paging-panel {
+  background-color: var(--surface-1);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.ag-theme-fleet-dark .ag-cell-focus {
+  border-color: var(--accent-primary) !important;
+}
+
+.ag-theme-fleet-dark .ag-cell {
+  border-right: none;
+}

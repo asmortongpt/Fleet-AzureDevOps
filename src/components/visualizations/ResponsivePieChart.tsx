@@ -30,14 +30,14 @@ interface ResponsivePieChartProps {
 }
 
 const DEFAULT_COLORS = [
-  '#3B82F6', // Blue
+  '#10b981', // Emerald
   '#10B981', // Green
   '#F59E0B', // Amber
   '#EF4444', // Red
-  '#8B5CF6', // Purple
-  '#06B6D4', // Cyan
-  '#EC4899', // Pink
-  '#94A3B8', // Slate
+  '#D97706', // Dark Amber
+  '#14b8a6', // Teal
+  '#34d399', // Light Emerald
+  '#9CA3AF', // Gray
 ]
 
 // Active shape renderer for hover effect
@@ -84,7 +84,8 @@ const renderActiveShape = (props: any) => {
         x={ex + (cos >= 0 ? 1 : -1) * 12}
         y={ey}
         textAnchor={textAnchor}
-        className="fill-foreground font-semibold text-sm"
+        className="font-semibold text-sm"
+        style={{ fill: 'var(--text-primary)' }}
       >
         {payload.name}
       </text>
@@ -93,7 +94,8 @@ const renderActiveShape = (props: any) => {
         y={ey}
         dy={18}
         textAnchor={textAnchor}
-        className="fill-muted-foreground text-xs"
+        className="text-xs"
+        style={{ fill: 'var(--text-secondary)' }}
       >
         {`${value} (${((percent ?? 0) * 100).toFixed(1)}%)`}
       </text>
@@ -116,11 +118,11 @@ export function ResponsivePieChart({
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
 
   const chartColors = {
-    text: 'var(--foreground)',
+    text: 'var(--text-secondary)',
     tooltip: {
-      background: 'var(--card)',
-      border: 'var(--border)',
-      text: 'var(--foreground)',
+      background: 'var(--surface-3)',
+      border: 'var(--border-default)',
+      text: 'var(--text-primary)',
     },
   }
 
@@ -140,11 +142,12 @@ export function ResponsivePieChart({
     if (active && payload && payload.length) {
       return (
         <div
-          className="bg-background border-2 border-border rounded-xl shadow-xl p-4"
+          className="rounded-xl p-4"
+          style={{ backgroundColor: 'var(--surface-3)', border: '1px solid var(--border-default)' }}
         >
-          <p className="font-semibold text-sm mb-1">{payload[0].name}</p>
-          <p className="text-xl font-bold text-primary">{payload[0].value}</p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="font-semibold text-sm mb-1 text-[var(--text-primary)]">{payload[0].name}</p>
+          <p className="text-xl font-bold text-[var(--accent-primary)]">{payload[0].value}</p>
+          <p className="text-xs text-[var(--text-secondary)] mt-1">
             {((payload[0].value / data.reduce((sum, d) => sum + d.value, 0)) * 100).toFixed(1)}% of total
           </p>
         </div>
@@ -155,7 +158,7 @@ export function ResponsivePieChart({
 
   const pieChartContent = loading ? (
     <div
-      className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
+      className="w-full bg-[var(--surface-glass)] animate-pulse rounded-lg"
       style={{ height: compact ? '100%' : height }}
     />
   ) : (
@@ -187,7 +190,7 @@ export function ResponsivePieChart({
                 fill="white"
                 textAnchor={x > cx ? 'start' : 'end'}
                 dominantBaseline="central"
-                className="text-xs font-bold drop-shadow-md"
+                className="text-xs font-bold drop-"
               >
                 {`${((percent ?? 0) * 100).toFixed(0)}%`}
               </text>
@@ -195,7 +198,7 @@ export function ResponsivePieChart({
           } : undefined}
           outerRadius={innerRadius ? 100 : 110}
           innerRadius={innerRadius}
-          fill="#3B82F6"
+          fill="#10b981"
           dataKey="value"
           animationDuration={1200}
           animationBegin={0}
@@ -236,7 +239,7 @@ export function ResponsivePieChart({
 
   return (
     <div>
-      <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
         <CardHeader>
           <CardTitle className="text-xl font-bold">{title}</CardTitle>
           {description && <CardDescription className="text-sm">{description}</CardDescription>}

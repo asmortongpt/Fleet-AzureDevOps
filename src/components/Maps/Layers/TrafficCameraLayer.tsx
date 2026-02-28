@@ -48,7 +48,7 @@ export function TrafficCameraLayer({
     className: 'custom-camera-marker',
     html: `
       <div class="relative">
-        <div class="bg-emerald-600 text-white rounded-full p-2 shadow-sm border-2 border-white">
+        <div class="bg-emerald-600 text-white rounded-full p-2 border-2 border-white">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
           </svg>
@@ -104,10 +104,10 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
     <div className="p-2 min-w-[300px]">
       <div className="flex items-start justify-between mb-2">
         <div>
-          <h3 className="font-semibold text-gray-900 dark:text-white">
+          <h3 className="font-semibold text-[var(--text-primary)] dark:text-white">
             {camera.name}
           </h3>
-          <p className="text-sm text-white/70 dark:text-gray-600">
+          <p className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
             {camera.road} {camera.direction}
           </p>
         </div>
@@ -115,7 +115,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
       </div>
 
       {camera.description && (
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+        <p className="text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] mb-2">
           {camera.description}
         </p>
       )}
@@ -135,7 +135,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2 text-xs text-white/70 dark:text-gray-600 mb-2">
+      <div className="grid grid-cols-2 gap-2 text-xs text-[var(--text-primary)] dark:text-[var(--text-tertiary)] mb-2">
         <div>
           <span className="font-medium">County:</span> {camera.county}
         </div>
@@ -150,7 +150,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
         )}
       </div>
 
-      <div className="flex items-center justify-between text-xs text-gray-700 dark:text-gray-600">
+      <div className="flex items-center justify-between text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
         <span>Updated: {formatTime(camera.lastUpdated)}</span>
         <span
           className={`px-2 py-1 rounded ${
@@ -184,22 +184,22 @@ function CameraFeedModal({
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-sm max-w-4xl w-full max-h-[90vh] flex flex-col"
+        className="bg-white dark:bg-[var(--surface-3)] rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-2 border-b border-[var(--border-default)] dark:border-[var(--border-default)]">
           <div>
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">
+            <h2 className="text-base font-bold text-[var(--text-primary)] dark:text-white">
               {camera.name}
             </h2>
-            <p className="text-sm text-white/70 dark:text-gray-600">
+            <p className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
               {camera.road} {camera.direction} - {camera.county} County
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-600 hover:text-white/70 dark:hover:text-gray-300 transition-colors"
+            className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] dark:hover:text-[var(--text-secondary)] transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -213,7 +213,7 @@ function CameraFeedModal({
         </div>
 
         {/* Camera Feed */}
-        <div className="flex-1 overflow-auto p-2 bg-gray-100 dark:bg-gray-900">
+        <div className="flex-1 overflow-auto p-2 bg-white/[0.05] dark:bg-[#111113]">
           <div className="aspect-video bg-black rounded overflow-hidden">
             {camera.feedUrl ? (
               <iframe
@@ -234,9 +234,9 @@ function CameraFeedModal({
         </div>
 
         {/* Footer */}
-        <div className="p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <div className="p-2 border-t border-[var(--border-default)] dark:border-[var(--border-default)] bg-white/[0.03] dark:bg-[#111113]">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-white/70 dark:text-gray-600">
+            <div className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
               <p>{camera.description}</p>
               {camera.metadata?.mileMarker && (
                 <p className="mt-1">Mile Marker: {camera.metadata.mileMarker}</p>

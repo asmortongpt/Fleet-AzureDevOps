@@ -96,7 +96,7 @@ const MobileManagerView: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
+      <div className="flex items-center justify-center h-screen bg-white/[0.05]">
         <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-600"></div>
       </div>
     );
@@ -114,9 +114,9 @@ const MobileManagerView: React.FC = () => {
           <div key={assignment.id} className="bg-white rounded-lg shadow p-2">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="font-semibold text-gray-900">{assignment.driver_name}</h3>
-                <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{assignment.employee_number}</p>
-                <p className="text-xs text-gray-700 mt-1">{assignment.department_name}</p>
+                <h3 className="font-semibold text-[var(--text-primary)]">{assignment.driver_name}</h3>
+                <p className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>{assignment.employee_number}</p>
+                <p className="text-xs text-[var(--text-tertiary)] mt-1">{assignment.department_name}</p>
               </div>
               <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
                 Pending
@@ -124,13 +124,13 @@ const MobileManagerView: React.FC = () => {
             </div>
 
             <div className="mb-3">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-[var(--text-tertiary)]">
                 {formatVehicleName({ year: assignment.year, make: assignment.make, model: assignment.model, number: assignment.unit_number })}
               </p>
-              <p className="text-xs text-gray-700">
+              <p className="text-xs text-[var(--text-tertiary)]">
                 Type: {assignment.assignment_type.replace('_', ' ')}
               </p>
-              <p className="text-xs text-gray-700">
+              <p className="text-xs text-[var(--text-tertiary)]">
                 Requested: {formatDate(assignment.recommended_at)}
               </p>
             </div>
@@ -169,17 +169,17 @@ const MobileManagerView: React.FC = () => {
         <div key={assignment.id} className="bg-white rounded-lg shadow p-2">
           <div className="flex items-start justify-between mb-2">
             <div>
-              <h3 className="font-semibold text-gray-900">{assignment.driver_name}</h3>
-              <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{assignment.employee_number}</p>
+              <h3 className="font-semibold text-[var(--text-primary)]">{assignment.driver_name}</h3>
+              <p className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>{assignment.employee_number}</p>
             </div>
             <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
               Active
             </span>
           </div>
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-[var(--text-tertiary)]">
             {formatVehicleName({ make: assignment.make, model: assignment.model, number: assignment.unit_number })}
           </p>
-          <p className="text-xs text-gray-700 mt-1">
+          <p className="text-xs text-[var(--text-tertiary)] mt-1">
             Since: {formatDate(assignment.start_date)}
           </p>
         </div>
@@ -191,7 +191,7 @@ const MobileManagerView: React.FC = () => {
     <div className="space-y-2">
       {dashboardData.current_on_call.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
-          <Clock className="w-16 h-16 text-gray-700 mx-auto mb-2" />
+          <Clock className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-2" />
           <p className="" style={{ color: brandColors.archon.mediumGray }}>No team members on-call</p>
         </div>
       ) : (
@@ -199,8 +199,8 @@ const MobileManagerView: React.FC = () => {
           <div key={period.id} className="bg-white rounded-lg shadow p-2 border-l-4 border-emerald-500">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <h3 className="font-semibold text-gray-900">{period.driver_name}</h3>
-                <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{period.employee_number}</p>
+                <h3 className="font-semibold text-[var(--text-primary)]">{period.driver_name}</h3>
+                <p className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>{period.employee_number}</p>
               </div>
               <span className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">
                 On-Call Now
@@ -208,12 +208,12 @@ const MobileManagerView: React.FC = () => {
             </div>
 
             {period.unit_number && (
-              <p className="text-sm text-gray-700 mb-2">
+              <p className="text-sm text-[var(--text-tertiary)] mb-2">
                 Vehicle: {formatVehicleName({ make: period.make, model: period.model, number: period.unit_number })}
               </p>
             )}
 
-            <div className="flex items-center gap-2 text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+            <div className="flex items-center gap-2 text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
               <div className="flex items-center gap-1">
                 <Phone className="w-4 h-4" />
                 <span>{period.driver_phone || '—'}</span>
@@ -223,7 +223,7 @@ const MobileManagerView: React.FC = () => {
               </div>
             </div>
 
-            <p className="text-xs text-gray-700 mt-2">
+            <p className="text-xs text-[var(--text-tertiary)] mt-2">
               Until: {formatDate(period.end_datetime)} {formatTime(period.end_datetime)}
             </p>
           </div>
@@ -241,19 +241,19 @@ const MobileManagerView: React.FC = () => {
           <h2 className="text-base font-bold">Review Assignment</h2>
 
           <div className="space-y-2">
-            <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+            <p className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
               <strong>Driver:</strong> {selectedAssignment.driver_name}
             </p>
-            <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+            <p className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
               <strong>Vehicle:</strong> {formatVehicleName({ make: selectedAssignment.make, model: selectedAssignment.model, number: selectedAssignment.unit_number })}
             </p>
-            <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
+            <p className="text-sm text-[var(--text-tertiary)]" style={{ color: brandColors.archon.mediumGray }}>
               <strong>Type:</strong> {selectedAssignment.assignment_type.replace('_', ' ')}
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
               Notes (optional)
             </label>
             <textarea
@@ -261,7 +261,7 @@ const MobileManagerView: React.FC = () => {
               onChange={(e) => setApprovalNotes(e.target.value)}
               rows={3}
               placeholder="Add approval or denial notes..."
-              className="w-full px-2 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-2 py-2 border border-[var(--border-default)] rounded-lg"
             />
           </div>
 
@@ -286,7 +286,7 @@ const MobileManagerView: React.FC = () => {
               setSelectedAssignment(null);
               setApprovalNotes('');
             }}
-            className="w-full px-2 py-2 bg-gray-200 text-gray-700 rounded-lg"
+            className="w-full px-2 py-2 bg-white/[0.06] text-[var(--text-tertiary)] rounded-lg"
           >
             Cancel
           </button>
@@ -296,7 +296,7 @@ const MobileManagerView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-20">
+    <div className="min-h-screen bg-white/[0.05] pb-20">
       {/* Header */}
       <div className="bg-emerald-600 text-white p-3 pb-3">
         <h1 className="text-sm font-bold">Manager Dashboard</h1>
@@ -322,13 +322,13 @@ const MobileManagerView: React.FC = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div className="bg-white border-b border-gray-200 flex">
+      <div className="bg-white border-b border-[var(--border-default)] flex">
         <button
           onClick={() => setActiveTab('pending')}
           className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'pending'
               ? 'text-emerald-400 border-b-2 border-emerald-600'
-              : 'text-white/40'
+              : 'text-[var(--text-tertiary)]'
           }`}
         >
           Pending ({dashboardData.notifications.pending_approvals_count})
@@ -338,7 +338,7 @@ const MobileManagerView: React.FC = () => {
           className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'active'
               ? 'text-emerald-400 border-b-2 border-emerald-600'
-              : 'text-white/40'
+              : 'text-[var(--text-tertiary)]'
           }`}
         >
           Active
@@ -348,7 +348,7 @@ const MobileManagerView: React.FC = () => {
           className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'on-call'
               ? 'text-emerald-400 border-b-2 border-emerald-600'
-              : 'text-white/40'
+              : 'text-[var(--text-tertiary)]'
           }`}
         >
           On-Call

@@ -148,7 +148,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
       width: '250px',
       render: (job) => (
         <div className="flex items-center gap-2">
-          <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+          <MapPin className="h-3 w-3 text-[var(--text-secondary)] flex-shrink-0" />
           <span className="text-sm truncate">{job.address}</span>
         </div>
       )
@@ -178,7 +178,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
       },
       render: (job) => (
         <div className="flex items-center gap-2">
-          <User className="h-3 w-3 text-muted-foreground" />
+          <User className="h-3 w-3 text-[var(--text-secondary)]" />
           <span className="text-sm">{job.driverName || '-'}</span>
         </div>
       )
@@ -194,7 +194,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
       },
       render: (job) => (
         <div className="flex items-center gap-2">
-          <Truck className="h-3 w-3 text-muted-foreground" />
+          <Truck className="h-3 w-3 text-[var(--text-secondary)]" />
           <span className="text-sm">{job.vehicleName || '-'}</span>
         </div>
       )
@@ -206,7 +206,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
       align: 'center',
       render: (job) => (
         <div className="flex items-center gap-1 justify-center">
-          <Clock className="h-3 w-3 text-muted-foreground" />
+          <Clock className="h-3 w-3 text-[var(--text-secondary)]" />
           <span className="text-sm">{formatTime(job.startTime)}</span>
         </div>
       )
@@ -218,7 +218,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
       align: 'center',
       render: (job) => (
         <div className="flex items-center gap-1 justify-center">
-          <Navigation className="h-3 w-3 text-muted-foreground" />
+          <Navigation className="h-3 w-3 text-[var(--text-secondary)]" />
           <span className="text-sm">{formatTime(job.eta)}</span>
         </div>
       )
@@ -280,7 +280,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
               <Package className="h-7 w-7 text-emerald-400" />
               Active Jobs Matrix
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
               Real-time operational visibility across all jobs and work orders
             </p>
           </div>
@@ -295,31 +295,31 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
           <Card>
             <CardContent className="p-2 text-center">
               <div className="text-sm font-bold text-emerald-400">{metrics.active}</div>
-              <div className="text-xs text-muted-foreground">Active</div>
+              <div className="text-xs text-[var(--text-secondary)]">Active</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2 text-center">
               <div className="text-sm font-bold text-red-600">{metrics.delayed}</div>
-              <div className="text-xs text-muted-foreground">Delayed</div>
+              <div className="text-xs text-[var(--text-secondary)]">Delayed</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2 text-center">
               <div className="text-sm font-bold text-green-600">{metrics.completed}</div>
-              <div className="text-xs text-muted-foreground">Completed</div>
+              <div className="text-xs text-[var(--text-secondary)]">Completed</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2 text-center">
               <div className="text-sm font-bold text-amber-600">{metrics.pending}</div>
-              <div className="text-xs text-muted-foreground">Pending</div>
+              <div className="text-xs text-[var(--text-secondary)]">Pending</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2 text-center">
               <div className="text-sm font-bold">{metrics.total}</div>
-              <div className="text-xs text-muted-foreground">Total Jobs</div>
+              <div className="text-xs text-[var(--text-secondary)]">Total Jobs</div>
             </CardContent>
           </Card>
         </div>
@@ -378,7 +378,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center justify-between">
               <span>Jobs List ({filteredJobs.length})</span>
-              <span className="text-sm text-muted-foreground font-normal">
+              <span className="text-sm text-[var(--text-secondary)] font-normal">
                 Click any row to view full job details
               </span>
             </CardTitle>

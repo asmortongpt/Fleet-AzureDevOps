@@ -13,6 +13,7 @@
 import { Router, Response } from 'express'
 import multer from 'multer'
 
+import { pool } from '../config/database'
 import logger from '../config/logger'
 import { container } from '../container'
 import { ValidationError } from '../errors/app-error'
@@ -552,6 +553,13 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'attachments' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'communication_attachments')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.json({ data: [], pagination: { page: 1, limit: 50, total: 0, pages: 0 } })
+      }
       const {
         communicationId,
         scanStatus,

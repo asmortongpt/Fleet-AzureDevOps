@@ -326,7 +326,7 @@ function UploadItem({ item, onRemove }: UploadItemProps) {
       return <ImageIcon className="h-5 w-5 text-emerald-400" />;
     }
     if (['mp4', 'webm', 'mov', 'avi'].includes(ext)) {
-      return <Video className="h-5 w-5 text-white/60" />;
+      return <Video className="h-5 w-5 text-[var(--text-secondary)]" />;
     }
     if (['pdf'].includes(ext)) {
       return <FileText className="h-5 w-5 text-rose-400" />;

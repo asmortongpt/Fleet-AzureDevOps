@@ -46,31 +46,31 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
   const variantClasses = {
     primary: `
       bg-emerald-600 text-white
-      hover:bg-emerald-700 hover:shadow-md
+      hover:bg-emerald-700 
       active:bg-emerald-800 active:scale-98
       focus:ring-emerald-500
-      disabled:bg-gray-300 disabled:text-gray-700 disabled:cursor-not-allowed disabled:hover:shadow-none
+      disabled:bg-white/[0.08] disabled:text-[var(--text-tertiary)] disabled:cursor-not-allowed disabled:hover:shadow-none
     `,
     secondary: `
-      bg-gray-100 text-gray-900 border border-gray-300
-      hover:bg-gray-200 hover:border-gray-400 hover:shadow-sm
-      active:bg-gray-300 active:scale-98
+      bg-white/[0.05] text-[var(--text-primary)] border border-[var(--border-default)]
+      hover:bg-white/[0.06] hover:border-[var(--border-default)] 
+      active:bg-white/[0.08] active:scale-98
       focus:ring-gray-500
-      disabled:bg-gray-50 disabled:text-gray-700 disabled:border-gray-200 disabled:cursor-not-allowed
+      disabled:bg-white/[0.03] disabled:text-[var(--text-tertiary)] disabled:border-[var(--border-default)] disabled:cursor-not-allowed
     `,
     danger: `
       bg-red-600 text-white
-      hover:bg-red-700 hover:shadow-md
+      hover:bg-red-700 
       active:bg-red-800 active:scale-98
       focus:ring-red-500
-      disabled:bg-gray-300 disabled:text-gray-700 disabled:cursor-not-allowed disabled:hover:shadow-none
+      disabled:bg-white/[0.08] disabled:text-[var(--text-tertiary)] disabled:cursor-not-allowed disabled:hover:shadow-none
     `,
     ghost: `
-      bg-transparent text-gray-700
-      hover:bg-gray-100 hover:text-gray-900
-      active:bg-gray-200 active:scale-98
+      bg-transparent text-[var(--text-tertiary)]
+      hover:bg-white/[0.05] hover:text-[var(--text-primary)]
+      active:bg-white/[0.06] active:scale-98
       focus:ring-gray-500
-      disabled:text-gray-700 disabled:cursor-not-allowed disabled:hover:bg-transparent
+      disabled:text-[var(--text-tertiary)] disabled:cursor-not-allowed disabled:hover:bg-transparent
     `,
   };
 

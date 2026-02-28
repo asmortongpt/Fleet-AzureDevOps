@@ -14,6 +14,17 @@ router.get(
   requirePermission('policy:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'policy_compliance_audits')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.json({
+          data: [],
+          pagination: { page: 1, limit: 50, total: 0, pages: 0 }
+        })
+      }
+
       const { page = 1, limit = 50, policy_id, audit_type } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
@@ -70,6 +81,14 @@ router.get(
   requirePermission('policy:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'policy_compliance_audits')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(404).json({ error: 'Policy compliance audit not found' })
+      }
+
       const result = await pool.query(
         `SELECT pca.id, pca.policy_id, pca.audit_date, pca.auditor_name,
                 pca.audit_type, pca.location, pca.department,

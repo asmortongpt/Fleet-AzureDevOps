@@ -90,7 +90,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
     const renderContent = () => {
         if (!currentData) {
             return (
-                <div className="flex items-center justify-center h-full text-white/70">
+                <div className="flex items-center justify-center h-full text-[var(--text-primary)]">
                     <p>No data selected</p>
                 </div>
             )
@@ -228,18 +228,18 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
         <>
             {isOpen && (
                 <div
-                    className="fixed right-0 top-0 bottom-0 w-full md:w-2/3 lg:w-1/2 xl:w-2/5 bg-[#111] border-l border-white/[0.15] shadow-sm z-50 flex flex-col"
+                    className="fixed right-0 top-0 bottom-0 w-full md:w-2/3 lg:w-1/2 xl:w-2/5 bg-[var(--surface-2)] border-l border-[var(--border-subtle)] z-50 flex flex-col"
                 >
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-[#1a1a1a] to-[#111] border-b border-white/[0.15] p-3">
+                    <div className="bg-[var(--surface-3)] border-b border-[var(--border-subtle)] p-3">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-3">
                                 {breadcrumbs.length > 1 && (
                                     <button
                                         onClick={() => handleDrillUp(breadcrumbs.length - 2)}
-                                        className="p-2 hover:bg-white/[0.08] rounded-lg transition-colors"
+                                        className="p-2 hover:bg-[var(--surface-glass-hover)] rounded-lg transition-colors"
                                     >
-                                        <ArrowLeft className="w-3 h-3 text-white/70" />
+                                        <ArrowLeft className="w-3 h-3 text-[var(--text-primary)]" />
                                     </button>
                                 )}
                                 <h2 className="text-sm font-bold text-white">
@@ -248,10 +248,10 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 hover:bg-white/[0.08] rounded-lg transition-colors"
+                                className="p-2 hover:bg-[var(--surface-glass-hover)] rounded-lg transition-colors"
                                 aria-label="Close drilldown panel"
                             >
-                                <X className="w-4 h-4 text-white/70" />
+                                <X className="w-4 h-4 text-[var(--text-primary)]" />
                             </button>
                         </div>
 
@@ -265,13 +265,13 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                                             className={`px-3 py-1 rounded-lg transition-colors ${
                                                 index === breadcrumbs.length - 1
                                                     ? 'bg-emerald-600 text-white'
-                                                    : 'bg-white/[0.15] text-white/60 hover:bg-white/[0.08]'
+                                                    : 'bg-white/[0.06] text-[var(--text-secondary)] hover:bg-[var(--surface-glass-hover)]'
                                             }`}
                                         >
                                             {crumb.title}
                                         </button>
                                         {index < breadcrumbs.length - 1 && (
-                                            <ChevronRight className="w-4 h-4 text-white/40" />
+                                            <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)]" />
                                         )}
                                     </div>
                                 ))}
@@ -280,21 +280,21 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
 
                         {/* Subtitle */}
                         {currentData?.subtitle && (
-                            <p className="text-white/70 text-sm mt-2">{currentData.subtitle}</p>
+                            <p className="text-[var(--text-primary)] text-sm mt-2">{currentData.subtitle}</p>
                         )}
 
                         {/* Actions */}
                         <div className="flex items-center gap-2 mt-2">
                             <button
                                 onClick={handleExport}
-                                className="flex items-center gap-2 px-2 py-2 bg-white/[0.15] hover:bg-white/[0.08] text-white rounded-lg transition-colors text-sm"
+                                className="flex items-center gap-2 px-2 py-2 bg-white/[0.06] hover:bg-[var(--surface-glass-hover)] text-white rounded-lg transition-colors text-sm"
                             >
                                 <Download className="w-4 h-4" />
                                 Export
                             </button>
                             <button
                                 onClick={handleShare}
-                                className="flex items-center gap-2 px-2 py-2 bg-white/[0.15] hover:bg-white/[0.08] text-white rounded-lg transition-colors text-sm"
+                                className="flex items-center gap-2 px-2 py-2 bg-white/[0.06] hover:bg-[var(--surface-glass-hover)] text-white rounded-lg transition-colors text-sm"
                             >
                                 <Share className="w-4 h-4" />
                                 Share
@@ -324,9 +324,9 @@ const CategoryCard = memo<{
 }>(({ title, value, change, trend, onClick }) => (
     <button
         onClick={onClick}
-        className="bg-[#1a1a1a]/60 hover:bg-white/[0.08]/60 border border-white/[0.15] rounded-lg p-3 text-left transition-colors group"
+        className="bg-[var(--surface-3)]/60 hover:bg-[var(--surface-glass-hover)]/60 border border-[var(--border-subtle)] rounded-lg p-3 text-left transition-colors group"
     >
-        <h3 className="text-white/70 text-sm font-medium mb-2">{title}</h3>
+        <h3 className="text-[var(--text-primary)] text-sm font-medium mb-2">{title}</h3>
         <p className="text-base font-bold text-white mb-1">{value}</p>
         <p className={`text-sm font-medium ${trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
             {change}
@@ -339,26 +339,26 @@ const CategoryCard = memo<{
 ))
 
 const VehicleList = memo<{ vehicles: any[]; onVehicleClick: (vehicle: any) => void }>(({ vehicles, onVehicleClick }) => (
-    <div className="bg-[#1a1a1a]/40 rounded-lg p-2">
+    <div className="bg-[var(--surface-3)]/40 rounded-lg p-2">
         <h3 className="text-white font-semibold mb-2">Top Cost Vehicles</h3>
         <div className="space-y-2">
             {vehicles.length === 0 && (
-                <div className="text-sm text-white/70">No vehicles available.</div>
+                <div className="text-sm text-[var(--text-primary)]">No vehicles available.</div>
             )}
             {vehicles.map((vehicle) => (
                 <button
                     key={vehicle.id}
                     onClick={() => onVehicleClick(vehicle)}
-                    className="w-full bg-white/[0.15]/40 hover:bg-white/[0.08]/40 rounded-lg p-3 text-left transition-colors"
+                    className="w-full bg-white/[0.04] hover:bg-white/[0.06] rounded-lg p-3 text-left transition-colors"
                 >
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-white font-medium">{vehicle.name || vehicle.displayName || vehicle.vehicleNumber || 'Vehicle'}</p>
-                            <p className="text-white/70 text-sm">{vehicle.vin || vehicle.vehicleIdentificationNumber || '—'}</p>
+                            <p className="text-[var(--text-primary)] text-sm">{vehicle.vin || vehicle.vehicleIdentificationNumber || '—'}</p>
                         </div>
                         <div className="text-right">
                             <p className="text-white font-semibold">{vehicle.cost || vehicle.totalCost || vehicle.costTotal || '—'}</p>
-                            <ChevronRight className="w-4 h-4 text-white/70 ml-auto" />
+                            <ChevronRight className="w-4 h-4 text-[var(--text-primary)] ml-auto" />
                         </div>
                     </div>
                 </button>
@@ -368,15 +368,15 @@ const VehicleList = memo<{ vehicles: any[]; onVehicleClick: (vehicle: any) => vo
 ))
 
 const VehicleDetailCard = memo<{ vehicle: any }>(({ vehicle }) => (
-    <div className="bg-[#1a1a1a]/40 rounded-lg p-3">
+    <div className="bg-[var(--surface-3)]/40 rounded-lg p-3">
         <h3 className="text-white font-semibold text-base mb-2">{vehicle.name || formatVehicleName(vehicle)}</h3>
         <div className="grid grid-cols-2 gap-2">
             <div>
-                <p className="text-white/70 text-sm">VIN</p>
+                <p className="text-[var(--text-primary)] text-sm">VIN</p>
                 <p className="text-white font-medium">{vehicle.vin}</p>
             </div>
             <div>
-                <p className="text-white/70 text-sm">Total Cost</p>
+                <p className="text-[var(--text-primary)] text-sm">Total Cost</p>
                 <p className="text-white font-medium">{vehicle.cost || '$12,450'}</p>
             </div>
         </div>
@@ -384,9 +384,9 @@ const VehicleDetailCard = memo<{ vehicle: any }>(({ vehicle }) => (
 ))
 
 const DetailView = memo<{ data: any }>(({ data }) => (
-    <div className="bg-[#1a1a1a]/40 rounded-lg p-3">
+    <div className="bg-[var(--surface-3)]/40 rounded-lg p-3">
         <h3 className="text-white font-semibold text-base mb-2">Detailed Breakdown</h3>
-        <pre className="text-white/60 text-sm overflow-auto">
+        <pre className="text-[var(--text-secondary)] text-sm overflow-auto">
             {JSON.stringify(data, null, 2)}
         </pre>
     </div>

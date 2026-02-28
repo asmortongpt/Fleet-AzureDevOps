@@ -25,7 +25,7 @@ const StatusChip: React.FC<{status: AssignmentStatus; label?: string}> = ({statu
     on_call: '#10b981',
     temporary: '#f59e0b',
     active: '#10b981',
-    approved: '#06b6d4',
+    approved: '#10b981',
     submitted: '#f59e0b',
     denied: '#ef4444',
     terminated: 'rgba(255,255,255,0.4)',
@@ -429,10 +429,10 @@ const VehicleAssignmentManagement: React.FC = () => {
   }), [assignments]);
 
   return (
-    <div style={{padding:32, maxWidth:1600, margin:'0 auto', background:'var(--bg, #0a0f1a)', color:'var(--text, #e2e8f0)', minHeight:'100vh'}}>
+    <div style={{padding:32, maxWidth:1600, margin:'0 auto', background:'var(--bg, #0a0a0a)', color:'var(--text, #e5e5e5)', minHeight:'100vh'}}>
       {/* Header */}
       <div style={{marginBottom:32}}>
-        <div style={{fontSize:28, fontWeight:900, color:'var(--text, #e2e8f0)', marginBottom:8}}>
+        <div style={{fontSize:28, fontWeight:900, color:'var(--text, #e5e5e5)', marginBottom:8}}>
           Vehicle Assignment Management
         </div>
         <div style={{fontSize:14, color:'var(--muted, rgba(255,255,255,0.4))'}}>
@@ -475,14 +475,14 @@ const VehicleAssignmentManagement: React.FC = () => {
               <div style={{fontSize:32, fontWeight:900, color:'#f59e0b'}}>{stats.pending}</div>
             </div>
 
-            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.05))'}}>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))'}}>
               <div style={{fontSize:12, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8, fontWeight:600}}>On-Call</div>
-              <div style={{fontSize:32, fontWeight:900, color:'#a855f7'}}>{stats.onCall}</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#f59e0b'}}>{stats.onCall}</div>
             </div>
 
-            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(236,72,153,0.05))'}}>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))'}}>
               <div style={{fontSize:12, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8, fontWeight:600}}>Temporary</div>
-              <div style={{fontSize:32, fontWeight:900, color:'#ec4899'}}>{stats.temporary}</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#f59e0b'}}>{stats.temporary}</div>
             </div>
           </div>
 
@@ -493,13 +493,13 @@ const VehicleAssignmentManagement: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   flex:1, padding:'12px 16px', borderRadius:16, border:'1px solid rgba(255,255,255,0.08)',
-                  background:'rgba(255,255,255,0.03)', color:'var(--text, #e2e8f0)', fontSize:14
+                  background:'rgba(255,255,255,0.03)', color:'var(--text, #e5e5e5)', fontSize:14
                 }}
               />
               <select value={assignmentTypeFilter} onChange={(e) => setAssignmentTypeFilter(e.target.value)}
                 style={{
                   padding:'12px 16px', borderRadius:16, border:'1px solid rgba(255,255,255,0.08)',
-                  background:'rgba(255,255,255,0.03)', color:'var(--text, #e2e8f0)', fontSize:14, minWidth:140
+                  background:'rgba(255,255,255,0.03)', color:'var(--text, #e5e5e5)', fontSize:14, minWidth:140
                 }}
               >
                 <option value="all">All Types</option>
@@ -511,7 +511,7 @@ const VehicleAssignmentManagement: React.FC = () => {
               <select value={lifecycleFilter} onChange={(e) => setLifecycleFilter(e.target.value)}
                 style={{
                   padding:'12px 16px', borderRadius:16, border:'1px solid rgba(255,255,255,0.08)',
-                  background:'rgba(255,255,255,0.03)', color:'var(--text, #e2e8f0)', fontSize:14, minWidth:140
+                  background:'rgba(255,255,255,0.03)', color:'var(--text, #e5e5e5)', fontSize:14, minWidth:140
                 }}
               >
                 <option value="all">All States</option>
@@ -567,13 +567,13 @@ const VehicleAssignmentManagement: React.FC = () => {
                             <div style={{width:6, height:6, borderRadius:'50%', background: isExpanded ? '#34d399' : 'rgba(255,255,255,0.3)'}} />
                           </td>
                           <td style={{padding:16}}>
-                            <div style={{fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)', marginBottom:4}}>
+                            <div style={{fontSize:14, fontWeight:600, color:'var(--text, #e5e5e5)', marginBottom:4}}>
                               {assignment.driver_first_name} {assignment.driver_last_name}
                             </div>
                             <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))'}}>#{assignment.employee_number}</div>
                           </td>
                           <td style={{padding:16}}>
-                            <div style={{fontSize:14, color:'var(--text, #e2e8f0)', marginBottom:4}}>{assignment.unit_number}</div>
+                            <div style={{fontSize:14, color:'var(--text, #e5e5e5)', marginBottom:4}}>{assignment.unit_number}</div>
                             <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))'}}>{formatVehicleName(assignment)}</div>
                           </td>
                           <td style={{padding:16}}>
@@ -582,8 +582,8 @@ const VehicleAssignmentManagement: React.FC = () => {
                           <td style={{padding:16}}>
                             <StatusChip status={assignment.lifecycle_state as AssignmentStatus} />
                           </td>
-                          <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{assignment.department_name}</td>
-                          <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>
+                          <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)'}}>{assignment.department_name}</td>
+                          <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)'}}>
                             {formatDate(assignment.start_date)}
                           </td>
                           <td style={{padding:16}}>
@@ -620,11 +620,11 @@ const VehicleAssignmentManagement: React.FC = () => {
                                     <div style={{display:'flex', flexDirection:'column', gap:10}}>
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, rgba(255,255,255,0.4))', marginBottom:4}}>ASSIGNMENT TYPE</div>
-                                        <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{formatEnum(assignment.assignment_type)}</div>
+                                        <div style={{fontSize:14, color:'var(--text, #e5e5e5)'}}>{formatEnum(assignment.assignment_type)}</div>
                                       </div>
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, rgba(255,255,255,0.4))', marginBottom:4}}>LIFECYCLE STATE</div>
-                                        <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{formatEnum(assignment.lifecycle_state)}</div>
+                                        <div style={{fontSize:14, color:'var(--text, #e5e5e5)'}}>{formatEnum(assignment.lifecycle_state)}</div>
                                       </div>
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, rgba(255,255,255,0.4))', marginBottom:4}}>COMMUTING AUTHORIZED</div>
@@ -634,7 +634,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                                       </div>
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, rgba(255,255,255,0.4))', marginBottom:4}}>END DATE</div>
-                                        <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>
+                                        <div style={{fontSize:14, color:'var(--text, #e5e5e5)'}}>
                                           {assignment.end_date ? formatDate(assignment.end_date) : 'Ongoing'}
                                         </div>
                                       </div>
@@ -647,15 +647,15 @@ const VehicleAssignmentManagement: React.FC = () => {
                                     <div style={{display:'flex', flexDirection:'column', gap:10}}>
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, rgba(255,255,255,0.4))', marginBottom:4}}>HOME COUNTY</div>
-                                        <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{assignment.home_county}</div>
+                                        <div style={{fontSize:14, color:'var(--text, #e5e5e5)'}}>{assignment.home_county}</div>
                                       </div>
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, rgba(255,255,255,0.4))', marginBottom:4}}>SECURED PARKING</div>
-                                        <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{assignment.secured_parking_name || 'Not Assigned'}</div>
+                                        <div style={{fontSize:14, color:'var(--text, #e5e5e5)'}}>{assignment.secured_parking_name || 'Not Assigned'}</div>
                                       </div>
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, rgba(255,255,255,0.4))', marginBottom:4}}>DEPARTMENT</div>
-                                        <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{assignment.department_name}</div>
+                                        <div style={{fontSize:14, color:'var(--text, #e5e5e5)'}}>{assignment.department_name}</div>
                                       </div>
                                     </div>
                                   </div>
@@ -674,8 +674,8 @@ const VehicleAssignmentManagement: React.FC = () => {
                                       </button>
                                       <button onClick={(e) => { e.stopPropagation(); push({ id: assignment.vehicle_id, type: 'vehicle-details', label: formatVehicleName({ make: assignment.make, model: assignment.model, number: assignment.unit_number }), data: { vehicleId: assignment.vehicle_id } }); }}
                                         style={{
-                                          padding:'10px 14px', borderRadius:12, border:'1px solid rgba(168,85,247,0.3)',
-                                          background:'rgba(168,85,247,0.15)', color:'#a855f7', cursor:'pointer', fontSize:13, textAlign:'left'
+                                          padding:'10px 14px', borderRadius:12, border:'1px solid rgba(245,158,11,0.3)',
+                                          background:'rgba(245,158,11,0.15)', color:'#f59e0b', cursor:'pointer', fontSize:13, textAlign:'left'
                                         }}>
                                         View Vehicle Details
                                       </button>
@@ -728,9 +728,9 @@ const VehicleAssignmentManagement: React.FC = () => {
               <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Pending Acknowledgement</div>
               <div style={{fontSize:32, fontWeight:900, color:'#f59e0b'}}>{onCallPeriods.filter(p => p.is_active && !p.acknowledged_by_driver).length}</div>
             </div>
-            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.08))'}}>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.08))'}}>
               <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Total Callbacks</div>
-              <div style={{fontSize:32, fontWeight:900, color:'#a855f7'}}>{onCallPeriods.reduce((sum, p) => sum + (p.callback_count || 0), 0)}</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#f59e0b'}}>{onCallPeriods.reduce((sum, p) => sum + (p.callback_count || 0), 0)}</div>
             </div>
           </div>
 
@@ -760,11 +760,11 @@ const VehicleAssignmentManagement: React.FC = () => {
                 ) : (
                   onCallPeriods.map(period => (
                     <tr key={period.id} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
-                      <td style={{padding:16, fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)'}}>
+                      <td style={{padding:16, fontSize:14, fontWeight:600, color:'var(--text, #e5e5e5)'}}>
                         {period.driver_first_name} {period.driver_last_name}
                       </td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{formatDate(period.start_datetime)}</td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{formatDate(period.end_datetime)}</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)'}}>{formatDate(period.start_datetime)}</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)'}}>{formatDate(period.end_datetime)}</td>
                       <td style={{padding:16}}>
                         <StatusChip status={period.is_active ? 'active' : 'terminated'} label={period.is_active ? 'Active' : 'Ended'} />
                       </td>
@@ -779,7 +779,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                           {period.acknowledged_by_driver ? 'Confirmed' : 'Pending'}
                         </span>
                       </td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)', textAlign:'right', fontWeight:600}}>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)', textAlign:'right', fontWeight:600}}>
                         {period.callback_count || 0}
                       </td>
                     </tr>
@@ -792,7 +792,7 @@ const VehicleAssignmentManagement: React.FC = () => {
           {/* On-call drivers from assignments (fallback if no on-call periods API) */}
           {onCallPeriods.length === 0 && assignments.filter(a => a.assignment_type === 'on_call').length > 0 && (
             <div style={{marginTop:24}}>
-              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)', marginBottom:16}}>On-Call Assigned Drivers</div>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e5e5e5)', marginBottom:16}}>On-Call Assigned Drivers</div>
               <div style={{borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)', overflow:'hidden'}}>
                 <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
                   <thead>
@@ -808,18 +808,18 @@ const VehicleAssignmentManagement: React.FC = () => {
                     {assignments.filter(a => a.assignment_type === 'on_call').map(a => (
                       <tr key={a.id} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
                         <td style={{padding:16}}>
-                          <div style={{fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)'}}>{a.driver_first_name} {a.driver_last_name}</div>
+                          <div style={{fontSize:14, fontWeight:600, color:'var(--text, #e5e5e5)'}}>{a.driver_first_name} {a.driver_last_name}</div>
                           <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))'}}>#{a.employee_number}</div>
                         </td>
                         <td style={{padding:16}}>
-                          <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{a.unit_number}</div>
+                          <div style={{fontSize:14, color:'var(--text, #e5e5e5)'}}>{a.unit_number}</div>
                           <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))'}}>{formatVehicleName(a)}</div>
                         </td>
-                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{a.department_name}</td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)'}}>{a.department_name}</td>
                         <td style={{padding:16}}>
                           <StatusChip status={a.lifecycle_state as AssignmentStatus} />
                         </td>
-                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{formatDate(a.start_date)}</td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)'}}>{formatDate(a.start_date)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -857,7 +857,7 @@ const VehicleAssignmentManagement: React.FC = () => {
           {/* Compliance Exceptions Table */}
           <div style={{borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)', overflow:'hidden'}}>
             <div style={{padding:16, borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)'}}>Policy Compliance Exceptions</div>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e5e5e5)'}}>Policy Compliance Exceptions</div>
               <div style={{fontSize:13, color:'var(--muted, rgba(255,255,255,0.4))', marginTop:4}}>Assignments that do not meet current policy requirements</div>
             </div>
             <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
@@ -883,9 +883,9 @@ const VehicleAssignmentManagement: React.FC = () => {
                 ) : (
                   complianceExceptions.map((exc, idx) => (
                     <tr key={`${exc.assignment_id}-${exc.exception_type}-${idx}`} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
-                      <td style={{padding:16, fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)'}}>{exc.driver_name}</td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{exc.unit_number}</td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{exc.department_name}</td>
+                      <td style={{padding:16, fontSize:14, fontWeight:600, color:'var(--text, #e5e5e5)'}}>{exc.driver_name}</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)'}}>{exc.unit_number}</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)'}}>{exc.department_name}</td>
                       <td style={{padding:16}}>
                         <span style={{
                           display:'inline-flex', alignItems:'center', padding:'4px 10px', borderRadius:999, fontSize:12, fontWeight:600,
@@ -905,7 +905,7 @@ const VehicleAssignmentManagement: React.FC = () => {
           {/* Assignment Policy Status */}
           {assignments.length > 0 && (
             <div style={{marginTop:24}}>
-              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)', marginBottom:16}}>Assignment Policy Checks</div>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e5e5e5)', marginBottom:16}}>Assignment Policy Checks</div>
               <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:12}}>
                 {assignments.slice(0, 10).map(a => {
                   const hasException = complianceExceptions.some(e => e.assignment_id === a.id || e.unit_number === a.unit_number);
@@ -917,7 +917,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                       borderLeft: `4px solid ${hasException ? '#ef4444' : isApproved ? '#10b981' : '#f59e0b'}`,
                     }}>
                       <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8}}>
-                        <div style={{fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)'}}>
+                        <div style={{fontSize:14, fontWeight:600, color:'var(--text, #e5e5e5)'}}>
                           {a.driver_first_name} {a.driver_last_name}
                         </div>
                         <span style={{
@@ -958,16 +958,16 @@ const VehicleAssignmentManagement: React.FC = () => {
               <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Approval Pending</div>
               <div style={{fontSize:32, fontWeight:900, color:'#f59e0b'}}>{stats.pending}</div>
             </div>
-            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.08))'}}>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.08))'}}>
               <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Commuting Auth'd</div>
-              <div style={{fontSize:32, fontWeight:900, color:'#a855f7'}}>{assignments.filter(a => a.commuting_authorized).length}</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#f59e0b'}}>{assignments.filter(a => a.commuting_authorized).length}</div>
             </div>
           </div>
 
           {/* Assignment Type Distribution */}
           <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, marginBottom:32}}>
             <div style={{padding:24, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)'}}>
-              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)', marginBottom:20}}>Assignment Type Distribution</div>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e5e5e5)', marginBottom:20}}>Assignment Type Distribution</div>
               {[
                 { label: 'Designated', count: stats.designated, color: '#10b981' },
                 { label: 'On-Call', count: stats.onCall, color: '#10b981' },
@@ -975,7 +975,7 @@ const VehicleAssignmentManagement: React.FC = () => {
               ].map(item => (
                 <div key={item.label} style={{marginBottom:16}}>
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
-                    <span style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{item.label}</span>
+                    <span style={{fontSize:14, color:'var(--text, #e5e5e5)'}}>{item.label}</span>
                     <span style={{fontSize:14, fontWeight:700, color:item.color}}>{item.count}</span>
                   </div>
                   <div style={{width:'100%', height:8, borderRadius:4, background:'rgba(255,255,255,0.06)', overflow:'hidden'}}>
@@ -989,7 +989,7 @@ const VehicleAssignmentManagement: React.FC = () => {
             </div>
 
             <div style={{padding:24, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)'}}>
-              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)', marginBottom:20}}>Lifecycle State Breakdown</div>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e5e5e5)', marginBottom:20}}>Lifecycle State Breakdown</div>
               {[
                 { label: 'Active', count: stats.active, color: '#10b981' },
                 { label: 'Pending Approval', count: stats.pending, color: '#f59e0b' },
@@ -999,7 +999,7 @@ const VehicleAssignmentManagement: React.FC = () => {
               ].filter(item => item.count > 0).map(item => (
                 <div key={item.label} style={{marginBottom:16}}>
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
-                    <span style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{item.label}</span>
+                    <span style={{fontSize:14, color:'var(--text, #e5e5e5)'}}>{item.label}</span>
                     <span style={{fontSize:14, fontWeight:700, color:item.color}}>{item.count}</span>
                   </div>
                   <div style={{width:'100%', height:8, borderRadius:4, background:'rgba(255,255,255,0.06)', overflow:'hidden'}}>
@@ -1019,7 +1019,7 @@ const VehicleAssignmentManagement: React.FC = () => {
           {/* Department Utilization Table */}
           <div style={{borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)', overflow:'hidden'}}>
             <div style={{padding:16, borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)'}}>Department Utilization</div>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e5e5e5)'}}>Department Utilization</div>
               <div style={{fontSize:13, color:'var(--muted, rgba(255,255,255,0.4))', marginTop:4}}>Vehicle assignment distribution by department</div>
             </div>
             <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
@@ -1057,18 +1057,18 @@ const VehicleAssignmentManagement: React.FC = () => {
                     const utilization = d.total > 0 ? Math.round((d.active / d.total) * 100) : 0;
                     return (
                       <tr key={name} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
-                        <td style={{padding:16, fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)'}}>{name}</td>
-                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)', textAlign:'right'}}>{d.total}</td>
+                        <td style={{padding:16, fontSize:14, fontWeight:600, color:'var(--text, #e5e5e5)'}}>{name}</td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)', textAlign:'right'}}>{d.total}</td>
                         <td style={{padding:16, fontSize:14, color:'#10b981', textAlign:'right', fontWeight:600}}>{d.active}</td>
-                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)', textAlign:'right'}}>{d.designated}</td>
-                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)', textAlign:'right'}}>{d.onCall}</td>
-                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)', textAlign:'right'}}>{d.temporary}</td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)', textAlign:'right'}}>{d.designated}</td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)', textAlign:'right'}}>{d.onCall}</td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e5e5e5)', textAlign:'right'}}>{d.temporary}</td>
                         <td style={{padding:16, textAlign:'right'}}>
                           <div style={{display:'flex', alignItems:'center', justifyContent:'flex-end', gap:8}}>
                             <div style={{width:60, height:6, borderRadius:3, background:'rgba(255,255,255,0.08)', overflow:'hidden'}}>
                               <div style={{width:`${utilization}%`, height:'100%', borderRadius:3, background: utilization >= 80 ? '#10b981' : utilization >= 50 ? '#f59e0b' : '#ef4444'}} />
                             </div>
-                            <span style={{fontSize:13, color:'var(--text, #e2e8f0)', minWidth:36, textAlign:'right'}}>{utilization}%</span>
+                            <span style={{fontSize:13, color:'var(--text, #e5e5e5)', minWidth:36, textAlign:'right'}}>{utilization}%</span>
                           </div>
                         </td>
                       </tr>

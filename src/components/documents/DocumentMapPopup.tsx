@@ -55,7 +55,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
         {/* File icon */}
         <div
           className="flex-shrink-0 w-10 h-8 rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: document.categoryColor || '#3B82F6' }}
+          style={{ backgroundColor: document.categoryColor || '#10b981' }}
         >
           <svg
             className="w-4 h-4 text-white"
@@ -68,7 +68,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
 
         {/* Document info */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate mb-1">
+          <h3 className="font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary)] text-sm truncate mb-1">
             {document.fileName}
           </h3>
 
@@ -76,9 +76,9 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
             <div className="flex items-center gap-1 mb-1">
               <span
                 className="inline-block w-2 h-2 rounded-full"
-                style={{ backgroundColor: document.categoryColor || '#3B82F6' }}
+                style={{ backgroundColor: document.categoryColor || '#10b981' }}
               />
-              <span className="text-xs text-white/70 dark:text-gray-700">
+              <span className="text-xs text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
                 {document.categoryName}
               </span>
             </div>
@@ -90,7 +90,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
       {document.location?.address && (
         <div className="flex items-start gap-2 mb-3 text-sm">
           <svg
-            className="w-4 h-4 text-gray-700 mt-0.5 flex-shrink-0"
+            className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -108,7 +108,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
               d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
             />
           </svg>
-          <span className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed">
+          <span className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] text-xs leading-relaxed">
             {document.location?.address}
           </span>
         </div>
@@ -116,7 +116,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
 
       {/* City, State */}
       {(document.location?.city || document.location?.state) && (
-        <div className="flex items-center gap-2 mb-3 text-xs text-white/70 dark:text-gray-700">
+        <div className="flex items-center gap-2 mb-3 text-xs text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
           <svg
             className="w-4 h-4"
             fill="none"
@@ -140,7 +140,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
 
       {/* Distance (if provided) */}
       {document.distanceMeters !== undefined && document.distanceMeters > 0 && (
-        <div className="flex items-center gap-2 mb-3 text-xs text-white/70 dark:text-gray-700">
+        <div className="flex items-center gap-2 mb-3 text-xs text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
           <svg
             className="w-4 h-4"
             fill="none"
@@ -160,7 +160,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
 
       {/* Coordinates */}
       {document.location && (
-        <div className="flex items-center gap-2 mb-3 text-xs text-gray-700 dark:text-gray-700 font-mono">
+        <div className="flex items-center gap-2 mb-3 text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] font-mono">
           <svg
             className="w-4 h-4"
             fill="none"
@@ -181,7 +181,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
       )}
 
       {/* Actions */}
-      <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex gap-2 pt-3 border-t border-[var(--border-default)] dark:border-[var(--border-default)]">
         <button
           onClick={onView}
           className="flex-1 px-3 py-2 bg-emerald-500/50 text-white text-xs font-medium rounded-lg hover:bg-emerald-600 transition-colors flex items-center justify-center gap-1"
@@ -210,7 +210,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
 
         <button
           onClick={onDownload}
-          className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1"
+          className="flex-1 px-3 py-2 bg-white/[0.05] dark:bg-white/[0.08] text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] text-xs font-medium rounded-lg hover:bg-white/[0.06] dark:hover:bg-white/[0.15] transition-colors flex items-center justify-center gap-1"
         >
           <svg
             className="w-4 h-4"

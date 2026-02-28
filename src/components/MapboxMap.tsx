@@ -93,9 +93,9 @@ function getVehicleColor(status: Vehicle["status"]): string {
     service: "hsl(var(--warning))",
     emergency: "hsl(var(--destructive))",
     offline: "hsl(var(--muted-foreground))",
-    assigned: "#818cf8",
+    assigned: "#a3a3a3",
     dispatched: "#fb923c",
-    en_route: "#38bdf8",
+    en_route: "#14b8a6",
     on_site: "#facc15",
     completed: "#34d399",
     maintenance: "hsl(var(--warning))",
@@ -530,8 +530,8 @@ export function MapboxMap({
       style={{ width: '100%', height: '100%' }}
     >
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-75 z-50">
-          <div className="text-sm font-medium text-gray-700">Loading map...</div>
+        <div className="absolute inset-0 flex items-center justify-center bg-white/[0.06] bg-opacity-75 z-50">
+          <div className="text-sm font-medium text-[var(--text-tertiary)]">Loading map...</div>
         </div>
       )}
       {mapError && (

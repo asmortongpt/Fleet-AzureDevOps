@@ -88,10 +88,10 @@ const SEARCH_CATEGORIES: SearchCategory[] = [
   { type: 'vehicle', label: 'Vehicles', icon: Car, color: 'text-emerald-800' },
   { type: 'driver', label: 'Drivers', icon: User, color: 'text-green-500' },
   { type: 'work-order', label: 'Work Orders', icon: Wrench, color: 'text-orange-500' },
-  { type: 'part', label: 'Parts', icon: Package, color: 'text-cyan-500' },
-  { type: 'vendor', label: 'Vendors', icon: Truck, color: 'text-indigo-500' },
-  { type: 'route', label: 'Routes', icon: MapPin, color: 'text-purple-500' },
-  { type: 'document', label: 'Documents', icon: FileText, color: 'text-gray-700' }
+  { type: 'part', label: 'Parts', icon: Package, color: 'text-emerald-500' },
+  { type: 'vendor', label: 'Vendors', icon: Truck, color: 'text-emerald-500' },
+  { type: 'route', label: 'Routes', icon: MapPin, color: 'text-amber-500' },
+  { type: 'document', label: 'Documents', icon: FileText, color: 'text-[var(--text-tertiary)]' }
 ]
 
 // ============================================================================

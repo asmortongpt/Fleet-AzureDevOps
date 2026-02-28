@@ -82,6 +82,14 @@ const depreciationService = new DepreciationService(db as unknown as Pool);
  */
 router.get('/', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({ data: [], total: 0 });
+    }
+
     const tenantId = req.user?.tenantId || req.query.tenant_id as string;
 
     if (!tenantId) {
@@ -115,6 +123,14 @@ router.get('/', authenticateJWT, async (req: Request, res: Response) => {
  */
 router.post('/', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(400).json({ error: 'Accounts payable table not available' });
+    }
+
     const parsed = createAPSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({
@@ -145,6 +161,14 @@ router.post('/', authenticateJWT, csrfProtection, async (req: Request, res: Resp
  */
 router.post('/:id/pay', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(404).json({ error: 'AP record not found' });
+    }
+
     const parsed = paymentSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({
@@ -173,6 +197,14 @@ router.post('/:id/pay', authenticateJWT, csrfProtection, async (req: Request, re
  */
 router.get('/aging-report', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({ buckets: [], total: 0 });
+    }
+
     const tenantId = req.user?.tenantId || req.query.tenant_id as string;
 
     if (!tenantId) {
@@ -193,6 +225,14 @@ router.get('/aging-report', authenticateJWT, async (req: Request, res: Response)
  */
 router.get('/cash-flow-forecast', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({ forecast: [], total: 0 });
+    }
+
     const tenantId = req.user?.tenantId || req.query.tenant_id as string;
     const daysAhead = req.query.days_ahead ? parseInt(req.query.days_ahead as string) : 90;
 
@@ -214,6 +254,14 @@ router.get('/cash-flow-forecast', authenticateJWT, async (req: Request, res: Res
  */
 router.get('/overdue', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({ data: [], total: 0 });
+    }
+
     const tenantId = req.user?.tenantId || req.query.tenant_id as string;
 
     if (!tenantId) {
@@ -234,6 +282,14 @@ router.get('/overdue', authenticateJWT, async (req: Request, res: Response) => {
  */
 router.get('/metrics', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({ total_outstanding: 0, total_overdue: 0, days_payable_outstanding: 0 });
+    }
+
     const tenantId = req.user?.tenantId || req.query.tenant_id as string;
 
     if (!tenantId) {
@@ -259,6 +315,14 @@ router.get('/metrics', authenticateJWT, async (req: Request, res: Response) => {
  */
 router.get('/discount-opportunities', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({ data: [], total: 0 });
+    }
+
     const tenantId = req.user?.tenantId || req.query.tenant_id as string;
 
     if (!tenantId) {
@@ -279,6 +343,14 @@ router.get('/discount-opportunities', authenticateJWT, async (req: Request, res:
  */
 router.get('/vendor/:vendorId/history', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({ history: [], average_days_to_pay: 0 });
+    }
+
     const { vendorId } = req.params;
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
@@ -305,6 +377,14 @@ router.get('/vendor/:vendorId/history', authenticateJWT, async (req: Request, re
  */
 router.post('/depreciation', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(400).json({ error: 'Accounts payable table not available' });
+    }
+
     const parsed = createDepreciationSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({
@@ -333,6 +413,14 @@ router.post('/depreciation', authenticateJWT, csrfProtection, async (req: Reques
  */
 router.post('/depreciation/:id/calculate', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(404).json({ error: 'Depreciation record not found' });
+    }
+
     const parsed = calculateDepreciationSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({
@@ -364,6 +452,14 @@ router.post('/depreciation/:id/calculate', authenticateJWT, csrfProtection, asyn
  */
 router.get('/depreciation/:id/schedule', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({ schedule: [], total: 0 });
+    }
+
     const { id } = req.params;
     const schedule = await depreciationService.getDepreciationSchedule(id);
     res.json(schedule);
@@ -379,6 +475,14 @@ router.get('/depreciation/:id/schedule', authenticateJWT, async (req: Request, r
  */
 router.get('/depreciation/:id/project', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({ projection: [], total: 0 });
+    }
+
     const { id } = req.params;
     const periods = req.query.periods ? parseInt(req.query.periods as string) : 12;
 
@@ -396,6 +500,14 @@ router.get('/depreciation/:id/project', authenticateJWT, async (req: Request, re
  */
 router.get('/depreciation/monthly-journal', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({ entries: [], total: 0 });
+    }
+
     const tenantId = req.user?.tenantId || req.query.tenant_id as string;
     const year = req.query.year ? parseInt(req.query.year as string) : new Date().getFullYear();
     const month = req.query.month ? parseInt(req.query.month as string) : new Date().getMonth() + 1;
@@ -418,6 +530,14 @@ router.get('/depreciation/monthly-journal', authenticateJWT, async (req: Request
  */
 router.get('/depreciation/summary', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'accounts_payable')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({ total_assets: 0, total_depreciation: 0, net_book_value: 0 });
+    }
+
     const tenantId = req.user?.tenantId || req.query.tenant_id as string;
 
     if (!tenantId) {

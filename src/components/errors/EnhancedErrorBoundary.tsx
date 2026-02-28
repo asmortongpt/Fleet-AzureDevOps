@@ -257,20 +257,20 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
       <div
         className={`
           ${level === 'page' ? 'min-h-screen' : level === 'section' ? 'min-h-[400px]' : 'min-h-[200px]'}
-          flex items-center justify-center p-2 bg-gradient-to-b from-[#888] to-[#777] dark:from-[#111] dark:to-[#1a1a1a]
+          flex items-center justify-center p-2 bg-[var(--surface-0)]
         `}
       >
-        <Card className="w-full max-w-2xl shadow-sm border-red-200 dark:border-red-800">
+        <Card className="w-full max-w-2xl border-[var(--border-subtle)] bg-[var(--surface-2)]">
           <CardHeader className="text-center">
             <div
               className="inline-flex mx-auto mb-2"
             >
-              <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
-                <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
+              <div className="p-3 bg-red-500/10 rounded-full">
+                <AlertTriangle className="w-4 h-4 text-red-400" />
               </div>
             </div>
 
-            <CardTitle className="text-sm font-bold text-white/90 dark:text-white/80">
+            <CardTitle className="text-sm font-bold text-white">
               {errorType === 'network' && 'Connection Problem'}
               {errorType === 'loading' && 'Loading Error'}
               {errorType === 'permission' && 'Access Denied'}
@@ -289,7 +289,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
           <CardContent className="space-y-2">
             {retryCount > 0 && (
-              <Alert className="bg-emerald-500/5 border-emerald-500/20 dark:bg-emerald-900/30 dark:border-emerald-800">
+              <Alert className="bg-emerald-500/5 border-emerald-500/20">
                 <AlertTitle className="text-sm font-medium">Auto-retry in progress</AlertTitle>
                 <AlertDescription className="text-sm">
                   Attempt {retryCount} of 3. The system is automatically trying to recover...
@@ -299,29 +299,29 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
             {showDetails && error && (
               <details className="mt-2">
-                <summary className="cursor-pointer text-sm font-medium text-white/50 dark:text-white/70 hover:text-white/90 dark:hover:text-white/80">
+                <summary className="cursor-pointer text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                   Technical Details
                 </summary>
-                <div className="mt-2 p-3 bg-white/[0.05] dark:bg-[#1a1a1a] rounded-lg">
+                <div className="mt-2 p-3 bg-[var(--surface-1)] rounded-lg">
                   <div className="space-y-2 text-xs font-mono">
                     <div>
-                      <span className="text-white/40">Error ID:</span>{' '}
-                      <span className="text-white/70 dark:text-white/60">{errorId}</span>
+                      <span className="text-[var(--text-tertiary)]">Error ID:</span>{' '}
+                      <span className="text-[var(--text-secondary)]">{errorId}</span>
                     </div>
                     <div>
-                      <span className="text-white/40">Timestamp:</span>{' '}
-                      <span className="text-white/70 dark:text-white/60">
+                      <span className="text-[var(--text-tertiary)]">Timestamp:</span>{' '}
+                      <span className="text-[var(--text-secondary)]">
                         {errorTimestamp.toISOString()}
                       </span>
                     </div>
                     <div>
-                      <span className="text-white/40">Message:</span>{' '}
-                      <span className="text-red-600 dark:text-red-400">{error.message}</span>
+                      <span className="text-[var(--text-tertiary)]">Message:</span>{' '}
+                      <span className="text-red-400">{error.message}</span>
                     </div>
                     {error.stack && (
                       <div className="mt-2">
-                        <span className="text-white/40">Stack Trace:</span>
-                        <pre className="mt-1 text-[10px] text-white/50 dark:text-white/70 overflow-auto max-h-32">
+                        <span className="text-[var(--text-tertiary)]">Stack Trace:</span>
+                        <pre className="mt-1 text-[10px] text-[var(--text-secondary)] overflow-auto max-h-32">
                           {error.stack}
                         </pre>
                       </div>
@@ -332,10 +332,10 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
             )}
 
             <div className="pt-2">
-              <h3 className="text-sm font-medium text-white/70 dark:text-white/60 mb-2">
+              <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-2">
                 What you can try:
               </h3>
-              <ul className="space-y-1 text-sm text-white/50 dark:text-white/70">
+              <ul className="space-y-1 text-sm text-[var(--text-secondary)]">
                 {errorType === 'network' && (
                   <>
                     <li>• Check your internet connection</li>
@@ -401,7 +401,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
           {errorId && (
             <div className="px-3 pb-2">
-              <p className="text-xs text-center text-white/40 dark:text-white/70">
+              <p className="text-xs text-center text-[var(--text-tertiary)]">
                 Reference this ID when contacting support: <code className="font-mono">{errorId}</code>
               </p>
             </div>

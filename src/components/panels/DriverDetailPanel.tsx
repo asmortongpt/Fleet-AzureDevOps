@@ -36,20 +36,20 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
 
     return (
             <div
-                className="absolute right-4 top-20 bottom-8 w-[400px] bg-card/95 backdrop-blur-md border border-border/50 shadow-lg rounded-lg overflow-hidden flex flex-col z-40"
+                className="absolute right-4 top-20 bottom-8 w-[400px] bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-lg overflow-hidden flex flex-col z-40"
             >
                 {/* Header / Profile Cover */}
-                <div className="relative h-32 bg-gradient-to-br from-[#111] to-[#1a1a1a] shrink-0">
-                    <Button variant="ghost" size="icon" onClick={onClose} className="absolute right-2 top-2 text-white/70 hover:text-white hover:bg-white/10" aria-label="Close driver details">
+                <div className="relative h-32 bg-[var(--surface-2)] shrink-0">
+                    <Button variant="ghost" size="icon" onClick={onClose} className="absolute right-2 top-2 text-[var(--text-primary)] hover:text-white hover:bg-[var(--surface-glass-hover)]" aria-label="Close driver details">
                         <X className="w-3 h-3" />
                     </Button>
                     <div className="absolute -bottom-10 left-6">
-                        <div className="w-20 h-20 rounded-full border-4 border-border/40 bg-muted/40 shadow-md flex items-center justify-center text-sm font-bold text-muted-foreground">
+                        <div className="w-20 h-20 rounded-full border-4 border-[var(--border-subtle)] bg-white/[0.06] flex items-center justify-center text-sm font-bold text-[var(--text-secondary)]">
                             {driver.name.charAt(0)}
                         </div>
                     </div>
                     <div className="absolute bottom-3 right-4 flex gap-2">
-                        <Button size="sm" variant="secondary" className="h-7 text-xs bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-sm">
+                        <Button size="sm" variant="secondary" className="h-7 text-xs bg-white/10 text-white hover:bg-white/20 border-none">
                             <Phone className="w-3 h-3 mr-1.5" />
                             Call
                         </Button>
@@ -63,7 +63,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                             label="Email"
                             size="sm"
                             variant="secondary"
-                            className="h-7 text-xs bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-sm"
+                            className="h-7 text-xs bg-white/10 text-white hover:bg-white/20 border-none"
                         />
                     </div>
                 </div>
@@ -73,8 +73,8 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
 
                     {/* Identity */}
                     <div>
-                        <h2 className="text-sm font-bold text-white/90">{driver.name}</h2>
-                        <div className="flex items-center gap-2 mt-1 text-muted-foreground text-sm">
+                        <h2 className="text-sm font-bold text-[var(--text-primary)]">{driver.name}</h2>
+                        <div className="flex items-center gap-2 mt-1 text-[var(--text-secondary)] text-sm">
                             <Badge variant="outline" className="rounded-md font-normal">
                                 {driver.id}
                             </Badge>
@@ -85,28 +85,28 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-3 gap-2 mt-3 mb-3">
-                        <div className="bg-muted/40 p-3 rounded-md border border-border/50 text-center">
+                        <div className="bg-white/[0.04] p-3 rounded-md border border-[var(--border-subtle)] text-center">
                             <div className={`text-base font-bold ${driver.safetyScore >= 90 ? 'text-green-600' : 'text-amber-600'}`}>
                                 {driver.safetyScore}
                             </div>
-                            <div className="text-[10px] uppercase font-bold text-muted-foreground mt-0.5">Safety</div>
+                            <div className="text-[10px] uppercase font-bold text-[var(--text-secondary)] mt-0.5">Safety</div>
                         </div>
-                        <div className="bg-muted/40 p-3 rounded-md border border-border/50 text-center">
-                            <div className="text-base font-bold text-muted-foreground">
+                        <div className="bg-white/[0.04] p-3 rounded-md border border-[var(--border-subtle)] text-center">
+                            <div className="text-base font-bold text-[var(--text-secondary)]">
                                 4.9
                             </div>
-                            <div className="text-[10px] uppercase font-bold text-muted-foreground mt-0.5">Rating</div>
+                            <div className="text-[10px] uppercase font-bold text-[var(--text-secondary)] mt-0.5">Rating</div>
                         </div>
-                        <div className="bg-muted/40 p-3 rounded-md border border-border/50 text-center">
+                        <div className="bg-white/[0.04] p-3 rounded-md border border-[var(--border-subtle)] text-center">
                             <div className="text-base font-bold text-emerald-400">
                                 98%
                             </div>
-                            <div className="text-[10px] uppercase font-bold text-muted-foreground mt-0.5">On-Time</div>
+                            <div className="text-[10px] uppercase font-bold text-[var(--text-secondary)] mt-0.5">On-Time</div>
                         </div>
                     </div>
 
                     <Tabs defaultValue="overview" className="flex-1 flex flex-col min-h-0">
-                        <TabsList className="w-full justify-start h-8 p-1 bg-muted/40 mb-2">
+                        <TabsList className="w-full justify-start h-8 p-1 bg-white/[0.04] mb-2">
                             <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
                             <TabsTrigger value="activity" className="text-xs">Activity</TabsTrigger>
                             <TabsTrigger value="vehicle" className="text-xs">Vehicle</TabsTrigger>
@@ -117,13 +117,13 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
 
                                 {/* Status */}
                                 <div className="space-y-3">
-                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Current Status</h4>
-                                    <div className="flex items-center justify-between p-3 bg-card/90 border border-border/50 rounded-md shadow-sm">
+                                    <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Current Status</h4>
+                                    <div className="flex items-center justify-between p-3 bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-md ">
                                         <div className="flex items-center gap-3">
                                             <Activity className="w-3 h-3 text-emerald-400" />
                                             <div>
                                                 <div className="font-semibold text-sm">{formatEnum(driver.status)}</div>
-                                                <div className="text-xs text-muted-foreground">Since 08:00 AM</div>
+                                                <div className="text-xs text-[var(--text-secondary)]">Since 08:00 AM</div>
                                             </div>
                                         </div>
                                         <Badge variant={driver.status === 'active' ? 'default' : 'secondary'}>
@@ -134,19 +134,19 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
 
                                 {/* assigned Vehicle */}
                                 <div className="space-y-3">
-                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Assigned Vehicle</h4>
+                                    <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Assigned Vehicle</h4>
                                     {assignment ? (
-                                        <div className="p-3 bg-card/90 border border-border/50 rounded-md shadow-sm hover:border-emerald-500/50 transition-colors cursor-pointer group">
+                                        <div className="p-3 bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-md  hover:border-emerald-500/50 transition-colors cursor-pointer group">
                                             <div className="flex justify-between items-start">
                                                 <div className="flex gap-3">
-                                                    <div className="w-10 h-8 bg-muted/40 rounded-lg flex items-center justify-center">
-                                                        <Truck className="w-3 h-3 text-muted-foreground" />
+                                                    <div className="w-10 h-8 bg-white/[0.04] rounded-lg flex items-center justify-center">
+                                                        <Truck className="w-3 h-3 text-[var(--text-secondary)]" />
                                                     </div>
                                                     <div>
                                                         <div className="font-semibold text-sm group-hover:text-emerald-200 transition-colors">
                                                             {formatVehicleShortName(assignment)}
                                                         </div>
-                                                        <div className="text-xs text-muted-foreground mt-0.5">
+                                                        <div className="text-xs text-[var(--text-secondary)] mt-0.5">
                                                             {assignment.number}
                                                         </div>
                                                     </div>
@@ -157,14 +157,14 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                                     </Badge>
                                                 </div>
                                             </div>
-                                            <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                                            <div className="mt-3 flex items-center gap-2 text-xs text-[var(--text-secondary)]">
                                                 <MapPin className="w-3.5 h-3.5" />
                                                 Loading Dock B, Warehouse 4
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="text-center p-3 border-2 border-dashed border-border/50 rounded-md">
-                                            <p className="text-sm text-muted-foreground mb-2">No vehicle currently assigned</p>
+                                        <div className="text-center p-3 border-2 border-dashed border-[var(--border-subtle)] rounded-md">
+                                            <p className="text-sm text-[var(--text-secondary)] mb-2">No vehicle currently assigned</p>
                                             <Button variant="outline" size="sm">Assign Vehicle</Button>
                                         </div>
                                     )}
@@ -172,13 +172,13 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
 
                                 {/* Licenses */}
                                 <div className="space-y-3">
-                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Compliance</h4>
-                                    <div className="p-3 bg-muted/40 rounded-lg border border-border/50 flex justify-between items-center">
+                                    <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Compliance</h4>
+                                    <div className="p-3 bg-white/[0.04] rounded-lg border border-[var(--border-subtle)] flex justify-between items-center">
                                         <div className="flex items-center gap-3">
-                                            <FileCheck className="w-4 h-4 text-muted-foreground" />
+                                            <FileCheck className="w-4 h-4 text-[var(--text-secondary)]" />
                                             <span className="text-sm font-medium">Commercial License</span>
                                         </div>
-                                        <span className="text-xs text-muted-foreground">Exp: {driver.licenseExpiry}</span>
+                                        <span className="text-xs text-[var(--text-secondary)]">Exp: {driver.licenseExpiry}</span>
                                     </div>
                                 </div>
                             </TabsContent>
@@ -186,13 +186,13 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                             <TabsContent value="activity" className="mt-0">
                                 <div className="space-y-2">
                                     {recentActivity.map((item) => (
-                                        <div key={item.id} className="relative pl-3 pb-3 border-l border-border/50 last:pb-0">
-                                            <div className={`absolute -left-1.5 top-0 w-3 h-3 rounded-full border-2 border-card ${item.type === 'alert' ? 'bg-red-500' : 'bg-emerald-500'
+                                        <div key={item.id} className="relative pl-3 pb-3 border-l border-[var(--border-subtle)] last:pb-0">
+                                            <div className={`absolute -left-1.5 top-0 w-3 h-3 rounded-full border-2 border-[#0e0e0e] ${item.type === 'alert' ? 'bg-red-500' : 'bg-emerald-500'
                                                 }`} />
                                             <div className="flex justify-between items-start -mt-1">
                                                 <div>
                                                     <div className="text-sm font-semibold">{item.title}</div>
-                                                    <div className="text-xs text-muted-foreground mt-0.5">{item.time}</div>
+                                                    <div className="text-xs text-[var(--text-secondary)] mt-0.5">{item.time}</div>
                                                 </div>
                                                 {item.score && (
                                                     <Badge variant={item.score > 0 ? 'secondary' : 'destructive'} className="text-[10px]">
@@ -208,29 +208,29 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                             <TabsContent value="vehicle" className="mt-0 p-1">
                                 {assignment ? (
                                     <div className="space-y-2">
-                                        <div className="bg-muted/40 p-2 rounded-md border border-border/50 flex flex-col items-center">
+                                        <div className="bg-white/[0.04] p-2 rounded-md border border-[var(--border-subtle)] flex flex-col items-center">
                                             <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-3">
                                                 <Truck className="w-4 h-4 text-emerald-400" />
                                             </div>
                                             <h3 className="font-bold text-sm">{formatVehicleShortName(assignment)}</h3>
-                                            <div className="text-sm text-muted-foreground">{assignment.number}</div>
+                                            <div className="text-sm text-[var(--text-secondary)]">{assignment.number}</div>
                                             <Badge className="mt-2" variant={assignment.status === 'active' ? 'default' : 'secondary'}>
                                                 {assignment.status}
                                             </Badge>
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
-                                            <div className="p-3 bg-muted/40 rounded-lg border border-border/50">
-                                                <div className="text-xs text-muted-foreground uppercase font-semibold">Fuel Level</div>
-                                                <div className="text-sm font-bold text-foreground">{assignment.fuelLevel || '76'}%</div>
+                                            <div className="p-3 bg-white/[0.04] rounded-lg border border-[var(--border-subtle)]">
+                                                <div className="text-xs text-[var(--text-secondary)] uppercase font-semibold">Fuel Level</div>
+                                                <div className="text-sm font-bold text-white">{assignment.fuelLevel || '76'}%</div>
                                             </div>
-                                            <div className="p-3 bg-muted/40 rounded-lg border border-border/50">
-                                                <div className="text-xs text-muted-foreground uppercase font-semibold">Odometer</div>
-                                                <div className="text-sm font-bold text-foreground">{formatNumber(assignment.mileage || 0)} mi</div>
+                                            <div className="p-3 bg-white/[0.04] rounded-lg border border-[var(--border-subtle)]">
+                                                <div className="text-xs text-[var(--text-secondary)] uppercase font-semibold">Odometer</div>
+                                                <div className="text-sm font-bold text-white">{formatNumber(assignment.mileage || 0)} mi</div>
                                             </div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="text-center py-10 text-muted-foreground">
+                                    <div className="text-center py-10 text-[var(--text-secondary)]">
                                         <p>No vehicle assigned.</p>
                                     </div>
                                 )}

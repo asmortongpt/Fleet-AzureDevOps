@@ -5,7 +5,7 @@ import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "@/componen
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import type { MarkerStyle, MarkerSize } from "@/stores/useMapMarkerSettings"
 import logger from '@/utils/logger';
-import { buildVehicleMarkerIcon, buildSelectedMarkerIcon, getStatusColor } from "@/utils/vehicle-map-icons"
+import { buildVehicleMarkerIcon, buildSelectedMarkerIcon, getStatusColor, type VehicleMarkerData } from "@/utils/vehicle-map-icons"
 import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
 /**
  * Props for the GoogleMap component
@@ -156,6 +156,8 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
   const resolvedZoom = Number.isFinite(zoom as number) ? (zoom as number) : DEFAULT_ZOOM
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const markersRef = useRef<MarkerWithInfo[]>([])
+  const vehicleMarkerMapRef = useRef<Map<string, MarkerWithInfo>>(new Map())
+  const initialBoundsFitRef = useRef(false)
   const boundsListenerRef = useRef<google.maps.MapsEventListener | null>(null)
 
   // Component state
@@ -170,6 +172,12 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
       if (!mapInstanceRef.current || !window.google?.maps) return
       const bounds = new google.maps.LatLngBounds()
       let any = false
+      // Include vehicle markers from the in-place map
+      for (const { marker } of vehicleMarkerMapRef.current.values()) {
+        const pos = marker.getPosition()
+        if (pos) { bounds.extend(pos); any = true }
+      }
+      // Include non-vehicle markers
       for (const { marker } of markersRef.current) {
         const pos = marker.getPosition()
         if (pos) { bounds.extend(pos); any = true }
@@ -471,87 +479,119 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
   }, [])
 
   /**
-   * Update markers when data changes
+   * Update vehicle marker positions in-place for smooth real-time movement.
+   * Only creates new markers when vehicles are first seen; subsequent updates
+   * just move existing markers without destroying/recreating them.
    */
   useEffect(() => {
     if (!mapInstanceRef.current || !window.google?.maps || isLoading || error) {
       return
     }
 
-
-
-    // Clear existing markers
-    clearMarkers()
-
-    const newMarkers: MarkerWithInfo[] = []
+    const existingMap = vehicleMarkerMapRef.current
+    const currentVehicleIds = new Set<string>()
     const bounds = new google.maps.LatLngBounds()
-    let hasMarkers = false
+    let hasNewMarkers = false
 
     try {
-      // Add vehicle markers
+      // --- Vehicle markers: update in-place or create ---
       if (showVehicles && vehicles.length > 0) {
         vehicles.forEach(vehicle => {
-          // Skip vehicles hidden by filter
           if (visibleVehicleIds && !visibleVehicleIds.has(vehicle.id)) return
 
           const coords = getVehicleLatLng(vehicle)
           if (!coords) return
 
+          currentVehicleIds.add(vehicle.id)
+          bounds.extend(coords)
+
           const isSelected = selectedVehicleId === vehicle.id
           const vehicleType = vehicle.type || (vehicle as any).vehicle_type || 'sedan'
           const statusClr = getStatusColor(vehicle.status)
+          const v = vehicle as any
+          const markerData: VehicleMarkerData = {
+            fuelPercent: v.fuel_level ?? v.fuelLevel ?? v.fuel_percent ?? v.battery_percent ?? v.batteryPercent ?? undefined,
+            speed: v.speed ?? v.current_speed ?? v.currentSpeed ?? undefined,
+            heading: v.heading ?? v.bearing ?? undefined,
+          }
           const markerIcon = isSelected
-            ? buildSelectedMarkerIcon(vehicleType, statusClr, markerStyle, markerSize)
-            : buildVehicleMarkerIcon(vehicleType, statusClr, markerStyle, markerSize)
+            ? buildSelectedMarkerIcon(vehicleType, statusClr, markerStyle, markerSize, markerData)
+            : buildVehicleMarkerIcon(vehicleType, statusClr, markerStyle, markerSize, markerData)
 
-          const marker = new google.maps.Marker({
-            position: coords,
-            map: mapInstanceRef.current,
-            title: `${vehicle.name || vehicle.number || 'Vehicle'} (${vehicleType})`,
-            optimized: true,
-            icon: markerIcon,
-            label: showMarkerLabels
-              ? {
-                  text: vehicle.name || vehicle.number || '',
-                  color: '#fff',
-                  fontSize: '9px',
-                  fontWeight: '500',
-                  className: 'map-vehicle-label',
-                }
-              : undefined,
-            zIndex: isSelected ? 1000 : undefined,
-          })
+          const existing = existingMap.get(vehicle.id)
+          if (existing) {
+            // Update position in-place (smooth movement)
+            existing.marker.setPosition(coords)
+            existing.marker.setIcon(markerIcon)
+            existing.marker.setZIndex(isSelected ? 1000 : undefined)
+            // Update info window content with fresh data
+            existing.infoWindow?.setContent(createVehicleInfoHTML(vehicle))
+          } else {
+            // Create new marker for newly-seen vehicle
+            const marker = new google.maps.Marker({
+              position: coords,
+              map: mapInstanceRef.current,
+              title: `${vehicle.name || vehicle.number || 'Vehicle'} (${vehicleType})`,
+              optimized: false, // Required for smooth position updates
+              icon: markerIcon,
+              label: showMarkerLabels
+                ? {
+                    text: vehicle.name || vehicle.number || '',
+                    color: '#fff',
+                    fontSize: '9px',
+                    fontWeight: '500',
+                    className: 'map-vehicle-label',
+                  }
+                : undefined,
+              zIndex: isSelected ? 1000 : undefined,
+            })
 
-          // Add data-testid to marker element when DOM is ready
-          google.maps.event.addListenerOnce(marker, 'visible', () => {
-            const markerDiv = (marker as any).getDiv?.()
-            if (markerDiv) {
-              markerDiv.setAttribute('data-testid', 'vehicle-marker')
-              markerDiv.setAttribute('data-vehicle-id', vehicle.id)
-            }
-          })
+            google.maps.event.addListenerOnce(marker, 'visible', () => {
+              const markerDiv = (marker as any).getDiv?.()
+              if (markerDiv) {
+                markerDiv.setAttribute('data-testid', 'vehicle-marker')
+                markerDiv.setAttribute('data-vehicle-id', vehicle.id)
+              }
+            })
 
-          const infoWindow = new google.maps.InfoWindow({
-            content: createVehicleInfoHTML(vehicle),
-          })
+            const infoWindow = new google.maps.InfoWindow({
+              content: createVehicleInfoHTML(vehicle),
+            })
 
-          marker.addListener("click", () => {
-            // Close all other info windows
-            markersRef.current.forEach(({ infoWindow: iw }) => iw?.close())
-            infoWindow.open(mapInstanceRef.current, marker)
-            // Notify parent of vehicle selection
-            if (onVehicleAction) {
-              onVehicleAction('select', vehicle.id)
-            }
-          })
+            marker.addListener("click", () => {
+              // Close all other info windows
+              existingMap.forEach(({ infoWindow: iw }) => iw?.close())
+              markersRef.current.forEach(({ infoWindow: iw }) => iw?.close())
+              infoWindow.open(mapInstanceRef.current, marker)
+              if (onVehicleAction) {
+                onVehicleAction('select', vehicle.id)
+              }
+            })
 
-          newMarkers.push({ marker, infoWindow })
-          bounds.extend(coords)
-          hasMarkers = true
+            existingMap.set(vehicle.id, { marker, infoWindow })
+            hasNewMarkers = true
+          }
         })
       }
 
-      // Add facility markers
+      // Remove vehicle markers that are no longer in the data
+      for (const [id, entry] of existingMap) {
+        if (!currentVehicleIds.has(id)) {
+          entry.infoWindow?.close()
+          entry.marker.setMap(null)
+          existingMap.delete(id)
+        }
+      }
+
+      // --- Facility markers (recreate on change — they don't move) ---
+      // Clear non-vehicle markers from markersRef
+      const nonVehicleMarkers = markersRef.current
+      nonVehicleMarkers.forEach(({ marker, infoWindow }) => {
+        infoWindow?.close()
+        marker.setMap(null)
+      })
+      const newNonVehicleMarkers: MarkerWithInfo[] = []
+
       if (showFacilities && facilities.length > 0) {
         facilities.forEach(facility => {
           if (!facility.location?.lat || !facility.location?.lng) return
@@ -577,17 +617,16 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
           })
 
           marker.addListener("click", () => {
-            markersRef.current.forEach(({ infoWindow: iw }) => iw?.close())
+            existingMap.forEach(({ infoWindow: iw }) => iw?.close())
+            newNonVehicleMarkers.forEach(({ infoWindow: iw }) => iw?.close())
             infoWindow.open(mapInstanceRef.current, marker)
           })
 
-          newMarkers.push({ marker, infoWindow })
+          newNonVehicleMarkers.push({ marker, infoWindow })
           bounds.extend({ lat: facility.location?.lat, lng: facility.location?.lng })
-          hasMarkers = true
         })
       }
 
-      // Add camera markers
       if (showCameras && cameras.length > 0) {
         cameras.forEach(camera => {
           if (!camera.latitude || !camera.longitude) return
@@ -599,7 +638,7 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
             optimized: true,
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
-              fillColor: camera.operational ? "#3b82f6" : "#6b7280",
+              fillColor: camera.operational ? "#10b981" : "#6b7280",
               fillOpacity: 1,
               strokeColor: "#ffffff",
               strokeWeight: 2,
@@ -612,31 +651,28 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
           })
 
           marker.addListener("click", () => {
-            markersRef.current.forEach(({ infoWindow: iw }) => iw?.close())
+            existingMap.forEach(({ infoWindow: iw }) => iw?.close())
+            newNonVehicleMarkers.forEach(({ infoWindow: iw }) => iw?.close())
             infoWindow.open(mapInstanceRef.current, marker)
           })
 
-          newMarkers.push({ marker, infoWindow })
+          newNonVehicleMarkers.push({ marker, infoWindow })
           bounds.extend({ lat: camera.latitude, lng: camera.longitude })
-          hasMarkers = true
         })
       }
 
-      // Update markers ref
-      markersRef.current = newMarkers
+      markersRef.current = newNonVehicleMarkers
 
-      // Track marker creation complete
-
-      // Fit bounds to show all markers
-      if (hasMarkers && mapInstanceRef.current) {
+      // Only fit bounds on initial load, not on every position update
+      const hasAnyMarkers = existingMap.size > 0 || newNonVehicleMarkers.length > 0
+      if (hasAnyMarkers && mapInstanceRef.current && !initialBoundsFitRef.current) {
+        initialBoundsFitRef.current = true
         mapInstanceRef.current.fitBounds(bounds)
 
-        // Cleanup previous listener
         if (boundsListenerRef.current) {
           google.maps.event.removeListener(boundsListenerRef.current)
         }
 
-        // Limit max zoom after bounds fit
         boundsListenerRef.current = google.maps.event.addListenerOnce(
           mapInstanceRef.current,
           "idle",
@@ -651,17 +687,29 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
           }
         )
       }
+
+      // Fit bounds if new markers appeared (new vehicles added to fleet)
+      if (hasNewMarkers && initialBoundsFitRef.current && mapInstanceRef.current) {
+        mapInstanceRef.current.fitBounds(bounds)
+      }
     } catch (err) {
       logger.error("Error updating markers:", err)
       setError(`Failed to update markers: ${err instanceof Error ? err.message : "Unknown error"}`)
     }
 
-    // Cleanup on unmount or when dependencies change
+    // Cleanup on unmount
     return () => {
-      // Clear all markers and info windows
+      // Clear vehicle markers
+      vehicleMarkerMapRef.current.forEach(({ marker, infoWindow }) => {
+        infoWindow?.close()
+        marker.setMap(null)
+      })
+      vehicleMarkerMapRef.current.clear()
+      initialBoundsFitRef.current = false
+
+      // Clear non-vehicle markers
       clearMarkers()
 
-      // Cleanup bounds listener set in this effect
       if (boundsListenerRef.current) {
         google.maps.event.removeListener(boundsListenerRef.current)
         boundsListenerRef.current = null
@@ -741,7 +789,7 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
         <div className="text-center p-3 max-w-md">
           <div className="text-sm mb-2">⚠️</div>
           <p className="text-destructive font-semibold mb-2">Map Error</p>
-          <p className="text-sm text-muted-foreground mb-2">{error}</p>
+          <p className="text-sm text-[var(--text-secondary)] mb-2">{error}</p>
           <button
             onClick={retryLoad}
             className="px-2 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
@@ -755,7 +803,7 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
             Switch to Grid View
           </button>
           {retryCount > 0 && (
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="text-xs text-[var(--text-tertiary)] mt-2">
               Retry attempts: {retryCount}
             </p>
           )}
@@ -773,16 +821,16 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
     >
       <div ref={mapRef} className="absolute inset-0 w-full h-full rounded-lg overflow-hidden" />
       {isLoading && (
-        <div data-testid="loading-indicator" className="absolute inset-0 w-full h-full flex items-center justify-center bg-background/95 backdrop-blur-sm">
+        <div data-testid="loading-indicator" className="absolute inset-0 w-full h-full flex items-center justify-center bg-[var(--surface-0)]">
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-2">
               <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
               <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
             </div>
-            <p className="text-sm font-medium text-foreground mb-1">
+            <p className="text-sm font-medium text-white mb-1">
               Loading Google Maps...
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-[var(--text-tertiary)]">
               React 19 Compatible • Production Ready
             </p>
           </div>
@@ -878,7 +926,7 @@ function createCameraInfoHTML(camera: TrafficCamera): string {
           rel="noopener noreferrer"
           style="
             display: inline-block;
-            background-color: #3b82f6;
+            background-color: #10b981;
             color: white;
             padding: 8px 16px;
             border-radius: 6px;
@@ -887,8 +935,8 @@ function createCameraInfoHTML(camera: TrafficCamera): string {
             font-weight: 500;
             transition: background-color 0.2s;
           "
-          onmouseover="this.style.backgroundColor='#2563eb'"
-          onmouseout="this.style.backgroundColor='#3b82f6'"
+          onmouseover="this.style.backgroundColor='#059669'"
+          onmouseout="this.style.backgroundColor='#10b981'"
         >
           📹 View Live Feed
         </a>

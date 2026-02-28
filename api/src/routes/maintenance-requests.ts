@@ -91,4 +91,71 @@ router.get(
   }
 )
 
+/**
+ * GET /maintenance-requests/:id
+ *
+ * Returns a single maintenance request by ID with related vehicle, driver, and facility details.
+ */
+router.get(
+  '/:id',
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.MAINTENANCE_TECH, Role.USER, Role.VIEWER, Role.GUEST],
+    permissions: [PERMISSIONS.MAINTENANCE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'maintenance_requests'
+  }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { id } = req.params
+      const isDevelopment = process.env.NODE_ENV === 'development'
+
+      const client = req.dbClient
+      if (!client) {
+        logger.error('maintenance-requests: dbClient not available')
+        return res.status(500).json({ error: 'Internal server error' })
+      }
+
+      const params: unknown[] = [id]
+      let tenantFilter = ''
+
+      if (isDevelopment && req.user?.tenant_id) {
+        params.push(req.user.tenant_id)
+        tenantFilter = `AND mr.tenant_id = $${params.length}`
+      }
+
+      const result = await client.query(
+        `SELECT mr.id, mr.tenant_id, mr.request_number, mr.request_type, mr.priority,
+                mr.vehicle_id, mr.asset_id, mr.title, mr.description, mr.issue_category,
+                mr.requested_by, mr.driver_id, mr.requested_date, mr.scheduled_date,
+                mr.completed_date, mr.assigned_to, mr.facility_id, mr.status,
+                mr.work_performed, mr.parts_used, mr.labor_hours, mr.total_cost,
+                mr.metadata, mr.created_at, mr.updated_at,
+                CONCAT(v.year, ' ', v.make, ' ', v.model) AS vehicle_name,
+                CONCAT(du.first_name, ' ', du.last_name) AS driver_name,
+                f.name AS facility_name,
+                CONCAT(au.first_name, ' ', au.last_name) AS assigned_to_name,
+                CONCAT(ru.first_name, ' ', ru.last_name) AS requested_by_name
+         FROM maintenance_requests mr
+         LEFT JOIN vehicles v ON v.id = mr.vehicle_id
+         LEFT JOIN drivers d ON d.id = mr.driver_id
+         LEFT JOIN users du ON du.id = d.user_id
+         LEFT JOIN facilities f ON f.id = mr.facility_id
+         LEFT JOIN users au ON au.id = mr.assigned_to
+         LEFT JOIN users ru ON ru.id = mr.requested_by
+         WHERE mr.id = $1 ${tenantFilter}`,
+        params
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Maintenance request not found' })
+      }
+
+      return res.json({ data: result.rows[0] })
+    } catch (error) {
+      logger.error('maintenance-requests: failed to fetch by id', { error })
+      return res.status(500).json({ error: 'Failed to fetch maintenance request' })
+    }
+  }
+)
+
 export default router

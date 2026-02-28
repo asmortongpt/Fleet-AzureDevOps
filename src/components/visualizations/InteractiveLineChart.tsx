@@ -54,7 +54,7 @@ export function InteractiveLineChart({
   height = 400,
   loading = false,
   showArea = false,
-  colors = ['#3B82F6', '#10B981', '#8B5CF6'],
+  colors = ['#10b981', '#10B981', '#D97706'],
   enableBrush = true,
   enableZoom = true,
 }: InteractiveLineChartProps) {
@@ -92,7 +92,7 @@ export function InteractiveLineChart({
 
     return (
       <div
-        className="rounded-lg border shadow-lg p-3"
+        className="rounded-lg border p-3"
         style={{
           backgroundColor: chartColors.tooltip.background,
           borderColor: chartColors.tooltip.border,
@@ -127,7 +127,7 @@ export function InteractiveLineChart({
 
   return (
     <div>
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+      <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>

@@ -150,7 +150,7 @@ const WorkHub: React.FC = () => {
         label: "Maintenance Due",
         value: maintenanceDue,
         trend: { value: 0, direction: "down", isPositive: true },
-        color: "text-purple-500",
+        color: "text-amber-500",
       },
       {
         id: "route-efficiency",

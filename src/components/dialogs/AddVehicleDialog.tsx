@@ -326,7 +326,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
         <div className="max-h-[calc(90vh-120px)] overflow-y-auto p-1">
           {/* Asset Classification Section */}
           <div className="mb-3">
-            <h3 className="text-sm font-semibold mb-3 text-white/60 border-b border-white/[0.08] pb-1">Asset Classification</h3>
+            <h3 className="text-sm font-semibold mb-3 text-[var(--text-secondary)] border-b border-[var(--border-subtle)] pb-1">Asset Classification</h3>
             <div className="grid grid-cols-3 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="asset_category">Asset Category</Label>
@@ -384,7 +384,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
 
           {/* Basic Information Section */}
           <div className="mb-3">
-            <h3 className="text-sm font-semibold mb-3 text-white/60 border-b border-white/[0.08] pb-1">Basic Information</h3>
+            <h3 className="text-sm font-semibold mb-3 text-[var(--text-secondary)] border-b border-[var(--border-subtle)] pb-1">Basic Information</h3>
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="number">Vehicle Number *</Label>
@@ -536,12 +536,12 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
 
           {/* Photos Section */}
           <div className="mb-3">
-            <h3 className="text-sm font-semibold mb-3 text-white/60 border-b border-white/[0.08] pb-1 flex items-center gap-2">
+            <h3 className="text-sm font-semibold mb-3 text-[var(--text-secondary)] border-b border-[var(--border-subtle)] pb-1 flex items-center gap-2">
               <ImagePlus className="h-4 w-4" />
               Vehicle Photos (Optional)
             </h3>
             {showPhotoCapture ? (
-              <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-3">
+              <div className="rounded-lg border border-[var(--border-subtle)] bg-white/[0.02] p-3">
                 <VehiclePhotoCapture
                   onCapture={(files) => {
                     setCapturedPhotos(files)

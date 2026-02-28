@@ -231,10 +231,10 @@ export const OBD2Dashboard: React.FC = () => {
     <div className="p-3 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-3">
-        <h1 className="text-base font-bold text-gray-900 dark:text-white">
+        <h1 className="text-base font-bold text-[var(--text-primary)] dark:text-white">
           OBD2 Vehicle Diagnostics
         </h1>
-        <p className="text-white/70 dark:text-gray-700 mt-2">
+        <p className="text-[var(--text-primary)] dark:text-[var(--text-tertiary)] mt-2">
           Real-time vehicle data streaming from OBD2 devices
         </p>
       </div>
@@ -244,16 +244,16 @@ export const OBD2Dashboard: React.FC = () => {
         <div className={`flex items-center gap-2 px-2 py-2 rounded-full ${
           isConnected
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+            : 'bg-white/[0.05] text-[var(--text-secondary)] dark:bg-[var(--surface-3)] dark:text-[var(--text-primary)]'
         }`}>
-          <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+          <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-white/[0.10]'}`} />
           <span className="font-medium">
             {isConnected ? 'Connected' : 'Disconnected'}
           </span>
         </div>
 
         {activeSession && (
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-[var(--text-tertiary)]">
             Session: {activeSession.slice(0, 8)}...
           </span>
         )}
@@ -273,20 +273,20 @@ export const OBD2Dashboard: React.FC = () => {
       )}
 
       {/* Emulator Controls */}
-      <div className="mb-3 p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm">
-        <h2 className="text-base font-semibold mb-2 text-gray-900 dark:text-white">
+      <div className="mb-3 p-3 bg-white dark:bg-[var(--surface-3)] rounded-md">
+        <h2 className="text-base font-semibold mb-2 text-[var(--text-primary)] dark:text-white">
           OBD2 Emulator Controls
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] mb-1">
               Vehicle Profile
             </label>
             <select
               value={selectedProfile}
               onChange={(e) => setSelectedProfile(e.target.value)}
-              className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-lg dark:bg-white/[0.08] dark:border-[var(--border-default)]"
               disabled={!!activeSession}
             >
               <option value="sedan">Standard Sedan</option>
@@ -298,13 +298,13 @@ export const OBD2Dashboard: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] mb-1">
               Driving Scenario
             </label>
             <select
               value={selectedScenario}
               onChange={(e) => setSelectedScenario(e.target.value)}
-              className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-lg dark:bg-white/[0.08] dark:border-[var(--border-default)]"
               disabled={!!activeSession}
             >
               <option value="idle">Idle</option>
@@ -315,14 +315,14 @@ export const OBD2Dashboard: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] mb-1">
               Vehicle ID
             </label>
             <input
               type="number"
               value={vehicleId}
               onChange={(e) => setVehicleId(parseInt(e.target.value) || 1)}
-              className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-lg dark:bg-white/[0.08] dark:border-[var(--border-default)]"
               disabled={!!activeSession}
               min={1}
             />
@@ -353,8 +353,8 @@ export const OBD2Dashboard: React.FC = () => {
       {liveData && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           {/* Primary Gauges */}
-          <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm p-3">
-            <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-[var(--surface-3)] rounded-md p-3">
+            <h3 className="text-sm font-semibold mb-2 text-[var(--text-primary)] dark:text-white">
               Primary Metrics
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -363,7 +363,7 @@ export const OBD2Dashboard: React.FC = () => {
                 value={liveData.engineRpm}
                 unit="RPM"
                 max={8000}
-                color="blue"
+                color="teal"
               />
               <GaugeCard
                 label="Vehicle Speed"
@@ -384,14 +384,14 @@ export const OBD2Dashboard: React.FC = () => {
                 value={liveData.engineLoad}
                 unit="%"
                 max={100}
-                color="purple"
+                color="amber"
               />
             </div>
           </div>
 
           {/* Temperature Readings */}
-          <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm p-3">
-            <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-[var(--surface-3)] rounded-md p-3">
+            <h3 className="text-sm font-semibold mb-2 text-[var(--text-primary)] dark:text-white">
               Temperature
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -421,8 +421,8 @@ export const OBD2Dashboard: React.FC = () => {
           </div>
 
           {/* Fuel System */}
-          <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm p-3">
-            <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-[var(--surface-3)] rounded-md p-3">
+            <h3 className="text-sm font-semibold mb-2 text-[var(--text-primary)] dark:text-white">
               Fuel System
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -452,8 +452,8 @@ export const OBD2Dashboard: React.FC = () => {
           </div>
 
           {/* Electrical */}
-          <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm p-3">
-            <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-[var(--surface-3)] rounded-md p-3">
+            <h3 className="text-sm font-semibold mb-2 text-[var(--text-primary)] dark:text-white">
               Electrical & Airflow
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -482,8 +482,8 @@ export const OBD2Dashboard: React.FC = () => {
           </div>
 
           {/* Trip Info */}
-          <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm p-3 lg:col-span-2">
-            <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-[var(--surface-3)] rounded-md p-3 lg:col-span-2">
+            <h3 className="text-sm font-semibold mb-2 text-[var(--text-primary)] dark:text-white">
               Trip Information
             </h3>
             <div className="grid grid-cols-4 gap-2">
@@ -516,8 +516,8 @@ export const OBD2Dashboard: React.FC = () => {
 
       {/* Active Sessions List */}
       {sessions.length > 0 && (
-        <div className="mt-3 bg-white dark:bg-gray-800 rounded-md shadow-sm p-3">
-          <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+        <div className="mt-3 bg-white dark:bg-[var(--surface-3)] rounded-md p-3">
+          <h3 className="text-sm font-semibold mb-2 text-[var(--text-primary)] dark:text-white">
             Active Emulator Sessions
           </h3>
           <div className="space-y-2">
@@ -527,14 +527,14 @@ export const OBD2Dashboard: React.FC = () => {
                 className={`flex items-center justify-between p-2 rounded-lg ${
                   session.sessionId === activeSession
                     ? 'bg-emerald-500/5 dark:bg-emerald-900/20 border border-emerald-500/20 dark:border-emerald-800'
-                    : 'bg-gray-50 dark:bg-gray-700'
+                    : 'bg-white/[0.03] dark:bg-white/[0.08]'
                 }`}
               >
                 <div>
                   <span className="font-medium">
                     Vehicle {session.vehicleId} - {session.profile}
                   </span>
-                  <span className="text-sm text-gray-700 ml-2">
+                  <span className="text-sm text-[var(--text-tertiary)] ml-2">
                     {session.sessionId.slice(0, 8)}...
                   </span>
                 </div>
@@ -572,29 +572,29 @@ interface GaugeCardProps {
   value: number
   unit: string
   max: number
-  color: 'blue' | 'green' | 'orange' | 'purple' | 'yellow' | 'red'
+  color: 'teal' | 'green' | 'orange' | 'amber' | 'yellow' | 'red'
 }
 
 const GaugeCard: React.FC<GaugeCardProps> = ({ label, value, unit, max, color }) => {
   const percentage = Math.min((value / max) * 100, 100)
 
   const colorClasses = {
-    blue: 'bg-emerald-500/50',
+    teal: 'bg-emerald-500/50',
     green: 'bg-green-500',
     orange: 'bg-orange-500',
-    purple: 'bg-purple-500',
+    amber: 'bg-amber-500',
     yellow: 'bg-yellow-500',
     red: 'bg-red-500'
   }
 
   return (
-    <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-      <div className="text-sm text-white/70 dark:text-gray-700 mb-1">{label}</div>
-      <div className="text-sm font-bold text-gray-900 dark:text-white">
+    <div className="p-2 bg-white/[0.03] dark:bg-white/[0.08] rounded-lg">
+      <div className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)] mb-1">{label}</div>
+      <div className="text-sm font-bold text-[var(--text-primary)] dark:text-white">
         {typeof value === 'number' ? formatNumber(value) : value}
-        <span className="text-sm font-normal text-gray-700 ml-1">{unit}</span>
+        <span className="text-sm font-normal text-[var(--text-tertiary)] ml-1">{unit}</span>
       </div>
-      <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+      <div className="mt-2 h-2 bg-white/[0.06] dark:bg-white/[0.15] rounded-full overflow-hidden">
         <div
           className={`h-full ${colorClasses[color]} transition-all duration-300`}
           style={{ width: `${percentage}%` }}
@@ -617,12 +617,12 @@ const DataCard: React.FC<DataCardProps> = ({ label, value, unit, warning }) => {
     <div className={`p-2 rounded-lg ${
       warning
         ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
-        : 'bg-gray-50 dark:bg-gray-700'
+        : 'bg-white/[0.03] dark:bg-white/[0.08]'
     }`}>
-      <div className="text-sm text-white/70 dark:text-gray-700 mb-1">{label}</div>
-      <div className={`text-base font-bold ${warning ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
+      <div className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)] mb-1">{label}</div>
+      <div className={`text-base font-bold ${warning ? 'text-red-600 dark:text-red-400' : 'text-[var(--text-primary)] dark:text-white'}`}>
         {value}
-        {unit && <span className="text-sm font-normal text-gray-700 ml-1">{unit}</span>}
+        {unit && <span className="text-sm font-normal text-[var(--text-tertiary)] ml-1">{unit}</span>}
       </div>
     </div>
   )

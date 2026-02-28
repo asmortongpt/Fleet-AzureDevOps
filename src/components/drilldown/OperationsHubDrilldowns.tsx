@@ -186,7 +186,7 @@ export function JobListView({ filter }: { filter?: string }) {
       render: (job) => (
         <div className="flex items-center gap-2">
           <Progress value={job.completionPercent || 0} className="w-16 h-2" />
-          <span className="text-xs text-muted-foreground">{job.completionPercent || 0}%</span>
+          <span className="text-xs text-[var(--text-secondary)]">{job.completionPercent || 0}%</span>
         </div>
       ),
     },
@@ -202,7 +202,7 @@ export function JobListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-emerald-400">
               {filteredJobs.filter(j => j.status === 'active').length}
             </div>
-            <div className="text-xs text-white/40">Active Jobs</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Active Jobs</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -211,7 +211,7 @@ export function JobListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-amber-400">
               {filteredJobs.filter(j => j.status === 'pending').length}
             </div>
-            <div className="text-xs text-white/40">Pending</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Pending</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -220,7 +220,7 @@ export function JobListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-red-400">
               {filteredJobs.filter(j => j.status === 'delayed').length}
             </div>
-            <div className="text-xs text-white/40">Delayed</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Delayed</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -229,13 +229,13 @@ export function JobListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-green-400">
               {filteredJobs.filter(j => j.status === 'completed').length}
             </div>
-            <div className="text-xs text-white/40">Completed</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Completed</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Job Table */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Package className="w-3 h-3 text-emerald-400" />
@@ -337,7 +337,7 @@ export function RouteListView({ filter }: { filter?: string }) {
       render: (route) => route.optimized ? (
         <CheckCircle className="w-4 h-4 text-green-500" />
       ) : (
-        <XCircle className="w-4 h-4 text-muted-foreground" />
+        <XCircle className="w-4 h-4 text-[var(--text-secondary)]" />
       ),
     },
   ]
@@ -352,7 +352,7 @@ export function RouteListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-emerald-400">
               {filteredRoutes.filter(r => r.status === 'active').length}
             </div>
-            <div className="text-xs text-white/40">Active Routes</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Active Routes</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -361,22 +361,22 @@ export function RouteListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-green-400">
               {filteredRoutes.filter(r => r.optimized).length}
             </div>
-            <div className="text-xs text-white/40">Optimized</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Optimized</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
           <CardContent className="p-2 text-center">
-            <MapPin className="w-4 h-4 text-white/40 mx-auto mb-1" />
+            <MapPin className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
             <div className="text-sm font-bold text-white">
               {filteredRoutes.reduce((sum, r) => sum + (r.stops || 0), 0)}
             </div>
-            <div className="text-xs text-white/40">Total Stops</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Stops</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Route Table */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Navigation className="w-3 h-3 text-emerald-400" />
@@ -502,7 +502,7 @@ export function TaskListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-emerald-400">
               {filteredTasks.filter(t => t.status === 'pending').length}
             </div>
-            <div className="text-xs text-white/40">Open Tasks</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Open Tasks</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -511,7 +511,7 @@ export function TaskListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-amber-400">
               {filteredTasks.filter(t => t.status === 'in_progress').length}
             </div>
-            <div className="text-xs text-white/40">In Progress</div>
+            <div className="text-xs text-[var(--text-tertiary)]">In Progress</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -520,7 +520,7 @@ export function TaskListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-red-400">
               {filteredTasks.filter(t => t.status === 'blocked').length}
             </div>
-            <div className="text-xs text-white/40">Blocked</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Blocked</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -529,13 +529,13 @@ export function TaskListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-green-400">
               {filteredTasks.filter(t => t.status === 'completed').length}
             </div>
-            <div className="text-xs text-white/40">Completed</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Completed</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Task Table */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <ListChecks className="w-3 h-3 text-emerald-400" />

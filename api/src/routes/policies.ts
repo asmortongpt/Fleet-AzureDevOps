@@ -101,7 +101,7 @@ router.get(
         `SELECT
       id,
       tenant_id,
-      policy_name,
+      policy_name as name,
       policy_type,
       description,
       rules,
@@ -366,6 +366,94 @@ router.delete(
       res.json({ success: true, message: 'Policies deleted successfully' })
     } catch (error) {
       logger.error('Delete policies error:', error) // Wave 16: Winston logger
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /policies/:id/executions - policy execution history
+router.get(
+  '/:id/executions',
+  requirePermission('policy:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT id, executed_at as timestamp, entity_type, entity_id, entity_name, result, details, action_taken, user_name
+         FROM policy_executions
+         WHERE policy_id = $1 AND tenant_id = $2
+         ORDER BY executed_at DESC LIMIT 50`,
+        [req.params.id, req.user!.tenant_id]
+      )
+      res.json(result.rows)
+    } catch (e: any) {
+      if (e?.code === '42P01' || e?.code === '42703') return res.json([])
+      logger.error('Get policy executions error:', e)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /policies/:id/violations - policy violations
+router.get(
+  '/:id/violations',
+  requirePermission('policy:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT id, created_at as date, entity_type, entity_id, entity_name, severity, description, status, case_status, assigned_to, resolution_date, resolution_notes
+         FROM policy_violations
+         WHERE policy_id = $1 AND tenant_id = $2
+         ORDER BY created_at DESC LIMIT 50`,
+        [req.params.id, req.user!.tenant_id]
+      )
+      res.json(result.rows)
+    } catch (e: any) {
+      if (e?.code === '42P01' || e?.code === '42703') return res.json([])
+      logger.error('Get policy violations error:', e)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /policies/:id/compliance-metrics - policy compliance metrics
+router.get(
+  '/:id/compliance-metrics',
+  requirePermission('policy:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT period, total_checks, passed, failed, warnings, compliance_rate
+         FROM policy_compliance_metrics
+         WHERE policy_id = $1 AND tenant_id = $2
+         ORDER BY period DESC LIMIT 12`,
+        [req.params.id, req.user!.tenant_id]
+      )
+      res.json(result.rows)
+    } catch (e: any) {
+      if (e?.code === '42P01' || e?.code === '42703') return res.json([])
+      logger.error('Get policy compliance metrics error:', e)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /policies/:id/affected-entities - entities affected by policy
+router.get(
+  '/:id/affected-entities',
+  requirePermission('policy:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT id, entity_type as type, entity_name as name, compliance_status, last_check_date
+         FROM policy_affected_entities
+         WHERE policy_id = $1 AND tenant_id = $2
+         ORDER BY entity_name`,
+        [req.params.id, req.user!.tenant_id]
+      )
+      res.json(result.rows)
+    } catch (e: any) {
+      if (e?.code === '42P01' || e?.code === '42703') return res.json([])
+      logger.error('Get policy affected entities error:', e)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

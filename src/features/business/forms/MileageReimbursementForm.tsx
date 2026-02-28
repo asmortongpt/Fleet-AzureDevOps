@@ -23,7 +23,7 @@ const MileageReimbursementForm: React.FC = () => {
   };
   
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-3 bg-gray-800 rounded-lg">
+    <form onSubmit={handleSubmit(onSubmit)} className="p-3 bg-[#18181b] rounded-lg">
       <h2 className="text-base font-bold text-white mb-2">Mileage Reimbursement</h2>
       
       <div className="grid grid-cols-2 gap-2">
@@ -32,7 +32,7 @@ const MileageReimbursementForm: React.FC = () => {
           <input 
             {...register('startMileage', { required: true, min: 0 })}
             type="number"
-            className="w-full p-2 rounded bg-gray-700 text-white"
+            className="w-full p-2 rounded bg-white/[0.08] text-white"
           />
         </div>
         
@@ -41,7 +41,7 @@ const MileageReimbursementForm: React.FC = () => {
           <input 
             {...register('endMileage', { required: true, min: 0 })}
             type="number"
-            className="w-full p-2 rounded bg-gray-700 text-white"
+            className="w-full p-2 rounded bg-white/[0.08] text-white"
           />
         </div>
       </div>
@@ -51,7 +51,7 @@ const MileageReimbursementForm: React.FC = () => {
         <input 
           {...register('purpose', { required: true })}
           type="text"
-          className="w-full p-2 rounded bg-gray-700 text-white"
+          className="w-full p-2 rounded bg-white/[0.08] text-white"
         />
       </div>
       

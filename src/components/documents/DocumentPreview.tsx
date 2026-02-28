@@ -130,7 +130,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-500 mx-auto mb-2"></div>
-            <p className="text-gray-700">Loading document...</p>
+            <p className="text-[var(--text-tertiary)]">Loading document...</p>
           </div>
         </div>
       );
@@ -162,7 +162,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
             loading={
               <div className="text-center">
                 <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-500 mx-auto mb-2"></div>
-                <p className="text-gray-700">Loading PDF...</p>
+                <p className="text-[var(--text-tertiary)]">Loading PDF...</p>
               </div>
             }
           >
@@ -172,7 +172,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
               rotate={rotation}
               renderTextLayer={true}
               renderAnnotationLayer={true}
-              className="shadow-sm"
+              className=""
             />
           </Document>
 
@@ -187,7 +187,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-[var(--text-tertiary)]">
                 Page {pageNumber} of {numPages}
               </span>
               <Button
@@ -211,7 +211,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
           <img
             src={downloadUrl}
             alt={document.title}
-            className="max-w-full max-h-full object-contain shadow-sm"
+            className="max-w-full max-h-full object-contain"
             style={{
               transform: `scale(${scale}) rotate(${rotation}deg)`,
               transition: 'transform 0.2s ease-in-out'
@@ -233,7 +233,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
     if (isText && document.content_text) {
       return (
         <ScrollArea className="h-full w-full p-3">
-          <pre className="whitespace-pre-wrap font-mono text-sm text-gray-800 bg-gray-50 p-2 rounded-lg">
+          <pre className="whitespace-pre-wrap font-mono text-sm text-[var(--text-secondary)] bg-white/[0.03] p-2 rounded-lg">
             {document.content_text}
           </pre>
         </ScrollArea>
@@ -244,9 +244,9 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <File className="h-16 w-16 mx-auto mb-2 text-gray-700" />
-          <p className="text-white/70 mb-2">Preview not available for this file type</p>
-          <p className="text-sm text-gray-700 mb-2">
+          <File className="h-16 w-16 mx-auto mb-2 text-[var(--text-tertiary)]" />
+          <p className="text-[var(--text-primary)] mb-2">Preview not available for this file type</p>
+          <p className="text-sm text-[var(--text-tertiary)] mb-2">
             {document.file_type || 'Unknown file type'}
           </p>
           <Button onClick={handleDownload}>
@@ -328,7 +328,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
                     step={10}
                     className="w-32"
                   />
-                  <span className="text-sm text-white/70 w-12">
+                  <span className="text-sm text-[var(--text-primary)] w-12">
                     {Math.round(scale * 100)}%
                   </span>
                 </div>
@@ -385,7 +385,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
         </div>
 
         {/* Preview Area */}
-        <div className="flex-1 overflow-auto bg-gray-100">
+        <div className="flex-1 overflow-auto bg-white/[0.05]">
           {renderPreview()}
         </div>
       </DialogContent>

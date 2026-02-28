@@ -365,7 +365,7 @@ export function OperationsPerformanceDrilldown() {
       case 'down':
         return <TrendingUp className="h-4 w-4 text-rose-500 rotate-180" />
       default:
-        return <Activity className="h-4 w-4 text-white/40" />
+        return <Activity className="h-4 w-4 text-[var(--text-tertiary)]" />
     }
   }
 
@@ -387,7 +387,7 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <Zap className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-emerald-400">{summary.avgEfficiency}%</div>
-            <div className="text-xs text-white/40">Avg Efficiency</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Avg Efficiency</div>
           </CardContent>
         </Card>
 
@@ -395,15 +395,15 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <Fuel className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-emerald-400">{summary.avgFuelEconomy}</div>
-            <div className="text-xs text-white/40">Avg MPG</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Avg MPG</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/[0.04] border-white/[0.08]">
+        <Card className="bg-white/[0.04] border-[var(--border-subtle)]">
           <CardContent className="p-2 text-center">
-            <Navigation className="w-4 h-4 text-white/60 mx-auto mb-1" />
+            <Navigation className="w-4 h-4 text-[var(--text-secondary)] mx-auto mb-1" />
             <div className="text-sm font-bold text-white/80">{summary.totalMiles}</div>
-            <div className="text-xs text-white/40">Total Miles</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Miles</div>
           </CardContent>
         </Card>
 
@@ -411,13 +411,13 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <DollarSign className="w-4 h-4 text-amber-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-amber-400">{summary.totalCost}</div>
-            <div className="text-xs text-white/40">Total Cost</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Cost</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Key Performance Metrics */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Target className="w-3 h-3 text-emerald-400" />
@@ -431,7 +431,7 @@ export function OperationsPerformanceDrilldown() {
                 <CardContent className="pt-3 space-y-3">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm text-white/40">{metric.name}</p>
+                      <p className="text-sm text-[var(--text-tertiary)]">{metric.name}</p>
                       <p className="text-sm font-bold text-white/80">
                         {formatNumber(metric.value)} {metric.unit}
                       </p>
@@ -441,7 +441,7 @@ export function OperationsPerformanceDrilldown() {
 
                   <div>
                     <div className="flex items-center justify-between mb-1 text-xs">
-                      <span className="text-white/40">Target: {metric.target} {metric.unit}</span>
+                      <span className="text-[var(--text-tertiary)]">Target: {metric.target} {metric.unit}</span>
                       <span className={getTrendColor(metric.trend, metric.name)}>
                         {metric.changePercent > 0 ? '+' : ''}{metric.changePercent}%
                       </span>
@@ -450,7 +450,7 @@ export function OperationsPerformanceDrilldown() {
                       value={Math.min((metric.value / metric.target) * 100, 100)}
                       className="h-2"
                     />
-                    <p className="text-xs text-white/40 mt-1">{metric.period}</p>
+                    <p className="text-xs text-[var(--text-tertiary)] mt-1">{metric.period}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -460,7 +460,7 @@ export function OperationsPerformanceDrilldown() {
       </Card>
 
       {/* Vehicle Performance */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <TrendingUp className="w-3 h-3 text-emerald-400" />
@@ -482,7 +482,7 @@ export function OperationsPerformanceDrilldown() {
       </Card>
 
       {/* Route Efficiency */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <RouteIcon className="w-3 h-3 text-emerald-400" />

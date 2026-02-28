@@ -1,7 +1,7 @@
 /**
  * Consolidated Hub Pages Index
  * 
- * Exports the 5 primary consolidated hubs that power the ArchonY navigation architecture.
+ * Exports the 5 primary consolidated hubs that power the CTA Fleet navigation architecture.
  * These hubs consolidate 120+ individual screens into 5 workflow-optimized centers.
  */
 

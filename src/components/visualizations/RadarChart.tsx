@@ -42,7 +42,7 @@ export function RadarChart({
   dataKeys = ['value'],
   height = 400,
   loading = false,
-  colors = ['#3B82F6', '#10B981', '#8B5CF6'],
+  colors = ['#10b981', '#10B981', '#D97706'],
 }: RadarChartProps) {
   const chartColors = {
     text: 'var(--foreground)',
@@ -59,7 +59,7 @@ export function RadarChart({
 
     return (
       <div
-        className="rounded-lg border shadow-lg p-3"
+        className="rounded-lg border p-3"
         style={{
           backgroundColor: chartColors.tooltip.background,
           borderColor: chartColors.tooltip.border,
@@ -97,7 +97,7 @@ export function RadarChart({
 
   return (
     <div>
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+      <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}

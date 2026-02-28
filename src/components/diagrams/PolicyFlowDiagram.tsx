@@ -22,18 +22,18 @@ interface PolicyFlowNode {
 }
 
 const POLICY_FLOW_NODES: PolicyFlowNode[] = [
-  { id: "user_action", label: "User Action Initiated", type: "action", color: "#3b82f6" },
-  { id: "policy_check", label: "Policy Engine Check", type: "decision", color: "#8b5cf6" },
-  { id: "monitor_mode", label: "Monitor Mode", type: "process", color: "#06b6d4" },
+  { id: "user_action", label: "User Action Initiated", type: "action", color: "#10b981" },
+  { id: "policy_check", label: "Policy Engine Check", type: "decision", color: "#f59e0b" },
+  { id: "monitor_mode", label: "Monitor Mode", type: "process", color: "#10b981" },
   { id: "human_loop", label: "Human-in-Loop", type: "approval", color: "#f59e0b" },
   { id: "autonomous", label: "Autonomous Mode", type: "process", color: "#10b981" },
-  { id: "db_log", label: "Database Log", type: "database", color: "#6366f1" },
+  { id: "db_log", label: "Database Log", type: "database", color: "#10b981" },
   { id: "approval_check", label: "Approval Required?", type: "decision", color: "#f59e0b" },
   { id: "mfa_check", label: "MFA Verification", type: "approval", color: "#ef4444" },
-  { id: "dual_control", label: "Dual Control Check", type: "approval", color: "#ec4899" },
+  { id: "dual_control", label: "Dual Control Check", type: "approval", color: "#ef4444" },
   { id: "execute", label: "Execute Action", type: "process", color: "#10b981" },
-  { id: "notify", label: "Notify Stakeholders", type: "action", color: "#3b82f6" },
-  { id: "audit", label: "Audit Trail", type: "database", color: "#6366f1" }
+  { id: "notify", label: "Notify Stakeholders", type: "action", color: "#10b981" },
+  { id: "audit", label: "Audit Trail", type: "database", color: "#10b981" }
 ]
 
 export function PolicyFlowDiagram() {
@@ -48,11 +48,11 @@ export function PolicyFlowDiagram() {
       startOnLoad: true,
       theme: "base",
       themeVariables: {
-        primaryColor: "#3b82f6",
+        primaryColor: "#10b981",
         primaryTextColor: "#fff",
-        primaryBorderColor: "#2563eb",
-        lineColor: "#94a3b8",
-        secondaryColor: "#8b5cf6",
+        primaryBorderColor: "#059669",
+        lineColor: "#9CA3AF",
+        secondaryColor: "#f59e0b",
         tertiaryColor: "#10b981",
         fontSize: "14px",
         fontFamily: "Inter, system-ui, sans-serif"
@@ -82,10 +82,10 @@ flowchart TB
     NOTIFY --> AUDIT[(Audit Trail)]:::database
     AUDIT --> END([Complete]):::action
 
-    classDef action fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
-    classDef decision fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
-    classDef monitor fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
-    classDef database fill:#6366f1,stroke:#4f46e5,stroke-width:2px,color:#fff
+    classDef action fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    classDef decision fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    classDef monitor fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    classDef database fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
 `,
         "human-in-loop": `
 flowchart TB
@@ -105,12 +105,12 @@ flowchart TB
     NOTIFY --> AUDIT[(Audit Trail)]:::database
     AUDIT --> END([Complete]):::action
 
-    classDef action fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
-    classDef decision fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+    classDef action fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    classDef decision fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
     classDef humanloop fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
     classDef approval fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
     classDef execute fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
-    classDef database fill:#6366f1,stroke:#4f46e5,stroke-width:2px,color:#fff
+    classDef database fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
 `,
         autonomous: `
 flowchart TB
@@ -131,13 +131,13 @@ flowchart TB
     AUDIT --> LEARN[ML Model Learning]:::autonomous
     LEARN --> END([Complete]):::action
 
-    classDef action fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
-    classDef decision fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+    classDef action fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    classDef decision fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
     classDef autonomous fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
     classDef humanloop fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
     classDef approval fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
     classDef execute fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
-    classDef database fill:#6366f1,stroke:#4f46e5,stroke-width:2px,color:#fff
+    classDef database fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
     classDef error fill:#dc2626,stroke:#b91c1c,stroke-width:2px,color:#fff
 `
       }
@@ -168,7 +168,7 @@ flowchart TB
         title: "Monitor Mode",
         description: "Logs policy violations without taking action. Ideal for testing and observing patterns.",
         icon: <Info className="w-4 h-4" />,
-        color: "bg-cyan-100 text-cyan-700"
+        color: "bg-emerald-100 text-emerald-700"
       },
       "human-in-loop": {
         title: "Human-in-Loop Mode",
@@ -290,11 +290,11 @@ flowchart TB
               <span className="text-sm">User Actions</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-purple-500" />
+              <div className="w-4 h-4 rounded bg-amber-500" />
               <span className="text-sm">Decision Points</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-cyan-500" />
+              <div className="w-4 h-4 rounded bg-emerald-500" />
               <span className="text-sm">Monitor Mode</span>
             </div>
             <div className="flex items-center gap-2">
@@ -306,7 +306,7 @@ flowchart TB
               <span className="text-sm">Execution</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-indigo-500" />
+              <div className="w-4 h-4 rounded bg-emerald-500" />
               <span className="text-sm">Database Operations</span>
             </div>
           </div>

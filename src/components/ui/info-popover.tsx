@@ -47,9 +47,9 @@ export function InfoPopover({
   }
 
   const iconColors = {
-    info: 'text-[#00CCFE]',
-    help: 'text-[rgba(255,255,255,0.65)]',
-    warning: 'text-[#FDC016]',
+    info: 'text-[#059669] dark:text-emerald-700',
+    help: 'text-neutral-700 dark:text-neutral-700',
+    warning: 'text-[#b45309] dark:text-amber-400',
   }
 
   return (
@@ -58,10 +58,10 @@ export function InfoPopover({
         <button
           type="button"
           className={`inline-flex items-center justify-center w-3 h-3
-                     ${iconColors[type]} hover:text-white
+                     ${iconColors[type]} hover:text-foreground
                      transition-colors rounded-full
-                     hover:bg-[#2A1878] focus:outline-none focus:ring-2
-                     focus:ring-[#00CCFE] focus:ring-offset-2 ${className}`}
+                     hover:bg-muted focus:outline-none focus:ring-2
+                     focus:ring-ring focus:ring-offset-2 ${className}`}
           aria-label={`Help: ${title}`}
         >
           {icons[type]}
@@ -69,7 +69,7 @@ export function InfoPopover({
       </PopoverTrigger>
       <PopoverContent
         side={placement}
-        className="w-80 p-2 shadow-sm"
+        className="w-80 p-2"
         sideOffset={5}
       >
         <div className="space-y-3">
@@ -78,7 +78,7 @@ export function InfoPopover({
             {title}
           </h4>
 
-          <div className="text-sm text-[rgba(255,255,255,0.40)] leading-relaxed">
+          <div className="text-sm text-muted-foreground leading-relaxed">
             {content}
           </div>
 
@@ -89,7 +89,7 @@ export function InfoPopover({
                   href={videoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-[#00CCFE] hover:underline flex items-center gap-1.5 font-medium"
+                  className="text-xs text-primary hover:underline flex items-center gap-1.5 font-medium"
                 >
                   <PlayCircle className="h-3.5 w-3.5" />
                   Watch 2-minute tutorial
@@ -101,7 +101,7 @@ export function InfoPopover({
                   href={learnMoreUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-[#00CCFE] hover:underline flex items-center gap-1.5 font-medium"
+                  className="text-xs text-primary hover:underline flex items-center gap-1.5 font-medium"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                   Learn more in documentation

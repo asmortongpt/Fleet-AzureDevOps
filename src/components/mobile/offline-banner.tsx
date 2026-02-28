@@ -54,7 +54,7 @@ export function OfflineBanner() {
     <div
       className={`fixed top-0 left-0 right-0 z-[9999] ${
         isOnline ? 'bg-green-600' : 'bg-orange-600'
-      } text-white shadow-sm transition-all duration-300 ease-in-out`}
+      } text-white transition-all duration-300 ease-in-out`}
       role="alert"
       aria-live="polite"
     >

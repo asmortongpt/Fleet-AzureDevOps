@@ -248,7 +248,7 @@ export function QualityControlPanel({
         return (
             <button
                 onClick={onToggle}
-                className="absolute bottom-4 left-4 bg-[#111]/80 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-white border border-white/[0.15] hover:bg-[#1a1a1a] transition-colors z-40"
+                className="absolute bottom-4 left-4 bg-[var(--surface-2)]/80 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-white border border-[var(--border-subtle)] hover:bg-[var(--surface-3)] transition-colors z-40"
             >
                 ⚙️ Quality: {config.quality.toUpperCase()}
             </button>
@@ -256,16 +256,16 @@ export function QualityControlPanel({
     }
 
     return (
-        <div className="absolute bottom-4 left-4 w-72 bg-[#111]/95 backdrop-blur-sm rounded-md border border-white/[0.15] shadow-sm z-50">
-            <div className="p-3 border-b border-white/[0.15] flex items-center justify-between">
+        <div className="absolute bottom-4 left-4 w-72 bg-[var(--surface-1)]/95 backdrop-blur-sm rounded-md border border-[var(--border-subtle)] z-50">
+            <div className="p-3 border-b border-[var(--border-subtle)] flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-white">Rendering Quality</h4>
-                <button onClick={onToggle} className="text-white/70 hover:text-white">✕</button>
+                <button onClick={onToggle} className="text-[var(--text-primary)] hover:text-white">✕</button>
             </div>
 
             <div className="p-3 space-y-3">
                 {/* Quality Preset */}
                 <div>
-                    <label className="block text-xs text-white/70 mb-1">Preset</label>
+                    <label className="block text-xs text-[var(--text-primary)] mb-1">Preset</label>
                     <div className="grid grid-cols-4 gap-1">
                         {(['low', 'medium', 'high', 'ultra'] as QualityPreset[]).map((preset) => (
                             <button
@@ -273,7 +273,7 @@ export function QualityControlPanel({
                                 onClick={() => onChange(getPresetConfig(preset))}
                                 className={`px-2 py-1 rounded text-xs font-medium transition-colors ${config.quality === preset
                                     ? 'bg-emerald-600 text-white'
-                                    : 'bg-[#1a1a1a] text-white/70 hover:bg-white/[0.15]'
+                                    : 'bg-[var(--surface-3)] text-[var(--text-primary)] hover:bg-white/[0.06]'
                                     }`}
                             >
                                 {preset.toUpperCase()}
@@ -292,12 +292,12 @@ export function QualityControlPanel({
                         { key: 'chromaticEnabled', label: 'Chromatic Aberration' },
                     ].map(({ key, label }) => (
                         <label key={key} className="flex items-center justify-between text-xs">
-                            <span className="text-white/60">{label}</span>
+                            <span className="text-[var(--text-secondary)]">{label}</span>
                             <input
                                 type="checkbox"
                                 checked={config[key as keyof PostProcessingConfig] as boolean}
                                 onChange={(e) => onChange({ ...config, [key]: e.target.checked })}
-                                className="rounded bg-white/[0.15] border-white/[0.12]"
+                                className="rounded bg-white/[0.06] border-[var(--border-subtle)]"
                             />
                         </label>
                     ))}
@@ -306,7 +306,7 @@ export function QualityControlPanel({
                 {/* Intensity sliders */}
                 {config.dofEnabled && (
                     <div>
-                        <label className="block text-xs text-white/70 mb-1">
+                        <label className="block text-xs text-[var(--text-primary)] mb-1">
                             DOF Bokeh: {config.dofBokehScale.toFixed(1)}
                         </label>
                         <input
@@ -316,14 +316,14 @@ export function QualityControlPanel({
                             step="0.1"
                             value={config.dofBokehScale}
                             onChange={(e) => onChange({ ...config, dofBokehScale: Number(e.target.value) })}
-                            className="w-full h-1.5 bg-white/[0.15] rounded-lg appearance-none cursor-pointer"
+                            className="w-full h-1.5 bg-white/[0.06] rounded-lg appearance-none cursor-pointer"
                         />
                     </div>
                 )}
 
                 {config.aoEnabled && (
                     <div>
-                        <label className="block text-xs text-white/70 mb-1">
+                        <label className="block text-xs text-[var(--text-primary)] mb-1">
                             AO Intensity: {config.aoIntensity.toFixed(1)}
                         </label>
                         <input
@@ -333,7 +333,7 @@ export function QualityControlPanel({
                             step="0.1"
                             value={config.aoIntensity}
                             onChange={(e) => onChange({ ...config, aoIntensity: Number(e.target.value) })}
-                            className="w-full h-1.5 bg-white/[0.15] rounded-lg appearance-none cursor-pointer"
+                            className="w-full h-1.5 bg-white/[0.06] rounded-lg appearance-none cursor-pointer"
                         />
                     </div>
                 )}

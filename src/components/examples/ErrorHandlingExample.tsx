@@ -282,7 +282,7 @@ const LoadingStatesExample: React.FC = () => {
             </Button>
           </div>
 
-          <div className="border rounded-lg p-2 bg-gray-50 dark:bg-gray-900">
+          <div className="border rounded-lg p-2 bg-white/[0.03] dark:bg-[var(--surface-1)]">
             {loadingType === 'table' && <SkeletonTable rows={3} />}
             {loadingType === 'card' && <SkeletonCard />}
             {loadingType === 'list' && <SkeletonList items={3} />}

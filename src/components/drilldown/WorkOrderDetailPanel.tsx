@@ -218,7 +218,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
       case 'cancelled':
         return <XCircle className="h-5 w-5 text-red-500" />
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-700" />
+        return <AlertCircle className="h-5 w-5 text-[var(--text-tertiary)]" />
     }
   }
 
@@ -228,8 +228,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
   const relatedArr = Array.isArray(relatedRecords) ? relatedRecords : []
   const historyArr = Array.isArray(maintenanceHistory) ? maintenanceHistory : []
 
-  const calculatedPartsCost = partsArr.reduce((sum, part) => sum + (part.quantity * part.unit_cost || 0), 0)
-  const calculatedLaborCost = laborArr.reduce((sum, entry) => sum + (entry.hours * entry.rate || 0), 0)
+  const calculatedPartsCost = partsArr.reduce((sum, part) => sum + ((Number(part.quantity) || 0) * (Number(part.unit_cost) || 0)), 0)
+  const calculatedLaborCost = laborArr.reduce((sum, entry) => sum + ((Number(entry.hours) || 0) * (Number(entry.rate) || 0)), 0)
   // Prefer direct cost fields from the work order over calculated sums
   const totalPartsCost = Number(workOrder?.parts_cost) || calculatedPartsCost
   const totalLaborCost = Number(workOrder?.labor_cost) || calculatedLaborCost
@@ -251,7 +251,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">{workOrder.title}</p>
+              <p className="text-sm text-[var(--text-secondary)]">{workOrder.title}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant={getStatusColor(workOrder.status)}>
                   {workOrder.status}
@@ -275,12 +275,12 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 )}
               </div>
             </div>
-            <Wrench className="h-9 w-12 text-muted-foreground" />
+            <Wrench className="h-9 w-12 text-[var(--text-secondary)]" />
           </div>
 
           {/* Cost Summary */}
           <div className="grid grid-cols-3 gap-2">
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleViewParts}>
+            <Card className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={handleViewParts}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Package className="h-4 w-4" />
@@ -292,14 +292,14 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   {formatCurrency(totalPartsCost)}
                 </div>
                 {partsArr.length > 0 && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
                     {partsArr.length} item{partsArr.length !== 1 ? 's' : ''}
                   </p>
                 )}
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleViewLabor}>
+            <Card className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={handleViewLabor}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Users className="h-4 w-4" />
@@ -311,8 +311,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   {formatCurrency(totalLaborCost)}
                 </div>
                 {laborArr.length > 0 && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {laborArr.reduce((sum, entry) => sum + entry.hours, 0).toFixed(1)} hrs
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
+                    {Number(laborArr.reduce((sum, entry) => sum + (Number(entry.hours) || 0), 0)).toFixed(1)} hrs
                   </p>
                 )}
               </CardContent>
@@ -330,7 +330,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   {formatCurrency(totalCost)}
                 </div>
                 {workOrder.estimated_cost && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
                     Est: {formatCurrency(workOrder.estimated_cost)}
                   </p>
                 )}
@@ -358,7 +358,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Vehicle</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Vehicle</p>
                       <div className="flex items-center gap-2">
                         <p className="font-medium">{workOrder.vehicle_name || '—'}</p>
                         {workOrder.vehicle_id && (
@@ -374,34 +374,34 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Type</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Type</p>
                       <p className="font-medium capitalize">
                         {workOrder.type || '—'}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Assigned To</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Assigned To</p>
                       <p className="font-medium">{workOrder.assigned_to_name || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Created By</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Created By</p>
                       <p className="font-medium">{workOrder.requested_by_name || '—'}</p>
                     </div>
                     {workOrder.category && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Category</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Category</p>
                         <WOCategoryBadge category={workOrder.category} />
                       </div>
                     )}
                     {workOrder.subcategory && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Subcategory</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Subcategory</p>
                         <p className="font-medium capitalize">{workOrder.subcategory.replace(/_/g, ' ')}</p>
                       </div>
                     )}
                     {workOrder.facility_id && (
                       <div>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <p className="text-sm text-[var(--text-secondary)] flex items-center gap-1">
                           <Building2 className="h-3 w-3" />
                           Facility
                         </p>
@@ -410,7 +410,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                     )}
                     {workOrder.bay_number && (
                       <div>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <p className="text-sm text-[var(--text-secondary)] flex items-center gap-1">
                           <Hash className="h-3 w-3" />
                           Bay Number
                         </p>
@@ -419,34 +419,34 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                     )}
                     {workOrder.downtime_hours != null && (
                       <div>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <p className="text-sm text-[var(--text-secondary)] flex items-center gap-1">
                           <Timer className="h-3 w-3" />
                           Downtime
                         </p>
-                        <p className="font-medium">{Number(workOrder.downtime_hours).toFixed(1)} hours</p>
+                        <p className="font-medium">{Number(workOrder.downtime_hours || 0).toFixed(1)} hours</p>
                       </div>
                     )}
                     {workOrder.driver_id && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Driver</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Driver</p>
                         <p className="font-medium">{workOrder.driver_id}</p>
                       </div>
                     )}
                     {workOrder.vendor_id && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Vendor</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Vendor</p>
                         <p className="font-medium">{workOrder.vendor_id}</p>
                       </div>
                     )}
                     {workOrder.external_reference && (
                       <div>
-                        <p className="text-sm text-muted-foreground">External Reference</p>
+                        <p className="text-sm text-[var(--text-secondary)]">External Reference</p>
                         <p className="font-medium font-mono text-xs">{workOrder.external_reference}</p>
                       </div>
                     )}
                     {workOrder.location && (
                       <div className="col-span-2">
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <p className="text-sm text-[var(--text-secondary)] flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
                           Location
                         </p>
@@ -522,7 +522,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                       </div>
                       <Progress value={workOrder.progress || 0} />
                       {workOrder.estimated_completion && (
-                        <p className="text-xs text-muted-foreground mt-2">
+                        <p className="text-xs text-[var(--text-secondary)] mt-2">
                           Estimated completion:{' '}
                           {formatDate(workOrder.estimated_completion)}
                         </p>
@@ -559,14 +559,14 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   <CardContent className="space-y-3">
                     {workOrder.root_cause && (
                       <div>
-                        <p className="text-sm font-semibold text-muted-foreground mb-1">Root Cause</p>
-                        <p className="text-sm bg-muted/50 rounded-md p-3 whitespace-pre-wrap">{workOrder.root_cause}</p>
+                        <p className="text-sm font-semibold text-[var(--text-secondary)] mb-1">Root Cause</p>
+                        <p className="text-sm bg-[var(--surface-glass)] rounded-md p-3 whitespace-pre-wrap">{workOrder.root_cause}</p>
                       </div>
                     )}
                     {workOrder.resolution_notes && (
                       <div>
-                        <p className="text-sm font-semibold text-muted-foreground mb-1">Resolution Notes</p>
-                        <p className="text-sm bg-muted/50 rounded-md p-3 whitespace-pre-wrap">{workOrder.resolution_notes}</p>
+                        <p className="text-sm font-semibold text-[var(--text-secondary)] mb-1">Resolution Notes</p>
+                        <p className="text-sm bg-[var(--surface-glass)] rounded-md p-3 whitespace-pre-wrap">{workOrder.resolution_notes}</p>
                       </div>
                     )}
                   </CardContent>
@@ -588,11 +588,11 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                     ) : Array.isArray(workOrder.notes) ? (
                       <ul className="space-y-2">
                         {workOrder.notes.map((note: any, idx: number) => (
-                          <li key={idx} className="p-2 rounded bg-muted/50 text-sm">
+                          <li key={idx} className="p-2 rounded bg-[var(--surface-glass)] text-sm">
                             <p className="font-medium">{note.author}</p>
-                            <p className="text-muted-foreground">{note.text}</p>
+                            <p className="text-[var(--text-secondary)]">{note.text}</p>
                             {note.timestamp && (
-                              <p className="text-xs text-muted-foreground mt-1">
+                              <p className="text-xs text-[var(--text-secondary)] mt-1">
                                 {formatDateTime(note.timestamp)}
                               </p>
                             )}
@@ -616,7 +616,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <Package className="h-5 w-5 text-muted-foreground" />
+                                <Package className="h-5 w-5 text-[var(--text-secondary)]" />
                                 <span className="font-medium">{part.name}</span>
                               </div>
                               {part.status && (
@@ -627,22 +627,22 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                             </div>
 
                             {part.part_number && (
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-[var(--text-secondary)]">
                                 Part #: {part.part_number}
                               </p>
                             )}
 
                             <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                               <div>
-                                <p className="text-xs text-muted-foreground">Quantity</p>
+                                <p className="text-xs text-[var(--text-secondary)]">Quantity</p>
                                 <p className="font-medium">{part.quantity}</p>
                               </div>
                               <div>
-                                <p className="text-xs text-muted-foreground">Unit Cost</p>
+                                <p className="text-xs text-[var(--text-secondary)]">Unit Cost</p>
                                 <p className="font-medium">{formatCurrency(part.unit_cost)}</p>
                               </div>
                               <div>
-                                <p className="text-xs text-muted-foreground">Total</p>
+                                <p className="text-xs text-[var(--text-secondary)]">Total</p>
                                 <p className="font-medium text-primary">
                                   {formatCurrency((part.quantity * part.unit_cost) || 0)}
                                 </p>
@@ -653,16 +653,16 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                               <div className="grid grid-cols-2 gap-2 pt-2 border-t text-xs">
                                 {part.supplier && (
                                   <div>
-                                    <p className="text-muted-foreground">Supplier</p>
+                                    <p className="text-[var(--text-secondary)]">Supplier</p>
                                     <p className="font-medium">{part.supplier}</p>
                                     {part.supplier_contact && (
-                                      <p className="text-muted-foreground">{part.supplier_contact}</p>
+                                      <p className="text-[var(--text-secondary)]">{part.supplier_contact}</p>
                                     )}
                                   </div>
                                 )}
                                 {part.delivery_date && (
                                   <div>
-                                    <p className="text-muted-foreground">Delivery Date</p>
+                                    <p className="text-[var(--text-secondary)]">Delivery Date</p>
                                     <p className="font-medium">
                                       {formatDate(part.delivery_date)}
                                     </p>
@@ -690,8 +690,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Package className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No parts recorded</p>
+                    <Package className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No parts recorded</p>
                   </CardContent>
                 </Card>
               )}
@@ -716,28 +716,28 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                                 </Avatar>
                                 <div>
                                   <p className="font-medium">{entry.technician_name}</p>
-                                  <p className="text-sm text-muted-foreground">{entry.role || 'Technician'}</p>
+                                  <p className="text-sm text-[var(--text-secondary)]">{entry.role || 'Technician'}</p>
                                 </div>
                               </div>
                             </div>
 
                             {entry.task_description && (
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-[var(--text-secondary)]">
                                 {entry.task_description}
                               </p>
                             )}
 
                             <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                               <div>
-                                <p className="text-xs text-muted-foreground">Hours</p>
-                                <p className="font-medium">{entry.hours?.toFixed(1) || '0.0'}</p>
+                                <p className="text-xs text-[var(--text-secondary)]">Hours</p>
+                                <p className="font-medium">{Number(entry.hours || 0).toFixed(1)}</p>
                               </div>
                               <div>
-                                <p className="text-xs text-muted-foreground">Rate</p>
+                                <p className="text-xs text-[var(--text-secondary)]">Rate</p>
                                 <p className="font-medium">{formatCurrency(entry.rate)}/hr</p>
                               </div>
                               <div>
-                                <p className="text-xs text-muted-foreground">Total</p>
+                                <p className="text-xs text-[var(--text-secondary)]">Total</p>
                                 <p className="font-medium text-primary">
                                   {formatCurrency((entry.hours * entry.rate) || 0)}
                                 </p>
@@ -745,7 +745,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                             </div>
 
                             {entry.date && (
-                              <p className="text-xs text-muted-foreground pt-2 border-t">
+                              <p className="text-xs text-[var(--text-secondary)] pt-2 border-t">
                                 {formatDate(entry.date)}
                               </p>
                             )}
@@ -761,7 +761,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                         <div className="flex items-center justify-between">
                           <span className="text-sm">Total Hours</span>
                           <span className="font-semibold">
-                            {laborArr.reduce((sum, entry) => sum + entry.hours, 0).toFixed(1)} hrs
+                            {Number(laborArr.reduce((sum, entry) => sum + (Number(entry.hours) || 0), 0)).toFixed(1)} hrs
                           </span>
                         </div>
                         <div className="flex items-center justify-between pt-2 border-t">
@@ -777,8 +777,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Users className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No labor entries recorded</p>
+                    <Users className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No labor entries recorded</p>
                   </CardContent>
                 </Card>
               )}
@@ -811,15 +811,15 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                               <div>
                                 <p className="font-medium">{event.description}</p>
                                 {event.user_name && (
-                                  <p className="text-sm text-muted-foreground">by {event.user_name}</p>
+                                  <p className="text-sm text-[var(--text-secondary)]">by {event.user_name}</p>
                                 )}
                               </div>
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-xs text-[var(--text-secondary)]">
                                 {formatDateTime(event.timestamp)}
                               </span>
                             </div>
                             {event.metadata && Object.keys(event.metadata).length > 0 && (
-                              <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
+                              <div className="mt-2 p-2 bg-[var(--surface-glass)] rounded text-xs">
                                 {Object.entries(event.metadata).map(([key, value]) => (
                                   <div key={key}>
                                     <span className="font-medium">{key}:</span> {String(value)}
@@ -836,8 +836,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <History className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No timeline events recorded</p>
+                    <History className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No timeline events recorded</p>
                   </CardContent>
                 </Card>
               )}
@@ -859,16 +859,16 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                       {relatedArr.map((record) => (
                         <div
                           key={record.id}
-                          className="p-3 rounded border hover:bg-muted/50 cursor-pointer transition-colors"
+                          className="p-3 rounded border hover:bg-[var(--surface-glass)] cursor-pointer transition-colors"
                           onClick={() => handleViewRelatedRecord(record)}
                         >
                           <div className="flex items-center justify-between">
                             <div>
                               <p className="font-medium">{formatEnum(record.type)}</p>
-                              <p className="text-sm text-muted-foreground">{record.title}</p>
+                              <p className="text-sm text-[var(--text-secondary)]">{record.title}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-[var(--text-secondary)]">
                                 {formatDate(record.date)}
                               </p>
                               {record.status && (
@@ -909,13 +909,13 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                                   {formatEnum(item.type)}
                                 </Badge>
                               </div>
-                              <p className="text-sm text-muted-foreground mt-1">
+                              <p className="text-sm text-[var(--text-secondary)] mt-1">
                                 {item.description}
                               </p>
                             </div>
                             <div className="text-right ml-2">
                               <p className="text-sm font-medium">{formatCurrency(item.cost)}</p>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-[var(--text-secondary)]">
                                 {formatDate(item.date)}
                               </p>
                             </div>
@@ -923,7 +923,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                         </div>
                       ))}
                       {historyArr.length > 5 && (
-                        <p className="text-sm text-center text-muted-foreground pt-2">
+                        <p className="text-sm text-center text-[var(--text-secondary)] pt-2">
                           +{historyArr.length - 5} more records
                         </p>
                       )}
@@ -936,8 +936,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 historyArr.length === 0 && (
                   <Card>
                     <CardContent className="py-12 text-center">
-                      <FileText className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">No related records found</p>
+                      <FileText className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                      <p className="text-sm text-[var(--text-secondary)]">No related records found</p>
                     </CardContent>
                   </Card>
                 )}
@@ -975,8 +975,8 @@ function WOCategoryBadge({ category }: { category: string }) {
   const colorMap: Record<string, string> = {
     preventive: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     corrective: 'bg-orange-100 text-orange-800 border-orange-200',
-    inspection: 'bg-purple-100 text-purple-800 border-purple-200',
-    body_work: 'bg-gray-100 text-gray-800 border-gray-200',
+    inspection: 'bg-amber-100 text-amber-800 border-amber-200',
+    body_work: 'bg-[var(--surface-glass-hover)] text-[var(--text-secondary)] border-white/[0.08]',
     electrical: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     tire_service: 'bg-green-100 text-green-800 border-green-200',
   }

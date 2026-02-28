@@ -98,39 +98,17 @@ function PremiumMetricCard({ metric, index }: { metric: MetricData; index: numbe
 
   return (
     <motion.div
-      className="group relative overflow-hidden rounded-2xl backdrop-blur-2xl border transition-all duration-500 cursor-pointer"
+      className="group relative overflow-hidden rounded-2xl transition-all duration-500 cursor-pointer bg-[var(--surface-2)]"
       style={{
         border: `1px solid ${metric.color}20`,
-        background: `linear-gradient(135deg, ${metric.color}08, transparent)`,
       }}
       whileHover={{
-        y: -8,
-        boxShadow: `0 20px 60px ${metric.color}30, inset 0 1px 0 rgba(255,255,255,0.1)`
+        y: -4,
       }}
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay: index * 0.15, duration: 0.6, ease: 'easeOut' }}
     >
-      {/* Glow background on hover */}
-      <motion.div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{
-          background: `radial-gradient(circle at center, ${metric.color}20, transparent)`,
-        }}
-      />
-
-      {/* Animated background gradient */}
-      <motion.div
-        className="absolute inset-0"
-        animate={{
-          background: [
-            `linear-gradient(45deg, ${metric.color}05, transparent)`,
-            `linear-gradient(135deg, ${metric.color}10, transparent)`,
-            `linear-gradient(45deg, ${metric.color}05, transparent)`
-          ]
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-      />
 
       <div className="relative p-6 space-y-4">
         {/* Header with icon */}
@@ -147,7 +125,7 @@ function PremiumMetricCard({ metric, index }: { metric: MetricData; index: numbe
             </motion.p>
           </div>
           <motion.div
-            className="p-3 rounded-xl backdrop-blur-sm"
+            className="p-3 rounded-xl"
             style={{
               backgroundColor: `${metric.color}20`,
               border: `1px solid ${metric.color}40`
@@ -196,31 +174,17 @@ function PremiumMetricCard({ metric, index }: { metric: MetricData; index: numbe
 
         {/* Advanced circular progress indicator */}
         <div className="space-y-3">
-          <div className="relative h-2 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
-            {/* Background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-
+          <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
             {/* Animated progress bar */}
             <motion.div
               className="h-full rounded-full relative"
               style={{
-                background: `linear-gradient(90deg, ${metric.color}, ${metric.accentColor})`,
-                boxShadow: `0 0 20px ${metric.color}60`
+                backgroundColor: metric.color,
               }}
               initial={{ width: 0 }}
               animate={{ width: `${percentage}%` }}
               transition={{ duration: 1.5, delay: 0.5 + index * 0.15, ease: 'easeOut' }}
-            >
-              {/* Shimmer effect */}
-              <motion.div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)`,
-                }}
-                animate={{ x: [-100, 100] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              />
-            </motion.div>
+            />
           </div>
 
           {/* Percentage text */}

@@ -755,7 +755,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
           {/* Global Search */}
           {enableSearch && (
             <div className="relative w-full sm:max-w-sm">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground shrink-0" />
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-secondary)] shrink-0" />
               <Input
                 placeholder={isMobile ? "Search..." : "Search all columns..."}
                 value={globalFilter}
@@ -765,7 +765,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
               {globalFilter && (
                 <button
                   onClick={() => setGlobalFilter('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                   aria-label="Clear search"
                 >
                   <X className="h-4 w-4" />
@@ -789,7 +789,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
           {/* Selection Info */}
           {enableSelection && selectedCount > 0 && (
-            <div className="text-xs sm:text-sm text-muted-foreground">
+            <div className="text-xs sm:text-sm text-[var(--text-secondary)]">
               {selectedCount} row{selectedCount !== 1 ? 's' : ''} selected
             </div>
           )}
@@ -850,15 +850,15 @@ export function ExcelStyleTable<T extends Record<string, any>>({
       <div
         ref={tableContainerRef}
         className={cn(
-          'rounded-md border bg-card',
+          'rounded-md border border-[var(--border-default)] bg-[var(--surface-1)]',
           virtualized && !enablePagination && 'overflow-auto'
         )}
         style={virtualized && !enablePagination ? { maxHeight: isMobile ? '400px' : maxHeight } : undefined}
       >
         <table className="w-full border-collapse">
-          <thead className="bg-muted/50 sticky top-0 z-10">
+          <thead className="bg-[var(--surface-3)] sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b">
+              <tr key={headerGroup.id} className="border-b border-[var(--border-default)]">
                 {headerGroup.headers.map((header) => {
                   const columnDef = columns.find(c => c.id === header.column.id)
                   const isSortable = header.column.getCanSort()
@@ -870,10 +870,10 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                     <th
                       key={header.id}
                       className={cn(
-                        'text-left font-medium text-xs sm:text-sm',
+                        'text-left font-medium text-xs sm:text-sm text-[var(--text-secondary)]',
                         compact ? 'px-1 py-1 sm:px-2 sm:py-2' : 'px-2 py-2 sm:px-2 sm:py-3',
-                        'border-r last:border-r-0',
-                        isSortable && 'cursor-pointer select-none hover:bg-muted/80 active:bg-muted'
+                        'border-r border-[var(--border-subtle)] last:border-r-0',
+                        isSortable && 'cursor-pointer select-none hover:bg-[var(--surface-4)] active:bg-[var(--surface-4)]'
                       )}
                       style={{
                         width: columnDef?.width,
@@ -885,7 +885,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                         <div className="flex items-center gap-1 truncate">
                           {flexRender(header.column.columnDef.header, header.getContext())}
                           {isSortable && (
-                            <span className="text-muted-foreground">
+                            <span className="text-[var(--text-secondary)]">
                               {isSorted === 'asc' && <ArrowUp className="h-3 w-3" />}
                               {isSorted === 'desc' && <ArrowDown className="h-3 w-3" />}
                               {!isSorted && <ArrowUpDown className="h-3 w-3 opacity-50" />}
@@ -897,8 +897,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                             <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
                               <button
                                 className={cn(
-                                  'p-1 rounded hover:bg-muted-foreground/20',
-                                  hasFilter && 'text-primary'
+                                  'p-1 rounded hover:bg-white/[0.06]',
+                                  hasFilter && 'text-[var(--accent-primary)]'
                                 )}
                                 aria-label={`Filter ${header.column.columnDef.header as string ?? 'column'}`}
                               >
@@ -932,10 +932,10 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                     <tr
                       key={row.id}
                       className={cn(
-                        'border-b transition-colors',
-                        onRowClick && 'cursor-pointer hover:bg-muted/50',
-                        striped && virtualRow.index % 2 === 0 && 'bg-muted/20',
-                        row.getIsSelected() && 'bg-primary/10'
+                        'border-b border-[var(--border-subtle)] transition-colors',
+                        onRowClick && 'cursor-pointer hover:bg-[var(--surface-3)]',
+                        striped && virtualRow.index % 2 === 0 && 'bg-[var(--surface-glass)]',
+                        row.getIsSelected() && 'bg-[var(--accent-primary)]/10'
                       )}
                       onClick={() => handleRowClick(row.original)}
                     >
@@ -943,7 +943,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                         <td
                           key={cell.id}
                           className={cn(
-                            'border-r last:border-r-0',
+                            'border-r border-[var(--border-subtle)] last:border-r-0',
                             compact ? 'px-1 py-1 text-xs sm:px-2 sm:text-sm' : 'px-2 py-1 text-xs sm:px-2 sm:py-2 sm:text-sm',
                             'truncate max-w-[150px] sm:max-w-none'
                           )}
@@ -962,10 +962,10 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                   <tr
                     key={row.id}
                     className={cn(
-                      'border-b transition-colors',
-                      onRowClick && 'cursor-pointer hover:bg-muted/50',
-                      striped && index % 2 === 0 && 'bg-muted/20',
-                      row.getIsSelected() && 'bg-primary/10'
+                      'border-b border-[var(--border-subtle)] transition-colors',
+                      onRowClick && 'cursor-pointer hover:bg-[var(--surface-3)]',
+                      striped && index % 2 === 0 && 'bg-[var(--surface-glass)]',
+                      row.getIsSelected() && 'bg-[var(--accent-primary)]/10'
                     )}
                     onClick={() => handleRowClick(row.original)}
                   >
@@ -973,7 +973,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                       <td
                         key={cell.id}
                         className={cn(
-                          'border-r last:border-r-0',
+                          'border-r border-[var(--border-subtle)] last:border-r-0',
                           compact ? 'px-1 py-1 text-xs sm:px-2 sm:text-sm' : 'px-2 py-1 text-xs sm:px-2 sm:py-2 sm:text-sm',
                           'truncate max-w-[150px] sm:max-w-none'
                         )}
@@ -990,7 +990,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
               <tr>
                 <td
                   colSpan={table.getAllColumns().length}
-                  className="text-center py-12 text-muted-foreground"
+                  className="text-center py-12 text-[var(--text-secondary)]"
                 >
                   No data available
                 </td>
@@ -1004,7 +1004,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
       {enablePagination && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
-            <div className="text-xs sm:text-sm text-muted-foreground">
+            <div className="text-xs sm:text-sm text-[var(--text-secondary)]">
               {isMobile ? (
                 <>{table.getFilteredRowModel().rows.length} rows</>
               ) : (
@@ -1057,7 +1057,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
               <ChevronLeft className="h-4 w-4" />
               {isMobile && <span className="ml-1">Prev</span>}
             </Button>
-            <div className="text-xs sm:text-sm text-muted-foreground px-2">
+            <div className="text-xs sm:text-sm text-[var(--text-secondary)] px-2">
               {isMobile
                 ? `${table.getState().pagination.pageIndex + 1}/${table.getPageCount()}`
                 : `Page ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`

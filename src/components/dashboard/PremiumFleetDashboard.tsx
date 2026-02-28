@@ -11,7 +11,7 @@ import useSWR from 'swr'
 
 import { AdvancedMapController } from '@/components/Maps/AdvancedMapController'
 import { LiveFleetMap } from '@/components/Maps/LiveFleetMap'
-import { ArchonYLogo } from '@/components/branding/ArchonYLogo'
+import { CTAFleetLogo } from '@/components/branding'
 import { formatEnum } from '@/utils/format-enum'
 
 const apiFetcher = (url: string) =>
@@ -49,13 +49,13 @@ export function PremiumFleetDashboard() {
 
   const colors = {
     orange: '#f5f5f5',
-    blue: '#3B82F6',
+    teal: '#10b981',
     green: '#10B981',
     gold: '#a0a0a0',
     red: '#f5f5f5',
-    navy: '#1F3076',
-    darkBg: '#0F172A',
-    cardBg: '#1E293B',
+    silver: '#e0e0e0',
+    darkBg: '#1a1a1a',
+    cardBg: '#1a1a1a',
   }
 
   // Animated counter
@@ -102,7 +102,7 @@ export function PremiumFleetDashboard() {
       value: String(activeCount),
       change: `/${totalVehicles}`,
       icon: MapPin,
-      color: colors.blue,
+      color: colors.teal,
       trend: 'up' as const,
       subtext: 'Online & tracking',
       bgGradient: 'from-emerald-500/5 via-emerald-500/2 to-transparent'
@@ -160,7 +160,7 @@ export function PremiumFleetDashboard() {
   }, [vehicles])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#111] via-[#1a1a1a] to-[#111] text-white overflow-hidden relative">
+    <div className="min-h-screen bg-[var(--surface-2)] text-white overflow-hidden relative">
       {/* Premium Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Multiple layered glows for depth */}
@@ -175,7 +175,7 @@ export function PremiumFleetDashboard() {
           transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
         />
         <motion.div
-          className="absolute top-1/2 right-1/3 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl"
+          className="absolute top-1/2 right-1/3 w-72 h-72 bg-amber-600/10 rounded-full blur-3xl"
           animate={{ opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
         />
@@ -183,9 +183,9 @@ export function PremiumFleetDashboard() {
 
       {/* Premium Header */}
       <motion.header
-        className="relative z-50 border-b border-white/10 backdrop-blur-2xl bg-gradient-to-r from-[#111]/90 via-[#1a1a1a]/90 to-[#1a1a1a]/90"
+        className="relative z-50 border-b border-[var(--border-default)] bg-[var(--surface-2)]/95"
         style={{
-          boxShadow: '0 8px 32px rgba(0, 204, 254, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+          boxShadow: '0 8px 32px rgba(16, 185, 129, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
         }}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -193,12 +193,12 @@ export function PremiumFleetDashboard() {
       >
         <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <ArchonYLogo variant="compact" />
+            <CTAFleetLogo variant="compact" />
             <div className="flex flex-col gap-0.5">
               <motion.h1
                 className="text-3xl font-black tracking-tight"
                 style={{
-                  background: `linear-gradient(135deg, ${colors.orange}, ${colors.blue}, ${colors.orange})`,
+                  background: `linear-gradient(135deg, ${colors.orange}, ${colors.teal}, ${colors.orange})`,
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -209,7 +209,7 @@ export function PremiumFleetDashboard() {
               </motion.h1>
               <motion.p
                 className="text-xs font-semibold flex items-center gap-2"
-                style={{ color: colors.blue }}
+                style={{ color: colors.teal }}
                 animate={{ opacity: [0.7, 1, 0.7] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
@@ -227,8 +227,8 @@ export function PremiumFleetDashboard() {
           <div className="flex items-center gap-4">
             {/* Network Status */}
             <motion.div
-              className="flex items-center gap-2 px-3 py-2 rounded-lg backdrop-blur-sm"
-              style={{ backgroundColor: `${colors.blue}10`, border: `1px solid ${colors.blue}30` }}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg"
+              style={{ backgroundColor: `${colors.teal}10`, border: `1px solid ${colors.teal}30` }}
               animate={{ opacity: [0.6, 1, 0.6] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
@@ -239,13 +239,13 @@ export function PremiumFleetDashboard() {
             {/* Live Mode Toggle */}
             <motion.button
               onClick={() => setIsLiveMode(!isLiveMode)}
-              className="px-4 py-2 rounded-lg border transition-all backdrop-blur-sm font-semibold text-sm"
+              className="px-4 py-2 rounded-lg border transition-all font-semibold text-sm"
               style={{
-                borderColor: isLiveMode ? colors.orange : colors.blue,
-                backgroundColor: isLiveMode ? `${colors.orange}15` : `${colors.blue}15`,
-                color: isLiveMode ? colors.orange : colors.blue,
+                borderColor: isLiveMode ? colors.orange : colors.teal,
+                backgroundColor: isLiveMode ? `${colors.orange}15` : `${colors.teal}15`,
+                color: isLiveMode ? colors.orange : colors.teal,
               }}
-              whileHover={{ scale: 1.05, boxShadow: `0 0 16px ${isLiveMode ? colors.orange : colors.blue}40` }}
+              whileHover={{ scale: 1.05, boxShadow: `0 0 16px ${isLiveMode ? colors.orange : colors.teal}40` }}
               whileTap={{ scale: 0.95 }}
             >
               <motion.span
@@ -277,7 +277,7 @@ export function PremiumFleetDashboard() {
                 variants={statVariants}
                 onMouseEnter={() => setHoveredMetric(i)}
                 onMouseLeave={() => setHoveredMetric(null)}
-                className={`group relative overflow-hidden rounded-2xl backdrop-blur-2xl transition-all duration-500 cursor-pointer`}
+                className={`group relative overflow-hidden rounded-2xl transition-all duration-500 cursor-pointer`}
                 style={{
                   border: `1px solid ${hoveredMetric === i ? `${metric.color}60` : 'rgba(255,255,255,0.08)'}`,
                   background: `linear-gradient(135deg, ${hoveredMetric === i ? metric.color : 'rgba(255,255,255,0.02)'}08, transparent)`,
@@ -299,8 +299,8 @@ export function PremiumFleetDashboard() {
 
                 {/* Gradient background overlay */}
                 <div
-                  className={`absolute inset-0 transition-opacity duration-500 bg-gradient-to-br ${metric.bgGradient}`}
-                  style={{ opacity: hoveredMetric === i ? 1 : 0 }}
+                  className={`absolute inset-0 transition-opacity duration-500`}
+                  style={{ background: 'rgba(255,255,255,0.02)', opacity: hoveredMetric === i ? 1 : 0 }}
                 />
 
                 <div className="relative p-6 space-y-4">
@@ -323,7 +323,7 @@ export function PremiumFleetDashboard() {
                       </motion.p>
                     </div>
                     <motion.div
-                      className="p-3 rounded-xl backdrop-blur-sm"
+                      className="p-3 rounded-xl"
                       style={{
                         backgroundColor: `${metric.color}20`,
                         border: `1px solid ${metric.color}40`
@@ -376,9 +376,9 @@ export function PremiumFleetDashboard() {
                   </div>
 
                   {/* Premium progress bar */}
-                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <div className="h-1.5 bg-white/[0.05] rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full rounded-full shadow-lg"
+                      className="h-full rounded-full"
                       style={{
                         background: `linear-gradient(90deg, ${metric.color}, ${metric.color}80)`,
                         boxShadow: `0 0 12px ${metric.color}60`
@@ -398,36 +398,34 @@ export function PremiumFleetDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Premium Map Section */}
           <motion.div
-            className="lg:col-span-2 rounded-2xl overflow-hidden backdrop-blur-2xl border transition-all duration-500"
+            className="lg:col-span-2 rounded-2xl overflow-hidden border transition-all duration-500"
             style={{
-              border: `1px solid rgba(0, 204, 254, 0.2)`,
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6))',
-              boxShadow: '0 8px 32px rgba(0, 204, 254, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+              border: `1px solid rgba(255, 255, 255, 0.08)`,
+              background: '#111111'
             }}
             whileHover={{
-              y: -6,
-              boxShadow: `0 16px 48px rgba(0, 204, 254, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08)`
+              y: -6
             }}
             initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.35, duration: 0.6, ease: 'easeOut' }}
           >
-            <div className="bg-gradient-to-br from-[#111]/60 via-[#1a1a1a]/40 to-[#111]/60 p-6 border-b border-emerald-500/10 backdrop-blur-sm">
+            <div className="bg-[var(--surface-2)] p-6 border-b border-emerald-500/10">
               <div className="flex items-center gap-3">
                 <motion.div
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Map className="w-5 h-5" style={{ color: colors.blue }} />
+                  <Map className="w-5 h-5" style={{ color: colors.teal }} />
                 </motion.div>
                 <h2 className="text-xl font-bold tracking-tight">
-                  <span style={{ color: colors.blue }}>Live Fleet</span> Map
+                  <span style={{ color: colors.teal }}>Live Fleet</span> Map
                 </h2>
               </div>
             </div>
 
             {/* Live Fleet Map */}
-            <div className="relative w-full h-96 bg-gradient-to-br from-[#1a1a1a] to-[#111] overflow-hidden">
+            <div className="relative w-full h-96 bg-[var(--surface-2)] overflow-hidden">
               <LiveFleetMap className="w-full h-full" />
               <AdvancedMapController />
             </div>
@@ -442,18 +440,16 @@ export function PremiumFleetDashboard() {
           >
             {/* Premium Fleet Status Panel */}
             <motion.div
-              className="rounded-2xl overflow-hidden backdrop-blur-2xl border transition-all duration-500"
+              className="rounded-2xl overflow-hidden border transition-all duration-500"
               style={{
-                border: `1px solid rgba(16, 185, 129, 0.2)`,
-                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(20, 35, 60, 0.6))',
-                boxShadow: '0 8px 32px rgba(16, 185, 129, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+                border: `1px solid rgba(255, 255, 255, 0.08)`,
+                background: '#111111'
               }}
               whileHover={{
-                boxShadow: `0 16px 48px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08)`,
                 borderColor: `rgba(16, 185, 129, 0.4)`
               }}
             >
-              <div className="bg-gradient-to-br from-[#111]/60 via-[#1a1a1a]/40 to-[#111]/60 p-6 border-b border-green-500/10 backdrop-blur-sm">
+              <div className="bg-[var(--surface-2)] p-6 border-b border-green-500/10">
                 <motion.h3
                   className="text-lg font-bold flex items-center gap-2"
                   animate={{ letterSpacing: '0.02em' }}
@@ -529,15 +525,13 @@ export function PremiumFleetDashboard() {
 
             {/* Premium System Status Card */}
             <motion.div
-              className="rounded-2xl overflow-hidden backdrop-blur-2xl border p-6 transition-all duration-500"
+              className="rounded-2xl overflow-hidden border p-6 transition-all duration-500"
               style={{
-                background: `linear-gradient(135deg, rgba(255,255,255,0.04), rgba(0,204,254,0.03))`,
-                border: `1px solid rgba(255,255,255,0.1)`,
-                boxShadow: `0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)`
+                background: `#111111`,
+                border: `1px solid rgba(255,255,255,0.08)`
               }}
               whileHover={{
                 scale: 1.02,
-                boxShadow: `0 16px 48px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08)`,
                 borderColor: `rgba(255,255,255,0.2)`
               }}
               initial={{ opacity: 0, y: 20 }}
@@ -567,7 +561,7 @@ export function PremiumFleetDashboard() {
               <motion.p
                 className="text-2xl font-black mb-2"
                 style={{
-                  background: `linear-gradient(135deg, ${colors.orange}, ${colors.blue})`,
+                  background: `linear-gradient(135deg, ${colors.orange}, ${colors.teal})`,
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -578,11 +572,11 @@ export function PremiumFleetDashboard() {
               <p className="text-sm mb-5" style={{ color: 'rgba(255,255,255,0.7)' }}>
                 Optimal Performance
               </p>
-              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
+              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
                 <motion.div
                   className="h-full rounded-full"
                   style={{
-                    background: `linear-gradient(90deg, ${colors.orange}, ${colors.blue})`,
+                    background: `linear-gradient(90deg, ${colors.orange}, ${colors.teal})`,
                     boxShadow: `0 0 16px ${colors.orange}60`
                   }}
                   initial={{ width: 0 }}

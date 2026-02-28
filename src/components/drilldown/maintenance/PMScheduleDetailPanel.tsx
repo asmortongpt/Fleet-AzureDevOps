@@ -72,7 +72,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <h3 className="text-sm font-bold">{schedule.serviceType}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 {schedule.vehicleNumber} • {schedule.vehicleMake} {schedule.vehicleModel} ({schedule.vehicleYear})
               </p>
               <div className="flex items-center gap-2">
@@ -82,7 +82,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                 <Badge variant="outline">{schedule.frequency}</Badge>
               </div>
             </div>
-            <Calendar className="w-12 h-9 text-muted-foreground" />
+            <Calendar className="w-12 h-9 text-[var(--text-secondary)]" />
           </div>
 
           {/* Quick Stats */}
@@ -128,20 +128,20 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                 <CardContent className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Service Type</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Service Type</p>
                       <p className="font-medium">{schedule.serviceType}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Frequency</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Frequency</p>
                       <p className="font-medium">{schedule.frequency}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Next Due Date</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Next Due Date</p>
                       <p className="font-medium">{formatDate(schedule.nextDueDate)}</p>
                     </div>
                     {schedule.nextDueMileage && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Next Due Mileage</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Next Due Mileage</p>
                         <p className="font-medium">{formatNumber(schedule.nextDueMileage)} mi</p>
                       </div>
                     )}
@@ -149,15 +149,15 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
 
                   {schedule.lastServiceDate && (
                     <div className="pt-2 border-t">
-                      <p className="text-sm text-muted-foreground mb-2">Last Service</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-2">Last Service</p>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="text-xs text-muted-foreground">Date</p>
+                          <p className="text-xs text-[var(--text-secondary)]">Date</p>
                           <p className="font-medium">{formatDate(schedule.lastServiceDate)}</p>
                         </div>
                         {schedule.lastServiceMileage && (
                           <div>
-                            <p className="text-xs text-muted-foreground">Mileage</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Mileage</p>
                             <p className="font-medium">{formatNumber(schedule.lastServiceMileage)} mi</p>
                           </div>
                         )}
@@ -167,14 +167,14 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
 
                   {schedule.serviceDescription && (
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Description</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-1">Description</p>
                       <p className="text-sm">{schedule.serviceDescription}</p>
                     </div>
                   )}
 
                   {schedule.notes && (
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Notes</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-1">Notes</p>
                       <p className="text-sm">{schedule.notes}</p>
                     </div>
                   )}
@@ -232,7 +232,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                                 </Badge>
                               </div>
                               <p className="text-sm">{record.description}</p>
-                              <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-2 mt-2 text-xs text-[var(--text-secondary)]">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
                                   {formatDate(record.serviceDate)}
@@ -268,7 +268,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-2">
+                    <p className="text-sm text-[var(--text-secondary)] text-center py-2">
                       No service history available
                     </p>
                   )}
@@ -288,15 +288,15 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                 <CardContent className="space-y-2">
                   <div>
                     <p className="font-medium text-sm">{schedule.serviceProvider}</p>
-                    <p className="text-sm text-muted-foreground">{schedule.serviceProviderContact.address}</p>
+                    <p className="text-sm text-[var(--text-secondary)]">{schedule.serviceProviderContact.address}</p>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <User className="w-4 h-4 text-muted-foreground" />
+                      <User className="w-4 h-4 text-[var(--text-secondary)]" />
                       <div>
                         <p className="text-sm font-medium">{schedule.serviceProviderContact.name}</p>
-                        <p className="text-xs text-muted-foreground">Primary Contact</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Primary Contact</p>
                       </div>
                     </div>
 
@@ -304,10 +304,10 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                       href={`tel:${schedule.serviceProviderContact.phone}`}
                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
                     >
-                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <Phone className="w-4 h-4 text-[var(--text-secondary)]" />
                       <div>
                         <p className="text-sm font-medium">{schedule.serviceProviderContact.phone}</p>
-                        <p className="text-xs text-muted-foreground">Click to call</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Click to call</p>
                       </div>
                     </a>
 
@@ -359,21 +359,21 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                 <CardContent className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Vehicle Number</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Vehicle Number</p>
                       <p className="font-medium">{schedule.vehicleNumber}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Current Mileage</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Current Mileage</p>
                       <p className="font-medium">{formatNumber(schedule.currentMileage)} mi</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Make/Model</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Make/Model</p>
                       <p className="font-medium">
                         {schedule.vehicleMake} {schedule.vehicleModel}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Year</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Year</p>
                       <p className="font-medium">{schedule.vehicleYear}</p>
                     </div>
                   </div>

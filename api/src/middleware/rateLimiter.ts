@@ -185,7 +185,7 @@ export const passwordResetLimiter = createRateLimiter({
  */
 export const readLimiter = createRateLimiter({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 100,
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000,
   message: 'Too many read requests. Please slow down.',
   skip: (req) => {
     // Skip rate limiting for health checks and status endpoints
@@ -335,7 +335,7 @@ export const webhookLimiter = createRateLimiter({
  */
 export const globalLimiter = createRateLimiter({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: process.env.NODE_ENV === 'production' ? 30 : 500,
+  max: process.env.NODE_ENV === 'production' ? 30 : 2000,
   message: 'Too many requests from this IP. Please try again later.',
   skip: (req) => {
     // Skip rate limiting for health checks and OAuth callbacks

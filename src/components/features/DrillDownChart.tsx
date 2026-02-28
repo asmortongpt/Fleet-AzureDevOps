@@ -29,9 +29,9 @@ import { formatCurrencyCompact } from '@/utils/format-helpers'
 const COST_DATA = {
   level1: [
     { name: 'Fuel', value: 124200, color: '#D97706', percentage: 43.6 },
-    { name: 'Maintenance', value: 89300, color: '#2563EB', percentage: 31.4 },
-    { name: 'Insurance', value: 43200, color: '#9333EA', percentage: 15.2 },
-    { name: 'Other', value: 27800, color: '#475569', percentage: 9.8 }
+    { name: 'Maintenance', value: 89300, color: '#10b981', percentage: 31.4 },
+    { name: 'Insurance', value: 43200, color: '#B45309', percentage: 15.2 },
+    { name: 'Other', value: 27800, color: '#6B7280', percentage: 9.8 }
   ],
   level2: {
     'Fuel': [
@@ -40,19 +40,19 @@ const COST_DATA = {
       { name: 'Electric Charging', value: 20000, color: '#F59E0B', detail: 'EV Fleet' }
     ],
     'Maintenance': [
-      { name: 'Scheduled Service', value: 42000, color: '#1D4ED8', detail: 'Regular maintenance' },
-      { name: 'Repairs', value: 28300, color: '#3B82F6', detail: 'Unscheduled fixes' },
-      { name: 'Parts', value: 19000, color: '#60A5FA', detail: 'Replacement parts' }
+      { name: 'Scheduled Service', value: 42000, color: '#059669', detail: 'Regular maintenance' },
+      { name: 'Repairs', value: 28300, color: '#10b981', detail: 'Unscheduled fixes' },
+      { name: 'Parts', value: 19000, color: '#34d399', detail: 'Replacement parts' }
     ],
     'Insurance': [
-      { name: 'Liability', value: 24000, color: '#7C3AED', detail: 'Liability coverage' },
-      { name: 'Collision', value: 12600, color: '#A78BFA', detail: 'Collision coverage' },
-      { name: 'Comprehensive', value: 6600, color: '#C4B5FD', detail: 'Full coverage' }
+      { name: 'Liability', value: 24000, color: '#D97706', detail: 'Liability coverage' },
+      { name: 'Collision', value: 12600, color: '#F59E0B', detail: 'Collision coverage' },
+      { name: 'Comprehensive', value: 6600, color: '#FBBF24', detail: 'Full coverage' }
     ],
     'Other': [
-      { name: 'Registration', value: 12400, color: '#64748B', detail: 'Vehicle registration' },
-      { name: 'Permits', value: 8900, color: '#94A3B8', detail: 'Operating permits' },
-      { name: 'Miscellaneous', value: 6500, color: '#CBD5E1', detail: 'Other expenses' }
+      { name: 'Registration', value: 12400, color: '#6B7280', detail: 'Vehicle registration' },
+      { name: 'Permits', value: 8900, color: '#9CA3AF', detail: 'Operating permits' },
+      { name: 'Miscellaneous', value: 6500, color: '#D1D5DB', detail: 'Other expenses' }
     ]
   },
   level3: {
@@ -152,18 +152,18 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
-        <div className="bg-white dark:bg-[#1a1a1a] border border-white/[0.08] dark:border-white/[0.15] rounded-lg p-2 shadow-sm">
-          <p className="text-base font-semibold text-white/90 dark:text-white/80 mb-2">{data.name}</p>
+        <div className="bg-white dark:bg-[var(--surface-3)] border border-[var(--border-subtle)] dark:border-[var(--border-strong)] rounded-lg p-2">
+          <p className="text-base font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary)] mb-2">{data.name}</p>
           <p className="text-sm font-bold text-emerald-800 mb-1">
             {formatCurrencyCompact(data.value)}
           </p>
           {data.percentage && (
-            <p className="text-sm text-white/50 dark:text-white/70">
+            <p className="text-sm text-[var(--text-secondary)] dark:text-[var(--text-primary)]">
               {data.percentage}% of total
             </p>
           )}
           {data.detail && (
-            <p className="text-sm text-white/50 dark:text-white/70 mt-1">
+            <p className="text-sm text-[var(--text-secondary)] dark:text-[var(--text-primary)] mt-1">
               {data.detail}
             </p>
           )}
@@ -184,19 +184,19 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
   }
 
   return (
-    <div className={cn("bg-white dark:bg-[#1a1a1a] rounded-lg border border-white/[0.08] dark:border-white/[0.15] p-3", className)}>
+    <div className={cn("bg-white dark:bg-[var(--surface-3)] rounded-lg border border-[var(--border-subtle)] dark:border-[var(--border-strong)] p-3", className)}>
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-base font-semibold text-white/90 dark:text-white/80 mb-1">{title}</h3>
+          <h3 className="text-base font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary)] mb-1">{title}</h3>
           {subtitle && (
-            <p className="text-base text-white/50 dark:text-white/70">{subtitle}</p>
+            <p className="text-base text-[var(--text-secondary)] dark:text-[var(--text-primary)]">{subtitle}</p>
           )}
         </div>
       </div>
 
       {/* Breadcrumb Navigation */}
-      <div className="flex items-center gap-2 mb-3 p-3 bg-white/[0.03] dark:bg-[#111]/50 rounded-lg">
+      <div className="flex items-center gap-2 mb-3 p-3 bg-white/[0.03] dark:bg-[var(--surface-2)]/50 rounded-lg">
         {breadcrumbs.map((crumb, index) => (
           <div key={crumb.label} className="flex items-center gap-2">
             <button
@@ -205,13 +205,13 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
                 "text-sm font-medium px-3 py-1.5 rounded-lg transition-all",
                 index === breadcrumbs.length - 1
                   ? "bg-emerald-500/10 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-700"
-                  : "text-white/50 dark:text-white/70 hover:bg-white/[0.08] dark:hover:bg-white/[0.15]"
+                  : "text-[var(--text-secondary)] dark:text-[var(--text-primary)] hover:bg-[var(--surface-glass-hover)] dark:hover:bg-white/[0.15]"
               )}
             >
               {crumb.label}
             </button>
             {index < breadcrumbs.length - 1 && (
-              <CaretRight className="w-4 h-4 text-white/70" />
+              <CaretRight className="w-4 h-4 text-[var(--text-primary)]" />
             )}
           </div>
         ))}
@@ -229,29 +229,29 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
               }
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" className="dark:stroke-white/[0.15]" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" className="dark:stroke-white/[0.15]" />
             <XAxis
               dataKey="name"
               angle={-15}
               textAnchor="end"
               height={80}
-              tick={{ fill: '#475569', fontSize: 14, fontWeight: 500 }}
+              tick={{ fill: '#6B7280', fontSize: 14, fontWeight: 500 }}
               className="dark:fill-white/50"
             />
             <YAxis
-              tick={{ fill: '#475569', fontSize: 14, fontWeight: 500 }}
+              tick={{ fill: '#6B7280', fontSize: 14, fontWeight: 500 }}
               className="dark:fill-white/50"
               label={{
                 value: 'Cost ($K)',
                 angle: -90,
                 position: 'insideLeft',
-                fill: '#475569',
+                fill: '#6B7280',
                 fontSize: 14,
                 fontWeight: 600
               }}
               tickFormatter={(value) => formatCurrencyCompact(value)}
             />
-            <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }} />
+            <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }} />
             <Bar
               dataKey="value"
               radius={[4, 4, 0, 0]}
@@ -262,7 +262,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
               {currentData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={'color' in entry && typeof entry.color === 'string' ? entry.color : '#2563EB'}
+                  fill={'color' in entry && typeof entry.color === 'string' ? entry.color : '#10b981'}
                   opacity={hoveredBar === null || hoveredBar === entry.name ? 1 : 0.5}
                   className="transition-opacity duration-200"
                 />
@@ -275,10 +275,10 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
       {/* Level Indicator & Back Button */}
       <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-white/50 dark:text-white/70">
+          <span className="text-sm text-[var(--text-secondary)] dark:text-[var(--text-primary)]">
             Level {currentLevel} of 3
           </span>
-          <span className="text-xs px-2 py-1 bg-white/[0.05] dark:bg-white/[0.15] text-white/50 dark:text-white/70 rounded">
+          <span className="text-xs px-2 py-1 bg-white/[0.05] dark:bg-white/[0.15] text-[var(--text-secondary)] dark:text-[var(--text-primary)] rounded">
             {currentLevel === 1 ? 'Categories' : currentLevel === 2 ? 'Subcategories' : 'Details'}
           </span>
         </div>
@@ -295,7 +295,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
 
       {/* Instruction */}
       {currentLevel < 3 && (
-        <p className="mt-2 text-sm text-white/40 dark:text-white/70 text-center">
+        <p className="mt-2 text-sm text-[var(--text-tertiary)] dark:text-[var(--text-primary)] text-center">
           Click on any bar to drill down into details
         </p>
       )}

@@ -171,7 +171,7 @@ class MapErrorBoundary extends Component<
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center h-full w-full bg-gray-50 dark:bg-gray-900 p-3">
+        <div className="flex flex-col items-center justify-center h-full w-full bg-white/[0.03] dark:bg-[var(--surface-1)] p-3">
           <div className="max-w-md text-center">
             <div className="mb-2 text-red-500">
               <svg
@@ -189,10 +189,10 @@ class MapErrorBoundary extends Component<
                 />
               </svg>
             </div>
-            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            <h2 className="text-base font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary)] mb-2">
               Map Failed to Load
             </h2>
-            <p className="text-white/70 dark:text-gray-700 mb-2">
+            <p className="text-[var(--text-primary)] dark:text-[var(--text-tertiary)] mb-2">
               {this.state.error?.message || "An unexpected error occurred while loading the map."}
             </p>
             <button
@@ -714,10 +714,10 @@ export function UniversalMap(props: UniversalMapProps) {
       <div className="relative w-full h-full min-h-[500px]">
         {/* Loading Overlay */}
         {loadingState === "loading" && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-900/80">
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-[var(--surface-1)]/80">
             <div className="flex flex-col items-center gap-3">
               <div className="w-12 h-9 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-white/70 dark:text-gray-700">
+              <p className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
                 Loading {provider === "google" ? "Google Maps" : "OpenStreetMap"}...
               </p>
             </div>
@@ -743,14 +743,14 @@ export function UniversalMap(props: UniversalMapProps) {
 
         {/* Clustering Info Badge */}
         {shouldCluster && (
-          <div className="absolute bottom-4 left-4 z-40 bg-white/90 dark:bg-gray-800/90 px-3 py-1.5 rounded-md shadow-md text-xs text-white/70 dark:text-gray-300">
+          <div className="absolute bottom-4 left-4 z-40 bg-white/90 dark:bg-[var(--surface-3)]/90 px-3 py-1.5 rounded-md text-xs text-[var(--text-primary)] dark:text-[var(--text-secondary)]">
             Clustering {totalMarkerCount} markers
           </div>
         )}
 
         {/* Provider Badge (Development Only) */}
         {import.meta.env.MODE === "development" && (
-          <div className="absolute top-4 right-4 z-40 bg-black/70 text-white px-2 py-1 rounded text-xs font-mono">
+          <div className="absolute top-4 right-4 z-40 bg-[var(--overlay-backdrop)] text-white px-2 py-1 rounded text-xs font-mono">
             {provider === "google" ? "Google Maps" : "Leaflet/OSM"}
           </div>
         )}

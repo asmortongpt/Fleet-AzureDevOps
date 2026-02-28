@@ -252,15 +252,15 @@ export function TopSignals({ className }: TopSignalsProps) {
               {signals.map((signal, index) => (
                 <div
                   key={signal.id}
-                  className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
+                  className="p-4 rounded-lg border bg-card transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                       <div className={cn(
-                        'p-2 rounded-lg bg-gradient-to-br',
-                        signal.color.includes('emerald') && 'from-emerald-50 to-emerald-100 dark:from-emerald-950 dark:to-emerald-900',
-                        signal.color.includes('orange') && 'from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900',
-                        signal.color.includes('red') && 'from-red-50 to-red-100 dark:from-red-950 dark:to-red-900'
+                        'p-2 rounded-lg',
+                        signal.color.includes('emerald') && 'bg-emerald-500/10 dark:bg-emerald-950',
+                        signal.color.includes('orange') && 'bg-orange-500/10 dark:bg-orange-950',
+                        signal.color.includes('red') && 'bg-red-500/10 dark:bg-red-950'
                       )}>
                         <div className={signal.color}>
                           {signal.icon}
@@ -270,7 +270,7 @@ export function TopSignals({ className }: TopSignalsProps) {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-neutral-100 dark:bg-[#1a1a1a] text-white/40 dark:text-white/80">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-neutral-100 dark:bg-[var(--surface-3)] text-[var(--text-tertiary)] dark:text-[var(--text-primary)]">
                           #{index + 1}
                         </span>
                       </div>

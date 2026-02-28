@@ -180,7 +180,7 @@ export const CardGrid: Story = {
 
 export const InteractiveCard: Story = {
   render: () => (
-    <Card className="cursor-pointer transition-shadow hover:shadow-sm">
+    <Card className="cursor-pointer transition-shadow ">
       <CardHeader>
         <CardTitle>Click to expand</CardTitle>
         <CardDescription>This card is interactive</CardDescription>

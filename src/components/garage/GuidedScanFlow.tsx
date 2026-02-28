@@ -143,7 +143,7 @@ export function GuidedScanFlow({ onComplete, onCancel }: GuidedScanFlowProps) {
                 'w-7 h-7 rounded-full text-[10px] font-bold flex items-center justify-center transition-all',
                 isCaptured && !isCurrent && 'bg-emerald-500 text-white',
                 isCurrent && 'ring-2 ring-emerald-500 bg-emerald-500/20 text-emerald-400',
-                !isCaptured && !isCurrent && 'border border-white/20 text-white/30'
+                !isCaptured && !isCurrent && 'border border-[var(--border-strong)] text-[var(--text-muted)]'
               )}
               title={angle.label}
             >
@@ -160,8 +160,8 @@ export function GuidedScanFlow({ onComplete, onCancel }: GuidedScanFlowProps) {
       {/* Current angle info */}
       <div className="text-center">
         <div className="text-2xl mb-1">{currentAngle.icon}</div>
-        <h3 className="text-sm font-semibold text-white/90">{currentAngle.label}</h3>
-        <p className="text-xs text-white/60 mt-0.5">{currentAngle.instruction}</p>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">{currentAngle.label}</h3>
+        <p className="text-xs text-[var(--text-secondary)] mt-0.5">{currentAngle.instruction}</p>
       </div>
 
       {/* Capture area */}
@@ -171,21 +171,21 @@ export function GuidedScanFlow({ onComplete, onCancel }: GuidedScanFlowProps) {
             <img
               src={previews[currentStep]!}
               alt={`${currentAngle.label} capture`}
-              className="w-full h-auto rounded-xl border border-white/[0.08] max-h-[200px] object-contain bg-[#0a0a0a]"
+              className="w-full h-auto rounded-xl border border-[var(--border-subtle)] max-h-[200px] object-contain bg-[var(--surface-0)]"
             />
             <button
               onClick={handleRetake}
-              className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-lg bg-[#111]/90 text-xs text-white/70 hover:text-white hover:bg-white/[0.12] transition-colors border border-white/[0.08]"
+              className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-lg bg-[var(--surface-2)]/90 text-xs text-[var(--text-primary)] hover:text-white hover:bg-white/[0.12] transition-colors border border-[var(--border-subtle)]"
             >
               <RotateCcw className="w-3 h-3" />
               Retake
             </button>
           </div>
         ) : (
-          <label className="flex flex-col items-center gap-2 cursor-pointer px-8 py-6 rounded-xl border-2 border-dashed border-white/[0.12] hover:border-emerald-500/40 bg-white/[0.02] transition-colors w-full max-w-sm">
-            <Camera className="w-8 h-8 text-white/30" />
-            <span className="text-sm text-white/60">Tap to capture {currentAngle.label}</span>
-            <span className="text-[10px] text-white/30">Use your device camera or select a photo</span>
+          <label className="flex flex-col items-center gap-2 cursor-pointer px-8 py-6 rounded-xl border-2 border-dashed border-[var(--border-strong)] hover:border-emerald-500/40 bg-white/[0.02] transition-colors w-full max-w-sm">
+            <Camera className="w-8 h-8 text-[var(--text-muted)]" />
+            <span className="text-sm text-[var(--text-secondary)]">Tap to capture {currentAngle.label}</span>
+            <span className="text-[10px] text-[var(--text-muted)]">Use your device camera or select a photo</span>
             <input
               ref={fileInputRef}
               type="file"
@@ -206,15 +206,15 @@ export function GuidedScanFlow({ onComplete, onCancel }: GuidedScanFlowProps) {
           className={cn(
             'flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-colors',
             currentStep === 0
-              ? 'text-white/20 cursor-not-allowed'
-              : 'text-white/60 hover:text-white/80 hover:bg-white/[0.06]'
+              ? 'text-[var(--text-muted)] cursor-not-allowed'
+              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.06]'
           )}
         >
           <ChevronLeft className="w-3.5 h-3.5" />
           Previous
         </button>
 
-        <span className="text-[10px] text-white/40 tabular-nums">
+        <span className="text-[10px] text-[var(--text-tertiary)] tabular-nums">
           {currentStep + 1} of 8 &middot; {capturedCount} captured
         </span>
 
@@ -224,8 +224,8 @@ export function GuidedScanFlow({ onComplete, onCancel }: GuidedScanFlowProps) {
           className={cn(
             'flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-colors',
             currentStep === 7 || !hasCurrent
-              ? 'text-white/20 cursor-not-allowed'
-              : 'text-white/60 hover:text-white/80 hover:bg-white/[0.06]'
+              ? 'text-[var(--text-muted)] cursor-not-allowed'
+              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.06]'
           )}
         >
           Next
@@ -248,7 +248,7 @@ export function GuidedScanFlow({ onComplete, onCancel }: GuidedScanFlowProps) {
       <div className="text-center">
         <button
           onClick={onCancel}
-          className="text-[10px] text-white/30 hover:text-white/50 transition-colors"
+          className="text-[10px] text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
         >
           Cancel guided scan
         </button>

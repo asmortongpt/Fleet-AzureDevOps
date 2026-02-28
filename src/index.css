@@ -1,5 +1,5 @@
 /* Google Fonts - must be first */
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 /* ============================================================================
  * PERFORMANCE OPTIMIZATION - Phase 1: CSS Consolidation
@@ -9,6 +9,12 @@
 
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
+
+/* Design Token System - must load before all other styles */
+@import "./styles/design-tokens.css";
+
+/* Premium visual layer - glass, gradients, depth effects */
+@import "./styles/premium.css";
 
 /* Enterprise Design System - Core styles */
 @import "./styles/enterprise-design-system.css";
@@ -153,12 +159,12 @@
 
 /*
   CAPITAL TECHNOLOGY ALLIANCE (CTA) BRAND THEME - VIBRANT PALETTE
-  Fleet Management Platform - ArchonY Fleet Command: Intelligent Performance
+  Fleet Management Platform - CTA Fleet Command: Intelligent Performance
   Professional, modern, and highly accessible
   WCAG AAA Compliant (7:1 contrast ratio minimum)
 
   Brand Colors (Neutral Palette):
-  - DAYTIME: #1F3076 (Navy Blue - Headers, primary text, fonts)
+  - DAYTIME: #e0e0e0 (Light Gray - Headers, primary text, fonts)
   - Accents: white/gray neutrals for clean, professional look
   - Legacy vibrant colors (BLUE SKIES #00CCFE, MIDNIGHT #1A0648, NOON #FF4300, GOLDEN HOUR #FDC016) replaced
 
@@ -171,7 +177,7 @@
   - "Intelligent Performance"
 */
 :root {
-  /* CTA DARK THEME - ArchonY Fleet Command (Default)
+  /* CTA DARK THEME - CTA Fleet Command (Default)
    * All brand colors sourced from ADELE branding document (Feb 2026)
    * Updated for better readability with higher contrast
    */
@@ -182,10 +188,10 @@
   --card-foreground: #FFFFFF; /* Pure white text */
 
   --popover: #111113;
-  --popover-foreground: #F8FAFC;
+  --popover-foreground: #FAFAFA;
 
-  /* CTA Primary Brand Color - DAYTIME Navy */
-  --primary: #1F3076; /* DAYTIME - Navy for primary elements (EXACT from ADELE Feb 2026) */
+  /* CTA Primary Brand Color - DAYTIME */
+  --primary: #e0e0e0; /* DAYTIME - Primary elements (EXACT from ADELE Feb 2026) */
   --primary-foreground: #ffffff;
 
   /* CTA Secondary - GOLDEN HOUR Gold (Primary accent color) */
@@ -193,7 +199,7 @@
   --secondary-foreground: #f5f5f5;
 
   --muted: #18181b; /* Muted background */
-  --muted-foreground: #D1D5DB; /* Much lighter gray for better readability */
+  --muted-foreground: #D4D4D4; /* Much lighter gray for better readability */
 
   /* CTA Accent - NOON Orange */
   --accent: #e0e0e0; /* Light gray neutral (was NOON #FF4300) */
@@ -217,8 +223,8 @@
    * CTA Brand Colors - Direct Variables
    * Source: ADELE Branding Document, Feb 2026, Vibrant Palette
    * ========================================================================== */
-  --cta-daytime: #1F3076;      /* DAYTIME - Navy Blue (EXACT from ADELE Feb 2026) */
-  --cta-blue-skies: #60a5fa;   /* Blue-400 neutral (was BLUE SKIES #00CCFE) */
+  --cta-daytime: #e0e0e0;      /* DAYTIME - Neutral gray (EXACT from ADELE Feb 2026) */
+  --cta-silver: #a0a0a0;   /* Silver neutral (was BLUE SKIES #00CCFE) */
   --cta-midnight: #242424;     /* Charcoal neutral (was MIDNIGHT #1A0648) */
   --cta-noon: #e0e0e0;         /* Neutral light gray (was NOON #FF4300 from ADELE Feb 2026) */
   --cta-golden-hour: #ffffff;  /* White neutral (was GOLDEN HOUR #FDC016 from ADELE Feb 2026) */
@@ -230,15 +236,15 @@
   --cta-gradient-skyline: linear-gradient(90deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.15) 100%); /* Neutral skyline */
 
   /* WCAG AAA Compliant Colors */
-  --blue-badge-bg: #1F3076;  /* DAYTIME Navy */
-  --blue-badge-text: #1F3076;
-  --gray-text: #334155;      /* Slate 700 */
+  --teal-badge-bg: #e0e0e0;  /* DAYTIME */
+  --teal-badge-text: #e0e0e0;
+  --gray-text: #404040;      /* Neutral 700 */
   --link-color: #ffffff;     /* White (was GOLDEN HOUR #FDC016) */
 }
 
 /**
  * LIGHT THEME - Inherits dark theme values
- * ArchonY Fleet Command is a dark-mode-first app. The "light" class may be
+ * CTA Fleet Command is a dark-mode-first app. The "light" class may be
  * active via localStorage or system preference, but all UI components use
  * hardcoded dark backgrounds (bg-[#242424], text-white/60, etc.).
  * To prevent visual inconsistency, light theme mirrors the dark :root values.
@@ -251,16 +257,16 @@
   --card-foreground: #FFFFFF;
 
   --popover: #111113;
-  --popover-foreground: #F8FAFC;
+  --popover-foreground: #FAFAFA;
 
-  --primary: #1F3076;
+  --primary: #e0e0e0;
   --primary-foreground: #ffffff;
 
   --secondary: #3a3a3a;
   --secondary-foreground: #f5f5f5;
 
   --muted: #18181b;
-  --muted-foreground: #D1D5DB;
+  --muted-foreground: #D4D4D4;
 
   --accent: #e0e0e0;
   --accent-foreground: #1a1a1a;
@@ -276,13 +282,13 @@
   --ring: rgba(255, 255, 255, 0.3);
 
   /* CTA Brand Colors (same as dark) */
-  --blue-badge-bg: #1F3076;
-  --blue-badge-text: #1F3076;
-  --gray-text: #334155;
+  --teal-badge-bg: #e0e0e0;
+  --teal-badge-text: #e0e0e0;
+  --gray-text: #404040;
   --link-color: #ffffff;
 
-  --cta-daytime: #1F3076;
-  --cta-blue-skies: #60a5fa;
+  --cta-daytime: #e0e0e0;
+  --cta-silver: #a0a0a0;
   --cta-midnight: #242424;
   --cta-noon: #e0e0e0;
   --cta-golden-hour: #ffffff;
@@ -306,16 +312,16 @@
   --card-foreground: #FFFFFF;
 
   --popover: #111113;
-  --popover-foreground: #F8FAFC;
+  --popover-foreground: #FAFAFA;
 
-  --primary: #1F3076;
+  --primary: #e0e0e0;
   --primary-foreground: #FFFFFF;
 
   --secondary: #1c1c1e;
   --secondary-foreground: #f5f5f5;
 
   --muted: #18181b;
-  --muted-foreground: #D1D5DB;
+  --muted-foreground: #D4D4D4;
 
   --accent: #27272a;
   --accent-foreground: #fafafa;
@@ -331,8 +337,8 @@
   --ring: rgba(255, 255, 255, 0.3);
 
   /* CTA Dark Brand Colors */
-  --cta-daytime: #1F3076;
-  --cta-blue-skies: #60a5fa;
+  --cta-daytime: #e0e0e0;
+  --cta-silver: #a0a0a0;
   --cta-midnight: #242424;
   --cta-noon: #e0e0e0;
   --cta-golden-hour: #ffffff;
@@ -370,7 +376,7 @@
 
   /* CTA Brand Colors for Tailwind */
   --color-cta-daytime: var(--cta-daytime);
-  --color-cta-blue-skies: var(--cta-blue-skies);
+  --color-cta-silver: var(--cta-silver);
   --color-cta-midnight: var(--cta-midnight);
   --color-cta-noon: var(--cta-noon);
   --color-cta-golden-hour: var(--cta-golden-hour);
@@ -458,8 +464,8 @@
   }
 
   /* WCAG AAA COMPLIANT COLOR UTILITIES */
-  .text-wcag-blue {
-    color: var(--blue-badge-text);
+  .text-wcag-teal {
+    color: var(--teal-badge-text);
   }
 
   .text-wcag-gray {
@@ -470,14 +476,14 @@
     color: var(--link-color);
   }
 
-  .bg-wcag-blue-light {
-    background-color: var(--blue-badge-bg);
+  .bg-wcag-teal-light {
+    background-color: var(--teal-badge-bg);
   }
 
   /* Badge styles with WCAG AAA compliance */
-  .badge-wcag-blue {
-    background-color: var(--blue-badge-bg);
-    color: var(--blue-badge-text);
+  .badge-wcag-teal {
+    background-color: var(--teal-badge-bg);
+    color: var(--teal-badge-text);
   }
 
   /* Link styles with WCAG AAA compliance */
@@ -486,7 +492,7 @@
   }
 
   a.wcag-link:hover {
-    color: #1e3a8a; /* Even darker on hover */
+    color: #064e3b; /* Even darker on hover */
   }
 
   /* PROFESSIONAL CARD STYLES - Premium & Modern - ENHANCED FOR READABILITY */
@@ -654,19 +660,18 @@
     animation-delay: 0.3s;
   }
 
-  /* HOVER EFFECTS */
+  /* HOVER EFFECTS — Tesla/Rivian minimal: subtle bg shift only, no lift */
   .hover-lift {
-    @apply transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg;
+    @apply transition-colors duration-150 ease-out hover:bg-white/[0.02];
   }
 
   .hover-glow {
     transition-property: all;
-    transition-duration: 300ms;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.08);
+    transition-duration: 150ms;
   }
 
   .hover-scale {
-    @apply transition-transform duration-200 ease-out hover:scale-[1.02] active:scale-[0.98];
+    @apply transition-colors duration-150 ease-out hover:bg-white/[0.02];
   }
 
   /* INTERACTIVE STATES */
@@ -714,11 +719,11 @@
 
   /* ENHANCED GLASSMORPHISM FOR HUB PAGES */
   .glass-hub-card {
-    @apply bg-gradient-to-br from-slate-800/70 to-slate-900/80 backdrop-blur-xl rounded-lg border border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300;
+    @apply bg-gradient-to-br from-neutral-800/70 to-neutral-900/80 backdrop-blur-xl rounded-lg border border-white/[0.08] shadow-lg hover:shadow-xl transition-all duration-300;
   }
 
   .glass-hub-stat {
-    @apply bg-gradient-to-br from-slate-800/70 to-slate-900/80 backdrop-blur-xl rounded-xl border border-slate-700/50 shadow-lg hover:shadow-xl transition-colors duration-300 cursor-pointer hover:border-slate-600/50;
+    @apply bg-gradient-to-br from-neutral-800/70 to-neutral-900/80 backdrop-blur-xl rounded-xl border border-white/[0.08] shadow-lg hover:shadow-xl transition-colors duration-300 cursor-pointer hover:border-white/15;
   }
 
   /* ENTRANCE ANIMATIONS */
@@ -1029,18 +1034,17 @@
 /* Card and panel hover states */
 @layer utilities {
   .card-interactive {
-    @apply transition-all duration-300 ease-out;
-    @apply hover:shadow-lg hover:border-primary/30 hover:-translate-y-0.5;
-    @apply active:translate-y-0 active:shadow-md;
+    @apply transition-colors duration-150 ease-out;
+    @apply hover:bg-white/[0.02];
   }
 
   .panel-interactive {
-    @apply transition-all duration-200 ease-out;
-    @apply hover:bg-muted/50 active:bg-muted/70;
+    @apply transition-colors duration-150 ease-out;
+    @apply hover:bg-white/[0.02] active:bg-white/[0.04];
   }
 }
 
-/* ArchonY SPA Layout Utilities */
+/* CTA Fleet SPA Layout Utilities */
 @layer utilities {
   /* Dawn gradient bar - CTA signature brand accent */
   .dawn-gradient {
@@ -1049,7 +1053,7 @@
 
   /* Glass effect for floating panels */
   .glass-midnight {
-    background: rgba(10, 14, 39, 0.85);
+    background: rgba(10, 10, 10, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
   }
@@ -1082,7 +1086,7 @@
 
   /* Premium glass morphism */
   .glass-premium {
-    background: rgba(10, 14, 39, 0.75);
+    background: rgba(10, 10, 10, 0.75);
     backdrop-filter: blur(40px) saturate(180%);
     -webkit-backdrop-filter: blur(40px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1143,8 +1147,8 @@
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
-  .hover-glow-blue:hover {
-    box-shadow: 0 0 20px rgba(0, 204, 254, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+  .hover-glow-teal:hover {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
   .hover-glow-golden:hover {
@@ -1174,8 +1178,8 @@
   }
 
   .status-dot-idle {
-    @apply w-3 h-3 rounded-full bg-slate-400;
-    box-shadow: 0 0 8px rgba(148, 163, 184, 0.4);
+    @apply w-3 h-3 rounded-full bg-neutral-400;
+    box-shadow: 0 0 8px rgba(163, 163, 163, 0.4);
   }
 
   /* NAVIGATION ACTIVE STATE - White Accent */
@@ -1198,7 +1202,7 @@
   }
 
   /* GRADIENT TEXT UTILITIES */
-  .heading-gradient-blue {
+  .heading-gradient-teal {
     @apply text-4xl md:text-5xl font-bold leading-tight;
     background: linear-gradient(135deg, #FFFFFF 0%, #a0a0a0 100%);
     -webkit-background-clip: text;
@@ -1221,24 +1225,21 @@
 
   /* ENHANCED BUTTON STATES */
   .btn-gradient-orange {
-    @apply bg-gradient-to-r from-[#333] to-[#555] text-white font-semibold;
-    @apply shadow-md shadow-black/20;
-    @apply transition-all duration-200 hover:-translate-y-0.5;
-    @apply hover:shadow-lg hover:shadow-black/25;
+    @apply bg-white/[0.06] text-white font-semibold;
+    @apply transition-colors duration-150;
+    @apply hover:bg-white/[0.10];
   }
 
-  .btn-gradient-blue {
-    @apply bg-gradient-to-r from-[#60a5fa] to-[#93c5fd] text-white font-semibold;
-    @apply shadow-md shadow-[#60a5fa]/30;
-    @apply transition-all duration-200 hover:-translate-y-0.5;
-    @apply hover:shadow-lg hover:shadow-[#60a5fa]/40;
+  .btn-gradient-teal {
+    @apply bg-emerald-600 text-white font-semibold;
+    @apply transition-colors duration-150;
+    @apply hover:bg-emerald-700;
   }
 
   .btn-gradient-golden {
-    @apply bg-gradient-to-r from-white/80 to-white/60 text-[#1a1a1a] font-semibold;
-    @apply shadow-md shadow-black/15;
-    @apply transition-all duration-200 hover:-translate-y-0.5;
-    @apply hover:shadow-lg hover:shadow-black/20;
+    @apply bg-white text-[#1a1a1a] font-semibold;
+    @apply transition-colors duration-150;
+    @apply hover:bg-white/90;
   }
 
   /* SEARCH INPUT ENHANCEMENT */
@@ -1294,8 +1295,8 @@
 
   .icon-badge-info {
     @apply w-12 h-12 rounded-xl flex items-center justify-center;
-    @apply bg-gradient-to-br from-[#60a5fa]/20 to-[#93c5fd]/20;
-    @apply shadow-lg shadow-[#60a5fa]/30;
+    @apply bg-gradient-to-br from-[#10b981]/20 to-[#34d399]/20;
+    @apply shadow-lg shadow-[#10b981]/30;
   }
 
   /* BADGE PILL STYLES */
@@ -1305,10 +1306,10 @@
     @apply shadow-md shadow-black/25;
   }
 
-  .badge-pill-blue {
+  .badge-pill-teal {
     @apply inline-flex items-center justify-center px-4 py-1 rounded-full;
-    @apply bg-gradient-to-r from-[#60a5fa] to-[#93c5fd] text-white font-bold text-xs;
-    @apply shadow-md shadow-[#60a5fa]/40;
+    @apply bg-gradient-to-r from-[#10b981] to-[#34d399] text-white font-bold text-xs;
+    @apply shadow-md shadow-[#10b981]/40;
   }
 
   .badge-pill-golden {
@@ -1318,17 +1319,17 @@
   }
 
   /* PREMIUM PANEL BORDERS */
-  .panel-border-blue {
-    @apply border border-[#60a5fa]/20 rounded-xl;
-    @apply transition-all duration-300 hover:border-[#60a5fa]/40;
+  .panel-border-teal {
+    @apply border border-[#10b981]/20 rounded-xl;
+    @apply transition-all duration-300 hover:border-[#10b981]/40;
   }
 
-  .panel-border-blue::before {
+  .panel-border-teal::before {
     content: '';
-    @apply absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#60a5fa]/50 to-transparent opacity-0 transition-opacity duration-300;
+    @apply absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#10b981]/50 to-transparent opacity-0 transition-opacity duration-300;
   }
 
-  .panel-border-blue:hover::before {
+  .panel-border-teal:hover::before {
     @apply opacity-100;
   }
 
@@ -1566,16 +1567,16 @@
   }
 
   /* REFINED GRADIENT OVERLAYS */
-  .gradient-overlay-blue {
+  .gradient-overlay-teal {
     position: relative;
   }
 
-  .gradient-overlay-blue::after {
+  .gradient-overlay-teal::after {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-[#60a5fa]/5 to-[#60a5fa]/0 opacity-0 transition-opacity duration-300;
+    @apply absolute inset-0 bg-gradient-to-br from-[#10b981]/5 to-[#10b981]/0 opacity-0 transition-opacity duration-300;
   }
 
-  .gradient-overlay-blue:hover::after {
+  .gradient-overlay-teal:hover::after {
     @apply opacity-100;
   }
 
@@ -1697,8 +1698,8 @@
   }
 
   /* PREMIUM TEXT EFFECTS */
-  .text-gradient-blue {
-    background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
+  .text-gradient-teal {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1840,8 +1841,8 @@
     @apply shadow-2xl;
   }
 
-  .shadow-colored-blue {
-    box-shadow: 0 10px 25px rgba(0, 204, 254, 0.1);
+  .shadow-colored-teal {
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.1);
   }
 
   .shadow-colored-orange {
@@ -1894,16 +1895,16 @@
    * PROFESSIONAL GRADIENTS (inlined from pro-max.css)
    * ================================================================ */
 
-  .gradient-blue {
-    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  .gradient-teal {
+    background: linear-gradient(135deg, #10b981 0%, #10b981 100%);
   }
 
   .gradient-emerald {
     background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
   }
 
-  .gradient-violet {
-    background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  .gradient-amber {
+    background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
   }
 
   .gradient-orange {
@@ -1980,8 +1981,8 @@
   }
 
   /* Dark mode accent colors */
-  .dark .accent-blue-skies {
-    color: var(--cta-blue-skies);
+  .dark .accent-silver {
+    color: var(--cta-silver);
   }
 
   .dark .accent-golden-hour {

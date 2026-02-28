@@ -132,7 +132,7 @@ export function MaintenanceRequestDetailPanel({
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{request.title}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 Request #{request.request_number}
               </p>
               <div className="flex items-center gap-2 mt-2">
@@ -144,7 +144,7 @@ export function MaintenanceRequestDetailPanel({
                 </Badge>
               </div>
             </div>
-            <Wrench className="h-9 w-12 text-muted-foreground" />
+            <Wrench className="h-9 w-12 text-[var(--text-secondary)]" />
           </div>
 
           {/* Quick Info */}
@@ -158,7 +158,7 @@ export function MaintenanceRequestDetailPanel({
               </CardHeader>
               <CardContent>
                 <p className="text-sm font-semibold">{request.requester_name}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-[var(--text-secondary)]">
                   {request.requester_department}
                 </p>
               </CardContent>
@@ -175,7 +175,7 @@ export function MaintenanceRequestDetailPanel({
                 <p className="text-sm font-semibold">
                   {formatDate(request.submitted_date)}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-[var(--text-secondary)]">
                   {request.submitted_date
                     ? formatTime(request.submitted_date)
                     : ''}
@@ -200,26 +200,26 @@ export function MaintenanceRequestDetailPanel({
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Description</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Description</p>
                     <p className="text-sm">{request.description || 'No description provided'}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Type</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Type</p>
                       <p className="font-medium">{request.request_type || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Category</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Category</p>
                       <p className="font-medium">{request.category || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Estimated Cost</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Estimated Cost</p>
                       <p className="font-medium">
                         {formatCurrency(request.estimated_cost)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Requested Completion</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Requested Completion</p>
                       <p className="font-medium">
                         {formatDate(request.requested_completion_date)}
                       </p>
@@ -237,19 +237,19 @@ export function MaintenanceRequestDetailPanel({
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Asset</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Asset</p>
                       <p className="font-medium">{request.asset_name || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Asset Number</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Asset Number</p>
                       <p className="font-medium">{request.asset_number || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Location</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Location</p>
                       <p className="font-medium">{request.asset_location || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Current Status</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Current Status</p>
                       <p className="font-medium">{request.asset_status || '—'}</p>
                     </div>
                   </div>
@@ -281,11 +281,11 @@ export function MaintenanceRequestDetailPanel({
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Reviewer</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Reviewer</p>
                       <p className="font-medium">{request.reviewer_name || 'Not assigned'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Review Date</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Review Date</p>
                       <p className="font-medium">
                         {request.review_date ? formatDate(request.review_date) : 'Pending'}
                       </p>
@@ -293,13 +293,13 @@ export function MaintenanceRequestDetailPanel({
                   </div>
                   {request.review_notes && (
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Review Notes</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-1">Review Notes</p>
                       <p className="text-sm">{request.review_notes}</p>
                     </div>
                   )}
                   {request.approval_notes && (
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Approval Notes</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-1">Approval Notes</p>
                       <p className="text-sm">{request.approval_notes}</p>
                     </div>
                   )}
@@ -315,18 +315,18 @@ export function MaintenanceRequestDetailPanel({
                 <CardContent>
                   <div className="space-y-3">
                     {request.activity_log?.map((activity) => (
-                      <div key={`${activity.action}-${activity.timestamp}`} className="flex items-start gap-2 p-2 rounded bg-muted/50">
-                        <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div key={`${activity.action}-${activity.timestamp}`} className="flex items-start gap-2 p-2 rounded bg-[var(--surface-glass)]">
+                        <Clock className="h-4 w-4 text-[var(--text-secondary)] mt-0.5" />
                         <div className="flex-1">
                           <p className="text-sm font-medium">{activity.action}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-[var(--text-secondary)]">
                             {activity.user} • {formatDateTime(activity.timestamp)}
                           </p>
                         </div>
                       </div>
                     ))}
                     {(!request.activity_log || request.activity_log.length === 0) && (
-                      <p className="text-sm text-muted-foreground">No activity history</p>
+                      <p className="text-sm text-[var(--text-secondary)]">No activity history</p>
                     )}
                   </div>
                 </CardContent>
@@ -449,10 +449,10 @@ export function MaintenanceRequestListView({
                       {getStatusIcon(request.status)}
                       <p className="font-semibold">{request.title}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-[var(--text-secondary)]">
                       Request #{request.request_number} • {request.asset_name}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-[var(--text-secondary)]">
                       Requested by {request.requester_name} on{' '}
                       {formatDate(request.submitted_date)}
                     </p>
@@ -462,7 +462,7 @@ export function MaintenanceRequestListView({
                       {request.status}
                     </Badge>
                     {request.priority && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[var(--text-secondary)]">
                         {request.priority} priority
                       </p>
                     )}
@@ -480,8 +480,8 @@ export function MaintenanceRequestListView({
           {(!requests || requests.length === 0) && (
             <Card>
               <CardContent className="p-3 text-center">
-                <MessageSquare className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">
+                <MessageSquare className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                <p className="text-[var(--text-secondary)]">
                   No {status ? statusLabels[status].toLowerCase() : 'maintenance requests'} found
                 </p>
               </CardContent>

@@ -86,7 +86,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
       case 'maintenance':
         return 'border-emerald-500 bg-emerald-500/5';
       case 'offline':
-        return 'border-gray-400 bg-gray-50';
+        return 'border-white/[0.08] bg-[var(--surface-glass)]';
       default:
         return 'border-white/[0.12] bg-white';
     }
@@ -98,7 +98,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
     if (status === 'healthy') return <CheckCircle className="h-4 w-4 text-green-600" />;
     if (status === 'warning') return <AlertTriangle className="h-4 w-4 text-amber-600 animate-pulse" />;
     if (status === 'maintenance') return <Wrench className="h-4 w-4 text-emerald-600" />;
-    return <Clock className="h-4 w-4 text-gray-600" />;
+    return <Clock className="h-4 w-4 text-[var(--text-tertiary)]" />;
   };
 
   if (compact) {
@@ -110,7 +110,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
             <div
               key={vehicle.id}
               onClick={() => onVehicleClick?.(vehicle.id)}
-              className={`p-2 rounded-lg border-l-4 cursor-pointer transition-all hover:shadow-md ${getStatusColor(health.status)}`}
+              className={`p-2 rounded-lg border-l-4 cursor-pointer transition-all  ${getStatusColor(health.status)}`}
             >
               <div className="flex items-center gap-1 mb-1">
                 {getStatusIcon(health.status, vehicle.isMoving)}
@@ -135,7 +135,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
           <Card
             key={vehicle.id}
             onClick={() => onVehicleClick?.(vehicle.id)}
-            className={`cursor-pointer transition-all hover:shadow-lg border-l-4 ${getStatusColor(health.status)}`}
+            className={`cursor-pointer transition-all hover: border-l-4 ${getStatusColor(health.status)}`}
           >
             <CardContent className="pt-4">
               {/* Header */}
@@ -213,7 +213,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
                     <Progress
                       value={((vehicle.nextMaintenanceMiles - vehicle.odometer) / vehicle.nextMaintenanceMiles) * 100}
                       className="h-1.5"
-                      indicatorClassName="bg-purple-500"
+                      indicatorClassName="bg-amber-500"
                     />
                   </div>
                 )}
@@ -221,7 +221,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
 
               {/* Health issues */}
               {health.issues.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-white/[0.08]">
+                <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]">
                   {health.issues.map((issue) => (
                     <div key={issue} className="flex items-center gap-1 text-xs text-amber-700">
                       <AlertTriangle className="h-3 w-3" />
@@ -233,7 +233,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
 
               {/* Real-time update indicator */}
               {vehicle.position && (
-                <div className="mt-3 pt-3 border-t border-white/[0.08] flex items-center justify-between text-xs text-white/40">
+                <div className="mt-3 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-tertiary)]">
                   <span>Last update</span>
                   <div className="flex items-center gap-1">
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
@@ -249,7 +249,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
       })}
 
       {enhancedVehicles.length === 0 && (
-        <div className="col-span-full text-center py-12 text-white/40">
+        <div className="col-span-full text-center py-12 text-[var(--text-tertiary)]">
           <Truck className="h-16 w-16 mx-auto mb-4 opacity-20" />
           <p>No vehicles found</p>
         </div>

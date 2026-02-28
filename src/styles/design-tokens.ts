@@ -3,16 +3,16 @@
 export const designTokens = {
   colors: {
     primary: {
-      50: '#e3f2fd',
-      100: '#bbdefb',
-      200: '#90caf9',
-      300: '#64b5f6',
-      400: '#42a5f5',
-      500: '#2196f3',
-      600: '#1e88e5',
-      700: '#1976d2',
-      800: '#1565c0',
-      900: '#0d47a1',
+      50: '#ecfdf5',
+      100: '#d1fae5',
+      200: '#a7f3d0',
+      300: '#6ee7b7',
+      400: '#34d399',
+      500: '#10b981',
+      600: '#059669',
+      700: '#047857',
+      800: '#065f46',
+      900: '#064e3b',
     },
     secondary: {
       50: '#fce4ec',
@@ -42,7 +42,7 @@ export const designTokens = {
       success: '#4caf50',
       warning: '#ff9800',
       error: '#f44336',
-      info: '#2196f3',
+      info: '#10b981',
     },
     alpha: {
       overlay: 'rgba(0, 0, 0, 0.5)',

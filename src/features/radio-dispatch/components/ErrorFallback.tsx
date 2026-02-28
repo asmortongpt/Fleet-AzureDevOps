@@ -34,7 +34,7 @@ export function ErrorFallback({ error, errorInfo, onReset }: ErrorFallbackProps)
     <div className="min-h-screen bg-background flex items-center justify-center p-2">
       <div className="max-w-2xl w-full">
         {/* Error Card */}
-        <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-card border border-border rounded-lg overflow-hidden">
           {/* Header */}
           <div className="bg-destructive/10 border-b border-destructive/20 p-3">
             <div className="flex items-start gap-2">

@@ -64,7 +64,7 @@ export function SmartcarConnectButton({
 
   if (isLoading) {
     return (
-      <div className={cn('flex items-center gap-2 text-xs text-white/40', className)}>
+      <div className={cn('flex items-center gap-2 text-xs text-[var(--text-tertiary)]', className)}>
         <Loader2 className="h-3.5 w-3.5 animate-spin" />
         Checking Smartcar...
       </div>
@@ -81,7 +81,7 @@ export function SmartcarConnectButton({
             <div className="min-w-0">
               <span className="text-xs font-medium text-rose-400">Connection Error</span>
               {connectionStatus?.syncError && (
-                <p className="text-[10px] text-white/40 truncate">{connectionStatus.syncError}</p>
+                <p className="text-[10px] text-[var(--text-tertiary)] truncate">{connectionStatus.syncError}</p>
               )}
             </div>
           </div>
@@ -133,7 +133,7 @@ export function SmartcarConnectButton({
                 <span className="text-xs font-medium text-emerald-400">Smartcar Connected</span>
               </div>
               {lastSync && (
-                <p className="text-[10px] text-white/40">Last sync: {formatDateTime(lastSync)}</p>
+                <p className="text-[10px] text-[var(--text-tertiary)]">Last sync: {formatDateTime(lastSync)}</p>
               )}
             </div>
           </div>
@@ -154,7 +154,7 @@ export function SmartcarConnectButton({
               size="sm"
               onClick={handleDisconnect}
               disabled={isDisconnecting}
-              className="text-xs h-7 text-white/40 hover:text-rose-400"
+              className="text-xs h-7 text-[var(--text-tertiary)] hover:text-rose-400"
               aria-label="Disconnect Smartcar"
             >
               {isDisconnecting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Unplug className="h-3.5 w-3.5" />}
@@ -182,15 +182,15 @@ export function SmartcarConnectButton({
   }
 
   return (
-    <div className={cn('rounded-lg border border-white/[0.08] bg-white/[0.02] p-2.5', className)}>
+    <div className={cn('rounded-lg border border-[var(--border-subtle)] bg-white/[0.02] p-2.5', className)}>
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <div className="p-1.5 rounded-md bg-emerald-500/10">
             <Car className="h-4 w-4 text-emerald-400" />
           </div>
           <div className="min-w-0">
-            <span className="text-xs font-medium text-white/80">Smartcar</span>
-            <p className="text-[10px] text-white/40">Connect for live vehicle data</p>
+            <span className="text-xs font-medium text-[var(--text-primary)]">Smartcar</span>
+            <p className="text-[10px] text-[var(--text-tertiary)]">Connect for live vehicle data</p>
           </div>
         </div>
         <Button

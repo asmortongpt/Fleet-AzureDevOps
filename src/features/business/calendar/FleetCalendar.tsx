@@ -208,7 +208,7 @@ const FleetCalendar: React.FC = () => {
   };
 
   const CustomToolbar = ({ label, onNavigate, onView }: any) => (
-    <div className="flex items-center justify-between mb-2 p-2 bg-card rounded-lg shadow-sm border border-border/50">
+    <div className="flex items-center justify-between mb-2 p-2 bg-card rounded-lg border border-border/50">
       <div className="flex items-center space-x-2">
         <button
           onClick={() => onNavigate('PREV')}
@@ -225,19 +225,19 @@ const FleetCalendar: React.FC = () => {
         </button>
         <button
           onClick={() => onNavigate('NEXT')}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-white/[0.05] rounded-lg transition-colors"
           aria-label="Next"
         >
           <ChevronRight className="w-3 h-3" />
         </button>
-        <h2 className="text-base font-semibold text-gray-800">{label}</h2>
+        <h2 className="text-base font-semibold text-white/60">{label}</h2>
       </div>
 
       <div className="flex items-center space-x-2">
         <button
           onClick={() => onView('month')}
           className={`px-3 py-2 rounded-lg transition-colors ${
-            view === 'month' ? 'bg-emerald-500/10 text-emerald-800' : 'hover:bg-gray-100'
+            view === 'month' ? 'bg-emerald-500/10 text-emerald-800' : 'hover:bg-white/[0.05]'
           }`}
         >
           Month
@@ -245,7 +245,7 @@ const FleetCalendar: React.FC = () => {
         <button
           onClick={() => onView('week')}
           className={`px-3 py-2 rounded-lg transition-colors ${
-            view === 'week' ? 'bg-emerald-500/10 text-emerald-800' : 'hover:bg-gray-100'
+            view === 'week' ? 'bg-emerald-500/10 text-emerald-800' : 'hover:bg-white/[0.05]'
           }`}
         >
           Week
@@ -253,7 +253,7 @@ const FleetCalendar: React.FC = () => {
         <button
           onClick={() => onView('day')}
           className={`px-3 py-2 rounded-lg transition-colors ${
-            view === 'day' ? 'bg-emerald-500/10 text-emerald-800' : 'hover:bg-gray-100'
+            view === 'day' ? 'bg-emerald-500/10 text-emerald-800' : 'hover:bg-white/[0.05]'
           }`}
         >
           Day
@@ -261,7 +261,7 @@ const FleetCalendar: React.FC = () => {
         <button
           onClick={() => onView('agenda')}
           className={`px-3 py-2 rounded-lg transition-colors ${
-            view === 'agenda' ? 'bg-emerald-500/10 text-emerald-800' : 'hover:bg-gray-100'
+            view === 'agenda' ? 'bg-emerald-500/10 text-emerald-800' : 'hover:bg-white/[0.05]'
           }`}
         >
           Agenda
@@ -276,18 +276,18 @@ const FleetCalendar: React.FC = () => {
   });
 
   return (
-    <div className="h-full bg-gray-50 p-3">
+    <div className="h-full bg-white/[0.03] p-3">
       {/* Header */}
       <div className="mb-3">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-3">
             <CalendarDays className="w-4 h-4 text-emerald-800" />
-            <h1 className="text-base font-bold text-gray-800">Fleet Calendar</h1>
+            <h1 className="text-base font-bold text-white/60">Fleet Calendar</h1>
           </div>
 
           <div className="flex items-center space-x-3">
             {/* Outlook Integration Status */}
-            <div className="flex items-center space-x-2 px-2 py-2 bg-white rounded-lg shadow-sm">
+            <div className="flex items-center space-x-2 px-2 py-2 bg-white rounded-lg">
               {isAuthenticated ? (
                 <>
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
@@ -296,7 +296,7 @@ const FleetCalendar: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                  <div className="w-2 h-2 bg-white/[0.10] rounded-full" />
                   <span className="text-sm text-white/70">Sign in to load calendar events</span>
                 </>
               )}
@@ -306,7 +306,7 @@ const FleetCalendar: React.FC = () => {
               <button
                 onClick={syncWithOutlook}
                 disabled={loading}
-                className="p-2 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="p-2 bg-white rounded-lg hover:bg-white/[0.03] transition-colors disabled:opacity-50"
                 aria-label="Sync with Outlook"
               >
                 <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
@@ -324,14 +324,14 @@ const FleetCalendar: React.FC = () => {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center space-x-2 p-2 bg-white rounded-lg shadow-sm">
-          <span className="text-sm font-medium text-gray-700">Filter:</span>
+        <div className="flex items-center space-x-2 p-2 bg-white rounded-lg">
+          <span className="text-sm font-medium text-white/40">Filter:</span>
           {Object.entries(filters).map(([type, enabled]) => (
             <button
               key={type}
               onClick={() => setFilters({ ...filters, [type]: !enabled })}
               className={`flex items-center space-x-1 px-3 py-1 rounded-lg transition-colors ${
-                enabled ? 'bg-emerald-500/10 text-emerald-800' : 'bg-gray-100 text-gray-600'
+                enabled ? 'bg-emerald-500/10 text-emerald-800' : 'bg-white/[0.05] text-white/40'
               }`}
             >
               {type === 'maintenance' && <Wrench className="w-4 h-4" />}
@@ -346,7 +346,7 @@ const FleetCalendar: React.FC = () => {
       </div>
 
       {/* Calendar */}
-      <div className="bg-white rounded-lg shadow-sm p-2" style={{ height: 'calc(100vh - 280px)' }}>
+      <div className="bg-white rounded-lg p-2" style={{ height: 'calc(100vh - 280px)' }}>
         <Calendar
           localizer={localizer}
           events={filteredEvents}
@@ -370,12 +370,12 @@ const FleetCalendar: React.FC = () => {
       {/* Event Details Modal */}
       {showEventModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-sm w-full max-w-md p-3">
+          <div className="bg-white rounded-lg w-full max-w-md p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-base font-semibold">{selectedEvent.title}</h3>
               <button
                 onClick={() => setShowEventModal(false)}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-white/[0.05] rounded"
                 aria-label="Close event details"
               >
                 <X className="w-3 h-3" />
@@ -403,8 +403,8 @@ const FleetCalendar: React.FC = () => {
               )}
 
               {selectedEvent.resource?.description && (
-                <div className="mt-2 p-3 bg-gray-50 rounded">
-                  <p className="text-sm text-gray-700">{selectedEvent.resource.description}</p>
+                <div className="mt-2 p-3 bg-white/[0.03] rounded">
+                  <p className="text-sm text-white/40">{selectedEvent.resource.description}</p>
                 </div>
               )}
             </div>
@@ -412,7 +412,7 @@ const FleetCalendar: React.FC = () => {
             <div className="flex justify-end space-x-2 mt-3">
               <button
                 onClick={() => setShowEventModal(false)}
-                className="px-2 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="px-2 py-2 bg-white/[0.06] text-white/40 rounded-lg hover:bg-white/[0.08] transition-colors"
               >
                 Close
               </button>

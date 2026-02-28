@@ -59,7 +59,7 @@ const EVENT_CONFIG: Record<EventType, { icon: any; color: string; bgColor: strin
   damage: { icon: AlertTriangle, color: 'text-red-400', bgColor: 'bg-red-950/50' },
   inspection: { icon: ShieldCheck, color: 'text-green-400', bgColor: 'bg-green-950/50' },
   service: { icon: Fuel, color: 'text-amber-400', bgColor: 'bg-amber-950/50' },
-  milestone: { icon: CheckCircle, color: 'text-purple-400', bgColor: 'bg-purple-950/50' },
+  milestone: { icon: CheckCircle, color: 'text-amber-400', bgColor: 'bg-amber-950/50' },
   recall: { icon: AlertTriangle, color: 'text-orange-400', bgColor: 'bg-orange-950/50' }
 }
 
@@ -83,7 +83,7 @@ function TimelineEventCard({
       className={cn(
         'relative pl-3 pb-2',
         'before:absolute before:left-3 before:top-6 before:h-full before:w-px',
-        'before:bg-gradient-to-b before:from-white/20 before:to-transparent'
+        'before:bg-white/[0.08]'
       )}
     >
       {/* Timeline dot */}
@@ -91,7 +91,7 @@ function TimelineEventCard({
         className={cn(
           'absolute left-0 top-1 w-4 h-4 rounded-full flex items-center justify-center',
           config.bgColor,
-          'border border-white/[0.12]'
+          'border border-[var(--border-subtle)]'
         )}
       >
         <Icon className={cn('w-3 h-3', config.color)} />
@@ -100,9 +100,9 @@ function TimelineEventCard({
       {/* Event card */}
       <div
         className={cn(
-          'rounded-lg border border-white/[0.08] overflow-hidden',
+          'rounded-lg border border-[var(--border-subtle)] overflow-hidden',
           'bg-white/[0.03]',
-          'hover:border-white/[0.12] transition-colors cursor-pointer'
+          'hover:border-[var(--border-subtle)] transition-colors cursor-pointer'
         )}
         onClick={onClick}
       >
@@ -121,10 +121,10 @@ function TimelineEventCard({
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-2 mt-1 text-xs text-white/40">
+              <div className="flex items-center gap-2 mt-1 text-xs text-[var(--text-tertiary)]">
                 <Clock className="w-3 h-3" />
                 <span>{format(event.date, 'MMM d, yyyy')}</span>
-                <span className="text-white/20">|</span>
+                <span className="text-[var(--text-muted)]">|</span>
                 <span>{formatDistanceToNow(event.date, { addSuffix: true })}</span>
               </div>
             </div>
@@ -148,13 +148,13 @@ function TimelineEventCard({
           {/* Metadata row */}
           <div className="flex items-center gap-3 mt-2">
             {event.mileage && (
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-[var(--text-tertiary)]">
                 <Car className="w-3 h-3 inline mr-1" />
                 {formatNumber(event.mileage)} mi
               </span>
             )}
             {event.cost && (
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-[var(--text-tertiary)]">
                 {formatCurrency(event.cost)}
               </span>
             )}
@@ -175,24 +175,24 @@ function TimelineEventCard({
 
         {/* Expanded content */}
         {isExpanded && (
-          <div className="px-3 pb-3 pt-0 border-t border-white/[0.06] mt-2">
+          <div className="px-3 pb-3 pt-0 border-t border-[var(--border-subtle)] mt-2">
             {event.description && (
-              <p className="text-xs text-white/60 mt-2">{event.description}</p>
+              <p className="text-xs text-[var(--text-secondary)] mt-2">{event.description}</p>
             )}
             {event.technician && (
-              <p className="text-xs text-white/40 mt-2">
-                Technician: <span className="text-white/60">{event.technician}</span>
+              <p className="text-xs text-[var(--text-tertiary)] mt-2">
+                Technician: <span className="text-[var(--text-secondary)]">{event.technician}</span>
               </p>
             )}
             {event.location && (
-              <p className="text-xs text-white/40">
-                Location: <span className="text-white/60">{event.location}</span>
+              <p className="text-xs text-[var(--text-tertiary)]">
+                Location: <span className="text-[var(--text-secondary)]">{event.location}</span>
               </p>
             )}
             {event.photos && event.photos.length > 0 && (
               <div className="flex items-center gap-2 mt-2">
-                <Camera className="w-3 h-3 text-white/40" />
-                <span className="text-xs text-white/40">
+                <Camera className="w-3 h-3 text-[var(--text-tertiary)]" />
+                <span className="text-xs text-[var(--text-tertiary)]">
                   {event.photos.length} photo{event.photos.length > 1 ? 's' : ''} attached
                 </span>
               </div>
@@ -212,22 +212,22 @@ function QuickStats({ events }: { events: TimelineEvent[] }) {
   const totalCost = events.reduce((sum, e) => sum + (e.cost || 0), 0)
 
   return (
-    <div className="grid grid-cols-4 gap-2 p-3 bg-white/[0.03] rounded-lg border border-white/[0.08]">
+    <div className="grid grid-cols-4 gap-2 p-3 bg-white/[0.03] rounded-lg border border-[var(--border-subtle)]">
       <div className="text-center">
         <p className="text-sm font-bold text-emerald-400">{maintenanceCount}</p>
-        <p className="text-[10px] text-white/40 uppercase">Service</p>
+        <p className="text-[10px] text-[var(--text-tertiary)] uppercase">Service</p>
       </div>
       <div className="text-center">
         <p className="text-sm font-bold text-red-400">{damageCount}</p>
-        <p className="text-[10px] text-white/40 uppercase">Damage</p>
+        <p className="text-[10px] text-[var(--text-tertiary)] uppercase">Damage</p>
       </div>
       <div className="text-center">
         <p className="text-sm font-bold text-green-400">{inspectionCount}</p>
-        <p className="text-[10px] text-white/40 uppercase">Inspect</p>
+        <p className="text-[10px] text-[var(--text-tertiary)] uppercase">Inspect</p>
       </div>
       <div className="text-center">
         <p className="text-sm font-bold text-amber-400">${(totalCost / 1000).toFixed(1)}k</p>
-        <p className="text-[10px] text-white/40 uppercase">Total</p>
+        <p className="text-[10px] text-[var(--text-tertiary)] uppercase">Total</p>
       </div>
     </div>
   )
@@ -259,15 +259,15 @@ export function TimelineDrawer({
     <div
       className={cn(
         'fixed right-0 top-0 h-full w-80 z-50',
-        'bg-[#1a1a1a]',
-        'border-l border-white/[0.08] shadow-sm',
+        'bg-[var(--surface-3)]',
+        'border-l border-[var(--border-subtle)]',
         'transform transition-transform duration-300',
         isOpen ? 'translate-x-0' : 'translate-x-full',
         className
       )}
     >
       {/* Header */}
-      <div className="p-2 border-b border-white/[0.08]">
+      <div className="p-2 border-b border-[var(--border-subtle)]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock className="w-3 h-3 text-emerald-400" />
@@ -313,7 +313,7 @@ export function TimelineDrawer({
               />
             ))
           ) : (
-            <div className="text-center py-3 text-white/40">
+            <div className="text-center py-3 text-[var(--text-tertiary)]">
               <Clock className="w-4 h-4 mx-auto mb-2 opacity-50" />
               <p className="text-sm">No events found</p>
             </div>
@@ -322,7 +322,7 @@ export function TimelineDrawer({
       </ScrollArea>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 border-t border-white/[0.08] bg-[#1a1a1a]">
+      <div className="absolute bottom-0 left-0 right-0 p-2 border-t border-[var(--border-subtle)] bg-[var(--surface-3)]">
         <Button variant="outline" size="sm" className="w-full">
           <CaretDoubleRight className="w-4 h-4 mr-2" />
           View Full History

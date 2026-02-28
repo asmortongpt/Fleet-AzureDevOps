@@ -72,7 +72,7 @@ router.get(
     try {
       // Row-level filtering: check if user is a driver
       const userResult = await pool.query(
-        `SELECT id, driver_id FROM users WHERE id = $1 AND tenant_id = $2`,
+        `SELECT u.id, d.id as driver_id FROM users u LEFT JOIN drivers d ON d.user_id = u.id WHERE u.id = $1 AND u.tenant_id = $2`,
         [req.user!.id, req.user!.tenant_id]
       )
 
@@ -82,41 +82,33 @@ router.get(
           t.tenant_id,
           t.vehicle_id,
           t.driver_id,
-          t.status,
-          t.start_time,
-          t.end_time,
-          t.duration_seconds,
-          t.start_location,
-          t.end_location,
-          t.start_odometer_miles,
-          t.end_odometer_miles,
-          t.distance_miles,
-          t.avg_speed_mph,
-          t.max_speed_mph,
-          t.idle_time_seconds,
-          t.fuel_consumed_gallons,
-          t.fuel_efficiency_mpg,
-          t.fuel_cost,
-          t.driver_score,
-          t.harsh_acceleration_count,
-          t.harsh_braking_count,
-          t.harsh_cornering_count,
-          t.speeding_count,
+          t.trip_number,
+          t.started_at as start_time,
+          t.ended_at as end_time,
+          t.duration_minutes * 60 as duration_seconds,
+          t.start_address as start_location,
+          t.end_address as end_location,
+          t.start_odometer as start_odometer_miles,
+          t.end_odometer as end_odometer_miles,
+          t.distance_km * 0.621371 as distance_miles,
+          t.avg_speed_kph * 0.621371 as avg_speed_mph,
+          t.max_speed_kph * 0.621371 as max_speed_mph,
+          t.idle_time_minutes * 60 as idle_time_seconds,
+          t.fuel_consumed_liters * 0.264172 as fuel_consumed_gallons,
           t.usage_type,
           t.business_purpose,
-          t.classification_status,
           t.metadata,
           t.created_at,
-          t.updated_at,
-          v.name as vehicle_name,
+          CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
           v.license_plate,
-          CONCAT(u.first_name, ' ', u.last_name) as driver_name,
-          EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - t.start_time)) / 60 as duration_minutes
+          CONCAT(u2.first_name, ' ', u2.last_name) as driver_name,
+          EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - t.started_at)) / 60 as duration_minutes_live
         FROM trips t
         LEFT JOIN vehicles v ON t.vehicle_id = v.id
-        LEFT JOIN users u ON t.driver_id = u.id
+        LEFT JOIN drivers d ON t.driver_id = d.id
+        LEFT JOIN users u2 ON d.user_id = u2.id
         WHERE t.tenant_id = $1
-          AND t.status = 'in_progress'
+          AND t.ended_at IS NULL
       `
 
       const params: any[] = [req.user!.tenant_id]
@@ -127,7 +119,7 @@ router.get(
         params.push(userResult.rows[0].id)
       }
 
-      query += ` ORDER BY t.start_time DESC`
+      query += ` ORDER BY t.started_at DESC`
 
       const result = await pool.query(query, params)
 
@@ -165,7 +157,7 @@ router.get(
 
       // Row-level filtering: check if user is a driver
       const userResult = await pool.query(
-        `SELECT id, driver_id FROM users WHERE id = $1 AND tenant_id = $2`,
+        `SELECT u.id, d.id as driver_id FROM users u LEFT JOIN drivers d ON d.user_id = u.id WHERE u.id = $1 AND u.tenant_id = $2`,
         [req.user!.id, req.user!.tenant_id]
       )
 
@@ -175,38 +167,30 @@ router.get(
           t.tenant_id,
           t.vehicle_id,
           t.driver_id,
-          t.status,
-          t.start_time,
-          t.end_time,
-          t.duration_seconds,
-          t.start_location,
-          t.end_location,
-          t.start_odometer_miles,
-          t.end_odometer_miles,
-          t.distance_miles,
-          t.avg_speed_mph,
-          t.max_speed_mph,
-          t.idle_time_seconds,
-          t.fuel_consumed_gallons,
-          t.fuel_efficiency_mpg,
-          t.fuel_cost,
-          t.driver_score,
-          t.harsh_acceleration_count,
-          t.harsh_braking_count,
-          t.harsh_cornering_count,
-          t.speeding_count,
+          t.trip_number,
+          t.started_at as start_time,
+          t.ended_at as end_time,
+          t.duration_minutes * 60 as duration_seconds,
+          t.start_address as start_location,
+          t.end_address as end_location,
+          t.start_odometer as start_odometer_miles,
+          t.end_odometer as end_odometer_miles,
+          t.distance_km * 0.621371 as distance_miles,
+          t.avg_speed_kph * 0.621371 as avg_speed_mph,
+          t.max_speed_kph * 0.621371 as max_speed_mph,
+          t.idle_time_minutes * 60 as idle_time_seconds,
+          t.fuel_consumed_liters * 0.264172 as fuel_consumed_gallons,
           t.usage_type,
           t.business_purpose,
-          t.classification_status,
           t.metadata,
           t.created_at,
-          t.updated_at,
-          v.name as vehicle_name,
+          CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
           v.license_plate,
           CONCAT(u.first_name, ' ', u.last_name) as driver_name
         FROM trips t
         LEFT JOIN vehicles v ON t.vehicle_id = v.id
-        LEFT JOIN users u ON t.driver_id = u.id
+        LEFT JOIN drivers d ON t.driver_id = d.id
+        LEFT JOIN users u ON d.user_id = u.id
         WHERE t.tenant_id = $1
       `
 
@@ -224,10 +208,14 @@ router.get(
 
       // Apply filters
       if (status) {
-        query += ` AND t.status = $${paramIndex}`
-        countQuery += ` AND t.status = $${paramIndex}`
-        params.push(status)
-        paramIndex++
+        // trips table has no status column; filter by ended_at presence
+        if (status === 'completed') {
+          query += ` AND t.ended_at IS NOT NULL`
+          countQuery += ` AND t.ended_at IS NOT NULL`
+        } else if (status === 'in_progress') {
+          query += ` AND t.ended_at IS NULL`
+          countQuery += ` AND t.ended_at IS NULL`
+        }
       }
 
       if (driverId) {
@@ -245,15 +233,15 @@ router.get(
       }
 
       if (startDate) {
-        query += ` AND t.start_time >= $${paramIndex}`
-        countQuery += ` AND t.start_time >= $${paramIndex}`
+        query += ` AND t.started_at >= $${paramIndex}`
+        countQuery += ` AND t.started_at >= $${paramIndex}`
         params.push(startDate)
         paramIndex++
       }
 
       if (endDate) {
-        query += ` AND t.start_time <= $${paramIndex}`
-        countQuery += ` AND t.start_time <= $${paramIndex}`
+        query += ` AND t.started_at <= $${paramIndex}`
+        countQuery += ` AND t.started_at <= $${paramIndex}`
         params.push(endDate)
         paramIndex++
       }
@@ -265,14 +253,9 @@ router.get(
         paramIndex++
       }
 
-      if (classificationStatus) {
-        query += ` AND t.classification_status = $${paramIndex}`
-        countQuery += ` AND t.classification_status = $${paramIndex}`
-        params.push(classificationStatus)
-        paramIndex++
-      }
+      // classification_status not in trips table - skip filter
 
-      query += ` ORDER BY t.start_time DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      query += ` ORDER BY t.started_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(pageSize, offset)
 
       const result = await pool.query(query, params)
@@ -365,38 +348,30 @@ router.get(
           t.tenant_id,
           t.vehicle_id,
           t.driver_id,
-          t.status,
-          t.start_time,
-          t.end_time,
-          t.duration_seconds,
-          t.start_location,
-          t.end_location,
-          t.start_odometer_miles,
-          t.end_odometer_miles,
-          t.distance_miles,
-          t.avg_speed_mph,
-          t.max_speed_mph,
-          t.idle_time_seconds,
-          t.fuel_consumed_gallons,
-          t.fuel_efficiency_mpg,
-          t.fuel_cost,
-          t.driver_score,
-          t.harsh_acceleration_count,
-          t.harsh_braking_count,
-          t.harsh_cornering_count,
-          t.speeding_count,
+          t.trip_number,
+          t.started_at as start_time,
+          t.ended_at as end_time,
+          t.duration_minutes * 60 as duration_seconds,
+          t.start_address as start_location,
+          t.end_address as end_location,
+          t.start_odometer as start_odometer_miles,
+          t.end_odometer as end_odometer_miles,
+          t.distance_km * 0.621371 as distance_miles,
+          t.avg_speed_kph * 0.621371 as avg_speed_mph,
+          t.max_speed_kph * 0.621371 as max_speed_mph,
+          t.idle_time_minutes * 60 as idle_time_seconds,
+          t.fuel_consumed_liters * 0.264172 as fuel_consumed_gallons,
           t.usage_type,
           t.business_purpose,
-          t.classification_status,
           t.metadata,
           t.created_at,
-          t.updated_at,
-          v.name as vehicle_name,
+          CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
           v.license_plate,
-          CONCAT(u.first_name, ' ', u.last_name) as driver_name
+          CONCAT(u2.first_name, ' ', u2.last_name) as driver_name
         FROM trips t
         LEFT JOIN vehicles v ON t.vehicle_id = v.id
-        LEFT JOIN users u ON t.driver_id = u.id
+        LEFT JOIN drivers dr ON t.driver_id = dr.id
+        LEFT JOIN users u2 ON dr.user_id = u2.id
         WHERE t.id = $1 AND t.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -407,7 +382,7 @@ router.get(
 
       // IDOR protection: Check if user has access to this trip
       const userResult = await pool.query(
-        `SELECT id, driver_id FROM users WHERE id = $1 AND tenant_id = $2`,
+        `SELECT u.id, d.id as driver_id FROM users u LEFT JOIN drivers d ON d.user_id = u.id WHERE u.id = $1 AND u.tenant_id = $2`,
         [req.user!.id, req.user!.tenant_id]
       )
 
@@ -415,7 +390,7 @@ router.get(
       const trip = result.rows[0]
 
       // If user is a driver, verify the trip belongs to them
-      if (user.driver_id && trip.driver_id !== user.id) {
+      if (user?.driver_id && trip.driver_id !== user.id) {
         return res.status(403).json({ error: 'Forbidden' })
       }
 

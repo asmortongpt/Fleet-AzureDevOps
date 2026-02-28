@@ -205,34 +205,31 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
   ): Promise<ReservationWithDetails | null> {
     try {
       const pool = this.getPool(context);
-      
-      let whereClause = 'vr.id =  AND vr.tenant_id =  AND vr.deleted_at IS NULL';
+
+      let whereClause = 'r.id = $1 AND r.tenant_id = $2';
       const params: any[] = [id, context.tenantId];
 
       if (!userCanViewAll) {
-        whereClause += ' AND vr.user_id = ';
+        whereClause += ' AND r.user_id = $3';
         params.push(context.userId);
       }
 
       const query = `
         SELECT
-          vr.*,
-          v.unit_number,
+          r.*,
+          CONCAT(v.year, ' ', v.make, ' ', v.model) AS vehicle_name,
           v.make,
           v.model,
           v.year,
-          v.vin,
           v.license_plate,
-          v.classification,
-          u.name as user_name,
+          CONCAT(u.first_name, ' ', u.last_name) as user_name,
           u.email as user_email,
-          u.phone as user_phone,
-          approver.name as approved_by_name,
+          CONCAT(approver.first_name, ' ', approver.last_name) as approved_by_name,
           approver.email as approved_by_email
-        FROM vehicle_reservations vr
-        JOIN vehicles v ON vr.vehicle_id = v.id
-        JOIN users u ON vr.user_id = u.id
-        LEFT JOIN users approver ON vr.approved_by = approver.id
+        FROM reservations r
+        LEFT JOIN vehicles v ON r.vehicle_id = v.id
+        LEFT JOIN users u ON r.user_id = u.id
+        LEFT JOIN users approver ON r.approved_by = approver.id
         WHERE ${whereClause}
       `;
 
@@ -256,7 +253,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
     try {
       const pool = this.getPool(context);
       const result = await pool.query(
-        'SELECT id, unit_number, make, model, year FROM vehicles WHERE id =  AND tenant_id =  AND deleted_at IS NULL',
+        'SELECT id, license_plate, make, model, year FROM vehicles WHERE id = $1 AND tenant_id = $2',
         [vehicleId, context.tenantId]
       );
       return result.rows[0] || null;

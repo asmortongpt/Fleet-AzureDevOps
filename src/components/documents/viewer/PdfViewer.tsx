@@ -152,7 +152,7 @@ export function PdfViewer({ document, state, onStateChange }: PdfViewerProps) {
             {pdfSrc ? (
               <iframe
                 src={pdfSrc}
-                className="w-full h-[80vh] bg-white shadow-sm rounded-md"
+                className="w-full h-[80vh] bg-white rounded-md"
                 title={`PDF Preview: ${document.name}`}
               />
             ) : (

@@ -158,7 +158,7 @@ export const TemperatureControl: Story = {
   render: () => {
     const [temp, setTemp] = useState(72);
     const getTempColor = (t: number) => {
-      if (t < 65) return 'text-blue-500';
+      if (t < 65) return 'text-emerald-500';
       if (t > 80) return 'text-red-500';
       return 'text-green-500';
     };

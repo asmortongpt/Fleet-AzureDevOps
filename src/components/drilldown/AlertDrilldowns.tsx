@@ -182,7 +182,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               {getSeverityIcon(alertData.severity)}
               <h3 className="text-sm font-bold">{alertData.title}</h3>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-[var(--text-secondary)]">
               Alert #{alertData.alert_number} • {alertData.category}
             </p>
             <div className="flex items-center gap-2 mt-2">
@@ -192,7 +192,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               </Badge>
             </div>
           </div>
-          <AlertTriangle className="h-9 w-12 text-muted-foreground" />
+          <AlertTriangle className="h-9 w-12 text-[var(--text-secondary)]" />
         </div>
 
         {/* Quick Info */}
@@ -208,7 +208,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               <p className="text-sm font-semibold">
                 {formatDateTime(alertData.triggered_at)}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-[var(--text-secondary)] mt-1">
                 {alertData.triggered_at &&
                   `${Math.floor((Date.now() - new Date(alertData.triggered_at).getTime()) / 60000)} minutes ago`}
               </p>
@@ -250,24 +250,24 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               </CardHeader>
               <CardContent className="space-y-2">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Description</p>
+                  <p className="text-sm text-[var(--text-secondary)] mb-1">Description</p>
                   <p className="text-sm">{alertData.description || 'No description provided'}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <p className="text-sm text-muted-foreground">Type</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Type</p>
                     <p className="font-medium">{alertData.alert_type || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Category</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Category</p>
                     <p className="font-medium">{alertData.category || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Priority</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Priority</p>
                     <p className="font-medium">{alertData.priority || 'Normal'}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Auto-Clear</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Auto-Clear</p>
                     <p className="font-medium">
                       {alertData.auto_clear_enabled ? 'Enabled' : 'Disabled'}
                     </p>
@@ -275,13 +275,13 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                 </div>
 
                 {alertData.threshold_value && (
-                  <div className="p-3 rounded bg-muted/50">
-                    <p className="text-sm text-muted-foreground mb-1">Threshold Information</p>
+                  <div className="p-3 rounded bg-[var(--surface-glass)]">
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Threshold Information</p>
                     <p className="text-sm">
                       Triggered when {alertData.threshold_metric} exceeded{' '}
                       <span className="font-semibold">{alertData.threshold_value}</span>
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
                       Current value: {alertData.current_value || '—'}
                     </p>
                   </div>
@@ -297,10 +297,10 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               </CardHeader>
               <CardContent className="space-y-3">
                 {alertData.vehicle_id && (
-                  <div className="p-3 rounded bg-muted/50">
+                  <div className="p-3 rounded bg-[var(--surface-glass)]">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Vehicle</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Vehicle</p>
                         <p className="font-medium">{alertData.vehicle_name || '—'}</p>
                       </div>
                       <Button
@@ -322,10 +322,10 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                 )}
 
                 {alertData.driver_id && (
-                  <div className="p-3 rounded bg-muted/50">
+                  <div className="p-3 rounded bg-[var(--surface-glass)]">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Driver</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Driver</p>
                         <p className="font-medium">{alertData.driver_name || '—'}</p>
                       </div>
                       <Button
@@ -347,14 +347,14 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                 )}
 
                 {alertData.location && (
-                  <div className="p-3 rounded bg-muted/50">
+                  <div className="p-3 rounded bg-[var(--surface-glass)]">
                     <div className="flex items-center gap-2 mb-1">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">Location</p>
+                      <MapPin className="h-4 w-4 text-[var(--text-secondary)]" />
+                      <p className="text-sm text-[var(--text-secondary)]">Location</p>
                     </div>
                     <p className="text-sm">{alertData.location}</p>
                     {alertData.coordinates && (
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-[var(--text-secondary)] mt-1">
                         {alertData.coordinates.lat}, {alertData.coordinates.lng}
                       </p>
                     )}
@@ -362,7 +362,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                 )}
 
                 {!alertData.vehicle_id && !alertData.driver_id && !alertData.location && (
-                  <p className="text-sm text-muted-foreground">No source information available</p>
+                  <p className="text-sm text-[var(--text-secondary)]">No source information available</p>
                 )}
               </CardContent>
             </Card>
@@ -375,26 +375,26 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               </CardHeader>
               <CardContent className="space-y-3">
                 {alertData.acknowledged_by && (
-                  <div className="p-3 rounded bg-muted/50">
+                  <div className="p-3 rounded bg-[var(--surface-glass)]">
                     <div className="flex items-center gap-2 mb-1">
-                      <User className="h-4 w-4 text-muted-foreground" />
+                      <User className="h-4 w-4 text-[var(--text-secondary)]" />
                       <p className="text-sm font-medium">Acknowledged</p>
                     </div>
                     <p className="text-sm">By: {alertData.acknowledged_by}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-[var(--text-secondary)]">
                       {formatDateTime(alertData.acknowledged_at)}
                     </p>
                   </div>
                 )}
 
                 {alertData.resolved_by && (
-                  <div className="p-3 rounded bg-muted/50">
+                  <div className="p-3 rounded bg-[var(--surface-glass)]">
                     <div className="flex items-center gap-2 mb-1">
-                      <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                      <CheckCircle className="h-4 w-4 text-[var(--text-secondary)]" />
                       <p className="text-sm font-medium">Resolved</p>
                     </div>
                     <p className="text-sm">By: {alertData.resolved_by}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-[var(--text-secondary)]">
                       {formatDateTime(alertData.resolved_at)}
                     </p>
                     {alertData.resolution_notes && (
@@ -404,9 +404,9 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                 )}
 
                 {alertData.notifications_sent && alertData.notifications_sent.length > 0 && (
-                  <div className="p-3 rounded bg-muted/50">
+                  <div className="p-3 rounded bg-[var(--surface-glass)]">
                     <div className="flex items-center gap-2 mb-1">
-                      <Bell className="h-4 w-4 text-muted-foreground" />
+                      <Bell className="h-4 w-4 text-[var(--text-secondary)]" />
                       <p className="text-sm font-medium">Notifications Sent</p>
                     </div>
                     <ul className="text-xs space-y-1 mt-2">
@@ -423,7 +423,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                 {!alertData.acknowledged_by &&
                   !alertData.resolved_by &&
                   (!alertData.notifications_sent || alertData.notifications_sent.length === 0) && (
-                    <p className="text-sm text-muted-foreground">No actions taken yet</p>
+                    <p className="text-sm text-[var(--text-secondary)]">No actions taken yet</p>
                   )}
               </CardContent>
             </Card>
@@ -458,11 +458,11 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               <CardContent>
                 <div className="space-y-3">
                   {alertData.activity_log?.map((activity) => (
-                    <div key={`${activity.action}-${activity.timestamp}`} className="flex items-start gap-2 p-2 rounded bg-muted/50">
-                      <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div key={`${activity.action}-${activity.timestamp}`} className="flex items-start gap-2 p-2 rounded bg-[var(--surface-glass)]">
+                      <Clock className="h-4 w-4 text-[var(--text-secondary)] mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm font-medium">{activity.action}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-[var(--text-secondary)]">
                           {activity.user} • {formatDateTime(activity.timestamp)}
                         </p>
                         {activity.notes && (
@@ -472,7 +472,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                     </div>
                   ))}
                   {(!alertData.activity_log || alertData.activity_log.length === 0) && (
-                    <p className="text-sm text-muted-foreground">No activity history</p>
+                    <p className="text-sm text-[var(--text-secondary)]">No activity history</p>
                   )}
                 </div>
               </CardContent>
@@ -528,7 +528,7 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
       case 'medium':
         return <Bell className="h-4 w-4 text-primary" />
       case 'low':
-        return <Info className="h-4 w-4 text-muted-foreground" />
+        return <Info className="h-4 w-4 text-[var(--text-secondary)]" />
       default:
         return <Bell className="h-4 w-4" />
     }
@@ -599,19 +599,19 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
                       {getSeverityIcon(alert.severity)}
                       <p className="font-semibold">{alert.title}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-[var(--text-secondary)]">
                       {alert.category} • Alert #{alert.alert_number}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-[var(--text-secondary)]">
                       Triggered {formatDateTime(alert.triggered_at)}
                     </p>
                     {alert.vehicle_name && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[var(--text-secondary)]">
                         Vehicle: {alert.vehicle_name}
                       </p>
                     )}
                     {alert.driver_name && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[var(--text-secondary)]">
                         Driver: {alert.driver_name}
                       </p>
                     )}
@@ -622,7 +622,7 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
                       {alert.severity}
                     </Badge>
                     {alert.duration_minutes && (
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-[var(--text-secondary)] mt-1">
                         {alert.duration_minutes} min
                       </p>
                     )}
@@ -635,8 +635,8 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
           {(!alerts || alerts.length === 0) && (
             <Card>
               <CardContent className="p-3 text-center">
-                <CheckCircle className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">
+                <CheckCircle className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                <p className="text-[var(--text-secondary)]">
                   No {status ? statusLabels[status].toLowerCase() : 'alerts'} found
                 </p>
               </CardContent>

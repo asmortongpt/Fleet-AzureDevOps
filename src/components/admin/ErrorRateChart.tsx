@@ -134,7 +134,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
     return 'flat';
   }, [chartData]);
 
-  const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#6C5CE7'];
+  const COLORS = ['#FF6B6B', '#34d399', '#14b8a6', '#FFA07A', '#98D8C8', '#d97706'];
 
   if (loading) {
     return <Box sx={{ p: 2 }}>Loading error data...</Box>;
@@ -204,7 +204,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
               labelLine={false}
               label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
               outerRadius={100}
-              fill="#8884d8"
+              fill="#10b981"
               dataKey="value"
             >
               {pieData.map((_entry, index) => (
@@ -233,7 +233,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
               <Line
                 type="monotone"
                 dataKey="unique"
-                stroke="#4ECDC4"
+                stroke="#34d399"
                 strokeWidth={2}
                 name="Unique Types"
               />
@@ -246,7 +246,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
               <Tooltip />
               <Legend />
               <Bar dataKey="errors" fill="#FF6B6B" name="Error Count" />
-              <Bar dataKey="unique" fill="#4ECDC4" name="Unique Types" />
+              <Bar dataKey="unique" fill="#34d399" name="Unique Types" />
             </BarChart>
           )}
         </ResponsiveContainer>

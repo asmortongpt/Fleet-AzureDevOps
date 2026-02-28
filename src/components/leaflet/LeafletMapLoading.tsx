@@ -10,7 +10,7 @@ interface LeafletMapLoadingProps {
 export function LeafletMapLoading({ libraryLoaded }: LeafletMapLoadingProps) {
   return (
     <div
-      className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm rounded-lg"
+      className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-[var(--surface-0)] rounded-lg"
       role="status"
       aria-live="polite"
       aria-atomic="true"
@@ -24,13 +24,13 @@ export function LeafletMapLoading({ libraryLoaded }: LeafletMapLoadingProps) {
         />
 
         {/* Loading message */}
-        <h3 className="text-base font-semibold text-foreground mb-2">
+        <h3 className="text-base font-semibold text-white mb-2">
           {libraryLoaded ? "Initializing Map..." : "Loading Map Library..."}
         </h3>
-        <p className="text-sm text-muted-foreground mb-1">
+        <p className="text-sm text-[var(--text-secondary)] mb-1">
           {libraryLoaded ? "Setting up interactive map view" : "Downloading OpenStreetMap components"}
         </p>
-        <p className="text-xs text-muted-foreground/70 mt-2">
+        <p className="text-xs text-[var(--text-tertiary)] mt-2">
           100% Free • No API Key Required • Powered by OpenStreetMap
         </p>
 

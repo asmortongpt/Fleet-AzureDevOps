@@ -651,13 +651,13 @@ class SmartcarService {
 
   async getAllConnections(tenantId?: string): Promise<any[]> {
     const query = tenantId
-      ? `SELECT vtc.*, v.name as vehicle_name, v.make, v.model, v.year, v.license_plate
+      ? `SELECT vtc.*, (v.year || ' ' || v.make || ' ' || v.model) as vehicle_name, v.make, v.model, v.year, v.license_plate
          FROM vehicle_telematics_connections vtc
          JOIN vehicles v ON v.id = vtc.vehicle_id
          WHERE vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')
          AND v.tenant_id = $1
          ORDER BY vtc.updated_at DESC`
-      : `SELECT vtc.*, v.name as vehicle_name, v.make, v.model, v.year, v.license_plate
+      : `SELECT vtc.*, (v.year || ' ' || v.make || ' ' || v.model) as vehicle_name, v.make, v.model, v.year, v.license_plate
          FROM vehicle_telematics_connections vtc
          JOIN vehicles v ON v.id = vtc.vehicle_id
          WHERE vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')
@@ -723,8 +723,36 @@ class SmartcarService {
     const smartcarVehicleId = connection.external_vehicle_id
 
     try {
-      // Get location
+      // Get location from Smartcar API
       const location = await this.getLocation(smartcarVehicleId, accessToken)
+
+      // In test mode, use route-based simulation around Tallahassee, FL
+      let lat = location.latitude
+      let lng = location.longitude
+      if (SMARTCAR_MODE === 'test') {
+        // Determine route index from the vehicle's order in the connections table
+        const { rows: connRows } = await this.db.query(
+          `SELECT vehicle_id FROM vehicle_telematics_connections vtc
+           JOIN telematics_providers tp ON vtc.provider_id = tp.id
+           WHERE tp.name = 'smartcar' AND vtc.sync_status != 'disconnected'
+           ORDER BY vtc.vehicle_id`
+        )
+        const routeIdx = connRows.findIndex((r: { vehicle_id: string }) => String(r.vehicle_id) === String(vehicleId))
+        const ROUTES: [number, number][][] = [
+          [[30.4383,-84.2807],[30.4450,-84.2920],[30.4427,-84.2985],[30.4350,-84.3050],[30.4250,-84.3150],[30.4100,-84.3300],[30.3970,-84.3450],[30.3926,-84.3503],[30.4000,-84.3400],[30.4100,-84.3200],[30.4200,-84.3050],[30.4300,-84.2920]],
+          [[30.4550,-84.2750],[30.4620,-84.2680],[30.4720,-84.2600],[30.4830,-84.2550],[30.4900,-84.2650],[30.4880,-84.2800],[30.4800,-84.2950],[30.4700,-84.3020],[30.4600,-84.2950],[30.4530,-84.2850]],
+        ]
+        const CYCLE_MS = 300_000
+        const route = ROUTES[(routeIdx >= 0 ? routeIdx : 0) % ROUTES.length]
+        const progress = (Date.now() % CYCLE_MS) / CYCLE_MS
+        const segFloat = progress * route.length
+        const segIdx = Math.floor(segFloat) % route.length
+        const segProgress = segFloat - Math.floor(segFloat)
+        const start = route[segIdx]
+        const end = route[(segIdx + 1) % route.length]
+        lat = start[0] + (end[0] - start[0]) * segProgress
+        lng = start[1] + (end[1] - start[1]) * segProgress
+      }
 
       // Get odometer
       const odometer = await this.getOdometer(smartcarVehicleId, accessToken)
@@ -761,13 +789,21 @@ class SmartcarService {
           odometer_miles, battery_percent, fuel_percent, estimated_range_miles)
          VALUES ($1, (SELECT id FROM telematics_providers WHERE name = 'smartcar'),
                  NOW(), $2, $3, $4, $5, $6, $7)`,
-        [vehicleId, location.latitude, location.longitude, odometerRounded, batteryPercent, fuelPercent, rangeRounded]
+        [vehicleId, lat, lng, odometerRounded, batteryPercent, fuelPercent, rangeRounded]
+      )
+
+      // Update vehicle's current position and odometer
+      await this.db.query(
+        `UPDATE vehicles
+         SET latitude = $2, longitude = $3, odometer = $4, last_gps_update = NOW(), updated_at = NOW()
+         WHERE id = $1`,
+        [vehicleId, lat, lng, odometerRounded]
       )
 
       // Update last sync time
       await this.db.query(
         `UPDATE vehicle_telematics_connections
-         SET sync_status = 'active', sync_error = NULL, updated_at = NOW()
+         SET sync_status = 'active', sync_error = NULL, last_sync_at = NOW(), updated_at = NOW()
          WHERE vehicle_id = $1
          AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')`,
         [vehicleId]

@@ -91,9 +91,9 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
   }, [generatedReport, onReportCreated]);
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-[var(--surface-0)]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--primary))] to-[hsl(var(--background))] text-white px-3 py-3">
+      <div className="bg-[var(--surface-2)] border-b border-[var(--border-subtle)] text-white px-3 py-3">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-2">
             <Button
@@ -118,13 +118,13 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 bg-muted/30">
+      <div className="flex-1 overflow-y-auto px-3 py-3 bg-[var(--surface-0)]">
         <div className="max-w-6xl mx-auto space-y-2">
           {/* Input section */}
           {!showPreview && (
             <>
-              <Card className="p-3 bg-card/90 border-border/50">
-                <h2 className="text-sm font-semibold text-foreground mb-2">
+              <Card className="p-3 bg-[var(--surface-2)] border-[var(--border-subtle)]">
+                <h2 className="text-sm font-semibold text-white mb-2">
                   What report would you like to create?
                 </h2>
                 <Textarea
@@ -139,7 +139,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   }}
                 />
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-[var(--text-tertiary)]">
                     Press Ctrl+Enter to generate
                   </p>
                   <Button
@@ -162,8 +162,8 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
               </Card>
 
               {/* Example prompts */}
-              <Card className="p-3 bg-card/90 border-border/50">
-                <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+              <Card className="p-3 bg-[var(--surface-2)] border-[var(--border-subtle)]">
+                <h3 className="text-sm font-semibold text-[var(--text-tertiary)] mb-3">
                   Example Prompts
                 </h3>
                 <div className="space-y-2">
@@ -171,7 +171,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                     <button
                       key={example}
                       onClick={() => setPrompt(example)}
-                      className="w-full text-left px-2 py-3 bg-muted/40 hover:bg-muted/60 rounded-lg transition-colors text-sm text-muted-foreground"
+                      className="w-full text-left px-2 py-3 bg-white/[0.03] hover:bg-white/[0.06] rounded-lg transition-colors text-sm text-[var(--text-tertiary)]"
                     >
                       {example}
                     </button>
@@ -180,12 +180,12 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
               </Card>
 
               {/* How it works */}
-              <Card className="p-3 bg-[linear-gradient(135deg,hsl(var(--background) / 0.6),hsl(var(--primary) / 0.4))] border-border/50">
-                <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Card className="p-3 bg-[var(--surface-2)] border-[var(--border-subtle)]">
+                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
                   How it works
                 </h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
+                <ul className="space-y-2 text-sm text-[var(--text-tertiary)]">
                   <li className="flex items-start gap-2">
                     <span className="font-semibold">1.</span>
                     <span>Describe your report using natural language</span>
@@ -211,7 +211,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
           {showPreview && generatedReport && (
             <>
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold text-foreground">
+                <h2 className="text-base font-bold text-white">
                   Generated Report Preview
                 </h2>
                 <div className="flex gap-2">
@@ -233,12 +233,12 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                 </div>
               </div>
 
-              <Card className="p-3 bg-card/90 border-border/50">
+              <Card className="p-3 bg-[var(--surface-2)] border-[var(--border-subtle)]">
                 <div className="mb-2">
-                  <h3 className="text-sm font-semibold text-foreground">
+                  <h3 className="text-sm font-semibold text-white">
                     {generatedReport.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-[var(--text-tertiary)] mt-1">
                     {generatedReport.description}
                   </p>
                 </div>
@@ -247,12 +247,12 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   {generatedReport.visuals?.map((visual: any) => (
                     <div
                       key={visual.title}
-                      className="p-2 bg-muted/40 rounded-lg border-2 border-dashed border-border/50"
+                      className="p-2 bg-white/[0.03] rounded-lg border-2 border-dashed border-[var(--border-subtle)]"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div>
-                          <div className="font-medium text-foreground">{visual.title}</div>
-                          <div className="text-xs text-muted-foreground">Type: {visual.type}</div>
+                          <div className="font-medium text-white">{visual.title}</div>
+                          <div className="text-xs text-[var(--text-tertiary)]">Type: {visual.type}</div>
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => {
                           setPreviewVisual(visual)
@@ -263,7 +263,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                         </Button>
                       </div>
                       {visual.measures && (
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-[var(--text-tertiary)]">
                           {visual.measures.length} measures configured
                         </div>
                       )}
@@ -306,7 +306,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="h-[60vh]">
-            <pre className="text-xs font-mono bg-muted p-4 rounded-lg overflow-x-auto whitespace-pre-wrap">
+            <pre className="text-xs font-mono bg-[var(--surface-1)]p-4 rounded-lg overflow-x-auto whitespace-pre-wrap">
               {generatedReport ? JSON.stringify(generatedReport, null, 2) : 'No report generated'}
             </pre>
           </ScrollArea>
@@ -326,11 +326,11 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
             <div className="space-y-3 py-2">
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Type:</span>{' '}
+                  <span className="text-[var(--text-tertiary)]">Type:</span>{' '}
                   <span className="font-medium">{previewVisual.type}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Measures:</span>{' '}
+                  <span className="text-[var(--text-tertiary)]">Measures:</span>{' '}
                   <span className="font-medium">{previewVisual.measures?.length || 0}</span>
                 </div>
               </div>
@@ -339,15 +339,15 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   <h4 className="text-sm font-medium mb-2">Configured Measures</h4>
                   <div className="space-y-1">
                     {previewVisual.measures.map((m: any, i: number) => (
-                      <div key={i} className="flex items-center justify-between p-2 bg-muted rounded text-sm">
+                      <div key={i} className="flex items-center justify-between p-2 bg-[var(--surface-1)]rounded text-sm">
                         <span>{m.label || m.id}</span>
-                        <span className="text-muted-foreground text-xs">{m.format || m.aggregation || 'value'}</span>
+                        <span className="text-[var(--text-tertiary)] text-xs">{m.format || m.aggregation || 'value'}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-              <div className="p-4 border-2 border-dashed rounded-lg text-center text-muted-foreground">
+              <div className="p-4 border-2 border-dashed rounded-lg text-center text-[var(--text-tertiary)]">
                 <div className="text-3xl mb-2">
                   {previewVisual.type === 'line' ? '📈' : previewVisual.type === 'bar' ? '📊' : previewVisual.type === 'table' ? '📋' : '📊'}
                 </div>
@@ -356,7 +356,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
               </div>
               <div className="mt-2">
                 <h4 className="text-sm font-medium mb-1">Raw Configuration</h4>
-                <pre className="text-xs font-mono bg-muted p-2 rounded overflow-x-auto max-h-32">
+                <pre className="text-xs font-mono bg-[var(--surface-1)]p-2 rounded overflow-x-auto max-h-32">
                   {JSON.stringify(previewVisual, null, 2)}
                 </pre>
               </div>

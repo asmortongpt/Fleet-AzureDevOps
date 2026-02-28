@@ -77,7 +77,11 @@ router.get(
           createdAt: row.created_at
         }))
       })
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
+        logger.warn('report_templates table not found, returning empty data')
+        return res.json({ data: [] })
+      }
       logger.error('Get report templates error:', error)
       res.status(500).json({ error: 'Failed to load report templates' })
     }
@@ -114,7 +118,11 @@ router.get(
           lastRun: row.last_run
         }))
       })
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
+        logger.warn('report_schedules table not found, returning empty data')
+        return res.json({ data: [] })
+      }
       logger.error('Get scheduled reports error:', error)
       res.status(500).json({ error: 'Failed to load scheduled reports' })
     }
@@ -219,7 +227,11 @@ router.get(
           downloadUrl: row.download_url
         }))
       })
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
+        logger.warn('report_generations table not found, returning empty data')
+        return res.json({ data: [] })
+      }
       logger.error('Get report history error:', error)
       res.status(500).json({ error: 'Failed to load report history' })
     }

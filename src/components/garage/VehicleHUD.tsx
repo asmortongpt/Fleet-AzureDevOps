@@ -86,14 +86,14 @@ function StatCard({
     <div
       className={cn(
         'flex flex-col gap-1 p-2.5 rounded-lg bg-white/[0.04]',
-        'border border-white/[0.06] backdrop-blur-sm',
+        'border border-[var(--border-subtle)]',
         warning && 'border-red-500/30 bg-red-950/20',
         className
       )}
     >
       <div className="flex items-center gap-2">
         <Icon className={cn('w-3.5 h-3.5', warning ? 'text-red-400' : 'text-emerald-400/70')} />
-        <span className="text-[10px] text-white/40 uppercase tracking-wider font-medium">{label}</span>
+        <span className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider font-medium">{label}</span>
       </div>
       <div className="flex items-baseline gap-1">
         <span className={cn(
@@ -102,7 +102,7 @@ function StatCard({
         )}>
           {typeof value === 'number' ? formatNumber(value) : value}
         </span>
-        {unit && <span className="text-[10px] text-white/30">{unit}</span>}
+        {unit && <span className="text-[10px] text-[var(--text-muted)]">{unit}</span>}
       </div>
       {percentage !== undefined && (
         <div className="mt-0.5">
@@ -169,10 +169,10 @@ function CircularGauge({
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <Icon className={cn('w-4 h-4 mb-0.5', warning ? 'text-red-400' : 'text-emerald-400/70')} />
           <span className="text-sm font-bold text-white tabular-nums">{value}</span>
-          <span className="text-[10px] text-white/30">{unit}</span>
+          <span className="text-[10px] text-[var(--text-muted)]">{unit}</span>
         </div>
       </div>
-      <span className="text-[10px] text-white/40 mt-1">{label}</span>
+      <span className="text-[10px] text-[var(--text-tertiary)] mt-1">{label}</span>
     </div>
   )
 }
@@ -267,7 +267,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
             </Badge>
           )}
           {stats.vin && (
-            <Badge variant="outline" className="text-xs font-mono text-white/40">
+            <Badge variant="outline" className="text-xs font-mono text-[var(--text-tertiary)]">
               VIN: ...{stats.vin.slice(-6)}
             </Badge>
           )}
@@ -294,7 +294,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
       )}
 
       {/* Real-time Gauges */}
-      <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+      <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-white/[0.03] border border-[var(--border-subtle)]">
         <CircularGauge
           value={stats.rpm || 0}
           max={8000}
@@ -337,7 +337,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
 
       {/* Health Stats */}
       <div className="space-y-2">
-        <h4 className="text-[10px] font-medium text-white/30 uppercase tracking-wider">Health Status</h4>
+        <h4 className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-wider">Health Status</h4>
         <div className="grid grid-cols-2 gap-2">
           <StatCard
             icon={Drop}

@@ -56,41 +56,41 @@ interface InteractiveMetricProps {
 const TREND_STYLES = {
   up: {
     icon: TrendingUp,
-    color: 'text-[#10B981]',
-    bgColor: 'bg-[#10B981]/10',
+    color: 'text-green-600 dark:text-green-400',
+    bgColor: 'bg-green-50 dark:bg-green-950',
   },
   down: {
     icon: TrendingDown,
-    color: 'text-[#FF4300]',
-    bgColor: 'bg-[#FF4300]/10',
+    color: 'text-red-600 dark:text-red-400',
+    bgColor: 'bg-red-50 dark:bg-red-950',
   },
   neutral: {
     icon: Minus,
-    color: 'text-[rgba(255,255,255,0.40)]',
-    bgColor: 'bg-[#221060]',
+    color: 'text-neutral-700 dark:text-white/40',
+    bgColor: 'bg-white/[0.03] dark:bg-[#09090b]',
   },
 }
 
 const STATUS_STYLES = {
   success: {
     icon: CheckCircle2,
-    color: 'text-[#10B981]',
-    borderColor: 'border-[#10B981]/20',
+    color: 'text-green-600',
+    borderColor: 'border-green-200 dark:border-green-800',
   },
   warning: {
     icon: AlertTriangle,
-    color: 'text-[#FDC016]',
-    borderColor: 'border-[#FDC016]/20',
+    color: 'text-amber-600',
+    borderColor: 'border-amber-200 dark:border-amber-800',
   },
   danger: {
     icon: AlertTriangle,
-    color: 'text-[#FF4300]',
-    borderColor: 'border-[#FF4300]/20',
+    color: 'text-red-600',
+    borderColor: 'border-red-200 dark:border-red-800',
   },
   neutral: {
     icon: null,
-    color: 'text-[rgba(255,255,255,0.40)]',
-    borderColor: 'border-[rgba(0,204,254,0.08)]',
+    color: 'text-muted-foreground',
+    borderColor: 'border-border',
   },
 }
 
@@ -133,7 +133,7 @@ export function InteractiveMetric({
     <Card
       className={cn(
         'relative transition-all duration-200',
-        isClickable && 'cursor-pointer hover:shadow-sm hover:scale-[1.02]',
+        isClickable && 'cursor-pointer hover:scale-[1.02]',
         statusStyle.borderColor,
         className
       )}
@@ -155,7 +155,7 @@ export function InteractiveMetric({
                 {icon}
               </div>
             )}
-            <CardTitle className="text-sm font-medium text-[rgba(255,255,255,0.40)]">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               {title}
             </CardTitle>
           </div>
@@ -188,7 +188,7 @@ export function InteractiveMetric({
 
             {isClickable && (
               <SmartTooltip content={`View details for ${title}`}>
-                <div className="text-[rgba(255,255,255,0.40)]">
+                <div className="text-muted-foreground">
                   <ArrowRight className="h-5 w-5" />
                 </div>
               </SmartTooltip>
@@ -207,7 +207,7 @@ export function InteractiveMetric({
               <TrendIcon className="h-3.5 w-3.5" />
               <span>{trend.value}</span>
               {trend.period && (
-                <span className="text-[rgba(255,255,255,0.40)] ml-1">
+                <span className="text-muted-foreground ml-1">
                   {trend.period}
                 </span>
               )}
@@ -216,7 +216,7 @@ export function InteractiveMetric({
 
           {/* Comparison */}
           {comparison && (
-            <div className="text-xs text-[rgba(255,255,255,0.40)]">
+            <div className="text-xs text-muted-foreground">
               <span className="font-medium">{comparison.label}:</span>{' '}
               {comparison.value}
             </div>

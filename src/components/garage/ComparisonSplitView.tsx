@@ -60,7 +60,7 @@ export function ComparisonSplitView({ referenceImageUrl, onClose }: ComparisonSp
         onPointerDown={handlePointerDown}
       >
         {/* Grab handle */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#111]/80 border-2 border-white/40 flex items-center justify-center">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[var(--surface-2)]/80 border-2 border-white/40 flex items-center justify-center">
           <div className="flex gap-0.5">
             <div className="w-0.5 h-3 bg-white/40 rounded-full" />
             <div className="w-0.5 h-3 bg-white/40 rounded-full" />
@@ -70,13 +70,13 @@ export function ComparisonSplitView({ referenceImageUrl, onClose }: ComparisonSp
 
       {/* Labels */}
       <div
-        className="absolute top-4 text-[10px] font-medium text-white/40 bg-[#111]/60 px-2 py-0.5 rounded"
+        className="absolute top-4 text-[10px] font-medium text-[var(--text-tertiary)] bg-[var(--surface-2)]/60 px-2 py-0.5 rounded"
         style={{ left: `calc(${splitPct / 2}% - 20px)` }}
       >
         3D Model
       </div>
       <div
-        className="absolute top-4 text-[10px] font-medium text-white/40 bg-[#111]/60 px-2 py-0.5 rounded"
+        className="absolute top-4 text-[10px] font-medium text-[var(--text-tertiary)] bg-[var(--surface-2)]/60 px-2 py-0.5 rounded"
         style={{ left: `calc(${splitPct + (100 - splitPct) / 2}% - 24px)` }}
       >
         Reference
@@ -85,7 +85,7 @@ export function ComparisonSplitView({ referenceImageUrl, onClose }: ComparisonSp
       {/* Close button */}
       <button
         onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className="absolute top-4 right-4 z-30 p-1.5 rounded-lg bg-[#111]/80 border border-white/[0.08] text-white/40 hover:text-white/60 transition-colors pointer-events-auto"
+        className="absolute top-4 right-4 z-30 p-1.5 rounded-lg bg-[var(--surface-2)]/80 border border-[var(--border-subtle)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors pointer-events-auto"
       >
         <X className="w-4 h-4" />
       </button>

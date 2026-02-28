@@ -64,14 +64,14 @@ const SECTION_CONFIGS: SectionConfig[] = [
   { type: 'vehicle', key: 'vehicles', label: 'Vehicles', icon: Car, color: 'text-emerald-800', badgeVariant: 'default' },
   { type: 'driver', key: 'drivers', label: 'Drivers', icon: User, color: 'text-green-500', badgeVariant: 'secondary' },
   { type: 'work-order', key: 'workOrders', label: 'Work Orders', icon: Wrench, color: 'text-orange-500', badgeVariant: 'outline' },
-  { type: 'maintenance', key: 'maintenanceRecords', label: 'Maintenance', icon: Clock, color: 'text-purple-500', badgeVariant: 'secondary' },
+  { type: 'maintenance', key: 'maintenanceRecords', label: 'Maintenance', icon: Clock, color: 'text-amber-500', badgeVariant: 'secondary' },
   { type: 'fuel', key: 'fuelTransactions', label: 'Fuel', icon: Fuel, color: 'text-amber-500', badgeVariant: 'outline' },
-  { type: 'part', key: 'parts', label: 'Parts', icon: Package, color: 'text-cyan-500', badgeVariant: 'secondary' },
-  { type: 'vendor', key: 'vendors', label: 'Vendors', icon: Truck, color: 'text-indigo-500', badgeVariant: 'outline' },
+  { type: 'part', key: 'parts', label: 'Parts', icon: Package, color: 'text-emerald-500', badgeVariant: 'secondary' },
+  { type: 'vendor', key: 'vendors', label: 'Vendors', icon: Truck, color: 'text-emerald-500', badgeVariant: 'outline' },
   { type: 'invoice', key: 'invoices', label: 'Invoices', icon: DollarSign, color: 'text-emerald-600', badgeVariant: 'default' },
-  { type: 'asset', key: 'assets', label: 'Assets', icon: Stack, color: 'text-white/40', badgeVariant: 'secondary' },
+  { type: 'asset', key: 'assets', label: 'Assets', icon: Stack, color: 'text-[var(--text-tertiary)]', badgeVariant: 'secondary' },
   { type: 'alert', key: 'alerts', label: 'Alerts', icon: AlertTriangle, color: 'text-red-500', badgeVariant: 'destructive' },
-  { type: 'document', key: 'documents', label: 'Documents', icon: FileText, color: 'text-gray-700', badgeVariant: 'outline' },
+  { type: 'document', key: 'documents', label: 'Documents', icon: FileText, color: 'text-[var(--text-tertiary)]', badgeVariant: 'outline' },
   { type: 'facility', key: 'facilities', label: 'Facilities', icon: MapPin, color: 'text-teal-500', badgeVariant: 'secondary' }
 ]
 

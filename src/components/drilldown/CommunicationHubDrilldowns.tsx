@@ -49,7 +49,7 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
   return (
     <div
       className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-white/[0.06] ${
-        !email.isRead ? 'bg-white/[0.04] border-l-2 border-emerald-500' : 'bg-white/[0.03]'
+        !email.isRead ? 'bg-white/[0.04] border-l-2 border-emerald-500' : 'bg-[var(--surface-glass)]'
       }`}
       onClick={onClick}
     >
@@ -59,7 +59,7 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
         ) : email.hasReceipt ? (
           <CheckCircle className="w-3 h-3 text-emerald-700" />
         ) : (
-          <Mail className={`w-3 h-3 ${!email.isRead ? 'text-emerald-400' : 'text-white/40'}`} />
+          <Mail className={`w-3 h-3 ${!email.isRead ? 'text-emerald-400' : 'text-[var(--text-tertiary)]'}`} />
         )}
       </div>
       <div className="flex-1 min-w-0">
@@ -67,14 +67,14 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
           <span className={`font-medium truncate ${!email.isRead ? 'text-white' : 'text-white/80'}`}>
             {email.fromName || email.from}
           </span>
-          <span className="text-xs text-white/40 flex-shrink-0">
+          <span className="text-xs text-[var(--text-tertiary)] flex-shrink-0">
             {formatDistanceToNow(new Date(email.date), { addSuffix: true })}
           </span>
         </div>
-        <div className={`text-sm truncate ${!email.isRead ? 'font-semibold text-white' : 'text-white/40'}`}>
+        <div className={`text-sm truncate ${!email.isRead ? 'font-semibold text-white' : 'text-[var(--text-tertiary)]'}`}>
           {email.subject}
         </div>
-        <div className="text-xs text-white/40 truncate mt-1">
+        <div className="text-xs text-[var(--text-tertiary)] truncate mt-1">
           {email.body.substring(0, 80)}...
         </div>
         <div className="flex items-center gap-2 mt-2">
@@ -82,16 +82,16 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
             <Badge className="bg-emerald-500/20 text-emerald-400 text-[10px]">Unread</Badge>
           )}
           {email.hasAttachments && (
-            <Paperclip className="w-3 h-3 text-white/40" />
+            <Paperclip className="w-3 h-3 text-[var(--text-tertiary)]" />
           )}
           {email.labels?.slice(0, 2).map(label => (
-            <Badge key={label} variant="outline" className="text-[10px] border-white/[0.08]">
+            <Badge key={label} variant="outline" className="text-[10px] border-[var(--border-subtle)]">
               {label}
             </Badge>
           ))}
         </div>
       </div>
-      <ArrowRight className="w-4 h-4 text-white/40 flex-shrink-0 mt-2" />
+      <ArrowRight className="w-4 h-4 text-[var(--text-tertiary)] flex-shrink-0 mt-2" />
     </div>
   )
 }
@@ -142,17 +142,17 @@ function ConversationListItem({ conversation, onClick }: ConversationListItemPro
 
   return (
     <div
-      className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-white/[0.06] transition-colors"
+      className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg cursor-pointer hover:bg-white/[0.06] transition-colors"
       onClick={onClick}
     >
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-10 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-purple-600 flex items-center justify-center text-white font-bold">
+        <div className="w-10 h-8 rounded-full bg-emerald-900/40 flex items-center justify-center text-white font-bold">
           {conversation.user.split(' ').map(n => n[0]).join('')}
         </div>
         <div className="min-w-0">
           <div className="font-medium text-white truncate">{conversation.user}</div>
-          <div className="text-xs text-white/40 truncate">{conversation.topic}</div>
-          <div className="text-xs text-white/40 mt-1">
+          <div className="text-xs text-[var(--text-tertiary)] truncate">{conversation.topic}</div>
+          <div className="text-xs text-[var(--text-tertiary)] mt-1">
             {conversation.messages} messages • {formatDistanceToNow(new Date(conversation.time), { addSuffix: true })}
           </div>
         </div>
@@ -162,7 +162,7 @@ function ConversationListItem({ conversation, onClick }: ConversationListItemPro
           {conversation.status}
         </Badge>
         {conversation.satisfaction && (
-          <div className="flex items-center gap-1 text-xs text-white/40">
+          <div className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
             <Star className="w-3 h-3 text-yellow-500" />
             {conversation.satisfaction}/5
           </div>
@@ -187,19 +187,19 @@ interface MessageListItemProps {
 function MessageListItem({ message, onClick }: MessageListItemProps) {
   return (
     <div
-      className="flex items-start gap-3 p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-white/[0.06] transition-colors"
+      className="flex items-start gap-3 p-3 bg-[var(--surface-glass)] rounded-lg cursor-pointer hover:bg-white/[0.06] transition-colors"
       onClick={onClick}
     >
-      <div className="w-4 h-4 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+      <div className="w-4 h-4 rounded-full bg-emerald-900/40 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
         {message.author.split(' ').map(n => n[0]).join('')}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-medium text-white">{message.author}</span>
-          <Badge variant="outline" className="text-[10px] border-white/[0.08]">{message.channel}</Badge>
+          <Badge variant="outline" className="text-[10px] border-[var(--border-subtle)]">{message.channel}</Badge>
         </div>
         <div className="text-sm text-white/80 mt-1">{message.content}</div>
-        <div className="flex items-center gap-3 text-xs text-white/40 mt-2">
+        <div className="flex items-center gap-3 text-xs text-[var(--text-tertiary)] mt-2">
           <span>{formatDistanceToNow(new Date(message.time), { addSuffix: true })}</span>
           {message.reactions > 0 && (
             <span className="flex items-center gap-1">
@@ -243,31 +243,31 @@ export function AiAgentDrilldown() {
           <CardContent className="p-2 text-center">
             <Bot className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
             <div className="text-sm font-bold text-white">94%</div>
-            <div className="text-xs text-white/40">Satisfaction</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Satisfaction</div>
           </CardContent>
         </Card>
         <Card className="bg-white/[0.04] border-emerald-700/50">
           <CardContent className="p-2 text-center">
             <Clock className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-emerald-400">1.2s</div>
-            <div className="text-xs text-white/40">Avg Response</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Avg Response</div>
           </CardContent>
         </Card>
-        <Card className="bg-purple-900/30 border-purple-700/50">
+        <Card className="bg-amber-900/30 border-amber-700/50">
           <CardContent className="p-2 text-center">
-            <MessageCircle className="w-4 h-4 text-purple-400 mx-auto mb-2" />
-            <div className="text-sm font-bold text-purple-400">{filteredConversations.length}</div>
-            <div className="text-xs text-white/40">Conversations</div>
+            <MessageCircle className="w-4 h-4 text-amber-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-amber-400">{filteredConversations.length}</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Conversations</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Conversation List */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-3 h-3 text-purple-400" />
+              <Sparkles className="w-3 h-3 text-amber-400" />
               AI Conversations
             </div>
             <Badge variant="outline" className="text-xs">
@@ -304,7 +304,7 @@ export function AiAgentDrilldown() {
       </Card>
 
       {/* Usage Breakdown */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Query Categories</CardTitle>
         </CardHeader>
@@ -312,7 +312,7 @@ export function AiAgentDrilldown() {
           {[
             { name: 'Fleet Status', value: 45, color: 'bg-emerald-500' },
             { name: 'Maintenance', value: 28, color: 'bg-emerald-500' },
-            { name: 'Compliance', value: 18, color: 'bg-purple-500' },
+            { name: 'Compliance', value: 18, color: 'bg-amber-500' },
             { name: 'Other', value: 9, color: 'bg-white/[0.1]' },
           ].map(cat => (
             <div key={cat.name} className="space-y-2">
@@ -366,27 +366,27 @@ export function MessagesDrilldown() {
           <CardContent className="p-2 text-center">
             <MessageCircle className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-white">234</div>
-            <div className="text-xs text-white/40">Messages Today</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Messages Today</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
           <CardContent className="p-2 text-center">
-            <Hash className="w-4 h-4 text-white/40 mx-auto mb-2" />
+            <Hash className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-2" />
             <div className="text-sm font-bold text-white/80">12</div>
-            <div className="text-xs text-white/40">Channels</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Channels</div>
           </CardContent>
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
           <CardContent className="p-2 text-center">
             <Users className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
             <div className="text-sm font-bold text-emerald-700">48</div>
-            <div className="text-xs text-white/40">Active Users</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Active Users</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Channel Activity */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Channel Activity</CardTitle>
         </CardHeader>
@@ -394,7 +394,7 @@ export function MessagesDrilldown() {
           {channelActivity.map(ch => (
             <div
               key={ch.channel}
-              className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-white/[0.06] transition-colors"
+              className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg cursor-pointer hover:bg-white/[0.06] transition-colors"
               onClick={() => push({
                 id: ch.channel,
                 type: 'channel-messages',
@@ -411,7 +411,7 @@ export function MessagesDrilldown() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-white font-medium">{ch.messages} msgs</span>
-                <ArrowRight className="w-4 h-4 text-white/40" />
+                <ArrowRight className="w-4 h-4 text-[var(--text-tertiary)]" />
               </div>
             </div>
           ))}
@@ -419,7 +419,7 @@ export function MessagesDrilldown() {
       </Card>
 
       {/* Recent Messages */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             Recent Messages
@@ -430,7 +430,7 @@ export function MessagesDrilldown() {
           <ScrollArea className="h-[300px] pr-2">
             <div className="space-y-2">
               {messages.length === 0 ? (
-                <div className="text-center text-white/40 py-8">No messages available</div>
+                <div className="text-center text-[var(--text-tertiary)] py-8">No messages available</div>
               ) : (
                 messages.map(msg => (
                   <MessageListItem
@@ -527,24 +527,24 @@ export function EmailDrilldown() {
           <CardContent className="p-2 text-center">
             <Send className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-white">{sentToday}</div>
-            <div className="text-xs text-white/40">Sent Today</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Sent Today</div>
           </CardContent>
         </Card>
         <Card
-          className="bg-[#242424] border-white/[0.08] cursor-pointer hover:border-white/[0.12]/50 transition-colors"
+          className="bg-[var(--surface-primary)] border-[var(--border-subtle)] cursor-pointer hover:border-white/[0.12]/50 transition-colors"
           onClick={() => push({ type: 'email-templates', data: { filter: 'templates', title: 'Templates' } } as any)}
         >
           <CardContent className="p-2 text-center">
-            <Mail className="w-4 h-4 text-white/40 mx-auto mb-2" />
+            <Mail className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-2" />
             <div className="text-sm font-bold text-white/80">{emailTemplates.length}</div>
-            <div className="text-xs text-white/40">Templates</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Templates</div>
           </CardContent>
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
           <CardContent className="p-2 text-center">
             <Eye className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
             <div className="text-sm font-bold text-emerald-700">{openRate}%</div>
-            <div className="text-xs text-white/40">Open Rate</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Open Rate</div>
           </CardContent>
         </Card>
         <Card
@@ -554,13 +554,13 @@ export function EmailDrilldown() {
           <CardContent className="p-2 text-center">
             <Calendar className="w-4 h-4 text-amber-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-amber-400">{scheduledCount}</div>
-            <div className="text-xs text-white/40">Scheduled</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Scheduled</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Email List */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -615,7 +615,7 @@ export function EmailDrilldown() {
       </Card>
 
       {/* Email Templates */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm">Email Templates</CardTitle>
         </CardHeader>
@@ -623,7 +623,7 @@ export function EmailDrilldown() {
           {emailTemplates.map(template => (
             <div
               key={template.id}
-              className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-white/[0.06] transition-colors"
+              className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg cursor-pointer hover:bg-white/[0.06] transition-colors"
               onClick={() => push({
                 id: template.id,
                 type: 'email-template-detail',
@@ -632,20 +632,20 @@ export function EmailDrilldown() {
               })}
             >
               <div className="flex items-center gap-3">
-                <Mail className="w-3 h-3 text-white/40" />
+                <Mail className="w-3 h-3 text-[var(--text-tertiary)]" />
                 <div>
                   <div className="font-medium text-white">{template.name}</div>
-                  <div className="text-xs text-white/40">Used {template.usageCount} times • Last: {template.lastUsed}</div>
+                  <div className="text-xs text-[var(--text-tertiary)]">Used {template.usageCount} times • Last: {template.lastUsed}</div>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-white/40" />
+              <ArrowRight className="w-4 h-4 text-[var(--text-tertiary)]" />
             </div>
           ))}
         </CardContent>
       </Card>
 
       {/* Campaign Performance */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <TrendingUp className="w-3 h-3 text-emerald-700" />
@@ -673,7 +673,7 @@ export function EmailDrilldown() {
                 <span className="text-white">{campaign.rate}% opened</span>
               </div>
               <Progress value={campaign.rate} className="h-2 bg-white/[0.1]" />
-              <div className="flex justify-between text-xs text-white/40">
+              <div className="flex justify-between text-xs text-[var(--text-tertiary)]">
                 <span>{campaign.sent} sent</span>
                 <span>{campaign.opened} opened</span>
               </div>
@@ -749,7 +749,7 @@ export function HistoryDrilldown() {
           <CardContent className="p-2 text-center">
             <CheckCircle className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
             <div className="text-sm font-bold text-emerald-700">{thisWeekCount}</div>
-            <div className="text-xs text-white/40">This Week</div>
+            <div className="text-xs text-[var(--text-tertiary)]">This Week</div>
           </CardContent>
         </Card>
         <Card
@@ -759,23 +759,23 @@ export function HistoryDrilldown() {
           <CardContent className="p-2 text-center">
             <Flag className="w-4 h-4 text-amber-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-amber-400">{flaggedMessages.length}</div>
-            <div className="text-xs text-white/40">Flagged</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Flagged</div>
           </CardContent>
         </Card>
         <Card
-          className="bg-[#242424] border-white/[0.08] cursor-pointer hover:border-white/[0.12]/50 transition-colors"
+          className="bg-[var(--surface-primary)] border-[var(--border-subtle)] cursor-pointer hover:border-white/[0.12]/50 transition-colors"
           onClick={() => push({ type: 'archived', data: { filter: 'archived', title: 'Archived' } } as any)}
         >
           <CardContent className="p-2 text-center">
-            <Archive className="w-4 h-4 text-white/40 mx-auto mb-2" />
+            <Archive className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-2" />
             <div className="text-sm font-bold text-white/80">{archivedMessages.length}</div>
-            <div className="text-xs text-white/40">Archived</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Archived</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Communication History */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -793,7 +793,7 @@ export function HistoryDrilldown() {
               {filteredHistory.map(item => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg cursor-pointer hover:bg-white/[0.06] transition-colors"
+                  className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg cursor-pointer hover:bg-white/[0.06] transition-colors"
                   onClick={() => push({
                     id: item.id,
                     type: item.type === 'email' ? 'email-detail' : 'message-detail',
@@ -814,11 +814,11 @@ export function HistoryDrilldown() {
                     ) : item.type === 'sms' ? (
                       <MessageCircle className="w-3 h-3 text-emerald-700 flex-shrink-0" />
                     ) : (
-                      <Bell className="w-3 h-3 text-purple-400 flex-shrink-0" />
+                      <Bell className="w-3 h-3 text-amber-400 flex-shrink-0" />
                     )}
                     <div className="min-w-0">
                       <div className="font-medium text-white truncate">{item.subject}</div>
-                      <div className="text-xs text-white/40">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         {item.recipients} recipients • {formatDistanceToNow(new Date(item.time), { addSuffix: true })}
                       </div>
                     </div>
@@ -829,12 +829,12 @@ export function HistoryDrilldown() {
                       className={`text-xs ${
                         item.status === 'delivered' ? 'text-emerald-700 border-emerald-500' :
                         item.status === 'failed' ? 'text-red-400 border-red-500' :
-                        'text-white/40 border-white/[0.12]'
+                        'text-[var(--text-tertiary)] border-white/[0.12]'
                       }`}
                     >
                       {formatEnum(item.status)}
                     </Badge>
-                    <ArrowRight className="w-4 h-4 text-white/40" />
+                    <ArrowRight className="w-4 h-4 text-[var(--text-tertiary)]" />
                   </div>
                 </div>
               ))}

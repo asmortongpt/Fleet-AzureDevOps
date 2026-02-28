@@ -206,19 +206,19 @@ export function CostAnalysisCenter() {
   const getTrendIcon = (trend: string) => {
     if (trend === 'increasing') return <TrendingUp className="h-4 w-4 text-red-500" />
     if (trend === 'decreasing') return <TrendingDown className="h-4 w-4 text-green-500" />
-    return <TrendingDown className="h-4 w-4 text-gray-700" />
+    return <TrendingDown className="h-4 w-4 text-[var(--text-tertiary)]" />
   }
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
       'Fuel': 'bg-emerald-500',
       'Maintenance': 'bg-orange-500',
-      'Insurance': 'bg-purple-500',
-      'Depreciation': 'bg-gray-500',
+      'Insurance': 'bg-amber-500',
+      'Depreciation': 'bg-white/[0.03]0',
       'Driver': 'bg-green-500',
       'Administrative': 'bg-yellow-500'
     }
-    return colors[category] || 'bg-gray-400'
+    return colors[category] || 'bg-white/[0.10]'
   }
 
   // Check permission to view financial data (after all hooks)
@@ -256,7 +256,7 @@ export function CostAnalysisCenter() {
             <DollarSign className="h-8 w-8 text-green-600" />
             Cost Analysis Command Center
           </h1>
-          <p className="text-white/40 mt-2">
+          <p className="text-[var(--text-tertiary)] mt-2">
             Real-time cost tracking, forecasting, and anomaly detection
           </p>
         </div>
@@ -363,10 +363,10 @@ export function CostAnalysisCenter() {
                           </div>
                           <div className="text-right">
                             <div className="font-bold">{formatCurrency(category.amount)}</div>
-                            <div className="text-sm text-white/40">{category.percentage.toFixed(1)}%</div>
+                            <div className="text-sm text-[var(--text-tertiary)]">{category.percentage.toFixed(1)}%</div>
                           </div>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-white/[0.06] rounded-full h-2">
                           <div
                             className={`h-2 rounded-full ${getCategoryColor(category.category)}`}
                             style={{ width: `${category.percentage}%` }}
@@ -502,7 +502,7 @@ export function CostAnalysisCenter() {
                         {formatCurrency(status.remaining)}
                       </TableCell>
                       <TableCell>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-white/[0.06] rounded-full h-2">
                           <div
                             className={`h-2 rounded-full ${status.isOverBudget ? 'bg-red-500' : 'bg-emerald-500'}`}
                             style={{ width: `${Math.min(status.percentageUsed, 100)}%` }}
@@ -586,7 +586,7 @@ export function CostAnalysisCenter() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <div className="text-center py-3 text-gray-700">
+                  <div className="text-center py-3 text-[var(--text-tertiary)]">
                     No anomalies detected for this period.
                   </div>
                 )}

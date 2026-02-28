@@ -14,6 +14,17 @@ router.get(
   requirePermission('policy:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'policy_acknowledgments')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.json({
+          data: [],
+          pagination: { page: 1, limit: 50, total: 0, pages: 0 }
+        })
+      }
+
       const { page = 1, limit = 50, policy_id, employee_number, is_current } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
@@ -78,6 +89,14 @@ router.get(
   requirePermission('policy:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'policy_acknowledgments')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(404).json({ error: 'Policy acknowledgment not found' })
+      }
+
       const result = await pool.query(
         `SELECT pa.id, pa.policy_id, pa.employee_number, pa.acknowledged_at,
                 pa.acknowledgment_method, pa.signature_data, pa.ip_address, pa.device_info,

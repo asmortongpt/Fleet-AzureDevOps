@@ -91,17 +91,17 @@ function MetricCard({
     critical: "text-red-500 dark:text-red-400",
   }
 
-  const statusColor = status ? statusColors[status] : "text-gray-900 dark:text-gray-100"
+  const statusColor = status ? statusColors[status] : "text-[var(--text-primary)] dark:text-[var(--text-primary)]"
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-2 min-w-[80px]">
-      <div className="text-xs text-gray-700 dark:text-gray-700 mb-1">{label}</div>
+    <div className="bg-white/[0.03] dark:bg-[var(--surface-3)] rounded-md p-2 min-w-[80px]">
+      <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mb-1">{label}</div>
       <div className={`text-sm font-semibold ${statusColor}`}>
         {value}
         {unit && <span className="text-xs ml-1">{unit}</span>}
       </div>
       {subtitle && (
-        <div className="text-xs text-gray-700 dark:text-gray-700 mt-1">{subtitle}</div>
+        <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mt-1">{subtitle}</div>
       )}
     </div>
   )
@@ -252,11 +252,11 @@ export function PerformanceMonitor({
       role="complementary"
       aria-label="Performance Monitor"
     >
-      <div className="bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden max-w-md">
+      <div className="bg-white dark:bg-[var(--surface-1)] border-2 border-[var(--border-default)] dark:border-[var(--border-default)] rounded-lg overflow-hidden max-w-md">
         {/* Header */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="w-full px-3 py-2 bg-gray-900 dark:bg-gray-950 text-white flex items-center justify-between hover:bg-gray-800 dark:hover:bg-gray-900 transition-colors"
+          className="w-full px-3 py-2 bg-[var(--surface-1)] dark:bg-[var(--surface-0)] text-white flex items-center justify-between hover:bg-[var(--surface-3)] dark:hover:bg-[var(--surface-1)] transition-colors"
           aria-expanded={expanded}
           aria-controls="performance-monitor-content"
         >
@@ -300,9 +300,9 @@ export function PerformanceMonitor({
         {expanded && (
           <div id="performance-monitor-content" className="p-3 space-y-3">
             {/* Component Info */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
-              <div className="text-xs text-gray-700 dark:text-gray-700">Component</div>
-              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <div className="border-b border-[var(--border-default)] dark:border-[var(--border-default)] pb-2">
+              <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">Component</div>
+              <div className="text-sm font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary)]">
                 {componentName}
               </div>
             </div>
@@ -310,7 +310,7 @@ export function PerformanceMonitor({
             {/* FPS */}
             {showFPS && fpsData && (
               <div>
-                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
+                <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mb-2">
                   Frames Per Second
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -337,7 +337,7 @@ export function PerformanceMonitor({
             {/* Memory */}
             {showMemory && metrics?.latestMemoryUsage && (
               <div>
-                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
+                <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mb-2">
                   Memory Usage
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -364,7 +364,7 @@ export function PerformanceMonitor({
             {/* Render Metrics */}
             {metrics && (
               <div>
-                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
+                <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mb-2">
                   Render Performance
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -396,7 +396,7 @@ export function PerformanceMonitor({
             {/* Web Vitals */}
             {showWebVitals && webVitals.length > 0 && (
               <div>
-                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
+                <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mb-2">
                   Core Web Vitals
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -422,17 +422,17 @@ export function PerformanceMonitor({
             {/* Custom Metrics */}
             {metrics?.customMetrics && metrics.customMetrics.length > 0 && (
               <div>
-                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
+                <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mb-2">
                   Custom Metrics (Last 5)
                 </div>
                 <div className="space-y-1">
                   {metrics.customMetrics.slice(-5).map((metric, index) => (
                     <div
                       key={`${metric.name}-${index}`}
-                      className="text-xs flex justify-between items-center bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded"
+                      className="text-xs flex justify-between items-center bg-white/[0.03] dark:bg-[var(--surface-3)] px-2 py-1 rounded"
                     >
-                      <span className="text-gray-700 dark:text-gray-300">{metric.name}</span>
-                      <span className="font-semibold text-gray-900 dark:text-gray-100">
+                      <span className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]">{metric.name}</span>
+                      <span className="font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary)]">
                         {metric.duration.toFixed(2)}ms
                       </span>
                     </div>
@@ -444,7 +444,7 @@ export function PerformanceMonitor({
             {/* Warnings */}
             {metrics?.warnings && metrics.warnings.length > 0 && (
               <div>
-                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
+                <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] mb-2">
                   Performance Warnings
                 </div>
                 <div className="space-y-1">
@@ -467,8 +467,8 @@ export function PerformanceMonitor({
             )}
 
             {/* Footer */}
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-2">
-              <div className="text-xs text-gray-700 dark:text-gray-700 text-center">
+            <div className="border-t border-[var(--border-default)] dark:border-[var(--border-default)] pt-2">
+              <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)] text-center">
                 Dev Mode Only • Updates Every 1s
               </div>
             </div>

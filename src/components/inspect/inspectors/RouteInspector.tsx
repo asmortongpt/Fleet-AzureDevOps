@@ -99,8 +99,8 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
     switch (status) {
       case 'completed': return 'bg-green-500';
       case 'pending': return 'bg-emerald-500';
-      case 'skipped': return 'bg-gray-400';
-      default: return 'bg-gray-300';
+      case 'skipped': return 'bg-white/[0.10]';
+      default: return 'bg-white/[0.08]';
     }
   };
 
@@ -108,7 +108,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
     return (
       <div className="flex items-center justify-center p-3">
         <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
-        <span className="ml-2 text-white/40">Loading route data...</span>
+        <span className="ml-2 text-[var(--text-tertiary)]">Loading route data...</span>
       </div>
     );
   }
@@ -126,7 +126,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
 
   if (!route) {
     return (
-      <div className="p-3 text-gray-700">
+      <div className="p-3 text-[var(--text-tertiary)]">
         No route data available
       </div>
     );
@@ -138,10 +138,10 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
       <div className="border-b p-2">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-gray-900 dark:text-white">
+            <h2 className="text-sm font-bold text-[var(--text-primary)] dark:text-white">
               {route.name}
             </h2>
-            <p className="text-sm text-white/40 dark:text-gray-700">
+            <p className="text-sm text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
               {route.description}
             </p>
           </div>
@@ -168,22 +168,22 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                 <div className="text-center p-2 bg-emerald-500/10 dark:bg-white/[0.04] rounded-lg">
                   <MapPin className="w-4 h-4 mx-auto mb-2 text-emerald-400" />
                   <p className="text-sm font-bold text-emerald-400">{(route.totalDistance ?? 0).toFixed(1)}</p>
-                  <p className="text-sm text-white/40">Miles</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Miles</p>
                 </div>
                 <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <Navigation className="w-4 h-4 mx-auto mb-2 text-green-600" />
                   <p className="text-sm font-bold text-green-600">{route.stops.length}</p>
-                  <p className="text-sm text-white/40">Stops</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Stops</p>
                 </div>
-                <div className="text-center p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                  <Loader2 className="w-4 h-4 mx-auto mb-2 text-purple-600" />
-                  <p className="text-sm font-bold text-purple-600">{formatDuration(route.estimatedDuration)}</p>
-                  <p className="text-sm text-white/40">Est. Time</p>
+                <div className="text-center p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                  <Loader2 className="w-4 h-4 mx-auto mb-2 text-amber-600" />
+                  <p className="text-sm font-bold text-amber-600">{formatDuration(route.estimatedDuration)}</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Est. Time</p>
                 </div>
                 <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <TrendingUp className="w-4 h-4 mx-auto mb-2 text-yellow-600" />
                   <p className="text-sm font-bold text-yellow-600">{route.optimizationScore}%</p>
-                  <p className="text-sm text-white/40">Optimized</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">Optimized</p>
                 </div>
               </div>
             </Card>
@@ -193,22 +193,22 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
               <dl className="space-y-3">
                 {route.assignedVehicle && (
                   <div>
-                    <dt className="text-sm text-white/40">Vehicle</dt>
+                    <dt className="text-sm text-[var(--text-tertiary)]">Vehicle</dt>
                     <dd className="font-medium">{route.assignedVehicle.name}</dd>
                   </div>
                 )}
                 {route.assignedDriver && (
                   <div>
-                    <dt className="text-sm text-white/40">Driver</dt>
+                    <dt className="text-sm text-[var(--text-tertiary)]">Driver</dt>
                     <dd className="font-medium">{route.assignedDriver.name}</dd>
                   </div>
                 )}
                 <div>
-                  <dt className="text-sm text-white/40">Created</dt>
+                  <dt className="text-sm text-[var(--text-tertiary)]">Created</dt>
                   <dd className="font-medium">{formatDate(route.createdAt)}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-white/40">Status</dt>
+                  <dt className="text-sm text-[var(--text-tertiary)]">Status</dt>
                   <dd className="font-medium capitalize">{route.status}</dd>
                 </div>
               </dl>
@@ -216,8 +216,8 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
 
             <Card className="p-2 md:col-span-2">
               <h3 className="text-sm font-semibold mb-2">Route Map</h3>
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg h-96 flex items-center justify-center">
-                <p className="text-gray-700">Map visualization would appear here</p>
+              <div className="bg-white/[0.05] dark:bg-[var(--surface-3)] rounded-lg h-96 flex items-center justify-center">
+                <p className="text-[var(--text-tertiary)]">Map visualization would appear here</p>
               </div>
             </Card>
           </div>
@@ -231,14 +231,14 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
               {route.stops.map((stop, index) => (
                 <div
                   key={stop.id}
-                  className="flex items-start gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-start gap-2 p-2 bg-white/[0.03] dark:bg-[var(--surface-3)] rounded-lg hover:bg-white/[0.05] dark:hover:bg-[var(--surface-glass-hover)] transition-colors"
                 >
                   <div className="flex flex-col items-center">
                     <div className={`w-4 h-4 rounded-full ${getStatusColor(stop.status)} flex items-center justify-center text-white font-bold text-sm`}>
                       {stop.sequence}
                     </div>
                     {index < route.stops.length - 1 && (
-                      <div className="w-px h-9 bg-gray-300 dark:bg-gray-600 mt-2"></div>
+                      <div className="w-px h-9 bg-white/[0.08] dark:bg-white/[0.15] mt-2"></div>
                     )}
                   </div>
                   <div className="flex-1">
@@ -249,11 +249,11 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                         {stop.status}
                       </Badge>
                     </div>
-                    <p className="text-sm text-white/40 mb-1">{stop.location.address}</p>
-                    <p className="text-xs text-gray-700 font-mono">
+                    <p className="text-sm text-[var(--text-tertiary)] mb-1">{stop.location.address}</p>
+                    <p className="text-xs text-[var(--text-tertiary)] font-mono">
                       {(stop.location?.latitude ?? 0).toFixed(6)}, {(stop.location?.longitude ?? 0).toFixed(6)}
                     </p>
-                    <p className="text-xs text-gray-700 mt-2">
+                    <p className="text-xs text-[var(--text-tertiary)] mt-2">
                       Est. Arrival: {formatTime(stop.estimatedArrival)}
                     </p>
                   </div>
@@ -271,10 +271,10 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
               <div className="space-y-2">
                 <div>
                   <div className="flex justify-between mb-2">
-                    <span className="text-sm text-white/40">Overall Efficiency</span>
+                    <span className="text-sm text-[var(--text-tertiary)]">Overall Efficiency</span>
                     <span className="text-sm font-medium">{route.optimizationScore}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="w-full bg-white/[0.06] rounded-full h-3">
                     <div
                       className="bg-green-600 h-3 rounded-full transition-all"
                       style={{ width: `${route.optimizationScore}%` }}
@@ -283,19 +283,19 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
                   <div className="text-center p-3 bg-emerald-500/10 dark:bg-white/[0.04] rounded-lg">
-                    <p className="text-sm text-white/40">Distance Savings</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">Distance Savings</p>
                     <p className="text-base font-bold text-emerald-400">12.3 mi</p>
-                    <p className="text-xs text-gray-700">vs. unoptimized</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">vs. unoptimized</p>
                   </div>
                   <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <p className="text-sm text-white/40">Time Savings</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">Time Savings</p>
                     <p className="text-base font-bold text-green-600">45 min</p>
-                    <p className="text-xs text-gray-700">vs. unoptimized</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">vs. unoptimized</p>
                   </div>
-                  <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                    <p className="text-sm text-white/40">Fuel Savings</p>
-                    <p className="text-base font-bold text-purple-600">$18.50</p>
-                    <p className="text-xs text-gray-700">estimated</p>
+                  <div className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                    <p className="text-sm text-[var(--text-tertiary)]">Fuel Savings</p>
+                    <p className="text-base font-bold text-amber-600">$18.50</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">estimated</p>
                   </div>
                 </div>
               </div>
@@ -305,19 +305,19 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
               <h3 className="text-sm font-semibold mb-2">Performance Metrics</h3>
               <dl className="space-y-3">
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Average Stop Time</dt>
+                  <dt className="text-[var(--text-tertiary)]">Average Stop Time</dt>
                   <dd className="font-medium">8 minutes</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Completion Rate</dt>
+                  <dt className="text-[var(--text-tertiary)]">Completion Rate</dt>
                   <dd className="font-medium">95%</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">On-Time Deliveries</dt>
+                  <dt className="text-[var(--text-tertiary)]">On-Time Deliveries</dt>
                   <dd className="font-medium">92%</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-white/40">Estimated Fuel Cost</dt>
+                  <dt className="text-[var(--text-tertiary)]">Estimated Fuel Cost</dt>
                   <dd className="font-medium">${((route.totalDistance ?? 0) * 0.35).toFixed(2)}</dd>
                 </div>
               </dl>
@@ -330,14 +330,14 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                   <span className="text-emerald-400">💡</span>
                   <div className="flex-1">
                     <p className="font-medium text-emerald-400 dark:text-emerald-200">Optimize Stop Sequence</p>
-                    <p className="text-sm text-white/40">Reordering stops 5-7 could save 3.2 miles</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">Reordering stops 5-7 could save 3.2 miles</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <span className="text-green-600">✅</span>
                   <div className="flex-1">
                     <p className="font-medium text-green-900 dark:text-green-100">Well Optimized</p>
-                    <p className="text-sm text-white/40">Current route is highly efficient</p>
+                    <p className="text-sm text-[var(--text-tertiary)]">Current route is highly efficient</p>
                   </div>
                 </div>
               </div>

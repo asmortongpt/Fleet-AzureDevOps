@@ -1,5 +1,5 @@
 /**
- * Module Registry - Declarative module definitions for the ArchonY SPA
+ * Module Registry - Declarative module definitions for the CTA Fleet SPA
  *
  * Replaces the 120+ case switch statement in App.tsx with a data-driven registry.
  * Each module defines its id, label, category, lazy component, panel width, and search keywords.
@@ -451,7 +451,7 @@ export const moduleRegistry: ModuleDefinition[] = [
     component: ComplianceSafetyHub,
     panelWidth: 'wide',
     keywords: ['safety', 'compliance', 'hub'],
-    aliases: ['compliance', 'compliance-hub-consolidated', 'safety-hub-consolidated', 'safety-compliance-hub', 'policy-hub'],
+    aliases: ['compliance', 'compliance-hub-consolidated', 'safety-hub-consolidated', 'safety-compliance-hub', 'compliance-safety', 'policy-hub'],
   },
   {
     id: 'osha-forms',

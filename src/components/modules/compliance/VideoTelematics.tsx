@@ -297,7 +297,7 @@ export function VideoTelematics() {
 
   const getCoachingStatusColor = (status: VideoEvent["coaching"]["status"]) => {
     const colors = {
-      pending: "bg-gray-100 text-gray-700",
+      pending: "bg-white/[0.05] text-[var(--text-tertiary)]",
       "in-progress": "bg-emerald-100 text-emerald-700",
       completed: "bg-green-100 text-green-700"
     }
@@ -557,8 +557,8 @@ export function VideoTelematics() {
           </DialogHeader>
           {selectedEvent && (
             <div className="space-y-2">
-              <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-700">
+              <div className="aspect-video bg-[var(--surface-1)] rounded-lg flex items-center justify-center">
+                <div className="text-center text-[var(--text-tertiary)]">
                   <Video className="w-16 h-16 mx-auto mb-2" />
                   <p>Video Player</p>
                   <p className="text-sm">
@@ -613,7 +613,17 @@ export function VideoTelematics() {
             <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
               Close
             </Button>
-            <Button onClick={() => toast.success(`Downloading video clip for event: ${selectedEvent?.vehicleNumber || 'unknown'}`)}>
+            <Button onClick={() => {
+              if (selectedEvent?.videoUrl) {
+                const a = document.createElement('a')
+                a.href = selectedEvent.videoUrl
+                a.download = `clip-${selectedEvent.vehicleNumber}-${selectedEvent.id}.mp4`
+                a.target = '_blank'
+                a.click()
+              } else {
+                toast.info('No video clip available for this event')
+              }
+            }}>
               <Download className="w-4 h-4 mr-2" />
               Download Clip
             </Button>

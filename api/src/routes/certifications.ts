@@ -19,6 +19,12 @@ router.get(
       const { page = 1, limit = 50 } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
+      // certifications table may not exist yet
+      const tableCheck = await pool.query(`SELECT to_regclass('public.certifications') as table_name`)
+      if (!tableCheck.rows[0]?.table_name) {
+        return res.json({ data: [], pagination: { page: Number(page), limit: Number(limit), total: 0, pages: 0 } })
+      }
+
       const result = await pool.query(
         `SELECT id, tenant_id, driver_id, type, number, issuing_authority,
                 issued_date, expiry_date, status, document_url, created_at, updated_at

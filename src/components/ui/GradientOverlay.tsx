@@ -54,13 +54,13 @@ export function HeatmapGradient({
       high: "#22c55e",   // green
     },
     temperature: {
-      low: "#3b82f6",    // blue
+      low: "#10b981",    // emerald
       mid: "#f59e0b",    // orange
       high: "#ef4444",   // red
     },
     custom: customColors
       ? { low: customColors[0], mid: customColors[1], high: customColors[2] }
-      : { low: "#3b82f6", mid: "#8b5cf6", high: "#ec4899" },
+      : { low: "#10b981", mid: "#f59e0b", high: "#ef4444" },
   };
 
   const colors = colorSchemes[colorScheme];
@@ -97,7 +97,7 @@ export function HeatmapGradient({
             labelPosition === "bottom" && "bottom-2"
           )}
         >
-          <div className="bg-black/75 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold">
+          <div className="bg-black/75 text-white px-3 py-1 rounded-full text-xs font-semibold">
             {Math.round(intensity)}%
           </div>
         </div>
@@ -149,8 +149,8 @@ export function ZoneOverlay({
       pattern: "cross",
     },
     restricted: {
-      color: "#8b5cf6",
-      borderColor: "#7c3aed",
+      color: "#525252",
+      borderColor: "#404040",
       pattern: "diagonal",
     },
     maintenance: {
@@ -184,7 +184,7 @@ export function ZoneOverlay({
           className="absolute top-2 left-2"
         >
           <div
-            className="px-3 py-1 rounded-md text-white text-xs font-semibold shadow-sm"
+            className="px-3 py-1 rounded-md text-white text-xs font-semibold"
             style={{ backgroundColor: config.borderColor }}
           >
             {label}
@@ -214,7 +214,7 @@ interface MetricGradientProps extends GradientOverlayProps {
 export function MetricGradient({
   value,
   direction = "horizontal",
-  colors = ["#3b82f6", "#8b5cf6", "#ec4899"],
+  colors = ["#10b981", "#f59e0b", "#ef4444"],
   animated = true,
   className,
 }: MetricGradientProps) {
@@ -275,7 +275,7 @@ export function PerformanceGradient({
     success: ["#22c55e", "#16a34a"],
     warning: ["#eab308", "#ca8a04"],
     danger: ["#ef4444", "#dc2626"],
-    info: ["#3b82f6", "#2563eb"],
+    info: ["#10b981", "#059669"],
   };
 
   const [startColor, endColor] = variantColors[variant];
@@ -284,7 +284,7 @@ export function PerformanceGradient({
     <div className={cn("relative w-full", className)}>
       {/* Background track */}
       <div
-        className="w-full bg-gray-200 rounded-full overflow-hidden"
+        className="w-full bg-white/[0.04] rounded-full overflow-hidden"
         style={{ height: `${height}px` }}
       >
         {/* Progress bar */}
@@ -295,17 +295,13 @@ export function PerformanceGradient({
             background: `linear-gradient(to right, ${startColor}, ${endColor})`,
           }}
         >
-          {/* Shine effect */}
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30"
-          />
         </div>
       </div>
 
       {/* Label */}
       {showLabel && (
         <div
-          className="absolute -top-6 right-0 text-xs font-semibold text-gray-700"
+          className="absolute -top-6 right-0 text-xs font-semibold text-white/60"
         >
           {Math.round(percentage)}%
         </div>
@@ -328,7 +324,7 @@ interface AnimatedBackgroundProps extends GradientOverlayProps {
 }
 
 export function AnimatedBackground({
-  colors = ["#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b"],
+  colors = ["#10b981", "#f59e0b", "#ef4444", "#14b8a6"],
   speed = 10,
   blur = 100,
   className,

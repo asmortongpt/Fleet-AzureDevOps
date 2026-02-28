@@ -183,7 +183,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
         return `${baseUrl}green.png`;
       case 'in_use':
       case 'in use':
-        return `${baseUrl}blue.png`;
+        return `${baseUrl}green-dot.png`;
       case 'maintenance':
       case 'repair':
         return `${baseUrl}yellow.png`;
@@ -191,7 +191,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
       case 'inactive':
         return `${baseUrl}red.png`;
       default:
-        return `${baseUrl}purple.png`;
+        return `${baseUrl}ltblue-dot.png`;
     }
   };
 
@@ -236,7 +236,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
           <div className="flex items-center justify-center" style={{ height }}>
             <div className="text-center">
               <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600 mx-auto mb-2"></div>
-              <p className="text-sm text-white/70">Loading Google Maps...</p>
+              <p className="text-sm text-[var(--text-primary)]">Loading Google Maps...</p>
             </div>
           </div>
         )}
@@ -284,7 +284,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
 
         {/* Legend */}
         {vehiclesWithCoords.length > 0 && (
-          <div className="mt-2 p-2 bg-gray-50 rounded-lg">
+          <div className="mt-2 p-2 bg-white/[0.03] rounded-lg">
             <h4 className="text-sm font-semibold mb-2">Status Legend</h4>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
               <div className="flex items-center gap-2">
@@ -304,7 +304,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
                 <span>Out of Service</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                <div className="w-3 h-3 rounded-full bg-amber-500"></div>
                 <span>Unknown</span>
               </div>
             </div>

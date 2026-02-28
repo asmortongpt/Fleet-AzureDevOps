@@ -1,21 +1,14 @@
 /**
- * AdminConfigurationHub - Consolidated Administration & Configuration Dashboard
+ * AdminConfigurationHub - Command Center Admin Layout
  *
- * Consolidates:
- * - AdminHub (user management, system administration)
- * - CTAConfigurationHub (CTA-specific settings)
- * - DataGovernanceHub (data management, compliance)
- * - IntegrationsHub (third-party integrations, APIs)
- * - DocumentsHub (document management, templates)
+ * Sidebar-within-content design:
+ * - Left 200px: VerticalTabs navigation (Admin, Configuration, Governance, Integrations, Documents)
+ * - Right: content changes per selection
  *
- * Features:
- * - System administration and user management
- * - Application configuration and settings
- * - Data governance and compliance
- * - Integration management
- * - Document repository and templates
- * - WCAG 2.1 AA accessibility
- * - Performance optimized
+ * Admin view features:
+ * - HeroMetrics inline strip (no cards)
+ * - Full-width user management data table
+ * - Horizontal system health bar with colored status dots
  */
 
 import {
@@ -44,7 +37,7 @@ import {
   Archive,
   AlertTriangle,
   CheckCircle,
-  Info
+  Search,
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 import { toast } from 'sonner'
@@ -54,37 +47,41 @@ import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import HubPage from '@/components/ui/hub-page'
-import { Section } from '@/components/ui/section'
+import { HeroMetrics, type HeroMetric } from '@/components/ui/hero-metrics'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  StatCard,
-  ResponsiveLineChart,
-} from '@/components/visualizations'
+import { VerticalTabs, type VTab } from '@/components/ui/vertical-tabs'
+import { ResponsiveLineChart } from '@/components/visualizations'
 import { useTenant } from '@/contexts'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useNavigation } from '@/contexts/NavigationContext'
 import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
 
 
 const fetcher = apiFetcher
 
 /** Returns semantic color class based on percentage thresholds */
 function semanticPercentColor(value: number): string {
-  if (value >= 75) return 'text-[#10B981]'
-  if (value >= 50) return 'text-[#FDC016]'
-  return 'text-[#FF4300]'
+  if (value >= 75) return 'text-emerald-400'
+  if (value >= 50) return 'text-amber-400'
+  return 'text-rose-400'
 }
 
 /** Returns semantic bg color class for progress bars */
 function semanticPercentBg(value: number): string {
-  if (value >= 75) return 'bg-[#10B981]'
-  if (value >= 50) return 'bg-[#FDC016]'
-  return 'bg-[#FF4300]'
+  if (value >= 75) return 'bg-emerald-500'
+  if (value >= 50) return 'bg-amber-500'
+  return 'bg-rose-500'
+}
+
+/** Status dot color for system health indicators */
+function statusDotColor(status: string): string {
+  if (status === 'healthy') return 'bg-emerald-400'
+  if (status === 'degraded' || status === 'warning') return 'bg-amber-400'
+  if (status === 'unhealthy' || status === 'error') return 'bg-rose-400'
+  return 'bg-white/20'
 }
 
 // ============================================================================
@@ -97,6 +94,7 @@ function semanticPercentBg(value: number): string {
 const AdminTabContent = memo(function AdminTabContent() {
   const { push } = useDrilldown()
   const [auditDateFilter, setAuditDateFilter] = useState<'all' | '24h' | '7d' | '30d'>('all')
+  const [userSearch, setUserSearch] = useState('')
 
   const { data: users, error: usersError } = useSWR<any[]>(
     '/api/users?limit=200',
@@ -128,6 +126,11 @@ const AdminTabContent = memo(function AdminTabContent() {
     fetcher,
     { shouldRetryOnError: false }
   )
+  const { data: integrationsHealth } = useSWR<any>(
+    '/api/integrations/health',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
 
   const adminError = usersError || sessionsError || systemMetricsError || healthError || storageStatsError || auditLogsError
 
@@ -143,8 +146,41 @@ const AdminTabContent = memo(function AdminTabContent() {
     return 0
   }, [health])
 
-  // Storage stats: StorageManager returns {totalSize, quotaUsedPercent}, fallback returns {totalSizeBytes}
-  const storageUsedPercent = Number(storageStats?.quotaUsedPercent || 0)
+  const activeUserPercent = useMemo(() => {
+    if (userRows.length === 0) return 0
+    const activeCount = userRows.filter((u: any) => u.status === 'active' || u.is_active).length
+    return Math.round((activeCount / userRows.length) * 100)
+  }, [userRows])
+
+  const integrationCount = Array.isArray(integrationsHealth?.integrations) ? integrationsHealth.integrations.length : 0
+
+  const heroMetrics: HeroMetric[] = useMemo(() => [
+    {
+      label: 'Users',
+      value: userRows.length,
+      icon: Users,
+      accent: 'emerald' as const,
+    },
+    {
+      label: 'Active',
+      value: `${activeUserPercent}%`,
+      icon: Activity,
+      trend: activeUserPercent >= 50 ? 'up' as const : 'down' as const,
+      accent: activeUserPercent >= 50 ? 'emerald' as const : 'amber' as const,
+    },
+    {
+      label: 'Integrations',
+      value: integrationCount,
+      icon: Plug,
+      accent: 'gray' as const,
+    },
+    {
+      label: 'Uptime',
+      value: systemHealthPercent > 0 ? `${systemHealthPercent}%` : '\u2014',
+      icon: Server,
+      accent: systemHealthPercent >= 75 ? 'emerald' as const : systemHealthPercent >= 50 ? 'amber' as const : 'rose' as const,
+    },
+  ], [userRows.length, activeUserPercent, integrationCount, systemHealthPercent])
 
   const userGroups = useMemo(() => {
     const roleCounts = new Map<string, number>()
@@ -158,6 +194,17 @@ const AdminTabContent = memo(function AdminTabContent() {
       permissions: role
     }))
   }, [userRows])
+
+  // Filtered user list for the full-width table
+  const filteredUsers = useMemo(() => {
+    if (!userSearch.trim()) return userRows
+    const q = userSearch.toLowerCase()
+    return userRows.filter((u: any) =>
+      (u.name || u.display_name || '').toLowerCase().includes(q) ||
+      (u.email || '').toLowerCase().includes(q) ||
+      (u.role || '').toLowerCase().includes(q)
+    )
+  }, [userRows, userSearch])
 
   const systemStatusItems = useMemo(() => {
     const checks = health?.checks || {}
@@ -218,244 +265,248 @@ const AdminTabContent = memo(function AdminTabContent() {
   const isLoading = !users && !usersError && !health && !healthError
   if (isLoading) {
     return (
-      <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-4 gap-1.5">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
-        </div>
-        <div className="grid grid-cols-2 gap-1.5">
-          <Skeleton className="h-48 rounded-md" />
-          <Skeleton className="h-48 rounded-md" />
-        </div>
-        <Skeleton className="h-48 rounded-md" />
+      <div className="space-y-3 p-6">
+        <Skeleton className="h-24 rounded-md" />
+        <Skeleton className="h-12 rounded-md" />
+        <Skeleton className="h-64 rounded-md" />
       </div>
     )
   }
 
   if (adminError) {
     return (
-      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
+      <div className="flex items-center justify-center h-32 text-white/40 text-sm">
         Unable to load admin data. Please try again.
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* Admin Statistics */}
-      <div className="grid gap-1.5 grid-cols-4">
-        <StatCard
-          title="Total Users"
-          value={userRows.length}
-          icon={Users}
-          description="Active accounts"
-        />
-        <StatCard
-          title="System Health"
-          value={systemHealthPercent > 0 ? (
-            <span className={semanticPercentColor(systemHealthPercent)}>{systemHealthPercent}%</span>
-          ) : "\u2014"}
-          icon={Activity}
-          description="Uptime this month"
-        />
-        <StatCard
-          title="Active Sessions"
-          value={activeSessionCount}
-          icon={Server}
-          description="Current users"
-        />
-        <StatCard
-          title="Storage Used"
-          value={storageUsedPercent > 0 ? (
-            <span className={semanticPercentColor(100 - storageUsedPercent)}>{storageUsedPercent.toFixed(1)}%</span>
-          ) : "\u2014"}
-          icon={HardDrive}
-          description="Of allocated space"
-        />
+    <div className="flex flex-col gap-0 overflow-y-auto h-full">
+      {/* Hero Metrics Strip */}
+      <HeroMetrics metrics={heroMetrics} className="border-b border-white/[0.08] bg-[#1a1a1a]" />
+
+      {/* System Status — horizontal health bar */}
+      <div className="px-6 py-4 border-b border-white/[0.08]">
+        <div className="flex items-center gap-2 mb-3">
+          <Server className="h-4 w-4 text-white/40" />
+          <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/35">System Status</span>
+        </div>
+        {systemStatusItems.length === 0 ? (
+          <div className="flex items-center gap-2 text-white/30 text-xs">
+            <CheckCircle className="h-3.5 w-3.5" />
+            <span>Health checks will appear once the health endpoint responds.</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4 flex-wrap">
+            {systemStatusItems.map((service) => (
+              <div
+                key={service.service}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/[0.03] border border-white/[0.08]"
+                title={`${formatEnum(service.service)}: ${service.uptime}`}
+              >
+                <div className={`h-2 w-2 rounded-full ${statusDotColor(service.status)}`} />
+                <span className="text-xs text-white/60 font-medium">{formatEnum(service.service)}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Main content: 2 columns */}
-      <div className="grid grid-cols-2 gap-1.5">
-        {/* User Management */}
-        <Section
-          title="User Management"
-          description="Manage user accounts and permissions"
-          icon={<UserCog className="h-4 w-4" />}
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {userGroups.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
-                <Users className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
-                <p>No user accounts found. Users will appear here after Azure AD sync.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                {userGroups.map((userGroup) => (
-                  <div
-                    key={userGroup.role}
-                    className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3 cursor-pointer hover:bg-[#2A1878] transition-colors"
+      {/* User Management — full-width data table */}
+      <div className="px-6 py-4 flex-1 min-h-0 flex flex-col">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <UserCog className="h-4 w-4 text-white/40" />
+            <span className="text-sm font-semibold text-white/80">User Management</span>
+            <span className="text-xs text-white/30 ml-1">{filteredUsers.length} users</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30" />
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                className="h-8 pl-8 pr-3 text-xs rounded-md bg-white/[0.05] border border-white/[0.08] text-white/80 placeholder:text-white/25 focus:outline-none focus:border-emerald-500/40"
+              />
+            </div>
+            <Button variant="outline" size="sm" onClick={handleManageUsers} className="h-8 text-xs">
+              Manage Users
+            </Button>
+          </div>
+        </div>
+
+        {filteredUsers.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-32 text-white/30 text-sm gap-2">
+            <Users className="h-6 w-6" />
+            <p>{userSearch ? 'No users match your search.' : 'No user accounts found. Users will appear here after Azure AD sync.'}</p>
+          </div>
+        ) : (
+          <div className="rounded-md border border-white/[0.08] overflow-hidden flex-1 min-h-0 overflow-y-auto">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Name</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Email</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Role</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Status</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Last Active</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.slice(0, 50).map((user: any) => {
+                  const isActive = user.status === 'active' || user.is_active
+                  return (
+                    <tr
+                      key={user.id}
+                      className="border-b border-white/[0.04] cursor-pointer hover:bg-white/[0.03] transition-colors"
+                      onClick={() => push({
+                        id: user.id,
+                        type: 'user',
+                        label: user.name || user.display_name || user.email || 'User',
+                        data: { userId: user.id, role: user.role, email: user.email },
+                      })}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          push({
+                            id: user.id,
+                            type: 'user',
+                            label: user.name || user.display_name || user.email || 'User',
+                            data: { userId: user.id, role: user.role, email: user.email },
+                          })
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View details for ${user.name || user.display_name || user.email || 'user'}`}
+                    >
+                      <td className="py-2 px-3 text-white/80 font-medium">{user.name || user.display_name || '\u2014'}</td>
+                      <td className="py-2 px-3 text-white/50 text-xs">{user.email || '\u2014'}</td>
+                      <td className="py-2 px-3">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] font-semibold border-emerald-500/30 text-emerald-400/80"
+                        >
+                          {formatEnum(user.role || 'user')}
+                        </Badge>
+                      </td>
+                      <td className="py-2 px-3">
+                        <div className="flex items-center gap-1.5">
+                          <div className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-emerald-400' : 'bg-white/20'}`} />
+                          <span className={`text-xs ${isActive ? 'text-emerald-400/80' : 'text-white/30'}`}>
+                            {isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-2 px-3 text-white/30 text-xs">
+                        {user.last_login || user.last_active ? formatDateTime(user.last_login || user.last_active) : '\u2014'}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Audit Log */}
+      <div className="px-6 py-4 border-t border-white/[0.08]">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Activity className="h-4 w-4 text-white/40" />
+            <span className="text-sm font-semibold text-white/80">Recent Activity</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-0.5 rounded-md border border-white/[0.08] bg-white/[0.03] p-0.5">
+              {(['all', '24h', '7d', '30d'] as const).map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setAuditDateFilter(period)}
+                  className={`px-2.5 py-1 text-[11px] rounded transition-colors ${
+                    auditDateFilter === period
+                      ? 'bg-white/[0.1] text-white/80 font-medium'
+                      : 'text-white/30 hover:text-white/50 hover:bg-white/[0.04]'
+                  }`}
+                  aria-label={`Filter audit logs: ${period === 'all' ? 'All time' : `Last ${period}`}`}
+                >
+                  {period === 'all' ? 'All' : period === '24h' ? '24h' : period === '7d' ? '7d' : '30d'}
+                </button>
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportLogs}
+              disabled={filteredAuditRows.length === 0}
+              aria-label="Export audit logs as CSV"
+              className="h-7 text-[11px]"
+            >
+              <Download className="h-3 w-3 mr-1" />
+              Export
+            </Button>
+          </div>
+        </div>
+
+        {filteredAuditRows.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-20 text-white/30 text-xs gap-1">
+            <p>No audit log entries found for the selected time period.</p>
+            {auditDateFilter !== 'all' && (
+              <button onClick={() => setAuditDateFilter('all')} className="text-emerald-400 hover:text-emerald-300 text-xs underline">
+                Show all entries
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="rounded-md border border-white/[0.08] overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Action</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Resource</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">User</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAuditRows.slice(0, 10).map((log: any) => (
+                  <tr
+                    key={log.id}
+                    className="border-b border-white/[0.04] cursor-pointer hover:bg-white/[0.03] transition-colors"
                     onClick={() => push({
-                      id: userGroup.role,
-                      type: 'user',
-                      label: `${formatEnum(userGroup.role)} Users`,
-                      data: { role: userGroup.role, count: userGroup.count, permissions: userGroup.permissions },
+                      id: log.id,
+                      type: 'audit-log',
+                      label: `${log.action} - ${log.resource}`,
+                      data: { auditLogId: log.id, action: log.action, resource: log.resource, userName: log.userName, timestamp: log.timestamp },
                     })}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
                         push({
-                          id: userGroup.role,
-                          type: 'user',
-                          label: `${formatEnum(userGroup.role)} Users`,
-                          data: { role: userGroup.role, count: userGroup.count, permissions: userGroup.permissions },
+                          id: log.id,
+                          type: 'audit-log',
+                          label: `${log.action} - ${log.resource}`,
+                          data: { auditLogId: log.id, action: log.action, resource: log.resource, userName: log.userName, timestamp: log.timestamp },
                         })
                       }
                     }}
                     role="button"
                     tabIndex={0}
-                    aria-label={`View details for ${formatEnum(userGroup.role)} users`}
+                    aria-label={`View details for audit log: ${log.action} on ${log.resource}`}
                   >
-                    <div className="flex items-center gap-3">
-                      <Users className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-                      <div>
-                        <p className="font-semibold text-white">{formatEnum(userGroup.role)}</p>
-                        <p className="text-sm text-[rgba(255,255,255,0.40)]">
-                          {userGroup.count} {userGroup.count === 1 ? 'user' : 'users'}
-                        </p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleManageUsers(); }}>Manage</Button>
-                  </div>
+                    <td className="py-1.5 px-3 text-white/80">{formatEnum(log.action)}</td>
+                    <td className="py-1.5 px-3 text-white/60">{formatEnum(log.resource)}</td>
+                    <td className="py-1.5 px-3 text-white/40">{log.userName || '\u2014'}</td>
+                    <td className="py-1.5 px-3 text-white/30 text-xs">{formatDateTime(log.timestamp)}</td>
+                  </tr>
                 ))}
-              </div>
-            )}
+              </tbody>
+            </table>
           </div>
-        </Section>
-
-        {/* System Status */}
-        <Section
-          title="System Status"
-          description="Infrastructure health metrics"
-          icon={<Server className="h-4 w-4" />}
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {systemStatusItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
-                <CheckCircle className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
-                <p>System health checks will appear once the health endpoint responds.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                {systemStatusItems.map((service) => (
-                  <div key={service.service} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
-                    <div>
-                      <p className="font-medium text-white">{formatEnum(service.service)}</p>
-                      <p className="text-sm text-[rgba(255,255,255,0.40)]">Details: {service.uptime}</p>
-                    </div>
-                    <Badge variant={service.status === 'healthy' ? 'default' : service.status === 'warning' ? 'secondary' : 'destructive'}>
-                      {formatEnum(service.status)}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </Section>
-
-        {/* Audit Log spanning full width below */}
-        <div className="col-span-2">
-          <Section
-            title="Recent Activity"
-            description="System audit log"
-            icon={<Activity className="h-4 w-4" />}
-          >
-            <div className="flex items-center gap-2 mb-2 shrink-0">
-              <div className="flex items-center gap-1 rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-0.5">
-                {(['all', '24h', '7d', '30d'] as const).map((period) => (
-                  <button
-                    key={period}
-                    onClick={() => setAuditDateFilter(period)}
-                    className={`px-2.5 py-1 text-xs rounded-md transition-colors ${
-                      auditDateFilter === period
-                        ? 'bg-[#332090] text-white font-medium'
-                        : 'text-[rgba(255,255,255,0.40)] hover:text-white/90 hover:bg-[#2A1878]'
-                    }`}
-                    aria-label={`Filter audit logs: ${period === 'all' ? 'All time' : `Last ${period}`}`}
-                  >
-                    {period === 'all' ? 'All' : period === '24h' ? '24h' : period === '7d' ? '7 days' : '30 days'}
-                  </button>
-                ))}
-              </div>
-              <div className="flex-1" />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExportLogs}
-                disabled={filteredAuditRows.length === 0}
-                aria-label="Export audit logs as CSV"
-              >
-                <Download className="h-3.5 w-3.5 mr-1.5" />
-                Export Logs
-              </Button>
-            </div>
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              {filteredAuditRows.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
-                  <Activity className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
-                  <p>No audit log entries found for the selected time period.</p>
-                  {auditDateFilter !== 'all' && (
-                    <button onClick={() => setAuditDateFilter('all')} className="text-[#10B981] hover:text-[#00CCFE] text-xs underline">
-                      Show all entries
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-[#1A0648]">
-                    <tr className="border-b border-[rgba(0,204,254,0.08)]">
-                      <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Action</th>
-                      <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Resource</th>
-                      <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">User</th>
-                      <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Timestamp</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredAuditRows.slice(0, 10).map((log: any) => (
-                      <tr
-                        key={log.id}
-                        className="border-b border-[rgba(0,204,254,0.04)] cursor-pointer hover:bg-[#2A1878]"
-                        onClick={() => push({
-                          id: log.id,
-                          type: 'audit-log',
-                          label: `${log.action} - ${log.resource}`,
-                          data: { auditLogId: log.id, action: log.action, resource: log.resource, userName: log.userName, timestamp: log.timestamp },
-                        })}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault()
-                            push({
-                              id: log.id,
-                              type: 'audit-log',
-                              label: `${log.action} - ${log.resource}`,
-                              data: { auditLogId: log.id, action: log.action, resource: log.resource, userName: log.userName, timestamp: log.timestamp },
-                            })
-                          }
-                        }}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={`View details for audit log: ${log.action} on ${log.resource}`}
-                      >
-                        <td className="py-1.5 px-2 text-white">{formatEnum(log.action)}</td>
-                        <td className="py-1.5 px-2 text-white">{formatEnum(log.resource)}</td>
-                        <td className="py-1.5 px-2 text-[rgba(255,255,255,0.40)]">{log.userName || '\u2014'}</td>
-                        <td className="py-1.5 px-2 text-[rgba(255,255,255,0.40)]">{formatDateTime(log.timestamp)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </Section>
-        </div>
+        )}
       </div>
     </div>
   )
@@ -512,97 +563,118 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
     logger.info(`Feature flag toggled: ${feature} -> ${newState}`)
   }
 
-  // Loading state — tenant settings come from context, so check if they're available
+  // Loading state
   const isConfigLoading = settings === undefined || settings === null
   if (isConfigLoading) {
     return (
-      <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-2 gap-1.5">
-          <Skeleton className="h-48 rounded-md" />
-          <Skeleton className="h-48 rounded-md" />
-        </div>
+      <div className="space-y-3 p-6">
+        <Skeleton className="h-48 rounded-md" />
+        <Skeleton className="h-48 rounded-md" />
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* Session-only override warning (P0-3) */}
+    <div className="flex flex-col gap-0 overflow-y-auto h-full">
+      {/* Session-only override warning */}
       {Object.keys(featureFlagOverrides).length > 0 && (
-        <div className="text-[10px] text-[#FDC016]/80 flex items-center gap-1 px-2 py-1 bg-[#221060]/40 rounded border border-[#FDC016]/20">
+        <div className="text-[10px] text-amber-400/80 flex items-center gap-1 px-6 py-2 bg-amber-950/20 border-b border-amber-500/20">
           <AlertTriangle className="h-3 w-3 shrink-0" />
           Feature flag overrides are session-only and will reset on page reload
         </div>
       )}
 
-      {/* Main content: 2 columns */}
-      <div className="grid grid-cols-2 gap-1.5">
-        {/* System Settings */}
-        <Section
-          title="System Settings"
-          description="Configure application behavior and preferences"
-          icon={<Sliders className="h-4 w-4" />}
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {configCategories.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
-                <Settings className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
-                <p>No configuration categories available.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5">
+      {/* System Settings — full-width table */}
+      <div className="px-6 py-5 border-b border-white/[0.08]">
+        <div className="flex items-center gap-2 mb-4">
+          <Sliders className="h-4 w-4 text-white/40" />
+          <span className="text-sm font-semibold text-white/80">System Settings</span>
+        </div>
+        {configCategories.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-32 text-white/30 text-sm gap-2">
+            <Settings className="h-6 w-6" />
+            <p>No configuration categories available.</p>
+          </div>
+        ) : (
+          <div className="rounded-md border border-white/[0.08] overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Category</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Settings</th>
+                  <th className="text-right py-2 px-3 text-white/40 font-medium text-xs">Action</th>
+                </tr>
+              </thead>
+              <tbody>
                 {configCategories.map((item) => {
                   const Icon = item.icon
                   return (
-                    <div key={item.category} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
-                      <div className="flex items-center gap-3">
-                        <Icon className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-                        <div>
-                          <p className="font-semibold text-white">{item.category}</p>
-                          <p className="text-sm text-[rgba(255,255,255,0.40)]">{item.settings} settings available</p>
+                    <tr key={item.category} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors">
+                      <td className="py-2.5 px-3">
+                        <div className="flex items-center gap-2.5">
+                          <Icon className="h-4 w-4 text-white/30" />
+                          <span className="text-white/80 font-medium">{item.category}</span>
                         </div>
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => handleConfigureSettings(item.category, item.settingsTab)}>Configure</Button>
-                    </div>
+                      </td>
+                      <td className="py-2.5 px-3 text-white/40 text-xs">{item.settings} settings available</td>
+                      <td className="py-2.5 px-3 text-right">
+                        <Button variant="outline" size="sm" className="h-7 text-[11px]" onClick={() => handleConfigureSettings(item.category, item.settingsTab)}>
+                          Configure
+                        </Button>
+                      </td>
+                    </tr>
                   )
                 })}
-              </div>
-            )}
+              </tbody>
+            </table>
           </div>
-        </Section>
+        )}
+      </div>
 
-        {/* Feature Flags */}
-        <Section
-          title="Feature Flags"
-          description="Enable or disable system features"
-          icon={<ToggleLeft className="h-4 w-4" />}
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {featureFlags.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
-                <ToggleLeft className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
-                <p>No feature flags configured for this tenant.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                {featureFlags.map((flag) => (
-                  <div key={flag.feature} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-white truncate">{formatEnum(flag.feature)}</p>
-                        <Badge variant={flag.enabled ? 'default' : 'secondary'}>
-                          {flag.enabled ? 'Enabled' : 'Disabled'}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-[rgba(255,255,255,0.40)] mt-0.5">{flag.description}</p>
-                    </div>
-                    <Button variant="outline" size="sm" className="ml-2 shrink-0" onClick={() => handleToggleFeature(flag.feature, flag.enabled)}>Toggle</Button>
-                  </div>
-                ))}
-              </div>
-            )}
+      {/* Feature Flags — full-width table */}
+      <div className="px-6 py-5">
+        <div className="flex items-center gap-2 mb-4">
+          <ToggleLeft className="h-4 w-4 text-white/40" />
+          <span className="text-sm font-semibold text-white/80">Feature Flags</span>
+          <span className="text-xs text-white/30 ml-1">{featureFlags.length} flags</span>
+        </div>
+        {featureFlags.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-32 text-white/30 text-sm gap-2">
+            <ToggleLeft className="h-6 w-6" />
+            <p>No feature flags configured for this tenant.</p>
           </div>
-        </Section>
+        ) : (
+          <div className="rounded-md border border-white/[0.08] overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Feature</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Description</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Status</th>
+                  <th className="text-right py-2 px-3 text-white/40 font-medium text-xs">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {featureFlags.map((flag) => (
+                  <tr key={flag.feature} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors">
+                    <td className="py-2.5 px-3 text-white/80 font-medium">{formatEnum(flag.feature)}</td>
+                    <td className="py-2.5 px-3 text-white/40 text-xs">{flag.description}</td>
+                    <td className="py-2.5 px-3">
+                      <Badge variant={flag.enabled ? 'default' : 'secondary'} className="text-[10px]">
+                        {flag.enabled ? 'Enabled' : 'Disabled'}
+                      </Badge>
+                    </td>
+                    <td className="py-2.5 px-3 text-right">
+                      <Button variant="outline" size="sm" className="h-7 text-[11px]" onClick={() => handleToggleFeature(flag.feature, flag.enabled)}>
+                        Toggle
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -626,7 +698,6 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
       if (res.ok) {
         toast.success('Backup initiated successfully')
       } else {
-        // Backend may not have this endpoint yet; graceful degradation
         toast.success('Backup request submitted')
       }
     } catch {
@@ -660,7 +731,6 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
 
   const dataGovernanceError = databaseHealthError || dgStorageError || dgAuditError || complianceDashboardError
 
-  // P0-4: Renamed from "Data Quality Score" to "System Health Score" — derived from DB connectivity status
   const systemHealthScore = useMemo(() => {
     const status = databaseHealth?.status
     if (status === 'healthy') return 100
@@ -673,170 +743,173 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
     ? Math.round(complianceDashboard.metrics.reduce((sum: number, metric: any) => sum + Number(metric.score || 0), 0) / complianceDashboard.metrics.length)
     : 0
 
+  const storageUsedBytes = storageStats?.totalSize || storageStats?.totalSizeBytes || 0
+  const storageDisplay = (() => {
+    if (!storageUsedBytes) return '\u2014'
+    if (storageUsedBytes >= 1_000_000_000_000) return `${(storageUsedBytes / 1_000_000_000_000).toFixed(2)} TB`
+    if (storageUsedBytes >= 1_000_000_000) return `${(storageUsedBytes / 1_000_000_000).toFixed(2)} GB`
+    if (storageUsedBytes >= 1_000_000) return `${(storageUsedBytes / 1_000_000).toFixed(1)} MB`
+    return `${(storageUsedBytes / 1_000).toFixed(0)} KB`
+  })()
+
   const databaseStats = databaseHealth?.database?.statistics || {}
   const auditRows = Array.isArray(auditLogs) ? auditLogs : []
+
+  const heroMetrics: HeroMetric[] = useMemo(() => [
+    {
+      label: 'System Health',
+      value: systemHealthScore > 0 ? `${systemHealthScore}%` : '\u2014',
+      icon: Database,
+      accent: systemHealthScore >= 75 ? 'emerald' as const : systemHealthScore >= 50 ? 'amber' as const : 'rose' as const,
+    },
+    {
+      label: 'Storage',
+      value: storageDisplay,
+      icon: HardDrive,
+      accent: 'gray' as const,
+    },
+    {
+      label: 'Backup',
+      value: auditRows.length > 0 ? 'Available' : '\u2014',
+      icon: Archive,
+      accent: 'emerald' as const,
+    },
+    {
+      label: 'Compliance',
+      value: complianceScore > 0 ? `${complianceScore}%` : '\u2014',
+      icon: Shield,
+      accent: complianceScore >= 75 ? 'emerald' as const : complianceScore >= 50 ? 'amber' as const : 'rose' as const,
+    },
+  ], [systemHealthScore, storageDisplay, auditRows.length, complianceScore])
 
   // Loading state
   const isDataLoading = !databaseHealth && !databaseHealthError
   if (isDataLoading) {
     return (
-      <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-4 gap-1.5">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
-        </div>
-        <div className="grid grid-cols-2 gap-1.5">
-          <Skeleton className="h-48 rounded-md" />
-          <Skeleton className="h-48 rounded-md" />
-        </div>
+      <div className="space-y-3 p-6">
+        <Skeleton className="h-24 rounded-md" />
+        <Skeleton className="h-48 rounded-md" />
+        <Skeleton className="h-48 rounded-md" />
       </div>
     )
   }
 
   if (dataGovernanceError) {
     return (
-      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
+      <div className="flex items-center justify-center h-32 text-white/40 text-sm">
         Unable to load data governance information. Please try again.
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* Data Governance Statistics */}
-      <div className="grid gap-1.5 grid-cols-4">
-        <StatCard
-          title="System Health Score"
-          value={systemHealthScore > 0 ? (
-            <span className={semanticPercentColor(systemHealthScore)}>{systemHealthScore}%</span>
-          ) : "\u2014"}
-          icon={Database}
-          description="Based on database connectivity status"
-        />
-        <StatCard
-          title="Storage Used"
-          value={(() => {
-            const bytes = storageStats?.totalSize || storageStats?.totalSizeBytes || 0
-            if (!bytes) return "\u2014"
-            if (bytes >= 1_000_000_000_000) return `${(bytes / 1_000_000_000_000).toFixed(2)} TB`
-            if (bytes >= 1_000_000_000) return `${(bytes / 1_000_000_000).toFixed(2)} GB`
-            if (bytes >= 1_000_000) return `${(bytes / 1_000_000).toFixed(1)} MB`
-            return `${(bytes / 1_000).toFixed(0)} KB`
-          })()}
-          icon={HardDrive}
-          description={storageStats?.quotaUsedPercent ? `${Number(storageStats.quotaUsedPercent).toFixed(1)}% of quota` : "Of allocated capacity"}
-        />
-        <div className="cursor-pointer" onClick={() => setShowBackupDialog(true)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowBackupDialog(true); } }} aria-label="Run backup">
-          <StatCard
-            title="Backup Status"
-            value={auditRows.length > 0 ? "Available" : "\u2014"}
-            icon={Archive}
-            description={auditRows[0]?.timestamp ? `Last activity: ${formatDateTime(auditRows[0].timestamp)}` : "Click to run backup"}
-          />
-        </div>
-        <StatCard
-          title="Compliance Score"
-          value={complianceScore > 0 ? (
-            <span className={semanticPercentColor(complianceScore)}>{complianceScore}%</span>
-          ) : "\u2014"}
-          icon={Shield}
-          description="Compliance dashboard average"
-        />
-      </div>
+    <div className="flex flex-col gap-0 overflow-y-auto h-full">
+      {/* Hero Metrics Strip */}
+      <HeroMetrics metrics={heroMetrics} className="border-b border-white/[0.08] bg-[#1a1a1a]" />
 
-      {/* Main content: 2 columns */}
-      <div className="grid grid-cols-2 gap-1.5">
-        {/* Data Sources */}
-        <Section
-          title="Data Sources & Quality"
-          description="Monitoring data quality across all sources"
-          icon={<Database className="h-4 w-4" />}
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {databaseStats ? (
-              <div className="flex flex-col gap-1.5">
+      {/* Data Sources — full-width table */}
+      <div className="px-6 py-5 border-b border-white/[0.08]">
+        <div className="flex items-center gap-2 mb-4">
+          <Database className="h-4 w-4 text-white/40" />
+          <span className="text-sm font-semibold text-white/80">Data Sources & Quality</span>
+        </div>
+        {databaseStats ? (
+          <div className="rounded-md border border-white/[0.08] overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Source</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Records</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Health</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Last Updated</th>
+                </tr>
+              </thead>
+              <tbody>
                 {[
                   { source: 'Vehicles', records: databaseStats.vehicles, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
                   { source: 'Drivers', records: databaseStats.drivers, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
                   { source: 'Maintenance Records', records: databaseStats.maintenanceRecords, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
                   { source: 'Database Size', records: databaseStats.databaseSize, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
                 ].map((source) => (
-                  <div key={source.source} className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="font-semibold text-white text-sm">{source.source}</p>
-                      <span className={`text-xs font-medium ${semanticPercentColor(source.quality)}`}>
-                        {source.quality}%
-                      </span>
-                    </div>
-                    {/* Horizontal progress bar */}
-                    <div className="w-full h-1.5 rounded-full bg-[rgba(0,204,254,0.06)] mb-1.5">
-                      <div
-                        className={`h-full rounded-full ${semanticPercentBg(source.quality)}`}
-                        style={{ width: `${source.quality}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-[rgba(255,255,255,0.40)]">
-                      {source.records ?? '\u2014'} records · Updated: {formatDateTime(source.lastUpdated)}
-                    </p>
-                  </div>
+                  <tr key={source.source} className="border-b border-white/[0.04]">
+                    <td className="py-2.5 px-3 text-white/80 font-medium">{source.source}</td>
+                    <td className="py-2.5 px-3 text-white/50 text-xs">{source.records ?? '\u2014'}</td>
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 h-1.5 rounded-full bg-white/[0.06]">
+                          <div
+                            className={`h-full rounded-full ${semanticPercentBg(source.quality)}`}
+                            style={{ width: `${source.quality}%` }}
+                          />
+                        </div>
+                        <span className={`text-[11px] font-medium ${semanticPercentColor(source.quality)}`}>
+                          {source.quality}%
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-3 text-white/30 text-xs">{formatDateTime(source.lastUpdated)}</td>
+                  </tr>
                 ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
-                <Database className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
-                <p>Database health data not available. Check backend connectivity.</p>
-              </div>
-            )}
+              </tbody>
+            </table>
           </div>
-        </Section>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-32 text-white/30 text-sm gap-2">
+            <Database className="h-6 w-6" />
+            <p>Database health data not available. Check backend connectivity.</p>
+          </div>
+        )}
+      </div>
 
-        {/* System Activity Log (was "Backup & Recovery" — P0-5) */}
-        <Section
-          title="System Activity Log"
-          description="Recent system operations and events"
-          icon={<Activity className="h-4 w-4" />}
-          actions={
-            <Button size="sm" variant="outline" onClick={() => setShowBackupDialog(true)}>
-              <Archive className="h-3.5 w-3.5 mr-1" />
-              Run Backup
-            </Button>
-          }
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {auditRows.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
-                <Info className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
-                <p>No recent system activity recorded.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                {auditRows.slice(0, 5).map((entry: any) => (
-                  <div key={entry.id} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
-                    <div>
-                      <p className="font-semibold text-white text-sm">{formatEnum(entry.action)}</p>
-                      <p className="text-xs text-[rgba(255,255,255,0.40)]">
-                        {formatEnum(entry.resource)} · {formatDateTime(entry.timestamp)}
-                      </p>
-                    </div>
-                    <Badge variant={entry.action === 'delete' ? 'destructive' : 'default'}>
-                      {formatEnum(entry.action)}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            )}
+      {/* System Activity Log */}
+      <div className="px-6 py-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Activity className="h-4 w-4 text-white/40" />
+            <span className="text-sm font-semibold text-white/80">System Activity Log</span>
           </div>
-        </Section>
+          <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => setShowBackupDialog(true)}>
+            <Archive className="h-3 w-3 mr-1" />
+            Run Backup
+          </Button>
+        </div>
+        {auditRows.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-20 text-white/30 text-xs gap-1">
+            <p>No recent system activity recorded.</p>
+          </div>
+        ) : (
+          <div className="rounded-md border border-white/[0.08] overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Action</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Resource</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                {auditRows.slice(0, 5).map((entry: any) => (
+                  <tr key={entry.id} className="border-b border-white/[0.04]">
+                    <td className="py-2 px-3 text-white/80">{formatEnum(entry.action)}</td>
+                    <td className="py-2 px-3 text-white/50">{formatEnum(entry.resource)}</td>
+                    <td className="py-2 px-3 text-white/30 text-xs">{formatDateTime(entry.timestamp)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Backup Confirmation Dialog */}
       <Dialog open={showBackupDialog} onOpenChange={setShowBackupDialog}>
-        <DialogContent className="bg-[#1A0648] border-[rgba(0,204,254,0.08)]">
+        <DialogContent className="bg-[#242424] border-white/[0.08]">
           <DialogHeader>
-            <DialogTitle>Run System Backup</DialogTitle>
+            <DialogTitle className="text-white/80">Run System Backup</DialogTitle>
           </DialogHeader>
-          <div className="py-4 text-sm text-[rgba(255,255,255,0.40)]">
+          <div className="py-4 text-sm text-white/50">
             <p>This will create a snapshot of the current database and configuration state.</p>
-            <p className="mt-2 text-xs text-[rgba(255,255,255,0.40)]">Backup includes: database tables, tenant configuration, and system settings.</p>
+            <p className="mt-2 text-xs text-white/30">Backup includes: database tables, tenant configuration, and system settings.</p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowBackupDialog(false)} disabled={backupInProgress}>
@@ -874,7 +947,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: smartcarConnections, mutate: mutateSmartcar } = useSWR<any>(
+  const { data: smartcarConnections } = useSWR<any>(
     smartcarStatus?.configured ? '/api/smartcar/connections' : null,
     fetcher,
     { shouldRetryOnError: false }
@@ -912,7 +985,6 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
     const total = rows
       .filter((row: any) => new Date(row.time).getTime() >= cutoff)
       .reduce((sum: number, row: any) => sum + Number(row.webhookEvents || 0), 0)
-    // Use reported webhook events if available, otherwise estimate from API calls
     return total > 0 ? Math.round(total) : (apiCallsToday > 0 ? Math.round(apiCallsToday * 0.15) : 0)
   }, [metricsHistory, apiCallsToday])
 
@@ -920,7 +992,6 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
     push({ type: 'system-health', label: `Integration: ${integrationName}`, data: { integrationName } })
   }
 
-  // P1-6: Derive health description from actual data
   const integrationHealthDescription = useMemo(() => {
     if (integrations.length === 0) return 'No integrations configured'
     const unhealthyCount = integrations.filter((i: any) => i.status === 'unhealthy').length
@@ -930,203 +1001,218 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
     return 'All systems operational'
   }, [integrations])
 
+  const heroMetrics: HeroMetric[] = useMemo(() => [
+    {
+      label: 'Active Integrations',
+      value: integrations.length,
+      icon: Plug,
+      accent: 'emerald' as const,
+    },
+    {
+      label: 'API Calls Today',
+      value: apiCallsToday > 0 ? formatNumber(apiCallsToday) : '\u2014',
+      icon: CloudCog,
+      accent: 'gray' as const,
+    },
+    {
+      label: 'Webhook Events',
+      value: webhookEventsToday > 0 ? formatNumber(webhookEventsToday) : '\u2014',
+      icon: Webhook,
+      accent: 'gray' as const,
+    },
+    {
+      label: 'Health',
+      value: integrationHealthPercent > 0 ? `${integrationHealthPercent}%` : '\u2014',
+      icon: Activity,
+      accent: integrationHealthPercent >= 75 ? 'emerald' as const : integrationHealthPercent >= 50 ? 'amber' as const : 'rose' as const,
+    },
+  ], [integrations.length, apiCallsToday, webhookEventsToday, integrationHealthPercent])
+
   // Loading state
   const isIntegrationsLoading = !integrationsHealth && !integrationsHealthError
   if (isIntegrationsLoading) {
     return (
-      <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-4 gap-1.5">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
-        </div>
-        <div className="grid grid-cols-2 gap-1.5">
-          <Skeleton className="h-48 rounded-md" />
-          <Skeleton className="h-48 rounded-md" />
-        </div>
+      <div className="space-y-3 p-6">
+        <Skeleton className="h-24 rounded-md" />
+        <Skeleton className="h-48 rounded-md" />
+        <Skeleton className="h-48 rounded-md" />
       </div>
     )
   }
 
   if (integrationsError) {
     return (
-      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
+      <div className="flex items-center justify-center h-32 text-white/40 text-sm">
         Unable to load integrations data. Please try again.
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* Integration Statistics */}
-      <div className="grid gap-1.5 grid-cols-4">
-        <StatCard
-          title="Active Integrations"
-          value={integrations.length}
-          icon={Plug}
-          description="Connected services"
-        />
-        <StatCard
-          title="API Calls Today"
-          value={apiCallsToday > 0 ? formatNumber(apiCallsToday) : "\u2014"}
-          icon={CloudCog}
-          description="Across all endpoints"
-        />
-        <StatCard
-          title="Webhook Events"
-          value={webhookEventsToday > 0 ? formatNumber(webhookEventsToday) : "\u2014"}
-          icon={Webhook}
-          description="Last 24 hours"
-        />
-        <StatCard
-          title="Integration Health"
-          value={integrationHealthPercent > 0 ? (
-            <span className={semanticPercentColor(integrationHealthPercent)}>{integrationHealthPercent}%</span>
-          ) : "\u2014"}
-          icon={Activity}
-          description={integrationHealthDescription}
-        />
+    <div className="flex flex-col gap-0 overflow-y-auto h-full">
+      {/* Hero Metrics Strip */}
+      <HeroMetrics metrics={heroMetrics} className="border-b border-white/[0.08] bg-[#1a1a1a]" />
+
+      {/* Connected Integrations — full-width table */}
+      <div className="px-6 py-5 border-b border-white/[0.08]">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Plug className="h-4 w-4 text-white/40" />
+            <span className="text-sm font-semibold text-white/80">Connected Integrations</span>
+            <span className="text-xs text-white/30 ml-1">{integrationHealthDescription}</span>
+          </div>
+        </div>
+        {integrations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-32 text-white/30 text-sm gap-2">
+            <Plug className="h-6 w-6" />
+            <p>No integrations connected. Configure API connections in Settings.</p>
+          </div>
+        ) : (
+          <div className="rounded-md border border-white/[0.08] overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Integration</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Capabilities</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Response</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Status</th>
+                  <th className="text-right py-2 px-3 text-white/40 font-medium text-xs">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {integrations.map((integration: any) => (
+                  <tr key={integration.name} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors">
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center gap-2">
+                        <Plug className="h-3.5 w-3.5 text-white/30" />
+                        <span className="text-white/80 font-medium">{integration.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-3 text-white/40 text-xs">{integration.capabilities?.join(', ') || 'Integration'}</td>
+                    <td className="py-2.5 px-3 text-white/40 text-xs">{integration.responseTime ? `${integration.responseTime}ms` : '\u2014'}</td>
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center gap-1.5">
+                        <div className={`h-1.5 w-1.5 rounded-full ${statusDotColor(integration.status)}`} />
+                        <span className="text-xs text-white/50">{formatEnum(integration.status)}</span>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-3 text-right">
+                      <Button variant="outline" size="sm" className="h-7 text-[11px]" onClick={() => handleConfigureIntegration(integration.name)}>
+                        Configure
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* Main content: 2 columns */}
-      <div className="grid grid-cols-2 gap-1.5">
-        {/* Connected Integrations */}
-        <Section
-          title="Connected Integrations"
-          description="Third-party services and APIs"
-          icon={<Plug className="h-4 w-4" />}
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {integrations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
-                <Plug className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
-                <p>No integrations connected. Configure API connections in Settings.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                {integrations.map((integration: any) => (
-                  <div key={integration.name} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
-                    <div className="flex items-center gap-3">
-                      <Plug className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-                      <div>
-                        <p className="font-semibold text-white text-sm">{integration.name}</p>
-                        <p className="text-xs text-[rgba(255,255,255,0.40)]">
-                          {integration.capabilities?.join(', ') || 'Integration'} · {integration.responseTime ? `${integration.responseTime}ms` : '\u2014'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={integration.status === 'healthy' ? 'default' : integration.status === 'degraded' ? 'secondary' : 'destructive'}>
-                        {formatEnum(integration.status)}
-                      </Badge>
-                      <Button variant="outline" size="sm" onClick={() => handleConfigureIntegration(integration.name)}>Configure</Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </Section>
-
-        {/* API Usage */}
-        <Section
-          title="API Usage Trends"
-          description="API call volume over time"
-          icon={<Code className="h-4 w-4" />}
-        >
+      {/* API Usage Chart */}
+      <div className="px-6 py-5 border-b border-white/[0.08]">
+        <div className="flex items-center gap-2 mb-4">
+          <Code className="h-4 w-4 text-white/40" />
+          <span className="text-sm font-semibold text-white/80">API Usage Trends</span>
+        </div>
+        <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-4">
           <ResponsiveLineChart
             title="API Usage Trends"
             data={apiUsageData}
             dataKeys={['calls']}
-            colors={['#00CCFE']}
+            colors={['#10b981']}
             height={140}
             compact
           />
-        </Section>
-
-        {/* Smartcar Vehicle API — full-width */}
-        <div className="col-span-2">
-          <Section
-            title="Smartcar Vehicle API"
-            description="Connected vehicle data for 50+ brands"
-            icon={<Plug className="h-4 w-4" />}
-          >
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              {!smartcarStatus?.configured ? (
-                <div className="flex flex-col items-center justify-center h-28 text-[rgba(255,255,255,0.40)] text-sm gap-2">
-                  <Plug className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
-                  <p>Smartcar is not configured. Set <code className="text-xs bg-[rgba(0,204,254,0.06)] px-1.5 py-0.5 rounded">SMARTCAR_CLIENT_ID</code>, <code className="text-xs bg-[rgba(0,204,254,0.06)] px-1.5 py-0.5 rounded">SMARTCAR_CLIENT_SECRET</code>, and <code className="text-xs bg-[rgba(0,204,254,0.06)] px-1.5 py-0.5 rounded">SMARTCAR_REDIRECT_URI</code> in your environment.</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {/* Summary cards */}
-                  <div className="grid grid-cols-3 gap-1.5">
-                    <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
-                      <p className="text-xs text-[rgba(255,255,255,0.40)]">Connected Vehicles</p>
-                      <p className="text-lg font-bold text-white">{smartcarConnections?.total ?? 0}</p>
-                    </div>
-                    <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
-                      <p className="text-xs text-[rgba(255,255,255,0.40)]">Mode</p>
-                      <p className="text-lg font-bold text-white">
-                        <Badge variant={smartcarConnections?.mode === 'test' ? 'secondary' : 'default'}>
-                          {smartcarConnections?.mode === 'test' ? 'Test (Simulator)' : 'Live'}
-                        </Badge>
-                      </p>
-                    </div>
-                    <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
-                      <p className="text-xs text-[rgba(255,255,255,0.40)]">Status</p>
-                      <p className="text-lg font-bold">
-                        <Badge variant="default">
-                          <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                          Active
-                        </Badge>
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Connected vehicles table */}
-                  {Array.isArray(smartcarConnections?.connections) && smartcarConnections.connections.length > 0 ? (
-                    <div className="rounded-lg border border-[rgba(0,204,254,0.08)] overflow-hidden">
-                      <table className="w-full text-sm">
-                        <thead className="bg-[#1A0648]">
-                          <tr className="border-b border-[rgba(0,204,254,0.08)]">
-                            <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Vehicle</th>
-                            <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Status</th>
-                            <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Last Sync</th>
-                            <th className="text-left py-1.5 px-2 text-[rgba(255,255,255,0.40)] font-medium text-xs">Error</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {smartcarConnections.connections.map((conn: any) => (
-                            <tr key={conn.vehicle_id} className="border-b border-[rgba(0,204,254,0.04)] hover:bg-[#2A1878]">
-                              <td className="py-1.5 px-2 text-white">
-                                {conn.vehicle_name || `Vehicle #${conn.vehicle_id}`}
-                                {conn.license_plate && <span className="text-xs text-[rgba(255,255,255,0.40)] ml-1">({conn.license_plate})</span>}
-                              </td>
-                              <td className="py-1.5 px-2">
-                                <Badge variant={conn.sync_status === 'active' ? 'default' : conn.sync_status === 'error' ? 'destructive' : 'secondary'}>
-                                  {formatEnum(conn.sync_status || 'unknown')}
-                                </Badge>
-                              </td>
-                              <td className="py-1.5 px-2 text-[rgba(255,255,255,0.40)] text-xs">
-                                {conn.updated_at ? formatDateTime(conn.updated_at) : '\u2014'}
-                              </td>
-                              <td className="py-1.5 px-2 text-xs text-[#FF4300] truncate max-w-[200px]">
-                                {conn.sync_error || '\u2014'}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm gap-1">
-                      <p>No vehicles connected yet. Use the vehicle detail panel to connect vehicles via Smartcar.</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </Section>
         </div>
+      </div>
+
+      {/* Smartcar Vehicle API */}
+      <div className="px-6 py-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Plug className="h-4 w-4 text-white/40" />
+          <span className="text-sm font-semibold text-white/80">Smartcar Vehicle API</span>
+          <span className="text-xs text-white/30 ml-1">Connected vehicle data for 50+ brands</span>
+        </div>
+        {!smartcarStatus?.configured ? (
+          <div className="flex flex-col items-center justify-center h-24 text-white/30 text-xs gap-2">
+            <Plug className="h-5 w-5" />
+            <p>Smartcar is not configured. Set <code className="bg-white/[0.06] px-1.5 py-0.5 rounded text-white/50">SMARTCAR_CLIENT_ID</code>, <code className="bg-white/[0.06] px-1.5 py-0.5 rounded text-white/50">SMARTCAR_CLIENT_SECRET</code>, and <code className="bg-white/[0.06] px-1.5 py-0.5 rounded text-white/50">SMARTCAR_REDIRECT_URI</code> in your environment.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* Summary strip */}
+            <div className="flex items-center gap-6 px-4 py-3 rounded-md border border-white/[0.08] bg-white/[0.02]">
+              <div>
+                <span className="text-xs text-white/30">Connected</span>
+                <p className="text-lg font-bold text-white/80">{smartcarConnections?.total ?? 0}</p>
+              </div>
+              <div className="w-px h-8 bg-white/[0.08]" />
+              <div>
+                <span className="text-xs text-white/30">Mode</span>
+                <p className="mt-0.5">
+                  <Badge variant={smartcarConnections?.mode === 'test' ? 'secondary' : 'default'} className="text-[10px]">
+                    {smartcarConnections?.mode === 'test' ? 'Test (Simulator)' : 'Live'}
+                  </Badge>
+                </p>
+              </div>
+              <div className="w-px h-8 bg-white/[0.08]" />
+              <div>
+                <span className="text-xs text-white/30">Status</span>
+                <p className="mt-0.5">
+                  <Badge variant="default" className="text-[10px]">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Active
+                  </Badge>
+                </p>
+              </div>
+            </div>
+
+            {/* Connected vehicles table */}
+            {Array.isArray(smartcarConnections?.connections) && smartcarConnections.connections.length > 0 ? (
+              <div className="rounded-md border border-white/[0.08] overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-[#1a1a1a]">
+                    <tr className="border-b border-white/[0.08]">
+                      <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Vehicle</th>
+                      <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Status</th>
+                      <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Last Sync</th>
+                      <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Error</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {smartcarConnections.connections.map((conn: any) => (
+                      <tr key={conn.vehicle_id} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors">
+                        <td className="py-2 px-3 text-white/80">
+                          {conn.vehicle_name || `Vehicle #${conn.vehicle_id}`}
+                          {conn.license_plate && <span className="text-xs text-white/30 ml-1">({conn.license_plate})</span>}
+                        </td>
+                        <td className="py-2 px-3">
+                          <div className="flex items-center gap-1.5">
+                            <div className={`h-1.5 w-1.5 rounded-full ${
+                              conn.sync_status === 'active' ? 'bg-emerald-400' : conn.sync_status === 'error' ? 'bg-rose-400' : 'bg-white/20'
+                            }`} />
+                            <span className="text-xs text-white/50">{formatEnum(conn.sync_status || 'unknown')}</span>
+                          </div>
+                        </td>
+                        <td className="py-2 px-3 text-white/30 text-xs">
+                          {conn.updated_at ? formatDateTime(conn.updated_at) : '\u2014'}
+                        </td>
+                        <td className="py-2 px-3 text-xs text-rose-400 truncate max-w-[200px]">
+                          {conn.sync_error || '\u2014'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-16 text-white/30 text-xs gap-1">
+                <p>No vehicles connected yet. Use the vehicle detail panel to connect vehicles via Smartcar.</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -1166,7 +1252,7 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
     return documentRows
       .slice()
       .sort((a: any, b: any) => new Date(b.uploaded_at || b.created_at).getTime() - new Date(a.uploaded_at || a.created_at).getTime())
-      .slice(0, 5)
+      .slice(0, 10)
   }, [documentRows])
 
   const handleBrowseDocuments = (category: string) => {
@@ -1185,135 +1271,154 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
     logger.info('Download document clicked:', documentName)
   }
 
+  const heroMetrics: HeroMetric[] = useMemo(() => [
+    {
+      label: 'Total Documents',
+      value: documentRows.length,
+      icon: FileText,
+      accent: 'emerald' as const,
+    },
+    {
+      label: 'Templates',
+      value: templateDocs.length,
+      icon: FileCheck,
+      accent: 'gray' as const,
+    },
+    {
+      label: 'Shared This Week',
+      value: recentUploads.length,
+      icon: Upload,
+      accent: 'gray' as const,
+    },
+    {
+      label: 'Storage',
+      value: totalSize > 0 ? `${(totalSize / 1_000_000_000).toFixed(2)} GB` : '\u2014',
+      icon: HardDrive,
+      accent: 'gray' as const,
+    },
+  ], [documentRows.length, templateDocs.length, recentUploads.length, totalSize])
+
   // Loading state
   const isDocumentsLoading = !documents && !documentsError
   if (isDocumentsLoading) {
     return (
-      <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-4 gap-1.5">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
-        </div>
-        <div className="grid grid-cols-2 gap-1.5">
-          <Skeleton className="h-48 rounded-md" />
-          <Skeleton className="h-48 rounded-md" />
-        </div>
+      <div className="space-y-3 p-6">
+        <Skeleton className="h-24 rounded-md" />
+        <Skeleton className="h-48 rounded-md" />
+        <Skeleton className="h-48 rounded-md" />
       </div>
     )
   }
 
   if (documentsError) {
     return (
-      <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">
+      <div className="flex items-center justify-center h-32 text-white/40 text-sm">
         Unable to load documents data. Please try again.
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* Document Statistics */}
-      <div className="grid gap-1.5 grid-cols-4">
-        <StatCard
-          title="Total Documents"
-          value={documentRows.length}
-          icon={FileText}
-          description="In repository"
-        />
-        <StatCard
-          title="Templates"
-          value={templateDocs.length}
-          icon={FileCheck}
-          description="Ready to use"
-        />
-        <StatCard
-          title="Shared This Week"
-          value={recentUploads.length}
-          icon={Upload}
-          description="Uploaded documents"
-        />
-        <StatCard
-          title="Storage Used"
-          value={totalSize > 0 ? `${(totalSize / 1_000_000_000).toFixed(2)} GB` : "\u2014"}
-          icon={HardDrive}
-          description="Document storage"
-        />
+    <div className="flex flex-col gap-0 overflow-y-auto h-full">
+      {/* Hero Metrics Strip */}
+      <HeroMetrics metrics={heroMetrics} className="border-b border-white/[0.08] bg-[#1a1a1a]" />
+
+      {/* Document Library — full-width table */}
+      <div className="px-6 py-5 border-b border-white/[0.08]">
+        <div className="flex items-center gap-2 mb-4">
+          <FolderOpen className="h-4 w-4 text-white/40" />
+          <span className="text-sm font-semibold text-white/80">Document Library</span>
+          <span className="text-xs text-white/30 ml-1">{documentCategories.length} categories</span>
+        </div>
+        {documentCategories.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-32 text-white/30 text-sm gap-2">
+            <FolderOpen className="h-6 w-6" />
+            <p>No documents uploaded yet. Upload files to organize them into categories.</p>
+          </div>
+        ) : (
+          <div className="rounded-md border border-white/[0.08] overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Category</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Documents</th>
+                  <th className="text-right py-2 px-3 text-white/40 font-medium text-xs">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {documentCategories.map((cat) => (
+                  <tr key={cat.category} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors">
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center gap-2">
+                        <FolderOpen className="h-3.5 w-3.5 text-white/30" />
+                        <span className="text-white/80 font-medium">{formatEnum(cat.category)}</span>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-3 text-white/40 text-xs">{cat.count} {cat.count === 1 ? 'document' : 'documents'}</td>
+                    <td className="py-2.5 px-3 text-right">
+                      <Button variant="outline" size="sm" className="h-7 text-[11px]" onClick={() => handleBrowseDocuments(cat.category)}>
+                        Browse
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* Main content: 2 columns */}
-      <div className="grid grid-cols-2 gap-1.5">
-        {/* Document Categories */}
-        <Section
-          title="Document Library"
-          description="Organized by category"
-          icon={<FolderOpen className="h-4 w-4" />}
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {documentCategories.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
-                <FolderOpen className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
-                <p>No documents uploaded yet. Upload files to organize them into categories.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                {documentCategories.map((cat) => (
-                  <div key={cat.category} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
-                    <div className="flex items-center gap-3">
-                      <FolderOpen className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-                      <div>
-                        <p className="font-semibold text-white text-sm">{formatEnum(cat.category)}</p>
-                        <p className="text-xs text-[rgba(255,255,255,0.40)]">{cat.count} {cat.count === 1 ? 'document' : 'documents'}</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => handleBrowseDocuments(cat.category)}>Browse</Button>
-                  </div>
-                ))}
-              </div>
-            )}
+      {/* Recent Documents — full-width table */}
+      <div className="px-6 py-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="h-4 w-4 text-white/40" />
+          <span className="text-sm font-semibold text-white/80">Recently Added</span>
+        </div>
+        {recentDocuments.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-20 text-white/30 text-xs gap-1">
+            <p>No recent documents. Uploaded files will appear here.</p>
           </div>
-        </Section>
-
-        {/* Recent Documents */}
-        <Section
-          title="Recently Added"
-          description="Latest uploaded documents"
-          icon={<Clock className="h-4 w-4" />}
-        >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {recentDocuments.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm gap-2">
-                <FileText className="h-6 w-6 text-[rgba(255,255,255,0.20)]" />
-                <p>No recent documents. Uploaded files will appear here.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5">
+        ) : (
+          <div className="rounded-md border border-white/[0.08] overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">File Name</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Uploaded By</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Date</th>
+                  <th className="text-left py-2 px-3 text-white/40 font-medium text-xs">Size</th>
+                  <th className="text-right py-2 px-3 text-white/40 font-medium text-xs">Action</th>
+                </tr>
+              </thead>
+              <tbody>
                 {recentDocuments.map((doc: any) => (
-                  <div key={doc.id} className="flex items-center justify-between rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-3">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <FileText className="h-4 w-4 text-[rgba(255,255,255,0.40)] shrink-0" />
-                      <div className="min-w-0">
-                        <p className="font-semibold text-white text-sm truncate">{doc.file_name || doc.name || doc.title}</p>
-                        <p className="text-xs text-[rgba(255,255,255,0.40)]">
-                          {doc.uploaded_by_name || 'System'} ·{' '}
-                          {formatDate(doc.uploaded_at)} ·{' '}
-                          {doc.file_size ? `${(doc.file_size / 1_000_000).toFixed(2)} MB` : '\u2014'}
-                        </p>
+                  <tr key={doc.id} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors">
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-3.5 w-3.5 text-white/30 shrink-0" />
+                        <span className="text-white/80 font-medium truncate">{doc.file_name || doc.name || doc.title}</span>
                       </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="ml-2 shrink-0"
-                      onClick={() => handleDownloadDocument(doc.file_name || doc.name || 'Document', doc.file_url)}
-                      disabled={!doc.file_url}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
+                    </td>
+                    <td className="py-2.5 px-3 text-white/40 text-xs">{doc.uploaded_by_name || 'System'}</td>
+                    <td className="py-2.5 px-3 text-white/30 text-xs">{formatDate(doc.uploaded_at)}</td>
+                    <td className="py-2.5 px-3 text-white/30 text-xs">{doc.file_size ? `${(doc.file_size / 1_000_000).toFixed(2)} MB` : '\u2014'}</td>
+                    <td className="py-2.5 px-3 text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-[11px]"
+                        onClick={() => handleDownloadDocument(doc.file_name || doc.name || 'Document', doc.file_url)}
+                        disabled={!doc.file_url}
+                      >
+                        <Download className="h-3 w-3" />
+                      </Button>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            )}
+              </tbody>
+            </table>
           </div>
-        </Section>
+        )}
       </div>
     </div>
   )
@@ -1324,71 +1429,71 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
 // ============================================================================
 
 export default function AdminConfigurationHub() {
-  const [activeTab, setActiveTab] = useState('admin')
+  const tabs: VTab[] = useMemo(() => [
+    {
+      id: 'admin',
+      label: 'Admin',
+      icon: UserCog,
+      content: (
+        <QueryErrorBoundary>
+          <AdminTabContent />
+        </QueryErrorBoundary>
+      ),
+    },
+    {
+      id: 'config',
+      label: 'Configuration',
+      icon: Settings,
+      content: (
+        <QueryErrorBoundary>
+          <ConfigurationTabContent />
+        </QueryErrorBoundary>
+      ),
+    },
+    {
+      id: 'data',
+      label: 'Governance',
+      icon: Database,
+      content: (
+        <QueryErrorBoundary>
+          <DataGovernanceTabContent />
+        </QueryErrorBoundary>
+      ),
+    },
+    {
+      id: 'integrations',
+      label: 'Integrations',
+      icon: Plug,
+      content: (
+        <QueryErrorBoundary>
+          <IntegrationsTabContent />
+        </QueryErrorBoundary>
+      ),
+    },
+    {
+      id: 'documents',
+      label: 'Documents',
+      icon: FileText,
+      content: (
+        <QueryErrorBoundary>
+          <DocumentsTabContent />
+        </QueryErrorBoundary>
+      ),
+    },
+  ], [])
 
   return (
-    <HubPage
-      title={<span style={{ fontFamily: '"Cinzel", Georgia, serif' }}>Admin & Configuration</span>}
-      description="System administration, configuration, data governance, integrations, and document management"
-      icon={<Settings className="h-5 w-5" />}
-      className="cta-hub"
-    >
-      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="admin" className="flex items-center gap-2" data-testid="hub-tab-admin" aria-label="Admin">
-              <UserCog className="h-4 w-4" />
-              <span className="hidden sm:inline">Admin</span>
-            </TabsTrigger>
-            <TabsTrigger value="config" className="flex items-center gap-2" data-testid="hub-tab-config" aria-label="Configuration">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Configuration</span>
-            </TabsTrigger>
-            <TabsTrigger value="data" className="flex items-center gap-2" data-testid="hub-tab-data" aria-label="Data">
-              <Database className="h-4 w-4" />
-              <span className="hidden sm:inline">Data</span>
-            </TabsTrigger>
-            <TabsTrigger value="integrations" className="flex items-center gap-2" data-testid="hub-tab-integrations" aria-label="Integrations">
-              <Plug className="h-4 w-4" />
-              <span className="hidden sm:inline">Integrations</span>
-            </TabsTrigger>
-            <TabsTrigger value="documents" className="flex items-center gap-2" data-testid="hub-tab-documents" aria-label="Documents">
-              <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Documents</span>
-            </TabsTrigger>
-          </TabsList>
-
-              <TabsContent value="admin" className="flex-1 min-h-0 overflow-y-auto">
-                <QueryErrorBoundary>
-                  <AdminTabContent />
-                </QueryErrorBoundary>
-              </TabsContent>
-
-              <TabsContent value="config" className="flex-1 min-h-0 overflow-y-auto">
-                <QueryErrorBoundary>
-                  <ConfigurationTabContent />
-                </QueryErrorBoundary>
-              </TabsContent>
-
-              <TabsContent value="data" className="flex-1 min-h-0 overflow-y-auto">
-                <QueryErrorBoundary>
-                  <DataGovernanceTabContent />
-                </QueryErrorBoundary>
-              </TabsContent>
-
-              <TabsContent value="integrations" className="flex-1 min-h-0 overflow-y-auto">
-                <QueryErrorBoundary>
-                  <IntegrationsTabContent />
-                </QueryErrorBoundary>
-              </TabsContent>
-
-              <TabsContent value="documents" className="flex-1 min-h-0 overflow-y-auto">
-                <QueryErrorBoundary>
-                  <DocumentsTabContent />
-                </QueryErrorBoundary>
-              </TabsContent>
-        </Tabs>
+    <div className="h-full flex flex-col bg-[#111]">
+      {/* Minimal header */}
+      <div className="flex items-center gap-3 px-6 py-3 border-b border-white/[0.08] bg-[#1a1a1a] shrink-0">
+        <Settings className="h-5 w-5 text-emerald-400/60" />
+        <h1 className="text-[15px] font-semibold text-white/80 tracking-tight">Administration & Configuration</h1>
       </div>
-    </HubPage>
+
+      {/* Sidebar + Content */}
+      <div className="flex-1 min-h-0">
+        <VerticalTabs tabs={tabs} defaultTab="admin" />
+      </div>
+    </div>
   )
 }

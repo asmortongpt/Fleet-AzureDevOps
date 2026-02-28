@@ -70,7 +70,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
   const getTypeColor = (type: AIInsight['type']) => {
     switch (type) {
       case 'prediction':
-        return 'text-purple-600 dark:text-purple-400'
+        return 'text-amber-600 dark:text-amber-400'
       case 'recommendation':
         return 'text-emerald-800 dark:text-emerald-700'
       case 'alert':
@@ -89,7 +89,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
   })
 
   return (
-    <Card className="shadow-sm border-border/50">
+    <Card className="border-border/50">
       <CardHeader className="px-2 py-3 border-b border-border/50 bg-muted/30">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-primary" />
@@ -117,7 +117,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
             {sortedInsights.map((insight) => (
               <div
                 key={insight.id}
-                className={`p-3 rounded-lg transition-all duration-200 hover:shadow-sm ${getPriorityColor(
+                className={`p-3 rounded-lg transition-all duration-200 ${getPriorityColor(
                   insight.priority
                 )}`}
               >

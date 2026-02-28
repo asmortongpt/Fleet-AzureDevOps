@@ -46,7 +46,7 @@ export function LinearProgress({
   className,
 }: LinearProgressProps) {
   const variantColors = {
-    primary: "bg-blue-500",
+    primary: "bg-neutral-500",
     success: "bg-green-500",
     warning: "bg-yellow-500",
     danger: "bg-red-500",
@@ -59,13 +59,13 @@ export function LinearProgress({
     <div className={cn("relative w-full", className)}>
       {/* Background track */}
       <div
-        className="w-full bg-gray-200 rounded-full overflow-hidden relative"
+        className="w-full bg-[var(--surface-glass-hover)] rounded-full overflow-hidden relative"
         style={{ height: `${height}px` }}
       >
         {/* Buffer (if provided) */}
         {bufferPercentage !== undefined && (
           <div
-            className="absolute top-0 left-0 h-full bg-gray-300 rounded-full transition-all duration-300"
+            className="absolute top-0 left-0 h-full bg-[var(--surface-glass-active)] rounded-full transition-all duration-300"
             style={{ width: `${bufferPercentage}%` }}
           />
         )}
@@ -81,9 +81,9 @@ export function LinearProgress({
             className={cn("h-full rounded-full relative overflow-hidden transition-all duration-500 ease-out", variantColors[variant])}
             style={{ width: `${percentage}%` }}
           >
-            {/* Shine effect */}
+            {/* Subtle highlight */}
             <div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30"
+              className="absolute inset-0 bg-[var(--surface-glass-hover)]"
             />
           </div>
         )}
@@ -92,7 +92,7 @@ export function LinearProgress({
       {/* Label */}
       {showLabel && !indeterminate && (
         <div
-          className="absolute -top-5 right-0 text-xs font-semibold text-gray-700"
+          className="absolute -top-5 right-0 text-xs font-semibold text-[var(--text-secondary)]"
         >
           {Math.round(percentage)}%
         </div>
@@ -129,7 +129,7 @@ export function CircularProgress({
   className,
 }: CircularProgressProps) {
   const variantColors = {
-    primary: "#3b82f6",
+    primary: "var(--accent-primary)",
     success: "#22c55e",
     warning: "#eab308",
     danger: "#ef4444",
@@ -150,7 +150,7 @@ export function CircularProgress({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#e5e7eb"
+          stroke="var(--surface-glass-hover)"
           strokeWidth={strokeWidth}
         />
 
@@ -221,8 +221,8 @@ export function StepProgress({
   const isHorizontal = orientation === "horizontal";
 
   const statusConfig = {
-    pending: { bg: "bg-gray-200", text: "text-gray-700", border: "border-gray-300" },
-    active: { bg: "bg-blue-500", text: "text-white", border: "border-blue-500" },
+    pending: { bg: "bg-[var(--surface-glass-hover)]", text: "text-[var(--text-tertiary)]", border: "border-[var(--border-subtle)]" },
+    active: { bg: "bg-neutral-500", text: "text-white", border: "border-emerald-500" },
     completed: { bg: "bg-green-500", text: "text-white", border: "border-green-500" },
     error: { bg: "bg-red-500", text: "text-white", border: "border-red-500" },
   };
@@ -284,7 +284,7 @@ export function StepProgress({
               {/* Active pulse */}
               {step.status === "active" && (
                 <div
-                  className="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-50"
+                  className="absolute inset-0 rounded-full bg-neutral-500 animate-ping opacity-50"
                 />
               )}
             </button>
@@ -294,7 +294,7 @@ export function StepProgress({
               className={cn(
                 "text-sm font-medium",
                 isHorizontal ? "ml-2" : "text-center",
-                step.status === "active" ? "text-blue-800" : "text-slate-700"
+                step.status === "active" ? "text-[var(--accent-primary)]" : "text-[var(--text-secondary)]"
               )}
             >
               {step.label}
@@ -304,7 +304,7 @@ export function StepProgress({
             {!isLast && (
               <div
                 className={cn(
-                  "bg-gray-300 relative overflow-hidden",
+                  "bg-[var(--surface-glass-hover)] relative overflow-hidden",
                   isHorizontal ? "flex-1 h-0.5 mx-2" : "w-0.5 h-8 mx-auto"
                 )}
               >
@@ -361,16 +361,16 @@ export function UploadProgress({
 
   return (
     <div
-      className={cn("border rounded-lg p-2 bg-white shadow-sm", className)}
+      className={cn("border border-[var(--border-subtle)] rounded-lg p-2 bg-[var(--surface-1)]", className)}
     >
       <div className="flex items-start gap-3">
         {/* File icon */}
         <div
           className={cn(
             "w-10 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
-            status === "success" && "bg-green-100 text-green-600",
-            status === "error" && "bg-red-100 text-red-600",
-            status === "uploading" && "bg-blue-100 text-blue-800"
+            status === "success" && "bg-green-500/10 text-green-400",
+            status === "error" && "bg-red-500/10 text-red-400",
+            status === "uploading" && "bg-[var(--surface-glass-hover)] text-[var(--text-secondary)]"
           )}
         >
           {status === "success" ? "✓" : status === "error" ? "✕" : "📄"}
@@ -380,8 +380,8 @@ export function UploadProgress({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{fileName}</p>
-              <p className="text-xs text-gray-700 mt-0.5">
+              <p className="text-sm font-medium text-white truncate">{fileName}</p>
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                 {formatBytes(uploadedBytes)} / {formatBytes(fileSize)}
                 {speed && status === "uploading" && ` • ${formatSpeed(speed)}`}
               </p>
@@ -391,7 +391,7 @@ export function UploadProgress({
             {onCancel && status === "uploading" && (
               <button
                 onClick={onCancel}
-                className="text-gray-700 hover:text-slate-700 p-1"
+                className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] p-1"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -410,14 +410,14 @@ export function UploadProgress({
           {/* Status message */}
           {status === "success" && (
             <p
-              className="text-xs text-green-600 font-medium mt-2"
+              className="text-xs text-green-400 font-medium mt-2"
             >
               Upload complete
             </p>
           )}
           {status === "error" && (
             <p
-              className="text-xs text-red-600 font-medium mt-2"
+              className="text-xs text-red-400 font-medium mt-2"
             >
               Upload failed
             </p>
@@ -439,7 +439,7 @@ interface LoadingSpinnerProps extends BaseProgressProps {
 
 export function LoadingSpinner({
   size = 24,
-  color = "#3b82f6",
+  color = "var(--accent-primary)",
   label,
   className,
 }: LoadingSpinnerProps) {
@@ -474,7 +474,7 @@ export function LoadingSpinner({
       </div>
       {label && (
         <p
-          className="text-sm text-slate-700"
+          className="text-sm text-[var(--text-secondary)]"
         >
           {label}
         </p>
@@ -492,7 +492,7 @@ export function PulsingDots({ className }: BaseProgressProps) {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"
+          className="w-2 h-2 bg-neutral-500 rounded-full animate-pulse"
           style={{ animationDelay: `${i * 0.2}s` }}
         />
       ))}

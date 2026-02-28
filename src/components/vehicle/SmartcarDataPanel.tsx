@@ -58,14 +58,14 @@ function SignalCard({
   return (
     <div className="rounded-lg bg-white/[0.03] border border-white/[0.06] p-2">
       <div className="flex items-center gap-1.5 mb-0.5">
-        <Icon className="h-3 w-3 text-white/30" />
-        <span className="text-[10px] text-white/40 font-medium">{label}</span>
+        <Icon className="h-3 w-3 text-[var(--text-muted)]" />
+        <span className="text-[10px] text-[var(--text-tertiary)] font-medium">{label}</span>
       </div>
       <div className={cn('text-sm font-bold text-white leading-tight', colorClass)}>
         {typeof value === 'number' ? formatNumber(value, 1) : value}
-        {unit && <span className="text-[10px] text-white/30 font-normal ml-0.5">{unit}</span>}
+        {unit && <span className="text-[10px] text-[var(--text-muted)] font-normal ml-0.5">{unit}</span>}
       </div>
-      {subtext && <p className="text-[9px] text-white/25 mt-0.5">{subtext}</p>}
+      {subtext && <p className="text-[9px] text-[var(--text-muted)] mt-0.5">{subtext}</p>}
     </div>
   )
 }
@@ -90,8 +90,8 @@ function SignalSection({
   return (
     <div>
       <div className="flex items-center gap-1.5 mb-1.5">
-        <Icon className="h-3 w-3 text-white/40" />
-        <h5 className="text-[10px] font-semibold text-white/50 uppercase tracking-wider">{title}</h5>
+        <Icon className="h-3 w-3 text-[var(--text-tertiary)]" />
+        <h5 className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">{title}</h5>
       </div>
       <div className="grid grid-cols-2 gap-1.5">
         {children}
@@ -128,8 +128,8 @@ export function SmartcarDataPanel({ vehicleId, className }: SmartcarDataPanelPro
 
   if (isLoadingSignals) {
     return (
-      <div className={cn('rounded-lg bg-[#242424] border border-white/[0.08] p-3', className)}>
-        <div className="flex items-center gap-2 text-xs text-white/40">
+      <div className={cn('rounded-lg bg-[var(--surface-2)] border border-[var(--border-subtle)] p-3', className)}>
+        <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
           Loading Smartcar signals...
         </div>
@@ -150,7 +150,7 @@ export function SmartcarDataPanel({ vehicleId, className }: SmartcarDataPanelPro
   const hasTires = flPsi != null || frPsi != null || blPsi != null || brPsi != null
 
   return (
-    <div className={cn('rounded-lg bg-[#242424] border border-white/[0.08]', className)}>
+    <div className={cn('rounded-lg bg-[var(--surface-2)] border border-[var(--border-subtle)]', className)}>
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}
@@ -161,14 +161,14 @@ export function SmartcarDataPanel({ vehicleId, className }: SmartcarDataPanelPro
           <div className="p-1 rounded bg-emerald-500/10">
             <Activity className="h-3.5 w-3.5 text-emerald-400" />
           </div>
-          <span className="text-xs font-semibold text-white/70">Live Vehicle Data</span>
+          <span className="text-xs font-semibold text-[var(--text-primary)]">Live Vehicle Data</span>
           <Badge variant="default" className="bg-emerald-500/15 text-emerald-400 border-emerald-500/20 text-[9px] px-1.5 py-0">
             Smartcar
           </Badge>
         </div>
         {expanded
-          ? <ChevronUp className="h-3.5 w-3.5 text-white/30" />
-          : <ChevronDown className="h-3.5 w-3.5 text-white/30" />
+          ? <ChevronUp className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+          : <ChevronDown className="h-3.5 w-3.5 text-[var(--text-muted)]" />
         }
       </button>
 
@@ -264,7 +264,7 @@ export function SmartcarDataPanel({ vehicleId, className }: SmartcarDataPanelPro
                 />
               )}
               {signals.diagnostics.dtcCodes.length > 0 && (
-                <div className="col-span-2 text-[10px] text-white/40 font-mono">
+                <div className="col-span-2 text-[10px] text-[var(--text-tertiary)] font-mono">
                   {signals.diagnostics.dtcCodes.join(', ')}
                 </div>
               )}

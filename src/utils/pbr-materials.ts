@@ -343,7 +343,7 @@ export function createProceduralEnvironment(): THREE.CubeTexture {
 
   // Create scene with gradient
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x87ceeb); // Sky blue
+  scene.background = new THREE.Color(0x2a2a2a); // Dark neutral
 
   // Add ground plane
   const groundGeometry = new THREE.PlaneGeometry(100, 100);

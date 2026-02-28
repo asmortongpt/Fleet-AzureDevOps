@@ -158,7 +158,7 @@ export function SafetyTrainingTracker() {
             current: { variant: 'default' as const, icon: <CheckCircle className="w-3 h-3" />, label: 'Current', color: 'bg-green-500' },
             expiring_soon: { variant: 'secondary' as const, icon: <AlertTriangle className="w-3 h-3" />, label: 'Expiring Soon', color: 'bg-yellow-500' },
             expired: { variant: 'destructive' as const, icon: <AlertTriangle className="w-3 h-3" />, label: 'Expired', color: 'bg-red-500' },
-            pending: { variant: 'outline' as const, icon: <Clock className="w-3 h-3" />, label: 'Pending', color: 'bg-gray-500' }
+            pending: { variant: 'outline' as const, icon: <Clock className="w-3 h-3" />, label: 'Pending', color: 'bg-white/30' }
         }
 
         const config = variants[status]
@@ -261,7 +261,7 @@ export function SafetyTrainingTracker() {
                         <GraduationCap className="w-4 h-4" />
                         Safety Training Compliance
                     </h2>
-                    <p className="text-white/40 mt-1">Track OSHA-required training and certifications</p>
+                    <p className="text-[var(--text-tertiary)] mt-1">Track OSHA-required training and certifications</p>
                 </div>
                 <Button variant="outline" className="gap-2" onClick={handleExportReport}>
                     <Download className="w-4 h-4" />
@@ -271,9 +271,9 @@ export function SafetyTrainingTracker() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-                <Card className="bg-gradient-to-br from-green-500/10 to-green-600/10 border-green-500/30">
+                <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80">Compliance Rate</CardTitle>
+                        <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Compliance Rate</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-baseline gap-2">
@@ -284,62 +284,62 @@ export function SafetyTrainingTracker() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 border-emerald-500/30">
+                <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80">Compliant Employees</CardTitle>
+                        <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Compliant Employees</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
                             <CheckCircle className="w-3 h-3 text-green-400" />
                             <span className="text-base font-bold text-white">{stats.compliant_employees}</span>
-                            <span className="text-white/40">/ {stats.total_employees}</span>
+                            <span className="text-[var(--text-tertiary)]">/ {stats.total_employees}</span>
                         </div>
-                        {isLoadingList && <p className="text-xs text-white/40 mt-1">Loading…</p>}
+                        {isLoadingList && <p className="text-xs text-[var(--text-tertiary)] mt-1">Loading…</p>}
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border-yellow-500/30">
+                <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80">Expiring Soon</CardTitle>
+                        <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Expiring Soon</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
                             <AlertTriangle className="w-3 h-3 text-yellow-400" />
                             <span className="text-base font-bold text-white">{stats.expiring_soon}</span>
                         </div>
-                        <p className="text-xs text-white/40 mt-1">Within 30 days</p>
+                        <p className="text-xs text-[var(--text-tertiary)] mt-1">Within 30 days</p>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-red-500/10 to-red-600/10 border-red-500/30">
+                <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80">Expired</CardTitle>
+                        <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Expired</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
                             <AlertTriangle className="w-3 h-3 text-red-400" />
                             <span className="text-base font-bold text-white">{stats.expired_certifications}</span>
                         </div>
-                        <p className="text-xs text-white/40 mt-1">Requires renewal</p>
+                        <p className="text-xs text-[var(--text-tertiary)] mt-1">Requires renewal</p>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-neutral-500/10 to-neutral-600/10 border-neutral-500/30">
+                <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-white/80">Pending Training</CardTitle>
+                        <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Pending Training</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
-                            <Clock className="w-3 h-3 text-white/40" />
+                            <Clock className="w-3 h-3 text-[var(--text-tertiary)]" />
                             <span className="text-base font-bold text-white">{stats.pending_training}</span>
                         </div>
-                        <p className="text-xs text-white/40 mt-1">Not started</p>
+                        <p className="text-xs text-[var(--text-tertiary)] mt-1">Not started</p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Filters and Table */}
-            <Card className="bg-gradient-to-br from-[#1a1a1a]/60 to-[#111]/60 backdrop-blur-xl border-white/[0.06]">
+            <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-white flex items-center gap-2">
@@ -347,7 +347,7 @@ export function SafetyTrainingTracker() {
                             Training Records
                         </CardTitle>
                         <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-                            <SelectTrigger className="w-[180px] bg-[#242424] border-white/[0.12] text-white">
+                            <SelectTrigger className="w-[180px] bg-[var(--surface-2)] border-[var(--border-subtle)] text-white">
                                 <SelectValue placeholder="Filter by status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -363,15 +363,15 @@ export function SafetyTrainingTracker() {
                 <CardContent>
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-white/[0.08] hover:bg-[#242424]">
-                                <TableHead className="text-white/80">Employee</TableHead>
-                                <TableHead className="text-white/80">Training Type</TableHead>
-                                <TableHead className="text-white/80">Completion Date</TableHead>
-                                <TableHead className="text-white/80">Expiration</TableHead>
-                                <TableHead className="text-white/80">Status</TableHead>
-                                <TableHead className="text-white/80">Certificate</TableHead>
-                                <TableHead className="text-white/80">Score</TableHead>
-                                <TableHead className="text-white/80">Actions</TableHead>
+                            <TableRow className="border-[var(--border-subtle)] hover:bg-[var(--surface-2)]">
+                                <TableHead className="text-[var(--text-primary)]">Employee</TableHead>
+                                <TableHead className="text-[var(--text-primary)]">Training Type</TableHead>
+                                <TableHead className="text-[var(--text-primary)]">Completion Date</TableHead>
+                                <TableHead className="text-[var(--text-primary)]">Expiration</TableHead>
+                                <TableHead className="text-[var(--text-primary)]">Status</TableHead>
+                                <TableHead className="text-[var(--text-primary)]">Certificate</TableHead>
+                                <TableHead className="text-[var(--text-primary)]">Score</TableHead>
+                                <TableHead className="text-[var(--text-primary)]">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -379,29 +379,29 @@ export function SafetyTrainingTracker() {
                                 const daysUntilExpiration = getDaysUntilExpiration(record.expiration_date)
 
                                 return (
-                                    <TableRow key={record.id} className="border-white/[0.08] hover:bg-[#1a1a1a]/30">
+                                    <TableRow key={record.id} className="border-[var(--border-subtle)] hover:bg-[var(--surface-3)]/30">
                                         <TableCell className="font-medium text-white">
                                             <div>
                                                 <div>{record.employee_name}</div>
-                                                <div className="text-xs text-white/40">{record.employee_id}</div>
+                                                <div className="text-xs text-[var(--text-tertiary)]">{record.employee_id}</div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-white/80 max-w-xs">
+                                        <TableCell className="text-[var(--text-primary)] max-w-xs">
                                             <div className="truncate" title={record.training_type}>
                                                 {record.training_type}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-white/80">
+                                        <TableCell className="text-[var(--text-primary)]">
                                             {record.completion_date ? (
                                                 <div className="flex items-center gap-2">
-                                                    <Calendar className="w-4 h-4 text-white/40" />
+                                                    <Calendar className="w-4 h-4 text-[var(--text-tertiary)]" />
                                                     {formatDate(record.completion_date)}
                                                 </div>
                                             ) : (
-                                                <span className="text-white/40">-</span>
+                                                <span className="text-[var(--text-tertiary)]">-</span>
                                             )}
                                         </TableCell>
-                                        <TableCell className="text-white/80">
+                                        <TableCell className="text-[var(--text-primary)]">
                                             {record.expiration_date ? (
                                                 <div>
                                                     <div>{formatDate(record.expiration_date)}</div>
@@ -409,7 +409,7 @@ export function SafetyTrainingTracker() {
                                                         <div className={`text-xs ${
                                                             daysUntilExpiration < 0 ? 'text-red-400' :
                                                             daysUntilExpiration < 30 ? 'text-yellow-400' :
-                                                            'text-white/40'
+                                                            'text-[var(--text-tertiary)]'
                                                         }`}>
                                                             {daysUntilExpiration < 0 ?
                                                                 `Expired ${Math.abs(daysUntilExpiration)} days ago` :
@@ -419,22 +419,22 @@ export function SafetyTrainingTracker() {
                                                     )}
                                                 </div>
                                             ) : (
-                                                <span className="text-white/40">-</span>
+                                                <span className="text-[var(--text-tertiary)]">-</span>
                                             )}
                                         </TableCell>
                                         <TableCell>
                                             {getStatusBadge(record.status)}
                                         </TableCell>
-                                        <TableCell className="text-white/80">
-                                            {record.certificate_number || <span className="text-white/40">-</span>}
+                                        <TableCell className="text-[var(--text-primary)]">
+                                            {record.certificate_number || <span className="text-[var(--text-tertiary)]">-</span>}
                                         </TableCell>
-                                        <TableCell className="text-white/80">
+                                        <TableCell className="text-[var(--text-primary)]">
                                             {record.score ? (
                                                 <span className={record.score >= 90 ? 'text-green-400' : 'text-yellow-400'}>
                                                     {record.score}%
                                                 </span>
                                             ) : (
-                                                <span className="text-white/40">-</span>
+                                                <span className="text-[var(--text-tertiary)]">-</span>
                                             )}
                                         </TableCell>
                                         <TableCell>
@@ -459,14 +459,14 @@ export function SafetyTrainingTracker() {
             </Card>
 
             {/* OSHA Required Training Reference */}
-            <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 border-emerald-500/30">
+            <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                 <CardHeader>
                     <CardTitle className="text-white text-sm">OSHA Required Training Reference</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                         {OSHA_REQUIRED_TRAINING.map((training) => (
-                            <div key={training} className="text-xs text-white/80 bg-[#1a1a1a]/30 rounded px-2 py-1">
+                            <div key={training} className="text-xs text-[var(--text-primary)] bg-[var(--surface-3)]/30 rounded px-2 py-1">
                                 {training}
                             </div>
                         ))}

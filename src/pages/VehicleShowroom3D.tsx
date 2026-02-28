@@ -138,8 +138,8 @@ function TableSkeleton({ rows = 4 }: { rows?: number }) {
 function EmptyState({ icon: Icon, message }: { icon: React.ComponentType<{ className?: string }>; message: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <Icon className="w-10 h-10 text-white/20 mb-3" />
-      <p className="text-sm text-white/40">{message}</p>
+      <Icon className="w-10 h-10 text-[var(--text-muted)] mb-3" />
+      <p className="text-sm text-[var(--text-tertiary)]">{message}</p>
     </div>
   );
 }
@@ -223,12 +223,12 @@ function PhotoUploadModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-[#1a1a1a] rounded-xl border border-white/[0.08] shadow-2xl">
+      <div className="w-full max-w-lg bg-[var(--surface-1)] rounded-xl border border-[var(--border-subtle)]">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-subtle)]">
           <h3 className="text-sm font-semibold text-white">Vehicle Photos & Wraps</h3>
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose} aria-label="Close gallery">
-            <X className="w-4 h-4 text-white/60" />
+            <X className="w-4 h-4 text-[var(--text-secondary)]" />
           </Button>
         </div>
 
@@ -242,7 +242,7 @@ function PhotoUploadModal({
                 'px-3 py-1.5 rounded-md text-xs font-medium transition-colors capitalize',
                 activeCategory === cat
                   ? 'bg-emerald-500/20 text-emerald-400'
-                  : 'text-white/50 hover:text-white/70 hover:bg-white/[0.05]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.05]'
               )}
             >
               {cat}
@@ -253,19 +253,19 @@ function PhotoUploadModal({
         {/* Upload zones */}
         <div className="p-4 space-y-3">
           {/* Image upload */}
-          <label className="block border-2 border-dashed border-white/[0.12] rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/40 transition-colors">
+          <label className="block border-2 border-dashed border-[var(--border-subtle)] rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/40 transition-colors">
             <input type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
-            <Upload className="mx-auto h-6 w-6 text-white/30 mb-1" />
-            <p className="text-xs text-white/50">
+            <Upload className="mx-auto h-6 w-6 text-[var(--text-muted)] mb-1" />
+            <p className="text-xs text-[var(--text-secondary)]">
               Drop {activeCategory} photos or click to upload
             </p>
           </label>
 
           {/* Video upload for wrap extraction */}
-          <label className="block border-2 border-dashed border-white/[0.12] rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/40 transition-colors">
+          <label className="block border-2 border-dashed border-[var(--border-subtle)] rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/40 transition-colors">
             <input type="file" accept="video/*" className="hidden" onChange={handleVideoFile} />
-            <Video className="mx-auto h-6 w-6 text-white/30 mb-1" />
-            <p className="text-xs text-white/50">
+            <Video className="mx-auto h-6 w-6 text-[var(--text-muted)] mb-1" />
+            <p className="text-xs text-[var(--text-secondary)]">
               Upload video to extract frame as vehicle wrap
             </p>
           </label>
@@ -276,7 +276,7 @@ function PhotoUploadModal({
               <span className="text-xs text-emerald-400 font-medium">Wrap texture active</span>
               <button
                 onClick={onClearWrap}
-                className="text-xs text-white/40 hover:text-white/60 underline"
+                className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] underline"
               >
                 Remove wrap
               </button>
@@ -317,7 +317,7 @@ function PhotoUploadModal({
 
         {filtered.length === 0 && (
           <div className="px-4 pb-4 text-center">
-            <p className="text-xs text-white/30">No {activeCategory} photos yet</p>
+            <p className="text-xs text-[var(--text-muted)]">No {activeCategory} photos yet</p>
           </div>
         )}
       </div>
@@ -933,10 +933,10 @@ export default function VehicleShowroom3D() {
   // Loading state
   if (vehiclesLoading) {
     return (
-      <div className="flex items-center justify-center h-full w-full bg-[#111]">
+      <div className="flex items-center justify-center h-full w-full bg-[var(--surface-2)]">
         <div className="text-center space-y-2">
-          <Loader2 className="w-16 h-16 text-white/30 mx-auto animate-spin" />
-          <p className="text-white/50">Loading vehicles...</p>
+          <Loader2 className="w-16 h-16 text-[var(--text-muted)] mx-auto animate-spin" />
+          <p className="text-[var(--text-secondary)]">Loading vehicles...</p>
         </div>
       </div>
     );
@@ -945,9 +945,9 @@ export default function VehicleShowroom3D() {
   // Error state
   if (vehiclesError) {
     return (
-      <div className="flex flex-col items-center justify-center h-full w-full gap-4 bg-[#111]">
+      <div className="flex flex-col items-center justify-center h-full w-full gap-4 bg-[var(--surface-2)]">
         <p className="text-rose-400 font-medium">Failed to load vehicle data</p>
-        <p className="text-sm text-white/50">
+        <p className="text-sm text-[var(--text-secondary)]">
           {vehiclesError instanceof Error ? vehiclesError.message : 'An unexpected error occurred'}
         </p>
         <Button variant="outline" onClick={() => window.location.reload()}>
@@ -960,10 +960,10 @@ export default function VehicleShowroom3D() {
   // No vehicle
   if (!selectedVehicle) {
     return (
-      <div className="flex items-center justify-center h-full w-full bg-[#111]">
+      <div className="flex items-center justify-center h-full w-full bg-[var(--surface-2)]">
         <div className="text-center space-y-2">
-          <Car className="w-16 h-16 text-white/20 mx-auto" />
-          <p className="text-white/50">No vehicles available</p>
+          <Car className="w-16 h-16 text-[var(--text-muted)] mx-auto" />
+          <p className="text-[var(--text-secondary)]">No vehicles available</p>
           <Button variant="outline" onClick={() => navigateTo('virtual-garage')}>
             <ChevronLeft className="w-4 h-4 mr-1" /> Back to Garage
           </Button>
@@ -973,7 +973,7 @@ export default function VehicleShowroom3D() {
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[#111]">
+    <div className="relative h-full w-full overflow-hidden bg-[var(--surface-2)]">
       {/* ========================================== */}
       {/* Layer 0: Full-viewport 3D Viewer           */}
       {/* ========================================== */}
@@ -981,8 +981,8 @@ export default function VehicleShowroom3D() {
         {modelLoading && (
           <div className="flex items-center justify-center h-full">
             <div className="text-center space-y-2">
-              <Loader2 className="w-12 h-12 text-white/30 mx-auto animate-spin" />
-              <p className="text-sm text-white/50">Loading 3D model...</p>
+              <Loader2 className="w-12 h-12 text-[var(--text-muted)] mx-auto animate-spin" />
+              <p className="text-sm text-[var(--text-secondary)]">Loading 3D model...</p>
             </div>
           </div>
         )}
@@ -990,7 +990,7 @@ export default function VehicleShowroom3D() {
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full">
-                <Loader2 className="w-10 h-10 text-white/20 animate-spin" />
+                <Loader2 className="w-10 h-10 text-[var(--text-muted)] animate-spin" />
               </div>
             }
           >
@@ -1020,8 +1020,8 @@ export default function VehicleShowroom3D() {
         {!modelLoading && !modelUrl && (
           <div className="flex items-center justify-center h-full">
             <div className="text-center space-y-2">
-              <Car className="w-12 h-12 text-white/20 mx-auto" />
-              <p className="text-sm text-white/50">{modelError || '3D model unavailable'}</p>
+              <Car className="w-12 h-12 text-[var(--text-muted)] mx-auto" />
+              <p className="text-sm text-[var(--text-secondary)]">{modelError || '3D model unavailable'}</p>
             </div>
           </div>
         )}
@@ -1031,12 +1031,12 @@ export default function VehicleShowroom3D() {
       {/* Interior photos overlay (when in interior mode) */}
       {/* ========================================== */}
       {viewMode === 'interior' && vehiclePhotos.filter(p => p.category === 'interior').length > 0 && (
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10 flex gap-2 p-2 bg-[#111]/70 backdrop-blur-sm rounded-xl border border-white/[0.08]">
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10 flex gap-2 p-2 bg-[var(--surface-2)]/70 backdrop-blur-sm rounded-xl border border-[var(--border-subtle)]">
           {vehiclePhotos
             .filter(p => p.category === 'interior')
             .slice(0, 6)
             .map((photo) => (
-              <div key={photo.id} className="w-20 h-14 rounded-lg overflow-hidden border border-white/[0.08] cursor-pointer hover:border-emerald-500/50 transition-colors">
+              <div key={photo.id} className="w-20 h-14 rounded-lg overflow-hidden border border-[var(--border-subtle)] cursor-pointer hover:border-emerald-500/50 transition-colors">
                 <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
               </div>
             ))}
@@ -1046,12 +1046,12 @@ export default function VehicleShowroom3D() {
       {/* ========================================== */}
       {/* Layer 1: Top bar (glassmorphism, h-12)      */}
       {/* ========================================== */}
-      <div className="absolute top-0 left-0 right-0 z-20 h-12 bg-[#111]/80 backdrop-blur-md border-b border-white/[0.08] flex items-center px-4 gap-3">
+      <div className="absolute top-0 left-0 right-0 z-20 h-12 bg-[var(--surface-2)]/80 backdrop-blur-md border-b border-[var(--border-subtle)] flex items-center px-4 gap-3">
         {/* Back button */}
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-white/60 hover:text-white"
+          className="h-8 w-8 text-[var(--text-secondary)] hover:text-white"
           onClick={() => navigateTo('virtual-garage')}
           aria-label="Go back to virtual garage"
         >
@@ -1060,7 +1060,7 @@ export default function VehicleShowroom3D() {
 
         {/* Vehicle dropdown selector */}
         <Select value={selectedVehicle.id} onValueChange={handleVehicleSelect}>
-          <SelectTrigger className="w-52 h-8 text-xs bg-white/[0.05] border-white/[0.08] text-white">
+          <SelectTrigger className="w-52 h-8 text-xs bg-white/[0.05] border-[var(--border-subtle)] text-white">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="max-h-80">
@@ -1078,7 +1078,7 @@ export default function VehicleShowroom3D() {
             {formatVehicleName(selectedVehicle)}
           </span>
           {selectedVehicle.unit_number && (
-            <span className="text-xs text-white/40">#{selectedVehicle.unit_number}</span>
+            <span className="text-xs text-[var(--text-tertiary)]">#{selectedVehicle.unit_number}</span>
           )}
           {selectedVehicle.status && (
             <Badge variant={statusBadgeVariant(selectedVehicle.status)} className="text-[10px]">
@@ -1096,7 +1096,7 @@ export default function VehicleShowroom3D() {
             </Badge>
           )}
           {vehicleColorName && (
-            <span className="text-[10px] text-white/40">{vehicleColorName}</span>
+            <span className="text-[10px] text-[var(--text-tertiary)]">{vehicleColorName}</span>
           )}
         </div>
 
@@ -1104,7 +1104,7 @@ export default function VehicleShowroom3D() {
         <Button
           variant="ghost"
           size="icon"
-          className={cn('h-8 w-8', showGallery ? 'text-emerald-400' : 'text-white/40 hover:text-white/60')}
+          className={cn('h-8 w-8', showGallery ? 'text-emerald-400' : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]')}
           onClick={() => setShowGallery(!showGallery)}
           title="Fleet Gallery (G)"
           aria-label="Toggle fleet gallery"
@@ -1116,7 +1116,7 @@ export default function VehicleShowroom3D() {
         <Button
           variant="ghost"
           size="icon"
-          className={cn('h-8 w-8', showScanUpload ? 'text-emerald-400' : 'text-white/40 hover:text-white/60')}
+          className={cn('h-8 w-8', showScanUpload ? 'text-emerald-400' : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]')}
           onClick={() => setShowScanUpload(!showScanUpload)}
           title="Vehicle Scanner (S)"
           aria-label="Toggle vehicle scanner"
@@ -1128,14 +1128,14 @@ export default function VehicleShowroom3D() {
         <div className="flex-1" />
 
         {/* Interior / Exterior segmented control */}
-        <div className="flex h-8 rounded-lg border border-white/[0.08] overflow-hidden bg-white/[0.03]">
+        <div className="flex h-8 rounded-lg border border-[var(--border-subtle)] overflow-hidden bg-white/[0.03]">
           <button
             onClick={() => setViewMode('exterior')}
             className={cn(
               'px-3 text-xs font-medium transition-colors',
               viewMode === 'exterior'
                 ? 'bg-emerald-500/20 text-emerald-400'
-                : 'text-white/50 hover:text-white/70'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             )}
           >
             Exterior
@@ -1146,7 +1146,7 @@ export default function VehicleShowroom3D() {
               'px-3 text-xs font-medium transition-colors',
               viewMode === 'interior'
                 ? 'bg-emerald-500/20 text-emerald-400'
-                : 'text-white/50 hover:text-white/70'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             )}
           >
             Interior
@@ -1160,7 +1160,7 @@ export default function VehicleShowroom3D() {
             size="icon"
             className={cn(
               'h-8 w-8',
-              autoRotate ? 'text-emerald-400' : 'text-white/40'
+              autoRotate ? 'text-emerald-400' : 'text-[var(--text-tertiary)]'
             )}
             onClick={() => setAutoRotate(!autoRotate)}
             title={autoRotate ? 'Stop rotation' : 'Auto rotate'}
@@ -1186,7 +1186,7 @@ export default function VehicleShowroom3D() {
         </div>
 
         {/* More menu placeholder */}
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white/60" aria-label="More options">
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]" aria-label="More options">
           <MoreHorizontal className="w-4 h-4" />
         </Button>
       </div>
@@ -1194,14 +1194,14 @@ export default function VehicleShowroom3D() {
       {/* ========================================== */}
       {/* Layer 2: Left HUD (glassmorphism overlay)   */}
       {/* ========================================== */}
-      <div className="absolute left-4 top-16 w-56 z-10 bg-[#111]/70 backdrop-blur-sm rounded-xl border border-white/[0.08] p-3 max-h-[calc(100vh-140px)] overflow-y-auto">
+      <div className="absolute left-4 top-16 w-56 z-10 bg-[var(--surface-2)]/70 backdrop-blur-sm rounded-xl border border-[var(--border-subtle)] p-3 max-h-[calc(100vh-140px)] overflow-y-auto">
         <VehicleHUD stats={vehicleStats} compact />
       </div>
 
       {/* ========================================== */}
       {/* Layer 3: Bottom action bar (h-14)           */}
       {/* ========================================== */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 h-14 bg-[#111]/80 backdrop-blur-md border-t border-white/[0.08] flex items-center justify-center gap-1 px-4">
+      <div className="absolute bottom-0 left-0 right-0 z-20 h-14 bg-[var(--surface-2)]/80 backdrop-blur-md border-t border-[var(--border-subtle)] flex items-center justify-center gap-1 px-4">
         {/* Camera preset buttons */}
         {CAMERA_PRESETS.map((preset) => {
           const Icon = preset.icon;
@@ -1217,7 +1217,7 @@ export default function VehicleShowroom3D() {
                 'flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors min-w-[52px]',
                 isActive
                   ? 'bg-emerald-500/20 text-emerald-400'
-                  : 'text-white/40 hover:text-white/70 hover:bg-white/[0.05]'
+                  : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/[0.05]'
               )}
               title={`${preset.label} (${preset.key})`}
             >
@@ -1228,7 +1228,7 @@ export default function VehicleShowroom3D() {
         })}
 
         {/* Separator */}
-        <div className="w-px h-8 bg-white/[0.08] mx-2" />
+        <div className="w-px h-8 bg-white/[0.04] mx-2" />
 
         {/* Action buttons */}
         <button
@@ -1241,7 +1241,7 @@ export default function VehicleShowroom3D() {
             'flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors min-w-[52px]',
             isDamageMode
               ? 'bg-rose-500/20 text-rose-400'
-              : 'text-white/40 hover:text-white/70 hover:bg-white/[0.05]'
+              : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/[0.05]'
           )}
           title="Damage Mode"
         >
@@ -1255,7 +1255,7 @@ export default function VehicleShowroom3D() {
             'flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors min-w-[52px]',
             isComparisonMode
               ? 'bg-emerald-500/20 text-emerald-400'
-              : 'text-white/40 hover:text-white/70 hover:bg-white/[0.05]'
+              : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/[0.05]'
           )}
           title="Compare (C)"
         >
@@ -1269,7 +1269,7 @@ export default function VehicleShowroom3D() {
             'flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors min-w-[52px]',
             showHotspots
               ? 'bg-emerald-500/20 text-emerald-400'
-              : 'text-white/40 hover:text-white/70 hover:bg-white/[0.05]'
+              : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/[0.05]'
           )}
           title="Toggle Hotspots (H)"
         >
@@ -1279,7 +1279,7 @@ export default function VehicleShowroom3D() {
 
         <button
           onClick={() => setIsPhotoModalOpen(true)}
-          className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/40 hover:text-white/70 hover:bg-white/[0.05] transition-colors min-w-[52px]"
+          className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/[0.05] transition-colors min-w-[52px]"
           title="Photos"
         >
           <Camera className="w-4 h-4" />
@@ -1292,7 +1292,7 @@ export default function VehicleShowroom3D() {
             'flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors min-w-[52px]',
             showReferenceCard
               ? 'bg-emerald-500/20 text-emerald-400'
-              : 'text-white/40 hover:text-white/70 hover:bg-white/[0.05]'
+              : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/[0.05]'
           )}
           title="Reference Photo"
         >
@@ -1310,7 +1310,7 @@ export default function VehicleShowroom3D() {
             'flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors min-w-[52px]',
             isDataPanelOpen
               ? 'bg-emerald-500/20 text-emerald-400'
-              : 'text-white/40 hover:text-white/70 hover:bg-white/[0.05]'
+              : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/[0.05]'
           )}
           title="Data Panel"
         >
@@ -1327,7 +1327,7 @@ export default function VehicleShowroom3D() {
             'flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors min-w-[52px]',
             isTimelineOpen
               ? 'bg-emerald-500/20 text-emerald-400'
-              : 'text-white/40 hover:text-white/70 hover:bg-white/[0.05]'
+              : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/[0.05]'
           )}
           title="Timeline"
         >
@@ -1358,17 +1358,17 @@ export default function VehicleShowroom3D() {
       {/* ========================================== */}
       <div
         className={cn(
-          'absolute right-0 top-12 bottom-14 w-96 z-30 bg-[#1a1a1a] border-l border-white/[0.08] transition-transform duration-300 overflow-hidden flex flex-col',
+          'absolute right-0 top-12 bottom-14 w-96 z-30 bg-[var(--surface-1)] border-l border-[var(--border-subtle)] transition-transform duration-300 overflow-hidden flex flex-col',
           isDataPanelOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
         {/* Panel header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.08] shrink-0">
-          <span className="text-xs font-semibold text-white/80">Vehicle Data</span>
+        <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border-subtle)] shrink-0">
+          <span className="text-xs font-semibold text-[var(--text-primary)]">Vehicle Data</span>
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 text-white/40"
+            className="h-6 w-6 text-[var(--text-tertiary)]"
             onClick={() => setIsDataPanelOpen(false)}
             aria-label="Close vehicle data panel"
           >
@@ -1379,7 +1379,7 @@ export default function VehicleShowroom3D() {
         {/* Scrollable tab content */}
         <div className="flex-1 overflow-y-auto">
           <Tabs value={dataPanelTab} onValueChange={setDataPanelTab} className="w-full">
-            <TabsList className="sticky top-0 z-10 bg-[#1a1a1a] w-full flex flex-wrap h-auto gap-0.5 p-1 rounded-none border-b border-white/[0.08]">
+            <TabsList className="sticky top-0 z-10 bg-[var(--surface-1)] w-full flex flex-wrap h-auto gap-0.5 p-1 rounded-none border-b border-[var(--border-subtle)]">
               <TabsTrigger value="overview" className="text-[10px] h-7 flex-1 min-w-[60px]">Overview</TabsTrigger>
               <TabsTrigger value="maintenance" className="text-[10px] h-7 flex-1 min-w-[60px]">Maint.</TabsTrigger>
               <TabsTrigger value="driver" className="text-[10px] h-7 flex-1 min-w-[60px]">Driver</TabsTrigger>
@@ -1396,8 +1396,8 @@ export default function VehicleShowroom3D() {
             <TabsContent value="overview" className="p-3 space-y-3 mt-0">
               {/* 4 stat cards */}
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
-                  <div className="text-[10px] text-white/50 mb-1">Health Score</div>
+                <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+                  <div className="text-[10px] text-[var(--text-secondary)] mb-1">Health Score</div>
                   <div className="text-lg font-bold text-emerald-400">
                     {vehicleDetail?.health_score || 85}%
                   </div>
@@ -1408,110 +1408,110 @@ export default function VehicleShowroom3D() {
                     />
                   </div>
                 </div>
-                <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
-                  <div className="text-[10px] text-white/50 mb-1">Fuel Level</div>
+                <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+                  <div className="text-[10px] text-[var(--text-secondary)] mb-1">Fuel Level</div>
                   <div className="text-lg font-bold text-white">
                     {selectedVehicle.fuel_level_percent != null
                       ? `${selectedVehicle.fuel_level_percent}%`
                       : '\u2014'}
                   </div>
                 </div>
-                <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
-                  <div className="text-[10px] text-white/50 mb-1">Odometer</div>
+                <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+                  <div className="text-[10px] text-[var(--text-secondary)] mb-1">Odometer</div>
                   <div className="text-lg font-bold text-white">
                     {selectedVehicle.current_odometer_miles
                       ? formatNumber(selectedVehicle.current_odometer_miles)
                       : '\u2014'}
                   </div>
-                  <div className="text-[9px] text-white/40">miles</div>
+                  <div className="text-[9px] text-[var(--text-tertiary)]">miles</div>
                 </div>
-                <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
-                  <div className="text-[10px] text-white/50 mb-1">Status</div>
+                <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+                  <div className="text-[10px] text-[var(--text-secondary)] mb-1">Status</div>
                   <div className="mt-1">
                     {selectedVehicle.status ? (
                       <Badge variant={statusBadgeVariant(selectedVehicle.status)} className="text-[10px]">
                         {formatEnum(selectedVehicle.status)}
                       </Badge>
                     ) : (
-                      <span className="text-white/40">{'\u2014'}</span>
+                      <span className="text-[var(--text-tertiary)]">{'\u2014'}</span>
                     )}
                   </div>
                 </div>
               </div>
 
               {/* Vehicle Info */}
-              <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
-                <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2">
+              <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+                <h4 className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-2">
                   Vehicle Info
                 </h4>
                 <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-white/50">VIN</span>
-                    <span className="text-white/80 font-mono text-[10px]">
+                    <span className="text-[var(--text-secondary)]">VIN</span>
+                    <span className="text-[var(--text-primary)] font-mono text-[10px]">
                       {vehicleDetail?.vin || selectedVehicle.vin || '\u2014'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/50">License Plate</span>
-                    <span className="text-white/80">
+                    <span className="text-[var(--text-secondary)]">License Plate</span>
+                    <span className="text-[var(--text-primary)]">
                       {vehicleDetail?.license_plate || selectedVehicle.license_plate || '\u2014'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/50">Unit #</span>
-                    <span className="text-white/80">
+                    <span className="text-[var(--text-secondary)]">Unit #</span>
+                    <span className="text-[var(--text-primary)]">
                       {vehicleDetail?.unit_number || selectedVehicle.unit_number || '\u2014'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/50">Type</span>
-                    <span className="text-white/80 capitalize">{selectedVehicle.vehicleType}</span>
+                    <span className="text-[var(--text-secondary)]">Type</span>
+                    <span className="text-[var(--text-primary)] capitalize">{selectedVehicle.vehicleType}</span>
                   </div>
                 </div>
               </div>
 
               {/* Upcoming */}
-              <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
-                <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2">
+              <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+                <h4 className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-2">
                   Upcoming
                 </h4>
                 <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-white/50">Next PM Due</span>
-                    <span className="text-white/80">
+                    <span className="text-[var(--text-secondary)]">Next PM Due</span>
+                    <span className="text-[var(--text-primary)]">
                       {nextPm
                         ? formatDate(nextPm.next_service_date || nextPm.next_due_date)
                         : 'None scheduled'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/50">Active WOs</span>
-                    <span className="text-white/80">
+                    <span className="text-[var(--text-secondary)]">Active WOs</span>
+                    <span className="text-[var(--text-primary)]">
                       {maintArr.filter(
                         (m: any) => m.status === 'in_progress' || m.status === 'pending'
                       ).length}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/50">Total Maint. Cost</span>
-                    <span className="text-white/80">
+                    <span className="text-[var(--text-secondary)]">Total Maint. Cost</span>
+                    <span className="text-[var(--text-primary)]">
                       {formatCurrency(
                         maintArr.reduce((s: number, m: any) => s + (m.cost || 0), 0)
                       )}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/50">Incidents</span>
-                    <span className="text-white/80">{incidentsArr.length}</span>
+                    <span className="text-[var(--text-secondary)]">Incidents</span>
+                    <span className="text-[var(--text-primary)]">{incidentsArr.length}</span>
                   </div>
                 </div>
               </div>
 
               {/* Feature 5: Condition History chart */}
               {scanHistory.length > 1 && (
-                <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide">
+                    <h4 className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
                       Condition History
                     </h4>
                     {scanHistory.length >= 2 && (() => {
@@ -1555,7 +1555,7 @@ export default function VehicleShowroom3D() {
                       />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: '#1a1a1a',
+                          backgroundColor: 'var(--surface-3)',
                           border: '1px solid rgba(255,255,255,0.08)',
                           borderRadius: '8px',
                           fontSize: '11px',
@@ -1585,7 +1585,7 @@ export default function VehicleShowroom3D() {
                 <EmptyState icon={Wrench} message="No maintenance records" />
               ) : (
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-[10px] text-white/50">
+                  <div className="flex items-center justify-between text-[10px] text-[var(--text-secondary)]">
                     <span>
                       {maintArr.length} records &bull;{' '}
                       {formatCurrency(
@@ -1593,11 +1593,11 @@ export default function VehicleShowroom3D() {
                       )}
                     </span>
                   </div>
-                  <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
+                  <div className="bg-[var(--surface-2)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
                     <div className="max-h-[500px] overflow-y-auto">
                       <table className="w-full text-xs">
-                        <thead className="sticky top-0 bg-[#242424] z-10">
-                          <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                        <thead className="sticky top-0 bg-[var(--surface-2)] z-10">
+                          <tr className="text-[10px] text-[var(--text-tertiary)] border-b border-[var(--border-subtle)]">
                             <th className="text-left px-2 py-1.5">Date</th>
                             <th className="text-left px-2 py-1.5">WO #</th>
                             <th className="text-left px-2 py-1.5">Type</th>
@@ -1618,10 +1618,10 @@ export default function VehicleShowroom3D() {
                                 )
                               }
                             >
-                              <td className="px-2 py-1.5 text-white/60">
+                              <td className="px-2 py-1.5 text-[var(--text-secondary)]">
                                 {record.date ? formatDate(record.date) : '\u2014'}
                               </td>
-                              <td className="px-2 py-1.5 text-white/70 font-mono text-[10px]">
+                              <td className="px-2 py-1.5 text-[var(--text-primary)] font-mono text-[10px]">
                                 {record.work_order_number || record.number || '\u2014'}
                               </td>
                               <td className="px-2 py-1.5">
@@ -1629,10 +1629,10 @@ export default function VehicleShowroom3D() {
                                   {formatEnum(record.type || 'general')}
                                 </Badge>
                               </td>
-                              <td className="px-2 py-1.5 text-white/50 max-w-[100px] truncate">
+                              <td className="px-2 py-1.5 text-[var(--text-secondary)] max-w-[100px] truncate">
                                 {record.description || '\u2014'}
                               </td>
-                              <td className="px-2 py-1.5 text-right text-white/70">
+                              <td className="px-2 py-1.5 text-right text-[var(--text-primary)]">
                                 {record.cost ? formatCurrency(record.cost) : '\u2014'}
                               </td>
                               <td className="px-2 py-1.5 text-right">
@@ -1666,8 +1666,8 @@ export default function VehicleShowroom3D() {
                       (a: any) => a.lifecycle_state === 'active' || a.status === 'active'
                     );
                     return current ? (
-                      <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
-                        <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2">
+                      <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+                        <h4 className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-2">
                           Current Driver
                         </h4>
                         <div className="flex items-center gap-3">
@@ -1676,7 +1676,7 @@ export default function VehicleShowroom3D() {
                           </div>
                           <div>
                             <div
-                              className="text-xs font-medium text-white/90 cursor-pointer hover:text-emerald-400"
+                              className="text-xs font-medium text-[var(--text-primary)] cursor-pointer hover:text-emerald-400"
                               onClick={() =>
                                 current.driver_id &&
                                 handleViewDriver(
@@ -1687,7 +1687,7 @@ export default function VehicleShowroom3D() {
                             >
                               {current.driver_name || current.driver_id || 'Unknown'}
                             </div>
-                            <div className="text-[10px] text-white/50">
+                            <div className="text-[10px] text-[var(--text-secondary)]">
                               {current.assignment_type && (
                                 <span className="capitalize">{current.assignment_type}</span>
                               )}
@@ -1699,11 +1699,11 @@ export default function VehicleShowroom3D() {
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
-                        <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2">
+                      <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+                        <h4 className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-2">
                           Current Driver
                         </h4>
-                        <p className="text-xs text-white/40">No active assignment</p>
+                        <p className="text-xs text-[var(--text-tertiary)]">No active assignment</p>
                       </div>
                     );
                   })()}
@@ -1712,16 +1712,16 @@ export default function VehicleShowroom3D() {
                   {(() => {
                     const assignArr = Array.isArray(assignments) ? assignments : [];
                     return assignArr.length > 0 ? (
-                      <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
-                        <div className="p-2 border-b border-white/[0.06]">
-                          <span className="text-[10px] font-semibold text-white/60">
+                      <div className="bg-[var(--surface-2)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+                        <div className="p-2 border-b border-[var(--border-subtle)]">
+                          <span className="text-[10px] font-semibold text-[var(--text-secondary)]">
                             Assignment History ({assignArr.length})
                           </span>
                         </div>
                         <div className="max-h-[300px] overflow-y-auto">
                           <table className="w-full text-xs">
-                            <thead className="sticky top-0 bg-[#242424]">
-                              <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                            <thead className="sticky top-0 bg-[var(--surface-2)]">
+                              <tr className="text-[10px] text-[var(--text-tertiary)] border-b border-[var(--border-subtle)]">
                                 <th className="text-left px-2 py-1.5">Driver</th>
                                 <th className="text-left px-2 py-1.5">Type</th>
                                 <th className="text-left px-2 py-1.5">Start</th>
@@ -1732,16 +1732,16 @@ export default function VehicleShowroom3D() {
                             <tbody className="divide-y divide-white/[0.04]">
                               {assignArr.map((a: any) => (
                                 <tr key={a.id} className="hover:bg-white/[0.03]">
-                                  <td className="px-2 py-1.5 text-white/70">
+                                  <td className="px-2 py-1.5 text-[var(--text-primary)]">
                                     {a.driver_name || a.driver_id || '\u2014'}
                                   </td>
-                                  <td className="px-2 py-1.5 text-white/60 capitalize">
+                                  <td className="px-2 py-1.5 text-[var(--text-secondary)] capitalize">
                                     {a.assignment_type || '\u2014'}
                                   </td>
-                                  <td className="px-2 py-1.5 text-white/60">
+                                  <td className="px-2 py-1.5 text-[var(--text-secondary)]">
                                     {a.start_date ? formatDate(a.start_date) : '\u2014'}
                                   </td>
-                                  <td className="px-2 py-1.5 text-white/60">
+                                  <td className="px-2 py-1.5 text-[var(--text-secondary)]">
                                     {a.end_date ? formatDate(a.end_date) : 'Present'}
                                   </td>
                                   <td className="px-2 py-1.5 text-right">
@@ -1775,9 +1775,9 @@ export default function VehicleShowroom3D() {
               ) : inspectionsArr.length === 0 ? (
                 <EmptyState icon={FileText} message="No inspection records" />
               ) : (
-                <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
-                  <div className="p-2 border-b border-white/[0.06]">
-                    <span className="text-[10px] font-semibold text-white/60">
+                <div className="bg-[var(--surface-2)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+                  <div className="p-2 border-b border-[var(--border-subtle)]">
+                    <span className="text-[10px] font-semibold text-[var(--text-secondary)]">
                       {inspectionsArr.length} Inspections &bull;{' '}
                       {
                         inspectionsArr.filter(
@@ -1789,8 +1789,8 @@ export default function VehicleShowroom3D() {
                   </div>
                   <div className="max-h-[400px] overflow-y-auto">
                     <table className="w-full text-xs">
-                      <thead className="sticky top-0 bg-[#242424]">
-                        <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                      <thead className="sticky top-0 bg-[var(--surface-2)]">
+                        <tr className="text-[10px] text-[var(--text-tertiary)] border-b border-[var(--border-subtle)]">
                           <th className="text-left px-2 py-1.5">Date</th>
                           <th className="text-left px-2 py-1.5">Type</th>
                           <th className="text-left px-2 py-1.5">Result</th>
@@ -1809,7 +1809,7 @@ export default function VehicleShowroom3D() {
                                 : 'passed');
                           return (
                             <tr key={insp.id} className="hover:bg-white/[0.03]">
-                              <td className="px-2 py-1.5 text-white/60">
+                              <td className="px-2 py-1.5 text-[var(--text-secondary)]">
                                 {insp.date || insp.completed_at
                                   ? formatDate(insp.date || insp.completed_at)
                                   : '\u2014'}
@@ -1833,10 +1833,10 @@ export default function VehicleShowroom3D() {
                                   {formatEnum(result)}
                                 </Badge>
                               </td>
-                              <td className="px-2 py-1.5 text-white/60">
+                              <td className="px-2 py-1.5 text-[var(--text-secondary)]">
                                 {insp.inspector_name || '\u2014'}
                               </td>
-                              <td className="px-2 py-1.5 text-white/50 max-w-[100px] truncate">
+                              <td className="px-2 py-1.5 text-[var(--text-secondary)] max-w-[100px] truncate">
                                 {insp.notes || '\u2014'}
                               </td>
                             </tr>
@@ -1859,8 +1859,8 @@ export default function VehicleShowroom3D() {
                 <div className="space-y-2">
                   {/* Fuel summary */}
                   <div className="grid grid-cols-3 gap-1.5">
-                    <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
-                      <div className="text-[9px] text-white/50 mb-0.5">Total Gal</div>
+                    <div className="bg-[var(--surface-2)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                      <div className="text-[9px] text-[var(--text-secondary)] mb-0.5">Total Gal</div>
                       <div className="text-sm font-bold text-white">
                         {formatNumber(
                           fuelArr.reduce(
@@ -1871,8 +1871,8 @@ export default function VehicleShowroom3D() {
                         )}
                       </div>
                     </div>
-                    <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
-                      <div className="text-[9px] text-white/50 mb-0.5">Total Cost</div>
+                    <div className="bg-[var(--surface-2)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                      <div className="text-[9px] text-[var(--text-secondary)] mb-0.5">Total Cost</div>
                       <div className="text-sm font-bold text-white">
                         {formatCurrency(
                           fuelArr.reduce(
@@ -1882,8 +1882,8 @@ export default function VehicleShowroom3D() {
                         )}
                       </div>
                     </div>
-                    <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
-                      <div className="text-[9px] text-white/50 mb-0.5">Avg $/Gal</div>
+                    <div className="bg-[var(--surface-2)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                      <div className="text-[9px] text-[var(--text-secondary)] mb-0.5">Avg $/Gal</div>
                       <div className="text-sm font-bold text-white">
                         {(() => {
                           const totalGal = fuelArr.reduce(
@@ -1901,11 +1901,11 @@ export default function VehicleShowroom3D() {
                   </div>
 
                   {/* Fuel table */}
-                  <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
+                  <div className="bg-[var(--surface-2)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
                     <div className="max-h-[350px] overflow-y-auto">
                       <table className="w-full text-xs">
-                        <thead className="sticky top-0 bg-[#242424]">
-                          <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                        <thead className="sticky top-0 bg-[var(--surface-2)]">
+                          <tr className="text-[10px] text-[var(--text-tertiary)] border-b border-[var(--border-subtle)]">
                             <th className="text-left px-2 py-1.5">Date</th>
                             <th className="text-right px-2 py-1.5">Gal</th>
                             <th className="text-right px-2 py-1.5">Cost</th>
@@ -1916,21 +1916,21 @@ export default function VehicleShowroom3D() {
                         <tbody className="divide-y divide-white/[0.04]">
                           {fuelArr.slice(0, 50).map((f: any) => (
                             <tr key={f.id} className="hover:bg-white/[0.03]">
-                              <td className="px-2 py-1.5 text-white/60">
+                              <td className="px-2 py-1.5 text-[var(--text-secondary)]">
                                 {f.date || f.transaction_date
                                   ? formatDate(f.date || f.transaction_date)
                                   : '\u2014'}
                               </td>
-                              <td className="px-2 py-1.5 text-right text-white/70">
+                              <td className="px-2 py-1.5 text-right text-[var(--text-primary)]">
                                 {formatNumber(f.gallons || f.quantity_gallons || 0, 1)}
                               </td>
-                              <td className="px-2 py-1.5 text-right text-white/70">
+                              <td className="px-2 py-1.5 text-right text-[var(--text-primary)]">
                                 {formatCurrency(f.cost || f.total_cost || 0)}
                               </td>
-                              <td className="px-2 py-1.5 text-white/50 max-w-[80px] truncate">
+                              <td className="px-2 py-1.5 text-[var(--text-secondary)] max-w-[80px] truncate">
                                 {f.location || f.location_name || '\u2014'}
                               </td>
-                              <td className="px-2 py-1.5 text-right text-white/50">
+                              <td className="px-2 py-1.5 text-right text-[var(--text-secondary)]">
                                 {f.odometer ? formatNumber(f.odometer) : '\u2014'}
                               </td>
                             </tr>
@@ -1951,7 +1951,7 @@ export default function VehicleShowroom3D() {
                 <EmptyState icon={AlertTriangle} message="No incidents reported" />
               ) : (
                 <div className="space-y-2">
-                  <div className="text-[10px] text-white/50">
+                  <div className="text-[10px] text-[var(--text-secondary)]">
                     {incidentsArr.length} incidents &bull; Cost:{' '}
                     {formatCurrency(
                       incidentsArr.reduce(
@@ -1960,11 +1960,11 @@ export default function VehicleShowroom3D() {
                       )
                     )}
                   </div>
-                  <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
+                  <div className="bg-[var(--surface-2)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
                     <div className="max-h-[400px] overflow-y-auto">
                       <table className="w-full text-xs">
-                        <thead className="sticky top-0 bg-[#242424]">
-                          <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                        <thead className="sticky top-0 bg-[var(--surface-2)]">
+                          <tr className="text-[10px] text-[var(--text-tertiary)] border-b border-[var(--border-subtle)]">
                             <th className="text-left px-2 py-1.5">Date</th>
                             <th className="text-left px-2 py-1.5">Type</th>
                             <th className="text-left px-2 py-1.5">Severity</th>
@@ -1976,7 +1976,7 @@ export default function VehicleShowroom3D() {
                         <tbody className="divide-y divide-white/[0.04]">
                           {incidentsArr.slice(0, 50).map((inc: any) => (
                             <tr key={inc.id} className="hover:bg-white/[0.03]">
-                              <td className="px-2 py-1.5 text-white/60">
+                              <td className="px-2 py-1.5 text-[var(--text-secondary)]">
                                 {inc.date || inc.incident_date
                                   ? formatDate(inc.date || inc.incident_date)
                                   : '\u2014'}
@@ -1994,10 +1994,10 @@ export default function VehicleShowroom3D() {
                                   {formatEnum(inc.severity || 'unknown')}
                                 </Badge>
                               </td>
-                              <td className="px-2 py-1.5 text-white/50 max-w-[80px] truncate">
+                              <td className="px-2 py-1.5 text-[var(--text-secondary)] max-w-[80px] truncate">
                                 {inc.description || '\u2014'}
                               </td>
-                              <td className="px-2 py-1.5 text-right text-white/70">
+                              <td className="px-2 py-1.5 text-right text-[var(--text-primary)]">
                                 {inc.cost || inc.estimated_cost
                                   ? formatCurrency(inc.cost || inc.estimated_cost)
                                   : '\u2014'}
@@ -2031,8 +2031,8 @@ export default function VehicleShowroom3D() {
                 ) : (
                   <div className="space-y-3">
                     {/* Tire position diagram */}
-                    <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
-                      <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2">
+                    <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+                      <h4 className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-2">
                         Tire Positions
                       </h4>
                       <div className="grid grid-cols-2 gap-2 max-w-xs mx-auto">
@@ -2048,27 +2048,27 @@ export default function VehicleShowroom3D() {
                               className={cn(
                                 'rounded-lg p-2.5 border',
                                 tire
-                                  ? 'bg-white/[0.03] border-white/[0.08]'
-                                  : 'bg-white/[0.01] border-white/[0.04] border-dashed'
+                                  ? 'bg-white/[0.03] border-[var(--border-subtle)]'
+                                  : 'bg-white/[0.01] border-[var(--border-subtle)] border-dashed'
                               )}
                             >
-                              <div className="text-[10px] font-bold text-white/60 mb-0.5">
+                              <div className="text-[10px] font-bold text-[var(--text-secondary)] mb-0.5">
                                 {pos}
                               </div>
                               {tire ? (
                                 <div className="text-[10px] space-y-0.5">
-                                  <div className="text-white/80">
+                                  <div className="text-[var(--text-primary)]">
                                     {tire.manufacturer} {tire.model}
                                   </div>
-                                  <div className="text-white/50">
+                                  <div className="text-[var(--text-secondary)]">
                                     Tread: {tire.tread_depth_32nds || '\u2014'}/32&quot;
                                   </div>
-                                  <div className="text-white/50 capitalize">
+                                  <div className="text-[var(--text-secondary)] capitalize">
                                     {tire.condition || '\u2014'}
                                   </div>
                                 </div>
                               ) : (
-                                <div className="text-[10px] text-white/30">Empty</div>
+                                <div className="text-[10px] text-[var(--text-muted)]">Empty</div>
                               )}
                             </div>
                           );
@@ -2077,11 +2077,11 @@ export default function VehicleShowroom3D() {
                     </div>
 
                     {/* Full tire list */}
-                    <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
+                    <div className="bg-[var(--surface-2)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
                       <div className="max-h-[200px] overflow-y-auto">
                         <table className="w-full text-xs">
-                          <thead className="sticky top-0 bg-[#242424]">
-                            <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                          <thead className="sticky top-0 bg-[var(--surface-2)]">
+                            <tr className="text-[10px] text-[var(--text-tertiary)] border-b border-[var(--border-subtle)]">
                               <th className="text-left px-2 py-1.5">Pos</th>
                               <th className="text-left px-2 py-1.5">Tire</th>
                               <th className="text-left px-2 py-1.5">Size</th>
@@ -2092,17 +2092,17 @@ export default function VehicleShowroom3D() {
                           <tbody className="divide-y divide-white/[0.04]">
                             {tiresArr.map((t: any) => (
                               <tr key={t.id} className="hover:bg-white/[0.03]">
-                                <td className="px-2 py-1.5 text-white/70 font-mono">
+                                <td className="px-2 py-1.5 text-[var(--text-primary)] font-mono">
                                   {t.mounted_position || t.position || '\u2014'}
                                 </td>
-                                <td className="px-2 py-1.5 text-white/70">
+                                <td className="px-2 py-1.5 text-[var(--text-primary)]">
                                   {t.manufacturer} {t.model}
                                 </td>
-                                <td className="px-2 py-1.5 text-white/50">{t.size || '\u2014'}</td>
-                                <td className="px-2 py-1.5 text-right text-white/70">
+                                <td className="px-2 py-1.5 text-[var(--text-secondary)]">{t.size || '\u2014'}</td>
+                                <td className="px-2 py-1.5 text-right text-[var(--text-primary)]">
                                   {t.tread_depth_32nds || '\u2014'}
                                 </td>
-                                <td className="px-2 py-1.5 capitalize text-white/60">
+                                <td className="px-2 py-1.5 capitalize text-[var(--text-secondary)]">
                                   {t.condition || '\u2014'}
                                 </td>
                               </tr>
@@ -2141,26 +2141,26 @@ export default function VehicleShowroom3D() {
                 return (
                   <div className="space-y-2">
                     <div className="grid grid-cols-2 gap-1.5">
-                      <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
-                        <div className="text-[9px] text-white/50 mb-0.5">Total Costs</div>
+                      <div className="bg-[var(--surface-2)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                        <div className="text-[9px] text-[var(--text-secondary)] mb-0.5">Total Costs</div>
                         <div className="text-sm font-bold text-white">
                           {formatCurrency(totalCost || maintCost + fuelCost + incidentCost)}
                         </div>
                       </div>
-                      <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
-                        <div className="text-[9px] text-white/50 mb-0.5">Maintenance</div>
+                      <div className="bg-[var(--surface-2)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                        <div className="text-[9px] text-[var(--text-secondary)] mb-0.5">Maintenance</div>
                         <div className="text-sm font-bold text-white">
                           {formatCurrency(maintCost)}
                         </div>
                       </div>
-                      <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
-                        <div className="text-[9px] text-white/50 mb-0.5">Fuel</div>
+                      <div className="bg-[var(--surface-2)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                        <div className="text-[9px] text-[var(--text-secondary)] mb-0.5">Fuel</div>
                         <div className="text-sm font-bold text-white">
                           {formatCurrency(fuelCost)}
                         </div>
                       </div>
-                      <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
-                        <div className="text-[9px] text-white/50 mb-0.5">Incidents</div>
+                      <div className="bg-[var(--surface-2)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                        <div className="text-[9px] text-[var(--text-secondary)] mb-0.5">Incidents</div>
                         <div className="text-sm font-bold text-white">
                           {formatCurrency(incidentCost)}
                         </div>
@@ -2168,11 +2168,11 @@ export default function VehicleShowroom3D() {
                     </div>
 
                     {costsArr.length > 0 ? (
-                      <div className="bg-[#242424] rounded-lg border border-white/[0.08] overflow-hidden">
+                      <div className="bg-[var(--surface-2)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
                         <div className="max-h-[300px] overflow-y-auto">
                           <table className="w-full text-xs">
-                            <thead className="sticky top-0 bg-[#242424]">
-                              <tr className="text-[10px] text-white/40 border-b border-white/[0.06]">
+                            <thead className="sticky top-0 bg-[var(--surface-2)]">
+                              <tr className="text-[10px] text-[var(--text-tertiary)] border-b border-[var(--border-subtle)]">
                                 <th className="text-left px-2 py-1.5">Date</th>
                                 <th className="text-left px-2 py-1.5">Category</th>
                                 <th className="text-left px-2 py-1.5">Desc</th>
@@ -2182,7 +2182,7 @@ export default function VehicleShowroom3D() {
                             <tbody className="divide-y divide-white/[0.04]">
                               {costsArr.slice(0, 50).map((c: any) => (
                                 <tr key={c.id} className="hover:bg-white/[0.03]">
-                                  <td className="px-2 py-1.5 text-white/60">
+                                  <td className="px-2 py-1.5 text-[var(--text-secondary)]">
                                     {c.date || c.created_at
                                       ? formatDate(c.date || c.created_at)
                                       : '\u2014'}
@@ -2192,10 +2192,10 @@ export default function VehicleShowroom3D() {
                                       {formatEnum(c.category || c.cost_type || 'general')}
                                     </Badge>
                                   </td>
-                                  <td className="px-2 py-1.5 text-white/50 max-w-[100px] truncate">
+                                  <td className="px-2 py-1.5 text-[var(--text-secondary)] max-w-[100px] truncate">
                                     {c.description || c.notes || '\u2014'}
                                   </td>
-                                  <td className="px-2 py-1.5 text-right text-white/70">
+                                  <td className="px-2 py-1.5 text-right text-[var(--text-primary)]">
                                     {formatCurrency(c.amount || c.cost || 0)}
                                   </td>
                                 </tr>
@@ -2205,7 +2205,7 @@ export default function VehicleShowroom3D() {
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08] text-center text-[10px] text-white/40">
+                      <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)] text-center text-[10px] text-[var(--text-tertiary)]">
                         Cost breakdown from maintenance ({formatCurrency(maintCost)}) and fuel (
                         {formatCurrency(fuelCost)}) records
                       </div>
@@ -2224,8 +2224,8 @@ export default function VehicleShowroom3D() {
                 return (
                   <div className="space-y-3">
                     {/* Insurance */}
-                    <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
-                      <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2 flex items-center gap-1">
+                    <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+                      <h4 className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-2 flex items-center gap-1">
                         <Shield className="w-3 h-3" /> Insurance
                       </h4>
                       {insuranceArr.length > 0 ? (
@@ -2236,17 +2236,17 @@ export default function VehicleShowroom3D() {
                               className="flex items-center justify-between text-xs"
                             >
                               <div>
-                                <div className="text-white/80">
+                                <div className="text-[var(--text-primary)]">
                                   {ins.carrier || ins.provider || 'Policy'} {'\u2014'}{' '}
                                   {ins.policy_number || '\u2014'}
                                 </div>
-                                <div className="text-[10px] text-white/50">
+                                <div className="text-[10px] text-[var(--text-secondary)]">
                                   {ins.policy_type ? formatEnum(ins.policy_type) : 'General'}
                                 </div>
                               </div>
                               <div className="text-right">
-                                <div className="text-[9px] text-white/50">Expires</div>
-                                <div className="text-[10px] text-white/70">
+                                <div className="text-[9px] text-[var(--text-secondary)]">Expires</div>
+                                <div className="text-[10px] text-[var(--text-primary)]">
                                   {ins.expiration_date || ins.end_date
                                     ? formatDate(ins.expiration_date || ins.end_date)
                                     : '\u2014'}
@@ -2256,41 +2256,41 @@ export default function VehicleShowroom3D() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-xs text-white/40">No insurance records</p>
+                        <p className="text-xs text-[var(--text-tertiary)]">No insurance records</p>
                       )}
                     </div>
 
                     {/* Registration */}
-                    <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
-                      <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide mb-2 flex items-center gap-1">
+                    <div className="bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+                      <h4 className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-2 flex items-center gap-1">
                         <FileText className="w-3 h-3" /> Registration
                       </h4>
                       <div className="space-y-1.5 text-xs">
                         <div className="flex justify-between">
-                          <span className="text-white/50">License Plate</span>
-                          <span className="text-white/80">
+                          <span className="text-[var(--text-secondary)]">License Plate</span>
+                          <span className="text-[var(--text-primary)]">
                             {vehicleDetail?.license_plate ||
                               selectedVehicle.license_plate ||
                               '\u2014'}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-white/50">VIN</span>
-                          <span className="text-white/80 font-mono text-[10px]">
+                          <span className="text-[var(--text-secondary)]">VIN</span>
+                          <span className="text-[var(--text-primary)] font-mono text-[10px]">
                             {vehicleDetail?.vin || selectedVehicle.vin || '\u2014'}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-white/50">Registration Exp.</span>
-                          <span className="text-white/80">
+                          <span className="text-[var(--text-secondary)]">Registration Exp.</span>
+                          <span className="text-[var(--text-primary)]">
                             {vehicleDetail?.registration_expiry
                               ? formatDate(vehicleDetail.registration_expiry)
                               : '\u2014'}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-white/50">Last Inspection</span>
-                          <span className="text-white/80">
+                          <span className="text-[var(--text-secondary)]">Last Inspection</span>
+                          <span className="text-[var(--text-primary)]">
                             {inspectionsArr.length > 0
                               ? formatDate(
                                   inspectionsArr[0]?.date || inspectionsArr[0]?.completed_at
@@ -2310,16 +2310,16 @@ export default function VehicleShowroom3D() {
               <div className="space-y-3">
                 {/* History Summary */}
                 <div className="grid grid-cols-3 gap-1.5">
-                  <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
-                    <div className="text-[9px] text-white/50 mb-0.5">Services</div>
+                  <div className="bg-[var(--surface-2)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                    <div className="text-[9px] text-[var(--text-secondary)] mb-0.5">Services</div>
                     <div className="text-sm font-bold text-white">{maintArr.length}</div>
                   </div>
-                  <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
-                    <div className="text-[9px] text-white/50 mb-0.5">Incidents</div>
+                  <div className="bg-[var(--surface-2)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                    <div className="text-[9px] text-[var(--text-secondary)] mb-0.5">Incidents</div>
                     <div className="text-sm font-bold text-white">{incidentsArr.length}</div>
                   </div>
-                  <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
-                    <div className="text-[9px] text-white/50 mb-0.5">Inspections</div>
+                  <div className="bg-[var(--surface-2)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                    <div className="text-[9px] text-[var(--text-secondary)] mb-0.5">Inspections</div>
                     <div className="text-sm font-bold text-white">{inspectionsArr.length}</div>
                   </div>
                 </div>
@@ -2329,14 +2329,14 @@ export default function VehicleShowroom3D() {
                   <EmptyState icon={History} message="No history records" />
                 ) : (
                   <div className="space-y-1.5">
-                    <div className="text-[10px] text-white/40 uppercase tracking-wider">
+                    <div className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider">
                       Vehicle History ({timelineEvents.length} events)
                     </div>
                     <div className="max-h-[500px] overflow-y-auto space-y-1.5 pr-1">
                       {timelineEvents.map((event) => (
                         <div
                           key={event.id}
-                          className="bg-[#242424] rounded-lg p-2.5 border border-white/[0.08] hover:bg-white/[0.04] transition-colors"
+                          className="bg-[var(--surface-2)] rounded-lg p-2.5 border border-[var(--border-subtle)] hover:bg-[var(--surface-glass-hover)] transition-colors"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-2">
@@ -2348,14 +2348,14 @@ export default function VehicleShowroom3D() {
                                 'bg-white/40'
                               )} />
                               <div>
-                                <div className="text-xs text-white/80 font-medium">{event.title}</div>
+                                <div className="text-xs text-[var(--text-primary)] font-medium">{event.title}</div>
                                 {event.description && (
-                                  <div className="text-[10px] text-white/40 mt-0.5 line-clamp-2">{event.description}</div>
+                                  <div className="text-[10px] text-[var(--text-tertiary)] mt-0.5 line-clamp-2">{event.description}</div>
                                 )}
                               </div>
                             </div>
                             <div className="text-right shrink-0">
-                              <div className="text-[10px] text-white/50">{formatDate(event.date)}</div>
+                              <div className="text-[10px] text-[var(--text-secondary)]">{formatDate(event.date)}</div>
                               {event.cost != null && event.cost > 0 && (
                                 <div className="text-[10px] text-emerald-400 font-medium">{formatCurrency(event.cost)}</div>
                               )}
@@ -2384,7 +2384,7 @@ export default function VehicleShowroom3D() {
                               </Badge>
                             )}
                             {event.mileage && (
-                              <span className="text-[9px] text-white/30">{formatNumber(event.mileage)} mi</span>
+                              <span className="text-[9px] text-[var(--text-muted)]">{formatNumber(event.mileage)} mi</span>
                             )}
                           </div>
                         </div>

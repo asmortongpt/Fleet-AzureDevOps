@@ -16,14 +16,14 @@ export const MapLegend = memo(function MapLegend() {
   return (
     <div className="absolute top-4 left-4 z-20">
       <div
-        className="rounded-lg border border-white/[0.08] bg-[#242424]/95 backdrop-blur-sm shadow-lg"
+        className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)]"
         style={{ minWidth: expanded ? 280 : undefined }}
       >
         {/* Toggle header */}
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="flex w-full items-center gap-1.5 px-2.5 py-1.5 text-white/80 hover:text-white transition-colors"
+          className="flex w-full items-center gap-1.5 px-2.5 py-1.5 text-[var(--text-primary)] hover:text-white transition-colors"
           aria-expanded={expanded}
           aria-label={expanded ? 'Collapse map legend' : 'Expand map legend'}
         >
@@ -50,10 +50,10 @@ export const MapLegend = memo(function MapLegend() {
 
         {/* Expanded content */}
         {expanded && (
-          <div className="px-2.5 pb-2.5 pt-0.5 border-t border-white/[0.08]">
+          <div className="px-2.5 pb-2.5 pt-0.5 border-t border-[var(--border-subtle)]">
             {/* Status colours — primary section */}
             <div className="mb-2">
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-white/40 leading-none block mb-1.5">
+              <span className="text-[9px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] leading-none block mb-1.5">
                 Status Colours
               </span>
               <div className="grid grid-cols-3 gap-x-2 gap-y-1">
@@ -64,7 +64,7 @@ export const MapLegend = memo(function MapLegend() {
                       alt={STATUS_LABELS[key] ?? key}
                       className="h-5 w-auto"
                     />
-                    <span className="text-[10px] text-white/70 leading-tight">
+                    <span className="text-[10px] text-[var(--text-primary)] leading-tight">
                       {STATUS_LABELS[key] ?? key}
                     </span>
                   </div>
@@ -74,7 +74,7 @@ export const MapLegend = memo(function MapLegend() {
 
             {/* Vehicle types */}
             <div>
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-white/40 leading-none block mb-1.5">
+              <span className="text-[9px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] leading-none block mb-1.5">
                 Vehicle Types
               </span>
               <div className="grid grid-cols-3 gap-x-2 gap-y-1">
@@ -85,7 +85,7 @@ export const MapLegend = memo(function MapLegend() {
                       alt={label}
                       className="h-5 w-auto"
                     />
-                    <span className="text-[10px] text-white/60 leading-tight">
+                    <span className="text-[10px] text-[var(--text-secondary)] leading-tight">
                       {label}
                     </span>
                   </div>

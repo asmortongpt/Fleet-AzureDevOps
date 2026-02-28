@@ -28,20 +28,21 @@ router.get(
 
       let query = `
         SELECT pv.*,
-               pt.policy_name,
-               pt.policy_code,
-               d.first_name || ' ' || d.last_name as employee_name,
-               d.employee_number as employee_number_display
+               pt.template_name as policy_name,
+               pt.template_category as policy_code,
+               CONCAT(u.first_name, ' ', u.last_name) as employee_name,
+               d.license_number as employee_number_display
         FROM policy_violations pv
-        JOIN policy_templates pt ON pv.policy_id = pt.id
-        JOIN drivers d ON pv.employee_number = d.id
+        LEFT JOIN policy_templates pt ON pv.policy_id = pt.id
+        LEFT JOIN drivers d ON pv.driver_id = d.id
+        LEFT JOIN users u ON d.user_id = u.id
         WHERE pv.tenant_id = $1
       `
       const params: unknown[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       if (employee_id) {
-        query += ` AND pv.employee_number = $${paramIndex}::uuid`
+        query += ` AND pv.driver_id = $${paramIndex}::uuid`
         params.push(employee_id)
         paramIndex++
       }
@@ -59,12 +60,12 @@ router.get(
       }
 
       if (status) {
-        query += ` AND pv.case_status = $${paramIndex}`
+        query += ` AND pv.acknowledged = $${paramIndex}`
         params.push(status)
         paramIndex++
       }
 
-      query += ` ORDER BY pv.violation_date DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      query += ` ORDER BY pv.violation_time DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
@@ -105,12 +106,12 @@ router.get(
       const statsResult = await pool.query(
         `SELECT
           COUNT(*) as total_violations,
-          COUNT(CASE WHEN pv.case_status = 'under_investigation' THEN 1 END) as open_violations,
-          COUNT(CASE WHEN pv.case_status = 'closed' OR pv.case_status = 'action_taken' THEN 1 END) as resolved_violations,
+          COUNT(CASE WHEN pv.acknowledged = false THEN 1 END) as open_violations,
+          COUNT(CASE WHEN pv.acknowledged = true THEN 1 END) as resolved_violations,
           COUNT(CASE WHEN pv.severity = 'critical' THEN 1 END) as critical_count,
-          COUNT(CASE WHEN pv.severity = 'serious' THEN 1 END) as serious_count,
-          COUNT(CASE WHEN pv.severity = 'moderate' THEN 1 END) as moderate_count,
-          COUNT(CASE WHEN pv.severity = 'minor' THEN 1 END) as minor_count
+          COUNT(CASE WHEN pv.severity = 'high' THEN 1 END) as serious_count,
+          COUNT(CASE WHEN pv.severity = 'medium' THEN 1 END) as moderate_count,
+          COUNT(CASE WHEN pv.severity = 'low' THEN 1 END) as minor_count
         FROM policy_violations pv
         WHERE pv.tenant_id = $1`,
         [tenantId]
@@ -151,7 +152,7 @@ router.get(
          JOIN policy_templates pt ON pv.policy_id = pt.id
          JOIN drivers d ON pv.employee_number = d.id
          WHERE pv.tenant_id = $1
-         ORDER BY pv.violation_date DESC`,
+         ORDER BY pv.violation_time DESC`,
         [req.user!.tenant_id]
       )
 

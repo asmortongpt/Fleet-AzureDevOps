@@ -1,19 +1,17 @@
 /**
- * ComplianceSafetyHub - Consolidated Compliance & Safety Management Dashboard
+ * ComplianceSafetyHub - Urgency-Based Compliance Command Center
+ *
+ * Redesigned layout:
+ * - Alert banner at top for critical/expiring items
+ * - KanbanBoard with 4 urgency columns: Compliant | Expiring Soon | Non-Compliant | Overdue
+ * - TimelineStrip below kanban showing compliance events
+ * - Compact inline tabs for Safety, Policies, Reports sub-views
  *
  * Consolidates:
  * - ComplianceHub (regulatory compliance, certifications)
  * - SafetyHub (safety metrics, incidents)
  * - SafetyComplianceHub (combined safety + compliance)
  * - PolicyHub (policy management, enforcement)
- *
- * Features:
- * - Unified compliance and safety monitoring
- * - Real-time compliance status tracking
- * - Incident management and reporting
- * - Policy enforcement tracking
- * - WCAG 2.1 AA accessibility
- * - Performance optimized
  */
 
 import {
@@ -27,7 +25,6 @@ import {
   BookOpen,
   ClipboardCheck,
   Users,
-  Car,
   TrendingUp,
   TrendingDown,
   AlertCircle,
@@ -37,6 +34,7 @@ import {
   BookMarked,
   BarChart,
   Plus,
+  X,
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
@@ -45,12 +43,12 @@ import useSWR from 'swr'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import HubPage from '@/components/ui/hub-page'
+import { KanbanBoard } from '@/components/ui/kanban-board'
+import type { KanbanColumn, KanbanItem } from '@/components/ui/kanban-board'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TimelineStrip } from '@/components/ui/timeline-strip'
+import type { TimelineEvent } from '@/components/ui/timeline-strip'
 import {
-  StatCard,
-  RadialProgressChart,
   ResponsiveBarChart,
   ResponsiveLineChart,
 } from '@/components/visualizations'
@@ -67,28 +65,10 @@ import { formatVehicleName } from '@/utils/vehicle-display';
 const fetcher = apiFetcher
 
 // ============================================================================
-// SHARED COMPONENTS
+// SHARED DATE HELPERS
 // ============================================================================
 
-// KpiCard removed — using StatCard from @/components/visualizations for consistency
-
-// ============================================================================
-// TAB CONTENT COMPONENTS
-// ============================================================================
-
-/**
- * Compliance Tab - Regulatory compliance and certifications
- */
-const ComplianceTabContent = memo(function ComplianceTabContent() {
-  const { push } = useDrilldown()
-  const { drivers, vehicles, isLoading, error: fleetDataError } = useFleetData()
-  const { data: complianceDashboard } = useSWR<any>(
-    '/api/compliance/dashboard',
-    fetcher,
-    { shouldRetryOnError: false }
-  )
-
-  const now = useMemo(() => new Date(), [])
+function createDateHelpers(now: Date) {
   const msPerDay = 86400000
 
   const isWithinMonths = (dateStr: string | undefined, months: number): boolean => {
@@ -120,413 +100,19 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
     return Math.max(0, Math.ceil((date.getTime() - now.getTime()) / msPerDay))
   }
 
-  // Compliance stats computed from real driver/vehicle data
-  const complianceStats = useMemo(() => {
-    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
-    const totalDrivers = activeDrivers.length
-
-    const compliantDrivers = activeDrivers.filter((d: any) => {
-      const drugTestCurrent = isWithinMonths(d.drug_test_date, 12)
-      const bgCheckCleared = (d.background_check_status || '').toLowerCase() === 'cleared'
-      const mvrCurrent = (d.mvr_check_status || '').toLowerCase() === 'satisfactory'
-      const medicalCardValid = !isExpired(d.medical_card_expiry)
-      return drugTestCurrent && bgCheckCleared && mvrCurrent && medicalCardValid
-    })
-
-    const complianceRate = totalDrivers > 0
-      ? Math.round((compliantDrivers.length / totalDrivers) * 100)
-      : 0
-
-    const activeCerts = activeDrivers.filter((d: any) => !isExpired(d.medical_card_expiry)).length
-
-    const driverExpiring = activeDrivers.filter((d: any) =>
-      isExpiringSoon(d.medical_card_expiry, 30)
-    ).length
-    const vehicleExpiring = vehicles.filter((v: any) =>
-      isExpiringSoon(v.registration_expiry, 30)
-    ).length
-    const expiringSoon = driverExpiring + vehicleExpiring
-
-    const nonCompliant = activeDrivers.filter((d: any) => {
-      const medExpired = isExpired(d.medical_card_expiry)
-      const drugOverdue = !isWithinMonths(d.drug_test_date, 12)
-      return medExpired || drugOverdue
-    }).length
-
-    return { complianceRate, activeCerts, expiringSoon, nonCompliant }
-  }, [drivers, vehicles, now])
-
-  // Status by Category - real breakdowns
-  const categoryBreakdowns = useMemo(() => {
-    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
-
-    const medValid = activeDrivers.filter((d: any) =>
-      d.medical_card_expiry && !isExpired(d.medical_card_expiry) && !isExpiringSoon(d.medical_card_expiry, 30)
-    ).length
-    const medExpiring = activeDrivers.filter((d: any) =>
-      isExpiringSoon(d.medical_card_expiry, 30)
-    ).length
-    const medExpired = activeDrivers.filter((d: any) =>
-      isExpired(d.medical_card_expiry)
-    ).length
-
-    const drugCurrent = activeDrivers.filter((d: any) =>
-      isWithinMonths(d.drug_test_date, 12)
-    ).length
-    const drugOverdue = activeDrivers.length - drugCurrent
-
-    const bgCleared = activeDrivers.filter((d: any) =>
-      (d.background_check_status || '').toLowerCase() === 'cleared'
-    ).length
-    const bgPending = activeDrivers.filter((d: any) =>
-      (d.background_check_status || '').toLowerCase() === 'pending'
-    ).length
-    const bgFailed = activeDrivers.filter((d: any) =>
-      (d.background_check_status || '').toLowerCase() === 'failed'
-    ).length
-
-    const mvrSatisfactory = activeDrivers.filter((d: any) =>
-      (d.mvr_check_status || '').toLowerCase() === 'satisfactory'
-    ).length
-    const mvrNeedsReview = activeDrivers.filter((d: any) => {
-      const status = (d.mvr_check_status || '').toLowerCase()
-      return status && status !== 'satisfactory'
-    }).length
-
-    const regValid = vehicles.filter((v: any) =>
-      (v as any).registration_expiry && !isExpired((v as any).registration_expiry) && !isExpiringSoon((v as any).registration_expiry, 30)
-    ).length
-    const regExpiring = vehicles.filter((v: any) =>
-      isExpiringSoon((v as any).registration_expiry, 30)
-    ).length
-    const regExpired = vehicles.filter((v: any) =>
-      isExpired((v as any).registration_expiry)
-    ).length
-
-    return [
-      {
-        category: 'Medical Cards',
-        icon: Users,
-        details: `${medValid} valid, ${medExpiring} expiring, ${medExpired} expired`,
-        rate: activeDrivers.length > 0 ? Math.round((medValid / activeDrivers.length) * 100) : 0,
-        status: medExpired === 0 ? 'good' : 'warning'
-      },
-      {
-        category: 'Drug Testing',
-        icon: ClipboardCheck,
-        details: `${drugCurrent} current, ${drugOverdue} overdue`,
-        rate: activeDrivers.length > 0 ? Math.round((drugCurrent / activeDrivers.length) * 100) : 0,
-        status: drugOverdue === 0 ? 'good' : 'warning'
-      },
-      {
-        category: 'Background Checks',
-        icon: Shield,
-        details: `${bgCleared} cleared, ${bgPending} pending, ${bgFailed} failed`,
-        rate: activeDrivers.length > 0 ? Math.round((bgCleared / activeDrivers.length) * 100) : 0,
-        status: bgFailed === 0 ? 'good' : 'warning'
-      },
-      {
-        category: 'MVR Checks',
-        icon: FileCheck,
-        details: `${mvrSatisfactory} satisfactory, ${mvrNeedsReview} needs review`,
-        rate: activeDrivers.length > 0 ? Math.round((mvrSatisfactory / activeDrivers.length) * 100) : 0,
-        status: mvrNeedsReview === 0 ? 'good' : 'warning'
-      },
-      {
-        category: 'Vehicle Registration',
-        icon: Car,
-        details: `${regValid} valid, ${regExpiring} expiring, ${regExpired} expired`,
-        rate: vehicles.length > 0 ? Math.round((regValid / vehicles.length) * 100) : 0,
-        status: regExpired === 0 ? 'good' : 'warning'
-      }
-    ]
-  }, [drivers, vehicles, now])
-
-  // Upcoming Renewals - real data sorted by urgency (within 60 days)
-  const renewals = useMemo(() => {
-    const items: { item: string; type: string; daysLeft: number }[] = []
-    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
-
-    activeDrivers.forEach((d: any) => {
-      if (d.medical_card_expiry && isExpiringSoon(d.medical_card_expiry, 60)) {
-        items.push({
-          item: `${d.name || d.first_name + ' ' + d.last_name} - Medical Card`,
-          type: 'driver',
-          daysLeft: daysUntil(d.medical_card_expiry)
-        })
-      }
-    })
-
-    vehicles.forEach((v: any) => {
-      if ((v as any).registration_expiry && isExpiringSoon((v as any).registration_expiry, 60)) {
-        const rawVName = formatVehicleName(v as any)
-        const vName = v.name || (rawVName !== 'Unknown Vehicle' ? rawVName : `Vehicle #${String(v.id).slice(0, 8)}`)
-        items.push({
-          item: `${vName} - Registration`,
-          type: 'vehicle',
-          daysLeft: daysUntil((v as any).registration_expiry)
-        })
-      }
-    })
-
-    return items.sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 10)
-  }, [drivers, vehicles, now])
-
-  const handleScheduleRenewal = (itemName: string, daysLeft?: number) => {
-    const parts = itemName.split(' - ')
-    const entityName = parts[0] || itemName
-    const renewalType = parts[1] || 'Renewal'
-    const targetDate = new Date()
-    targetDate.setDate(targetDate.getDate() + Math.max(0, (daysLeft ?? 14) - 7))
-    const formattedDate = formatDate(targetDate)
-    toast.success(`${renewalType} renewal scheduled for ${entityName} — target date: ${formattedDate}`)
-    push({
-      id: `renewal-${itemName}`,
-      type: 'compliance-renewal',
-      label: `Renew: ${entityName}`,
-      data: { entityName, renewalType, item: itemName, scheduledDate: targetDate.toISOString() },
-    })
+  const daysSince = (dateStr: string): number => {
+    const date = new Date(dateStr)
+    return Math.max(0, Math.floor((now.getTime() - date.getTime()) / msPerDay))
   }
 
-  // Extract dashboard metrics for radial charts (P0-2)
-  const dashMetrics = useMemo(() => {
-    if (!complianceDashboard) return null
-    const metrics = complianceDashboard?.metrics
-    if (!metrics) return null
-    // metrics could be an object with named keys or an array
-    if (Array.isArray(metrics)) {
-      return {
-        vehicleCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('vehicle'))?.score || 0),
-        driverCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('driver'))?.score || 0),
-        safetyCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('safety'))?.score || 0),
-        regulatoryCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('regulatory'))?.score || 0),
-      }
-    }
-    return {
-      vehicleCompliance: Number(metrics.vehicleCompliance ?? metrics.vehicle_compliance ?? 0),
-      driverCompliance: Number(metrics.driverCompliance ?? metrics.driver_compliance ?? 0),
-      safetyCompliance: Number(metrics.safetyCompliance ?? metrics.safety_compliance ?? 0),
-      regulatoryCompliance: Number(metrics.regulatoryCompliance ?? metrics.regulatory_compliance ?? 0),
-    }
-  }, [complianceDashboard])
+  return { isWithinMonths, isExpired, isExpiringSoon, daysUntil, daysSince }
+}
 
-  const dashAlerts = useMemo(() => {
-    if (!complianceDashboard) return []
-    const alerts = complianceDashboard?.alerts || complianceDashboard?.data?.alerts
-    return Array.isArray(alerts) ? alerts : []
-  }, [complianceDashboard])
+// ============================================================================
+// SAFETY SUB-VIEW
+// ============================================================================
 
-  if (fleetDataError) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-[#FF4300] font-medium">Failed to load data</p>
-        <p className="text-sm text-[rgba(255,255,255,0.40)]">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
-        <Button variant="outline" onClick={() => window.location.reload()}>
-          Retry
-        </Button>
-      </div>
-    )
-  }
-
-  // P0-1: Loading skeleton for Compliance tab
-  if (isLoading) {
-    return (
-      <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-4 gap-1.5">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
-        </div>
-        <div className="grid grid-cols-2 gap-1.5">
-          <Skeleton className="h-48 rounded-md" />
-          <Skeleton className="h-48 rounded-md" />
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5">
-        <StatCard
-          title="Compliance Rate"
-          value={complianceStats.complianceRate != null ? `${complianceStats.complianceRate}%` : '\u2014'}
-          icon={CheckCircle}
-          description="All checks current"
-        />
-        <StatCard
-          title="Active Certifications"
-          value={complianceStats.activeCerts != null ? complianceStats.activeCerts : '\u2014'}
-          icon={Award}
-          description="Valid medical cards"
-        />
-        <StatCard
-          title="Expiring Soon"
-          value={complianceStats.expiringSoon != null ? complianceStats.expiringSoon : '\u2014'}
-          icon={Clock}
-          description="Within 30 days"
-        />
-        <StatCard
-          title="Non-Compliant"
-          value={complianceStats.nonCompliant != null ? complianceStats.nonCompliant : '\u2014'}
-          icon={XCircle}
-          description="Expired or overdue"
-        />
-      </div>
-
-      {/* Main Content: Categories + Renewals */}
-      <div className="grid grid-cols-2 gap-1.5">
-        {/* Compliance Status by Category */}
-        <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
-          <div className="flex items-center gap-2 mb-2">
-            <ClipboardCheck className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-            <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Compliance by Category</h3>
-          </div>
-          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1.5">
-            {categoryBreakdowns.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
-            ) : (
-              categoryBreakdowns.map((item) => {
-                const IconComponent = item.icon
-                return (
-                  <div
-                    key={item.category}
-                    className="flex items-center justify-between rounded-md border border-[rgba(0,204,254,0.08)] bg-[#1A0648] p-2 cursor-pointer hover:bg-[#2A1878]"
-                    onClick={() => push({
-                      id: item.category,
-                      type: 'compliance-item',
-                      label: item.category,
-                      data: { category: item.category, rate: item.rate, status: item.status, details: item.details },
-                    })}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        push({
-                          id: item.category,
-                          type: 'compliance-item',
-                          label: item.category,
-                          data: { category: item.category, rate: item.rate, status: item.status, details: item.details },
-                        })
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View details for ${item.category}`}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <IconComponent className={`h-4 w-4 shrink-0 ${
-                        item.status === 'good' ? 'text-[#10B981]' : 'text-[#FDC016]'
-                      }`} />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-white">{item.category}</p>
-                        <p className="text-xs text-[rgba(255,255,255,0.40)] truncate">{item.details}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <div className="w-16">
-                        <div className="h-2 bg-[rgba(0,204,254,0.1)] rounded-full">
-                          <div className="h-2 bg-[#10B981] rounded-full" style={{ width: `${item.rate}%` }} />
-                        </div>
-                      </div>
-                      <span className="text-xs font-medium text-white w-8 text-right">{item.rate}%</span>
-                      <Badge variant={item.status === 'good' ? 'default' : 'secondary'}>
-                        {item.status === 'good' ? 'Compliant' : 'Review'}
-                      </Badge>
-                    </div>
-                  </div>
-                )
-              })
-            )}
-          </div>
-        </div>
-
-        {/* Upcoming Renewals */}
-        <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
-          <div className="flex items-center gap-2 mb-2">
-            <Clock className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-            <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Upcoming Renewals</h3>
-            <span className="text-xs text-[rgba(255,255,255,0.40)] ml-auto">Within 60 days</span>
-          </div>
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {renewals.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 gap-2">
-                <CheckCircle className="h-6 w-6 text-[#10B981]" />
-                <span className="text-sm text-[rgba(255,255,255,0.40)]">All certifications current. No renewals due within 60 days.</span>
-              </div>
-            ) : (
-              <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-[#221060]">
-                  <tr className="border-b border-[rgba(0,204,254,0.08)]">
-                    <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Item</th>
-                    <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Type</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Days Left</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {renewals.map((renewal, index) => (
-                    <tr key={index} className="border-b border-[rgba(0,204,254,0.08)]">
-                      <td className="py-1.5 px-2 text-white text-xs">{renewal.item}</td>
-                      <td className="py-1.5 px-2">
-                        <Badge variant="outline">{formatEnum(renewal.type)}</Badge>
-                      </td>
-                      <td className="py-1.5 px-2 text-right">
-                        <span className={`text-xs font-medium ${
-                          renewal.daysLeft <= 14 ? 'text-[#FF4300]' : renewal.daysLeft <= 30 ? 'text-[#FDC016]' : 'text-white'
-                        }`}>
-                          {renewal.daysLeft}d
-                        </span>
-                        {renewal.daysLeft <= 14 && (
-                          <Badge variant="destructive" className="ml-1.5 text-[10px] px-1 py-0">
-                            {formatEnum('urgent')}
-                          </Badge>
-                        )}
-                      </td>
-                      <td className="py-1.5 px-2 text-right">
-                        <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => handleScheduleRenewal(renewal.item, renewal.daysLeft)}>
-                          Schedule
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* P0-2: Compliance Scores — radial gauge charts */}
-      {dashMetrics && (dashMetrics.vehicleCompliance > 0 || dashMetrics.driverCompliance > 0 || dashMetrics.safetyCompliance > 0 || dashMetrics.regulatoryCompliance > 0) && (
-        <div className="grid grid-cols-4 gap-1.5">
-          <RadialProgressChart title="Vehicle" value={dashMetrics.vehicleCompliance} size="sm" height={120} />
-          <RadialProgressChart title="Driver" value={dashMetrics.driverCompliance} size="sm" height={120} />
-          <RadialProgressChart title="Safety" value={dashMetrics.safetyCompliance} size="sm" height={120} />
-          <RadialProgressChart title="Regulatory" value={dashMetrics.regulatoryCompliance} size="sm" height={120} />
-        </div>
-      )}
-
-      {/* P0-2: Alert banner from compliance dashboard */}
-      {dashAlerts.length > 0 && (
-        <div className="rounded-lg border border-[#FDC016]/30 bg-[#FDC016]/10 p-2.5">
-          <div className="flex items-center gap-2 mb-1">
-            <AlertTriangle className="h-4 w-4 text-[#FDC016] shrink-0" />
-            <h4 className="text-xs font-semibold text-[#FDC016]">Compliance Alerts</h4>
-          </div>
-          <div className="flex flex-col gap-1">
-            {dashAlerts.slice(0, 3).map((alert: any, i: number) => (
-              <p key={i} className="text-xs text-[rgba(255,255,255,0.65)]">{alert.message || alert.description || String(alert)}</p>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-})
-
-/**
- * Safety Tab - Safety metrics and incident management
- */
-const SafetyTabContent = memo(function SafetyTabContent() {
+const SafetySubView = memo(function SafetySubView() {
   const { push } = useDrilldown()
   const { drivers, incidents: fleetIncidents, isLoading, error: fleetDataError } = useFleetData()
   const { data: safetyIncidents, isLoading: safetyIncidentsLoading } = useSWR<any>(
@@ -550,7 +136,6 @@ const SafetyTabContent = memo(function SafetyTabContent() {
     { shouldRetryOnError: false }
   )
 
-  // P0-5: Properly unwrap safetyIncidents — API may return { data: [...] } envelope
   const incidents = useMemo(() => {
     const unwrapped = Array.isArray(safetyIncidents)
       ? safetyIncidents
@@ -680,8 +265,8 @@ const SafetyTabContent = memo(function SafetyTabContent() {
   if (fleetDataError) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-[#FF4300] font-medium">Failed to load data</p>
-        <p className="text-sm text-[rgba(255,255,255,0.40)]">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <p className="text-red-400 font-medium">Failed to load data</p>
+        <p className="text-sm text-white/40">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Retry
         </Button>
@@ -689,14 +274,13 @@ const SafetyTabContent = memo(function SafetyTabContent() {
     )
   }
 
-  // P0-1: Loading skeleton for Safety tab
   if (isLoading && safetyIncidentsLoading) {
     return (
       <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Skeleton className="h-48 rounded-md" />
           <Skeleton className="h-48 rounded-md" />
         </div>
@@ -704,14 +288,12 @@ const SafetyTabContent = memo(function SafetyTabContent() {
     )
   }
 
-  // Visible driver rankings capped to 5 (P0-6)
   const visibleDriverRankings = driverRankings.slice(0, 5)
-  // Visible recent incidents capped to 5 (P0-6)
   const visibleRecentIncidents = recentIncidents.slice(0, 5)
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* P1-8: Report Incident action header */}
+    <div className="flex flex-col gap-3 overflow-y-auto">
+      {/* Report Incident action header */}
       <div className="flex items-center justify-between">
         <div />
         <Button
@@ -730,78 +312,84 @@ const SafetyTabContent = memo(function SafetyTabContent() {
       </div>
 
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5">
-        <StatCard
-          title="Safety Score"
-          value={safetyScoreStats.average > 0 ? String(safetyScoreStats.average) : '\u2014'}
-          icon={Shield}
-          description={`Avg across ${safetyScoreStats.count} drivers`}
-        />
-        <StatCard
-          title="Days Since Last Report"
-          value={daysSinceIncident !== null ? String(daysSinceIncident) : '\u2014'}
-          icon={Award}
-          description="Since last incident reported"
-        />
-        <StatCard
-          title="Open Incidents"
-          value={String(openIncidents)}
-          icon={AlertTriangle}
-          description="Under investigation"
-        />
-        <StatCard
-          title="Training Completion"
-          value={trainingCompletion > 0 ? `${trainingCompletion}%` : '\u2014'}
-          icon={BookOpen}
-          description="Safety training"
-        />
+      <div className="grid grid-cols-4 gap-3">
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Shield className="h-4 w-4 text-white/40" />
+            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Safety Score</span>
+          </div>
+          <p className="text-lg font-semibold text-white/80">{safetyScoreStats.average > 0 ? String(safetyScoreStats.average) : '\u2014'}</p>
+          <p className="text-[11px] text-white/35">Avg across {safetyScoreStats.count} drivers</p>
+        </div>
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Award className="h-4 w-4 text-white/40" />
+            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Days Since Report</span>
+          </div>
+          <p className="text-lg font-semibold text-white/80">{daysSinceIncident !== null ? String(daysSinceIncident) : '\u2014'}</p>
+          <p className="text-[11px] text-white/35">Since last incident reported</p>
+        </div>
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <AlertTriangle className="h-4 w-4 text-white/40" />
+            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Open Incidents</span>
+          </div>
+          <p className="text-lg font-semibold text-white/80">{String(openIncidents)}</p>
+          <p className="text-[11px] text-white/35">Under investigation</p>
+        </div>
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <BookOpen className="h-4 w-4 text-white/40" />
+            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Training</span>
+          </div>
+          <p className="text-lg font-semibold text-white/80">{trainingCompletion > 0 ? `${trainingCompletion}%` : '\u2014'}</p>
+          <p className="text-[11px] text-white/35">Safety training completion</p>
+        </div>
       </div>
 
       {/* Main Content: Charts row */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {/* Left: Score Distribution + Driver Rankings */}
-        <div className="flex flex-col gap-1.5 min-h-0">
-          {/* Score Distribution Chart */}
-          <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3">
+        <div className="flex flex-col gap-3 min-h-0">
+          <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-              <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Score Distribution</h3>
+              <TrendingUp className="h-4 w-4 text-white/40" />
+              <h3 className="text-sm font-semibold text-white/80">Score Distribution</h3>
             </div>
             <ResponsiveBarChart
               title=""
               data={scoreDistribution}
               dataKeys={['drivers']}
-              colors={['#00CCFE']}
+              colors={['#10b981']}
               height={140}
               compact
             />
           </div>
 
-          {/* Driver Safety Rankings — capped to 5 rows (P0-6) */}
-          <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
+          <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-              <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Driver Rankings</h3>
-              <span className="text-xs text-[rgba(255,255,255,0.40)] ml-auto">Lowest first</span>
+              <Users className="h-4 w-4 text-white/40" />
+              <h3 className="text-sm font-semibold text-white/80">Driver Rankings</h3>
+              <span className="text-xs text-white/35 ml-auto">Lowest first</span>
             </div>
             <div className="max-h-[200px] overflow-y-auto">
               {driverRankings.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
+                <div className="flex items-center justify-center h-32 text-white/40 text-sm">No records found</div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-[#221060]">
-                    <tr className="border-b border-[rgba(0,204,254,0.08)]">
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Driver</th>
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Score</th>
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">HOS</th>
-                      <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Incidents</th>
+                  <thead className="sticky top-0 bg-[#1a1a1a]">
+                    <tr className="border-b border-white/[0.08]">
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Driver</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Score</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">HOS</th>
+                      <th className="py-1.5 px-2 text-right text-xs font-medium text-white/40">Incidents</th>
                     </tr>
                   </thead>
                   <tbody>
                     {visibleDriverRankings.map((driver: any) => (
                       <tr
                         key={driver.id}
-                        className="border-b border-[rgba(0,204,254,0.08)] cursor-pointer hover:bg-[#2A1878]"
+                        className="border-b border-white/[0.08] cursor-pointer hover:bg-white/[0.03]"
                         onClick={() => push({
                           id: driver.id,
                           type: 'driver',
@@ -823,12 +411,12 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                         tabIndex={0}
                         aria-label={`View details for driver ${driver.name}`}
                       >
-                        <td className="py-1.5 px-2 text-xs text-white">{driver.name}</td>
+                        <td className="py-1.5 px-2 text-xs text-white/80">{driver.name}</td>
                         <td className="py-1.5 px-2">
                           <span className={`text-xs font-medium ${
-                            driver.safetyScore >= 90 ? 'text-[#10B981]' :
-                            driver.safetyScore >= 70 ? 'text-[#FDC016]' :
-                            'text-[#FF4300]'
+                            driver.safetyScore >= 90 ? 'text-emerald-400' :
+                            driver.safetyScore >= 70 ? 'text-yellow-400' :
+                            'text-red-400'
                           }`}>
                             {driver.safetyScore}
                           </span>
@@ -839,7 +427,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                           </Badge>
                         </td>
                         <td className="py-1.5 px-2 text-right">
-                          <span className={`text-xs ${driver.incidents > 0 ? 'text-[#FF4300] font-medium' : 'text-white'}`}>
+                          <span className={`text-xs ${driver.incidents > 0 ? 'text-red-400 font-medium' : 'text-white/80'}`}>
                             {driver.incidents}
                           </span>
                         </td>
@@ -850,11 +438,11 @@ const SafetyTabContent = memo(function SafetyTabContent() {
               )}
             </div>
             {driverRankings.length > 5 && (
-              <div className="pt-1.5 border-t border-[rgba(0,204,254,0.08)] mt-1">
+              <div className="pt-1.5 border-t border-white/[0.08] mt-1">
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="w-full h-6 text-xs text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]"
+                  className="w-full h-6 text-xs text-white/40 hover:text-white/80"
                   onClick={() => push({
                     id: 'all-driver-rankings',
                     type: 'driver-rankings',
@@ -868,26 +456,25 @@ const SafetyTabContent = memo(function SafetyTabContent() {
             )}
           </div>
 
-          {/* Training Progress — moved alongside charts to reduce vertical height (P0-6) */}
           {trainingProgressData.length > 0 && (
-            <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3">
+            <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
               <div className="flex items-center gap-2 mb-2">
-                <BookOpen className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-                <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Training Progress</h3>
+                <BookOpen className="h-4 w-4 text-white/40" />
+                <h3 className="text-sm font-semibold text-white/80">Training Progress</h3>
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-3">
                 {trainingProgressData.slice(0, 4).map((training: any) => {
                   const pct = training.total > 0 ? Math.round((training.completed / training.total) * 100) : 0
                   return (
                     <div key={training.course}>
                       <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-xs text-white truncate mr-2">{training.course}</span>
-                        <span className="text-xs text-[rgba(255,255,255,0.40)] shrink-0">
+                        <span className="text-xs text-white/80 truncate mr-2">{training.course}</span>
+                        <span className="text-xs text-white/35 shrink-0">
                           {training.completed}/{training.total} ({pct}%)
                         </span>
                       </div>
-                      <div className="h-2 bg-[rgba(0,204,254,0.1)] rounded-full">
-                        <div className="h-2 bg-[#10B981] rounded-full" style={{ width: `${pct}%` }} />
+                      <div className="h-2 bg-white/10 rounded-full">
+                        <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   )
@@ -898,40 +485,38 @@ const SafetyTabContent = memo(function SafetyTabContent() {
         </div>
 
         {/* Right: Incident Trends + Recent Incidents */}
-        <div className="flex flex-col gap-1.5 min-h-0">
-          {/* Incident Trends */}
-          <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3">
+        <div className="flex flex-col gap-3 min-h-0">
+          <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingDown className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-              <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Incident Trends</h3>
+              <TrendingDown className="h-4 w-4 text-white/40" />
+              <h3 className="text-sm font-semibold text-white/80">Incident Trends</h3>
             </div>
             <ResponsiveLineChart
               title=""
               data={incidentTrendData}
               dataKeys={['incidents']}
-              colors={['#FF4300']}
+              colors={['#ef4444']}
               height={140}
               compact
             />
           </div>
 
-          {/* Recent Incidents — capped to 5 rows (P0-6) */}
-          <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
+          <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2">
-              <AlertCircle className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-              <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Recent Incidents</h3>
+              <AlertCircle className="h-4 w-4 text-white/40" />
+              <h3 className="text-sm font-semibold text-white/80">Recent Incidents</h3>
             </div>
             <div className="max-h-[200px] overflow-y-auto">
               {recentIncidents.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
+                <div className="flex items-center justify-center h-32 text-white/40 text-sm">No records found</div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-[#221060]">
-                    <tr className="border-b border-[rgba(0,204,254,0.08)]">
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Type</th>
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Severity</th>
-                      <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Date</th>
-                      <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Status</th>
+                  <thead className="sticky top-0 bg-[#1a1a1a]">
+                    <tr className="border-b border-white/[0.08]">
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Type</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Severity</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Date</th>
+                      <th className="py-1.5 px-2 text-right text-xs font-medium text-white/40">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -942,7 +527,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                       return (
                         <tr
                           key={incident.id}
-                          className="border-b border-[rgba(0,204,254,0.08)] cursor-pointer hover:bg-[#2A1878]"
+                          className="border-b border-white/[0.08] cursor-pointer hover:bg-white/[0.03]"
                           onClick={() => push({
                             id: incident.id,
                             type: 'incident',
@@ -964,7 +549,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                           tabIndex={0}
                           aria-label={`View details for incident: ${incidentLabel}`}
                         >
-                          <td className="py-1.5 px-2 text-xs text-white">{formatEnum(incidentLabel)}</td>
+                          <td className="py-1.5 px-2 text-xs text-white/80">{formatEnum(incidentLabel)}</td>
                           <td className="py-1.5 px-2">
                             <Badge variant={
                               severity === 'minor' || severity === 'low' ? 'secondary' :
@@ -973,7 +558,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                               {formatEnum(severity)}
                             </Badge>
                           </td>
-                          <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">
+                          <td className="py-1.5 px-2 text-xs text-white/40">
                             {formatDate(incident.incident_date || incident.created_at)}
                           </td>
                           <td className="py-1.5 px-2 text-right">
@@ -989,11 +574,11 @@ const SafetyTabContent = memo(function SafetyTabContent() {
               )}
             </div>
             {recentIncidents.length > 5 && (
-              <div className="pt-1.5 border-t border-[rgba(0,204,254,0.08)] mt-1">
+              <div className="pt-1.5 border-t border-white/[0.08] mt-1">
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="w-full h-6 text-xs text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]"
+                  className="w-full h-6 text-xs text-white/40 hover:text-white/80"
                   onClick={() => push({
                     id: 'all-incidents',
                     type: 'incidents',
@@ -1012,10 +597,11 @@ const SafetyTabContent = memo(function SafetyTabContent() {
   )
 })
 
-/**
- * Policies Tab - Policy management and enforcement
- */
-const PoliciesTabContent = memo(function PoliciesTabContent() {
+// ============================================================================
+// POLICIES SUB-VIEW
+// ============================================================================
+
+const PoliciesSubView = memo(function PoliciesSubView() {
   const { push } = useDrilldown()
   const { data: policies, isLoading: policiesLoading } = useSWR<any>(
     '/api/policies?limit=200',
@@ -1033,7 +619,6 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
     { shouldRetryOnError: false }
   )
 
-  // Unwrap policies from potential { data: [...] } envelope
   const policyRows = useMemo(() => {
     if (Array.isArray(policies)) return policies
     if (policies?.data && Array.isArray(policies.data)) return policies.data
@@ -1046,7 +631,6 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
     ? Math.round(complianceDashboard.metrics.reduce((sum: number, metric: any) => sum + Number(metric.score || 0), 0) / complianceDashboard.metrics.length)
     : 0
 
-  // Unwrap security events from potential { data: [...] } envelope
   const securityEventsList = useMemo(() => {
     if (Array.isArray(securityEvents)) return securityEvents
     if (securityEvents?.data && Array.isArray(securityEvents.data)) return securityEvents.data
@@ -1058,11 +642,10 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
     return type.includes('policy') || type.includes('violation')
   })
 
-  // P1-9: Per-category adherence instead of identical global score
   const policyCategories = useMemo(() => {
     const categoryMap = new Map<string, { active: number; total: number }>()
     policyRows.forEach((policy: any) => {
-      const category = policy.category || 'General'
+      const category = policy.category || policy.policy_type || 'General'
       const existing = categoryMap.get(category) || { active: 0, total: 0 }
       existing.total += 1
       if (policy.is_active) existing.active += 1
@@ -1086,14 +669,13 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
     })
   }
 
-  // P0-1: Loading skeleton for Policies tab
   if (policiesLoading) {
     return (
       <div className="space-y-1.5 p-2">
-        <div className="grid grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Skeleton className="h-48 rounded-md" />
           <Skeleton className="h-48 rounded-md" />
         </div>
@@ -1102,69 +684,76 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-3 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5">
-        <StatCard
-          title="Active Policies"
-          value={String(activePolicies.length)}
-          icon={FileText}
-          description="Currently enforced"
-        />
-        <StatCard
-          title="Policy Adherence"
-          value={complianceScore > 0 ? `${complianceScore}%` : '\u2014'}
-          icon={CheckCircle}
-          description="Compliance rate"
-        />
-        <StatCard
-          title="Under Review"
-          value={String(underReview.length)}
-          icon={ScrollText}
-          description="Pending approval"
-        />
-        <StatCard
-          title="Violations"
-          value={String(policyViolations.length)}
-          icon={Gavel}
-          description="Total violations"
-        />
+      <div className="grid grid-cols-4 gap-3">
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <FileText className="h-4 w-4 text-white/40" />
+            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Active Policies</span>
+          </div>
+          <p className="text-lg font-semibold text-white/80">{String(activePolicies.length)}</p>
+          <p className="text-[11px] text-white/35">Currently enforced</p>
+        </div>
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <CheckCircle className="h-4 w-4 text-white/40" />
+            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Adherence</span>
+          </div>
+          <p className="text-lg font-semibold text-white/80">{complianceScore > 0 ? `${complianceScore}%` : '\u2014'}</p>
+          <p className="text-[11px] text-white/35">Compliance rate</p>
+        </div>
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <ScrollText className="h-4 w-4 text-white/40" />
+            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Under Review</span>
+          </div>
+          <p className="text-lg font-semibold text-white/80">{String(underReview.length)}</p>
+          <p className="text-[11px] text-white/35">Pending approval</p>
+        </div>
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Gavel className="h-4 w-4 text-white/40" />
+            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Violations</span>
+          </div>
+          <p className="text-lg font-semibold text-white/80">{String(policyViolations.length)}</p>
+          <p className="text-[11px] text-white/35">Total violations</p>
+        </div>
       </div>
 
       {/* Main Content: Categories + Violations */}
-      <div className="grid grid-cols-2 gap-1.5">
-        {/* Policy Categories */}
-        <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
-            <BookMarked className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-            <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Policy Categories</h3>
+            <BookMarked className="h-4 w-4 text-white/40" />
+            <h3 className="text-sm font-semibold text-white/80">Policy Categories</h3>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {policyCategories.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-white/40 text-sm">No records found</div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-[#221060]">
-                  <tr className="border-b border-[rgba(0,204,254,0.08)]">
-                    <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Category</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Policies</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Adherence</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Action</th>
+                <thead className="sticky top-0 bg-[#1a1a1a]">
+                  <tr className="border-b border-white/[0.08]">
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Category</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-white/40">Policies</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-white/40">Adherence</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-white/40">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {policyCategories.map((item) => (
-                    <tr key={item.category} className="border-b border-[rgba(0,204,254,0.08)]">
-                      <td className="py-1.5 px-2 text-xs text-white">{formatEnum(item.category)}</td>
-                      <td className="py-1.5 px-2 text-right text-xs text-white">{item.policies}</td>
+                    <tr key={item.category} className="border-b border-white/[0.08]">
+                      <td className="py-1.5 px-2 text-xs text-white/80">{formatEnum(item.category)}</td>
+                      <td className="py-1.5 px-2 text-right text-xs text-white/80">{item.policies}</td>
                       <td className="py-1.5 px-2 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <div className="w-12">
-                            <div className="h-2 bg-[rgba(0,204,254,0.1)] rounded-full">
-                              <div className="h-2 bg-[#10B981] rounded-full" style={{ width: `${item.adherence}%` }} />
+                            <div className="h-2 bg-white/10 rounded-full">
+                              <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${item.adherence}%` }} />
                             </div>
                           </div>
-                          <span className="text-xs text-white">{item.adherence}%</span>
+                          <span className="text-xs text-white/80">{item.adherence}%</span>
                         </div>
                       </td>
                       <td className="py-1.5 px-2 text-right">
@@ -1180,22 +769,21 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
           </div>
         </div>
 
-        {/* Recent Policy Violations */}
-        <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
-            <Gavel className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-            <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Recent Violations</h3>
+            <Gavel className="h-4 w-4 text-white/40" />
+            <h3 className="text-sm font-semibold text-white/80">Recent Violations</h3>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {policyViolations.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
+              <div className="flex items-center justify-center h-32 text-white/40 text-sm">No records found</div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-[#221060]">
-                  <tr className="border-b border-[rgba(0,204,254,0.08)]">
-                    <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Violation</th>
-                    <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Details</th>
-                    <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Status</th>
+                <thead className="sticky top-0 bg-[#1a1a1a]">
+                  <tr className="border-b border-white/[0.08]">
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Violation</th>
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Details</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-white/40">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1205,7 +793,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                     return (
                       <tr
                         key={violation.id}
-                        className="border-b border-[rgba(0,204,254,0.08)] cursor-pointer hover:bg-[#2A1878]"
+                        className="border-b border-white/[0.08] cursor-pointer hover:bg-white/[0.03]"
                         onClick={() => push({
                           id: violation.id,
                           type: 'violation',
@@ -1227,8 +815,8 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                         tabIndex={0}
                         aria-label={`View details for violation: ${violationLabel}`}
                       >
-                        <td className="py-1.5 px-2 text-xs text-white">{formatEnum(violationLabel)}</td>
-                        <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)] truncate max-w-[200px]">
+                        <td className="py-1.5 px-2 text-xs text-white/80">{formatEnum(violationLabel)}</td>
+                        <td className="py-1.5 px-2 text-xs text-white/40 truncate max-w-[200px]">
                           {violation.message || '\u2014'}
                         </td>
                         <td className="py-1.5 px-2 text-right">
@@ -1246,40 +834,40 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
         </div>
       </div>
 
-      {/* P0-3: Active Policies list to fill dead space */}
+      {/* Active Policies list */}
       {activePolicies.length > 0 && (
-        <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
-            <FileCheck className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-            <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Active Policies</h3>
-            <span className="text-xs text-[rgba(255,255,255,0.40)] ml-auto">{activePolicies.length} policies</span>
+            <FileCheck className="h-4 w-4 text-white/40" />
+            <h3 className="text-sm font-semibold text-white/80">Active Policies</h3>
+            <span className="text-xs text-white/35 ml-auto">{activePolicies.length} policies</span>
           </div>
           <div className="max-h-[240px] overflow-y-auto">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[#221060]">
-                <tr className="border-b border-[rgba(0,204,254,0.08)]">
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Policy Name</th>
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Category</th>
-                  <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Status</th>
+              <thead className="sticky top-0 bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Policy Name</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Category</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-white/40">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {activePolicies.slice(0, 10).map((policy: any) => (
                   <tr
                     key={policy.id}
-                    className="border-b border-[rgba(0,204,254,0.08)] cursor-pointer hover:bg-[#2A1878]"
+                    className="border-b border-white/[0.08] cursor-pointer hover:bg-white/[0.03]"
                     onClick={() => push({
                       id: policy.id,
                       type: 'policy',
-                      label: policy.name || policy.title || 'Policy',
+                      label: policy.name || policy.policy_name || policy.title || 'Policy',
                       data: { policyId: policy.id, category: policy.category },
                     })}
                     role="button"
                     tabIndex={0}
-                    aria-label={`View policy: ${policy.name || policy.title}`}
+                    aria-label={`View policy: ${policy.name || policy.policy_name || policy.title}`}
                   >
-                    <td className="py-1.5 px-2 text-xs text-white font-medium">{policy.name || policy.title || '\u2014'}</td>
-                    <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">{formatEnum(policy.category || 'General')}</td>
+                    <td className="py-1.5 px-2 text-xs text-white/80 font-medium">{policy.name || policy.policy_name || policy.title || '\u2014'}</td>
+                    <td className="py-1.5 px-2 text-xs text-white/40">{formatEnum(policy.category || policy.policy_type || 'General')}</td>
                     <td className="py-1.5 px-2 text-right">
                       <Badge variant="default">Active</Badge>
                     </td>
@@ -1289,11 +877,11 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
             </table>
           </div>
           {activePolicies.length > 10 && (
-            <div className="pt-1.5 border-t border-[rgba(0,204,254,0.08)] mt-1">
+            <div className="pt-1.5 border-t border-white/[0.08] mt-1">
               <Button
                 size="sm"
                 variant="ghost"
-                className="w-full h-6 text-xs text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]"
+                className="w-full h-6 text-xs text-white/40 hover:text-white/80"
                 onClick={() => push({
                   id: 'all-policies',
                   type: 'policies',
@@ -1311,10 +899,11 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
   )
 })
 
-/**
- * Reporting Tab - Compliance and safety reporting
- */
-const ReportingTabContent = memo(function ReportingTabContent() {
+// ============================================================================
+// REPORTING SUB-VIEW
+// ============================================================================
+
+const ReportingSubView = memo(function ReportingSubView() {
   const { data: reportTemplates, isLoading: templatesLoading } = useSWR<any>(
     '/api/reports/templates',
     fetcher,
@@ -1326,7 +915,6 @@ const ReportingTabContent = memo(function ReportingTabContent() {
     { shouldRetryOnError: false }
   )
 
-  // Unwrap from potential { data: [...] } envelope
   const templates = useMemo(() => {
     if (Array.isArray(reportTemplates)) return reportTemplates
     if (reportTemplates?.data && Array.isArray(reportTemplates.data)) return reportTemplates.data
@@ -1390,7 +978,6 @@ const ReportingTabContent = memo(function ReportingTabContent() {
     }
   }
 
-  // P0-1: Loading skeleton for Reports tab
   if (templatesLoading && historyLoading) {
     return (
       <div className="space-y-1.5 p-2">
@@ -1401,35 +988,35 @@ const ReportingTabContent = memo(function ReportingTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
+    <div className="flex flex-col gap-3 overflow-y-auto">
+      <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3 flex flex-col min-h-0">
         <div className="flex items-center gap-2 mb-2">
-          <FileText className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-          <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Compliance & Safety Reports</h3>
+          <FileText className="h-4 w-4 text-white/40" />
+          <h3 className="text-sm font-semibold text-white/80">Compliance & Safety Reports</h3>
         </div>
         <div className="flex-1 min-h-0 overflow-y-auto">
           {complianceTemplates.length === 0 ? (
-            <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
+            <div className="flex items-center justify-center h-32 text-white/40 text-sm">No records found</div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[#221060]">
-                <tr className="border-b border-[rgba(0,204,254,0.08)]">
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Report</th>
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Category</th>
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Last Generated</th>
-                  <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Actions</th>
+              <thead className="sticky top-0 bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Report</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Category</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Last Generated</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-white/40">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {complianceTemplates.map((report: any) => {
                   const lastGenerated = lastGeneratedMap.get(report.id)
                   return (
-                    <tr key={report.id} className="border-b border-[rgba(0,204,254,0.08)]">
-                      <td className="py-1.5 px-2 text-xs text-white font-medium">{report.title}</td>
-                      <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">
+                    <tr key={report.id} className="border-b border-white/[0.08]">
+                      <td className="py-1.5 px-2 text-xs text-white/80 font-medium">{report.title}</td>
+                      <td className="py-1.5 px-2 text-xs text-white/40">
                         {formatEnum(report.category || report.domain || 'compliance')}
                       </td>
-                      <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">
+                      <td className="py-1.5 px-2 text-xs text-white/40">
                         {formatDate(lastGenerated?.generatedAt)}
                       </td>
                       <td className="py-1.5 px-2 text-right">
@@ -1457,36 +1044,35 @@ const ReportingTabContent = memo(function ReportingTabContent() {
         </div>
       </div>
 
-      {/* P0-4: Recent History section to fill dead space */}
-      <div className="rounded-lg border border-[rgba(0,204,254,0.08)] bg-[#221060] p-3 flex flex-col min-h-0">
+      <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3 flex flex-col min-h-0">
         <div className="flex items-center gap-2 mb-2">
-          <Clock className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
-          <h3 className="text-sm font-semibold text-white" style={{ fontFamily: '"Montserrat", sans-serif' }}>Recent History</h3>
-          <span className="text-xs text-[rgba(255,255,255,0.40)] ml-auto">{history.length} reports</span>
+          <Clock className="h-4 w-4 text-white/40" />
+          <h3 className="text-sm font-semibold text-white/80">Recent History</h3>
+          <span className="text-xs text-white/35 ml-auto">{history.length} reports</span>
         </div>
         <div className="max-h-[240px] overflow-y-auto">
           {history.length === 0 ? (
-            <div className="flex items-center justify-center h-32 text-[rgba(255,255,255,0.40)] text-sm">No report history available</div>
+            <div className="flex items-center justify-center h-32 text-white/40 text-sm">No report history available</div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[#221060]">
-                <tr className="border-b border-[rgba(0,204,254,0.08)]">
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Report Name</th>
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Generated</th>
-                  <th className="py-1.5 px-2 text-left text-xs font-medium text-[rgba(255,255,255,0.40)]">Generated By</th>
-                  <th className="py-1.5 px-2 text-right text-xs font-medium text-[rgba(255,255,255,0.40)]">Status</th>
+              <thead className="sticky top-0 bg-[#1a1a1a]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Report Name</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Generated</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-white/40">Generated By</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-white/40">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {history.slice(0, 10).map((entry: any, idx: number) => (
-                  <tr key={entry.id || idx} className="border-b border-[rgba(0,204,254,0.08)]">
-                    <td className="py-1.5 px-2 text-xs text-white font-medium">
+                  <tr key={entry.id || idx} className="border-b border-white/[0.08]">
+                    <td className="py-1.5 px-2 text-xs text-white/80 font-medium">
                       {entry.title || entry.reportName || entry.name || '\u2014'}
                     </td>
-                    <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">
+                    <td className="py-1.5 px-2 text-xs text-white/40">
                       {formatDate(entry.generatedAt || entry.created_at || entry.timestamp)}
                     </td>
-                    <td className="py-1.5 px-2 text-xs text-[rgba(255,255,255,0.40)]">
+                    <td className="py-1.5 px-2 text-xs text-white/40">
                       {entry.generatedBy || entry.created_by || entry.user || '\u2014'}
                     </td>
                     <td className="py-1.5 px-2 text-right">
@@ -1509,14 +1095,21 @@ const ReportingTabContent = memo(function ReportingTabContent() {
 })
 
 // ============================================================================
-// MAIN COMPONENT
+// MAIN COMPONENT — URGENCY-BASED COMMAND CENTER
 // ============================================================================
 
 export default function ComplianceSafetyHub() {
   const [activeTab, setActiveTab] = useState('compliance')
+  const [alertDismissed, setAlertDismissed] = useState(false)
+  const [timelineCollapsed, setTimelineCollapsed] = useState(true)
 
-  // P1-12: Badge counts for tabs
+  const { push } = useDrilldown()
   const { drivers, vehicles, incidents: fleetIncidents, isLoading: fleetLoading } = useFleetData()
+  const { data: complianceDashboard } = useSWR<any>(
+    '/api/compliance/dashboard',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
   const { data: safetyIncidentsRaw } = useSWR<any>(
     '/api/safety-incidents?limit=200',
     fetcher,
@@ -1528,8 +1121,279 @@ export default function ComplianceSafetyHub() {
     { shouldRetryOnError: false }
   )
 
+  const now = useMemo(() => new Date(), [])
+  const dateHelpers = useMemo(() => createDateHelpers(now), [now])
+
+  // ── Compliance stats (used for alert banner + compliance tab) ──
+  const complianceStats = useMemo(() => {
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
+    const totalDrivers = activeDrivers.length
+
+    const compliantDrivers = activeDrivers.filter((d: any) => {
+      const drugTestCurrent = dateHelpers.isWithinMonths(d.last_drug_test_date, 12)
+      const bgCheckCleared = (d.background_check_status || '').toLowerCase() === 'cleared'
+      const mvrCurrent = (d.mvr_status || '').toLowerCase() === 'satisfactory'
+      const medicalCardValid = !dateHelpers.isExpired(d.medical_card_expiration)
+      return drugTestCurrent && bgCheckCleared && mvrCurrent && medicalCardValid
+    })
+
+    const complianceRate = totalDrivers > 0
+      ? Math.round((compliantDrivers.length / totalDrivers) * 100)
+      : 0
+
+    const activeCerts = activeDrivers.filter((d: any) => !dateHelpers.isExpired(d.medical_card_expiration)).length
+
+    const driverExpiring = activeDrivers.filter((d: any) =>
+      dateHelpers.isExpiringSoon(d.medical_card_expiration, 30)
+    ).length
+    const vehicleExpiring = vehicles.filter((v: any) =>
+      dateHelpers.isExpiringSoon(v.registration_expiry, 30)
+    ).length
+    const expiringSoon = driverExpiring + vehicleExpiring
+
+    const nonCompliant = activeDrivers.filter((d: any) => {
+      const medExpired = dateHelpers.isExpired(d.medical_card_expiration)
+      const drugOverdue = !dateHelpers.isWithinMonths(d.last_drug_test_date, 12)
+      return medExpired || drugOverdue
+    }).length
+
+    return { complianceRate, activeCerts, expiringSoon, nonCompliant }
+  }, [drivers, vehicles, now, dateHelpers])
+
+  // ── Expiring this week — drives alert banner urgency ──
+  const expiringThisWeek = useMemo(() => {
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
+    let count = 0
+    activeDrivers.forEach((d: any) => {
+      if (dateHelpers.isExpiringSoon(d.medical_card_expiration, 7)) count++
+    })
+    vehicles.forEach((v: any) => {
+      if (dateHelpers.isExpiringSoon((v as any).registration_expiry, 7)) count++
+    })
+    return count
+  }, [drivers, vehicles, now, dateHelpers])
+
+  // ── KanbanBoard columns from real compliance data ──
+  const kanbanColumns = useMemo((): KanbanColumn[] => {
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
+    const compliantItems: KanbanItem[] = []
+    const expiringItems: KanbanItem[] = []
+    const nonCompliantItems: KanbanItem[] = []
+    const overdueItems: KanbanItem[] = []
+
+    activeDrivers.forEach((d: any) => {
+      const driverName = d.name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || 'Unknown'
+      const medExpiry = d.medical_card_expiration
+      const drugTestDate = d.last_drug_test_date
+      const drugTestCurrent = dateHelpers.isWithinMonths(drugTestDate, 12)
+      const bgCleared = (d.background_check_status || '').toLowerCase() === 'cleared'
+      const mvrOk = (d.mvr_status || '').toLowerCase() === 'satisfactory'
+      const medValid = medExpiry && !dateHelpers.isExpired(medExpiry)
+
+      if (medExpiry && dateHelpers.isExpired(medExpiry)) {
+        const overdueDays = dateHelpers.daysSince(medExpiry)
+        overdueItems.push({
+          id: `driver-med-${d.id}`,
+          title: driverName,
+          subtitle: 'Medical Card',
+          badge: `${overdueDays}d overdue`,
+          badgeColor: '#dc2626',
+          meta: `Expired ${formatDate(medExpiry)}`,
+          onClick: () => push({
+            id: d.id,
+            type: 'driver',
+            label: driverName,
+            data: { driverId: d.id },
+          }),
+        })
+      } else if (medExpiry && dateHelpers.isExpiringSoon(medExpiry, 30)) {
+        const days = dateHelpers.daysUntil(medExpiry)
+        expiringItems.push({
+          id: `driver-med-${d.id}`,
+          title: driverName,
+          subtitle: 'Medical Card',
+          badge: `${days}d left`,
+          badgeColor: '#f59e0b',
+          meta: `Expires ${formatDate(medExpiry)}`,
+          onClick: () => push({
+            id: d.id,
+            type: 'driver',
+            label: driverName,
+            data: { driverId: d.id },
+          }),
+        })
+      } else if (!drugTestCurrent) {
+        nonCompliantItems.push({
+          id: `driver-drug-${d.id}`,
+          title: driverName,
+          subtitle: 'Drug Test',
+          badge: 'Overdue',
+          badgeColor: '#ef4444',
+          meta: drugTestDate ? `Last test: ${formatDate(drugTestDate)}` : 'No test on file',
+          onClick: () => push({
+            id: d.id,
+            type: 'driver',
+            label: driverName,
+            data: { driverId: d.id },
+          }),
+        })
+      } else if (!bgCleared || !mvrOk) {
+        const issue = !bgCleared ? 'Background Check' : 'MVR Check'
+        nonCompliantItems.push({
+          id: `driver-check-${d.id}`,
+          title: driverName,
+          subtitle: issue,
+          badge: 'Review',
+          badgeColor: '#ef4444',
+          meta: `Status: ${!bgCleared ? formatEnum(d.background_check_status || 'pending') : formatEnum(d.mvr_status || 'pending')}`,
+          onClick: () => push({
+            id: d.id,
+            type: 'driver',
+            label: driverName,
+            data: { driverId: d.id },
+          }),
+        })
+      } else if (medValid && drugTestCurrent && bgCleared && mvrOk) {
+        compliantItems.push({
+          id: `driver-ok-${d.id}`,
+          title: driverName,
+          subtitle: 'All checks current',
+          badge: 'OK',
+          badgeColor: '#10b981',
+          meta: medExpiry ? `Med card: ${formatDate(medExpiry)}` : undefined,
+          onClick: () => push({
+            id: d.id,
+            type: 'driver',
+            label: driverName,
+            data: { driverId: d.id },
+          }),
+        })
+      }
+    })
+
+    // Vehicle registrations
+    vehicles.forEach((v: any) => {
+      const regExpiry = (v as any).registration_expiry
+      if (!regExpiry) return
+      const vName = v.name || formatVehicleName(v as any)
+      if (vName === 'Unknown Vehicle') return
+
+      if (dateHelpers.isExpired(regExpiry)) {
+        const overdueDays = dateHelpers.daysSince(regExpiry)
+        overdueItems.push({
+          id: `vehicle-reg-${v.id}`,
+          title: vName,
+          subtitle: 'Registration',
+          badge: `${overdueDays}d overdue`,
+          badgeColor: '#dc2626',
+          meta: `Expired ${formatDate(regExpiry)}`,
+          onClick: () => push({
+            id: String(v.id),
+            type: 'vehicle',
+            label: vName,
+            data: { vehicleId: v.id },
+          }),
+        })
+      } else if (dateHelpers.isExpiringSoon(regExpiry, 30)) {
+        const days = dateHelpers.daysUntil(regExpiry)
+        expiringItems.push({
+          id: `vehicle-reg-${v.id}`,
+          title: vName,
+          subtitle: 'Registration',
+          badge: `${days}d left`,
+          badgeColor: '#f59e0b',
+          meta: `Expires ${formatDate(regExpiry)}`,
+          onClick: () => push({
+            id: String(v.id),
+            type: 'vehicle',
+            label: vName,
+            data: { vehicleId: v.id },
+          }),
+        })
+      }
+    })
+
+    return [
+      { id: 'compliant', title: 'Compliant', count: compliantItems.length, accent: '#10b981', items: compliantItems.slice(0, 8) },
+      { id: 'expiring', title: 'Expiring Soon', count: expiringItems.length, accent: '#f59e0b', items: expiringItems.slice(0, 8) },
+      { id: 'non-compliant', title: 'Non-Compliant', count: nonCompliantItems.length, accent: '#ef4444', items: nonCompliantItems.slice(0, 8) },
+      { id: 'overdue', title: 'Overdue', count: overdueItems.length, accent: '#dc2626', items: overdueItems.slice(0, 8) },
+    ]
+  }, [drivers, vehicles, now, push, dateHelpers])
+
+  // ── Timeline events from compliance data ──
+  const timelineEvents = useMemo((): TimelineEvent[] => {
+    const events: TimelineEvent[] = []
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
+
+    activeDrivers.forEach((d: any) => {
+      const driverName = d.name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || 'Unknown'
+      if (d.medical_card_expiration && dateHelpers.isExpired(d.medical_card_expiration)) {
+        events.push({
+          id: `expired-med-${d.id}`,
+          label: `${driverName} medical card expired`,
+          time: formatDate(d.medical_card_expiration),
+          type: 'compliance',
+        })
+      }
+      if (d.medical_card_expiration && dateHelpers.isExpiringSoon(d.medical_card_expiration, 30)) {
+        events.push({
+          id: `expiring-med-${d.id}`,
+          label: `${driverName} medical card expiring`,
+          time: `${dateHelpers.daysUntil(d.medical_card_expiration)}d left`,
+          type: 'alert',
+        })
+      }
+      if (d.last_drug_test_date && dateHelpers.isWithinMonths(d.last_drug_test_date, 1)) {
+        events.push({
+          id: `drug-test-${d.id}`,
+          label: `${driverName} drug test completed`,
+          time: formatDate(d.last_drug_test_date),
+          type: 'dispatch',
+        })
+      }
+    })
+
+    vehicles.forEach((v: any) => {
+      const regExpiry = (v as any).registration_expiry
+      if (!regExpiry) return
+      const vName = v.name || formatVehicleName(v as any)
+      if (dateHelpers.isExpiringSoon(regExpiry, 30)) {
+        events.push({
+          id: `expiring-reg-${v.id}`,
+          label: `${vName} registration expiring`,
+          time: `${dateHelpers.daysUntil(regExpiry)}d left`,
+          type: 'alert',
+        })
+      }
+    })
+
+    return events.slice(0, 20)
+  }, [drivers, vehicles, now, dateHelpers])
+
+  // ── Dashboard metrics for radial display ──
+  const dashMetrics = useMemo(() => {
+    if (!complianceDashboard) return null
+    const metrics = complianceDashboard?.metrics
+    if (!metrics) return null
+    if (Array.isArray(metrics)) {
+      return {
+        vehicleCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('vehicle'))?.score || 0),
+        driverCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('driver'))?.score || 0),
+        safetyCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('safety'))?.score || 0),
+        regulatoryCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('regulatory'))?.score || 0),
+      }
+    }
+    return {
+      vehicleCompliance: Number(metrics.vehicleCompliance ?? metrics.vehicle_compliance ?? 0),
+      driverCompliance: Number(metrics.driverCompliance ?? metrics.driver_compliance ?? 0),
+      safetyCompliance: Number(metrics.safetyCompliance ?? metrics.safety_compliance ?? 0),
+      regulatoryCompliance: Number(metrics.regulatoryCompliance ?? metrics.regulatory_compliance ?? 0),
+    }
+  }, [complianceDashboard])
+
+  // ── Tab badge counts ──
   const tabBadges = useMemo(() => {
-    // Safety: open incidents count
     const allSafetyIncidents = Array.isArray(safetyIncidentsRaw)
       ? safetyIncidentsRaw
       : (safetyIncidentsRaw?.data && Array.isArray(safetyIncidentsRaw.data) ? safetyIncidentsRaw.data : [])
@@ -1541,7 +1405,6 @@ export default function ComplianceSafetyHub() {
       return status && !['resolved', 'closed', 'completed'].includes(status)
     }).length
 
-    // Policies: violation count
     const secEventsList = Array.isArray(securityEventsRaw)
       ? securityEventsRaw
       : (securityEventsRaw?.data && Array.isArray(securityEventsRaw.data) ? securityEventsRaw.data : [])
@@ -1550,109 +1413,239 @@ export default function ComplianceSafetyHub() {
       return type.includes('policy') || type.includes('violation')
     }).length
 
-    // Compliance: non-compliant + expiring soon
-    const now = new Date()
-    const msPerDay = 86400000
     const activeDrivers = drivers.filter((d: any) => d.status === 'active')
-    const isExpired = (dateStr: string | undefined): boolean => {
-      if (!dateStr) return true
-      const date = new Date(dateStr)
-      if (isNaN(date.getTime())) return true
-      return date < now
-    }
-    const isWithinMonths = (dateStr: string | undefined, months: number): boolean => {
-      if (!dateStr) return false
-      const date = new Date(dateStr)
-      if (isNaN(date.getTime())) return false
-      const cutoff = new Date(now)
-      cutoff.setMonth(cutoff.getMonth() - months)
-      return date >= cutoff
-    }
-    const isExpiringSoon = (dateStr: string | undefined, days: number): boolean => {
-      if (!dateStr) return false
-      const date = new Date(dateStr)
-      if (isNaN(date.getTime())) return false
-      const threshold = new Date(now.getTime() + days * msPerDay)
-      return date >= now && date <= threshold
-    }
     const nonCompliant = activeDrivers.filter((d: any) => {
-      return isExpired(d.medical_card_expiry) || !isWithinMonths(d.drug_test_date, 12)
+      return dateHelpers.isExpired(d.medical_card_expiration) || !dateHelpers.isWithinMonths(d.last_drug_test_date, 12)
     }).length
-    const driverExpiring = activeDrivers.filter((d: any) => isExpiringSoon(d.medical_card_expiry, 30)).length
-    const vehicleExpiring = vehicles.filter((v: any) => isExpiringSoon((v as any).registration_expiry, 30)).length
+    const driverExpiring = activeDrivers.filter((d: any) => dateHelpers.isExpiringSoon(d.medical_card_expiration, 30)).length
+    const vehicleExpiring = vehicles.filter((v: any) => dateHelpers.isExpiringSoon((v as any).registration_expiry, 30)).length
     const complianceAlertCount = nonCompliant + driverExpiring + vehicleExpiring
 
     return { openCount, violationCount, complianceAlertCount }
-  }, [safetyIncidentsRaw, fleetIncidents, securityEventsRaw, drivers, vehicles])
+  }, [safetyIncidentsRaw, fleetIncidents, securityEventsRaw, drivers, vehicles, dateHelpers])
+
+  // ── Critical item count for the top-level alert ──
+  const criticalCount = expiringThisWeek + complianceStats.nonCompliant
+  const hasCritical = criticalCount > 0
+
+  // ── Tab definitions ──
+  const tabs = [
+    { id: 'compliance', label: 'Compliance', icon: ClipboardCheck, badge: tabBadges.complianceAlertCount },
+    { id: 'safety', label: 'Safety', icon: Shield, badge: tabBadges.openCount },
+    { id: 'policies', label: 'Policies', icon: FileText, badge: tabBadges.violationCount },
+    { id: 'reporting', label: 'Reports', icon: BarChart, badge: 0 },
+  ] as const
 
   return (
-    <HubPage
-      title={<span style={{ fontFamily: '"Cinzel", Georgia, serif' }}>Safety &amp; Compliance</span>}
-      description="Comprehensive compliance monitoring, safety management, and policy enforcement"
-      icon={<Shield className="h-6 w-6 text-[#00CCFE]" />}
-      className="cta-hub"
-    >
-      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="compliance" className="flex items-center gap-2" data-testid="hub-tab-compliance">
-              <ClipboardCheck className="h-4 w-4" />
-              <span className="hidden sm:inline">Compliance</span>
-              {!fleetLoading && tabBadges.complianceAlertCount > 0 && (
-                <Badge variant="destructive" className="ml-1 h-4 min-w-4 px-1 text-[10px] leading-none">
-                  {tabBadges.complianceAlertCount}
-                </Badge>
+    <div className="flex flex-col h-full bg-[#111] overflow-hidden">
+      {/* ── Alert Banner ── */}
+      {!alertDismissed && hasCritical && (
+        <div
+          className="flex items-center justify-between px-5 py-2.5 shrink-0"
+          style={{
+            background: expiringThisWeek > 0
+              ? 'rgba(245, 158, 11, 0.12)'
+              : 'rgba(239, 68, 68, 0.12)',
+            borderBottom: `1px solid ${expiringThisWeek > 0 ? 'rgba(245, 158, 11, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <AlertTriangle
+              className="h-4 w-4 shrink-0"
+              style={{ color: expiringThisWeek > 0 ? '#f59e0b' : '#ef4444' }}
+            />
+            <span className="text-[13px] font-medium text-white/80">
+              {expiringThisWeek > 0
+                ? `${expiringThisWeek} certification${expiringThisWeek !== 1 ? 's' : ''} expiring this week`
+                : `${complianceStats.nonCompliant} non-compliant item${complianceStats.nonCompliant !== 1 ? 's' : ''} require attention`
+              }
+            </span>
+            {expiringThisWeek > 0 && complianceStats.nonCompliant > 0 && (
+              <span className="text-[11px] text-white/40 ml-2">
+                + {complianceStats.nonCompliant} non-compliant
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => setAlertDismissed(true)}
+            className="p-1 rounded hover:bg-white/[0.06] text-white/40 hover:text-white/60 transition-colors"
+            aria-label="Dismiss alert"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* ── Compact Inline Tab Bar ── */}
+      <div
+        className="flex items-center gap-1 px-5 py-1.5 shrink-0"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+        role="tablist"
+        aria-label="Compliance & Safety sections"
+      >
+        {tabs.map((tab) => {
+          const Icon = tab.icon
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`panel-${tab.id}`}
+              data-testid={`hub-tab-${tab.id === 'reporting' ? 'reports' : tab.id}`}
+              onClick={() => setActiveTab(tab.id)}
+              className={`
+                flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors
+                ${isActive
+                  ? 'bg-white/[0.08] text-white/80'
+                  : 'text-white/40 hover:text-white/60 hover:bg-white/[0.03]'
+                }
+              `}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {tab.label}
+              {!fleetLoading && tab.badge > 0 && (
+                <span
+                  className="ml-1 text-[10px] font-bold px-1.5 py-0 rounded-full leading-[16px]"
+                  style={{
+                    background: tab.id === 'policies' ? 'rgba(255,255,255,0.08)' : 'rgba(239, 68, 68, 0.2)',
+                    color: tab.id === 'policies' ? 'rgba(255,255,255,0.5)' : '#ef4444',
+                  }}
+                >
+                  {tab.badge}
+                </span>
               )}
-            </TabsTrigger>
-            <TabsTrigger value="safety" className="flex items-center gap-2" data-testid="hub-tab-safety">
-              <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Safety</span>
-              {!fleetLoading && tabBadges.openCount > 0 && (
-                <Badge variant="destructive" className="ml-1 h-4 min-w-4 px-1 text-[10px] leading-none">
-                  {tabBadges.openCount}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="policies" className="flex items-center gap-2" data-testid="hub-tab-policies">
-              <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Policies</span>
-              {tabBadges.violationCount > 0 && (
-                <Badge variant="secondary" className="ml-1 h-4 min-w-4 px-1 text-[10px] leading-none">
-                  {tabBadges.violationCount}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="reporting" className="flex items-center gap-2" data-testid="hub-tab-reports">
-              <BarChart className="h-4 w-4" />
-              <span className="hidden sm:inline">Reports</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="compliance" className="flex-1 min-h-0 overflow-y-auto">
-            <QueryErrorBoundary>
-              <ComplianceTabContent />
-            </QueryErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="safety" className="flex-1 min-h-0 overflow-y-auto">
-            <QueryErrorBoundary>
-              <SafetyTabContent />
-            </QueryErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="policies" className="flex-1 min-h-0 overflow-y-auto">
-            <QueryErrorBoundary>
-              <PoliciesTabContent />
-            </QueryErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="reporting" className="flex-1 min-h-0 overflow-y-auto">
-            <QueryErrorBoundary>
-              <ReportingTabContent />
-            </QueryErrorBoundary>
-          </TabsContent>
-        </Tabs>
+            </button>
+          )
+        })}
       </div>
-    </HubPage>
+
+      {/* ── Main Content Area ── */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        {/* ══ COMPLIANCE TAB — Kanban Command Center ══ */}
+        {activeTab === 'compliance' && (
+          <div id="panel-compliance" role="tabpanel" className="flex flex-col gap-3 p-4">
+            {fleetLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-12 rounded-md" />
+                <div className="grid grid-cols-4 gap-4">
+                  {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-[200px] rounded-md" />)}
+                </div>
+                <Skeleton className="h-10 rounded-md" />
+              </div>
+            ) : (
+              <>
+                {/* Summary KPI strip */}
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(16,185,129,0.12)' }}>
+                      <CheckCircle className="h-4 w-4" style={{ color: '#10b981' }} />
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-white/80 leading-none">{complianceStats.complianceRate}%</p>
+                      <p className="text-[10px] text-white/35 uppercase tracking-wide mt-0.5">Compliance Rate</p>
+                    </div>
+                  </div>
+                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(16,185,129,0.12)' }}>
+                      <Award className="h-4 w-4" style={{ color: '#10b981' }} />
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-white/80 leading-none">{complianceStats.activeCerts}</p>
+                      <p className="text-[10px] text-white/35 uppercase tracking-wide mt-0.5">Active Certs</p>
+                    </div>
+                  </div>
+                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.12)' }}>
+                      <Clock className="h-4 w-4" style={{ color: '#f59e0b' }} />
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-white/80 leading-none">{complianceStats.expiringSoon}</p>
+                      <p className="text-[10px] text-white/35 uppercase tracking-wide mt-0.5">Expiring Soon</p>
+                    </div>
+                  </div>
+                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.12)' }}>
+                      <XCircle className="h-4 w-4" style={{ color: '#ef4444' }} />
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-white/80 leading-none">{complianceStats.nonCompliant}</p>
+                      <p className="text-[10px] text-white/35 uppercase tracking-wide mt-0.5">Non-Compliant</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Kanban Board — urgency columns */}
+                <KanbanBoard columns={kanbanColumns} />
+
+                {/* Compliance Scores — metric bars if available */}
+                {dashMetrics && (dashMetrics.vehicleCompliance > 0 || dashMetrics.driverCompliance > 0 || dashMetrics.safetyCompliance > 0 || dashMetrics.regulatoryCompliance > 0) && (
+                  <div className="grid grid-cols-4 gap-3">
+                    {[
+                      { label: 'Vehicle', value: dashMetrics.vehicleCompliance },
+                      { label: 'Driver', value: dashMetrics.driverCompliance },
+                      { label: 'Safety', value: dashMetrics.safetyCompliance },
+                      { label: 'Regulatory', value: dashMetrics.regulatoryCompliance },
+                    ].map((metric) => (
+                      <div key={metric.label} className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[11px] text-white/40 uppercase tracking-wide">{metric.label}</span>
+                          <span className="text-[13px] font-semibold text-white/80">{metric.value}%</span>
+                        </div>
+                        <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
+                          <div
+                            className="h-2 rounded-full transition-all"
+                            style={{
+                              width: `${metric.value}%`,
+                              background: metric.value >= 80 ? '#10b981' : metric.value >= 60 ? '#f59e0b' : '#ef4444',
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Timeline Strip */}
+                {timelineEvents.length > 0 && (
+                  <TimelineStrip
+                    events={timelineEvents}
+                    collapsed={timelineCollapsed}
+                    onToggle={() => setTimelineCollapsed(!timelineCollapsed)}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ══ SAFETY TAB ══ */}
+        {activeTab === 'safety' && (
+          <div id="panel-safety" role="tabpanel" className="p-4">
+            <QueryErrorBoundary>
+              <SafetySubView />
+            </QueryErrorBoundary>
+          </div>
+        )}
+
+        {/* ══ POLICIES TAB ══ */}
+        {activeTab === 'policies' && (
+          <div id="panel-policies" role="tabpanel" className="p-4">
+            <QueryErrorBoundary>
+              <PoliciesSubView />
+            </QueryErrorBoundary>
+          </div>
+        )}
+
+        {/* ══ REPORTING TAB ══ */}
+        {activeTab === 'reporting' && (
+          <div id="panel-reporting" role="tabpanel" className="p-4">
+            <QueryErrorBoundary>
+              <ReportingSubView />
+            </QueryErrorBoundary>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

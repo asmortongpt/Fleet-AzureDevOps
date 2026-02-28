@@ -40,11 +40,11 @@ export function GaugeChart({
   size = 200,
 }: GaugeChartProps) {
   const chartColors = {
-    text: 'var(--foreground)',
-    low: '#EF4444',
-    medium: '#F59E0B',
-    high: '#10B981',
-    background: 'var(--muted)',
+    text: 'var(--text-primary)',
+    low: 'var(--status-danger)',
+    medium: 'var(--status-warning)',
+    high: 'var(--status-success)',
+    background: 'var(--surface-4)',
   }
 
   // Calculate percentage and angle
@@ -90,7 +90,7 @@ export function GaugeChart({
 
   if (loading) {
     return (
-      <Card>
+      <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}
@@ -104,7 +104,7 @@ export function GaugeChart({
 
   return (
     <div>
-      <Card className="backdrop-blur-sm bg-background/95 border-border/50">
+      <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
         <CardHeader className="text-center">
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}

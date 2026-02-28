@@ -201,7 +201,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                 <div>
                   <h3 className="text-sm font-bold">{task.title}</h3>
                   {task.number && (
-                    <p className="text-sm text-muted-foreground">Task #{task.number}</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Task #{task.number}</p>
                   )}
                 </div>
               </div>
@@ -235,7 +235,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
             {task.completionPercent !== undefined && task.status !== 'completed' && (
               <div className="text-right">
                 <div className="text-base font-bold text-emerald-400">{task.completionPercent}%</div>
-                <div className="text-sm text-muted-foreground">Complete</div>
+                <div className="text-sm text-[var(--text-secondary)]">Complete</div>
               </div>
             )}
           </div>
@@ -243,7 +243,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
           {task.description && (
             <Card>
               <CardContent className="pt-3">
-                <p className="text-sm text-muted-foreground">{task.description}</p>
+                <p className="text-sm text-[var(--text-secondary)]">{task.description}</p>
               </CardContent>
             </Card>
           )}
@@ -261,7 +261,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">Overall Progress</span>
-                    <span className="text-sm text-muted-foreground">{task.completionPercent}%</span>
+                    <span className="text-sm text-[var(--text-secondary)]">{task.completionPercent}%</span>
                   </div>
                   <Progress value={task.completionPercent} className="h-3" />
                 </div>
@@ -269,12 +269,12 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                 {task.checklistTotal && (
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Checklist Items</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Checklist Items</p>
                       <p className="text-base font-bold">{task.checklistCompleted} / {task.checklistTotal}</p>
                     </div>
                     {task.actualDuration && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Time Spent</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Time Spent</p>
                         <p className="text-base font-bold">{task.actualDuration} min</p>
                       </div>
                     )}
@@ -295,7 +295,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <p className="text-sm font-medium mb-2">Blocked By: {task.blockedBy}</p>
-                <p className="text-sm text-muted-foreground">{task.blockedReason}</p>
+                <p className="text-sm text-[var(--text-secondary)]">{task.blockedReason}</p>
               </CardContent>
             </Card>
           )}
@@ -314,7 +314,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-semibold text-sm">{task.assignedToName}</p>
-                      <p className="text-sm text-muted-foreground">{formatEnum(task.assignedToType)}</p>
+                      <p className="text-sm text-[var(--text-secondary)]">{formatEnum(task.assignedToType)}</p>
                     </div>
                     <Button size="sm" variant="outline" onClick={handleViewAssignee}>
                       View Details
@@ -327,7 +327,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                       <div className="space-y-2">
                         {task.assignedToPhone && (
                           <div className="flex items-center gap-2">
-                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <Phone className="h-4 w-4 text-[var(--text-secondary)]" />
                             <a
                               href={`tel:${task.assignedToPhone}`}
                               className="text-sm text-emerald-400 hover:underline font-medium"
@@ -364,7 +364,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                   )}
                 </div>
               ) : (
-                <div className="text-center py-2 text-muted-foreground">
+                <div className="text-center py-2 text-[var(--text-secondary)]">
                   <p>No assignee</p>
                 </div>
               )}
@@ -382,12 +382,12 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
               </CardHeader>
               <CardContent className="space-y-3">
                 {task.vehicleId && (
-                  <div className="flex items-center justify-between p-3 rounded bg-muted/50">
+                  <div className="flex items-center justify-between p-3 rounded bg-[var(--surface-glass)]">
                     <div className="flex items-center gap-2">
-                      <Truck className="h-4 w-4 text-muted-foreground" />
+                      <Truck className="h-4 w-4 text-[var(--text-secondary)]" />
                       <div>
                         <p className="text-sm font-medium">{task.vehicleName}</p>
-                        <p className="text-xs text-muted-foreground">Vehicle</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Vehicle</p>
                       </div>
                     </div>
                     <Button size="sm" variant="ghost" onClick={handleViewVehicle}>
@@ -396,12 +396,12 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                   </div>
                 )}
                 {task.jobId && (
-                  <div className="flex items-center justify-between p-3 rounded bg-muted/50">
+                  <div className="flex items-center justify-between p-3 rounded bg-[var(--surface-glass)]">
                     <div className="flex items-center gap-2">
-                      <ListChecks className="h-4 w-4 text-muted-foreground" />
+                      <ListChecks className="h-4 w-4 text-[var(--text-secondary)]" />
                       <div>
                         <p className="text-sm font-medium">{task.jobNumber}</p>
-                        <p className="text-xs text-muted-foreground">Job</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Job</p>
                       </div>
                     </div>
                     <Button size="sm" variant="ghost" onClick={handleViewJob}>
@@ -424,15 +424,15 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
             <CardContent>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <p className="text-sm text-muted-foreground">Created</p>
+                  <p className="text-sm text-[var(--text-secondary)]">Created</p>
                   <p className="font-medium">{formatDateTime(task.createdDate)}</p>
                   {task.createdBy && (
-                    <p className="text-xs text-muted-foreground">by {task.createdBy}</p>
+                    <p className="text-xs text-[var(--text-secondary)]">by {task.createdBy}</p>
                   )}
                 </div>
                 {task.dueDate && (
                   <div>
-                    <p className="text-sm text-muted-foreground">Due Date</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Due Date</p>
                     <p className="font-medium">{formatDateTime(task.dueDate)}</p>
                     {new Date(task.dueDate) < new Date() && task.status !== 'completed' && (
                       <Badge variant="destructive" className="mt-1">Overdue</Badge>
@@ -441,25 +441,25 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                 )}
                 {task.startedDate && (
                   <div>
-                    <p className="text-sm text-muted-foreground">Started</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Started</p>
                     <p className="font-medium">{formatDateTime(task.startedDate)}</p>
                   </div>
                 )}
                 {task.completedDate && (
                   <div>
-                    <p className="text-sm text-muted-foreground">Completed</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Completed</p>
                     <p className="font-medium">{formatDateTime(task.completedDate)}</p>
                   </div>
                 )}
                 {task.estimatedDuration && (
                   <div>
-                    <p className="text-sm text-muted-foreground">Estimated Duration</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Estimated Duration</p>
                     <p className="font-medium">{task.estimatedDuration} minutes</p>
                   </div>
                 )}
                 {task.actualDuration && (
                   <div>
-                    <p className="text-sm text-muted-foreground">Actual Duration</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Actual Duration</p>
                     <p className="font-medium">{task.actualDuration} minutes</p>
                   </div>
                 )}
@@ -482,10 +482,10 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                     <p className="text-sm font-medium mb-2">Depends On ({task.dependencies.length})</p>
                     <div className="space-y-2">
                       {dependencyTasks?.map(dep => (
-                        <div key={dep.id} className="flex items-center justify-between p-2 rounded bg-muted/50">
+                        <div key={dep.id} className="flex items-center justify-between p-2 rounded bg-[var(--surface-glass)]">
                           <div>
                             <p className="text-sm font-medium">{dep.title}</p>
-                            <p className="text-xs text-muted-foreground">Task {dep.id}</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Task {dep.id}</p>
                           </div>
                           <Badge variant="outline">{formatEnum(dep.status)}</Badge>
                         </div>
@@ -502,7 +502,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                         <div key={taskId} className="flex items-center justify-between p-2 rounded bg-amber-50 dark:bg-amber-950">
                           <div>
                             <p className="text-sm font-medium">Task waiting on completion</p>
-                            <p className="text-xs text-muted-foreground">Task {taskId}</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Task {taskId}</p>
                           </div>
                           <Badge variant="outline">Waiting</Badge>
                         </div>
@@ -524,7 +524,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">{task.notes}</p>
+                <p className="text-sm text-[var(--text-secondary)]">{task.notes}</p>
                 {task.attachments && task.attachments > 0 && (
                   <div className="mt-3">
                     <Badge variant="outline">
@@ -537,16 +537,16 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
           )}
 
           {/* Metadata */}
-          <Card className="bg-muted/50">
+          <Card className="bg-[var(--surface-glass)]">
             <CardContent className="pt-3">
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <p className="text-muted-foreground">Last Updated</p>
+                  <p className="text-[var(--text-secondary)]">Last Updated</p>
                   <p>{formatDateTime(task.updatedAt)}</p>
-                  {task.updatedBy && <p className="text-muted-foreground">by {task.updatedBy}</p>}
+                  {task.updatedBy && <p className="text-[var(--text-secondary)]">by {task.updatedBy}</p>}
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Task ID</p>
+                  <p className="text-[var(--text-secondary)]">Task ID</p>
                   <p className="font-mono">{task.id}</p>
                 </div>
               </div>

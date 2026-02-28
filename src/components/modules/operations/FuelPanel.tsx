@@ -35,11 +35,11 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent
-                className="w-[400px] sm:w-[540px] flex flex-col p-0 text-foreground glass-panel border-white/10"
+                className="w-[400px] sm:w-[540px] flex flex-col p-0 text-foreground glass-panel border-[var(--border-default)]"
                 side="right"
                 style={{ backgroundColor: 'transparent' }}
             >
-                <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
+                <SheetHeader className="p-3 border-b border-[var(--border-default)] bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
                             <Fuel className="w-4 h-4 text-emerald-700" />
@@ -54,7 +54,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                 <div className="flex-1 overflow-y-auto bg-muted/5">
                     {/* KPI Cards */}
                     <div className="grid grid-cols-2 gap-2 p-2">
-                        <div className="bg-card p-2 rounded-md border shadow-sm">
+                        <div className="bg-card p-2 rounded-md border">
                             <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium uppercase tracking-wider mb-2">
                                 <DollarSign className="w-4 h-4" /> Total Spend
                             </div>
@@ -66,7 +66,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                             </div>
                         </div>
 
-                        <div className="bg-card p-2 rounded-md border shadow-sm">
+                        <div className="bg-card p-2 rounded-md border">
                             <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium uppercase tracking-wider mb-2">
                                 <Droplet className="w-4 h-4" /> Volume (Gal)
                             </div>
@@ -82,7 +82,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                     {/* Recent Transactions List */}
                     <div className="px-2 pb-2">
                         <div className="text-sm font-semibold mb-3 px-1">Recent Transactions</div>
-                        <div className="bg-card rounded-md border shadow-sm overflow-hidden">
+                        <div className="bg-card rounded-md border overflow-hidden">
                             {transactions.length === 0 ? (
                                 <div className="p-6 text-center text-muted-foreground text-sm">
                                     <Fuel className="w-8 h-8 mx-auto mb-2 opacity-40" />
@@ -107,7 +107,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                                             <div className="font-semibold text-sm flex items-center gap-2">
                                                 {tx.vehicleNumber}
                                                 {isFullFill != null && (
-                                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isFullFill ? 'bg-green-500/10 text-green-500' : 'bg-gray-500/10 text-gray-400'}`}>
+                                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isFullFill ? 'bg-green-500/10 text-green-500' : 'bg-white/[0.03]0/10 text-[var(--text-tertiary)]'}`}>
                                                         {isFullFill ? 'Full' : 'Partial'}
                                                     </span>
                                                 )}

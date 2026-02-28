@@ -293,7 +293,7 @@ export function HTMLFormExample() {
 
         <button
           type="submit"
-          className="px-2 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+          className="px-2 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
         >
           Submit Form
         </button>
@@ -319,11 +319,11 @@ export function CSRFTokenDisplay() {
           Current CSRF Token (for debugging):
         </p>
         {csrfToken ? (
-          <code className="block p-2 bg-gray-100 rounded text-xs break-all">
+          <code className="block p-2 bg-white/[0.05] rounded text-xs break-all">
             {csrfToken}
           </code>
         ) : (
-          <p className="text-sm text-gray-600">Loading token...</p>
+          <p className="text-sm text-white/40">Loading token...</p>
         )}
       </div>
     </div>
@@ -372,13 +372,13 @@ export function BatchOperationsExample() {
           <div className="space-x-2">
             <button
               onClick={() => setSelectedIds(['1', '2', '3'])}
-              className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+              className="px-3 py-1 text-sm bg-white/[0.06] rounded hover:bg-white/[0.08]"
             >
               Select 3 incidents
             </button>
             <button
               onClick={() => setSelectedIds([])}
-              className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+              className="px-3 py-1 text-sm bg-white/[0.06] rounded hover:bg-white/[0.08]"
             >
               Clear selection
             </button>

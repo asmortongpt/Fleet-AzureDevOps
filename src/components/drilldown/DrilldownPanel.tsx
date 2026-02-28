@@ -93,7 +93,8 @@ export function DrilldownPanel({
     <div
       data-testid="drilldown-panel"
       className={cn(
-        "fixed inset-0 bg-[#111]/95 backdrop-blur-sm z-50 overflow-auto",
+        "fixed inset-0 z-50 overflow-auto",
+        "bg-[var(--surface-1)]",
         className
       )}
       role="dialog"
@@ -101,18 +102,18 @@ export function DrilldownPanel({
       aria-labelledby={title ? "drilldown-panel-title" : undefined}
     >
       {/* Sticky Header */}
-      <div className="sticky top-0 bg-[#1a1a1a] border-b border-white/[0.08] shadow-sm z-10">
-        <div className="flex items-center justify-between p-2 gap-2">
+      <div className="sticky top-0 z-10 bg-[var(--surface-2)] border-b" style={{ borderColor: 'var(--border-default)' }}>
+        <div className="flex items-center justify-between px-4 py-3 gap-3">
           {/* Left: Back button + Title */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             {showBackButton && canGoBack && (
               <button
                 onClick={handleBack}
-                className="shrink-0 p-2 hover:bg-white/[0.08] rounded-lg transition-colors"
+                className="shrink-0 p-2 rounded-[var(--radius-md)] transition-colors duration-[var(--duration-fast)] hover:bg-[var(--surface-glass-hover)]"
                 aria-label="Go back"
                 data-testid="back-button"
               >
-                <ArrowLeft className="w-3 h-3 text-white/40" />
+                <ArrowLeft className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
               </button>
             )}
 
@@ -120,13 +121,14 @@ export function DrilldownPanel({
               {title && (
                 <h2
                   id="drilldown-panel-title"
-                  className="text-base font-bold text-white truncate"
+                  className="text-[var(--text-base)] font-semibold truncate"
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   {title}
                 </h2>
               )}
               {subtitle && (
-                <p className="text-sm text-white/40 mt-0.5 truncate">
+                <p className="text-[var(--text-sm)] mt-0.5 truncate" style={{ color: 'var(--text-tertiary)' }}>
                   {subtitle}
                 </p>
               )}
@@ -144,16 +146,16 @@ export function DrilldownPanel({
           <button
             data-testid="close-drilldown"
             onClick={handleClose}
-            className="shrink-0 p-2 hover:bg-white/[0.08] rounded-lg transition-colors"
+            className="shrink-0 p-2 rounded-[var(--radius-md)] transition-colors duration-[var(--duration-fast)] hover:bg-[var(--surface-glass-hover)]"
             aria-label="Close panel"
           >
-            <X className="w-3 h-3 text-white/40" />
+            <X className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
           </button>
         </div>
       </div>
 
       {/* Content Area */}
-      <div data-testid="drilldown-content" className="p-3">
+      <div data-testid="drilldown-content" className="p-4">
         {children}
       </div>
     </div>

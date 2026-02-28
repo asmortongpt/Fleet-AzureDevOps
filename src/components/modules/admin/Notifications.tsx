@@ -175,10 +175,10 @@ export function Notifications() {
       case 'acknowledged':
         return 'text-emerald-800 bg-emerald-500/10'
       case 'sent':
-        return 'text-purple-600 bg-purple-100'
+        return 'text-amber-600 bg-amber-100'
       case 'pending':
       default:
-        return 'text-white/70 bg-gray-100'
+        return 'text-[var(--text-primary)] bg-white/[0.05]'
     }
   }
 

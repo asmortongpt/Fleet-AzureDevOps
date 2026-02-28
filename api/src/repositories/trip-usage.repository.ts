@@ -54,7 +54,7 @@ export interface PaginationResult<T> {
 }
 
 /**
- * SECURITY: Repository for trip_usage_classification table
+ * SECURITY: Repository for trip_usage_classifications table
  * All methods include tenant_id filtering for multi-tenancy
  * Uses parameterized queries only ($1, $2, $3) - no string concatenation
  */
@@ -134,7 +134,7 @@ export class TripUsageRepository extends BaseRepository<any> {
     }
   ): Promise<TripUsageRow> {
     const result = await pool.query(
-      `INSERT INTO trip_usage_classification (
+      `INSERT INTO trip_usage_classifications (
         tenant_id, trip_id, vehicle_id, driver_id, usage_type,
         business_purpose, business_percentage, personal_notes,
         miles_total, trip_date, start_location, end_location,
@@ -206,10 +206,11 @@ export class TripUsageRepository extends BaseRepository<any> {
   ): Promise<PaginationResult<TripUsageRow>> {
     let query = `
       SELECT t.*,
-             u.first_name || ' ' || u.last_name as driver_name,
-             v.vehicle_number as vehicle_number
-      FROM trip_usage_classification t
-      LEFT JOIN users u ON t.driver_id = u.id
+             CONCAT(u.first_name, ' ', u.last_name) as driver_name,
+             CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name
+      FROM trip_usage_classifications t
+      LEFT JOIN drivers d ON t.driver_id = d.id
+      LEFT JOIN users u ON d.user_id = u.id
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       WHERE t.tenant_id = $1
     `
@@ -269,7 +270,7 @@ export class TripUsageRepository extends BaseRepository<any> {
 
     // Get total count
     const countQuery = query.replace(
-      `SELECT t.*, u.first_name || ' ' || u.last_name as driver_name, v.vehicle_number as vehicle_number`,
+      `SELECT t.*, u.first_name || ' ' || u.last_name as driver_name, CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name`,
       `SELECT COUNT(*)`
     )
     const countResult = await pool.query(countQuery, params)
@@ -302,11 +303,12 @@ export class TripUsageRepository extends BaseRepository<any> {
   async findById(id: string, tenantId: string): Promise<TripUsageRow | null> {
     const result = await pool.query(
       `SELECT t.*,
-              u.first_name || ' ' || u.last_name as driver_name,
-              v.vehicle_number as vehicle_number,
-              approver.first_name || ' ' || approver.last_name as approver_name
-       FROM trip_usage_classification t
-       LEFT JOIN users u ON t.driver_id = u.id
+              CONCAT(u.first_name, ' ', u.last_name) as driver_name,
+              CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
+              CONCAT(approver.first_name, ' ', approver.last_name) as approver_name
+       FROM trip_usage_classifications t
+       LEFT JOIN drivers d ON t.driver_id = d.id
+       LEFT JOIN users u ON d.user_id = u.id
        LEFT JOIN vehicles v ON t.vehicle_id = v.id
        LEFT JOIN users approver ON t.approved_by_user_id = approver.id
        WHERE t.id = $1 AND t.tenant_id = $2`,
@@ -321,7 +323,7 @@ export class TripUsageRepository extends BaseRepository<any> {
    */
   async getDriverIdForTrip(id: string, tenantId: string): Promise<string | null> {
     const result = await pool.query(
-      `SELECT driver_id FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2`,
+      `SELECT driver_id FROM trip_usage_classifications WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     )
     return result.rows[0]?.driver_id || null
@@ -339,7 +341,7 @@ export class TripUsageRepository extends BaseRepository<any> {
   } | null> {
     const result = await pool.query(
       `SELECT id, driver_id, approval_status, usage_type, tenant_id
-       FROM trip_usage_classification
+       FROM trip_usage_classifications
        WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     )
@@ -378,7 +380,7 @@ export class TripUsageRepository extends BaseRepository<any> {
     }
 
     const query = `
-      UPDATE trip_usage_classification
+      UPDATE trip_usage_classifications
       SET ${updateFields.join(', ')}, updated_at = NOW()
       WHERE id = $1 AND tenant_id = $2
       RETURNING *
@@ -394,7 +396,7 @@ export class TripUsageRepository extends BaseRepository<any> {
    */
   async resetApproval(id: string, tenantId: string): Promise<void> {
     await pool.query(
-      `UPDATE trip_usage_classification
+      `UPDATE trip_usage_classifications
        SET approval_status = $1,
            approved_by_user_id = NULL,
            approved_at = NULL,
@@ -414,13 +416,14 @@ export class TripUsageRepository extends BaseRepository<any> {
   ): Promise<PaginationResult<TripUsageRow>> {
     const result = await pool.query(
       `SELECT t.*,
-              u.first_name || ' ' || u.last_name as driver_name,
+              CONCAT(u.first_name, ' ', u.last_name) as driver_name,
               u.email as driver_email,
-              v.vehicle_number as vehicle_number,
+              CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
               v.make, v.model, v.year
-       FROM trip_usage_classification t
-       JOIN users u ON t.driver_id = u.id
-       JOIN vehicles v ON t.vehicle_id = v.id
+       FROM trip_usage_classifications t
+       LEFT JOIN drivers d ON t.driver_id = d.id
+       LEFT JOIN users u ON d.user_id = u.id
+       LEFT JOIN vehicles v ON t.vehicle_id = v.id
        WHERE t.tenant_id = $1
          AND t.approval_status = $2
        ORDER BY t.trip_date DESC, t.created_at ASC
@@ -429,7 +432,7 @@ export class TripUsageRepository extends BaseRepository<any> {
     )
 
     const countResult = await pool.query(
-      `SELECT COUNT(*) FROM trip_usage_classification WHERE tenant_id = $1 AND approval_status = $2`,
+      `SELECT COUNT(*) FROM trip_usage_classifications WHERE tenant_id = $1 AND approval_status = $2`,
       [tenantId, ApprovalStatus.PENDING]
     )
 
@@ -455,7 +458,7 @@ export class TripUsageRepository extends BaseRepository<any> {
     approverNotes?: string
   ): Promise<TripUsageRow | null> {
     const result = await pool.query(
-      `UPDATE trip_usage_classification
+      `UPDATE trip_usage_classifications
        SET approval_status = $1,
            approved_by_user_id = $2,
            approved_at = NOW(),
@@ -479,7 +482,7 @@ export class TripUsageRepository extends BaseRepository<any> {
     rejectionReason: string
   ): Promise<TripUsageRow | null> {
     const result = await pool.query(
-      `UPDATE trip_usage_classification
+      `UPDATE trip_usage_classifications
        SET approval_status = $1,
            approved_by_user_id = $2,
            approved_at = NOW(),

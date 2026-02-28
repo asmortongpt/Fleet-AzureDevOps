@@ -79,8 +79,10 @@ import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
 import { PanelProvider } from "./contexts/PanelContext"
 import { initializeAxe } from './lib/accessibility/axe-init'
+import { ThemeProvider as MuiThemeProvider } from '@mui/material'
 import { InspectProvider } from "./services/inspect/InspectContext"
 import { BrandingProvider } from "./shared/branding/BrandingProvider"
+import { muiTheme } from './lib/mui-theme'
 import logger from './utils/logger'
 
 // Core Tailwind v4 + Enterprise Design System + Optimized CSS Bundle
@@ -196,7 +198,8 @@ validateStartupConfiguration().then(async () => {
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <MsalProvider instance={msalInstance}>
-          <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
+          <ThemeProvider defaultTheme="dark" storageKey="ctafleet-theme">
+            <MuiThemeProvider theme={muiTheme}>
             <SentryErrorBoundary level="page">
               <BrandingProvider>
                 <AuthProvider>
@@ -217,6 +220,7 @@ validateStartupConfiguration().then(async () => {
               </AuthProvider>
             </BrandingProvider>
             </SentryErrorBoundary>
+            </MuiThemeProvider>
           </ThemeProvider>
         </MsalProvider>
       </QueryClientProvider>

@@ -15,19 +15,16 @@ const createPartSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   category: z.string().optional(),
-  manufacturer: z.string().optional(),
+  supplier: z.string().optional(),
   unitCost: z.number().optional(),
-  unitOfMeasure: z.string().optional(),
   quantityOnHand: z.number().int().optional(),
   reorderPoint: z.number().int().optional(),
   reorderQuantity: z.number().int().optional(),
-  locationInWarehouse: z.string().optional(),
+  location: z.string().optional(),
   facilityId: flexUuid.optional(),
 })
 
-const updatePartSchema = createPartSchema.omit({ partNumber: true }).extend({
-  isActive: z.boolean().optional(),
-}).partial()
+const updatePartSchema = createPartSchema.omit({ partNumber: true }).partial()
 
 const router = Router()
 
@@ -61,12 +58,12 @@ router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
 
   const result = await client.query(
     `SELECT id, part_number as "partNumber", name, description, category,
-            manufacturer, unit_cost as "unitCost", unit_of_measure as "unitOfMeasure",
+            supplier, unit_cost as "unitCost",
             quantity_on_hand as "quantityOnHand", reorder_point as "reorderPoint",
-            reorder_quantity as "reorderQuantity", location_in_warehouse as "locationInWarehouse",
-            facility_id as "facilityId", is_active as "isActive",
+            reorder_quantity as "reorderQuantity", location,
+            facility_id as "facilityId",
             created_at as "createdAt", updated_at as "updatedAt"
-     FROM parts_inventory 
+     FROM parts_inventory
      ${whereClause}
      ORDER BY name ASC
      LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
@@ -96,12 +93,12 @@ router.get("/:id", asyncHandler(async (req: AuthRequest, res: Response) => {
 
   const result = await client.query(
     `SELECT id, part_number as "partNumber", name, description, category,
-            manufacturer, unit_cost as "unitCost", unit_of_measure as "unitOfMeasure",
+            supplier, unit_cost as "unitCost",
             quantity_on_hand as "quantityOnHand", reorder_point as "reorderPoint",
-            reorder_quantity as "reorderQuantity", location_in_warehouse as "locationInWarehouse",
-            facility_id as "facilityId", is_active as "isActive", metadata,
+            reorder_quantity as "reorderQuantity", location,
+            facility_id as "facilityId", metadata,
             created_at as "createdAt", updated_at as "updatedAt"
-     FROM parts_inventory 
+     FROM parts_inventory
      WHERE id = $1 AND tenant_id = $2`,
     [req.params.id, tenantId]
   )
@@ -126,18 +123,18 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
     return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
   }
 
-  const { partNumber, name, description, category, manufacturer, unitCost, unitOfMeasure, quantityOnHand, reorderPoint, reorderQuantity, locationInWarehouse, facilityId } = parsed.data
+  const { partNumber, name, description, category, supplier, unitCost, quantityOnHand, reorderPoint, reorderQuantity, location, facilityId } = parsed.data
 
   const result = await client.query(
     `INSERT INTO parts_inventory (
-      tenant_id, part_number, name, description, category, manufacturer,
-      unit_cost, unit_of_measure, quantity_on_hand, reorder_point,
-      reorder_quantity, location_in_warehouse, facility_id
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      tenant_id, part_number, name, description, category, supplier,
+      unit_cost, quantity_on_hand, reorder_point,
+      reorder_quantity, location, facility_id
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     RETURNING id, part_number as "partNumber", name, category, quantity_on_hand as "quantityOnHand"`,
-    [tenantId, partNumber, name, description || null, category || null, manufacturer || null,
-      unitCost || null, unitOfMeasure || 'each', quantityOnHand || 0, reorderPoint || 0,
-      reorderQuantity || 0, locationInWarehouse || null, facilityId || null]
+    [tenantId, partNumber, name, description || null, category || null, supplier || null,
+      unitCost || null, quantityOnHand || 0, reorderPoint || 0,
+      reorderQuantity || 0, location || null, facilityId || null]
   )
 
   logger.info('Part created', { partId: result.rows[0].id, tenantId })
@@ -157,22 +154,21 @@ router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Re
     return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
   }
 
-  const { name, description, category, manufacturer, unitCost, quantityOnHand, reorderPoint, isActive } = parsed.data
+  const { name, description, category, supplier, unitCost, quantityOnHand, reorderPoint } = parsed.data
 
   const result = await client.query(
-    `UPDATE parts_inventory 
+    `UPDATE parts_inventory
      SET name = COALESCE($1, name),
          description = COALESCE($2, description),
          category = COALESCE($3, category),
-         manufacturer = COALESCE($4, manufacturer),
+         supplier = COALESCE($4, supplier),
          unit_cost = COALESCE($5, unit_cost),
          quantity_on_hand = COALESCE($6, quantity_on_hand),
          reorder_point = COALESCE($7, reorder_point),
-         is_active = COALESCE($8, is_active),
          updated_at = NOW()
-     WHERE id = $9 AND tenant_id = $10
+     WHERE id = $8 AND tenant_id = $9
      RETURNING id, part_number as "partNumber", name, quantity_on_hand as "quantityOnHand"`,
-    [name, description, category, manufacturer, unitCost, quantityOnHand, reorderPoint, isActive, req.params.id, tenantId]
+    [name, description, category, supplier, unitCost, quantityOnHand, reorderPoint, req.params.id, tenantId]
   )
 
   if (result.rows.length === 0) {

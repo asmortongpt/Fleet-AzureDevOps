@@ -152,7 +152,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
       },
       render: (route) => (
         <div className="flex items-center gap-2">
-          <User className="h-3 w-3 text-muted-foreground" />
+          <User className="h-3 w-3 text-[var(--text-secondary)]" />
           <span className="text-sm">{route.driverName || '-'}</span>
         </div>
       )
@@ -168,7 +168,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
       },
       render: (route) => (
         <div className="flex items-center gap-2">
-          <Truck className="h-3 w-3 text-muted-foreground" />
+          <Truck className="h-3 w-3 text-[var(--text-secondary)]" />
           <span className="text-sm">{route.vehicleName || '-'}</span>
         </div>
       )
@@ -180,7 +180,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
       align: 'center',
       render: (route) => (
         <div className="flex items-center gap-1 justify-center">
-          <Clock className="h-3 w-3 text-muted-foreground" />
+          <Clock className="h-3 w-3 text-[var(--text-secondary)]" />
           <span className="text-sm">{formatTime(route.startTime)}</span>
         </div>
       )
@@ -192,7 +192,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
       align: 'center',
       render: (route) => (
         <div className="flex items-center gap-1 justify-center">
-          <Flag className="h-3 w-3 text-muted-foreground" />
+          <Flag className="h-3 w-3 text-[var(--text-secondary)]" />
           <span className="text-sm">{formatTime(route.endTime)}</span>
         </div>
       )
@@ -205,7 +205,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
       render: (route) => (
         <div className="flex flex-col items-center">
           <span className="font-semibold">{route.completedStops} / {route.totalStops}</span>
-          <span className="text-xs text-muted-foreground">{route.remainingStops} remaining</span>
+          <span className="text-xs text-[var(--text-secondary)]">{route.remainingStops} remaining</span>
         </div>
       )
     },
@@ -225,7 +225,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
       align: 'center',
       render: (route) => (
         <div className="flex items-center gap-1 justify-center">
-          <Navigation className="h-3 w-3 text-muted-foreground" />
+          <Navigation className="h-3 w-3 text-[var(--text-secondary)]" />
           <span className="text-sm">{formatTime(route.eta)}</span>
         </div>
       )
@@ -290,7 +290,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
               <Navigation className="h-7 w-7 text-emerald-400" />
               Routes Matrix
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
               Complete route visibility with stops, timing, and progress tracking
             </p>
           </div>
@@ -305,33 +305,33 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
           <Card>
             <CardContent className="p-2 text-center">
               <div className="text-sm font-bold text-emerald-400">{metrics.active}</div>
-              <div className="text-xs text-muted-foreground">Active</div>
+              <div className="text-xs text-[var(--text-secondary)]">Active</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2 text-center">
               <div className="text-sm font-bold text-amber-600">{metrics.planned}</div>
-              <div className="text-xs text-muted-foreground">Planned</div>
+              <div className="text-xs text-[var(--text-secondary)]">Planned</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2 text-center">
               <div className="text-sm font-bold text-green-600">{metrics.completed}</div>
-              <div className="text-xs text-muted-foreground">Completed</div>
+              <div className="text-xs text-[var(--text-secondary)]">Completed</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2 text-center">
               <div className="text-sm font-bold">{metrics.total}</div>
-              <div className="text-xs text-muted-foreground">Total Routes</div>
+              <div className="text-xs text-[var(--text-secondary)]">Total Routes</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-2 text-center">
-              <div className="text-sm font-bold text-purple-600">
+              <div className="text-sm font-bold text-amber-600">
                 {metrics.completedStops}/{metrics.totalStops}
               </div>
-              <div className="text-xs text-muted-foreground">Stops Complete</div>
+              <div className="text-xs text-[var(--text-secondary)]">Stops Complete</div>
             </CardContent>
           </Card>
         </div>
@@ -391,7 +391,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center justify-between">
               <span>Routes List ({filteredRoutes.length})</span>
-              <span className="text-sm text-muted-foreground font-normal">
+              <span className="text-sm text-[var(--text-secondary)] font-normal">
                 Click any row to view all stops in Excel format
               </span>
             </CardTitle>

@@ -31,12 +31,12 @@ export interface DrilldownChartProps {
 }
 
 const DEFAULT_COLORS = [
-    '#3b82f6', // blue-500
     '#10b981', // emerald-500
+    '#059669', // emerald-600
     '#f59e0b', // amber-500
     '#ef4444', // red-500
-    '#8b5cf6', // violet-500
-    '#ec4899', // pink-500
+    '#d97706', // amber-600
+    '#6b7280', // gray-500
 ]
 
 export function DrilldownChart({

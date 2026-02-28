@@ -17,7 +17,7 @@ export function VirtualGarageControls({
   currentQuality = 'high'
 }: VirtualGarageControlsProps) {
   const [expanded, setExpanded] = useState(true);
-  
+
   const cameraPresets = [
     { id: 'hero', label: 'Hero Shot', icon: '🎬' },
     { id: 'frontQuarter', label: 'Front Quarter', icon: '📐' },
@@ -28,20 +28,20 @@ export function VirtualGarageControls({
     { id: 'engineBay', label: 'Engine Bay', icon: '⚙️' },
     { id: 'wheelDetail', label: 'Wheel Detail', icon: '⭕' },
   ];
-  
+
   const qualityLevels = [
     { id: 'low', label: 'Low', description: 'Mobile-optimized' },
     { id: 'medium', label: 'Medium', description: 'Balanced' },
     { id: 'high', label: 'High', description: 'Desktop quality' },
     { id: 'ultra', label: 'Ultra', description: 'Maximum fidelity' },
   ];
-  
+
   return (
     <div className="fixed top-20 right-4 z-50">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-[var(--surface-1)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
         {/* Header */}
-        <div 
-          className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-2 py-3 flex items-center justify-between cursor-pointer"
+        <div
+          className="bg-emerald-600 px-2 py-3 flex items-center justify-between cursor-pointer"
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex items-center gap-2 text-white">
@@ -52,12 +52,12 @@ export function VirtualGarageControls({
             {expanded ? '−' : '+'}
           </button>
         </div>
-        
+
         {expanded && (
           <div className="p-2 space-y-2 max-h-[600px] overflow-y-auto">
             {/* Camera Presets */}
             <div>
-              <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+              <h3 className="font-semibold text-sm text-white mb-3 flex items-center gap-2">
                 <Camera size={16} />
                 Camera Angles
               </h3>
@@ -68,8 +68,8 @@ export function VirtualGarageControls({
                     onClick={() => onCameraChange(preset.id)}
                     className={`px-3 py-2 rounded-lg text-sm transition-all ${
                       currentCamera === preset.id
-                        ? 'bg-emerald-600 text-white shadow-md'
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-white/[0.04] hover:bg-[var(--surface-glass-hover)] text-[var(--text-secondary)]'
                     }`}
                   >
                     <div className="text-sm mb-1">{preset.icon}</div>
@@ -78,10 +78,10 @@ export function VirtualGarageControls({
                 ))}
               </div>
             </div>
-            
+
             {/* Quality Settings */}
             <div>
-              <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+              <h3 className="font-semibold text-sm text-white mb-3 flex items-center gap-2">
                 <Settings size={16} />
                 Rendering Quality
               </h3>
@@ -92,8 +92,8 @@ export function VirtualGarageControls({
                     onClick={() => onQualityChange(level.id as any)}
                     className={`w-full px-3 py-2 rounded-lg text-left transition-all ${
                       currentQuality === level.id
-                        ? 'bg-emerald-600 text-white shadow-md'
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-white/[0.04] hover:bg-[var(--surface-glass-hover)] text-[var(--text-secondary)]'
                     }`}
                   >
                     <div className="font-medium text-sm">{level.label}</div>
@@ -102,16 +102,16 @@ export function VirtualGarageControls({
                 ))}
               </div>
             </div>
-            
+
             {/* Showcase Mode */}
             <div>
-              <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+              <h3 className="font-semibold text-sm text-white mb-3 flex items-center gap-2">
                 <RotateCw size={16} />
                 Presentation
               </h3>
               <button
                 onClick={onToggleShowcase}
-                className="w-full px-2 py-3 bg-gradient-to-r from-purple-600 to-emerald-600 text-white rounded-lg font-medium hover:shadow-sm transition-all"
+                className="w-full px-2 py-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-500 transition-all"
               >
                 <div className="flex items-center justify-center gap-2">
                   <Maximize2 size={18} />

@@ -1,77 +1,29 @@
 /**
- * BottomDrawer - Collapsible activity panel at the bottom of the content area
+ * BottomDrawer - Activity timeline at the bottom of the content area
  *
- * Shows a thin 32px grab bar by default. Expands to ~280px for timeline/activity log.
- * Glass-morphism design consistent with ArchonY branding.
+ * Wraps the TimelineStrip component with PanelContext state.
  */
-import { ChevronUp, ChevronDown, Clock } from 'lucide-react'
-
 import { usePanel } from '@/contexts/PanelContext'
-import { cn } from '@/lib/utils'
+import { TimelineStrip, type TimelineEvent } from '@/components/ui/timeline-strip'
+
+const activityEvents: TimelineEvent[] = [
+  { id: 'ev-1', label: 'Vehicle VEH-1234 entered Geofence A', time: '2m ago', type: 'info' },
+  { id: 'ev-2', label: 'Driver J. Smith completed route R-456', time: '5m ago', type: 'dispatch' },
+  { id: 'ev-3', label: 'Maintenance alert: VEH-0891 oil change due', time: '8m ago', type: 'maintenance' },
+  { id: 'ev-4', label: 'New work order WO-7823 created', time: '12m ago', type: 'info' },
+  { id: 'ev-5', label: 'Speed violation detected: VEH-2341', time: '15m ago', type: 'alert' },
+  { id: 'ev-6', label: 'Vehicle VEH-0456 started trip', time: '20m ago', type: 'dispatch' },
+]
 
 export function BottomDrawer() {
   const { state, toggleBottomDrawer } = usePanel()
   const { open } = state.bottomDrawer
 
   return (
-    <div
-      className={cn(
-        'absolute bottom-0 left-0 right-0 z-10',
-        'bg-[#1A0648]/95 backdrop-blur-xl border-t border-[rgba(0,204,254,0.08)]',
-        'transition-all duration-300 ease-in-out',
-        open ? 'h-[200px] sm:h-[280px]' : 'h-8'
-      )}
-    >
-      {/* Grab bar */}
-      <button
-        onClick={toggleBottomDrawer}
-        className="w-full flex items-center justify-center gap-2 h-8 text-[rgba(255,255,255,0.40)] hover:text-white transition-colors"
-        aria-label={open ? 'Collapse activity panel' : 'Expand activity panel'}
-      >
-        <div className="w-8 h-0.5 rounded-full bg-[rgba(0,204,254,0.08)]" />
-        {open ? (
-          <ChevronDown className="w-3 h-3" />
-        ) : (
-          <>
-            <Clock className="w-3 h-3" />
-            <span className="text-[9px] uppercase tracking-[0.15em] font-medium">Activity</span>
-            <ChevronUp className="w-3 h-3" />
-          </>
-        )}
-      </button>
-
-      {/* Drawer content */}
-      {open && (
-        <div className="px-3 pb-3 sm:px-4 sm:pb-4 overflow-y-auto h-[calc(100%-32px)]">
-          <div className="space-y-1">
-            {[
-              { time: '2m ago', text: 'Vehicle VEH-1234 entered Geofence A', type: 'info' },
-              { time: '5m ago', text: 'Driver J. Smith completed route R-456', type: 'success' },
-              { time: '8m ago', text: 'Maintenance alert: VEH-0891 oil change due', type: 'warning' },
-              { time: '12m ago', text: 'New work order WO-7823 created', type: 'info' },
-              { time: '15m ago', text: 'Speed violation detected: VEH-2341', type: 'alert' },
-              { time: '20m ago', text: 'Vehicle VEH-0456 started trip', type: 'info' },
-            ].map((item) => (
-              <div
-                key={item.text}
-                className="flex items-start gap-3 py-2 text-xs border-b border-[rgba(0,204,254,0.08)] last:border-0"
-              >
-                <span className="text-[rgba(255,255,255,0.40)] shrink-0 w-12 sm:w-14 text-right tabular-nums font-mono text-[10px] sm:text-[11px]">
-                  {item.time}
-                </span>
-                <div className={cn(
-                  'w-1.5 h-1.5 rounded-full mt-1 shrink-0',
-                  item.type === 'success' ? 'bg-emerald-400' :
-                  item.type === 'warning' ? 'bg-white/80' :
-                  item.type === 'alert' ? 'bg-white/40' :
-                  'bg-white/20'
-                )} />
-                <span className="text-[rgba(255,255,255,0.40)]">{item.text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+    <TimelineStrip
+      events={activityEvents}
+      collapsed={!open}
+      onToggle={toggleBottomDrawer}
+    />
   )
 }

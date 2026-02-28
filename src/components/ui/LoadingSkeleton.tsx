@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 
 /**
  * LoadingSkeleton - Comprehensive loading skeletons for all major UI sections
- * ArchonY Brand
  *
  * Provides loading states for:
  * - Map loading
@@ -25,18 +24,18 @@ interface LoadingSkeletonProps {
  */
 export function MapLoadingSkeleton({ className }: LoadingSkeletonProps) {
   return (
-    <div className={cn("relative w-full h-full bg-[#1A0648] overflow-hidden", className)}>
+    <div className={cn("relative w-full h-full bg-[var(--surface-1)] overflow-hidden", className)}>
       {/* Map background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="grid grid-cols-8 grid-rows-8 h-full w-full">
           {Array.from({ length: 64 }).map((_, i) => (
-            <div key={i} className="border border-[rgba(0,204,254,0.08)]" />
+            <div key={i} className="border border-[var(--border-subtle)]" />
           ))}
         </div>
       </div>
 
       {/* Loading overlay */}
-      <div className="absolute inset-0 flex items-center justify-center bg-[#1A0648]/50 backdrop-blur-sm">
+      <div className="absolute inset-0 flex items-center justify-center bg-[var(--overlay-backdrop)]">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -52,7 +51,7 @@ export function MapLoadingSkeleton({ className }: LoadingSkeletonProps) {
               repeat: Infinity,
               ease: "linear"
             }}
-            className="w-16 h-16 rounded-full border-4 border-[#00CCFE] border-t-transparent"
+            className="w-16 h-16 rounded-full border-4 border-emerald-500 border-t-transparent"
           />
           <div className="text-center">
             <Skeleton className="h-6 w-32 mb-2" />
@@ -65,7 +64,7 @@ export function MapLoadingSkeleton({ className }: LoadingSkeletonProps) {
       {[...Array(5)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-4 h-4 bg-[#00CCFE]/30 rounded-full"
+          className="absolute w-4 h-4 bg-white/20 rounded-full"
           style={{
             top: `${20 + i * 15}%`,
             left: `${15 + i * 18}%`,
@@ -108,7 +107,7 @@ export function VehicleListLoadingSkeleton({ className }: LoadingSkeletonProps) 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.05 }}
-          className="flex items-center gap-2 p-3 border border-[rgba(0,204,254,0.08)] rounded-xl bg-[#221060]"
+          className="flex items-center gap-2 p-3 border rounded-lg"
         >
           {/* Avatar */}
           <Skeleton className="h-9 w-12 rounded-full flex-shrink-0" />
@@ -139,7 +138,7 @@ export function DashboardCardsLoadingSkeleton({ className }: LoadingSkeletonProp
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.1 }}
-          className="border border-[rgba(0,204,254,0.08)] rounded-xl p-3 space-y-2 bg-[#221060]"
+          className="border rounded-lg p-3 space-y-2"
         >
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -181,16 +180,16 @@ export function TableLoadingSkeleton({
   columns = 5
 }: LoadingSkeletonProps & { rows?: number; columns?: number }) {
   return (
-    <div className={cn("border border-[rgba(0,204,254,0.08)] rounded-xl overflow-hidden bg-[#221060]", className)}>
+    <div className={cn("border rounded-lg overflow-hidden", className)}>
       {/* Table header */}
-      <div className="grid gap-2 p-2 bg-[#2A1878] border-b border-[rgba(0,204,254,0.08)]" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+      <div className="grid gap-2 p-2 bg-[var(--surface-2)] border-b border-[var(--border-subtle)]" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
         {[...Array(columns)].map((_, i) => (
           <Skeleton key={i} className="h-4 w-full" />
         ))}
       </div>
 
       {/* Table rows */}
-      <div className="divide-y divide-[rgba(0,204,254,0.08)]">
+      <div className="divide-y">
         {[...Array(rows)].map((_, i) => (
           <motion.div
             key={i}
@@ -223,7 +222,7 @@ export function DetailPanelLoadingSkeleton({ className }: LoadingSkeletonProps) 
       </div>
 
       {/* Image/media section */}
-      <Skeleton className="h-48 w-full rounded-xl" />
+      <Skeleton className="h-48 w-full rounded-lg" />
 
       {/* Info sections */}
       {[...Array(3)].map((_, i) => (
@@ -250,7 +249,7 @@ export function DetailPanelLoadingSkeleton({ className }: LoadingSkeletonProps) 
       ))}
 
       {/* Action buttons */}
-      <div className="flex gap-3 pt-2 border-t border-[rgba(0,204,254,0.08)]">
+      <div className="flex gap-3 pt-2 border-t">
         <Skeleton className="h-8 flex-1" />
         <Skeleton className="h-8 flex-1" />
       </div>
@@ -263,7 +262,7 @@ export function DetailPanelLoadingSkeleton({ className }: LoadingSkeletonProps) 
  */
 export function ChartLoadingSkeleton({ className }: LoadingSkeletonProps) {
   return (
-    <div className={cn("border border-[rgba(0,204,254,0.08)] rounded-xl p-3 space-y-2 bg-[#221060]", className)}>
+    <div className={cn("border rounded-lg p-3 space-y-2", className)}>
       {/* Chart header */}
       <div className="flex items-center justify-between">
         <Skeleton className="h-6 w-32" />
@@ -284,7 +283,7 @@ export function ChartLoadingSkeleton({ className }: LoadingSkeletonProps) {
           {[...Array(12)].map((_, i) => (
             <motion.div
               key={i}
-              className="flex-1 bg-[#2A1878] rounded-t"
+              className="flex-1 bg-[var(--surface-glass)] rounded-t"
               initial={{ height: 0 }}
               animate={{ height: `${30 + Math.random() * 70}%` }}
               transition={{ delay: i * 0.05, duration: 0.3 }}
@@ -359,7 +358,7 @@ export function GridLoadingSkeleton({
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: i * 0.05 }}
-          className="border border-[rgba(0,204,254,0.08)] rounded-xl p-2 space-y-3 bg-[#221060]"
+          className="border rounded-lg p-2 space-y-3"
         >
           <Skeleton className="h-32 w-full rounded-md" />
           <Skeleton className="h-5 w-3/4" />

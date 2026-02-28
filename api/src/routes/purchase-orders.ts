@@ -141,12 +141,12 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
   const result = await client.query(
     `INSERT INTO purchase_orders (
       tenant_id, po_number, vendor_id, order_date, expected_delivery_date,
-      subtotal, tax, shipping, total, shipping_address,
+      subtotal, tax, shipping, special_instructions,
       notes, line_items, created_by, po_type, po_category, urgency_level
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
     RETURNING id, po_number as "number", status, total as "totalAmount"`,
     [tenantId, poNumber, vendorId, orderDate, expectedDeliveryDate || null,
-      subtotal, tax || 0, shipping || 0, total, shippingAddress || null,
+      subtotal, tax || 0, shipping || 0, shippingAddress || null,
       notes || null, lineItems ? JSON.stringify(lineItems) : null, userId,
       poType || null, poCategory || null, urgencyLevel || null]
   )

@@ -72,11 +72,11 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
 
   const getMarkerColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-emerald-500 shadow-emerald-500/50';
+      case 'active': return 'bg-emerald-500';
       case 'maintenance':
-      case 'service': return 'bg-amber-500 shadow-amber-500/50';
-      case 'inactive': return 'bg-white/[0.15] shadow-white/[0.1]';
-      default: return 'bg-emerald-500/50 shadow-emerald-500/50';
+      case 'service': return 'bg-amber-500';
+      case 'inactive': return 'bg-white/[0.15]';
+      default: return 'bg-emerald-500/50';
     }
   };
 
@@ -145,13 +145,13 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
                 {vehicle.status === 'active' && (
                   <div className={`absolute inset-0 rounded-full ${getMarkerColor(vehicle.status)} animate-ping opacity-40`} aria-hidden="true" />
                 )}
-                <div className={`relative p-2 rounded-full shadow-sm ${getMarkerColor(vehicle.status)} ${isSelected ? 'ring-2 ring-white ring-offset-2 ring-offset-[#111]' : ''}`}>
+                <div className={`relative p-2 rounded-full ${getMarkerColor(vehicle.status)} ${isSelected ? 'ring-2 ring-white ring-offset-2 ring-offset-[#111]' : ''}`}>
                   <Navigation className="h-4 w-4 text-white" style={{ transform: `rotate(${(index * 45) % 360}deg)` }} aria-hidden="true" />
                 </div>
               </div>
               {/* Vehicle label on hover/select */}
               {isSelected && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-white rounded shadow-sm text-xs font-medium text-white/80 whitespace-nowrap" aria-live="polite">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-[var(--surface-3)] rounded text-xs font-medium text-[var(--text-primary)] whitespace-nowrap border border-[var(--border-subtle)]" aria-live="polite">
                   {vehicle.vehicleNumber || `Vehicle ${String(vehicle.id).slice(0, 6)}`}
                 </div>
               )}
@@ -160,9 +160,9 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
         })}
 
         {/* Legend */}
-        <div className="absolute bottom-4 left-4 z-20 bg-[#111]/80 backdrop-blur-md rounded-lg p-3 border border-white/[0.15]">
-          <div className="text-xs font-semibold text-white/60 mb-2">Fleet Status</div>
-          <div className="flex flex-col gap-1.5 text-xs text-white/70">
+        <div className="absolute bottom-4 left-4 z-20 bg-[var(--surface-2)] rounded-lg p-3 border border-[var(--border-subtle)]">
+          <div className="text-xs font-semibold text-[var(--text-secondary)] mb-2">Fleet Status</div>
+          <div className="flex flex-col gap-1.5 text-xs text-[var(--text-primary)]">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-emerald-500" />
               <span>Active ({vehiclesWithCoords.filter(v => v.status === 'active').length})</span>
@@ -179,9 +179,9 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
         </div>
 
         {/* Stats overlay */}
-        <div className="absolute top-4 left-4 z-20 bg-[#111]/80 backdrop-blur-md rounded-lg px-2 py-2 border border-white/[0.15]">
+        <div className="absolute top-4 left-4 z-20 bg-[var(--surface-2)] rounded-lg px-2 py-2 border border-[var(--border-subtle)]">
           <span className="text-sm font-semibold text-emerald-300">{vehiclesWithCoords.length}</span>
-          <span className="text-sm text-white/70 ml-1">vehicles tracked</span>
+          <span className="text-sm text-[var(--text-primary)] ml-1">vehicles tracked</span>
         </div>
       </div>
 
@@ -190,31 +190,31 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
         <Button
           size="icon"
           variant="secondary"
-          className="bg-[#111]/80 border-white/[0.15] hover:bg-[#1a1a1a]"
+          className="bg-[var(--surface-2)] border-[var(--border-subtle)] hover:bg-[#161616]"
           onClick={() => setZoom(Math.min(zoom + 2, 24))}
           data-testid="map-zoom-in"
           aria-label="Zoom in"
         >
-          <ZoomIn className="h-4 w-4 text-white/60" />
+          <ZoomIn className="h-4 w-4 text-[var(--text-secondary)]" />
         </Button>
         <Button
           size="icon"
           variant="secondary"
-          className="bg-[#111]/80 border-white/[0.15] hover:bg-[#1a1a1a]"
+          className="bg-[var(--surface-2)] border-[var(--border-subtle)] hover:bg-[#161616]"
           onClick={() => setZoom(Math.max(zoom - 2, 4))}
           data-testid="map-zoom-out"
           aria-label="Zoom out"
         >
-          <ZoomOut className="h-4 w-4 text-white/60" />
+          <ZoomOut className="h-4 w-4 text-[var(--text-secondary)]" />
         </Button>
         <Button
           size="icon"
           variant="secondary"
-          className="bg-[#111]/80 border-white/[0.15] hover:bg-[#1a1a1a]"
+          className="bg-[var(--surface-2)] border-[var(--border-subtle)] hover:bg-[#161616]"
           data-testid="map-locate"
           aria-label="Locate me"
         >
-          <Locate className="h-4 w-4 text-white/60" />
+          <Locate className="h-4 w-4 text-[var(--text-secondary)]" />
         </Button>
       </div>
 

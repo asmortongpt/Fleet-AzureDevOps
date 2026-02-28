@@ -44,7 +44,7 @@ export function MetricCard({
   }
 
   return (
-    <Card className="hover:shadow-md transition-shadow duration-200 overflow-hidden">
+    <Card className="hover:border-[var(--border-strong)] transition-colors duration-200 overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0.5 px-2 pt-2 gap-2">
         <CardTitle className="text-[10px] font-medium text-muted-foreground truncate min-w-0 flex-1" title={title}>
           {title}

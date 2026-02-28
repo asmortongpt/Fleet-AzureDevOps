@@ -118,8 +118,8 @@ export function EndpointHealthDashboard({
       default:
         return {
           icon: HelpCircle,
-          color: 'text-white/70 dark:text-gray-700',
-          bgColor: 'bg-gray-50 dark:bg-gray-950',
+          color: 'text-[var(--text-primary)] dark:text-[var(--text-tertiary)]',
+          bgColor: 'bg-white/[0.03] dark:bg-[var(--surface-0)]',
           label: 'Unknown'
         }
     }
@@ -145,8 +145,8 @@ export function EndpointHealthDashboard({
       case 'disconnected':
         return {
           icon: WifiOff,
-          color: 'text-white/70 dark:text-gray-700',
-          bgColor: 'bg-gray-50 dark:bg-gray-950',
+          color: 'text-[var(--text-primary)] dark:text-[var(--text-tertiary)]',
+          bgColor: 'bg-white/[0.03] dark:bg-[var(--surface-0)]',
           label: 'Disconnected'
         }
       case 'error':
@@ -159,8 +159,8 @@ export function EndpointHealthDashboard({
       default:
         return {
           icon: HelpCircle,
-          color: 'text-white/70 dark:text-gray-700',
-          bgColor: 'bg-gray-50 dark:bg-gray-950',
+          color: 'text-[var(--text-primary)] dark:text-[var(--text-tertiary)]',
+          bgColor: 'bg-white/[0.03] dark:bg-[var(--surface-0)]',
           label: 'Unknown'
         }
     }
@@ -179,12 +179,12 @@ export function EndpointHealthDashboard({
   return (
     <div className={cn('space-y-2', className)}>
       {/* Summary Card */}
-      <Card className="border-gray-200 dark:border-gray-800">
+      <Card className="border-[var(--border-default)] dark:border-white/[0.06]">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Server className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              <CardTitle className="text-gray-900 dark:text-gray-100">
+              <Server className="h-5 w-5 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />
+              <CardTitle className="text-[var(--text-primary)] dark:text-[var(--text-primary)]">
                 System Health Monitor
               </CardTitle>
             </div>
@@ -193,13 +193,13 @@ export function EndpointHealthDashboard({
               disabled={isLoading}
               size="sm"
               variant="outline"
-              className="border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300"
+              className="border-[var(--border-default)] dark:border-[var(--border-default)] text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"
             >
               <RefreshCw className={cn('h-4 w-4 mr-2', isLoading && 'animate-spin')} />
               Refresh
             </Button>
           </div>
-          <CardDescription className="text-white/70 dark:text-gray-700">
+          <CardDescription className="text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
             Real-time monitoring of REST endpoints and WebSocket connections
           </CardDescription>
         </CardHeader>
@@ -213,13 +213,13 @@ export function EndpointHealthDashboard({
                   <h3 className={cn('font-semibold', overallDisplay.color)}>
                     Overall System Status: {overallDisplay.label}
                   </h3>
-                  <p className="text-sm text-white/70 dark:text-gray-700">
+                  <p className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
                     Health Score: {endpointSummary.healthScore}%
                   </p>
                 </div>
               </div>
               {lastCheck && (
-                <div className="flex items-center gap-2 text-sm text-white/70 dark:text-gray-700">
+                <div className="flex items-center gap-2 text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
                   <Clock className="h-4 w-4" />
                   <span>Last check: {formatTime(lastCheck)}</span>
                 </div>
@@ -259,12 +259,12 @@ export function EndpointHealthDashboard({
       </Card>
 
       {/* WebSocket Connections */}
-      <Card className="border-gray-200 dark:border-gray-800">
+      <Card className="border-[var(--border-default)] dark:border-white/[0.06]">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Radio className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              <CardTitle className="text-gray-900 dark:text-gray-100">
+              <Radio className="h-5 w-5 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />
+              <CardTitle className="text-[var(--text-primary)] dark:text-[var(--text-primary)]">
                 WebSocket Connections
               </CardTitle>
             </div>
@@ -272,12 +272,12 @@ export function EndpointHealthDashboard({
               onClick={() => setShowSockets(!showSockets)}
               size="sm"
               variant="ghost"
-              className="text-gray-700 dark:text-gray-300"
+              className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"
             >
               {showSockets ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </Button>
           </div>
-          <CardDescription className="text-white/70 dark:text-gray-700">
+          <CardDescription className="text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
             {socketSummary.connected} of {socketSummary.total} connected
           </CardDescription>
         </CardHeader>
@@ -300,7 +300,7 @@ export function EndpointHealthDashboard({
                       <StatusIcon className={cn('h-5 w-5 flex-shrink-0', display.color)} />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                          <h4 className="font-medium text-[var(--text-primary)] dark:text-[var(--text-primary)] truncate">
                             {socket.category}
                           </h4>
                           <Badge
@@ -310,7 +310,7 @@ export function EndpointHealthDashboard({
                             {display.label}
                           </Badge>
                         </div>
-                        <p className="text-sm text-white/70 dark:text-gray-700 truncate">
+                        <p className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)] truncate">
                           {socket.description}
                         </p>
                       </div>
@@ -329,12 +329,12 @@ export function EndpointHealthDashboard({
       </Card>
 
       {/* REST Endpoints by Category */}
-      <Card className="border-gray-200 dark:border-gray-800">
+      <Card className="border-[var(--border-default)] dark:border-white/[0.06]">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              <CardTitle className="text-gray-900 dark:text-gray-100">
+              <Activity className="h-5 w-5 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />
+              <CardTitle className="text-[var(--text-primary)] dark:text-[var(--text-primary)]">
                 REST API Endpoints
               </CardTitle>
             </div>
@@ -343,7 +343,7 @@ export function EndpointHealthDashboard({
                 onClick={expandAll}
                 size="sm"
                 variant="ghost"
-                className="text-gray-700 dark:text-gray-300"
+                className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"
               >
                 Expand All
               </Button>
@@ -351,7 +351,7 @@ export function EndpointHealthDashboard({
                 onClick={collapseAll}
                 size="sm"
                 variant="ghost"
-                className="text-gray-700 dark:text-gray-300"
+                className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"
               >
                 Collapse All
               </Button>
@@ -378,17 +378,17 @@ export function EndpointHealthDashboard({
                     onOpenChange={() => toggleCategory(category.name)}
                   >
                     <CollapsibleTrigger className="w-full">
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] dark:bg-[var(--surface-1)] hover:bg-white/[0.05] dark:hover:bg-[var(--surface-3)] transition-colors">
                         <div className="flex items-center gap-3">
                           {isExpanded ? (
-                            <ChevronDown className="h-4 w-4 text-gray-700 dark:text-gray-300" />
+                            <ChevronDown className="h-4 w-4 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />
                           ) : (
-                            <ChevronRight className="h-4 w-4 text-gray-700 dark:text-gray-300" />
+                            <ChevronRight className="h-4 w-4 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />
                           )}
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                          <h3 className="font-medium text-[var(--text-primary)] dark:text-[var(--text-primary)]">
                             {category.name}
                           </h3>
-                          <span className="text-sm text-white/70 dark:text-gray-700">
+                          <span className="text-sm text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
                             ({categoryEndpoints.length})
                           </span>
                         </div>
@@ -429,16 +429,16 @@ export function EndpointHealthDashboard({
                             >
                               <div className="flex items-center gap-2 min-w-0 flex-1">
                                 <StatusIcon className={cn('h-4 w-4 flex-shrink-0', display.color)} />
-                                <code className="text-xs font-mono bg-white dark:bg-gray-950 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100">
+                                <code className="text-xs font-mono bg-white dark:bg-[var(--surface-0)] px-2 py-0.5 rounded border border-[var(--border-default)] dark:border-white/[0.06] text-[var(--text-primary)] dark:text-[var(--text-primary)]">
                                   {endpoint.method}
                                 </code>
-                                <span className="text-gray-700 dark:text-gray-300 truncate">
+                                <span className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] truncate">
                                   {endpoint.path}
                                 </span>
                               </div>
                               <div className="flex items-center gap-3 flex-shrink-0 ml-2">
                                 {endpoint.responseTime && (
-                                  <span className="text-xs text-white/70 dark:text-gray-700">
+                                  <span className="text-xs text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
                                     {endpoint.responseTime.toFixed(0)}ms
                                   </span>
                                 )}
@@ -448,7 +448,7 @@ export function EndpointHealthDashboard({
                                   </span>
                                 )}
                                 {endpoint.lastChecked && (
-                                  <span className="text-xs text-gray-700 dark:text-gray-700">
+                                  <span className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-tertiary)]">
                                     {formatTime(endpoint.lastChecked)}
                                   </span>
                                 )}
@@ -482,10 +482,10 @@ function StatCard({
   color: string
 }) {
   return (
-    <div className="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg p-3">
+    <div className="bg-white dark:bg-[var(--surface-0)] border border-[var(--border-default)] dark:border-white/[0.06] rounded-lg p-3">
       <div className="flex items-center gap-2 mb-1">
         <Icon className={cn('h-4 w-4', color)} />
-        <span className="text-xs font-medium text-white/70 dark:text-gray-700">
+        <span className="text-xs font-medium text-[var(--text-primary)] dark:text-[var(--text-tertiary)]">
           {label}
         </span>
       </div>

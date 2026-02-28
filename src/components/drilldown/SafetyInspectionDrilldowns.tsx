@@ -124,7 +124,7 @@ export function InspectionsMatrixView() {
         <div>
           <div>{formatDate(row.original.date)}</div>
           {row.original.time && (
-            <div className="text-xs text-muted-foreground">{row.original.time}</div>
+            <div className="text-xs text-[var(--text-secondary)]">{row.original.time}</div>
           )}
         </div>
       ),
@@ -184,7 +184,7 @@ export function InspectionsMatrixView() {
       cell: ({ row }) => (
         <div className="text-center">
           {row.original.violations === 0 ? (
-            <span className="text-muted-foreground">0</span>
+            <span className="text-[var(--text-secondary)]">0</span>
           ) : (
             <span className="font-bold text-red-500">{row.original.violations}</span>
           )}
@@ -197,7 +197,7 @@ export function InspectionsMatrixView() {
       cell: ({ row }) => (
         <div className="text-center">
           {row.original.critical_items === 0 ? (
-            <span className="text-muted-foreground">0</span>
+            <span className="text-[var(--text-secondary)]">0</span>
           ) : (
             <span className="font-bold text-red-500">{row.original.critical_items}</span>
           )}
@@ -292,10 +292,10 @@ export function InspectionsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalInspections}</div>
-            <div className="text-xs text-white/40">Total Inspections</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Inspections</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -304,7 +304,7 @@ export function InspectionsMatrixView() {
               <CheckCircle className="w-3 h-3 text-green-400" />
               <div className="text-sm font-bold text-green-400">{passedCount}</div>
             </div>
-            <div className="text-xs text-white/40">Passed ({passRate}%)</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Passed ({passRate}%)</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -313,7 +313,7 @@ export function InspectionsMatrixView() {
               <XCircle className="w-3 h-3 text-red-400" />
               <div className="text-sm font-bold text-red-400">{failedCount}</div>
             </div>
-            <div className="text-xs text-white/40">Failed</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Failed</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -322,13 +322,13 @@ export function InspectionsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-amber-400" />
               <div className="text-sm font-bold text-amber-400">{violationsCount}</div>
             </div>
-            <div className="text-xs text-white/40">Total Violations</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Violations</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3">
             <div className="flex-1">
@@ -372,7 +372,7 @@ export function InspectionsMatrixView() {
       </Card>
 
       {/* Excel-Style Inspection Matrix */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <ClipboardCheck className="w-3 h-3 text-emerald-400" />
@@ -475,7 +475,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">Inspection #{inspection.inspection_number}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 {formatDate(inspection.date)}{' '}
                 {inspection.time && `at ${inspection.time}`}
               </p>
@@ -529,7 +529,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                     : 'Not scheduled'}
                 </div>
                 {inspection.next_due && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
                     {Math.floor(
                       (new Date(inspection.next_due).getTime() - new Date().getTime()) /
                         (1000 * 60 * 60 * 24)
@@ -590,22 +590,22 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <p className="text-sm text-muted-foreground">Vehicle</p>
+                  <p className="text-sm text-[var(--text-secondary)]">Vehicle</p>
                   <Button variant="link" className="p-0 h-auto font-medium" onClick={handleViewVehicle}>
                     {inspection.vehicle_name || 'View Vehicle'}
                   </Button>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Location</p>
+                  <p className="text-sm text-[var(--text-secondary)]">Location</p>
                   <p className="font-medium">{inspection.location || '—'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Inspection Type</p>
+                  <p className="text-sm text-[var(--text-secondary)]">Inspection Type</p>
                   <p className="font-medium">{formatEnum(inspection.type)}</p>
                 </div>
                 {inspection.certification_number && (
                   <div>
-                    <p className="text-sm text-muted-foreground">Certification #</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Certification #</p>
                     <p className="font-medium">{inspection.certification_number}</p>
                   </div>
                 )}
@@ -648,7 +648,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                             </div>
                             <p className="text-sm">{violation.description}</p>
                             {violation.regulation_reference && (
-                              <p className="text-xs text-muted-foreground mt-1">
+                              <p className="text-xs text-[var(--text-secondary)] mt-1">
                                 Regulation: {violation.regulation_reference}
                               </p>
                             )}
@@ -663,7 +663,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                         {violation.corrective_action && (
                           <div className="pt-2 border-t">
                             <p className="text-sm font-medium">Corrective Action:</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-[var(--text-secondary)]">
                               {violation.corrective_action}
                             </p>
                             <div className="flex items-center gap-2 mt-2 text-xs">
@@ -686,12 +686,12 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
 
                         {violation.resolved && violation.resolved_date && (
                           <div className="pt-2 border-t text-sm">
-                            <span className="text-muted-foreground">Resolved on </span>
+                            <span className="text-[var(--text-secondary)]">Resolved on </span>
                             <span className="font-medium">
                               {formatDate(violation.resolved_date)}
                             </span>
                             {violation.resolved_by && (
-                              <span className="text-muted-foreground"> by {violation.resolved_by}</span>
+                              <span className="text-[var(--text-secondary)]"> by {violation.resolved_by}</span>
                             )}
                           </div>
                         )}

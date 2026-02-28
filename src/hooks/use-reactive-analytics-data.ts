@@ -267,16 +267,16 @@ export function useReactiveAnalyticsData() {
   // Category chart data with memoization
   const categoryChartData = useMemo<ChartDataPoint[]>(() => {
     const colorMap: Record<string, string> = {
-      operational: '#3B82F6',
+      operational: '#10b981',
       financial: '#10B981',
       compliance: '#F59E0B',
-      performance: '#06B6D4',
+      performance: '#10b981',
     }
 
     return Object.entries(reportsByCategory).map(([name, value]) => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
       value,
-      fill: colorMap[name] || '#64748B',
+      fill: colorMap[name] || '#6B7280',
     }))
   }, [reportsByCategory])
 

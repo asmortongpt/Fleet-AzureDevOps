@@ -26,6 +26,8 @@ interface RowData {
 }
 
 export const DataWorkbench: React.FC = () => {
+  const [showQuickFilter, setShowQuickFilter] = useState(false);
+  const [quickFilterText, setQuickFilterText] = useState('');
   const { data: rawVehicles = [] } = useSWR<any[]>(
     '/api/vehicles?limit=200',
     (url: string) =>
@@ -165,7 +167,10 @@ export const DataWorkbench: React.FC = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold">Data Workbench</h2>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-2 py-2 bg-muted hover:bg-muted/80 rounded-lg">
+          <button
+            className={`flex items-center gap-2 px-2 py-2 rounded-lg ${showQuickFilter ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'}`}
+            onClick={() => { setShowQuickFilter(prev => !prev); if (showQuickFilter) setQuickFilterText(''); }}
+          >
             <Filter className="w-4 h-4" />
             Filters
           </button>
@@ -179,6 +184,26 @@ export const DataWorkbench: React.FC = () => {
         </div>
       </div>
 
+      {/* Quick Filter */}
+      {showQuickFilter && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 border border-border rounded-lg">
+          <Filter className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+          <input
+            type="text"
+            placeholder="Type to filter all columns..."
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            value={quickFilterText}
+            onChange={(e) => setQuickFilterText(e.target.value)}
+            autoFocus
+          />
+          {quickFilterText && (
+            <button className="text-xs text-muted-foreground hover:text-foreground" onClick={() => setQuickFilterText('')}>
+              Clear
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Excel Grid */}
       <div className="ag-theme-alpine border border-border rounded-lg" style={{ height: 600 }}>
         <AgGridReact
@@ -186,6 +211,7 @@ export const DataWorkbench: React.FC = () => {
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           onCellValueChanged={onCellValueChanged}
+          quickFilterText={quickFilterText}
           rowSelection="multiple"
           enableRangeSelection={true}
           enableFillHandle={true}

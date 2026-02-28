@@ -6,29 +6,31 @@ import { BaseRepository } from './base/BaseRepository';
 export interface Asset {
   id: string
   tenantId: string
-  name: string
-  assetNumber?: string
-  serialNumber?: string
-  type: string
-  category?: string
+  assetNumber: string
+  assetName: string
+  assetType: string
+  description?: string
   manufacturer?: string
   model?: string
-  purchaseDate?: Date
-  purchasePrice?: number
-  currentValue?: number
-  warrantyExpiryDate?: Date
-  assignedToId?: string
-  assignedFacilityId?: string
+  serialNumber?: string
+  ownershipType?: string
+  acquisitionDate?: Date
+  acquisitionCost?: number
+  currentLocation?: string
+  facilityId?: string
+  gpsLatitude?: number
+  gpsLongitude?: number
   status: 'active' | 'inactive' | 'maintenance' | 'retired' | 'disposed'
   condition?: string
-  notes?: string
-  description?: string
-  lastMaintenanceDate?: Date
-  nextMaintenanceDate?: Date
-  maintenanceSchedule?: any
+  assignedTo?: string
+  assignedAt?: Date
   metadata?: any
   createdAt: Date
   updatedAt: Date
+  createdBy?: string
+  depreciationMethod?: string
+  usefulLifeYears?: number
+  salvageValue?: number
 }
 
 /**
@@ -42,17 +44,23 @@ export class AssetsRepository extends BaseRepository<Asset> {
 
   async findById(id: string, tenantId: string): Promise<Asset | null> {
     const result = await this.pool.query(
-      `SELECT id, tenant_id AS "tenantId", name, asset_number AS "assetNumber", 
-              serial_number AS "serialNumber", type, category, manufacturer, model, 
-              purchase_date AS "purchaseDate", purchase_price AS "purchasePrice", 
-              current_value AS "currentValue", warranty_expiry_date AS "warrantyExpiryDate", 
-              assigned_to_id AS "assignedToId", assigned_facility_id AS "assignedFacilityId", 
-              status, condition, notes, description, 
-              last_maintenance_date AS "lastMaintenanceDate", 
-              next_maintenance_date AS "nextMaintenanceDate", 
-              maintenance_schedule AS "maintenanceSchedule",
-              created_at AS "createdAt", updated_at AS "updatedAt"
-       FROM assets 
+      `SELECT id, tenant_id AS "tenantId", asset_number AS "assetNumber",
+              asset_name AS "assetName", asset_type AS "assetType",
+              description, manufacturer, model, serial_number AS "serialNumber",
+              ownership_type AS "ownershipType",
+              acquisition_date AS "acquisitionDate", acquisition_cost AS "acquisitionCost",
+              current_location AS "currentLocation",
+              facility_id AS "facilityId",
+              gps_latitude AS "gpsLatitude", gps_longitude AS "gpsLongitude",
+              status, condition,
+              assigned_to AS "assignedTo", assigned_at AS "assignedAt",
+              metadata,
+              created_at AS "createdAt", updated_at AS "updatedAt",
+              created_by AS "createdBy",
+              depreciation_method AS "depreciationMethod",
+              useful_life_years AS "usefulLifeYears",
+              salvage_value AS "salvageValue"
+       FROM assets
        WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     )
@@ -61,48 +69,48 @@ export class AssetsRepository extends BaseRepository<Asset> {
 
   async findByTenant(tenantId: string): Promise<Asset[]> {
     const result = await this.pool.query(
-      `SELECT id, name, asset_number AS "assetNumber", type, status, 
-              assigned_to_id AS "assignedToId"
-       FROM assets 
-       WHERE tenant_id = $1 
-       ORDER BY name ASC`,
+      `SELECT id, asset_name AS "assetName", asset_number AS "assetNumber",
+              asset_type AS "assetType", status,
+              assigned_to AS "assignedTo"
+       FROM assets
+       WHERE tenant_id = $1
+       ORDER BY asset_name ASC`,
       [tenantId]
     )
     return result.rows
   }
 
   async create(data: Partial<Asset>, tenantId: string): Promise<Asset> {
-    if (!data.name || !data.type) {
-      throw new ValidationError('Name and type are required')
+    if (!data.assetName || !data.assetType) {
+      throw new ValidationError('Asset name and asset type are required')
     }
 
     const result = await this.pool.query(
       `INSERT INTO assets (
-        tenant_id, name, asset_number, serial_number, type, category, 
-        manufacturer, model, purchase_date, purchase_price, current_value, 
-        warranty_expiry_date, assigned_to_id, assigned_facility_id, status, 
-        condition, notes, description
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-      RETURNING id, name, type, status`,
+        tenant_id, asset_number, asset_name, asset_type,
+        description, manufacturer, model, serial_number,
+        ownership_type, acquisition_date, acquisition_cost,
+        current_location, facility_id,
+        assigned_to, status, condition
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      RETURNING id, asset_name AS "assetName", asset_type AS "assetType", status`,
       [
         tenantId,
-        data.name,
-        data.assetNumber || null,
-        data.serialNumber || null,
-        data.type,
-        data.category || null,
+        data.assetNumber || `AST-${Date.now()}`,
+        data.assetName,
+        data.assetType,
+        data.description || null,
         data.manufacturer || null,
         data.model || null,
-        data.purchaseDate || null,
-        data.purchasePrice || null,
-        data.currentValue || null,
-        data.warrantyExpiryDate || null,
-        data.assignedToId || null,
-        data.assignedFacilityId || null,
+        data.serialNumber || null,
+        data.ownershipType || 'owned',
+        data.acquisitionDate || null,
+        data.acquisitionCost || null,
+        data.currentLocation || null,
+        data.facilityId || null,
+        data.assignedTo || null,
         data.status || 'active',
-        data.condition || null,
-        data.notes || null,
-        data.description || null
+        data.condition || null
       ]
     )
     return result.rows[0]
@@ -115,23 +123,23 @@ export class AssetsRepository extends BaseRepository<Asset> {
     }
 
     const result = await this.pool.query(
-      `UPDATE assets 
-       SET name = COALESCE($1, name),
-           type = COALESCE($2, type),
+      `UPDATE assets
+       SET asset_name = COALESCE($1, asset_name),
+           asset_type = COALESCE($2, asset_type),
            status = COALESCE($3, status),
-           assigned_to_id = COALESCE($4, assigned_to_id),
-           assigned_facility_id = COALESCE($5, assigned_facility_id),
-           current_value = COALESCE($6, current_value),
+           assigned_to = COALESCE($4, assigned_to),
+           facility_id = COALESCE($5, facility_id),
+           condition = COALESCE($6, condition),
            updated_at = NOW()
        WHERE id = $7 AND tenant_id = $8
-       RETURNING id, name, type, status`,
+       RETURNING id, asset_name AS "assetName", asset_type AS "assetType", status`,
       [
-        data.name,
-        data.type,
+        data.assetName,
+        data.assetType,
         data.status,
-        data.assignedToId,
-        data.assignedFacilityId,
-        data.currentValue,
+        data.assignedTo,
+        data.facilityId,
+        data.condition,
         id,
         tenantId
       ]

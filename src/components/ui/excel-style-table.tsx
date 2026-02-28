@@ -169,7 +169,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
         <div className="flex items-center gap-2 flex-1">
           {showSearch && (
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(255,255,255,0.40)]" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-700" />
               <Input
                 type="text"
                 placeholder={searchPlaceholder}
@@ -178,7 +178,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                   setGlobalSearch(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="pl-10 bg-[#1A0648]/50 border-[rgba(0,204,254,0.08)] text-white"
+                className="pl-10 bg-neutral-800/50 border-neutral-700 text-white"
               />
             </div>
           )}
@@ -189,8 +189,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
               size="sm"
               onClick={() => setShowFilterRow(!showFilterRow)}
               className={cn(
-                'border-[rgba(0,204,254,0.08)]',
-                showFilterRow && 'bg-[#00CCFE]/20 border-[#00CCFE]/50'
+                'border-neutral-700',
+                showFilterRow && 'bg-neutral-500/20 border-emerald-500/50'
               )}
             >
               <Filter className="w-4 h-4 mr-2" />
@@ -203,7 +203,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
               variant="ghost"
               size="sm"
               onClick={clearFilters}
-              className="text-[rgba(255,255,255,0.40)] hover:text-white"
+              className="text-neutral-700 hover:text-white"
             >
               <X className="w-4 h-4 mr-2" />
               Clear
@@ -212,7 +212,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="text-sm text-[rgba(255,255,255,0.40)]">
+          <div className="text-sm text-neutral-700">
             Showing {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, filteredData.length)} of {filteredData.length}
             {filteredData.length !== data.length && ` (filtered from ${data.length})`}
           </div>
@@ -222,7 +222,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
               variant="outline"
               size="sm"
               onClick={handleExport}
-              className="border-[rgba(0,204,254,0.08)]"
+              className="border-neutral-700"
             >
               <Download className="w-4 h-4 mr-2" />
               Export CSV
@@ -232,21 +232,21 @@ export function ExcelStyleTable<T extends Record<string, any>>({
       </div>
 
       {/* Table Container */}
-      <div className="bg-[#1A0648]/50 border border-[rgba(0,204,254,0.08)] rounded-lg overflow-hidden">
+      <div className="bg-neutral-800/50 border border-neutral-700 rounded-lg overflow-hidden">
         <div
           className="overflow-auto"
           style={{ height }}
         >
           <table className="w-full border-collapse">
             {/* Header */}
-            <thead className="sticky top-0 z-10 bg-[#0D0320] border-b-2 border-[rgba(0,204,254,0.08)]">
+            <thead className="sticky top-0 z-10 bg-neutral-900 border-b-2 border-neutral-700">
               <tr>
                 {columns.map((column) => (
                   <th
                     key={column.key}
                     className={cn(
-                      'px-2 py-3 text-left text-xs font-semibold text-[rgba(255,255,255,0.65)] uppercase tracking-wider border-r border-[rgba(0,204,254,0.08)] last:border-r-0',
-                      column.sortable && 'cursor-pointer hover:bg-[#1A0648] select-none'
+                      'px-2 py-3 text-left text-xs font-semibold text-neutral-300 uppercase tracking-wider border-r border-neutral-700 last:border-r-0',
+                      column.sortable && 'cursor-pointer hover:bg-neutral-800 select-none'
                     )}
                     style={{ width: column.width || 'auto', minWidth: column.width || 100 }}
                     onClick={() => column.sortable !== false && handleSort(column.key)}
@@ -255,8 +255,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                       <span>{column.label}</span>
                       {column.sortable !== false && sortConfig?.key === column.key && (
                         sortConfig.direction === 'asc'
-                          ? <ArrowUp className="w-3 h-3 text-[#00CCFE]" />
-                          : <ArrowDown className="w-3 h-3 text-[#00CCFE]" />
+                          ? <ArrowUp className="w-3 h-3 text-emerald-700" />
+                          : <ArrowDown className="w-3 h-3 text-emerald-700" />
                       )}
                     </div>
                   </th>
@@ -265,16 +265,16 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
               {/* Filter Row */}
               {showFilterRow && (
-                <tr className="bg-[#0D0320]/50">
+                <tr className="bg-neutral-900/50">
                   {columns.map((column) => (
-                    <th key={`filter-${column.key}`} className="px-2 py-2 border-r border-[rgba(0,204,254,0.08)] last:border-r-0">
+                    <th key={`filter-${column.key}`} className="px-2 py-2 border-r border-neutral-700 last:border-r-0">
                       {column.filterable !== false && (
                         <Input
                           type="text"
                           placeholder={`Filter ${column.label}...`}
                           value={filters[column.key] || ''}
                           onChange={(e) => handleFilter(column.key, e.target.value)}
-                          className="h-7 text-xs bg-[#1A0648] border-[rgba(0,204,254,0.15)]"
+                          className="h-7 text-xs bg-neutral-800 border-neutral-600"
                         />
                       )}
                     </th>
@@ -290,7 +290,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                   key={rowIndex}
                   onClick={() => onRowClick?.(row)}
                   className={cn(
-                    'border-b border-[rgba(0,204,254,0.08)]/50 hover:bg-[rgba(0,204,254,0.08)]/30 transition-colors',
+                    'border-b border-neutral-700/50 hover:bg-neutral-700/30 transition-colors',
                     onRowClick && 'cursor-pointer'
                   )}
                 >
@@ -299,7 +299,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                     return (
                       <td
                         key={column.key}
-                        className="px-2 py-3 text-sm text-[rgba(255,255,255,0.85)] border-r border-[rgba(0,204,254,0.08)]/30 last:border-r-0"
+                        className="px-2 py-3 text-sm text-neutral-200 border-r border-neutral-700/30 last:border-r-0"
                       >
                         {column.render ? column.render(value, row) : value}
                       </td>
@@ -312,7 +312,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="px-2 py-12 text-center text-[rgba(255,255,255,0.40)]"
+                    className="px-2 py-12 text-center text-neutral-700"
                   >
                     {hasActiveFilters ? 'No matching results found' : 'No data available'}
                   </td>
@@ -324,13 +324,13 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-2 py-3 border-t border-[rgba(0,204,254,0.08)] bg-[#0D0320]/50">
+          <div className="flex items-center justify-between px-2 py-3 border-t border-neutral-700 bg-neutral-900/50">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="border-[rgba(0,204,254,0.08)]"
+              className="border-neutral-700"
             >
               Previous
             </Button>
@@ -357,8 +357,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                     className={cn(
                       'w-4 h-4 p-0',
                       currentPage === pageNum
-                        ? 'bg-[#00CCFE] border-[#00CCFE]'
-                        : 'border-[rgba(0,204,254,0.08)]'
+                        ? 'bg-neutral-500 border-emerald-500'
+                        : 'border-neutral-700'
                     )}
                   >
                     {pageNum}
@@ -372,7 +372,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
               size="sm"
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="border-[rgba(0,204,254,0.08)]"
+              className="border-neutral-700"
             >
               Next
             </Button>

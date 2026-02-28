@@ -391,7 +391,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
           {reportData && (
             <div className="border rounded-lg bg-white">
               {/* Report Header */}
-              <div className="border-b bg-gray-50 p-4">
+              <div className="border-b bg-white/[0.03] p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold text-lg">{currentReportConfig.label}</h3>
@@ -538,18 +538,18 @@ function HOSSummaryReport({ data }: { data: HOSSummaryData }): React.ReactElemen
       {/* Log Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-white/[0.03]">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Date/Time</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Driver</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Duty Status</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Location</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Vehicle</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Date/Time</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Driver</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Duty Status</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Location</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Vehicle</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {data.logs.map((log: HOSLog) => (
-              <tr key={log.id} className="hover:bg-gray-50">
+              <tr key={log.id} className="hover:bg-white/[0.03]">
                 <td className="px-3 py-2 whitespace-nowrap">
                   {format(new Date(log.start_time), 'MMM d, yyyy HH:mm')}
                 </td>
@@ -584,18 +584,18 @@ function DVIRSummaryReport({ data }: { data: DVIRSummaryData }): React.ReactElem
       {/* DVIR Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-white/[0.03]">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Date</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Type</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Vehicle</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Defects</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Safe?</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Date</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Type</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Vehicle</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Defects</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Safe?</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {data.reports.map((report: DVIRReport) => (
-              <tr key={report.id} className="hover:bg-gray-50">
+              <tr key={report.id} className="hover:bg-white/[0.03]">
                 <td className="px-3 py-2 whitespace-nowrap">
                   {format(new Date(report.inspection_datetime), 'MMM d, yyyy')}
                 </td>
@@ -634,18 +634,18 @@ function ViolationSummaryReport({ data }: { data: ViolationSummaryData }): React
       {/* Violations Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-white/[0.03]">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Date</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Type</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Severity</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Status</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700">Description</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Date</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Type</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Severity</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Status</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Description</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {data.violations.map((violation: HOSViolation) => (
-              <tr key={violation.id} className="hover:bg-gray-50">
+              <tr key={violation.id} className="hover:bg-white/[0.03]">
                 <td className="px-3 py-2 whitespace-nowrap">
                   {format(new Date(violation.violation_datetime), 'MMM d, yyyy')}
                 </td>
@@ -706,7 +706,7 @@ function StatCard({
   variant?: 'default' | 'success' | 'warning' | 'danger'
 }): React.ReactElement {
   const colorClasses: Record<'default' | 'success' | 'warning' | 'danger', string> = {
-    default: 'bg-gray-50 border-gray-200',
+    default: 'bg-white/[0.03] border-[var(--border-default)]',
     success: 'bg-green-50 border-green-200',
     warning: 'bg-yellow-50 border-yellow-200',
     danger: 'bg-red-50 border-red-200'

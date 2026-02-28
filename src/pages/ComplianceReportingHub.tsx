@@ -100,7 +100,7 @@ const MetricCard = React.memo<MetricCardProps>(({
   };
 
   return (
-    <div className="bg-[#242424] text-card-foreground rounded-lg p-4 border border-white/[0.08]">
+    <div className="bg-[var(--surface-2)] text-card-foreground rounded-lg p-4 border border-[var(--border-subtle)]">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-xs font-medium text-muted-foreground">
@@ -165,7 +165,7 @@ const ViolationRow = React.memo<ViolationRowProps>(({ violation, onResolve }) =>
 
   return (
     <tr
-      className="border-b border-white/[0.08] cursor-pointer"
+      className="border-b border-[var(--border-subtle)] cursor-pointer"
       onClick={handleDrilldown}
       onKeyDown={handleRowKeyDown}
       role="button"
@@ -242,7 +242,7 @@ const AuditRow = React.memo<AuditRowProps>(({ audit }) => {
 
   return (
     <tr
-      className="border-b border-white/[0.08] cursor-pointer"
+      className="border-b border-[var(--border-subtle)] cursor-pointer"
       onClick={handleDrilldown}
       onKeyDown={handleKeyDown}
       role="button"
@@ -371,7 +371,7 @@ const DashboardTab = React.memo<{
 
       {/* Additional Metrics */}
       <div className="grid grid-cols-2 gap-2">
-        <div className="bg-[#242424] text-card-foreground rounded-lg p-4 border border-white/[0.08]">
+        <div className="bg-[var(--surface-2)] text-card-foreground rounded-lg p-4 border border-[var(--border-subtle)]">
           <h3 className="text-sm font-semibold text-foreground mb-2">
             Cost Impact
           </h3>
@@ -383,7 +383,7 @@ const DashboardTab = React.memo<{
           </p>
         </div>
 
-        <div className="bg-[#242424] text-card-foreground rounded-lg p-4 border border-white/[0.08]">
+        <div className="bg-[var(--surface-2)] text-card-foreground rounded-lg p-4 border border-[var(--border-subtle)]">
           <h3 className="text-sm font-semibold text-foreground mb-2">
             Avg. Resolution Time
           </h3>
@@ -397,7 +397,7 @@ const DashboardTab = React.memo<{
       </div>
 
       {/* Compliance by Category */}
-      <div className="bg-[#242424] text-card-foreground rounded-lg p-4 border border-white/[0.08]">
+      <div className="bg-[var(--surface-2)] text-card-foreground rounded-lg p-4 border border-[var(--border-subtle)]">
         <h3 className="text-sm font-semibold text-foreground mb-3">
           Compliance by Category
         </h3>
@@ -485,7 +485,7 @@ const ViolationsTab = React.memo<{
   return (
     <div className="flex flex-col gap-2 h-full overflow-hidden">
       {/* Search and Filters */}
-      <div className="bg-[#242424] text-card-foreground rounded-lg p-3 border border-white/[0.08]">
+      <div className="bg-[var(--surface-2)] text-card-foreground rounded-lg p-3 border border-[var(--border-subtle)]">
         <div className="flex flex-row gap-2">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -494,13 +494,13 @@ const ViolationsTab = React.memo<{
               placeholder="Search violations..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-1.5 text-sm border border-white/[0.08] rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background/70 text-foreground"
+              className="w-full pl-9 pr-4 py-1.5 text-sm border border-[var(--border-subtle)] rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background/70 text-foreground"
               aria-label="Search violations"
             />
           </div>
           <div className="flex gap-2">
             <button
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-white/[0.08] rounded-lg text-muted-foreground"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-[var(--border-subtle)] rounded-lg text-muted-foreground"
               aria-label="Filter violations"
             >
               <Filter className="h-4 w-4" />
@@ -512,7 +512,7 @@ const ViolationsTab = React.memo<{
       </div>
 
       {/* Violations Table */}
-      <div className="bg-[#242424] text-card-foreground rounded-lg border border-white/[0.08] overflow-hidden flex-1">
+      <div className="bg-[var(--surface-2)] text-card-foreground rounded-lg border border-[var(--border-subtle)] overflow-hidden flex-1">
         <div className="flex-1 min-h-0 overflow-y-auto">
           <table className="w-full" role="table">
             <thead className="bg-muted/40 sticky top-0">
@@ -607,7 +607,7 @@ const AuditsTab = React.memo<{
       </div>
 
       {/* Audits Table */}
-      <div className="bg-[#242424] text-card-foreground rounded-lg border border-white/[0.08] overflow-hidden flex-1">
+      <div className="bg-[var(--surface-2)] text-card-foreground rounded-lg border border-[var(--border-subtle)] overflow-hidden flex-1">
         <div className="flex-1 min-h-0 overflow-y-auto">
           <table className="w-full" role="table">
             <thead className="bg-muted/40 sticky top-0">
@@ -717,7 +717,7 @@ const ReportsTab = React.memo<{
           data.data.reports.map((report) => (
             <div
               key={report.id}
-              className="bg-[#242424] text-card-foreground rounded-lg p-4 border border-white/[0.08] cursor-pointer"
+              className="bg-[var(--surface-2)] text-card-foreground rounded-lg p-4 border border-[var(--border-subtle)] cursor-pointer"
               onClick={() => push({
                 id: report.id,
                 type: 'report',

@@ -130,7 +130,7 @@ const EVHub = () => {
     <ErrorBoundary>
     <div className="h-screen overflow-hidden cta-hub">
       {/* Header */}
-      <div className="px-4 py-3 bg-card/90 border-b border-border/50 shadow-sm">
+      <div className="px-4 py-3 bg-[var(--surface-1)] border-b border-[var(--border-subtle)]">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
@@ -156,7 +156,7 @@ const EVHub = () => {
             <Section
               title="Total EV Fleet"
               icon={<Car className="w-4 h-4" />}
-              className="bg-gradient-to-br from-green-500 to-green-600 text-white border-none"
+              className="bg-green-600 text-white border-none"
               contentClassName="text-white"
             >
               <div className="text-3xl font-bold" aria-label={`${evVehicles.length} electric vehicles in fleet`}>
@@ -237,7 +237,7 @@ const EVHub = () => {
                   evVehicles.map((vehicle) => (
                     <div
                       key={vehicle.id}
-                      className="p-3 border rounded-lg bg-card/80 border-border/50 hover:shadow-md transition-shadow"
+                      className="p-3 border rounded-lg bg-[var(--surface-2)] border-[var(--border-subtle)] transition-colors"
                       data-testid="vehicle-item"
                     >
                       <div className="flex items-start justify-between">
@@ -299,7 +299,7 @@ const EVHub = () => {
             <Section
               title="Total CO₂ Saved"
               icon={<Leaf className="w-4 h-4" />}
-              className="bg-gradient-to-br from-green-500 to-green-600 text-white border-none"
+              className="bg-green-600 text-white border-none"
               contentClassName="text-white"
             >
               <div className="text-3xl font-bold" aria-label={`${sustainabilityMetrics.totalCO2Saved.toFixed(0)} kilograms carbon dioxide saved`}>
@@ -348,7 +348,7 @@ const EVHub = () => {
             <Section
               title="Total Energy Consumed"
               icon={<Zap className="w-4 h-4" />}
-              className="bg-gradient-to-br from-emerald-500/50 to-emerald-600 text-white border-none"
+              className="bg-emerald-600 text-white border-none"
               contentClassName="text-white"
             >
               <div className="text-3xl font-bold" aria-label={`${sustainabilityMetrics.totalEnergyConsumed.toFixed(0)} kilowatt hours consumed`}>

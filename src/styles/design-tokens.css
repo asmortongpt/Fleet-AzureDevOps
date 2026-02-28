@@ -1,0 +1,345 @@
+/**
+ * Fleet-CTA Premium Design Token System
+ * Dual-theme: Dark (default) + Light
+ *
+ * Inspired by:
+ *   Linear     → Surface depth, typography, sidebar, command palette
+ *   Electric Fleet Dashboard → KPI cards, gauge charts, status bands
+ *   Logistics Live Dashboard → Map-first layout, real-time indicators
+ *   TransTrack → Analytics density, data viz palette
+ *   shadcn/ui  → Component primitives, Radix dark mode borders
+ *
+ * Theme switching: set data-theme="light" on <html> for light mode.
+ * Default (no attribute) = dark mode.
+ */
+
+/* ════════════════════════════════════════════════════════════════════════════
+ * SHARED TOKENS (theme-independent)
+ * ════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Typography ── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', ui-monospace, monospace;
+
+  --text-xs: 0.6875rem;   /* 11px */
+  --text-sm: 0.8125rem;   /* 13px */
+  --text-base: 0.875rem;  /* 14px */
+  --text-lg: 1rem;        /* 16px */
+  --text-xl: 1.125rem;    /* 18px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+
+  /* ── Spacing (4px base) ── */
+  --space-0: 0px;
+  --space-px: 1px;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Animation ── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+
+  /* ── Radius ── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* ── Layout ── */
+  --sidebar-width: 240px;
+  --sidebar-collapsed: 56px;
+  --header-height: 48px;
+  --drilldown-width: 480px;
+
+  /* ── Status Colors (same in both themes) ── */
+  --status-success: #10b981;
+  --status-success-light: #34d399;
+  --status-success-muted: rgba(16, 185, 129, 0.12);
+  --status-warning: #f59e0b;
+  --status-warning-light: #fbbf24;
+  --status-warning-muted: rgba(245, 158, 11, 0.12);
+  --status-danger: #ef4444;
+  --status-danger-light: #f87171;
+  --status-danger-muted: rgba(239, 68, 68, 0.12);
+  --status-info: #3b82f6;
+  --status-info-light: #60a5fa;
+  --status-info-muted: rgba(59, 130, 246, 0.12);
+
+  /* ── Accent ── */
+  --accent-primary: #10b981;
+  --accent-hover: #059669;
+  --accent-active: #047857;
+  --accent-muted: rgba(16, 185, 129, 0.12);
+  --accent-subtle: rgba(16, 185, 129, 0.06);
+
+  /* ── Premium Gradients ── */
+  --gradient-accent: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  --gradient-accent-subtle: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
+  --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
+  --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+
+  /* ── Premium Effects ── */
+  --glass-blur: 12px;
+  --glass-saturate: 1.2;
+  --noise-opacity: 0.02;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+ * DARK THEME (default)
+ * Refined greys/blacks inspired by Linear + Tokyo Night
+ * ════════════════════════════════════════════════════════════════════════════ */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* ── Surfaces ── deeper, richer blacks with subtle blue undertone */
+  --surface-0: #08080a;    /* App background — deepest black */
+  --surface-1: #0e0e11;    /* Sidebar, panels — slightly lifted */
+  --surface-2: #141417;    /* Cards, containers — main content */
+  --surface-3: #1b1b1f;    /* Elevated: hover states, dropdowns */
+  --surface-4: #232328;    /* Active/selected states */
+  --surface-5: #2b2b31;    /* Highest elevation: tooltips, popovers */
+  --surface-glass: rgba(255, 255, 255, 0.03);
+  --surface-glass-hover: rgba(255, 255, 255, 0.06);
+  --surface-glass-active: rgba(255, 255, 255, 0.09);
+
+  /* ── Borders ── */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-focus: rgba(16, 185, 129, 0.5);
+
+  /* ── Text ── */
+  --text-primary: rgba(255, 255, 255, 0.93);
+  --text-secondary: rgba(255, 255, 255, 0.63);
+  --text-tertiary: rgba(255, 255, 255, 0.40);
+  --text-muted: rgba(255, 255, 255, 0.22);
+  --text-on-accent: #ffffff;
+
+  /* ── Status neutrals ── */
+  --status-neutral: rgba(255, 255, 255, 0.40);
+
+  /* ── Shadows ── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.32), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.40), 0 2px 4px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.50), 0 4px 8px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.60), 0 8px 16px rgba(0, 0, 0, 0.48);
+  --shadow-glow: 0 0 16px rgba(16, 185, 129, 0.15);
+
+  /* ── Overlay ── */
+  --overlay-backdrop: rgba(0, 0, 0, 0.72);
+
+  /* ── Scrollbar ── */
+  --scrollbar-thumb: rgba(255, 255, 255, 0.12);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.20);
+  --scrollbar-track: transparent;
+
+  /* ── Premium Card Effects ── */
+  --card-bg: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-border-hover: rgba(255, 255, 255, 0.10);
+  --card-glow: 0 0 0 1px rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.3);
+  --card-glow-hover: 0 0 0 1px rgba(16,185,129,0.15), 0 8px 32px rgba(0,0,0,0.4), 0 0 24px rgba(16,185,129,0.05);
+
+  /* ── Premium Surface Blurs ── */
+  --surface-frosted: rgba(14, 14, 17, 0.80);
+  --surface-elevated: rgba(20, 20, 23, 0.90);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+ * LIGHT THEME
+ * Warm, professional light mode with subtle shadows
+ * ════════════════════════════════════════════════════════════════════════════ */
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* ── Surfaces ── warm off-whites */
+  --surface-0: #f7f8fa;    /* App background */
+  --surface-1: #ffffff;    /* Sidebar, panels */
+  --surface-2: #ffffff;    /* Cards, containers */
+  --surface-3: #f1f3f5;    /* Hover states, input backgrounds */
+  --surface-4: #e9ecef;    /* Active/selected */
+  --surface-5: #dee2e6;    /* Highest elevation */
+  --surface-glass: rgba(0, 0, 0, 0.02);
+  --surface-glass-hover: rgba(0, 0, 0, 0.04);
+  --surface-glass-active: rgba(0, 0, 0, 0.07);
+
+  /* ── Borders ── */
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.10);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --border-focus: rgba(16, 185, 129, 0.5);
+
+  /* ── Text ── */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #9ca3af;
+  --text-muted: #d1d5db;
+  --text-on-accent: #ffffff;
+
+  /* ── Status neutrals ── */
+  --status-neutral: #9ca3af;
+
+  /* ── Shadows ── soft, natural light-mode shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 16px rgba(16, 185, 129, 0.10);
+
+  /* ── Overlay ── */
+  --overlay-backdrop: rgba(0, 0, 0, 0.40);
+
+  /* ── Scrollbar ── */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+  --scrollbar-track: transparent;
+
+  /* ── Accent adjustments for light mode ── */
+  --accent-muted: rgba(16, 185, 129, 0.08);
+  --accent-subtle: rgba(16, 185, 129, 0.04);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+ * SYSTEM PREFERENCE AUTO-DETECT
+ * When no data-theme is set, respect OS preference
+ * ════════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --surface-0: #f7f8fa;
+    --surface-1: #ffffff;
+    --surface-2: #ffffff;
+    --surface-3: #f1f3f5;
+    --surface-4: #e9ecef;
+    --surface-5: #dee2e6;
+    --surface-glass: rgba(0, 0, 0, 0.02);
+    --surface-glass-hover: rgba(0, 0, 0, 0.04);
+    --surface-glass-active: rgba(0, 0, 0, 0.07);
+    --border-subtle: rgba(0, 0, 0, 0.06);
+    --border-default: rgba(0, 0, 0, 0.10);
+    --border-strong: rgba(0, 0, 0, 0.16);
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-tertiary: #9ca3af;
+    --text-muted: #d1d5db;
+    --text-on-accent: #ffffff;
+    --status-neutral: #9ca3af;
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.06);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.06);
+    --shadow-glow: 0 0 16px rgba(16, 185, 129, 0.10);
+    --overlay-backdrop: rgba(0, 0, 0, 0.40);
+    --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+    --scrollbar-track: transparent;
+    --accent-muted: rgba(16, 185, 129, 0.08);
+    --accent-subtle: rgba(16, 185, 129, 0.04);
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+ * ACCESSIBILITY
+ * ════════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  :root,
+  [data-theme="dark"] {
+    --border-subtle: rgba(255, 255, 255, 0.16);
+    --border-default: rgba(255, 255, 255, 0.24);
+    --border-strong: rgba(255, 255, 255, 0.36);
+    --text-secondary: rgba(255, 255, 255, 0.80);
+    --text-tertiary: rgba(255, 255, 255, 0.60);
+  }
+
+  [data-theme="light"] {
+    --border-subtle: rgba(0, 0, 0, 0.16);
+    --border-default: rgba(0, 0, 0, 0.24);
+    --border-strong: rgba(0, 0, 0, 0.36);
+    --text-secondary: #1f2937;
+    --text-tertiary: #4b5563;
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+ * GLOBAL BASE STYLES
+ * ════════════════════════════════════════════════════════════════════════════ */
+
+html {
+  background-color: var(--surface-0);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+body {
+  background-color: var(--surface-0);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Selection */
+::selection {
+  background-color: var(--accent-muted);
+  color: var(--text-primary);
+}

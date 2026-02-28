@@ -233,14 +233,14 @@ export function PolicyTemplateDetailPanel({
       case 'rare':
         return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
+        return 'bg-[var(--surface-glass-hover)] text-[var(--text-secondary)] dark:bg-[var(--surface-glass)] dark:text-[var(--text-tertiary)]'
     }
   }
 
   if (!templateData) {
     return (
       <DrilldownContent loading={false} error={null}>
-        <div className="p-6 text-center text-sm text-muted-foreground">
+        <div className="p-6 text-center text-sm text-[var(--text-secondary)]">
           Policy template data is not available.
         </div>
       </DrilldownContent>
@@ -254,7 +254,7 @@ export function PolicyTemplateDetailPanel({
         <div className="flex items-start justify-between">
           <div className="space-y-1 flex-1">
             <h3 className="text-sm font-bold">{templateData.name}</h3>
-            <p className="text-sm text-muted-foreground">{templateData.category}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{templateData.category}</p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               <Badge variant="outline">
                 {formatEnum(templateData.type)}
@@ -290,7 +290,7 @@ export function PolicyTemplateDetailPanel({
               <div className="text-sm font-bold text-green-600">
                 {formatCurrency(templateData.estimated_impact.cost_savings)}
               </div>
-              <p className="text-xs text-muted-foreground">Estimated annually</p>
+              <p className="text-xs text-[var(--text-secondary)]">Estimated annually</p>
             </CardContent>
           </Card>
 
@@ -305,7 +305,7 @@ export function PolicyTemplateDetailPanel({
               <div className="text-sm font-bold text-emerald-400">
                 +{templateData.estimated_impact.safety_improvement || 0}%
               </div>
-              <p className="text-xs text-muted-foreground">Reduction in incidents</p>
+              <p className="text-xs text-[var(--text-secondary)]">Reduction in incidents</p>
             </CardContent>
           </Card>
 
@@ -317,10 +317,10 @@ export function PolicyTemplateDetailPanel({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-sm font-bold text-purple-600">
+              <div className="text-sm font-bold text-amber-600">
                 +{templateData.estimated_impact.efficiency_gain || 0}%
               </div>
-              <p className="text-xs text-muted-foreground">Operational improvement</p>
+              <p className="text-xs text-[var(--text-secondary)]">Operational improvement</p>
             </CardContent>
           </Card>
 
@@ -335,7 +335,7 @@ export function PolicyTemplateDetailPanel({
               <div className="text-sm font-bold">
                 {implementationRequirements.length}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-[var(--text-secondary)]">
                 {
                   implementationRequirements.filter((r) => r.priority === 'required')
                     .length
@@ -371,7 +371,7 @@ export function PolicyTemplateDetailPanel({
                 <Separator />
 
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">Purpose</p>
+                  <p className="text-sm font-medium text-[var(--text-secondary)] mb-2">Purpose</p>
                   <p className="text-sm">{templateData.purpose}</p>
                 </div>
 
@@ -379,7 +379,7 @@ export function PolicyTemplateDetailPanel({
                   <>
                     <Separator />
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-2">
+                      <p className="text-sm font-medium text-[var(--text-secondary)] mb-2">
                         Industry Verticals
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -398,7 +398,7 @@ export function PolicyTemplateDetailPanel({
                     <>
                       <Separator />
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-2">
+                        <p className="text-sm font-medium text-[var(--text-secondary)] mb-2">
                           Compliance Standards
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -415,11 +415,11 @@ export function PolicyTemplateDetailPanel({
                 {templateData.best_practices_source && (
                   <>
                     <Separator />
-                    <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
-                      <Info className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-2 p-3 bg-[var(--surface-glass)] rounded-lg">
+                      <Info className="h-5 w-5 text-[var(--text-secondary)] flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="text-sm font-medium">Best Practices Source</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-[var(--text-secondary)]">
                           {templateData.best_practices_source}
                         </p>
                       </div>
@@ -431,7 +431,7 @@ export function PolicyTemplateDetailPanel({
                   <>
                     <Separator />
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-2">
+                      <p className="text-sm font-medium text-[var(--text-secondary)] mb-2">
                         Recommended Fleet Size
                       </p>
                       <p className="text-sm">
@@ -461,12 +461,12 @@ export function PolicyTemplateDetailPanel({
                           <Badge variant="destructive">Required</Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="text-sm text-[var(--text-secondary)] mt-1">
                         {condition.description}
                       </p>
                     </div>
                     <CheckCircle2
-                      className={`h-5 w-5 ${condition.is_required ? 'text-destructive' : 'text-muted-foreground'}`}
+                      className={`h-5 w-5 ${condition.is_required ? 'text-destructive' : 'text-[var(--text-secondary)]'}`}
                     />
                   </div>
 
@@ -474,13 +474,13 @@ export function PolicyTemplateDetailPanel({
                     <>
                       <Separator />
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-2">
+                        <p className="text-sm font-medium text-[var(--text-secondary)] mb-2">
                           Parameters
                         </p>
                         <div className="grid grid-cols-2 gap-3">
                           {Object.entries(condition.parameters).map(([key, value]) => (
                             <div key={key}>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-[var(--text-secondary)]">
                                 {formatEnum(key)}
                               </p>
                               <p className="text-sm font-medium">
@@ -518,7 +518,7 @@ export function PolicyTemplateDetailPanel({
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">{action.description}</p>
+                      <p className="text-sm text-[var(--text-secondary)] mt-1">{action.description}</p>
                     </div>
                   </div>
 
@@ -526,13 +526,13 @@ export function PolicyTemplateDetailPanel({
                     <>
                       <Separator />
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-2">
+                        <p className="text-sm font-medium text-[var(--text-secondary)] mb-2">
                           Configuration
                         </p>
                         <div className="grid grid-cols-2 gap-3">
                           {Object.entries(action.parameters).map(([key, value]) => (
                             <div key={key}>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-[var(--text-secondary)]">
                                 {formatEnum(key)}
                               </p>
                               <p className="text-sm font-medium">
@@ -554,7 +554,7 @@ export function PolicyTemplateDetailPanel({
             <Card>
               <CardHeader>
                 <CardTitle>Sample Violation Scenarios</CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-[var(--text-secondary)]">
                   Examples of violations this policy will detect and enforce
                 </p>
               </CardHeader>
@@ -576,7 +576,7 @@ export function PolicyTemplateDetailPanel({
                     ) : null}
                   </div>
                       <p className="font-medium">{violation.scenario}</p>
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="text-sm text-[var(--text-secondary)] mt-1">
                         {violation.description}
                       </p>
                     </div>
@@ -584,7 +584,7 @@ export function PolicyTemplateDetailPanel({
                       className={`h-5 w-5 ${
                         violation.severity === 'critical'
                           ? 'text-destructive'
-                          : 'text-muted-foreground'
+                          : 'text-[var(--text-secondary)]'
                       }`}
                     />
                   </div>
@@ -598,7 +598,7 @@ export function PolicyTemplateDetailPanel({
             <Card>
               <CardHeader>
                 <CardTitle>Implementation Requirements</CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-[var(--text-secondary)]">
                   Steps needed to deploy this policy in your fleet
                 </p>
               </CardHeader>
@@ -617,13 +617,13 @@ export function PolicyTemplateDetailPanel({
                           {formatEnum(req.priority)}
                         </Badge>
                         {req.estimated_time && (
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-[var(--text-secondary)]">
                             Est. {req.estimated_time}
                           </span>
                         )}
                       </div>
                       <p className="font-medium">{req.title}</p>
-                      <p className="text-sm text-muted-foreground mt-1">{req.description}</p>
+                      <p className="text-sm text-[var(--text-secondary)] mt-1">{req.description}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -636,7 +636,7 @@ export function PolicyTemplateDetailPanel({
                   <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                   <div className="space-y-2">
                     <p className="font-medium">Ready to implement?</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-[var(--text-secondary)]">
                       Click "Use Template" to create a policy from this template. You'll be able
                       to customize conditions and actions before activation.
                     </p>

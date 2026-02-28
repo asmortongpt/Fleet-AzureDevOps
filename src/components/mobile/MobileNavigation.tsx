@@ -26,7 +26,7 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ items, activeId, onItemClick }: MobileBottomNavProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-[#111113] border-t border-[var(--border-default)] dark:border-white/[0.06] safe-bottom">
       <div className="grid grid-cols-5 gap-1">
         {items.map((item) => {
           const isActive = item.id === activeId
@@ -44,7 +44,7 @@ export function MobileBottomNav({ items, activeId, onItemClick }: MobileBottomNa
                 ${
                   isActive
                     ? 'text-emerald-800 dark:text-emerald-700'
-                    : 'text-white/70 dark:text-gray-700'
+                    : 'text-[var(--text-primary)] dark:text-[var(--text-tertiary)]'
                 }
               `}
               aria-label={item.label}
@@ -108,8 +108,8 @@ export function MobileDrawer({
       <div
         className={`
           fixed top-0 ${position === 'left' ? 'left-0' : 'right-0'} bottom-0 z-50
-          bg-white dark:bg-gray-900
-          shadow-sm
+          bg-white dark:bg-[#111113]
+         
           overflow-y-auto
           safe-area
           transition-transform duration-300
@@ -152,7 +152,7 @@ export function MobileTabs({ tabs, activeId: controlledActiveId, onChange }: Mob
   return (
     <div className="flex flex-col h-full">
       {/* Tab headers */}
-      <div className="flex overflow-x-auto border-b border-gray-200 dark:border-gray-800 scrollbar-hide">
+      <div className="flex overflow-x-auto border-b border-[var(--border-default)] dark:border-white/[0.06] scrollbar-hide">
         {tabs.map((tab) => {
           const isActive = tab.id === activeId
 
@@ -166,7 +166,7 @@ export function MobileTabs({ tabs, activeId: controlledActiveId, onChange }: Mob
                 ${
                   isActive
                     ? 'text-emerald-800 dark:text-emerald-700 border-b-2 border-emerald-600 dark:border-emerald-400'
-                    : 'text-white/70 dark:text-gray-700'
+                    : 'text-[var(--text-primary)] dark:text-[var(--text-tertiary)]'
                 }
               `}
               aria-selected={isActive}
@@ -223,7 +223,7 @@ export function MobileHeader({
 
   return (
     <header
-      className="sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 safe-top transition-shadow duration-200"
+      className="sticky top-0 z-30 bg-white dark:bg-[#111113] border-b border-[var(--border-default)] dark:border-white/[0.06] safe-top transition-shadow duration-200"
       style={{
         boxShadow: isScrolled
           ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
@@ -292,7 +292,7 @@ export function MobileFab({
     <button
       onClick={onClick}
       className={`
-        fixed z-40 rounded-full shadow-sm
+        fixed z-40 rounded-full
         flex items-center justify-center
         transition-all duration-200 active:scale-95 hover:scale-105
         ${positionClasses[position]}
@@ -352,18 +352,18 @@ export function MobileSearchBar({
           placeholder={placeholder}
           className="
             w-full px-2 py-3 pl-10 pr-10
-            bg-gray-100 dark:bg-gray-800
-            border border-gray-300 dark:border-gray-700
+            bg-white/[0.05] dark:bg-[var(--surface-3)]
+            border border-[var(--border-default)] dark:border-[var(--border-default)]
             rounded-full
             focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
             transition-all duration-200
           "
         />
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700">🔍</div>
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]">🔍</div>
         {value && (
           <button
             onClick={() => onChange('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 hover:text-white/70 dark:hover:text-gray-300"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] dark:hover:text-[var(--text-secondary)]"
             aria-label="Clear search"
           >
             ✕
@@ -404,7 +404,7 @@ export function MobileMenuItem({
         ${
           danger
             ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-            : 'text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
+            : 'text-[var(--text-primary)] dark:text-[var(--text-primary)] hover:bg-white/[0.05] dark:hover:bg-[var(--surface-3)]'
         }
       `}
     >

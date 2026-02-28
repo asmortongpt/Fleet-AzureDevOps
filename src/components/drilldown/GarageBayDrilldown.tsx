@@ -225,7 +225,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
       case 'cancelled':
         return <XCircle className="h-5 w-5 text-red-500" />
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-700" />
+        return <AlertCircle className="h-5 w-5 text-[var(--text-tertiary)]" />
     }
   }
 
@@ -244,7 +244,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">Garage Bay {bay.bay_number}</h3>
-              <p className="text-sm text-muted-foreground">{bay.bay_name}</p>
+              <p className="text-sm text-[var(--text-secondary)]">{bay.bay_name}</p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant={getStatusColor(bay.status)}>
                   {formatEnum(bay.status)}
@@ -258,7 +258,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                 </Badge>
               </div>
             </div>
-            <Wrench className="h-9 w-12 text-muted-foreground" />
+            <Wrench className="h-9 w-12 text-[var(--text-secondary)]" />
           </div>
 
           {currentWorkOrder ? (
@@ -275,7 +275,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   </CardHeader>
                   <CardContent>
                     <p className="font-semibold text-sm mb-1">{currentWorkOrder.title}</p>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
+                    <p className="text-sm text-[var(--text-secondary)] line-clamp-2">
                       {currentWorkOrder.description}
                     </p>
                     <div className="mt-3 flex gap-2">
@@ -300,13 +300,13 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   <CardContent>
                     <div className="space-y-2">
                       <div>
-                        <p className="text-xs text-muted-foreground">Estimated Completion</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Estimated Completion</p>
                         <p className="font-semibold text-primary">
                           {formatDateTime(currentWorkOrder.estimated_completion)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Progress</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Progress</p>
                         <div className="flex items-center gap-2">
                           <Progress value={currentWorkOrder.progress_percentage} className="flex-1" />
                           <span className="text-sm font-medium">{currentWorkOrder.progress_percentage}%</span>
@@ -317,7 +317,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                 </Card>
 
                 {/* Vehicle being worked on */}
-                <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewVehicle(currentWorkOrder.vehicle)}>
+                <Card className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={() => handleViewVehicle(currentWorkOrder.vehicle)}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
                       <Car className="h-4 w-4" />
@@ -328,7 +328,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     <p className="font-semibold text-sm">
                       {formatVehicleName(currentWorkOrder.vehicle)}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-[var(--text-secondary)]">
                       Unit #{currentWorkOrder.vehicle.vehicle_number}
                     </p>
                     {currentWorkOrder.vehicle.odometer_reading && (
@@ -359,7 +359,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </Avatar>
                     <div className="flex-1">
                       <h4 className="text-sm font-semibold">{currentWorkOrder.primary_technician.name}</h4>
-                      <p className="text-sm text-muted-foreground mb-3">{currentWorkOrder.primary_technician.role}</p>
+                      <p className="text-sm text-[var(--text-secondary)] mb-3">{currentWorkOrder.primary_technician.role}</p>
                       <div className="flex flex-wrap gap-2">
                         <Button
                           variant="outline"
@@ -407,7 +407,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm font-bold">{formatCurrency(totalPartsCost)}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
                       {currentWorkOrder.parts.length} item{currentWorkOrder.parts.length !== 1 ? 's' : ''}
                     </p>
                   </CardContent>
@@ -422,7 +422,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm font-bold">{formatCurrency(totalLaborCost)}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
                       {totalHoursLogged.toFixed(1)} / {totalHoursEstimated.toFixed(1)} hrs
                     </p>
                   </CardContent>
@@ -437,7 +437,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm font-bold text-primary">{formatCurrency(totalCost)}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
                       Current total
                     </p>
                   </CardContent>
@@ -452,7 +452,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm font-bold">{formatCurrency(currentWorkOrder.estimated_cost)}</div>
-                    <p className={`text-xs mt-1 ${totalCost > currentWorkOrder.estimated_cost ? 'text-destructive' : 'text-muted-foreground'}`}>
+                    <p className={`text-xs mt-1 ${totalCost > currentWorkOrder.estimated_cost ? 'text-destructive' : 'text-[var(--text-secondary)]'}`}>
                       {totalCost > currentWorkOrder.estimated_cost ? 'Over budget' : 'On budget'}
                     </p>
                   </CardContent>
@@ -480,14 +480,14 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     <CardContent className="space-y-2">
                       <div>
                         <h4 className="font-semibold mb-2">{currentWorkOrder.title}</h4>
-                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                        <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">
                           {currentWorkOrder.description}
                         </p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                         <div>
-                          <p className="text-sm text-muted-foreground">Work Order Status</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Work Order Status</p>
                           <div className="flex items-center gap-2 mt-1">
                             {getStatusIcon(currentWorkOrder.status)}
                             <Badge variant={getStatusColor(currentWorkOrder.status)}>
@@ -496,28 +496,28 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                           </div>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Priority Level</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Priority Level</p>
                           <Badge variant={getPriorityColor(currentWorkOrder.priority)} className="mt-1">
                             {formatEnum(currentWorkOrder.priority)}
                           </Badge>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Scheduled Start</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Scheduled Start</p>
                           <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.scheduled_start)}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Scheduled End</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Scheduled End</p>
                           <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.scheduled_end)}</p>
                         </div>
                         {currentWorkOrder.actual_start && (
                           <div>
-                            <p className="text-sm text-muted-foreground">Actual Start</p>
+                            <p className="text-sm text-[var(--text-secondary)]">Actual Start</p>
                             <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.actual_start)}</p>
                           </div>
                         )}
                         {currentWorkOrder.actual_end && (
                           <div>
-                            <p className="text-sm text-muted-foreground">Actual End</p>
+                            <p className="text-sm text-[var(--text-secondary)]">Actual End</p>
                             <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.actual_end)}</p>
                           </div>
                         )}
@@ -531,7 +531,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                           </h5>
                           <ul className="space-y-2">
                             {currentWorkOrder.notes.map((note, idx) => (
-                              <li key={idx} className="text-sm p-2 rounded bg-muted/50">
+                              <li key={idx} className="text-sm p-2 rounded bg-[var(--surface-glass)]">
                                 {note}
                               </li>
                             ))}
@@ -549,15 +549,15 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                 {/* Parts Tab */}
                 <TabsContent value="parts" className="space-y-2">
                   {currentWorkOrder.parts.map((part) => (
-                    <Card key={part.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewPart(part)}>
+                    <Card key={part.id} className="cursor-pointer hover:border-white/[0.12] transition-colors" onClick={() => handleViewPart(part)}>
                       <CardContent className="p-2">
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <Package className="h-5 w-5 text-muted-foreground" />
+                              <Package className="h-5 w-5 text-[var(--text-secondary)]" />
                               <div>
                                 <p className="font-semibold">{part.name}</p>
-                                <p className="text-xs text-muted-foreground">Part #: {part.part_number}</p>
+                                <p className="text-xs text-[var(--text-secondary)]">Part #: {part.part_number}</p>
                               </div>
                             </div>
                             <Badge variant={getStatusColor(part.status)}>
@@ -567,27 +567,27 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
 
                           <div className="grid grid-cols-4 gap-2 pt-2 border-t text-sm">
                             <div>
-                              <p className="text-xs text-muted-foreground">Qty Needed</p>
+                              <p className="text-xs text-[var(--text-secondary)]">Qty Needed</p>
                               <p className="font-medium">{part.quantity}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-muted-foreground">In Stock</p>
+                              <p className="text-xs text-[var(--text-secondary)]">In Stock</p>
                               <p className={`font-medium ${part.quantity_in_stock >= part.quantity ? 'text-green-600' : 'text-destructive'}`}>
                                 {part.quantity_in_stock}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-muted-foreground">Unit Cost</p>
+                              <p className="text-xs text-[var(--text-secondary)]">Unit Cost</p>
                               <p className="font-medium">{formatCurrency(part.unit_cost)}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-muted-foreground">Total</p>
+                              <p className="text-xs text-[var(--text-secondary)]">Total</p>
                               <p className="font-medium text-primary">{formatCurrency(part.quantity * part.unit_cost)}</p>
                             </div>
                           </div>
 
                           <div className="pt-2 border-t">
-                            <p className="text-xs text-muted-foreground mb-2">Supplier Contact</p>
+                            <p className="text-xs text-[var(--text-secondary)] mb-2">Supplier Contact</p>
                             <div className="flex flex-col gap-1">
                               <p className="font-medium text-sm">{part.supplier}</p>
                               <div className="flex flex-wrap gap-2">
@@ -618,7 +618,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                               </div>
                             </div>
                             {part.delivery_date && (
-                              <p className="text-xs text-muted-foreground mt-2">
+                              <p className="text-xs text-[var(--text-secondary)] mt-2">
                                 Expected: {formatDateTime(part.delivery_date)}
                               </p>
                             )}
@@ -654,7 +654,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                               </Avatar>
                               <div>
                                 <p className="font-semibold">{entry.technician_name}</p>
-                                <p className="text-xs text-muted-foreground">{entry.task_description}</p>
+                                <p className="text-xs text-[var(--text-secondary)]">{entry.task_description}</p>
                               </div>
                             </div>
                             <Badge variant={getStatusColor(entry.status)}>
@@ -664,25 +664,25 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
 
                           <div className="grid grid-cols-4 gap-2 pt-2 border-t text-sm">
                             <div>
-                              <p className="text-xs text-muted-foreground">Hours Logged</p>
+                              <p className="text-xs text-[var(--text-secondary)]">Hours Logged</p>
                               <p className="font-medium text-primary">{entry.hours_logged.toFixed(1)}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-muted-foreground">Hours Estimated</p>
+                              <p className="text-xs text-[var(--text-secondary)]">Hours Estimated</p>
                               <p className="font-medium">{entry.hours_estimated.toFixed(1)}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-muted-foreground">Rate</p>
+                              <p className="text-xs text-[var(--text-secondary)]">Rate</p>
                               <p className="font-medium">{formatCurrency(entry.rate)}/hr</p>
                             </div>
                             <div>
-                              <p className="text-xs text-muted-foreground">Total</p>
+                              <p className="text-xs text-[var(--text-secondary)]">Total</p>
                               <p className="font-medium text-primary">{formatCurrency(entry.hours_logged * entry.rate)}</p>
                             </div>
                           </div>
 
                           <div className="pt-2 border-t">
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-[var(--text-secondary)]">
                               Date: {formatDateTime(entry.date)}
                             </p>
                           </div>
@@ -733,7 +733,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-muted-foreground text-center py-3">
+                        <p className="text-sm text-[var(--text-secondary)] text-center py-3">
                           No equipment information available
                         </p>
                       )}
@@ -750,19 +750,19 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     <CardContent className="space-y-3">
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="text-sm text-muted-foreground">Bay Number</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Bay Number</p>
                           <p className="font-medium">{bay.bay_number}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Location</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Location</p>
                           <p className="font-medium">{bay.location}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Capacity</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Capacity</p>
                           <p className="font-medium">{bay.capacity} work orders</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Current Load</p>
+                          <p className="text-sm text-[var(--text-secondary)]">Current Load</p>
                           <p className="font-medium">{bay.work_orders.length} active</p>
                         </div>
                       </div>
@@ -774,9 +774,9 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
           ) : (
             <Card>
               <CardContent className="py-12 text-center">
-                <Wrench className="h-16 w-16 mx-auto text-muted-foreground mb-2" />
+                <Wrench className="h-16 w-16 mx-auto text-[var(--text-secondary)] mb-2" />
                 <h3 className="text-sm font-semibold mb-2">Bay Available</h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-[var(--text-secondary)]">
                   This garage bay is currently not in use
                 </p>
                 <Badge variant="outline" className="mt-2">
@@ -797,13 +797,13 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   {bay.work_orders.map((wo, idx) => (
                     <div
                       key={wo.id}
-                      className={`p-3 rounded border cursor-pointer hover:bg-muted/50 transition-colors ${idx === 0 ? 'border-primary' : ''}`}
+                      className={`p-3 rounded border cursor-pointer hover:bg-[var(--surface-glass)] transition-colors ${idx === 0 ? 'border-primary' : ''}`}
                       onClick={() => handleViewWorkOrder(wo)}
                     >
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">WO #{wo.wo_number}</p>
-                          <p className="text-sm text-muted-foreground">{wo.title}</p>
+                          <p className="text-sm text-[var(--text-secondary)]">{wo.title}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant={getStatusColor(wo.status)}>

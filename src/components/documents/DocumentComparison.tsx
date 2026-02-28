@@ -207,10 +207,10 @@ export function DocumentComparison({
           <div className="flex items-center justify-between mb-2">
             <div>
               <h3 className="font-semibold text-sm">Version {oldVersion.version}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-tertiary)]">
                 {formatDateTime(oldVersion.created_at)}
               </p>
-              <p className="text-xs text-muted-foreground">by {oldVersion.created_by}</p>
+              <p className="text-xs text-[var(--text-tertiary)]">by {oldVersion.created_by}</p>
             </div>
             <Badge variant="secondary">Old</Badge>
           </div>
@@ -225,12 +225,12 @@ export function DocumentComparison({
                     key={idx}
                     className={cn(
                       "px-2 py-1 border-l-4",
-                      isRemoved && highlightChanges && "bg-red-50 border-red-500 text-red-900",
-                      isModified && highlightChanges && "bg-yellow-50 border-yellow-500 text-yellow-900",
+                      isRemoved && highlightChanges && "bg-red-950/30 border-red-500 text-red-400",
+                      isModified && highlightChanges && "bg-amber-950/30 border-amber-500 text-amber-400",
                       !isRemoved && !isModified && !showUnchanged && "opacity-30"
                     )}
                   >
-                    <span className="text-xs text-gray-700 mr-2">{idx + 1}</span>
+                    <span className="text-xs text-[var(--text-tertiary)] mr-2">{idx + 1}</span>
                     {line || ' '}
                   </div>
                 );
@@ -244,10 +244,10 @@ export function DocumentComparison({
           <div className="flex items-center justify-between mb-2">
             <div>
               <h3 className="font-semibold text-sm">Version {newVersion.version}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-tertiary)]">
                 {formatDateTime(newVersion.created_at)}
               </p>
-              <p className="text-xs text-muted-foreground">by {newVersion.created_by}</p>
+              <p className="text-xs text-[var(--text-tertiary)]">by {newVersion.created_by}</p>
             </div>
             <Badge variant="default">New</Badge>
           </div>
@@ -262,12 +262,12 @@ export function DocumentComparison({
                     key={idx}
                     className={cn(
                       "px-2 py-1 border-l-4",
-                      isAdded && highlightChanges && "bg-green-50 border-green-500 text-green-900",
-                      isModified && highlightChanges && "bg-emerald-500/5 border-emerald-500 text-emerald-900",
+                      isAdded && highlightChanges && "bg-green-950/30 border-green-500 text-green-400",
+                      isModified && highlightChanges && "bg-emerald-950/30 border-emerald-500 text-emerald-400",
                       !isAdded && !isModified && !showUnchanged && "opacity-30"
                     )}
                   >
-                    <span className="text-xs text-gray-700 mr-2">{idx + 1}</span>
+                    <span className="text-xs text-[var(--text-tertiary)] mr-2">{idx + 1}</span>
                     {line || ' '}
                   </div>
                 );
@@ -296,9 +296,9 @@ export function DocumentComparison({
               key={idx}
               className={cn(
                 "px-2 py-2 border-l-4",
-                change.type === 'added' && "bg-green-50 border-green-500 text-green-900",
-                change.type === 'removed' && "bg-red-50 border-red-500 text-red-900",
-                change.type === 'modified' && "bg-emerald-500/5 border-emerald-500 text-emerald-900"
+                change.type === 'added' && "bg-green-950/30 border-green-500 text-green-400",
+                change.type === 'removed' && "bg-red-950/30 border-red-500 text-red-400",
+                change.type === 'modified' && "bg-emerald-950/30 border-emerald-500 text-emerald-400"
               )}
             >
               <div className="flex items-center gap-2 mb-1">
@@ -323,54 +323,54 @@ export function DocumentComparison({
     return (
       <div className="space-y-2">
         {/* AI Generated Summary */}
-        <div className="bg-gradient-to-r from-purple-50 to-emerald-500/5 p-3 rounded-lg border border-purple-200">
+        <div className="bg-amber-950/20 p-3 rounded-lg border border-amber-500/20">
           <div className="flex items-center gap-2 mb-2">
-            <Zap className="w-3 h-3 text-purple-600" />
-            <h3 className="font-semibold text-sm">AI-Powered Change Summary</h3>
+            <Zap className="w-3 h-3 text-amber-400" />
+            <h3 className="font-semibold text-sm text-white">AI-Powered Change Summary</h3>
           </div>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-[var(--text-secondary)] leading-relaxed">
             {comparisonResult.aiSummary}
           </p>
         </div>
 
         {/* Statistics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <div className="bg-green-50 p-2 rounded-lg border border-green-200">
+          <div className="bg-green-950/30 p-2 rounded-lg border border-green-500/20">
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-medium text-green-900">Added</span>
+              <CheckCircle2 className="w-4 h-4 text-green-400" />
+              <span className="text-sm font-medium text-green-400">Added</span>
             </div>
-            <div className="text-sm font-bold text-green-700">
+            <div className="text-sm font-bold text-green-400">
               {comparisonResult.added.length}
             </div>
           </div>
 
-          <div className="bg-red-50 p-2 rounded-lg border border-red-200">
+          <div className="bg-red-950/30 p-2 rounded-lg border border-red-500/20">
             <div className="flex items-center gap-2 mb-2">
-              <XCircle className="w-4 h-4 text-red-600" />
-              <span className="text-sm font-medium text-red-900">Removed</span>
+              <XCircle className="w-4 h-4 text-red-400" />
+              <span className="text-sm font-medium text-red-400">Removed</span>
             </div>
-            <div className="text-sm font-bold text-red-700">
+            <div className="text-sm font-bold text-red-400">
               {comparisonResult.removed.length}
             </div>
           </div>
 
-          <div className="bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/20">
+          <div className="bg-emerald-950/30 p-2 rounded-lg border border-emerald-500/20">
             <div className="flex items-center gap-2 mb-2">
-              <AlertCircle className="w-4 h-4 text-emerald-800" />
-              <span className="text-sm font-medium text-emerald-900">Modified</span>
+              <AlertCircle className="w-4 h-4 text-emerald-400" />
+              <span className="text-sm font-medium text-emerald-400">Modified</span>
             </div>
-            <div className="text-sm font-bold text-emerald-700">
+            <div className="text-sm font-bold text-emerald-400">
               {comparisonResult.modified.length}
             </div>
           </div>
 
-          <div className="bg-gray-50 p-2 rounded-lg border border-gray-200">
+          <div className="bg-white/[0.03] p-2 rounded-lg border border-[var(--border-subtle)]">
             <div className="flex items-center gap-2 mb-2">
-              <FileText className="w-4 h-4 text-white/70" />
-              <span className="text-sm font-medium text-gray-900">Change %</span>
+              <FileText className="w-4 h-4 text-[var(--text-secondary)]" />
+              <span className="text-sm font-medium text-[var(--text-secondary)]">Change %</span>
             </div>
-            <div className="text-sm font-bold text-gray-700">
+            <div className="text-sm font-bold text-white">
               {comparisonResult.changePercentage.toFixed(1)}%
             </div>
           </div>
@@ -381,21 +381,21 @@ export function DocumentComparison({
           <h4 className="font-semibold">Notable Changes</h4>
 
           {comparisonResult.added.slice(0, 5).map((line, idx) => (
-            <div key={idx} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
-              <CheckCircle2 className="w-3 h-3 text-green-600 mt-0.5" />
+            <div key={idx} className="flex items-start gap-3 p-3 bg-green-950/30 rounded-lg border border-green-500/20">
+              <CheckCircle2 className="w-3 h-3 text-green-400 mt-0.5" />
               <div>
                 <Badge variant="outline" className="mb-2">Added</Badge>
-                <p className="text-sm text-gray-700 font-mono">{line}</p>
+                <p className="text-sm text-[var(--text-secondary)] font-mono">{line}</p>
               </div>
             </div>
           ))}
 
           {comparisonResult.removed.slice(0, 5).map((line, idx) => (
-            <div key={idx} className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
-              <XCircle className="w-3 h-3 text-red-600 mt-0.5" />
+            <div key={idx} className="flex items-start gap-3 p-3 bg-red-950/30 rounded-lg border border-red-500/20">
+              <XCircle className="w-3 h-3 text-red-400 mt-0.5" />
               <div>
                 <Badge variant="outline" className="mb-2">Removed</Badge>
-                <p className="text-sm text-gray-700 font-mono">{line}</p>
+                <p className="text-sm text-[var(--text-secondary)] font-mono">{line}</p>
               </div>
             </div>
           ))}
@@ -406,14 +406,14 @@ export function DocumentComparison({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl h-[90vh]">
+      <DialogContent className="max-w-7xl h-[90vh] bg-[var(--surface-0)] border-[var(--border-subtle)]">
         <DialogHeader className="border-b pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <GitCompare className="h-6 w-6 text-emerald-800" />
+              <GitCompare className="h-6 w-6 text-emerald-400" />
               <div>
                 <DialogTitle className="text-base">Document Comparison</DialogTitle>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-[var(--text-tertiary)] mt-1">
                   Comparing {oldVersion.file_name} (v{oldVersion.version} → v{newVersion.version})
                 </p>
               </div>
@@ -467,7 +467,7 @@ export function DocumentComparison({
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-500 mx-auto mb-2"></div>
-                <p className="text-gray-700">Analyzing changes...</p>
+                <p className="text-[var(--text-tertiary)]">Analyzing changes...</p>
               </div>
             </div>
           ) : (

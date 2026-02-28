@@ -1,8 +1,7 @@
 /**
- * Login Page - ArchonY Fleet Command
+ * Login Page - Professional Authentication Interface
  *
- * Dark ambient background with glass-morphism card.
- * Microsoft SSO primary, email fallback secondary.
+ * Simple, clean design focused on Microsoft SSO with optional email fallback
  */
 import { useMutation } from '@tanstack/react-query'
 import { AlertCircle, Lock, Mail, ArrowRight } from 'lucide-react'
@@ -47,74 +46,34 @@ export function Login() {
   }, [isAuthenticated, navigate])
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-[#0D0320]">
-      {/* Animated background effects */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Dot grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage: 'radial-gradient(circle, rgba(0,204,254,0.3) 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-          }}
-        />
-        {/* Gradient orbs */}
-        <div
-          className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full"
-          style={{
-            background: 'radial-gradient(circle, rgba(31,48,118,0.15) 0%, transparent 70%)',
-            filter: 'blur(60px)',
-            animation: 'float 60s ease-in-out infinite'
-          }}
-        />
-        <div
-          className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full"
-          style={{
-            background: 'radial-gradient(circle, rgba(0,204,254,0.12) 0%, transparent 70%)',
-            filter: 'blur(60px)',
-            animation: 'float 60s ease-in-out infinite reverse'
-          }}
-        />
-      </div>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 cta-hub">
+      {/* CTA background pattern */}
+      <div className="absolute inset-0 opacity-30 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
 
-      <div className="relative w-full max-w-[420px]">
+      <div className="relative w-full max-w-md">
         {/* Logo and Branding */}
-        <div className="text-center mb-10">
-          <div
-            className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-2xl border border-[rgba(0,204,254,0.15)]"
-            style={{ background: 'linear-gradient(135deg, #1F3076, #1A0648)' }}
-          >
-            <span
-              className="text-white text-lg font-extrabold tracking-wider"
-              style={{ fontFamily: '"Cinzel", Georgia, serif' }}
-            >
-              CTA
-            </span>
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-2xl bg-emerald-500">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
           </div>
-          <h1
-            className="text-3xl font-bold text-white mb-2"
-            style={{ fontFamily: '"Cinzel", Georgia, serif' }}
-          >
-            Fleet Command
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Fleet Management
           </h1>
-          {/* Gradient bar */}
-          <div className="mx-auto w-24 h-[3px] rounded-full mt-3 mb-3 bg-gradient-to-r from-[#00CCFE] via-[#1F3076] to-transparent" />
-          <p className="text-[rgba(255,255,255,0.65)]">
+          <p className="text-muted-foreground">
             Secure access to your fleet operations
           </p>
         </div>
 
-        {/* Login Card - Glass morphism */}
-        <div
-          className="rounded-2xl border border-[rgba(0,204,254,0.15)] overflow-hidden shadow-[0_8px_24px_rgba(26,6,72,0.5)]"
-          style={{ background: 'rgba(34,16,96,0.6)', backdropFilter: 'blur(20px)' }}
-        >
+        {/* Login Card */}
+        <div className="bg-[var(--surface-2)] text-white rounded-2xl border border-[var(--border-subtle)] overflow-hidden">
           <div className="p-10">
             {/* Error Alert */}
             {(urlError || emailLoginMutation.isError) && (
-              <Alert className="mb-6 border-[#FF4300]/40 bg-[#FF4300]/10">
-                <AlertCircle className="h-4 w-4 text-[#FF4300]" />
-                <AlertDescription className="text-sm text-white">
+              <Alert className="mb-6 border-destructive/40 bg-destructive/10">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                <AlertDescription className="text-sm text-destructive-foreground">
                   {urlMessage || emailLoginMutation.error?.message || 'Authentication failed'}
                 </AlertDescription>
               </Alert>
@@ -126,30 +85,23 @@ export function Login() {
                 <Button
                   onClick={() => loginWithMicrosoft()}
                   size="lg"
-                  className="w-full h-14 bg-[#1F3076] hover:bg-[#2A1878] text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-base transition-all duration-200"
                 >
                   <svg className="w-5 h-5 mr-3" viewBox="0 0 23 23">
-                    <path fill="white" d="M1 1h10v10H1z" opacity="0.9" />
-                    <path fill="white" d="M12 1h10v10H12z" opacity="0.7" />
-                    <path fill="white" d="M1 12h10v10H1z" opacity="0.7" />
-                    <path fill="white" d="M12 12h10v10H12z" opacity="0.5" />
+                    <path fill="hsl(var(--primary-foreground))" d="M1 1h10v10H1z" opacity="0.9" />
+                    <path fill="hsl(var(--primary-foreground))" d="M12 1h10v10H12z" opacity="0.7" />
+                    <path fill="hsl(var(--primary-foreground))" d="M1 12h10v10H1z" opacity="0.7" />
+                    <path fill="hsl(var(--primary-foreground))" d="M12 12h10v10H12z" opacity="0.5" />
                   </svg>
                   Sign in with Microsoft
                 </Button>
 
-                {/* Divider */}
-                <div className="flex items-center gap-3 py-2">
-                  <div className="flex-1 h-px bg-[rgba(0,204,254,0.08)]" />
-                  <span className="text-xs text-[rgba(255,255,255,0.40)]">or</span>
-                  <div className="flex-1 h-px bg-[rgba(0,204,254,0.08)]" />
-                </div>
-
                 {/* Secondary: Email Login */}
                 <button
                   onClick={() => setShowEmailLogin(true)}
-                  className="w-full py-3.5 rounded-lg border border-[rgba(0,204,254,0.15)] bg-[#2A1878] text-sm text-[rgba(255,255,255,0.65)] hover:text-white font-medium transition-all flex items-center justify-center gap-2 group hover:bg-[#332090]"
+                  className="w-full mt-4 py-3 text-sm text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center justify-center gap-2 group"
                 >
-                  <span>Use email and password</span>
+                  <span>Use email and password instead</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
@@ -158,7 +110,7 @@ export function Login() {
                 {/* Back Button */}
                 <button
                   onClick={() => setShowEmailLogin(false)}
-                  className="text-sm text-[rgba(255,255,255,0.40)] hover:text-white mb-2 flex items-center gap-1.5 font-medium"
+                  className="text-sm text-muted-foreground hover:text-foreground mb-2 flex items-center gap-1.5 font-medium"
                 >
                   <ArrowRight className="w-3.5 h-3.5 rotate-180" />
                   Back
@@ -167,18 +119,18 @@ export function Login() {
                 {/* Email Login Form */}
                 <form onSubmit={handleEmailLogin} className="space-y-5">
                   <div>
-                    <Label htmlFor="email" className="text-sm font-semibold text-white mb-2 block">
+                    <Label htmlFor="email" className="text-sm font-semibold text-foreground mb-2 block">
                       Email
                     </Label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(255,255,255,0.40)]" />
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         id="email"
                         type="email"
                         placeholder="name@company.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="h-12 pl-11 text-base"
+                        className="h-12 pl-11 text-base border-border/50 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
                         required
                         autoFocus
                       />
@@ -186,38 +138,32 @@ export function Login() {
                   </div>
 
                   <div>
-                    <Label htmlFor="password" className="text-sm font-semibold text-white mb-2 block">
+                    <Label htmlFor="password" className="text-sm font-semibold text-foreground mb-2 block">
                       Password
                     </Label>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(255,255,255,0.40)]" />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         id="password"
                         type="password"
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="h-12 pl-11 text-base"
+                        className="h-12 pl-11 text-base border-border/50 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
                         required
                       />
                     </div>
-                  </div>
-
-                  <div className="text-right">
-                    <button type="button" className="text-xs text-[#00CCFE] hover:text-white transition-colors">
-                      Forgot password?
-                    </button>
                   </div>
 
                   <Button
                     type="submit"
                     disabled={emailLoginMutation.isPending}
                     size="lg"
-                    className="w-full h-12 bg-[#1F3076] hover:bg-[#2A1878] text-white font-semibold"
+                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold mt-6"
                   >
                     {emailLoginMutation.isPending ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-[rgba(0,204,254,0.3)] border-t-[#00CCFE] rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                         Signing in...
                       </div>
                     ) : (
@@ -230,8 +176,8 @@ export function Login() {
           </div>
 
           {/* Security Footer */}
-          <div className="bg-[#1A0648]/50 px-10 py-4 border-t border-[rgba(0,204,254,0.08)]">
-            <div className="flex items-center justify-center gap-2 text-xs text-[rgba(255,255,255,0.40)]">
+          <div className="bg-white/[0.03] px-10 py-4 border-t border-[var(--border-subtle)]">
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <Lock className="w-3.5 h-3.5" />
               <span className="font-medium">256-bit encrypted connection</span>
             </div>
@@ -241,14 +187,14 @@ export function Login() {
         {/* Footer Branding */}
         <div className="mt-10 text-center space-y-3">
           <div className="flex items-center justify-center gap-2 opacity-70 hover:opacity-90 transition-opacity">
-            <span className="text-xs text-[rgba(255,255,255,0.40)] font-medium">Powered by</span>
+            <span className="text-xs text-muted-foreground font-medium">Powered by</span>
             <img
               src="/logos/png/cta-logo-primary-lockup-reverse-300px.png"
               alt="Capital Tech Alliance"
               className="h-3.5 w-auto opacity-70"
             />
           </div>
-          <p className="text-xs text-[rgba(255,255,255,0.40)]">
+          <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Capital Tech Alliance
           </p>
         </div>

@@ -188,7 +188,7 @@ export function SafetyNotificationSystem() {
                             </Badge>
                         )}
                     </h2>
-                    <p className="text-white/40 mt-1">Real-time safety alerts and compliance notifications</p>
+                    <p className="text-[var(--text-tertiary)] mt-1">Real-time safety alerts and compliance notifications</p>
                 </div>
                 <div className="flex gap-2">
                     <Button
@@ -218,13 +218,13 @@ export function SafetyNotificationSystem() {
             </div>
 
             {/* Filters */}
-            <Card className="bg-gradient-to-br from-[#1a1a1a]/60 to-[#111]/60 backdrop-blur-xl border-white/[0.06]">
+            <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                 <CardContent className="p-2">
                     <div className="flex gap-2 items-center">
                         <div className="flex gap-2 items-center">
-                            <label className="text-sm text-white/80">Filter:</label>
+                            <label className="text-sm text-[var(--text-primary)]">Filter:</label>
                             <Select value={filter} onValueChange={(value: any) => setFilter(value)}>
-                                <SelectTrigger className="w-[140px] bg-[#242424] border-white/[0.12] text-white">
+                                <SelectTrigger className="w-[140px] bg-[var(--surface-2)] border-[var(--border-subtle)] text-white">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -234,9 +234,9 @@ export function SafetyNotificationSystem() {
                             </Select>
                         </div>
                         <div className="flex gap-2 items-center">
-                            <label className="text-sm text-white/80">Category:</label>
+                            <label className="text-sm text-[var(--text-primary)]">Category:</label>
                             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                                <SelectTrigger className="w-[140px] bg-[#242424] border-white/[0.12] text-white">
+                                <SelectTrigger className="w-[140px] bg-[var(--surface-2)] border-[var(--border-subtle)] text-white">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -249,7 +249,7 @@ export function SafetyNotificationSystem() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="ml-auto text-sm text-white/40">
+                        <div className="ml-auto text-sm text-[var(--text-tertiary)]">
                             Showing {filteredNotifications.length} of {notifications.length} notifications
                         </div>
                     </div>
@@ -257,7 +257,7 @@ export function SafetyNotificationSystem() {
             </Card>
 
             {/* Notifications List */}
-            <Card className="bg-gradient-to-br from-[#1a1a1a]/60 to-[#111]/60 backdrop-blur-xl border-white/[0.06]">
+            <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                 <CardHeader>
                     <CardTitle className="text-white">Recent Notifications</CardTitle>
                 </CardHeader>
@@ -265,7 +265,7 @@ export function SafetyNotificationSystem() {
                     <ScrollArea className="h-[600px]">
                         <div className="space-y-2 p-2">
                             {filteredNotifications.length === 0 ? (
-                                <div className="text-center py-12 text-white/40">
+                                <div className="text-center py-12 text-[var(--text-tertiary)]">
                                     <Bell className="w-12 h-9 mx-auto mb-2 opacity-50" />
                                     <p>No notifications to display</p>
                                 </div>
@@ -297,17 +297,17 @@ export function SafetyNotificationSystem() {
                                                         </Badge>
                                                         <button
                                                             onClick={() => dismissNotification(notification.id)}
-                                                            className="text-white/40 hover:text-white/80"
+                                                            className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                                                         >
                                                             <X className="w-4 h-4" />
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <p className="text-sm text-white/80 mb-2">
+                                                <p className="text-sm text-[var(--text-primary)] mb-2">
                                                     {notification.message}
                                                 </p>
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <div className="flex items-center gap-2 text-xs text-white/40">
+                                                    <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
                                                         <Clock className="w-3 h-3" />
                                                         {formatTimestamp(notification.timestamp)}
                                                     </div>
@@ -354,29 +354,29 @@ export function SafetyNotificationSystem() {
             </Card>
 
             {/* Notification Settings */}
-            <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 border-emerald-500/30">
+            <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
                 <CardHeader>
                     <CardTitle className="text-white text-sm">Notification Preferences</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                     <div className="flex items-center justify-between">
                         <div>
-                            <div className="text-sm text-white/80 font-medium">Critical Incident Alerts</div>
-                            <div className="text-xs text-white/40">Immediate notification for safety incidents</div>
+                            <div className="text-sm text-[var(--text-primary)] font-medium">Critical Incident Alerts</div>
+                            <div className="text-xs text-[var(--text-tertiary)]">Immediate notification for safety incidents</div>
                         </div>
                         <Badge variant="default">Enabled</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                         <div>
-                            <div className="text-sm text-white/80 font-medium">Compliance Reminders</div>
-                            <div className="text-xs text-white/40">Training and certification expirations</div>
+                            <div className="text-sm text-[var(--text-primary)] font-medium">Compliance Reminders</div>
+                            <div className="text-xs text-[var(--text-tertiary)]">Training and certification expirations</div>
                         </div>
                         <Badge variant="default">Enabled</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                         <div>
-                            <div className="text-sm text-white/80 font-medium">Daily Safety Summary</div>
-                            <div className="text-xs text-white/40">Email digest of safety activities</div>
+                            <div className="text-sm text-[var(--text-primary)] font-medium">Daily Safety Summary</div>
+                            <div className="text-xs text-[var(--text-tertiary)]">Email digest of safety activities</div>
                         </div>
                         <Badge variant="secondary">Disabled</Badge>
                     </div>

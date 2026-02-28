@@ -41,6 +41,17 @@ router.get(
     auditLog({ action: 'READ', resourceType: 'training_records' }),
     async (req: AuthRequest, res: Response) => {
         try {
+            // Check if table exists
+            const tableCheck = await pool.query(
+                `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'training_records')`
+            )
+            if (!tableCheck.rows[0].exists) {
+                return res.json({
+                    data: [],
+                    pagination: { page: 1, limit: 50, total: 0, pages: 0 }
+                })
+            }
+
             const { page = 1, limit = 50, status } = req.query
             const offset = (Number(page) - 1) * Number(limit)
 
@@ -104,6 +115,14 @@ router.get(
     auditLog({ action: 'READ', resourceType: 'training_records' }),
     async (req: AuthRequest, res: Response) => {
         try {
+            // Check if table exists
+            const tableCheck = await pool.query(
+                `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'training_records')`
+            )
+            if (!tableCheck.rows[0].exists) {
+                return res.json({ data: [] })
+            }
+
             const { days = 30 } = req.query
 
             const result = await pool.query(
@@ -143,6 +162,21 @@ router.get(
     auditLog({ action: 'READ', resourceType: 'training_records' }),
     async (req: AuthRequest, res: Response) => {
         try {
+            // Check if table exists
+            const tableCheck = await pool.query(
+                `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'training_records')`
+            )
+            if (!tableCheck.rows[0].exists) {
+                return res.json({
+                    total_employees: 0,
+                    compliant_employees: 0,
+                    pending_training: 0,
+                    expired_certifications: 0,
+                    expiring_soon: 0,
+                    compliance_rate: 0
+                })
+            }
+
             const statsResult = await pool.query(
                 `SELECT
                     COUNT(*) as total_records,
@@ -183,6 +217,14 @@ router.post(
     auditLog({ action: 'CREATE', resourceType: 'training_records' }),
     async (req: AuthRequest, res: Response) => {
         try {
+            // Check if table exists
+            const tableCheck = await pool.query(
+                `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'training_records')`
+            )
+            if (!tableCheck.rows[0].exists) {
+                return res.status(400).json({ error: 'Training records table not available' })
+            }
+
             const data = req.body
 
             // Auto-generate certificate number if training is completed
@@ -222,6 +264,14 @@ router.put(
     auditLog({ action: 'UPDATE', resourceType: 'training_records' }),
     async (req: AuthRequest, res: Response) => {
         try {
+            // Check if table exists
+            const tableCheck = await pool.query(
+                `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'training_records')`
+            )
+            if (!tableCheck.rows[0].exists) {
+                return res.status(404).json({ error: 'Training record not found' })
+            }
+
             const { id } = req.params
             const parsed = trainingUpdateSchema.safeParse(req.body)
             if (!parsed.success) {
@@ -287,6 +337,14 @@ router.delete(
     auditLog({ action: 'DELETE', resourceType: 'safety_training' }),
     async (req: AuthRequest, res: Response) => {
         try {
+            // Check if table exists
+            const tableCheck = await pool.query(
+                `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'safety_training')`
+            )
+            if (!tableCheck.rows[0].exists) {
+                return res.status(404).json({ error: 'Training record not found' })
+            }
+
             const result = await pool.query(
                 'DELETE FROM safety_training WHERE id = $1 AND tenant_id = $2 RETURNING id',
                 [req.params.id, req.user!.tenant_id]

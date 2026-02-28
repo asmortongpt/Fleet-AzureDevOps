@@ -182,7 +182,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
       render: (a) => a.utilizationPercent ? (
         <div className="flex items-center gap-2">
           <Progress value={a.utilizationPercent} className="w-16 h-2" />
-          <span className="text-xs text-muted-foreground">{a.utilizationPercent}%</span>
+          <span className="text-xs text-[var(--text-secondary)]">{a.utilizationPercent}%</span>
         </div>
       ) : '-'
     }
@@ -250,11 +250,11 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card className="bg-white/[0.04] border-white/[0.08]">
+        <Card className="bg-white/[0.04] border-[var(--border-subtle)]">
           <CardContent className="p-2 text-center">
             <Truck className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-emerald-400">{metrics.activeVehicles}</div>
-            <div className="text-xs text-white/40">Active</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Active</div>
           </CardContent>
         </Card>
 
@@ -262,7 +262,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
           <CardContent className="p-2 text-center">
             <Clock className="w-4 h-4 text-amber-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-amber-400">{metrics.idleVehicles}</div>
-            <div className="text-xs text-white/40">Idle</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Idle</div>
           </CardContent>
         </Card>
 
@@ -270,7 +270,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
           <CardContent className="p-2 text-center">
             <AlertCircle className="w-4 h-4 text-red-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-red-400">{metrics.maintenanceVehicles}</div>
-            <div className="text-xs text-white/40">Maintenance</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Maintenance</div>
           </CardContent>
         </Card>
 
@@ -278,13 +278,13 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
           <CardContent className="p-2 text-center">
             <TrendingUp className="w-4 h-4 text-green-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-green-400">{metrics.avgUtilization}%</div>
-            <div className="text-xs text-white/40">Avg Utilization</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Avg Utilization</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Current Assignments */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Activity className="w-3 h-3 text-emerald-400" />
@@ -306,7 +306,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
       </Card>
 
       {/* Vehicle Utilization */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Zap className="w-3 h-3 text-green-400" />
@@ -350,7 +350,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
                   >
                     <div>
                       <p className="font-medium">{v.vehicleName}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[var(--text-secondary)]">
                         Last used: {v.lastAssignment ? formatDateTime(v.lastAssignment) : 'Never'}
                       </p>
                     </div>

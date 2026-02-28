@@ -461,7 +461,7 @@ export default function DispatchConsole() {
   }
 
   const getChannelColor = (channel: DispatchChannel) => {
-    return channel.colorCode || '#3B82F6'
+    return channel.colorCode || '#10b981'
   }
 
   // Keyboard shortcut handlers for PTT

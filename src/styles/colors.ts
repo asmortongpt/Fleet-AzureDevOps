@@ -1,4 +1,4 @@
-// src/styles/colors.ts — ArchonY Brand Palette
+// src/styles/colors.ts
 
 type ColorFormat = {
   hex: string;
@@ -55,72 +55,58 @@ const createColorFormat = (hex: string): ColorFormat => ({
   hsl: hexToHsl(hex),
 });
 
-// ArchonY Brand Colors
 const primaryBrandColors: { [key: string]: ColorShades } = {
-  midnight: {
-    100: createColorFormat('#E8E0F5'),
-    200: createColorFormat('#B8A3DB'),
-    300: createColorFormat('#7B5CB5'),
-    400: createColorFormat('#3D2080'),
-    500: createColorFormat('#1A0648'),
+  corporateTeal: {
+    100: createColorFormat('#ecfdf5'),
+    200: createColorFormat('#a7f3d0'),
+    300: createColorFormat('#34d399'),
+    400: createColorFormat('#059669'),
+    500: createColorFormat('#047857'),
   },
-  daytime: {
-    100: createColorFormat('#E4E8F5'),
-    200: createColorFormat('#A3B0DB'),
-    300: createColorFormat('#5C73B5'),
-    400: createColorFormat('#263A8A'),
-    500: createColorFormat('#1F3076'),
+  professionalDark: {
+    100: createColorFormat('#F2F2F2'),
+    200: createColorFormat('#B3B3B3'),
+    300: createColorFormat('#666666'),
+    400: createColorFormat('#333333'),
+    500: createColorFormat('#1A1A1A'),
   },
-  blueSkies: {
-    100: createColorFormat('#CCF5FF'),
-    200: createColorFormat('#66E3FF'),
-    300: createColorFormat('#33D9FF'),
-    400: createColorFormat('#00CCFE'),
-    500: createColorFormat('#00A3CB'),
-  },
-  noon: {
-    100: createColorFormat('#FFE0D4'),
-    200: createColorFormat('#FFB299'),
-    300: createColorFormat('#FF7A4D'),
-    400: createColorFormat('#FF4300'),
-    500: createColorFormat('#CC3600'),
-  },
-  goldenHour: {
+  accentGold: {
     100: createColorFormat('#FFF4CC'),
-    200: createColorFormat('#FEE580'),
-    300: createColorFormat('#FDD640'),
-    400: createColorFormat('#FDC016'),
-    500: createColorFormat('#CA9A12'),
+    200: createColorFormat('#FFE699'),
+    300: createColorFormat('#FFD966'),
+    400: createColorFormat('#FFCC33'),
+    500: createColorFormat('#FFB800'),
   },
 };
 
 const functionalColors: ColorPalette = {
-  success: createColorFormat('#10B981'),
-  warning: createColorFormat('#FDC016'),
-  error: createColorFormat('#FF4300'),
-  info: createColorFormat('#00CCFE'),
+  success: createColorFormat('#00A651'),
+  warning: createColorFormat('#FFA000'),
+  error: createColorFormat('#D32F2F'),
+  info: createColorFormat('#10b981'),
 };
 
-// Surface scale for dark mode
 const neutralGrays: ColorShades = {
-  0: createColorFormat('#0D0320'),
-  10: createColorFormat('#1A0648'),
-  20: createColorFormat('#221060'),
-  30: createColorFormat('#2A1878'),
-  40: createColorFormat('#332090'),
-  50: createColorFormat('#3D2AA0'),
-  60: createColorFormat('#4A38B0'),
-  70: createColorFormat('#5A4AC0'),
-  80: createColorFormat('#7060D0'),
-  90: createColorFormat('#9080E0'),
-  100: createColorFormat('#FFFFFF'),
+  0: createColorFormat('#FFFFFF'),
+  10: createColorFormat('#E6E6E6'),
+  20: createColorFormat('#CCCCCC'),
+  30: createColorFormat('#B3B3B3'),
+  40: createColorFormat('#999999'),
+  50: createColorFormat('#808080'),
+  60: createColorFormat('#666666'),
+  70: createColorFormat('#4D4D4D'),
+  80: createColorFormat('#333333'),
+  90: createColorFormat('#1A1A1A'),
+  100: createColorFormat('#000000'),
 };
 
 const colorUtilities: ColorUtilities = {
   lighten: (color: string, _percentage: number): string => {
+    // Implement lighten logic
     return color;
   },
   darken: (color: string, _percentage: number): string => {
+    // Implement darken logic
     return color;
   },
   alpha: (color: string, alpha: number): string => {
@@ -128,49 +114,6 @@ const colorUtilities: ColorUtilities = {
     return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
   },
 };
-
-// ArchonY convenience exports
-export const archonyColors = {
-  midnight: '#1A0648',
-  daytime: '#1F3076',
-  blueSkies: '#00CCFE',
-  noon: '#FF4300',
-  goldenHour: '#FDC016',
-
-  surface: {
-    0: '#0D0320',
-    1: '#1A0648',
-    2: '#221060',
-    3: '#2A1878',
-    4: '#332090',
-  },
-
-  surfaceLight: {
-    0: '#F5F5F7',
-    1: '#FFFFFF',
-    2: '#FAFAFA',
-    3: '#F0F0F2',
-    4: '#E8E8EC',
-  },
-
-  success: '#10B981',
-  error: '#FF4300',
-  warning: '#FDC016',
-  info: '#00CCFE',
-
-  text: {
-    primary: '#FFFFFF',
-    secondary: 'rgba(255, 255, 255, 0.65)',
-    muted: 'rgba(255, 255, 255, 0.40)',
-  },
-
-  gradients: {
-    brand: 'linear-gradient(135deg, #1A0648 0%, #1F3076 25%, #00CCFE 50%, #FF4300 75%, #FDC016 100%)',
-    bar: 'linear-gradient(90deg, #1F3076, #00CCFE, #FF4300, #FDC016)',
-  },
-} as const;
-
-export type ArchonyColor = keyof typeof archonyColors;
 
 export {
   primaryBrandColors,

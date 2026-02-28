@@ -213,13 +213,13 @@ const MAP_CONFIG = {
 const VEHICLE_STATUS_COLORS: Record<string, string> = {
   active: "#10b981", // emerald-500 - operational and moving
   idle: "#6b7280", // gray-500 - operational but stationary
-  charging: "#3b82f6", // blue-500 - electric vehicle charging
+  charging: "#10b981", // emerald-500 - electric vehicle charging
   service: "#f59e0b", // amber-500 - under maintenance
   emergency: "#ef4444", // red-500 - emergency/breakdown
   offline: "#374151", // gray-700 - no connection/inactive
-  assigned: "#818cf8", // indigo-400 - assigned, not yet moving
+  assigned: "#34d399", // emerald-400 - assigned, not yet moving
   dispatched: "#fb923c", // orange-400 - dispatched
-  en_route: "#38bdf8", // sky-400 - en route
+  en_route: "#34d399", // emerald-400 - en route
   on_site: "#facc15", // yellow-400 - on site
   completed: "#34d399", // emerald-400 - completed
   maintenance: "#f59e0b", // amber-500 - under maintenance
@@ -227,69 +227,46 @@ const VEHICLE_STATUS_COLORS: Record<string, string> = {
 } as const
 
 /**
- * SVG icon paths for vehicle types (18×18 viewBox, rendered as white stroke)
+ * Emoji icons for different vehicle types
  */
-const VEHICLE_ICON_PATHS: Record<string, string> = {
-  sedan: 'M3 11h12M4.5 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm9 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM3 11l1.5-4h9L15 11M5 7V5.5a.5.5 0 01.5-.5h7a.5.5 0 01.5.5V7',
-  suv: 'M2 12h14M4 15a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm10 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM2 12V9a1 1 0 011-1h2l2-3h4l2 3h2a1 1 0 011 1v3',
-  truck: 'M2 11V7a1 1 0 011-1h7v6H3a1 1 0 01-1-1zm8-5h3.2a1 1 0 01.8.4l2 3 .5.6v3a1 1 0 01-1 1h-1M10 6v7m-5 1a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm9 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z',
-  van: 'M2 12V6a1 1 0 011-1h8a1 1 0 011 1v1l2 2v3a1 1 0 01-1 1h-1M2 12h1m-1 0a1 1 0 001 1h1M4.5 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm7 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z',
-  emergency: 'M7 3h4v4h4v4h-4v4H7v-4H3V7h4V3z',
-  specialty: 'M9 2l1.5 2L13 3l-.5 2.5L15 7l-2 1 .5 2.5-2.5-.5L9 12l-1.5-2L5 11l.5-2.5L3 7l2-1L4.5 3.5 7 4z',
-  tractor: 'M3 10V7a2 2 0 012-2h4v5H3zm6-5h3l2 3v2h-5V5zM4 14a2 2 0 100-4 2 2 0 000 4zm10 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z',
-  forklift: 'M4 4v9h3V4H4zm5 5v4h2V9H9zm4-5v8m0-8h3m-3 4h2',
-  trailer: 'M1 6h14v6H1V6zm0 6h14M4 15a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm8 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM15 9h2',
-  construction: 'M2 14h5V9L4 6l3-2m0 0l4 5v5h3l1-4 1 4',
-  bus: 'M1 12V5a1 1 0 011-1h14a1 1 0 011 1v7M1 12h16M1 12a1 1 0 001 1h1m13-1a1 1 0 01-1 1h-1M4 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm10 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM6 4v4m4-4v4m4-4v4',
-  motorcycle: 'M4 12a2 2 0 100-4 2 2 0 000 4zm10 0a2 2 0 100-4 2 2 0 000 4zM4 10h3l2-4h2l1 2h2',
-}
-
-const VEHICLE_ICON_FALLBACK = 'M9 4a5 5 0 100 10 5 5 0 000-10z'
+const VEHICLE_TYPE_EMOJI: Record<
+  | "sedan"
+  | "suv"
+  | "truck"
+  | "van"
+  | "emergency"
+  | "specialty"
+  | "tractor"
+  | "forklift"
+  | "trailer"
+  | "construction"
+  | "bus"
+  | "motorcycle",
+  string
+> = {
+  sedan: "🚗",
+  suv: "🚙",
+  truck: "🚚",
+  van: "🚐",
+  emergency: "🚨",
+  specialty: "🚜",
+  tractor: "🚜",
+  forklift: "🏗️",
+  trailer: "🚛",
+  construction: "🚧",
+  bus: "🚌",
+  motorcycle: "🏍️",
+} as const
 
 /**
- * Build an inline SVG marker for a vehicle (replaces emoji markers)
+ * Emoji icons for facility types
  */
-function buildVehicleSvgMarker(vehicleType: string, statusColor: string): string {
-  const iconPath = VEHICLE_ICON_PATHS[vehicleType] || VEHICLE_ICON_FALLBACK
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="44" viewBox="0 0 34 44">
-    <defs>
-      <filter id="ds" x="-20%" y="-10%" width="140%" height="140%">
-        <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000" flood-opacity="0.35"/>
-      </filter>
-    </defs>
-    <path d="M17 42 C17 42 3 26 3 16 A14 14 0 0 1 31 16 C31 26 17 42 17 42Z"
-          fill="${statusColor}" stroke="white" stroke-width="2" filter="url(#ds)"/>
-    <circle cx="17" cy="16" r="9" fill="rgba(0,0,0,0.2)"/>
-    <g transform="translate(8,7)">
-      <path d="${iconPath}" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </g>
-  </svg>`
-}
-
-/**
- * SVG icons for facility types
- */
-const FACILITY_ICON_PATHS: Record<string, string> = {
-  office: 'M3 14V4a1 1 0 011-1h10a1 1 0 011 1v10M1 14h16M6 6h2m-2 3h2m4-3h2m-2 3h2',
-  depot: 'M2 14V7l7-4 7 4v7M2 14h14M6 14v-3h6v3M9 3v4',
-  'service-center': 'M14.7 6.3a1 1 0 000-1.4l-1.6-1.6a1 1 0 00-1.4 0l-2 2L12.2 8l2.5-1.7zM3 11l6.3-6.3 2.8 2.8L5.8 13.8 2 15l1-4z',
-  'fueling-station': 'M4 14V4a1 1 0 011-1h6a1 1 0 011 1v5h1.5a1.5 1.5 0 011.5 1.5V13a1 1 0 002 0V7l-2-2M4 8h8',
-}
-
-function buildFacilitySvgMarker(facilityType: string): string {
-  const iconPath = FACILITY_ICON_PATHS[facilityType] || FACILITY_ICON_PATHS.office
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
-    <defs>
-      <filter id="fds" x="-20%" y="-10%" width="140%" height="140%">
-        <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000" flood-opacity="0.35"/>
-      </filter>
-    </defs>
-    <rect x="2" y="2" width="32" height="32" rx="6" fill="#1e40af" stroke="white" stroke-width="2" filter="url(#fds)"/>
-    <g transform="translate(9,9)">
-      <path d="${iconPath}" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </g>
-  </svg>`
-}
+const FACILITY_TYPE_ICONS: Record<GISFacility["type"], string> = {
+  office: "🏢",
+  depot: "🏭",
+  "service-center": "🔧",
+  "fueling-station": "⛽",
+} as const
 
 // ============================================================================
 // Custom Hooks
@@ -561,13 +538,13 @@ export function LeafletMap({
           // Validate coordinates
           if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
             const color = VEHICLE_STATUS_COLORS[vehicle.status] || VEHICLE_STATUS_COLORS.offline
-            const vehicleType = vehicle.type || 'sedan'
+            const emoji = VEHICLE_TYPE_EMOJI[vehicle.type as keyof typeof VEHICLE_TYPE_EMOJI] || '🚗'
 
             const icon = Leaflet.divIcon({
               className: 'vehicle-marker',
-              html: buildVehicleSvgMarker(vehicleType, color),
-              iconSize: [34, 44],
-              iconAnchor: [17, 44],
+              html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${emoji}</div>`,
+              iconSize: [32, 32],
+              iconAnchor: [16, 16],
             })
 
             const marker = Leaflet.marker([lat, lng], { icon })
@@ -589,9 +566,11 @@ export function LeafletMap({
           const lng = facility.location.lng
 
           if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+            const emoji = FACILITY_TYPE_ICONS[facility.type] || '🏢'
+
             const icon = Leaflet.divIcon({
               className: 'facility-marker',
-              html: buildFacilitySvgMarker(facility.type),
+              html: `<div style="background-color: #059669; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 18px;">${emoji}</div>`,
               iconSize: [36, 36],
               iconAnchor: [18, 18],
             })
@@ -617,7 +596,7 @@ export function LeafletMap({
           if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
             const icon = Leaflet.divIcon({
               className: 'camera-marker',
-              html: `<div style="background-color: #7c3aed; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📹</div>`,
+              html: `<div style="background-color: #10b981; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📹</div>`,
               iconSize: [28, 28],
               iconAnchor: [14, 14],
             })

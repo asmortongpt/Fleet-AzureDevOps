@@ -149,7 +149,7 @@ export const ReservationSystem: React.FC = () => {
     pending: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
     approved: 'bg-green-500/10 text-green-600 border-green-500/20',
     active: 'bg-emerald-500/10 text-emerald-800 border-emerald-500/20',
-    completed: 'bg-gray-500/10 text-white/70 border-gray-500/20',
+    completed: 'bg-white/[0.05] text-[var(--text-primary)] border-[var(--border-default)]',
     cancelled: 'bg-red-500/10 text-red-600 border-red-500/20',
     rejected: 'bg-red-500/10 text-red-600 border-red-500/20'
   };
@@ -706,7 +706,7 @@ const statusColors = {
   pending: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
   approved: 'bg-green-500/10 text-green-600 border-green-500/20',
   active: 'bg-emerald-500/10 text-emerald-800 border-emerald-500/20',
-  completed: 'bg-gray-500/10 text-white/70 border-gray-500/20',
+  completed: 'bg-white/[0.05] text-[var(--text-primary)] border-[var(--border-default)]',
   cancelled: 'bg-red-500/10 text-red-600 border-red-500/20',
   rejected: 'bg-red-500/10 text-red-600 border-red-500/20'
 };

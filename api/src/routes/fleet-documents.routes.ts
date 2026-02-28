@@ -121,6 +121,14 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'fleet_document' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'fleet_documents')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(400).json({ error: 'Fleet documents table not available' })
+      }
+
       if (!req.file) {
         throw new ValidationError("No file uploaded")
       }
@@ -239,6 +247,17 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'fleet_documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'fleet_documents')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.json({
+          documents: [],
+          pagination: { page: 1, limit: 50, total: 0, pages: 0 }
+        })
+      }
+
       const {
         vehicleId,
         driverId,
@@ -379,6 +398,14 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'fleet_document' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'fleet_documents')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
+
       const result = await pool.query(
         `SELECT
           fd.*,
@@ -448,6 +475,14 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'fleet_document' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'fleet_documents')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
+
       const result = await pool.query(
         `UPDATE fleet_documents
          SET is_archived = true, updated_at = NOW()
@@ -504,6 +539,14 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'expiring_documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'fleet_documents')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.json({ documents: [], count: 0, days: 30 })
+      }
+
       const { days = 30 } = req.query
       const daysInt = parseInt(days as string)
 
@@ -573,6 +616,14 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'ocr_processing' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'fleet_documents')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
+
       // Verify document exists and belongs to tenant
       const docResult = await pool.query(
         `SELECT id, file_name, mime_type, storage_path
@@ -651,6 +702,14 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'fleet_document_download' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'fleet_documents')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
+
       const result = await pool.query(
         `SELECT id, file_name, original_file_name, mime_type, blob_url
          FROM fleet_documents

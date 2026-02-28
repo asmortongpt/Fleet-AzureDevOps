@@ -64,23 +64,20 @@ router.get(
           id,
           tenant_id,
           name,
-          description,
-          type,
-          facility_id as "facilityId",
-          center_lat as "centerLat",
-          center_lng as "centerLng",
+          notes as description,
+          geofence_type as type,
+          center_latitude as "centerLat",
+          center_longitude as "centerLng",
           radius,
-          polygon,
-          color,
+          polygon_coordinates as polygon,
           is_active as "isActive",
-          notify_on_entry as "notifyOnEntry",
-          notify_on_exit as "notifyOnExit",
-          metadata,
+          alert_on_entry as "notifyOnEntry",
+          alert_on_exit as "notifyOnExit",
           created_at as "createdAt",
           updated_at as "updatedAt"
-        FROM geofences 
-        WHERE tenant_id = $1 
-        ORDER BY created_at DESC 
+        FROM geofences
+        WHERE tenant_id = $1
+        ORDER BY created_at DESC
         LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
@@ -119,21 +116,18 @@ router.get(
           id,
           tenant_id,
           name,
-          description,
-          type,
-          facility_id as "facilityId",
-          center_lat as "centerLat",
-          center_lng as "centerLng",
+          notes as description,
+          geofence_type as type,
+          center_latitude as "centerLat",
+          center_longitude as "centerLng",
           radius,
-          polygon,
-          color,
+          polygon_coordinates as polygon,
           is_active as "isActive",
-          notify_on_entry as "notifyOnEntry",
-          notify_on_exit as "notifyOnExit",
-          metadata,
+          alert_on_entry as "notifyOnEntry",
+          alert_on_exit as "notifyOnExit",
           created_at as "createdAt",
           updated_at as "updatedAt"
-        FROM geofences 
+        FROM geofences
         WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )

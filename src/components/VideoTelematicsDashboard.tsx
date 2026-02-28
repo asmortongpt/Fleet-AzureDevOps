@@ -388,8 +388,8 @@ export default function VideoTelematicsDashboard() {
                             className="w-32 h-20 object-cover rounded border"
                           />
                         ) : (
-                          <div className="w-32 h-20 bg-gray-200 rounded border flex items-center justify-center">
-                            <Video className="h-8 w-8 text-gray-700" />
+                          <div className="w-32 h-20 bg-white/[0.06] rounded border flex items-center justify-center">
+                            <Video className="h-8 w-8 text-[var(--text-tertiary)]" />
                           </div>
                         )}
                       </div>
@@ -513,8 +513,8 @@ export default function VideoTelematicsDashboard() {
                               className="w-32 h-20 object-cover rounded border"
                             />
                           ) : (
-                            <div className="w-32 h-20 bg-gray-200 rounded border flex items-center justify-center">
-                              <Video className="h-8 w-8 text-gray-700" />
+                            <div className="w-32 h-20 bg-white/[0.06] rounded border flex items-center justify-center">
+                              <Video className="h-8 w-8 text-[var(--text-tertiary)]" />
                             </div>
                           )}
                         </div>

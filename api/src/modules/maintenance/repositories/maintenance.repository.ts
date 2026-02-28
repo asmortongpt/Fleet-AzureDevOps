@@ -19,8 +19,8 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
         vehicle_id, 
         type as service_type, 
         description, 
-        actual_cost as cost, 
-        odometer_at_start as mileage, 
+        total_cost as cost,
+        0 as mileage,
         status, 
         created_at, 
         updated_at 
@@ -40,8 +40,8 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
         vehicle_id, 
         type as service_type, 
         description, 
-        actual_cost as cost, 
-        odometer_at_start as mileage, 
+        total_cost as cost,
+        0 as mileage,
         status, 
         created_at, 
         updated_at 
@@ -60,8 +60,8 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
         vehicle_id, 
         type as service_type, 
         description, 
-        actual_cost as cost, 
-        odometer_at_start as mileage, 
+        total_cost as cost,
+        0 as mileage,
         status, 
         created_at, 
         updated_at 
@@ -81,8 +81,8 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
         vehicle_id, 
         type as service_type, 
         description, 
-        actual_cost as cost, 
-        odometer_at_start as mileage, 
+        total_cost as cost,
+        0 as mileage,
         status, 
         created_at, 
         updated_at 
@@ -102,8 +102,8 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
         vehicle_id, 
         type as service_type, 
         description, 
-        actual_cost as cost, 
-        odometer_at_start as mileage, 
+        total_cost as cost,
+        0 as mileage,
         status, 
         created_at, 
         updated_at 
@@ -118,17 +118,17 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
   async create(data: Partial<MaintenanceRecord>, tenantId: string | number): Promise<MaintenanceRecord> {
     const result = await this.pool.query(
       `INSERT INTO ${this.tableName} (
-        tenant_id, vehicle_id, type, description, actual_cost, odometer_at_start, status
+        tenant_id, vehicle_id, type, description, total_cost, status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING 
         id as id, 
         tenant_id, 
         vehicle_id, 
         type as service_type, 
         description, 
-        actual_cost as cost, 
-        odometer_at_start as mileage, 
+        total_cost as cost,
+        0 as mileage,
         status, 
         created_at, 
         updated_at`,
@@ -138,7 +138,6 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
         data.service_type,
         data.description || null,
         data.cost || null,
-        data.mileage || null,
         data.status || 'pending'
       ]
     );
@@ -151,9 +150,8 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
        SET 
          type = COALESCE($3, type),
          description = COALESCE($4, description),
-         actual_cost = COALESCE($5, actual_cost),
-         odometer_at_start = COALESCE($6, odometer_at_start),
-         status = COALESCE($7, status),
+         total_cost = COALESCE($5, total_cost),
+         status = COALESCE($6, status),
          updated_at = NOW()
        WHERE id = $1 AND tenant_id = $2
        RETURNING 
@@ -162,8 +160,8 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
          vehicle_id, 
          type as service_type, 
          description, 
-         actual_cost as cost, 
-         odometer_at_start as mileage, 
+         total_cost as cost,
+         0 as mileage,
          status, 
          created_at, 
          updated_at`,
@@ -173,7 +171,6 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
         data.service_type,
         data.description,
         data.cost,
-        data.mileage,
         data.status
       ]
     );

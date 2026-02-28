@@ -105,11 +105,38 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('overview')
 
-  // Main policy data
-  const { data: policy, error, isLoading, mutate } = useSWR<PolicyData>(
+  // Main policy data - normalize API response fields
+  const { data: rawPolicy, error, isLoading, mutate } = useSWR<Record<string, unknown>>(
     `/api/policies/${policyId}`,
     apiFetcher
   )
+
+  // Normalize API fields to match component interface
+  const policy: PolicyData | undefined = rawPolicy ? {
+    id: String(rawPolicy.id || ''),
+    policy_number: String(rawPolicy.policy_number || rawPolicy.id || ''),
+    name: String(rawPolicy.name || rawPolicy.policy_name || ''),
+    description: String(rawPolicy.description || ''),
+    category: String(rawPolicy.category || rawPolicy.policy_type || ''),
+    type: (rawPolicy.type || rawPolicy.policy_type || 'compliance') as PolicyData['type'],
+    status: (rawPolicy.is_active === false ? 'inactive' : rawPolicy.status || 'active') as PolicyData['status'],
+    priority: (['low', 'medium', 'high', 'critical'].includes(String(rawPolicy.priority))
+      ? String(rawPolicy.priority)
+      : typeof rawPolicy.priority === 'number'
+        ? (rawPolicy.priority <= 1 ? 'low' : rawPolicy.priority <= 2 ? 'medium' : rawPolicy.priority <= 3 ? 'high' : 'critical')
+        : 'medium') as PolicyData['priority'],
+    effective_date: String(rawPolicy.effective_date || rawPolicy.created_at || ''),
+    expiry_date: rawPolicy.expiry_date ? String(rawPolicy.expiry_date) : undefined,
+    created_by: rawPolicy.created_by ? String(rawPolicy.created_by) : undefined,
+    created_date: String(rawPolicy.created_date || rawPolicy.created_at || ''),
+    last_updated: rawPolicy.last_updated || rawPolicy.updated_at ? String(rawPolicy.last_updated || rawPolicy.updated_at) : undefined,
+    compliance_score: typeof rawPolicy.compliance_score === 'number' ? rawPolicy.compliance_score : undefined,
+    enforcement_level: (rawPolicy.enforcement_level || 'mandatory') as PolicyData['enforcement_level'],
+    applies_to: (rawPolicy.applies_to || 'all') as PolicyData['applies_to'],
+    violation_count: typeof rawPolicy.violation_count === 'number' ? rawPolicy.violation_count : undefined,
+    execution_count: typeof rawPolicy.execution_count === 'number' ? rawPolicy.execution_count : undefined,
+    success_rate: typeof rawPolicy.success_rate === 'number' ? rawPolicy.success_rate : undefined,
+  } : undefined
 
   // Execution history
   const { data: executionHistory } = useSWR<ExecutionHistory[]>(
@@ -211,7 +238,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
       case 'warning':
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />
       default:
-        return <AlertTriangle className="h-5 w-5 text-gray-700" />
+        return <AlertTriangle className="h-5 w-5 text-[var(--text-tertiary)]" />
     }
   }
 
@@ -239,7 +266,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{policy.name}</h3>
-              <p className="text-sm text-muted-foreground">Policy #{policy.policy_number}</p>
+              <p className="text-sm text-[var(--text-secondary)]">Policy #{policy.policy_number}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant={getStatusColor(policy.status)}>
                   {policy.status}
@@ -283,7 +310,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               <CardContent>
                 <div className="text-sm font-bold">{policy.execution_count || 0}</div>
                 {policy.success_rate !== undefined && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
                     {policy.success_rate.toFixed(1)}% success
                   </p>
                 )}
@@ -299,7 +326,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold text-destructive">{openViolations}</div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
                   {resolvedViolations} resolved
                 </p>
               </CardContent>
@@ -314,7 +341,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold capitalize">{policy.applies_to}</div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
                   {entitiesArr.length} entities
                 </p>
               </CardContent>
@@ -341,34 +368,34 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Category</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Category</p>
                       <p className="font-medium capitalize">{policy.category}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Type</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Type</p>
                       <p className="font-medium capitalize">{policy.type}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Enforcement Level</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Enforcement Level</p>
                       <Badge variant={policy.enforcement_level === 'critical' ? 'destructive' : 'default'}>
                         {policy.enforcement_level}
                       </Badge>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Applies To</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Applies To</p>
                       <p className="font-medium capitalize">{policy.applies_to}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Created By</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Created By</p>
                       <p className="font-medium">{policy.created_by || '—'}</p>
                       {policy.created_date && (
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-[var(--text-secondary)]">
                           {formatDate(policy.created_date)}
                         </p>
                       )}
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Last Updated</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Last Updated</p>
                       <p className="font-medium">
                         {formatDate(policy.last_updated)}
                       </p>
@@ -434,13 +461,13 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                                 <p className="font-medium capitalize">
                                   {execution.entity_type}: {execution.entity_name}
                                 </p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-[var(--text-secondary)]">
                                   {execution.details || `Policy ${execution.result}`}
                                 </p>
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-[var(--text-secondary)]">
                                 {formatDateTime(execution.timestamp)}
                               </p>
                               <Badge variant={execution.result === 'passed' ? 'default' : execution.result === 'failed' ? 'destructive' : 'secondary'}>
@@ -451,13 +478,13 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
 
                           {execution.action_taken && (
                             <div className="pt-2 border-t">
-                              <p className="text-sm text-muted-foreground">Action Taken</p>
+                              <p className="text-sm text-[var(--text-secondary)]">Action Taken</p>
                               <p className="text-sm mt-1">{execution.action_taken}</p>
                             </div>
                           )}
 
                           {execution.user_name && (
-                            <p className="text-xs text-muted-foreground pt-2 border-t">
+                            <p className="text-xs text-[var(--text-secondary)] pt-2 border-t">
                               Executed by {execution.user_name}
                             </p>
                           )}
@@ -475,7 +502,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                     </Card>
                   ))}
                   {executionsArr.length > 20 && (
-                    <p className="text-sm text-center text-muted-foreground">
+                    <p className="text-sm text-center text-[var(--text-secondary)]">
                       +{executionsArr.length - 20} more executions
                     </p>
                   )}
@@ -483,8 +510,8 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <History className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No execution history</p>
+                    <History className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No execution history</p>
                   </CardContent>
                 </Card>
               )}
@@ -497,7 +524,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                   {violationsArr.map((violation) => (
                     <Card
                       key={violation.id}
-                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      className="cursor-pointer hover:border-white/[0.12] transition-colors"
                       onClick={() => handleViewViolation(violation)}
                     >
                       <CardContent className="p-2">
@@ -515,12 +542,12 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                               <p className="font-medium capitalize">
                                 {violation.entity_type}: {violation.entity_name}
                               </p>
-                              <p className="text-sm text-muted-foreground mt-1">
+                              <p className="text-sm text-[var(--text-secondary)] mt-1">
                                 {violation.description}
                               </p>
                             </div>
                             <div className="text-right ml-2">
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-[var(--text-secondary)]">
                                 {formatDate(violation.date)}
                               </p>
                             </div>
@@ -528,19 +555,19 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
 
                           {violation.assigned_to && (
                             <div className="pt-2 border-t">
-                              <p className="text-xs text-muted-foreground">Assigned to</p>
+                              <p className="text-xs text-[var(--text-secondary)]">Assigned to</p>
                               <p className="text-sm font-medium">{violation.assigned_to}</p>
                             </div>
                           )}
 
                           {violation.status === 'resolved' && violation.resolution_date && (
                             <div className="pt-2 border-t">
-                              <p className="text-xs text-muted-foreground">Resolved</p>
+                              <p className="text-xs text-[var(--text-secondary)]">Resolved</p>
                               <p className="text-sm">
                                 {formatDate(violation.resolution_date)}
                               </p>
                               {violation.resolution_notes && (
-                                <p className="text-xs text-muted-foreground mt-1">
+                                <p className="text-xs text-[var(--text-secondary)] mt-1">
                                   {violation.resolution_notes}
                                 </p>
                               )}
@@ -555,7 +582,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                 <Card>
                   <CardContent className="py-12 text-center">
                     <CheckCircle2 className="h-9 w-12 mx-auto text-green-500 mb-2" />
-                    <p className="text-sm text-muted-foreground">No violations recorded</p>
+                    <p className="text-sm text-[var(--text-secondary)]">No violations recorded</p>
                   </CardContent>
                 </Card>
               )}
@@ -581,7 +608,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                               <span className="text-sm font-bold">{metric.compliance_rate.toFixed(1)}%</span>
                             </div>
                             <Progress value={metric.compliance_rate} />
-                            <div className="grid grid-cols-4 gap-2 text-xs text-muted-foreground">
+                            <div className="grid grid-cols-4 gap-2 text-xs text-[var(--text-secondary)]">
                               <div>
                                 <span className="font-medium">{metric.total_checks}</span> checks
                               </div>
@@ -617,11 +644,11 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                         <Progress value={policy.compliance_score || 0} className="h-3" />
                         <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                           <div>
-                            <p className="text-xs text-muted-foreground">Total Executions</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Total Executions</p>
                             <p className="text-sm font-bold">{policy.execution_count || 0}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Success Rate</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Success Rate</p>
                             <p className="text-sm font-bold">{policy.success_rate?.toFixed(1) || 0}%</p>
                           </div>
                         </div>
@@ -632,8 +659,8 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <BarChart3 className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No compliance data available</p>
+                    <BarChart3 className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No compliance data available</p>
                   </CardContent>
                 </Card>
               )}
@@ -646,17 +673,17 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                   {entitiesArr.map((entity) => (
                     <Card
                       key={entity.id}
-                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      className="cursor-pointer hover:border-white/[0.12] transition-colors"
                       onClick={() => handleViewEntity(entity.type, entity.id, entity.name)}
                     >
                       <CardContent className="p-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            {entity.type === 'vehicle' && <Car className="h-5 w-5 text-muted-foreground" />}
-                            {entity.type === 'driver' && <Users className="h-5 w-5 text-muted-foreground" />}
+                            {entity.type === 'vehicle' && <Car className="h-5 w-5 text-[var(--text-secondary)]" />}
+                            {entity.type === 'driver' && <Users className="h-5 w-5 text-[var(--text-secondary)]" />}
                             <div>
                               <p className="font-medium">{entity.name}</p>
-                              <p className="text-sm text-muted-foreground capitalize">{entity.type}</p>
+                              <p className="text-sm text-[var(--text-secondary)] capitalize">{entity.type}</p>
                             </div>
                           </div>
                           <div className="text-right">
@@ -664,7 +691,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                               {entity.compliance_status}
                             </Badge>
                             {entity.last_check_date && (
-                              <p className="text-xs text-muted-foreground mt-1">
+                              <p className="text-xs text-[var(--text-secondary)] mt-1">
                                 Last check: {formatDate(entity.last_check_date)}
                               </p>
                             )}
@@ -677,8 +704,8 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Users className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No affected entities</p>
+                    <Users className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">No affected entities</p>
                   </CardContent>
                 </Card>
               )}

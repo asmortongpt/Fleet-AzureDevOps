@@ -38,7 +38,7 @@ const GRADIENT_COLORS = [
   { id: 'bar-gradient-2', start: '#10B981', end: '#10B981' },
   { id: 'bar-gradient-3', start: '#F59E0B', end: '#F59E0B' },
   { id: 'bar-gradient-4', start: '#EF4444', end: '#EF4444' },
-  { id: 'bar-gradient-5', start: '#8B5CF6', end: '#8B5CF6' },
+  { id: 'bar-gradient-5', start: '#D97706', end: '#D97706' },
   { id: 'bar-gradient-6', start: '#F97316', end: '#F97316' },
 ]
 
@@ -58,12 +58,12 @@ export function ResponsiveBarChart({
   compact = false,
 }: ResponsiveBarChartProps) {
   const chartColors = {
-    text: 'var(--foreground)',
-    grid: 'var(--border)',
+    text: 'var(--text-secondary)',
+    grid: 'var(--border-subtle)',
     tooltip: {
-      background: 'var(--card)',
-      border: 'var(--border)',
-      text: 'var(--foreground)',
+      background: 'var(--surface-3)',
+      border: 'var(--border-default)',
+      text: 'var(--text-primary)',
     },
   }
 
@@ -73,9 +73,10 @@ export function ResponsiveBarChart({
     if (active && payload && payload.length) {
       return (
         <div
-          className="bg-background border-2 border-border rounded-xl shadow-xl p-4"
+          className="rounded-xl p-4"
+          style={{ backgroundColor: 'var(--surface-3)', border: '1px solid var(--border-default)' }}
         >
-          <p className="font-semibold text-sm mb-2">{label}</p>
+          <p className="font-semibold text-sm mb-2 text-[var(--text-primary)]">{label}</p>
           {payload.map((entry: any) => (
             <div key={entry.name} className="flex items-center justify-between gap-4 mb-1">
               <div className="flex items-center gap-2">
@@ -83,9 +84,9 @@ export function ResponsiveBarChart({
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: entry.color }}
                 />
-                <span className="text-xs text-muted-foreground">{entry.name}</span>
+                <span className="text-xs text-[var(--text-secondary)]">{entry.name}</span>
               </div>
-              <span className="font-bold text-sm">{entry.value}</span>
+              <span className="font-bold text-sm text-[var(--text-primary)]">{entry.value}</span>
             </div>
           ))}
         </div>
@@ -112,7 +113,7 @@ export function ResponsiveBarChart({
 
   const barChartContent = loading ? (
     <div
-      className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
+      className="w-full bg-[var(--surface-glass)] animate-pulse rounded-lg"
       style={{ height: compact ? '100%' : height }}
     />
   ) : (
@@ -196,7 +197,7 @@ export function ResponsiveBarChart({
 
   return (
     <div>
-      <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
         <CardHeader>
           <CardTitle className="text-xl font-bold">{title}</CardTitle>
           {description && <CardDescription className="text-sm">{description}</CardDescription>}

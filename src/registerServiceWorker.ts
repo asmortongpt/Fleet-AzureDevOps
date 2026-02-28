@@ -259,7 +259,7 @@ export function showUpdateNotification(): Promise<boolean> {
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: #1a1a2e;
+      background: #1a1a1a;
       color: white;
       padding: 16px 24px;
       border-radius: 8px;
@@ -274,7 +274,7 @@ export function showUpdateNotification(): Promise<boolean> {
     banner.innerHTML = `
       <span>A new version is available!</span>
       <button id="sw-update-btn" style="
-        background: #4a90d9;
+        background: #10b981;
         color: white;
         border: none;
         padding: 8px 16px;

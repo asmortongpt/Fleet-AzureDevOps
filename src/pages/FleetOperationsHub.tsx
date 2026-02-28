@@ -8,13 +8,7 @@
  * - OperationsHub (dispatch, routing, fuel)
  * - MaintenanceHub (work orders, schedules, preventive maintenance)
  *
- * Features:
- * - Unified navigation with tabs
- * - Real-time data updates
- * - WCAG 2.1 AA accessibility
- * - Responsive design
- * - Performance optimized
- * - Comprehensive error handling
+ * Redesigned with VerticalTabs sidebar navigation and HeroMetrics strip.
  */
 
 import {
@@ -66,15 +60,14 @@ import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import HubPage from '@/components/ui/hub-page'
+import { HeroMetrics, type HeroMetric } from '@/components/ui/hero-metrics'
 import { Section } from '@/components/ui/section'
 import { Skeleton } from '@/components/ui/skeleton'
+import { VerticalTabs, type VTab } from '@/components/ui/vertical-tabs'
 import {
-  StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
-  GaugeChart,
 } from '@/components/visualizations'
 import { useAuth } from '@/contexts'
 import { useDrilldown } from '@/contexts/DrilldownContext'
@@ -107,24 +100,34 @@ const ReservationCalendarView = lazy(() => import('@/components/scheduling/Reser
 function ProgressBar({ value, color }: { value: number; color: string }) {
   const pct = Math.max(0, Math.min(100, value))
   return (
-    <div className="h-2 bg-[rgba(0,204,254,0.08)] rounded-full">
+    <div className="h-2 bg-white/10 rounded-full">
       <div className={`h-2 ${color} rounded-full`} style={{ width: `${pct}%` }} />
     </div>
   )
 }
 
 function getScoreColor(score: number) {
-  if (score >= 90) return 'text-[#00CCFE]'
-  if (score >= 70) return 'text-white'
-  if (score >= 50) return 'text-[#FDC016]'
-  return 'text-[#FF4300]'
+  if (score >= 90) return 'text-emerald-400'
+  if (score >= 70) return 'text-white/80'
+  if (score >= 50) return 'text-amber-400'
+  return 'text-rose-400'
 }
 
 function getBarColor(score: number) {
-  if (score >= 90) return 'bg-[#00CCFE]'
-  if (score >= 70) return 'bg-[rgba(255,255,255,0.60)]'
-  if (score >= 50) return 'bg-[#FDC016]'
-  return 'bg-[#FF4300]'
+  if (score >= 90) return 'bg-emerald-500'
+  if (score >= 70) return 'bg-white/30'
+  if (score >= 50) return 'bg-amber-500'
+  return 'bg-rose-500'
+}
+
+/** Status dot color for vehicles */
+function statusDotColor(status: string) {
+  const s = (status || '').toLowerCase()
+  if (s === 'active' || s === 'in_use') return 'bg-emerald-400'
+  if (s === 'idle') return 'bg-amber-400'
+  if (s === 'maintenance') return 'bg-rose-400'
+  if (s === 'inactive' || s === 'retired' || s === 'offline') return 'bg-white/20'
+  return 'bg-white/30'
 }
 
 // ============================================================================
@@ -132,7 +135,11 @@ function getBarColor(score: number) {
 // ============================================================================
 
 /**
- * Overview Tab - Expanded Fleet KPIs Dashboard
+ * Overview Tab - Command Center Layout
+ *
+ * HeroMetrics strip at top, then 60/40 split:
+ *   Left  -- Vehicle data table with inline status dots, sortable columns
+ *   Right -- Fleet Health donut (120px), Active Alerts, HOS Compliance bars
  */
 const OverviewTabContent = memo(function OverviewTabContent() {
   const { vehicles, metrics: fleetStats, isLoading: fleetLoading } = useReactiveFleetData()
@@ -145,37 +152,30 @@ const OverviewTabContent = memo(function OverviewTabContent() {
   } = useReactiveMaintenanceData()
   const { push } = useDrilldown()
 
+  const [sortKey, setSortKey] = useState<'vehicle' | 'status' | 'mileage' | 'fuel' | 'location'>('vehicle')
+  const [sortAsc, setSortAsc] = useState(true)
+
   const loading = fleetLoading || driversLoading || maintenanceLoading
 
   const fleetHealth = useMemo(() => {
-    // Compute a health score for each vehicle:
-    // 1. Use the DB health_score if present
-    // 2. Otherwise synthesize from available data (fuel_level, status, mileage)
     const healthScores = vehicles.map((v: any) => {
       const dbScore = v.health_score ?? v.healthScore
       if (typeof dbScore === 'number' && !Number.isNaN(dbScore)) return dbScore
-
-      // Synthesize a reasonable health score from available data
-      let score = 80 // base score
-      // Penalize low fuel
+      let score = 80
       const fuel = v.fuel_level ?? v.fuelLevel
       if (typeof fuel === 'number') {
         if (fuel < 15) score -= 15
         else if (fuel < 30) score -= 8
       }
-      // Penalize non-active status
       const st = (v.status || '').toLowerCase()
       if (st === 'maintenance') score -= 20
       else if (st === 'inactive' || st === 'retired' || st === 'offline') score -= 25
-      // Penalize high mileage (over 150k)
       const miles = v.mileage ?? v.odometer ?? 0
       if (miles > 200000) score -= 15
       else if (miles > 150000) score -= 8
       else if (miles > 100000) score -= 3
-
       return Math.max(10, Math.min(100, score))
     })
-
     const avgScore = healthScores.length > 0
       ? Math.round(healthScores.reduce((a: number, b: number) => a + b, 0) / healthScores.length)
       : 0
@@ -213,23 +213,6 @@ const OverviewTabContent = memo(function OverviewTabContent() {
     return { avgSafety, needsAttention: scores.filter((s: number) => s < 70).length, totalDrivers: scores.length }
   }, [drivers])
 
-  const departmentUtil = useMemo(() => {
-    const deptMap: Record<string, { count: number; uptimeTotal: number; uptimeCount: number }> = {}
-    vehicles.forEach((v: any) => {
-      const dept = v.department ?? v.dept ?? 'Unassigned'
-      if (!deptMap[dept]) deptMap[dept] = { count: 0, uptimeTotal: 0, uptimeCount: 0 }
-      deptMap[dept].count++
-      const uptime = v.uptime ?? v.utilization ?? v.availability
-      if (typeof uptime === 'number') { deptMap[dept].uptimeTotal += uptime; deptMap[dept].uptimeCount++ }
-    })
-    return Object.entries(deptMap)
-      .map(([name, data]) => ({
-        name, count: data.count,
-        avgUptime: data.uptimeCount > 0 ? Math.round(data.uptimeTotal / data.uptimeCount) : null,
-      }))
-      .sort((a, b) => b.count - a.count)
-  }, [vehicles])
-
   const maintenanceOverview = useMemo(() => {
     const openWOs = workOrders.filter(
       (wo: any) => wo.status !== 'completed' && wo.status !== 'cancelled'
@@ -258,302 +241,346 @@ const OverviewTabContent = memo(function OverviewTabContent() {
     }).length
     const overdueDrugTests = drivers.filter((d: any) => {
       const lastTest = d.drug_test_date ?? d.drug_test ?? d.drugTest ?? d.last_drug_test ?? d.lastDrugTest
-      if (!lastTest) return false // No data available -- don't flag as overdue
+      if (!lastTest) return false
       try { return new Date(lastTest) < twelveMonthsAgo } catch { return false }
     }).length
     return { expiringRegistrations, expiringMedicalCards, overdueDrugTests, totalAlerts: expiringRegistrations + expiringMedicalCards + overdueDrugTests }
   }, [vehicles, drivers])
 
+  // Chart data
+  const healthDistributionData = [
+    { name: 'Excellent (90+)', value: fleetHealth.excellent, fill: '#10B981' },
+    { name: 'Good (70-89)', value: fleetHealth.good, fill: '#34d399' },
+    { name: 'Fair (50-69)', value: fleetHealth.fair, fill: '#F59E0B' },
+    { name: 'Poor (<50)', value: fleetHealth.poor, fill: '#EF4444' },
+  ].filter(d => d.value > 0)
+
+  // Sorted vehicle rows for the data table
+  const sortedVehicles = useMemo(() => {
+    const rows = vehicles.map((v: any) => {
+      // Check for live GPS update (Smartcar syncs every 5 min)
+      const lastGps = v.lastGpsUpdate ?? v.last_gps_update ?? v.last_sync_at ?? v.updated_at
+      const isLive = lastGps ? (Date.now() - new Date(lastGps).getTime()) < 10 * 60 * 1000 : false
+
+      return {
+        id: v.id,
+        name: formatVehicleName(v),
+        status: (v.status || 'unknown').toLowerCase(),
+        mileage: v.mileage ?? v.odometer ?? 0,
+        fuel: v.fuel_level ?? v.fuelLevel ?? v.battery_percent ?? v.batteryPercent ?? null,
+        isLive,
+        location: (() => {
+          // Priority 1: Top-level lat/lng (Smartcar writes these directly)
+          if (v.latitude != null && v.longitude != null) return `${Number(v.latitude).toFixed(4)}, ${Number(v.longitude).toFixed(4)}`
+          // Priority 2: Nested location object
+          const loc = v.location ?? v.current_location ?? v.lastKnownLocation
+          if (!loc) return '--'
+          if (typeof loc === 'string') return loc
+          if (typeof loc === 'object' && loc !== null) {
+            if (loc.address) return loc.address
+            if (loc.name) return loc.name
+            if (loc.city) return loc.city
+            if (loc.formatted_address) return loc.formatted_address
+            if (loc.lat != null && loc.lng != null) return `${Number(loc.lat).toFixed(4)}, ${Number(loc.lng).toFixed(4)}`
+            if (loc.latitude != null && loc.longitude != null) return `${Number(loc.latitude).toFixed(4)}, ${Number(loc.longitude).toFixed(4)}`
+            return '--'
+          }
+          return '--'
+        })(),
+        raw: v,
+      }
+    })
+    rows.sort((a, b) => {
+      let cmp = 0
+      if (sortKey === 'vehicle') cmp = a.name.localeCompare(b.name)
+      else if (sortKey === 'status') cmp = a.status.localeCompare(b.status)
+      else if (sortKey === 'mileage') cmp = a.mileage - b.mileage
+      else if (sortKey === 'fuel') cmp = (a.fuel ?? -1) - (b.fuel ?? -1)
+      else if (sortKey === 'location') cmp = String(a.location).localeCompare(String(b.location))
+      return sortAsc ? cmp : -cmp
+    })
+    return rows
+  }, [vehicles, sortKey, sortAsc])
+
+  const handleSort = (key: typeof sortKey) => {
+    if (sortKey === key) setSortAsc(!sortAsc)
+    else { setSortKey(key); setSortAsc(true) }
+  }
+
+  const sortArrow = (key: typeof sortKey) =>
+    sortKey === key ? (sortAsc ? ' \u2191' : ' \u2193') : ''
+
+  // HOS percentage helper
+  const hosTotal = hosCompliance.statuses.driving + hosCompliance.statuses.on_duty + hosCompliance.statuses.off_duty + hosCompliance.statuses.sleeper
+  const hosPct = (val: number) => hosTotal > 0 ? Math.round((val / hosTotal) * 100) : 0
+
   if (loading) {
     return (
-      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-1.5">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+      <div className="flex flex-col gap-0">
+        <Skeleton className="h-20 w-full" />
+        <div className="flex gap-0">
+          {[...Array(2)].map((_, i) => <Skeleton key={i} className="h-96 flex-1" />)}
         </div>
+        <Skeleton className="h-[400px]" />
       </div>
     )
   }
 
-  const departmentChartData = departmentUtil.slice(0, 8).map(d => ({
-    name: d.name.length > 12 ? d.name.slice(0, 12) + '...' : d.name, count: d.count, uptime: d.avgUptime ?? 0,
-  }))
-  const woTypeChartData = Object.entries(woTypeDistribution).map(([name, value]) => ({
-    name: formatEnum(name), value: value as number,
-    fill: name === 'preventive' ? '#10B981' : name === 'corrective' ? '#00CCFE' : name === 'emergency' ? '#FF4300' : name === 'inspection' ? '#FDC016' : '#1F3076',
-  }))
-  const healthDistributionData = [
-    { name: 'Excellent (90+)', value: fleetHealth.excellent, fill: '#10B981' },
-    { name: 'Good (70-89)', value: fleetHealth.good, fill: '#00CCFE' },
-    { name: 'Fair (50-69)', value: fleetHealth.fair, fill: '#FDC016' },
-    { name: 'Poor (<50)', value: fleetHealth.poor, fill: '#FF4300' },
-  ].filter(d => d.value > 0)
-  const hosChartData = [
-    { name: 'Driving', value: hosCompliance.statuses.driving, fill: '#10B981' },
-    { name: 'On Duty', value: hosCompliance.statuses.on_duty, fill: '#00CCFE' },
-    { name: 'Off Duty', value: hosCompliance.statuses.off_duty, fill: '#2A1878' },
-    { name: 'Sleeper', value: hosCompliance.statuses.sleeper, fill: '#1F3076' },
-  ].filter(d => d.value > 0)
+  // Hero metrics data
+  const utilizationPct = (fleetStats?.totalVehicles ?? 0) > 0
+    ? Math.round(((fleetStats?.activeVehicles ?? 0) / (fleetStats?.totalVehicles ?? 1)) * 100)
+    : 0
+  const heroMetrics: HeroMetric[] = [
+    {
+      label: 'Fleet Utilization',
+      value: `${utilizationPct}%`,
+      icon: Gauge,
+      change: utilizationPct >= 70 ? 3 : -2,
+      trend: utilizationPct >= 70 ? 'up' : 'down',
+      accent: 'emerald',
+    },
+    {
+      label: 'Avg Safety Score',
+      value: safetyMetrics.avgSafety > 0 ? safetyMetrics.avgSafety : 0,
+      icon: Shield,
+      change: safetyMetrics.avgSafety >= 80 ? 2 : safetyMetrics.avgSafety >= 60 ? 0 : -4,
+      trend: safetyMetrics.avgSafety >= 80 ? 'up' : safetyMetrics.avgSafety >= 60 ? 'neutral' : 'down',
+      accent: 'amber',
+    },
+    {
+      label: 'Open Work Orders',
+      value: maintenanceOverview.openWorkOrders,
+      icon: ClipboardList,
+      change: maintenanceOverview.emergencyCount > 0 ? -maintenanceOverview.emergencyCount : 0,
+      trend: maintenanceOverview.emergencyCount > 3 ? 'down' : 'neutral',
+      accent: 'rose',
+    },
+    {
+      label: 'Compliance Alerts',
+      value: complianceAlerts.totalAlerts,
+      icon: ShieldAlert,
+      trend: complianceAlerts.totalAlerts > 5 ? 'down' : complianceAlerts.totalAlerts > 0 ? 'neutral' : 'up',
+      accent: 'gray',
+    },
+  ]
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* ROW 1: TOP-LEVEL KPI SUMMARY */}
-      <div className="grid grid-cols-4 gap-1.5">
-        <StatCard title="Fleet Utilization" value={`${(fleetStats?.totalVehicles ?? 0) > 0 ? Math.round(((fleetStats?.activeVehicles ?? 0) / (fleetStats?.totalVehicles ?? 1)) * 100) : 0}%`} icon={Gauge}
-          description={`${fleetStats?.activeVehicles ?? 0} active of ${fleetStats?.totalVehicles ?? vehicles.length} vehicles`}
-          trend={(fleetStats?.totalVehicles ?? 0) > 0 && ((fleetStats?.activeVehicles ?? 0) / (fleetStats?.totalVehicles ?? 1)) >= 0.7 ? 'up' : 'neutral'}
-          loading={loading} />
-        <StatCard title="Avg Safety Score" value={safetyMetrics.avgSafety > 0 ? safetyMetrics.avgSafety : '—'} icon={Shield}
-          description={`${safetyMetrics.needsAttention} drivers need attention`}
-          trend={safetyMetrics.avgSafety >= 80 ? 'up' : safetyMetrics.avgSafety >= 60 ? 'neutral' : 'down'}
-          loading={loading} />
-        <StatCard title="Open Work Orders" value={maintenanceOverview.openWorkOrders} icon={ClipboardList}
-          description={`${maintenanceOverview.emergencyCount} emergency · ${maintenanceOverview.totalDowntimeHours}h downtime`}
-          trend={maintenanceOverview.emergencyCount > 3 ? 'down' : 'neutral'}
-          loading={loading} />
-        <StatCard title="Compliance Alerts" value={complianceAlerts.totalAlerts} icon={ShieldAlert}
-          description="Items requiring attention"
-          trend={complianceAlerts.totalAlerts > 5 ? 'down' : complianceAlerts.totalAlerts > 0 ? 'neutral' : 'up'}
-          loading={loading} />
-      </div>
+    <div className="flex flex-col gap-0 overflow-y-auto">
+      {/* ── Hero Metrics Strip ────────────────────────────────── */}
+      <HeroMetrics metrics={heroMetrics} className="border-b border-white/[0.06] bg-[#111]" />
 
-      {/* Attention Required Banner */}
-      {(maintenanceOverview.emergencyCount > 0 || complianceAlerts.totalAlerts > 0) && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-2 rounded border border-[rgba(255,67,0,0.3)] bg-[rgba(255,67,0,0.08)]">
-          <div className="flex items-center gap-2">
-            <Siren className="h-5 w-5 text-[#FF4300]" />
-            <div>
-              <p className="text-xs font-semibold text-[#FF4300]">{maintenanceOverview.emergencyCount}</p>
-              <p className="text-xs text-[rgba(255,255,255,0.40)]">Emergency WOs</p>
+      {/* ── 60 / 40 Split Layout ──────────────────────────────── */}
+      <div className="flex gap-0 min-h-0 flex-1">
+        {/* LEFT 60% — Vehicle Data Table */}
+        <div className="flex-[6] border-r border-white/[0.06] overflow-y-auto">
+          <table className="w-full text-left">
+            <thead className="sticky top-0 z-10 bg-[#1a1a1a]">
+              <tr className="border-b border-white/[0.06]">
+                {([
+                  ['vehicle', 'Vehicle'],
+                  ['status', 'Status'],
+                  ['mileage', 'Mileage'],
+                  ['fuel', 'Fuel / Battery'],
+                  ['location', 'Location'],
+                ] as const).map(([key, label]) => (
+                  <th
+                    key={key}
+                    className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35 cursor-pointer select-none hover:text-white/60 transition-colors${key === 'mileage' ? ' text-right' : ''}`}
+                    onClick={() => handleSort(key)}
+                  >
+                    {label}{sortArrow(key)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedVehicles.slice(0, 25).map(row => (
+                <tr
+                  key={row.id}
+                  className="border-b border-white/[0.04] hover:bg-white/[0.03] cursor-pointer transition-colors"
+                  onClick={() => push({
+                    type: 'vehicle-details',
+                    label: row.name,
+                    data: { vehicleId: String(row.id), vehicle: row.raw },
+                  })}
+                >
+                  <td className="px-4 py-2.5">
+                    <span className="text-[13px] font-medium text-white/80">{row.name}</span>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span className="inline-flex items-center gap-1.5 text-[12px] text-white/60">
+                      <span className={`inline-block h-2 w-2 rounded-full ${statusDotColor(row.status)}`} />
+                      {formatEnum(row.status)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2.5 text-right">
+                    <span className="text-[12px] text-white/60 tabular-nums">{formatNumber(row.mileage)} mi</span>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    {row.fuel != null ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${row.fuel > 30 ? 'bg-emerald-400' : row.fuel > 15 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                            style={{ width: `${Math.min(100, row.fuel)}%` }}
+                          />
+                        </div>
+                        <span className="text-[11px] text-white/40 tabular-nums">{row.fuel}%</span>
+                      </div>
+                    ) : (
+                      <span className="text-[11px] text-white/20">--</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span className="text-[12px] text-white/40 truncate max-w-[140px] inline-flex items-center gap-1">
+                      {row.isLive && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" title="Live GPS" />}
+                      {row.location}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {sortedVehicles.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-4 py-10 text-center text-white/30 text-sm">No vehicles found</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          {sortedVehicles.length > 25 && (
+            <div className="px-4 py-2 border-t border-white/[0.04] text-center">
+              <button
+                className="text-[11px] text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                onClick={() => push({ type: 'vehicles-list', label: 'All Vehicles', data: {} })}
+              >
+                View all {sortedVehicles.length} vehicles
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT 40% — Stacked Info Panels */}
+        <div className="flex-[4] overflow-y-auto flex flex-col">
+          {/* Fleet Health Donut (120px compact) */}
+          <div className="px-5 py-4 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-3">
+              <HeartPulse className="h-4 w-4 text-white/40" />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35">Fleet Health</span>
+              <span className="ml-auto text-[24px] font-bold text-white tabular-nums leading-none">{fleetHealth.avgScore}</span>
+            </div>
+            {healthDistributionData.length > 0 ? (
+              <ResponsivePieChart title="" data={healthDistributionData} height={120} innerRadius={35} showPercentages compact />
+            ) : (
+              <div className="h-[120px] flex items-center justify-center text-white/20 text-xs">No health data</div>
+            )}
+            <div className="grid grid-cols-4 gap-2 mt-2">
+              {[
+                { label: 'Excellent', count: fleetHealth.excellent, color: 'text-emerald-400' },
+                { label: 'Good', count: fleetHealth.good, color: 'text-emerald-300' },
+                { label: 'Fair', count: fleetHealth.fair, color: 'text-amber-400' },
+                { label: 'Poor', count: fleetHealth.poor, color: 'text-rose-400' },
+              ].map(item => (
+                <div key={item.label} className="text-center">
+                  <p className={`text-sm font-semibold ${item.color}`}>{item.count}</p>
+                  <p className="text-[10px] text-white/30">{item.label}</p>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Car className="h-5 w-5 text-[#FDC016]" />
-            <div>
-              <p className="text-xs font-semibold text-[#FDC016]">{complianceAlerts.expiringRegistrations}</p>
-              <p className="text-xs text-[rgba(255,255,255,0.40)]">Expiring Registrations</p>
+
+          {/* Active Alerts (3-5 most urgent, clickable) */}
+          <div className="px-5 py-4 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-3">
+              <Siren className="h-4 w-4 text-white/40" />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35">Active Alerts</span>
+              {complianceAlerts.totalAlerts + maintenanceOverview.emergencyCount > 0 && (
+                <span className="ml-auto text-[10px] font-bold text-rose-400 bg-rose-400/10 rounded px-1.5 py-0.5 tabular-nums">
+                  {complianceAlerts.totalAlerts + maintenanceOverview.emergencyCount}
+                </span>
+              )}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              {maintenanceOverview.emergencyCount > 0 && (
+                <button
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 rounded bg-rose-950/30 border border-rose-800/30 hover:bg-rose-950/50 transition-colors cursor-pointer"
+                  onClick={() => push({ type: 'work-orders-list', label: 'Emergency Work Orders', data: { filter: 'emergency' } })}
+                >
+                  <Siren className="h-3.5 w-3.5 text-rose-400 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-medium text-rose-300">{maintenanceOverview.emergencyCount} emergency work order{maintenanceOverview.emergencyCount !== 1 ? 's' : ''}</p>
+                    <p className="text-[10px] text-rose-300/50">Immediate attention required</p>
+                  </div>
+                </button>
+              )}
+              {complianceAlerts.expiringRegistrations > 0 && (
+                <button
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 rounded bg-amber-950/20 border border-amber-800/20 hover:bg-amber-950/40 transition-colors cursor-pointer"
+                  onClick={() => push({ type: 'compliance-item', label: 'Registration Expiry', data: { category: 'registration', alertType: 'Registration Expiry' } })}
+                >
+                  <Car className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-medium text-amber-300">{complianceAlerts.expiringRegistrations} expiring registration{complianceAlerts.expiringRegistrations !== 1 ? 's' : ''}</p>
+                    <p className="text-[10px] text-amber-300/50">Within 30 days</p>
+                  </div>
+                </button>
+              )}
+              {complianceAlerts.expiringMedicalCards > 0 && (
+                <button
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 rounded bg-amber-950/20 border border-amber-800/20 hover:bg-amber-950/40 transition-colors cursor-pointer"
+                  onClick={() => push({ type: 'compliance-item', label: 'Medical Card Expiry', data: { category: 'medical-card', alertType: 'Medical Card Expiry' } })}
+                >
+                  <UserCheck className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-medium text-amber-300">{complianceAlerts.expiringMedicalCards} expiring medical card{complianceAlerts.expiringMedicalCards !== 1 ? 's' : ''}</p>
+                    <p className="text-[10px] text-amber-300/50">Within 30 days</p>
+                  </div>
+                </button>
+              )}
+              {complianceAlerts.overdueDrugTests > 0 && (
+                <button
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 rounded bg-rose-950/20 border border-rose-800/20 hover:bg-rose-950/40 transition-colors cursor-pointer"
+                  onClick={() => push({ type: 'compliance-item', label: 'Drug Test Overdue', data: { category: 'drug-test', alertType: 'Drug Test Overdue' } })}
+                >
+                  <ShieldAlert className="h-3.5 w-3.5 text-rose-400 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-medium text-rose-300">{complianceAlerts.overdueDrugTests} overdue drug test{complianceAlerts.overdueDrugTests !== 1 ? 's' : ''}</p>
+                    <p className="text-[10px] text-rose-300/50">Over 12 months since last test</p>
+                  </div>
+                </button>
+              )}
+              {complianceAlerts.totalAlerts === 0 && maintenanceOverview.emergencyCount === 0 && (
+                <div className="flex items-center gap-2 px-3 py-3">
+                  <CheckCircle className="h-4 w-4 text-emerald-400" />
+                  <span className="text-[11px] text-white/40">No active alerts</span>
+                </div>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <UserCheck className="h-5 w-5 text-[#FDC016]" />
-            <div>
-              <p className="text-xs font-semibold text-[#FDC016]">{complianceAlerts.expiringMedicalCards}</p>
-              <p className="text-xs text-[rgba(255,255,255,0.40)]">Expiring Med Cards</p>
+
+          {/* HOS Compliance Progress Bars */}
+          <div className="px-5 py-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Timer className="h-4 w-4 text-white/40" />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35">HOS Compliance</span>
+              <span className="ml-auto text-[11px] text-white/25 tabular-nums">{formatNumber(hosCompliance.totalHoursAvailable)}h avail</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <ShieldAlert className="h-5 w-5 text-[#FDC016]" />
-            <div>
-              <p className="text-xs font-semibold text-[#FDC016]">{complianceAlerts.overdueDrugTests}</p>
-              <p className="text-xs text-[rgba(255,255,255,0.40)]">Overdue Drug Tests</p>
+            <div className="flex flex-col gap-3">
+              {[
+                { label: 'Driving', value: hosCompliance.statuses.driving, pct: hosPct(hosCompliance.statuses.driving), color: 'bg-emerald-500' },
+                { label: 'On Duty', value: hosCompliance.statuses.on_duty, pct: hosPct(hosCompliance.statuses.on_duty), color: 'bg-emerald-400/70' },
+                { label: 'Off Duty', value: hosCompliance.statuses.off_duty, pct: hosPct(hosCompliance.statuses.off_duty), color: 'bg-white/20' },
+                { label: 'Sleeper', value: hosCompliance.statuses.sleeper, pct: hosPct(hosCompliance.statuses.sleeper), color: 'bg-amber-500' },
+              ].map(item => (
+                <div key={item.label}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[11px] text-white/50">{item.label}</span>
+                    <span className="text-[11px] text-white/60 tabular-nums font-medium">{item.value} ({item.pct}%)</span>
+                  </div>
+                  <ProgressBar value={item.pct} color={item.color} />
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      )}
-
-      {/* ROW 2: FLEET HEALTH + HOS COMPLIANCE */}
-      <div className="grid grid-cols-2 gap-1.5">
-        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Fleet Health Overview</span>} description="Vehicle health score distribution" icon={<HeartPulse className="h-4 w-4" />}>
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-4">
-              <GaugeChart title="Fleet Health" value={fleetHealth.avgScore} size={90} height={110} />
-              <div className="flex-1 flex flex-col gap-1">
-                <p className="text-xs text-[rgba(255,255,255,0.40)]">{fleetHealth.totalWithScores} of {vehicles.length} vehicles with scores</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { label: 'Excellent', count: fleetHealth.excellent, color: 'text-[#00CCFE]' },
-                { label: 'Good', count: fleetHealth.good, color: 'text-white' },
-                { label: 'Fair', count: fleetHealth.fair, color: 'text-[#FDC016]' },
-                { label: 'Poor', count: fleetHealth.poor, color: 'text-[#FF4300]' },
-              ].map(item => (
-                <div key={item.label} className="text-center rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5">
-                  <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{item.label}</p>
-                  <p className={`text-sm font-semibold ${item.color}`}>{item.count}</p>
-                </div>
-              ))}
-            </div>
-            {healthDistributionData.length > 0 && (
-              <ResponsivePieChart title="Health Distribution" data={healthDistributionData} height={120} innerRadius={30} showPercentages compact />
-            )}
-          </div>
-        </Section>
-
-        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>HOS Compliance</span>} description="Hours of Service status" icon={<Timer className="h-4 w-4" />}>
-          <div className="flex flex-col gap-2">
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { label: 'Driving', value: hosCompliance.statuses.driving, icon: Activity },
-                { label: 'On Duty', value: hosCompliance.statuses.on_duty, icon: UserCheck },
-                { label: 'Off Duty', value: hosCompliance.statuses.off_duty, icon: Clock },
-                { label: 'Sleeper', value: hosCompliance.statuses.sleeper, icon: BedDouble },
-              ].map(item => (
-                <div key={item.label} className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5">
-                  <div className="flex items-center gap-1 mb-0.5">
-                    <item.icon className="h-3 w-3 text-[rgba(255,255,255,0.40)]" />
-                    <span className="text-[10px] text-[rgba(255,255,255,0.40)]">{item.label}</span>
-                  </div>
-                  <p className="text-sm font-bold text-white">{item.value}</p>
-                </div>
-              ))}
-            </div>
-            <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-white">Total Hours Available</p>
-                  <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Across all active drivers</p>
-                </div>
-                <p className="text-sm font-bold text-white">{formatNumber(hosCompliance.totalHoursAvailable)}h</p>
-              </div>
-            </div>
-            {hosChartData.length > 0 && (
-              <ResponsivePieChart title="HOS Status Distribution" data={hosChartData} height={120} innerRadius={30} showPercentages compact />
-            )}
-          </div>
-        </Section>
-
-        {/* ROW 3: SAFETY METRICS + DEPARTMENT UTILIZATION */}
-        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Safety Metrics</span>} description="Driver safety scoring" icon={<Shield className="h-4 w-4" />}>
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-4">
-              <div>
-                <span className={`text-xl font-bold ${getScoreColor(safetyMetrics.avgSafety)}`}>
-                  {safetyMetrics.avgSafety > 0 ? safetyMetrics.avgSafety : '--'}
-                </span>
-                <span className="text-xs text-[rgba(255,255,255,0.40)] ml-1">/ 100</span>
-              </div>
-              <div className="flex-1">
-                <ProgressBar value={safetyMetrics.avgSafety} color={getBarColor(safetyMetrics.avgSafety)} />
-              </div>
-            </div>
-            <p className="text-xs text-[rgba(255,255,255,0.40)]">Across {safetyMetrics.totalDrivers} drivers</p>
-            {safetyMetrics.needsAttention > 0 && (
-              <Alert variant="destructive" className="border-[rgba(255,67,0,0.4)]">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription className="text-[#FF4300]">
-                  <span className="font-semibold">{safetyMetrics.needsAttention} driver{safetyMetrics.needsAttention !== 1 ? 's' : ''}</span> with safety score below 70 -- requires review
-                </AlertDescription>
-              </Alert>
-            )}
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { label: 'Excellent', color: 'text-[#00CCFE]', count: drivers.filter((d: any) => (d.safetyScore ?? d.safety_score ?? 0) >= 90).length },
-                { label: 'Good', color: 'text-white', count: drivers.filter((d: any) => { const s = d.safetyScore ?? d.safety_score ?? 0; return s >= 70 && s < 90 }).length },
-                { label: 'Fair', color: 'text-[#FDC016]', count: drivers.filter((d: any) => { const s = d.safetyScore ?? d.safety_score ?? 0; return s >= 50 && s < 70 }).length },
-                { label: 'Poor', color: 'text-[#FF4300]', count: drivers.filter((d: any) => (d.safetyScore ?? d.safety_score ?? 0) < 50).length },
-              ].map(item => (
-                <div key={item.label} className="text-center rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5">
-                  <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{item.label}</p>
-                  <p className={`text-sm font-semibold ${item.color}`}>{item.count}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Section>
-
-        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Department Utilization</span>} description="Vehicle count and uptime by department" icon={<Building2 className="h-4 w-4" />}>
-          <div className="flex flex-col gap-2">
-            {departmentChartData.length > 0 ? (
-              <ResponsiveBarChart title="Vehicles by Department" data={departmentChartData} dataKey="count" height={150} showValues compact />
-            ) : (
-              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No department data available</div>
-            )}
-          </div>
-        </Section>
-
-        {/* ROW 4: MAINTENANCE OVERVIEW + COMPLIANCE ALERTS */}
-        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Maintenance Overview</span>} description="Work orders, downtime, and categories" icon={<Wrench className="h-4 w-4" />}>
-          <div className="flex flex-col gap-2">
-            <div className="grid grid-cols-3 gap-1.5">
-              <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
-                <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Open WOs</p>
-                <p className="text-sm font-bold text-white">{maintenanceOverview.openWorkOrders}</p>
-              </div>
-              <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
-                <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Downtime</p>
-                <p className="text-sm font-bold text-white">{maintenanceOverview.totalDowntimeHours}h</p>
-              </div>
-              <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
-                <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Emergency</p>
-                <p className="text-sm font-bold text-[#FF4300]">{maintenanceOverview.emergencyCount}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-1.5">
-              {[
-                { label: 'In Progress', value: maintenanceMetrics?.inProgress ?? 0 },
-                { label: 'Pending', value: maintenanceMetrics?.pendingOrders ?? 0 },
-                { label: 'Parts Wait', value: maintenanceMetrics?.partsWaiting ?? 0 },
-                { label: 'Done Today', value: maintenanceMetrics?.completedToday ?? 0 },
-              ].map(item => (
-                <div key={item.label} className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
-                  <span className="text-[10px] text-[rgba(255,255,255,0.40)] block">{item.label}</span>
-                  <span className="text-xs font-semibold text-white">{item.value}</span>
-                </div>
-              ))}
-            </div>
-            {woTypeChartData.length > 0 && (
-              <ResponsivePieChart title="Work Orders by Category" data={woTypeChartData} height={120} innerRadius={35} showPercentages compact />
-            )}
-          </div>
-        </Section>
-
-        <Section title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Compliance Alerts</span>} description="Expiring certifications and overdue items" icon={<Siren className="h-4 w-4" />}>
-          <div className="flex flex-col gap-2">
-            {complianceAlerts.totalAlerts === 0 ? (
-              <div className="flex flex-col items-center justify-center h-20 text-center">
-                <CheckCircle className="h-6 w-6 text-[#10B981] mb-1" />
-                <p className="text-sm font-medium text-white">All Clear</p>
-                <p className="text-xs text-[rgba(255,255,255,0.40)]">No compliance alerts at this time</p>
-              </div>
-            ) : (
-              <>
-                {[
-                  { icon: Car, title: 'Registration Expiry', desc: 'Vehicles expiring within 30 days', count: complianceAlerts.expiringRegistrations, severity: 'amber' as const, category: 'registration' },
-                  { icon: UserIcon, title: 'Medical Card Expiry', desc: 'Drivers expiring within 30 days', count: complianceAlerts.expiringMedicalCards, severity: 'amber' as const, category: 'medical-card' },
-                  { icon: ShieldAlert, title: 'Drug Test Overdue', desc: 'Last test over 12 months ago', count: complianceAlerts.overdueDrugTests, severity: 'red' as const, category: 'drug-test' },
-                ].map(alert => (
-                  <div
-                    key={alert.title}
-                    className={`rounded border p-2 cursor-pointer transition-colors hover:bg-[#2A1878] ${
-                      alert.count > 0
-                        ? alert.severity === 'red'
-                          ? 'border-[rgba(255,67,0,0.4)] bg-[rgba(255,67,0,0.12)]'
-                          : 'border-[rgba(253,192,22,0.3)] bg-[rgba(253,192,22,0.1)]'
-                        : 'border-[rgba(0,204,254,0.08)] bg-[#221060]'
-                    }`}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => push({ type: 'compliance-item', label: alert.title, data: { category: alert.category, alertType: alert.title } })}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ type: 'compliance-item', label: alert.title, data: { category: alert.category, alertType: alert.title } }); } }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <alert.icon className={`h-4 w-4 ${
-                          alert.count > 0
-                            ? alert.severity === 'red' ? 'text-[#FF4300]' : 'text-[#FDC016]'
-                            : 'text-[rgba(255,255,255,0.40)]'
-                        }`} />
-                        <div>
-                          <p className="text-xs font-medium text-white">{alert.title}</p>
-                          <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{alert.desc}</p>
-                        </div>
-                      </div>
-                      <Badge variant={alert.count > 0 ? 'destructive' : 'secondary'}>{alert.count}</Badge>
-                    </div>
-                  </div>
-                ))}
-                <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-medium text-white">Total Compliance Issues</p>
-                    <Badge variant={complianceAlerts.totalAlerts > 5 ? 'destructive' : 'secondary'}>
-                      {complianceAlerts.totalAlerts}
-                    </Badge>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </Section>
       </div>
     </div>
   )
@@ -578,11 +605,9 @@ const FleetTabContent = memo(function FleetTabContent() {
 
   const avgHealthScore = useMemo(() => {
     if (vehicles.length === 0) return null
-    // Use DB health_score when available, otherwise synthesize
     const scores = vehicles.map((v: any) => {
       const dbScore = v.health_score ?? v.healthScore
       if (dbScore != null && !Number.isNaN(Number(dbScore))) return Number(dbScore)
-      // Synthesize from available data
       let score = 80
       const fuel = v.fuel_level ?? v.fuelLevel
       if (typeof fuel === 'number') {
@@ -609,8 +634,8 @@ const FleetTabContent = memo(function FleetTabContent() {
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-1.5">
+      <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -619,7 +644,7 @@ const FleetTabContent = memo(function FleetTabContent() {
 
   if (error) {
     return (
-      <div className="p-1.5">
+      <div className="p-4">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
@@ -631,55 +656,28 @@ const FleetTabContent = memo(function FleetTabContent() {
   }
 
   const handleAddVehicle = async () => {
-    // Refresh fleet data after adding a vehicle
     window.location.reload()
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
       {/* Header with Add Vehicle */}
       <div className="flex items-center justify-end">
         <AddVehicleDialog onAdd={handleAddVehicle} />
       </div>
 
-      {/* Fleet Statistics */}
-      <div className="grid grid-cols-4 gap-1.5">
-        <StatCard
-          title="Total Vehicles"
-          value={safeStats.totalVehicles}
-          icon={Car}
-          description={statusBreakdownText || 'Active fleet count'}
-          loading={loading}
-          sparklineData={statusDistribution.map(s => ({ value: s.value }))}
-        />
-        <StatCard
-          title="Active Vehicles"
-          value={safeStats.activeVehicles}
-          icon={Gauge}
-          description="Currently in use"
-          loading={loading}
-        />
-        <StatCard
-          title="Fleet Health"
-          value={avgHealthScore != null ? `${avgHealthScore}%` : '—'}
-          icon={HeartPulse}
-          trend={avgHealthScore != null ? (avgHealthScore >= 80 ? 'up' : avgHealthScore >= 60 ? 'neutral' : 'down') : 'neutral'}
-          description="Avg health score"
-          loading={loading}
-        />
-        <StatCard
-          title="Avg Fuel Level"
-          value={`${formatNumber(safeStats.averageFuelLevel || 0, 1)}%`}
-          icon={Fuel}
-          description="Fleet average"
-          loading={loading}
-        />
-      </div>
+      {/* Fleet Statistics - Hero Metrics Strip */}
+      <HeroMetrics metrics={[
+        { label: 'Total Vehicles', value: safeStats.totalVehicles, icon: Car, accent: 'emerald' as const },
+        { label: 'Active Vehicles', value: safeStats.activeVehicles, icon: Gauge, accent: 'emerald' as const },
+        { label: 'Fleet Health', value: avgHealthScore != null ? `${avgHealthScore}%` : '--', icon: HeartPulse, trend: (avgHealthScore != null ? (avgHealthScore >= 80 ? 'up' : avgHealthScore >= 60 ? 'neutral' : 'down') : 'neutral') as 'up' | 'down' | 'neutral', accent: 'amber' as const },
+        { label: 'Avg Fuel Level', value: `${formatNumber(safeStats.averageFuelLevel || 0, 1)}%`, icon: Fuel, accent: 'gray' as const },
+      ]} className="border-b border-white/[0.06] bg-[#111] -mx-4" />
 
       {/* Fleet Alerts */}
       {(lowFuelVehicles.length > 0 || highMileageVehicles.length > 0) && (
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Fleet Alerts</span>}
+          title="Fleet Alerts"
           description={`${lowFuelVehicles.length + highMileageVehicles.length} vehicles need attention`}
           icon={<AlertTriangle className="h-4 w-4" />}
         >
@@ -687,7 +685,7 @@ const FleetTabContent = memo(function FleetTabContent() {
             {lowFuelVehicles.slice(0, 5).map((v: any) => (
               <div
                 key={`fuel-${v.id}`}
-                className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2 cursor-pointer hover:bg-[#2A1878] transition-colors"
+                className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] p-2 cursor-pointer hover:bg-white/[0.05] transition-colors"
                 onClick={() => push({
                   type: 'vehicle-details',
                   label: formatVehicleName(v),
@@ -695,12 +693,12 @@ const FleetTabContent = memo(function FleetTabContent() {
                 })}
               >
                 <div className="flex items-center gap-2">
-                  <Fuel className="h-3.5 w-3.5 text-[#FDC016]" />
+                  <Fuel className="h-3.5 w-3.5 text-amber-400" />
                   <div>
-                    <p className="text-xs font-medium text-white">
+                    <p className="text-xs font-medium text-white/80">
                       {formatVehicleName(v)}
                     </p>
-                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Fuel: {v.fuel_level != null ? `${v.fuel_level}%` : 'N/A'}</p>
+                    <p className="text-[10px] text-white/40">Fuel: {v.fuel_level != null ? `${v.fuel_level}%` : 'N/A'}</p>
                   </div>
                 </div>
                 <Badge variant={v.severity === 'high' ? 'destructive' : 'secondary'} className="text-[10px] px-1 py-0">
@@ -711,7 +709,7 @@ const FleetTabContent = memo(function FleetTabContent() {
             {highMileageVehicles.slice(0, 5).map((v: any) => (
               <div
                 key={`mile-${v.id}`}
-                className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2 cursor-pointer hover:bg-[#2A1878] transition-colors"
+                className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] p-2 cursor-pointer hover:bg-white/[0.05] transition-colors"
                 onClick={() => push({
                   type: 'vehicle-details',
                   label: formatVehicleName(v),
@@ -719,12 +717,12 @@ const FleetTabContent = memo(function FleetTabContent() {
                 })}
               >
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-3.5 w-3.5 text-[#FDC016]" />
+                  <TrendingUp className="h-3.5 w-3.5 text-amber-400" />
                   <div>
-                    <p className="text-xs font-medium text-white">
+                    <p className="text-xs font-medium text-white/80">
                       {formatVehicleName(v)}
                     </p>
-                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Mileage: {formatNumber(v.mileage)} mi</p>
+                    <p className="text-[10px] text-white/40">Mileage: {formatNumber(v.mileage)} mi</p>
                   </div>
                 </div>
                 <Badge variant={v.severity === 'high' ? 'destructive' : 'secondary'} className="text-[10px] px-1 py-0">
@@ -736,12 +734,11 @@ const FleetTabContent = memo(function FleetTabContent() {
         </Section>
       )}
 
-      {/* Main content area - scrollable with auto-height children */}
-      <div className="flex flex-col gap-1.5">
-        {/* Live Fleet Tracking - give map a proper height */}
+      {/* Main content area */}
+      <div className="flex flex-col gap-3">
         <div className="shrink-0" style={{ minHeight: '400px' }}>
           <Section
-            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Live Fleet Tracking</span>}
+            title="Live Fleet Tracking"
             description="Real-time vehicle locations and status"
             icon={<MapPin className="h-4 w-4" />}
             className="h-full"
@@ -757,10 +754,9 @@ const FleetTabContent = memo(function FleetTabContent() {
           </Section>
         </div>
 
-        {/* Vehicle Telemetry - allow content to flow naturally */}
         <div className="shrink-0">
           <Section
-            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Vehicle Telemetry</span>}
+            title="Vehicle Telemetry"
             description="Performance metrics and diagnostics"
             icon={<Gauge className="h-4 w-4" />}
             className="overflow-visible"
@@ -774,10 +770,9 @@ const FleetTabContent = memo(function FleetTabContent() {
           </Section>
         </div>
 
-        {/* Virtual Garage - allow content to flow naturally */}
         <div className="shrink-0">
           <Section
-            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Virtual Garage</span>}
+            title="Virtual Garage"
             description="3D vehicle models and inventory"
             icon={<Car className="h-4 w-4" />}
             className="overflow-visible"
@@ -794,7 +789,7 @@ const FleetTabContent = memo(function FleetTabContent() {
         {(user?.role === 'Admin' || user?.role === 'Manager' || user?.role === 'SuperAdmin') && (
           <div className="shrink-0">
             <Section
-              title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>EV Charging Management</span>}
+              title="EV Charging Management"
               description="Electric vehicle charging stations and schedules"
               icon={<Plug className="h-4 w-4" />}
               className="overflow-visible"
@@ -847,8 +842,8 @@ const DriversTabContent = memo(function DriversTabContent() {
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-1.5">
+      <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -857,7 +852,7 @@ const DriversTabContent = memo(function DriversTabContent() {
 
   if (error) {
     return (
-      <div className="p-1.5">
+      <div className="p-4">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
@@ -869,45 +864,19 @@ const DriversTabContent = memo(function DriversTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* Driver Statistics */}
-      <div className="grid grid-cols-4 gap-1.5">
-        <StatCard
-          title="Total Drivers"
-          value={safeStats.totalDrivers}
-          icon={Users}
-          description="Active driver pool"
-          loading={loading}
-        />
-        <StatCard
-          title="On Duty"
-          value={safeStats.activeDrivers}
-          icon={UserIcon}
-          description="Currently working"
-          loading={loading}
-        />
-        <StatCard
-          title="Avg Safety Score"
-          value={computedAvgSafetyScore}
-          icon={Shield}
-          trend={computedAvgSafetyScore >= 80 ? 'up' : computedAvgSafetyScore >= 60 ? 'neutral' : 'down'}
-          description="From driver safety scores"
-          loading={loading}
-          sparklineData={performanceTrend.map(p => ({ value: p.avgScore }))}
-        />
-        <StatCard
-          title="HOS Driving"
-          value={driversDrivingCount}
-          icon={Activity}
-          description="Currently driving"
-          loading={loading}
-        />
-      </div>
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+      {/* Driver Statistics - Hero Metrics Strip */}
+      <HeroMetrics metrics={[
+        { label: 'Total Drivers', value: safeStats.totalDrivers, icon: Users, accent: 'emerald' as const },
+        { label: 'On Duty', value: safeStats.activeDrivers, icon: UserIcon, accent: 'emerald' as const },
+        { label: 'Avg Safety Score', value: computedAvgSafetyScore, icon: Shield, trend: (computedAvgSafetyScore >= 80 ? 'up' : computedAvgSafetyScore >= 60 ? 'neutral' : 'down') as 'up' | 'down' | 'neutral', accent: 'amber' as const },
+        { label: 'HOS Driving', value: driversDrivingCount, icon: Activity, accent: 'gray' as const },
+      ]} className="border-b border-white/[0.06] bg-[#111] -mx-4" />
 
       {/* Main content */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Driver Performance Trends</span>}
+          title="Driver Performance Trends"
           description="Safety scores and compliance over time"
           icon={<LineChart className="h-4 w-4" />}
         >
@@ -921,17 +890,17 @@ const DriversTabContent = memo(function DriversTabContent() {
                 violations: point.violations
               }))}
               dataKeys={['safety_score', 'violations']}
-              colors={['#00CCFE', '#FF4300']}
+              colors={['hsl(var(--success))', 'hsl(var(--destructive))']}
               height={120}
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No performance trend data available</div>
+            <div className="flex items-center justify-center h-20 text-white/40 text-sm">No performance trend data available</div>
           )}
         </Section>
 
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Top Performers</span>}
+          title="Top Performers"
           description="Drivers with highest safety scores"
           icon={<Award className="h-4 w-4" />}
         >
@@ -940,7 +909,7 @@ const DriversTabContent = memo(function DriversTabContent() {
               {topPerformers.slice(0, 5).map((driver: any, index) => (
                 <div
                   key={driver.id}
-                  className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2 cursor-pointer transition-colors"
+                  className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] p-2 cursor-pointer transition-colors"
                   role="button"
                   tabIndex={0}
                   aria-label={`View details for ${driver.name}`}
@@ -948,19 +917,19 @@ const DriversTabContent = memo(function DriversTabContent() {
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
                 >
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[rgba(0,204,254,0.06)] text-white text-xs font-bold">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/[0.06] text-white/80 text-xs font-bold">
                       {index + 1}
                     </div>
                     <div>
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-semibold text-white">{driver.name}</p>
+                      <div className="flex items-center gap-3">
+                        <p className="text-xs font-semibold text-white/80">{driver.name}</p>
                         {(driver.employment_type || driver.employmentType) && (
                           <Badge variant="outline" className="text-[10px] px-1 py-0">
                             {formatEnum(driver.employment_type || driver.employmentType)}
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{driver.licenseNumber}</p>
+                      <p className="text-[10px] text-white/40">{driver.licenseNumber}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -976,7 +945,7 @@ const DriversTabContent = memo(function DriversTabContent() {
                       {formatEnum(driver.status)}
                     </Badge>
                     <div className="text-right">
-                      <p className="text-xs font-semibold text-white">{driver.safetyScore || 0}/100</p>
+                      <p className="text-xs font-semibold text-white/80">{driver.safetyScore || 0}/100</p>
                     </div>
                   </div>
                 </div>
@@ -988,7 +957,7 @@ const DriversTabContent = memo(function DriversTabContent() {
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No records found</div>
+            <div className="flex items-center justify-center h-20 text-white/40 text-sm">No records found</div>
           )}
         </Section>
       </div>
@@ -996,66 +965,63 @@ const DriversTabContent = memo(function DriversTabContent() {
       {/* Drivers Needing Attention */}
       {(lowSafetyDrivers.length > 0 || driversWithViolations.length > 0 || expiringLicenses.length > 0) && (
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Drivers Needing Attention</span>}
+          title="Drivers Needing Attention"
           description={`${lowSafetyDrivers.length + driversWithViolations.length + expiringLicenses.length} items requiring review`}
           icon={<AlertTriangle className="h-4 w-4" />}
         >
-          <div className="grid grid-cols-3 gap-1.5">
-            {/* Low Safety Scores */}
+          <div className="grid grid-cols-3 gap-3">
             <div className="flex flex-col gap-1">
-              <p className="text-[10px] text-[rgba(255,255,255,0.40)] font-medium mb-0.5">Low Safety Scores ({lowSafetyDrivers.length})</p>
+              <p className="text-[10px] text-white/40 font-medium mb-0.5">Low Safety Scores ({lowSafetyDrivers.length})</p>
               {lowSafetyDrivers.slice(0, 3).map((driver: any) => (
                 <div
                   key={`safety-${driver.id}`}
-                  className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
+                  className="rounded border border-white/[0.06] bg-white/[0.03] p-4 cursor-pointer hover:bg-white/[0.05] transition-colors"
                   role="button"
                   tabIndex={0}
                   onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
                 >
-                  <p className="text-xs font-medium text-white truncate">{driver.name}</p>
+                  <p className="text-xs font-medium text-white/80 truncate">{driver.name}</p>
                   <div className="flex items-center justify-between mt-0.5">
-                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Score: {driver.safetyScore}</p>
+                    <p className="text-[10px] text-white/40">Score: {driver.safetyScore}</p>
                     <Badge variant="destructive" className="text-[10px] px-1 py-0">Low</Badge>
                   </div>
                 </div>
               ))}
             </div>
-            {/* Violations */}
             <div className="flex flex-col gap-1">
-              <p className="text-[10px] text-[rgba(255,255,255,0.40)] font-medium mb-0.5">With Violations ({driversWithViolations.length})</p>
+              <p className="text-[10px] text-white/40 font-medium mb-0.5">With Violations ({driversWithViolations.length})</p>
               {driversWithViolations.slice(0, 3).map((driver: any) => (
                 <div
                   key={`viol-${driver.id}`}
-                  className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
+                  className="rounded border border-white/[0.06] bg-white/[0.03] p-4 cursor-pointer hover:bg-white/[0.05] transition-colors"
                   role="button"
                   tabIndex={0}
                   onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
                 >
-                  <p className="text-xs font-medium text-white truncate">{driver.name}</p>
+                  <p className="text-xs font-medium text-white/80 truncate">{driver.name}</p>
                   <div className="flex items-center justify-between mt-0.5">
-                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{driver.violationCount} violations</p>
+                    <p className="text-[10px] text-white/40">{driver.violationCount} violations</p>
                     <Badge variant="secondary" className="text-[10px] px-1 py-0">Review</Badge>
                   </div>
                 </div>
               ))}
             </div>
-            {/* Expiring Licenses */}
             <div className="flex flex-col gap-1">
-              <p className="text-[10px] text-[rgba(255,255,255,0.40)] font-medium mb-0.5">Expiring Licenses ({expiringLicenses.length})</p>
+              <p className="text-[10px] text-white/40 font-medium mb-0.5">Expiring Licenses ({expiringLicenses.length})</p>
               {expiringLicenses.slice(0, 3).map((driver: any) => (
                 <div
                   key={`lic-${driver.id}`}
-                  className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
+                  className="rounded border border-white/[0.06] bg-white/[0.03] p-4 cursor-pointer hover:bg-white/[0.05] transition-colors"
                   role="button"
                   tabIndex={0}
                   onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
                 >
-                  <p className="text-xs font-medium text-white truncate">{driver.name}</p>
+                  <p className="text-xs font-medium text-white/80 truncate">{driver.name}</p>
                   <div className="flex items-center justify-between mt-0.5">
-                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Exp: {formatDate(driver.licenseExpiry)}</p>
+                    <p className="text-[10px] text-white/40">Exp: {formatDate(driver.licenseExpiry)}</p>
                     <Badge variant="secondary" className="text-[10px] px-1 py-0">Expiring</Badge>
                   </div>
                 </div>
@@ -1119,8 +1085,8 @@ const OperationsTabContent = memo(function OperationsTabContent() {
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-1.5">
+      <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -1129,7 +1095,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
 
   if (error) {
     return (
-      <div className="p-1.5">
+      <div className="p-4">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
@@ -1141,52 +1107,19 @@ const OperationsTabContent = memo(function OperationsTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* Operations Statistics */}
-      <div className="grid grid-cols-5 gap-1.5">
-        <StatCard
-          title="Active Routes"
-          value={safeStats.activeJobs}
-          icon={RouteIcon}
-          description="In progress"
-          loading={loading}
-        />
-        <StatCard
-          title="Pending Tasks"
-          value={safeStats.openTasks}
-          icon={CheckSquare}
-          description="Need assignment"
-          loading={loading}
-        />
-        <StatCard
-          title="Total Fuel Cost"
-          value={formatCurrency(safeStats.totalFuelCost || 0)}
-          icon={Fuel}
-          description="Total fuel spend"
-          loading={loading}
-          sparklineData={fuelConsumptionData.map(d => ({ value: Number(d.cost) || 0 }))}
-        />
-        <StatCard
-          title="Completion Rate"
-          value={`${formatNumber(safeStats.completionRate, 1)}%`}
-          icon={TrendingUp}
-          description="Route completion"
-          loading={loading}
-          sparklineData={completionTrendData.map(d => ({ value: Number(d.completed) || 0 }))}
-        />
-        <StatCard
-          title="Avg MPG"
-          value={avgMpg ?? '—'}
-          icon={Gauge}
-          loading={loading}
-          description="Fleet fuel efficiency"
-        />
-      </div>
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+      {/* Operations Statistics - Hero Metrics Strip */}
+      <HeroMetrics metrics={[
+        { label: 'Active Routes', value: safeStats.activeJobs, icon: RouteIcon, accent: 'emerald' as const },
+        { label: 'Pending Tasks', value: safeStats.openTasks, icon: CheckSquare, accent: 'amber' as const },
+        { label: 'Total Fuel Cost', value: formatCurrency(safeStats.totalFuelCost || 0), icon: Fuel, accent: 'rose' as const },
+        { label: 'Completion Rate', value: `${formatNumber(safeStats.completionRate, 1)}%`, icon: TrendingUp, accent: 'emerald' as const },
+      ]} className="border-b border-white/[0.06] bg-[#111] -mx-4" />
 
       {/* Trend Charts */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Route Completion Trend</span>}
+          title="Route Completion Trend"
           description="Completed routes over the past 7 days"
           icon={<LineChart className="h-4 w-4" />}
         >
@@ -1195,16 +1128,16 @@ const OperationsTabContent = memo(function OperationsTabContent() {
               title="Route Completion"
               data={completionTrendData}
               dataKeys={['completed', 'target']}
-              colors={['#00CCFE', 'rgba(255,255,255,0.40)']}
+              colors={['hsl(var(--success))', 'hsl(var(--muted-foreground))']}
               height={120}
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No trend data available</div>
+            <div className="flex items-center justify-center h-20 text-white/40 text-sm">No trend data available</div>
           )}
         </Section>
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Fuel Consumption</span>}
+          title="Fuel Consumption"
           description="Daily fuel usage over the past 7 days"
           icon={<Fuel className="h-4 w-4" />}
         >
@@ -1218,15 +1151,15 @@ const OperationsTabContent = memo(function OperationsTabContent() {
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No fuel data available</div>
+            <div className="flex items-center justify-center h-20 text-white/40 text-sm">No fuel data available</div>
           )}
         </Section>
       </div>
 
       {/* Main content */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>{`Active Routes (${routes.length})`}</span>}
+          title={`Active Routes (${routes.length})`}
           description="Real-time route tracking"
           icon={<Map className="h-4 w-4" />}
         >
@@ -1235,7 +1168,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
               {routes.slice(0, 5).map(route => (
                 <div
                   key={route.id}
-                  className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2 cursor-pointer transition-colors"
+                  className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] p-2 cursor-pointer transition-colors"
                   role="button"
                   tabIndex={0}
                   aria-label={`View details for ${route.name || 'Route'}`}
@@ -1243,10 +1176,10 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: route.id, type: 'route', label: route.name || 'Route', data: { routeId: route.id } }); } }}
                 >
                   <div className="flex items-center gap-2">
-                    <RouteIcon className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+                    <RouteIcon className="h-4 w-4 text-white/40" />
                     <div>
-                      <p className="text-xs font-semibold text-white">{route.name || `${formatEnum(route.routeType || 'route')} Route`}</p>
-                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
+                      <p className="text-xs font-semibold text-white/80">{route.name || `${formatEnum(route.routeType || 'route')} Route`}</p>
+                      <p className="text-[10px] text-white/40">
                         {route.originName || 'Origin'} to {route.destinationName || 'Destination'}
                       </p>
                     </div>
@@ -1263,22 +1196,22 @@ const OperationsTabContent = memo(function OperationsTabContent() {
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No active routes</div>
+            <div className="flex items-center justify-center h-20 text-white/40 text-sm">No active routes</div>
           )}
         </Section>
 
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Recent Fuel Transactions</span>}
+          title="Recent Fuel Transactions"
           description="Latest fuel purchases and costs"
           icon={<Fuel className="h-4 w-4" />}
         >
           {fuelTransactions.length > 0 ? (
             <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
               {fuelTransactions.slice(0, 5).map((transaction: any) => (
-                <div key={transaction.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
+                <div key={transaction.id} className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] p-2">
                   <div>
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-semibold text-white">
+                    <div className="flex items-center gap-3">
+                      <p className="text-xs font-semibold text-white/80">
                         {vehicleNameMap[transaction.vehicleId] || 'Unknown Vehicle'}
                       </p>
                       {(transaction.station_brand || transaction.stationBrand) && (
@@ -1287,14 +1220,14 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                         </Badge>
                       )}
                     </div>
-                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
+                    <p className="text-[10px] text-white/40">
                       {transaction.amount} gal @ {formatCurrency(transaction.pricePerUnit || 0)}/gal
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-semibold text-white">{formatCurrency(transaction.cost)}</p>
+                    <p className="text-xs font-semibold text-white/80">{formatCurrency(transaction.cost)}</p>
                     <div className="flex items-center gap-1 justify-end">
-                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{transaction.location || '—'}</p>
+                      <p className="text-[10px] text-white/40">{transaction.location || '--'}</p>
                       {(transaction.mpg_calculated || transaction.mpgCalculated) && (
                         <Badge variant="secondary" className="text-[10px] px-1 py-0">
                           {formatNumber(Number(transaction.mpg_calculated || transaction.mpgCalculated), 1)} MPG
@@ -1306,7 +1239,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No fuel transactions</div>
+            <div className="flex items-center justify-center h-20 text-white/40 text-sm">No fuel transactions</div>
           )}
         </Section>
       </div>
@@ -1396,8 +1329,8 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-1.5">
+      <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -1407,7 +1340,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
   const maintenanceError = errors.workOrders || errors.requests || errors.predictions
   if (maintenanceError) {
     return (
-      <div className="p-1.5">
+      <div className="p-4">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
@@ -1431,64 +1364,38 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* Maintenance Statistics */}
-      <div className="grid grid-cols-4 gap-1.5">
-        <StatCard
-          title="Open Work Orders"
-          value={openOrders.length}
-          icon={ClipboardList}
-          description={`${safeMetrics.inProgress} in progress · ${safeMetrics.pendingOrders} pending`}
-          loading={isLoading}
-        />
-        <StatCard
-          title="Urgent Orders"
-          value={safeMetrics.urgentOrders}
-          icon={AlertTriangle}
-          description="Needs immediate attention"
-          trend={safeMetrics.urgentOrders > 3 ? 'down' : safeMetrics.urgentOrders > 0 ? 'neutral' : 'up'}
-          loading={isLoading}
-        />
-        <StatCard
-          title="Total Downtime"
-          value={`${formatNumber(totalDowntimeHours, 1)} hrs`}
-          icon={Timer}
-          trend={totalDowntimeHours > 100 ? 'down' : 'neutral'}
-          description="Sum of downtime hours"
-          loading={isLoading}
-        />
-        <StatCard
-          title="Parts Inventory"
-          value={formatCurrency(inventoryMetrics?.totalValue || 0)}
-          icon={Package}
-          description="Current stock value"
-          loading={isLoading}
-        />
-      </div>
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+      {/* Maintenance Statistics - Hero Metrics Strip */}
+      <HeroMetrics metrics={[
+        { label: 'Open Work Orders', value: openOrders.length, icon: ClipboardList, accent: 'emerald' as const },
+        { label: 'Urgent Orders', value: safeMetrics.urgentOrders, icon: AlertTriangle, trend: (safeMetrics.urgentOrders > 3 ? 'down' : safeMetrics.urgentOrders > 0 ? 'neutral' : 'up') as 'up' | 'down' | 'neutral', accent: 'rose' as const },
+        { label: 'Total Downtime', value: `${formatNumber(totalDowntimeHours, 1)} hrs`, icon: Timer, trend: (totalDowntimeHours > 100 ? 'down' : 'neutral') as 'up' | 'down' | 'neutral', accent: 'amber' as const },
+        { label: 'Parts Inventory', value: formatCurrency(inventoryMetrics?.totalValue || 0), icon: Package, accent: 'gray' as const },
+      ]} className="border-b border-white/[0.06] bg-[#111] -mx-4" />
 
       {/* Cost Breakdown Row */}
       {(costBreakdown.partsCost > 0 || costBreakdown.laborCost > 0) && (
-        <div className="grid grid-cols-3 gap-1.5">
-          <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
-            <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Total Cost</p>
-            <p className="text-sm font-bold text-white">{formatCurrency(safeMetrics.totalCost)}</p>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded border border-white/[0.06] bg-white/[0.03] p-4 text-center">
+            <p className="text-[10px] text-white/40">Total Cost</p>
+            <p className="text-sm font-bold text-white/80">{formatCurrency(safeMetrics.totalCost)}</p>
           </div>
-          <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
-            <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Parts Cost</p>
-            <p className="text-sm font-bold text-white">{formatCurrency(costBreakdown.partsCost)}</p>
+          <div className="rounded border border-white/[0.06] bg-white/[0.03] p-4 text-center">
+            <p className="text-[10px] text-white/40">Parts Cost</p>
+            <p className="text-sm font-bold text-white/80">{formatCurrency(costBreakdown.partsCost)}</p>
           </div>
-          <div className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 text-center">
-            <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Labor Cost</p>
-            <p className="text-sm font-bold text-white">{formatCurrency(costBreakdown.laborCost)}</p>
+          <div className="rounded border border-white/[0.06] bg-white/[0.03] p-4 text-center">
+            <p className="text-[10px] text-white/40">Labor Cost</p>
+            <p className="text-sm font-bold text-white/80">{formatCurrency(costBreakdown.laborCost)}</p>
           </div>
         </div>
       )}
 
       {/* Main content */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-3">
         {/* Active Work Orders */}
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Active Work Orders</span>}
+          title="Active Work Orders"
           description="Current maintenance tasks and their status"
           icon={<ClipboardList className="h-4 w-4" />}
           actions={
@@ -1513,16 +1420,16 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
             <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 max-h-96">
               {filteredOrders.slice(0, 10).map((order: any) => (
                 <div key={order.id} className={`flex items-center justify-between rounded border p-2 ${
-                  order.is_emergency || order.isEmergency ? 'border-[rgba(255,67,0,0.4)] bg-[rgba(255,67,0,0.12)]' : 'border-[rgba(0,204,254,0.08)] bg-[#221060]'
+                  order.is_emergency || order.isEmergency ? 'border-rose-800/40 bg-rose-950/20' : 'border-white/[0.06] bg-white/[0.03]'
                 }`}>
                   <div className="flex items-center gap-2">
                     <Tool className={`h-4 w-4 ${
-                      order.priority === 'high' || order.priority === 'urgent' ? 'text-[#FF4300]' :
-                      order.priority === 'medium' ? 'text-white' : 'text-[rgba(255,255,255,0.40)]'
+                      order.priority === 'high' || order.priority === 'urgent' ? 'text-rose-400' :
+                      order.priority === 'medium' ? 'text-white/60' : 'text-white/40'
                     }`} />
                     <div>
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-semibold text-white">{order.title || `${formatEnum(order.type || 'maintenance')} Maintenance`}</p>
+                      <div className="flex items-center gap-3">
+                        <p className="text-xs font-semibold text-white/80">{order.title || `${formatEnum(order.type || 'maintenance')} Maintenance`}</p>
                         {(order.is_emergency || order.isEmergency) && (
                           <Badge variant="destructive" className="text-[10px] px-1 py-0">
                             <Siren className="h-3 w-3 mr-0.5" />
@@ -1535,7 +1442,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
+                      <p className="text-[10px] text-white/40">
                         {order.vehicleName || 'Unknown Vehicle'} · Created: {formatDate(order.createdAt)}
                         {(order.parts_cost || order.partsCost || order.labor_cost || order.laborCost) && (
                           <span className="ml-1">
@@ -1545,7 +1452,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-3">
                     <Badge variant={
                       order.status === 'in_progress' ? 'default' :
                       order.status === 'pending' ? 'secondary' : 'outline'
@@ -1560,24 +1467,24 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No active work orders</div>
+            <div className="flex items-center justify-center h-20 text-white/40 text-sm">No active work orders</div>
           )}
         </Section>
 
         {/* Schedule + Overdue */}
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Section
-            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Upcoming Maintenance</span>}
+            title="Upcoming Maintenance"
             description="Scheduled preventive maintenance"
             icon={<Calendar className="h-4 w-4" />}
           >
             {upcomingOrders.length > 0 ? (
               <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
                 {upcomingOrders.slice(0, 4).map((maintenance) => (
-                  <div key={maintenance.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
+                  <div key={maintenance.id} className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] p-2">
                     <div>
-                      <p className="text-xs font-semibold text-white">{maintenance.title || `${formatEnum(maintenance.type || 'maintenance')} Maintenance`}</p>
-                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
+                      <p className="text-xs font-semibold text-white/80">{maintenance.title || `${formatEnum(maintenance.type || 'maintenance')} Maintenance`}</p>
+                      <p className="text-[10px] text-white/40">
                         {maintenance.vehicleName || 'Unknown Vehicle'} · {formatDate(maintenance.createdAt)}
                       </p>
                     </div>
@@ -1588,25 +1495,25 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No scheduled maintenance</div>
+              <div className="flex items-center justify-center h-20 text-white/40 text-sm">No scheduled maintenance</div>
             )}
           </Section>
 
           <Section
-            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Overdue Maintenance</span>}
+            title="Overdue Maintenance"
             description="Requires immediate attention"
             icon={<AlertTriangle className="h-4 w-4" />}
           >
             {overdueOrders.length > 0 ? (
               <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
                 {overdueOrders.map((overdue: any) => (
-                  <Alert key={overdue.id} variant="destructive" className="border-[rgba(255,67,0,0.4)] bg-[rgba(255,67,0,0.15)]">
-                    <AlertTriangle className="h-4 w-4 text-[#FF4300]" />
+                  <Alert key={overdue.id} variant="destructive" className="border-rose-800/40 bg-rose-950/30">
+                    <AlertTriangle className="h-4 w-4 text-rose-400" />
                     <AlertDescription>
                       <div className="flex items-center gap-3 justify-between">
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-[#FF4300] truncate">{overdue.title || `${formatEnum(overdue.type || 'Maintenance')} Maintenance`}</p>
-                          <p className="text-[10px] text-[#FF4300]/70">
+                          <p className="text-xs font-semibold text-rose-200 truncate">{overdue.title || `${formatEnum(overdue.type || 'Maintenance')} Maintenance`}</p>
+                          <p className="text-[10px] text-rose-300/70">
                             {overdue.vehicleName || 'Unknown Vehicle'} · Overdue by {overdue.daysOverdue} days
                           </p>
                         </div>
@@ -1619,32 +1526,32 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No overdue maintenance</div>
+              <div className="flex items-center justify-center h-20 text-white/40 text-sm">No overdue maintenance</div>
             )}
           </Section>
         </div>
 
         {/* Parts Inventory */}
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Parts Inventory</span>}
+          title="Parts Inventory"
           description="Common maintenance parts and supplies"
           icon={<Package className="h-4 w-4" />}
         >
           {parts.length > 0 ? (
-            <div className="grid gap-1.5 grid-cols-3">
+            <div className="grid gap-3 grid-cols-3">
               {parts.map((item: any) => {
                 const quantity = Number(item.quantityOnHand ?? item.quantity_on_hand ?? 0)
                 const reorderPoint = Number(item.reorderPoint ?? item.reorder_point ?? 0)
                 const status = quantity <= reorderPoint ? 'low-stock' : 'in-stock'
                 return (
-                  <div key={item.id || item.partNumber || item.name} className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
+                  <div key={item.id || item.partNumber || item.name} className="rounded border border-white/[0.06] bg-white/[0.03] p-2">
                     <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs font-semibold text-white">{item.name || item.partNumber || 'Part'}</p>
+                      <p className="text-xs font-semibold text-white/80">{item.name || item.partNumber || 'Part'}</p>
                       <Badge variant={status === 'in-stock' ? 'default' : 'destructive'} className="text-[10px] px-1 py-0">
                         {status === 'in-stock' ? 'In Stock' : 'Low Stock'}
                       </Badge>
                     </div>
-                    <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
+                    <p className="text-[10px] text-white/40">
                       Qty: {quantity} {item.unitOfMeasure || item.unit_of_measure || ''} · Reorder: {reorderPoint}
                     </p>
                   </div>
@@ -1652,34 +1559,34 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
               })}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No parts inventory available</div>
+            <div className="flex items-center justify-center h-20 text-white/40 text-sm">No parts inventory available</div>
           )}
         </Section>
 
         {/* Predictive Alerts */}
         {highConfidencePredictions.length > 0 && (
           <Section
-            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Predictive Alerts</span>}
+            title="Predictive Alerts"
             description={`${highConfidencePredictions.length} high-confidence predictions`}
             icon={<Activity className="h-4 w-4" />}
           >
             <div className="flex flex-col gap-1">
               {highConfidencePredictions.slice(0, 6).map((prediction: any) => (
                 <div key={prediction.id} className={`flex items-center justify-between rounded border p-2 ${
-                  prediction.severity === 'critical' ? 'border-[rgba(255,67,0,0.4)] bg-[rgba(255,67,0,0.12)]' :
-                  prediction.severity === 'high' ? 'border-[rgba(253,192,22,0.3)] bg-[rgba(253,192,22,0.1)]' :
-                  'border-[rgba(0,204,254,0.08)] bg-[#221060]'
+                  prediction.severity === 'critical' ? 'border-rose-800/40 bg-rose-950/20' :
+                  prediction.severity === 'high' ? 'border-amber-800/40 bg-amber-950/20' :
+                  'border-white/[0.06] bg-white/[0.03]'
                 }`}>
                   <div className="flex items-center gap-2">
                     <AlertTriangle className={`h-3.5 w-3.5 ${
-                      prediction.severity === 'critical' ? 'text-[#FF4300]' :
-                      prediction.severity === 'high' ? 'text-[#FDC016]' : 'text-[rgba(255,255,255,0.40)]'
+                      prediction.severity === 'critical' ? 'text-rose-400' :
+                      prediction.severity === 'high' ? 'text-amber-400' : 'text-white/40'
                     }`} />
                     <div>
-                      <p className="text-xs font-medium text-white">
+                      <p className="text-xs font-medium text-white/80">
                         {prediction.vehicleName || 'Unknown Vehicle'} - {prediction.issue || 'Predicted Issue'}
                       </p>
-                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
+                      <p className="text-[10px] text-white/40">
                         {prediction.daysUntilFailure} days until failure · Confidence: {prediction.confidence}%
                         {prediction.estimatedCost ? ` · Est. ${formatCurrency(prediction.estimatedCost)}` : ''}
                       </p>
@@ -1737,15 +1644,15 @@ const AssetsTabContent = memo(function AssetsTabContent() {
 
   const utilizationData = [
     { name: 'In Use', value: statusDistribution.active || 0, fill: '#10B981' },
-    { name: 'Available', value: statusDistribution.available || 0, fill: '#00CCFE' },
-    { name: 'Maintenance', value: statusDistribution.maintenance || 0, fill: '#FDC016' },
-    { name: 'Retired', value: statusDistribution.retired || 0, fill: '#2A1878' },
+    { name: 'Available', value: statusDistribution.available || 0, fill: '#34d399' },
+    { name: 'Maintenance', value: statusDistribution.maintenance || 0, fill: '#F59E0B' },
+    { name: 'Retired', value: statusDistribution.retired || 0, fill: '#6b7280' },
   ].filter((entry) => entry.value > 0)
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-1.5">
+      <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -1753,44 +1660,20 @@ const AssetsTabContent = memo(function AssetsTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      {/* Asset Statistics */}
-      <div className="grid grid-cols-4 gap-1.5">
-        <StatCard
-          title="Total Assets"
-          value={metrics.totalAssets}
-          icon={Box}
-          description="Equipment and tools"
-          loading={isLoading}
-        />
-        <StatCard
-          title="Assets in Use"
-          value={metrics.activeAssets}
-          icon={Truck}
-          description="Currently deployed"
-          loading={isLoading}
-        />
-        <StatCard
-          title="Maintenance Due"
-          value={metrics.inMaintenance}
-          icon={Wrench}
-          description="Needs servicing"
-          loading={isLoading}
-        />
-        <StatCard
-          title="Asset Value"
-          value={formatCurrency(metrics.totalValue)}
-          icon={DollarSign}
-          description="Total fleet value"
-          loading={isLoading}
-        />
-      </div>
+    <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+      {/* Asset Statistics - Hero Metrics Strip */}
+      <HeroMetrics metrics={[
+        { label: 'Total Assets', value: metrics.totalAssets, icon: Box, accent: 'emerald' as const },
+        { label: 'Assets in Use', value: metrics.activeAssets, icon: Truck, accent: 'emerald' as const },
+        { label: 'Maintenance Due', value: metrics.inMaintenance, icon: Wrench, accent: 'amber' as const },
+        { label: 'Asset Value', value: formatCurrency(metrics.totalValue), icon: DollarSign, accent: 'gray' as const },
+      ]} className="border-b border-white/[0.06] bg-[#111] -mx-4" />
 
       {/* Main content */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-3">
         {/* Asset Inventory */}
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Asset Inventory</span>}
+          title="Asset Inventory"
           description="Heavy machinery, equipment, and tools"
           icon={<Box className="h-4 w-4" />}
           actions={
@@ -1805,12 +1688,12 @@ const AssetsTabContent = memo(function AssetsTabContent() {
               {assets.slice(0, 6).map((asset: any) => {
                 const healthScore = asset.health_score != null ? Number(asset.health_score) : null
                 return (
-                  <div key={asset.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
+                  <div key={asset.id} className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] p-2">
                     <div className="flex items-center gap-2">
-                      <Box className="h-4 w-4 text-[rgba(255,255,255,0.40)]" />
+                      <Box className="h-4 w-4 text-white/40" />
                       <div>
-                        <p className="text-xs font-semibold text-white">{asset.assetTag || asset.name} - {asset.name}</p>
-                        <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
+                        <p className="text-xs font-semibold text-white/80">{asset.assetTag || asset.name} - {asset.name}</p>
+                        <p className="text-[10px] text-white/40">
                           {formatEnum(asset.type)} · {asset.location}
                           {(asset.department || asset.dept) && (
                             <span className="ml-1">· {asset.department || asset.dept}</span>
@@ -1818,12 +1701,12 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-3">
                       {healthScore != null && (
                         <span className={`inline-flex items-center px-1.5 py-0 rounded text-[10px] font-medium ${
-                          healthScore >= 80 ? 'text-[#00CCFE] bg-[rgba(0,204,254,0.15)]' :
-                          healthScore >= 60 ? 'text-[#FDC016] bg-[rgba(253,192,22,0.15)]' :
-                          'text-[#FF4300] bg-[rgba(255,67,0,0.15)]'
+                          healthScore >= 80 ? 'text-emerald-400 bg-emerald-900/30' :
+                          healthScore >= 60 ? 'text-amber-400 bg-amber-900/30' :
+                          'text-rose-400 bg-rose-900/30'
                         }`}>
                           {healthScore}%
                         </span>
@@ -1845,14 +1728,14 @@ const AssetsTabContent = memo(function AssetsTabContent() {
               })}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No assets available</div>
+            <div className="flex items-center justify-center h-20 text-white/40 text-sm">No assets available</div>
           )}
         </Section>
 
         {/* Utilization + Maintenance Schedule */}
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-3">
           <Section
-            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Asset Utilization</span>}
+            title="Asset Utilization"
             description="Usage metrics for key assets"
             icon={<BarChart className="h-4 w-4" />}
           >
@@ -1864,26 +1747,26 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                 compact
               />
             ) : (
-              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No utilization data available</div>
+              <div className="flex items-center justify-center h-20 text-white/40 text-sm">No utilization data available</div>
             )}
           </Section>
 
           <Section
-            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Asset Maintenance Schedule</span>}
+            title="Asset Maintenance Schedule"
             description="Upcoming asset servicing"
             icon={<Calendar className="h-4 w-4" />}
           >
             {maintenanceRequired.length > 0 ? (
               <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
                 {maintenanceRequired.slice(0, 4).map((maintenance) => (
-                  <div key={maintenance.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
+                  <div key={maintenance.id} className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] p-2">
                     <div>
-                      <p className="text-xs font-semibold text-white">{maintenance.assetTag || maintenance.name} - {maintenance.name}</p>
-                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">
+                      <p className="text-xs font-semibold text-white/80">{maintenance.assetTag || maintenance.name} - {maintenance.name}</p>
+                      <p className="text-[10px] text-white/40">
                         {formatEnum(maintenance.type)} · Due: {formatDate(maintenance.nextServiceDate || maintenance.lastServiceDate)}
                       </p>
                     </div>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-3">
                       {maintenance.status && (
                         <Badge variant={maintenance.status === 'maintenance' ? 'destructive' : 'secondary'} className="text-[10px] px-1 py-0">
                           {formatEnum(maintenance.status)}
@@ -1897,29 +1780,29 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No asset maintenance due</div>
+              <div className="flex items-center justify-center h-20 text-white/40 text-sm">No asset maintenance due</div>
             )}
           </Section>
         </div>
 
         {/* Asset Categories Breakdown */}
         <Section
-          title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Asset Categories</span>}
+          title="Asset Categories"
           description="Breakdown by equipment type"
           icon={<Package className="h-4 w-4" />}
         >
-          <div className="grid gap-1.5 grid-cols-3">
+          <div className="grid gap-3 grid-cols-3">
             {(inventoryByCategory.length > 0 ? inventoryByCategory : Object.entries(typeDistribution).map(([key, value]) => ({
               name: key,
               count: value,
               value: 0,
               items: value
             }))).map((cat) => (
-              <div key={cat.name} className="rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-2">
-                <p className="text-xs font-semibold text-white">{formatEnum(cat.name)}</p>
+              <div key={cat.name} className="rounded border border-white/[0.06] bg-white/[0.03] p-2">
+                <p className="text-xs font-semibold text-white/80">{formatEnum(cat.name)}</p>
                 <div className="flex items-center justify-between mt-1">
-                  <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{cat.count} assets</p>
-                  <p className="text-[10px] font-semibold text-white">{cat.value ? formatCurrency(cat.value) : '—'}</p>
+                  <p className="text-[10px] text-white/40">{cat.count} assets</p>
+                  <p className="text-[10px] font-semibold text-white/80">{cat.value ? formatCurrency(cat.value) : '--'}</p>
                 </div>
               </div>
             ))}
@@ -1927,81 +1810,81 @@ const AssetsTabContent = memo(function AssetsTabContent() {
         </Section>
 
         {/* Asset Lifecycle + High-Value Assets + Low Stock */}
-        <div className="grid grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-3 gap-3">
           <Section
-            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Asset Lifecycle</span>}
+            title="Asset Lifecycle"
             description="Age distribution of assets"
             icon={<Clock className="h-4 w-4" />}
           >
             {(() => {
               const lcData = [
                 { name: 'New (<1yr)', value: lifecycleData.new, fill: '#10B981' },
-                { name: 'Operational (1-5yr)', value: lifecycleData.operational, fill: '#00CCFE' },
-                { name: 'Aging (5-10yr)', value: lifecycleData.aging, fill: '#FDC016' },
-                { name: 'End of Life (10yr+)', value: lifecycleData.endOfLife, fill: '#FF4300' },
+                { name: 'Operational (1-5yr)', value: lifecycleData.operational, fill: '#34d399' },
+                { name: 'Aging (5-10yr)', value: lifecycleData.aging, fill: '#F59E0B' },
+                { name: 'End of Life (10yr+)', value: lifecycleData.endOfLife, fill: '#EF4444' },
               ].filter(d => d.value > 0)
               return lcData.length > 0 ? (
                 <ResponsivePieChart title="Lifecycle" data={lcData} height={120} innerRadius={30} showPercentages compact />
               ) : (
-                <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No lifecycle data</div>
+                <div className="flex items-center justify-center h-20 text-white/40 text-sm">No lifecycle data</div>
               )
             })()}
           </Section>
 
           <Section
-            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>High-Value Assets</span>}
+            title="High-Value Assets"
             description="Top assets by current value"
             icon={<DollarSign className="h-4 w-4" />}
           >
             {highValueAssets.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {highValueAssets.slice(0, 5).map((asset: any) => (
-                  <div key={asset.id} className="flex items-center justify-between rounded border border-[rgba(0,204,254,0.08)] bg-[#221060] p-1.5 cursor-pointer hover:bg-[#2A1878] transition-colors"
+                  <div key={asset.id} className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] p-4 cursor-pointer hover:bg-white/[0.05] transition-colors"
                     role="button" tabIndex={0}
                     onClick={() => handleViewAsset(asset.id)}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleViewAsset(asset.id); } }}
                   >
                     <div>
-                      <p className="text-xs font-medium text-white truncate">{asset.name}</p>
-                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{formatEnum(asset.type)} · {formatEnum(asset.condition)}</p>
+                      <p className="text-xs font-medium text-white/80 truncate">{asset.name}</p>
+                      <p className="text-[10px] text-white/40">{formatEnum(asset.type)} · {formatEnum(asset.condition)}</p>
                     </div>
-                    <p className="text-xs font-semibold text-white">{formatCurrency(asset.currentValue)}</p>
+                    <p className="text-xs font-semibold text-white/80">{formatCurrency(asset.currentValue)}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">No assets</div>
+              <div className="flex items-center justify-center h-20 text-white/40 text-sm">No assets</div>
             )}
           </Section>
 
           <Section
-            title={<span style={{ fontFamily: '"Montserrat", sans-serif' }}>Low Stock Alert</span>}
+            title="Low Stock Alert"
             description="Inventory items at or below reorder point"
             icon={<AlertTriangle className="h-4 w-4" />}
           >
             {lowStockItems.length > 0 || outOfStockItems.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {outOfStockItems.slice(0, 3).map((item: any) => (
-                  <div key={`oos-${item.id}`} className="flex items-center justify-between rounded border border-[rgba(255,67,0,0.4)] bg-[rgba(255,67,0,0.12)] p-1.5">
+                  <div key={`oos-${item.id}`} className="flex items-center justify-between rounded border border-rose-800/40 bg-rose-950/20 p-4">
                     <div>
-                      <p className="text-xs font-medium text-white truncate">{item.name}</p>
-                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">{item.category}</p>
+                      <p className="text-xs font-medium text-white/80 truncate">{item.name}</p>
+                      <p className="text-[10px] text-white/40">{item.category}</p>
                     </div>
                     <Badge variant="destructive" className="text-[10px] px-1 py-0">Out of Stock</Badge>
                   </div>
                 ))}
                 {lowStockItems.slice(0, 3).map((item: any) => (
-                  <div key={`low-${item.id}`} className="flex items-center justify-between rounded border border-[rgba(253,192,22,0.3)] bg-[rgba(253,192,22,0.1)] p-1.5">
+                  <div key={`low-${item.id}`} className="flex items-center justify-between rounded border border-amber-800/40 bg-amber-950/20 p-4">
                     <div>
-                      <p className="text-xs font-medium text-white truncate">{item.name}</p>
-                      <p className="text-[10px] text-[rgba(255,255,255,0.40)]">Qty: {item.quantity} / Reorder: {item.reorderPoint}</p>
+                      <p className="text-xs font-medium text-white/80 truncate">{item.name}</p>
+                      <p className="text-[10px] text-white/40">Qty: {item.quantity} / Reorder: {item.reorderPoint}</p>
                     </div>
                     <Badge variant="secondary" className="text-[10px] px-1 py-0">Low Stock</Badge>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-20 text-[rgba(255,255,255,0.40)] text-sm">All stock levels OK</div>
+              <div className="flex items-center justify-center h-20 text-white/40 text-sm">All stock levels OK</div>
             )}
           </Section>
         </div>
@@ -2015,102 +1898,112 @@ const AssetsTabContent = memo(function AssetsTabContent() {
 // ============================================================================
 
 export default function FleetOperationsHub() {
-  const [activeTab, setActiveTab] = useState('overview')
   const { user } = useAuth()
 
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard, testId: 'hub-tab-overview' },
-    { id: 'fleet', label: 'Fleet', icon: Car, testId: 'hub-tab-fleet' },
-    { id: 'assignments', label: 'Assignments', icon: UserCheck, testId: 'hub-tab-assignments' },
-    { id: 'reservations', label: 'Reservations', icon: CalendarCheck, testId: 'hub-tab-reservations' },
-    { id: 'drivers', label: 'Drivers', icon: Users, testId: 'hub-tab-drivers' },
-    { id: 'operations', label: 'Operations', icon: OperationsIcon, testId: 'hub-tab-operations' },
-    { id: 'maintenance', label: 'Maintenance', icon: Wrench, testId: 'hub-tab-maintenance' },
-    { id: 'assets', label: 'Assets', icon: Box, testId: 'hub-tab-assets' },
+  const tabs: VTab[] = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: LayoutDashboard,
+      content: (
+        <QueryErrorBoundary>
+          <OverviewTabContent />
+        </QueryErrorBoundary>
+      ),
+    },
+    {
+      id: 'fleet',
+      label: 'Fleet',
+      icon: Car,
+      content: (
+        <QueryErrorBoundary>
+          <FleetTabContent />
+        </QueryErrorBoundary>
+      ),
+    },
+    {
+      id: 'drivers',
+      label: 'Drivers',
+      icon: Users,
+      content: (
+        <QueryErrorBoundary>
+          <DriversTabContent />
+        </QueryErrorBoundary>
+      ),
+    },
+    {
+      id: 'assets',
+      label: 'Assets',
+      icon: Box,
+      content: (
+        <QueryErrorBoundary>
+          <AssetsTabContent />
+        </QueryErrorBoundary>
+      ),
+    },
+    {
+      id: 'operations',
+      label: 'Operations',
+      icon: OperationsIcon,
+      content: (
+        <QueryErrorBoundary>
+          <OperationsTabContent />
+        </QueryErrorBoundary>
+      ),
+    },
+    {
+      id: 'maintenance',
+      label: 'Maintenance',
+      icon: Wrench,
+      content: (
+        <QueryErrorBoundary>
+          <MaintenanceTabContent />
+        </QueryErrorBoundary>
+      ),
+    },
+    {
+      id: 'assignments',
+      label: 'Assignments',
+      icon: UserCheck,
+      content: (
+        <QueryErrorBoundary>
+          <Suspense fallback={<div className="flex items-center justify-center py-20"><Skeleton className="h-8 w-40" /></div>}>
+            <VehicleAssignmentManagement />
+          </Suspense>
+        </QueryErrorBoundary>
+      ),
+    },
+    {
+      id: 'reservations',
+      label: 'Reservations',
+      icon: CalendarCheck,
+      content: (
+        <QueryErrorBoundary>
+          <Suspense fallback={<div className="flex items-center justify-center py-20"><Skeleton className="h-8 w-40" /></div>}>
+            <ReservationCalendarView />
+          </Suspense>
+        </QueryErrorBoundary>
+      ),
+    },
   ]
 
   return (
-    <HubPage
-      title={<span style={{ fontFamily: '"Cinzel", Georgia, serif' }}>Fleet Command</span>}
-      description="Comprehensive fleet management, driver tracking, and operations control"
-      icon={<Car className="h-5 w-5" />}
-      className="cta-hub bg-[#1A0648]"
-    >
-      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
-        {/* Tab Navigation */}
-        <div className="flex items-center gap-0.5 overflow-x-auto pb-0.5 border-b border-[rgba(0,204,254,0.08)] cta-tabs">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                data-testid={tab.testId}
-                className={`
-                  relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg cta-tab
-                  transition-colors whitespace-nowrap shrink-0
-                  ${isActive
-                    ? 'bg-[#332090] text-white shadow-md border-b-2 border-b-[#00CCFE] cta-tab--active'
-                    : 'text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#2A1878]'
-                  }
-                `}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{tab.label}</span>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Tab Content */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          {activeTab === 'overview' && (
-            <QueryErrorBoundary>
-              <OverviewTabContent />
-            </QueryErrorBoundary>
-          )}
-          {activeTab === 'fleet' && (
-            <QueryErrorBoundary>
-              <FleetTabContent />
-            </QueryErrorBoundary>
-          )}
-          {activeTab === 'drivers' && (
-            <QueryErrorBoundary>
-              <DriversTabContent />
-            </QueryErrorBoundary>
-          )}
-          {activeTab === 'operations' && (
-            <QueryErrorBoundary>
-              <OperationsTabContent />
-            </QueryErrorBoundary>
-          )}
-          {activeTab === 'maintenance' && (
-            <QueryErrorBoundary>
-              <MaintenanceTabContent />
-            </QueryErrorBoundary>
-          )}
-          {activeTab === 'assets' && (
-            <QueryErrorBoundary>
-              <AssetsTabContent />
-            </QueryErrorBoundary>
-          )}
-          {activeTab === 'assignments' && (
-            <QueryErrorBoundary>
-              <Suspense fallback={<div className="flex items-center justify-center py-20"><Skeleton className="h-8 w-40" /></div>}>
-                <VehicleAssignmentManagement />
-              </Suspense>
-            </QueryErrorBoundary>
-          )}
-          {activeTab === 'reservations' && (
-            <QueryErrorBoundary>
-              <Suspense fallback={<div className="flex items-center justify-center py-20"><Skeleton className="h-8 w-40" /></div>}>
-                <ReservationCalendarView />
-              </Suspense>
-            </QueryErrorBoundary>
-          )}
+    <div className="flex flex-col h-full bg-[#0a0a0a]">
+      {/* Page Header */}
+      <div className="shrink-0 px-6 py-4 border-b border-white/[0.06]">
+        <div className="flex items-center gap-3">
+          <Car className="h-5 w-5 text-emerald-400" />
+          <div>
+            <h1 className="text-xl font-semibold text-white/90 tracking-tight">Fleet Operations</h1>
+            <p className="text-[12px] text-white/35 mt-0.5">Fleet management, driver tracking, and operations control</p>
+          </div>
         </div>
       </div>
-    </HubPage>
+
+      {/* VerticalTabs with sidebar navigation */}
+      <div className="flex-1 min-h-0">
+        <VerticalTabs tabs={tabs} defaultTab="overview" />
+      </div>
+    </div>
   )
 }

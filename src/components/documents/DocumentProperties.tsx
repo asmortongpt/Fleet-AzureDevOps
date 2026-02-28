@@ -179,7 +179,7 @@ export function DocumentProperties({ document, onUpdate, onClose }: DocumentProp
                           {tag}
                           <button
                             onClick={() => handleRemoveTag(tag)}
-                            className="ml-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-full p-0.5"
+                            className="ml-1 hover:bg-black/10 dark:hover:bg-[var(--surface-glass-hover)] rounded-full p-0.5"
                           >
                             <X className="h-3 w-3" />
                           </button>

@@ -66,7 +66,7 @@ export function ThemeToggle() {
           onCheckedChange={() => setTheme("system")}
           className="cursor-pointer gap-2"
         >
-          <MonitorPlay className="h-4 w-4 text-gray-500" />
+          <MonitorPlay className="h-4 w-4 text-[var(--text-tertiary)]" />
           <span>System</span>
         </DropdownMenuCheckboxItem>
       </DropdownMenuContent>

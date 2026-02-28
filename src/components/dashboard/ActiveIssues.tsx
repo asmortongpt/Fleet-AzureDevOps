@@ -31,7 +31,7 @@ interface ActiveIssuesProps {
  * SEVERITY LEVELS:
  * - Critical: Action required immediately (red)
  * - Warning: Attention needed soon (orange/yellow)
- * - Info: FYI, no action required (blue)
+ * - Info: FYI, no action required (emerald)
  */
 export function ActiveIssues({ className }: ActiveIssuesProps) {
   const [issues, setIssues] = React.useState<Issue[]>([]);
@@ -229,7 +229,7 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
                   <div
                     key={issue.id}
                     className={cn(
-                      'p-4 rounded-lg border-2 transition-all hover:shadow-md',
+                      'p-4 rounded-lg border-2 transition-all',
                       config.bg,
                       config.border
                     )}
@@ -268,7 +268,7 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
                               {issue.affectedSystems.map((system) => (
                                 <span
                                   key={system}
-                                  className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                                  className="px-1.5 py-0.5 rounded bg-white/[0.04] dark:bg-white/[0.04] text-[var(--text-secondary)] dark:text-[var(--text-secondary)]"
                                 >
                                   {system}
                                 </span>

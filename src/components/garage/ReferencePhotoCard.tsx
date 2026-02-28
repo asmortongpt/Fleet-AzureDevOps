@@ -51,7 +51,7 @@ export function ReferencePhotoCard({
     return (
       <button
         onClick={() => setCollapsed(false)}
-        className="absolute bottom-20 right-4 z-20 px-3 py-1.5 rounded-lg bg-[#111]/80 backdrop-blur-sm border border-white/[0.08] text-[10px] text-white/60 hover:text-white/80 transition-colors"
+        className="absolute bottom-20 right-4 z-20 px-3 py-1.5 rounded-lg bg-[var(--surface-2)]/80 backdrop-blur-sm border border-[var(--border-subtle)] text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
       >
         Show Reference
       </button>
@@ -59,9 +59,9 @@ export function ReferencePhotoCard({
   }
 
   return (
-    <div className="absolute bottom-20 right-4 z-20 w-72 bg-[#111]/80 backdrop-blur-md rounded-xl border border-white/[0.08] shadow-2xl overflow-hidden">
+    <div className="absolute bottom-20 right-4 z-20 w-72 bg-[var(--surface-1)]/90 backdrop-blur-sm rounded-xl border border-[var(--border-subtle)] overflow-hidden">
       {/* Header: accuracy badge + controls */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.08]">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-1.5">
           {isExactMatch ? (
             <>
@@ -82,14 +82,14 @@ export function ReferencePhotoCard({
         <div className="flex items-center gap-0.5">
           <button
             onClick={() => setCollapsed(true)}
-            className="p-1 rounded hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            className="p-1 rounded hover:bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
             aria-label="Minimize"
           >
             <Minimize2 className="w-3 h-3" />
           </button>
           <button
             onClick={onDismiss}
-            className="p-1 rounded hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            className="p-1 rounded hover:bg-[var(--surface-glass-hover)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
             aria-label="Dismiss"
           >
             <X className="w-3 h-3" />
@@ -98,9 +98,9 @@ export function ReferencePhotoCard({
       </div>
 
       {/* Image area */}
-      <div className="relative aspect-[16/9] bg-[#0a0a0a]">
+      <div className="relative aspect-[16/9] bg-[var(--surface-0)]">
         {imgError ? (
-          <div className="flex flex-col items-center justify-center h-full text-white/20">
+          <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)]">
             <ImageOff className="w-8 h-8 mb-1" />
             <span className="text-[10px]">Reference unavailable</span>
           </div>
@@ -115,14 +115,14 @@ export function ReferencePhotoCard({
             crossOrigin="anonymous"
           />
         )}
-        <div className="absolute bottom-1.5 left-2 text-[10px] font-medium text-white/70 drop-shadow-lg">
+        <div className="absolute bottom-1.5 left-2 text-[10px] font-medium text-[var(--text-primary)]">
           {year} {make} {model}
         </div>
       </div>
 
       {/* Angle selector */}
       {!imgError && (
-        <div className="flex items-center justify-center gap-1 px-2 py-1.5 border-t border-white/[0.08]">
+        <div className="flex items-center justify-center gap-1 px-2 py-1.5 border-t border-[var(--border-subtle)]">
           {IMAGIN_ANGLES.map((a) => (
             <button
               key={a.id}
@@ -134,7 +134,7 @@ export function ReferencePhotoCard({
                 'px-2 py-1 rounded text-[9px] font-medium transition-colors',
                 angle === a.id
                   ? 'bg-emerald-500/20 text-emerald-400'
-                  : 'text-white/40 hover:text-white/60 hover:bg-white/[0.05]'
+                  : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-white/[0.05]'
               )}
               title={a.label}
             >
@@ -153,7 +153,7 @@ export function ReferencePhotoCard({
             className={cn(
               'w-full py-1.5 rounded-lg text-[10px] font-medium transition-colors',
               hasActiveWrap && autoWrapApplied
-                ? 'bg-white/[0.05] text-white/30 cursor-not-allowed'
+                ? 'bg-white/[0.05] text-[var(--text-muted)] cursor-not-allowed'
                 : 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
             )}
           >
@@ -164,7 +164,7 @@ export function ReferencePhotoCard({
           {onGenerateModel && (
             <button
               onClick={onGenerateModel}
-              className="w-full py-1.5 rounded-lg text-[10px] font-medium bg-white/[0.06] text-white/50 hover:bg-white/[0.10] hover:text-white/70 transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-1.5 rounded-lg text-[10px] font-medium bg-white/[0.06] text-[var(--text-secondary)] hover:bg-white/[0.10] hover:text-[var(--text-primary)] transition-colors flex items-center justify-center gap-1.5"
             >
               <Sparkles className="w-3 h-3" />
               Generate Exact Model

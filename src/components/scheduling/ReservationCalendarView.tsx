@@ -119,9 +119,9 @@ function statusColors(status: Reservation['status']) {
     case 'completed':
       return {
         bg: 'bg-white/[0.06]',
-        border: 'border-white/[0.08]',
-        text: 'text-white/40',
-        badge: 'bg-white/[0.06] text-white/40 border-white/[0.08]',
+        border: 'border-[var(--border-subtle)]',
+        text: 'text-[var(--text-tertiary)]',
+        badge: 'bg-white/[0.06] text-[var(--text-tertiary)] border-[var(--border-subtle)]',
       }
     case 'rejected':
       return {
@@ -134,15 +134,15 @@ function statusColors(status: Reservation['status']) {
       return {
         bg: 'bg-white/[0.04]',
         border: 'border-white/[0.06]',
-        text: 'text-white/30',
-        badge: 'bg-white/[0.04] text-white/30 border-white/[0.06]',
+        text: 'text-[var(--text-muted)]',
+        badge: 'bg-white/[0.04] text-[var(--text-muted)] border-white/[0.06]',
       }
     default:
       return {
         bg: 'bg-white/[0.06]',
-        border: 'border-white/[0.08]',
-        text: 'text-white/40',
-        badge: 'bg-white/[0.06] text-white/40 border-white/[0.08]',
+        border: 'border-[var(--border-subtle)]',
+        text: 'text-[var(--text-tertiary)]',
+        badge: 'bg-white/[0.06] text-[var(--text-tertiary)] border-[var(--border-subtle)]',
       }
   }
 }
@@ -403,7 +403,7 @@ export function ReservationCalendarView() {
   // ---------------------------------------------------------------------------
 
   const STATUS_FILTERS: { key: StatusFilter; label: string; color: string }[] = [
-    { key: 'all', label: 'All', color: 'text-white/60' },
+    { key: 'all', label: 'All', color: 'text-[var(--text-secondary)]' },
     { key: 'pending', label: 'Pending', color: 'text-amber-400' },
     { key: 'approved', label: 'Approved', color: 'text-emerald-400' },
     { key: 'active', label: 'Active', color: 'text-emerald-300' },
@@ -430,15 +430,15 @@ export function ReservationCalendarView() {
       {/* ---- Header row ---- */}
       <div className="flex flex-wrap items-center gap-3">
         {/* View toggle */}
-        <div className="flex rounded-lg border border-white/[0.08] overflow-hidden">
+        <div className="flex rounded-lg border border-[var(--border-subtle)] overflow-hidden">
           <button
             type="button"
             onClick={() => setViewMode('week')}
             className={cn(
               'px-3 py-1.5 text-xs font-medium transition-colors',
               viewMode === 'week'
-                ? 'bg-white/[0.1] text-white/90'
-                : 'bg-white/[0.03] text-white/40 hover:text-white/60'
+                ? 'bg-white/[0.1] text-[var(--text-primary)]'
+                : 'bg-white/[0.03] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
             )}
           >
             Week
@@ -447,10 +447,10 @@ export function ReservationCalendarView() {
             type="button"
             onClick={() => setViewMode('list')}
             className={cn(
-              'px-3 py-1.5 text-xs font-medium transition-colors border-l border-white/[0.08]',
+              'px-3 py-1.5 text-xs font-medium transition-colors border-l border-[var(--border-subtle)]',
               viewMode === 'list'
-                ? 'bg-white/[0.1] text-white/90'
-                : 'bg-white/[0.03] text-white/40 hover:text-white/60'
+                ? 'bg-white/[0.1] text-[var(--text-primary)]'
+                : 'bg-white/[0.03] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
             )}
           >
             List
@@ -462,18 +462,18 @@ export function ReservationCalendarView() {
           <button
             type="button"
             onClick={goToPreviousWeek}
-            className="p-1.5 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.06] transition-colors"
+            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/[0.06] transition-colors"
             aria-label="Previous week"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <span className="text-sm text-white/80 font-medium min-w-[180px] text-center tabular-nums">
+          <span className="text-sm text-[var(--text-primary)] font-medium min-w-[180px] text-center tabular-nums">
             {weekLabel}
           </span>
           <button
             type="button"
             onClick={goToNextWeek}
-            className="p-1.5 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.06] transition-colors"
+            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/[0.06] transition-colors"
             aria-label="Next week"
           >
             <ChevronRight className="w-4 h-4" />
@@ -491,7 +491,7 @@ export function ReservationCalendarView() {
                 'px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border',
                 statusFilter === sf.key
                   ? `${sf.color} border-current bg-white/[0.06]`
-                  : 'text-white/30 border-transparent hover:text-white/50 hover:bg-white/[0.04]'
+                  : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)] hover:bg-[var(--surface-glass-hover)]'
               )}
             >
               {sf.label}
@@ -513,16 +513,16 @@ export function ReservationCalendarView() {
       {/* ---- Loading state ---- */}
       {reservationsLoading && (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
-          <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
-          <p className="text-sm text-white/40">Loading reservations...</p>
+          <Loader2 className="w-6 h-6 text-[var(--text-muted)] animate-spin" />
+          <p className="text-sm text-[var(--text-tertiary)]">Loading reservations...</p>
         </div>
       )}
 
       {/* ---- Empty state ---- */}
       {!reservationsLoading && isEmpty && (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
-          <Calendar className="w-10 h-10 text-white/20" />
-          <p className="text-sm text-white/40">No reservations for this week</p>
+          <Calendar className="w-10 h-10 text-[var(--text-muted)]" />
+          <p className="text-sm text-[var(--text-tertiary)]">No reservations for this week</p>
           <Button
             size="sm"
             onClick={() => handleOpenCreateModal()}
@@ -536,7 +536,7 @@ export function ReservationCalendarView() {
 
       {/* ---- Week view ---- */}
       {!reservationsLoading && !isEmpty && viewMode === 'week' && (
-        <div className="grid grid-cols-7 gap-px bg-white/[0.04] rounded-xl border border-white/[0.08] overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-white/[0.04] rounded-xl border border-[var(--border-subtle)] overflow-hidden">
           {/* Column headers */}
           {Array.from({ length: 7 }, (_, i) => {
             const d = new Date(currentWeekStart)
@@ -550,13 +550,13 @@ export function ReservationCalendarView() {
                   isToday ? 'bg-emerald-500/10' : 'bg-white/[0.02]'
                 )}
               >
-                <div className="text-[10px] font-medium text-white/40 uppercase">
+                <div className="text-[10px] font-medium text-[var(--text-tertiary)] uppercase">
                   {DAY_NAMES[i]}
                 </div>
                 <div
                   className={cn(
                     'text-sm font-semibold mt-0.5',
-                    isToday ? 'text-emerald-400' : 'text-white/80'
+                    isToday ? 'text-emerald-400' : 'text-[var(--text-primary)]'
                   )}
                 >
                   {d.getDate()}
@@ -583,7 +583,7 @@ export function ReservationCalendarView() {
                 }}
                 className={cn(
                   'min-h-[120px] p-1.5 space-y-1 cursor-pointer hover:bg-white/[0.02] transition-colors',
-                  isToday ? 'bg-emerald-500/[0.03]' : 'bg-[#1a1a1a]'
+                  isToday ? 'bg-emerald-500/[0.03]' : 'bg-[var(--surface-3)]'
                 )}
               >
                 {dayItems.map((r) => {
@@ -626,15 +626,15 @@ export function ReservationCalendarView() {
 
       {/* ---- Inline detail for selected reservation (week view) ---- */}
       {viewMode === 'week' && selectedReservation && (
-        <div className="rounded-xl border border-white/[0.08] bg-[#1a1a1a] p-4 space-y-3">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-3)] p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-white/90 flex items-center gap-2">
-                <Car className="w-4 h-4 text-white/40" />
+              <h4 className="text-sm font-semibold text-[var(--text-primary)] flex items-center gap-2">
+                <Car className="w-4 h-4 text-[var(--text-tertiary)]" />
                 {vehicleName(selectedReservation)}
               </h4>
               {selectedReservation.driver_name && (
-                <p className="text-xs text-white/50 mt-0.5">
+                <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                   {selectedReservation.driver_name}
                 </p>
               )}
@@ -651,23 +651,23 @@ export function ReservationCalendarView() {
 
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
-              <span className="text-white/40 block">Start</span>
-              <span className="text-white/80">{formatDateTime(selectedReservation.start_date)}</span>
+              <span className="text-[var(--text-tertiary)] block">Start</span>
+              <span className="text-[var(--text-primary)]">{formatDateTime(selectedReservation.start_date)}</span>
             </div>
             <div>
-              <span className="text-white/40 block">End</span>
-              <span className="text-white/80">{formatDateTime(selectedReservation.end_date)}</span>
+              <span className="text-[var(--text-tertiary)] block">End</span>
+              <span className="text-[var(--text-primary)]">{formatDateTime(selectedReservation.end_date)}</span>
             </div>
             {selectedReservation.purpose && (
               <div className="col-span-2">
-                <span className="text-white/40 block">Purpose</span>
-                <span className="text-white/80">{selectedReservation.purpose}</span>
+                <span className="text-[var(--text-tertiary)] block">Purpose</span>
+                <span className="text-[var(--text-primary)]">{selectedReservation.purpose}</span>
               </div>
             )}
             {selectedReservation.notes && (
               <div className="col-span-2">
-                <span className="text-white/40 block">Notes</span>
-                <span className="text-white/60">{selectedReservation.notes}</span>
+                <span className="text-[var(--text-tertiary)] block">Notes</span>
+                <span className="text-[var(--text-secondary)]">{selectedReservation.notes}</span>
               </div>
             )}
           </div>
@@ -698,7 +698,7 @@ export function ReservationCalendarView() {
               <button
                 type="button"
                 onClick={() => handleCancel(selectedReservation.id)}
-                className="px-3 py-1.5 rounded-lg text-xs text-white/40 hover:text-white/60 hover:bg-white/[0.06] transition-colors"
+                className="px-3 py-1.5 rounded-lg text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-white/[0.06] transition-colors"
               >
                 Cancel Reservation
               </button>
@@ -713,7 +713,7 @@ export function ReservationCalendarView() {
               label="Email"
               size="sm"
               variant="ghost"
-              className="text-white/40 hover:text-white/60"
+              className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
             />
           </div>
         </div>
@@ -739,12 +739,12 @@ export function ReservationCalendarView() {
 
       {/* ---- List view ---- */}
       {!reservationsLoading && !isEmpty && viewMode === 'list' && (
-        <div className="rounded-xl border border-white/[0.08] overflow-hidden">
+        <div className="rounded-xl border border-[var(--border-subtle)] overflow-hidden">
           {/* Table header */}
           <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_0.8fr_0.7fr_1fr] gap-px bg-white/[0.02] px-4 py-2.5 border-b border-white/[0.06]">
             {['Vehicle', 'Driver', 'Start', 'End', 'Purpose', 'Status', 'Actions'].map(
               (header) => (
-                <div key={header} className="text-[10px] font-semibold text-white/40 uppercase tracking-wider">
+                <div key={header} className="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                   {header}
                 </div>
               )
@@ -757,22 +757,22 @@ export function ReservationCalendarView() {
             return (
               <div
                 key={r.id}
-                className="grid grid-cols-[1.5fr_1fr_1fr_1fr_0.8fr_0.7fr_1fr] gap-px px-4 py-2.5 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors items-center"
+                className="grid grid-cols-[1.5fr_1fr_1fr_1fr_0.8fr_0.7fr_1fr] gap-px px-4 py-2.5 border-b border-[var(--border-subtle)] hover:bg-white/[0.02] transition-colors items-center"
               >
-                <div className="text-xs text-white/80 font-medium truncate flex items-center gap-1.5">
-                  <Car className="w-3.5 h-3.5 text-white/30 flex-shrink-0" />
+                <div className="text-xs text-[var(--text-primary)] font-medium truncate flex items-center gap-1.5">
+                  <Car className="w-3.5 h-3.5 text-[var(--text-muted)] flex-shrink-0" />
                   {vehicleName(r)}
                 </div>
-                <div className="text-xs text-white/60 truncate">
+                <div className="text-xs text-[var(--text-secondary)] truncate">
                   {r.driver_name || '--'}
                 </div>
-                <div className="text-xs text-white/60 tabular-nums">
+                <div className="text-xs text-[var(--text-secondary)] tabular-nums">
                   {formatDateTime(r.start_date)}
                 </div>
-                <div className="text-xs text-white/60 tabular-nums">
+                <div className="text-xs text-[var(--text-secondary)] tabular-nums">
                   {formatDateTime(r.end_date)}
                 </div>
-                <div className="text-xs text-white/50 truncate">
+                <div className="text-xs text-[var(--text-secondary)] truncate">
                   {r.purpose || '--'}
                 </div>
                 <div>
@@ -810,7 +810,7 @@ export function ReservationCalendarView() {
                     <button
                       type="button"
                       onClick={() => handleCancel(r.id)}
-                      className="px-1.5 py-0.5 rounded text-[10px] text-white/30 hover:text-white/60 hover:bg-white/[0.06] transition-colors"
+                      className="px-1.5 py-0.5 rounded text-[10px] text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-white/[0.06] transition-colors"
                     >
                       Cancel
                     </button>

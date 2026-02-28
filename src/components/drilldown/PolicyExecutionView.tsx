@@ -167,7 +167,7 @@ export function PolicyExecutionView({
       case 'error':
         return <XCircle className="h-4 w-4 text-red-500" />
       default:
-        return <AlertTriangle className="h-4 w-4 text-gray-700" />
+        return <AlertTriangle className="h-4 w-4 text-[var(--text-tertiary)]" />
     }
   }
 
@@ -193,7 +193,7 @@ export function PolicyExecutionView({
       render: (exec) => (
         <div>
           <p className="font-mono text-sm">{exec.execution_number}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-[var(--text-secondary)]">
             {formatDateTime(exec.executed_at)}
           </p>
         </div>
@@ -210,7 +210,7 @@ export function PolicyExecutionView({
       render: (exec) => (
         <div>
           <p className="font-medium text-sm">{exec.policy_name}</p>
-          <p className="text-xs text-muted-foreground">#{exec.policy_number}</p>
+          <p className="text-xs text-[var(--text-secondary)]">#{exec.policy_number}</p>
         </div>
       ),
     },
@@ -227,11 +227,11 @@ export function PolicyExecutionView({
       },
       render: (exec) => (
         <div className="flex items-center gap-2">
-          {exec.entity_type === 'vehicle' && <Car className="h-4 w-4 text-muted-foreground" />}
-          {exec.entity_type === 'driver' && <User className="h-4 w-4 text-muted-foreground" />}
+          {exec.entity_type === 'vehicle' && <Car className="h-4 w-4 text-[var(--text-secondary)]" />}
+          {exec.entity_type === 'driver' && <User className="h-4 w-4 text-[var(--text-secondary)]" />}
           <div>
             <p className="font-medium text-sm capitalize">{exec.entity_type}</p>
-            <p className="text-xs text-muted-foreground">{exec.entity_name}</p>
+            <p className="text-xs text-[var(--text-secondary)]">{exec.entity_name}</p>
           </div>
         </div>
       ),
@@ -268,7 +268,7 @@ export function PolicyExecutionView({
         exec.confidence_score !== undefined ? (
           <div className="flex items-center gap-2">
             <div className="flex-1">
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div className="h-2 bg-[var(--surface-glass)] rounded-full overflow-hidden">
                 <div
                   className={cn(
                     'h-full rounded-full',
@@ -287,7 +287,7 @@ export function PolicyExecutionView({
             </span>
           </div>
         ) : (
-          <span className="text-sm text-muted-foreground">N/A</span>
+          <span className="text-sm text-[var(--text-secondary)]">N/A</span>
         ),
     },
     {
@@ -296,7 +296,7 @@ export function PolicyExecutionView({
       render: (exec) => (
         <div className="text-sm">
           <span className="font-medium">{exec.actions_taken.length}</span>
-          <span className="text-muted-foreground ml-1">
+          <span className="text-[var(--text-secondary)] ml-1">
             (
             {exec.actions_taken.filter((a) => a.status === 'completed').length} completed)
           </span>
@@ -323,7 +323,7 @@ export function PolicyExecutionView({
         {/* Header */}
         <div>
           <h3 className="text-sm font-bold">Policy Execution History</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-[var(--text-secondary)]">
             Automated policy executions and enforcement actions
           </p>
         </div>
@@ -340,7 +340,7 @@ export function PolicyExecutionView({
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">{stats.total_executions}</div>
-                <p className="text-xs text-muted-foreground">Executions</p>
+                <p className="text-xs text-[var(--text-secondary)]">Executions</p>
               </CardContent>
             </Card>
 
@@ -353,7 +353,7 @@ export function PolicyExecutionView({
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold text-green-600">{stats.successful}</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-[var(--text-secondary)]">
                   {stats.total_executions > 0
                     ? Math.round((stats.successful / stats.total_executions) * 100)
                     : 0}
@@ -371,7 +371,7 @@ export function PolicyExecutionView({
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold text-red-600">{stats.failed}</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-[var(--text-secondary)]">
                   {stats.total_executions > 0
                     ? Math.round((stats.failed / stats.total_executions) * 100)
                     : 0}
@@ -389,7 +389,7 @@ export function PolicyExecutionView({
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold text-yellow-600">{stats.warnings}</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-[var(--text-secondary)]">
                   {stats.total_executions > 0
                     ? Math.round((stats.warnings / stats.total_executions) * 100)
                     : 0}
@@ -411,7 +411,7 @@ export function PolicyExecutionView({
                     ? `${Math.round(stats.avg_duration_ms)}ms`
                     : `${(stats.avg_duration_ms / 1000).toFixed(2)}s`}
                 </div>
-                <p className="text-xs text-muted-foreground">Duration</p>
+                <p className="text-xs text-[var(--text-secondary)]">Duration</p>
               </CardContent>
             </Card>
 
@@ -424,7 +424,7 @@ export function PolicyExecutionView({
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">{Math.round(stats.avg_confidence * 100)}%</div>
-                <p className="text-xs text-muted-foreground">Average</p>
+                <p className="text-xs text-[var(--text-secondary)]">Average</p>
               </CardContent>
             </Card>
           </div>

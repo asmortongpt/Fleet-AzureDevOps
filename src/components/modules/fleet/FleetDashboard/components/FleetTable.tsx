@@ -129,7 +129,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                           vehicle.operational_status === "AVAILABLE"
                             ? "bg-success/10 text-success border-success/20"
                             : vehicle.operational_status === "IN_USE"
-                              ? "bg-[#dbeafe] text-[#1e3a8a] border-[#93c5fd]/30"
+                              ? "bg-emerald-100 text-emerald-800 border-emerald-500/30"
                               : vehicle.operational_status === "MAINTENANCE"
                                 ? "bg-warning/10 text-warning border-warning/20"
                                 : vehicle.operational_status === "RESERVED"

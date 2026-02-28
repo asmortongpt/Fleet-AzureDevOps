@@ -234,7 +234,7 @@ function DamageListItem({
         <p className="text-sm font-medium text-white truncate">
           {ZONE_POSITIONS[damage.zone]?.label || 'Custom'}
         </p>
-        <p className="text-xs text-white/40 truncate">{damage.description}</p>
+        <p className="text-xs text-[var(--text-tertiary)] truncate">{damage.description}</p>
       </div>
       <Badge
         variant={damage.repaired ? 'outline' : damage.severity === 'severe' ? 'destructive' : 'secondary'}
@@ -270,8 +270,8 @@ export function DamageStrip({
     <div
       className={cn(
         'fixed bottom-0 left-0 right-0 z-40',
-        'bg-[#1a1a1a]',
-        'border-t border-white/[0.08]',
+        'bg-[var(--surface-3)]',
+        'border-t border-[var(--border-subtle)]',
         'transition-all duration-300',
         isExpanded ? 'h-64' : 'h-16',
         className
@@ -339,7 +339,7 @@ export function DamageStrip({
       {isExpanded && (
         <div className="px-2 pb-2 grid grid-cols-[1fr,300px] gap-2 h-48">
           {/* Vehicle Silhouette with Damage Pins */}
-          <div className="relative bg-white/[0.03] rounded-lg p-2 border border-white/[0.08]">
+          <div className="relative bg-white/[0.03] rounded-lg p-2 border border-[var(--border-subtle)]">
             <VehicleSilhouette className="opacity-60" />
 
             {/* Damage pins */}
@@ -353,15 +353,15 @@ export function DamageStrip({
             ))}
 
             {/* View label */}
-            <div className="absolute bottom-2 left-2 text-xs text-white/30">
+            <div className="absolute bottom-2 left-2 text-xs text-[var(--text-muted)]">
               Top-down view
             </div>
           </div>
 
           {/* Damage List */}
-          <div className="bg-white/[0.03] rounded-lg border border-white/[0.08] overflow-hidden">
+          <div className="bg-white/[0.03] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
             <div className="p-2 border-b border-white/[0.06]">
-              <h4 className="text-xs font-medium text-white/50 uppercase">Damage Points</h4>
+              <h4 className="text-xs font-medium text-[var(--text-secondary)] uppercase">Damage Points</h4>
             </div>
             <div className="h-36 overflow-y-auto p-2 space-y-1">
               {damages.length > 0 ? (
@@ -374,7 +374,7 @@ export function DamageStrip({
                   />
                 ))
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-white/30">
+                <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)]">
                   <PushPin className="w-4 h-4 mb-2 opacity-50" />
                   <p className="text-xs">No damage reported</p>
                 </div>

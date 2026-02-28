@@ -67,18 +67,18 @@ export function RegulationsDrilldown() {
                     <CardContent className="p-2 text-center">
                         <ShieldCheck className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">{dotScore}%</div>
-                        <div className="text-xs text-white/40">DOT Compliance</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">DOT Compliance</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">{iftaScore}%</div>
-                        <div className="text-xs text-white/40">IFTA Compliance</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">IFTA Compliance</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Compliance Status</CardTitle>
                 </CardHeader>
@@ -134,32 +134,32 @@ export function GeofenceComplianceDrilldown() {
                     <CardContent className="p-2 text-center">
                         <MapPin className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">{compliantCount}</div>
-                        <div className="text-xs text-white/40">Compliant Zones</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Compliant Zones</div>
                     </CardContent>
                 </Card>
                 <Card className={attentionCount > 0 ? "bg-amber-900/30 border-amber-700/50" : "bg-emerald-900/30 border-emerald-700/50"}>
                     <CardContent className="p-2 text-center">
                         <div className={`text-sm font-bold ${attentionCount > 0 ? 'text-amber-400' : 'text-emerald-700'}`}>{attentionCount}</div>
-                        <div className="text-xs text-white/40">Attention Needed</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Attention Needed</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Zone Status</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {zones.length === 0 && (
-                        <div className="text-white/40 text-sm text-center py-4">No hazard zones configured</div>
+                        <div className="text-[var(--text-tertiary)] text-sm text-center py-4">No hazard zones configured</div>
                     )}
                     {zones.map((zone: any) => (
-                        <div key={zone.name} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                        <div key={zone.name} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                             <div className="flex items-center gap-2">
                                 <span className={`w-2 h-2 rounded-full ${zone.status === 'compliant' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
                                 <span className="text-white">{zone.name}</span>
                             </div>
-                            <span className="text-white/40 text-sm">{zone.violations} violations</span>
+                            <span className="text-[var(--text-tertiary)] text-sm">{zone.violations} violations</span>
                         </div>
                     ))}
                 </CardContent>
@@ -254,36 +254,36 @@ export function InspectionsDrilldown() {
                     <CardContent className="p-2 text-center">
                         <Clock className="w-4 h-4 text-amber-400 mx-auto mb-2" />
                         <div className={`text-sm font-bold ${stats.inspectionsDue > 0 ? 'text-amber-400' : 'text-emerald-700'}`}>{stats.inspectionsDue}</div>
-                        <div className="text-xs text-white/40">Inspections Due</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Inspections Due</div>
                     </CardContent>
                 </Card>
                 <Card className={stats.hosViolations > 0 ? "bg-amber-900/30 border-amber-700/50" : "bg-emerald-900/30 border-emerald-700/50"}>
                     <CardContent className="p-2 text-center">
                         <div className={`text-sm font-bold ${stats.hosViolations > 0 ? 'text-amber-400' : 'text-emerald-700'}`}>{stats.hosViolations}</div>
-                        <div className="text-xs text-white/40">HOS Violations</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">HOS Violations</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">{stats.eldPct}%</div>
-                        <div className="text-xs text-white/40">ELD Status</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">ELD Status</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Upcoming Inspections</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {upcoming.length === 0 && (
-                        <div className="text-white/40 text-sm text-center py-4">No upcoming inspections</div>
+                        <div className="text-[var(--text-tertiary)] text-sm text-center py-4">No upcoming inspections</div>
                     )}
                     {upcoming.map((insp: any) => (
-                        <div key={insp.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                        <div key={insp.id} className="flex items-center justify-between p-3 bg-[var(--surface-glass)] rounded-lg">
                             <div>
                                 <div className="font-medium text-white">{insp.vehicle} - {insp.type}</div>
-                                <div className="text-xs text-white/40">{insp.due}</div>
+                                <div className="text-xs text-[var(--text-tertiary)]">{insp.due}</div>
                             </div>
                             <Badge variant="outline" className={insp.status === 'scheduled' ? 'border-emerald-500 text-emerald-700' : 'border-amber-500 text-amber-400'}>
                                 {insp.status}
@@ -358,31 +358,31 @@ export function IFTADrilldown() {
                     <CardContent className="p-2 text-center">
                         <Fuel className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">{milesDisplay}</div>
-                        <div className="text-xs text-white/40">Miles Tracked</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Miles Tracked</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#242424] border-white/[0.08]">
+                <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-white/80">{formatCurrency(stats.totalFuelCost)}</div>
-                        <div className="text-xs text-white/40">Fuel Cost</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Fuel Cost</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Cost by Jurisdiction</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {stats.jurisdictions.length === 0 && (
-                        <div className="text-white/40 text-sm text-center py-4">No fuel transaction data</div>
+                        <div className="text-[var(--text-tertiary)] text-sm text-center py-4">No fuel transaction data</div>
                     )}
                     {stats.jurisdictions.map(item => (
-                        <div key={item.name} className="flex items-center justify-between p-2 bg-white/[0.03] rounded">
+                        <div key={item.name} className="flex items-center justify-between p-2 bg-[var(--surface-glass)] rounded">
                             <span className="text-white/80">{item.name}</span>
                             <div className="text-right">
                                 <span className="text-white font-medium">{formatCurrency(item.cost)}</span>
-                                <span className="text-white/40 text-sm ml-2">({formatNumber(item.gallons)} gal)</span>
+                                <span className="text-[var(--text-tertiary)] text-sm ml-2">({formatNumber(item.gallons)} gal)</span>
                             </div>
                         </div>
                     ))}
@@ -476,24 +476,24 @@ export function CSADrilldown() {
                     <CardContent className="p-2 text-center">
                         <FileText className="w-4 h-4 text-amber-400 mx-auto mb-2" />
                         <div className={`text-sm font-bold ${stats.pendingIncidents > 0 ? 'text-amber-400' : 'text-emerald-700'}`}>{stats.pendingIncidents}</div>
-                        <div className="text-xs text-white/40">Pending</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Pending</div>
                     </CardContent>
                 </Card>
                 <Card className={stats.incidentsYTD > 0 ? "bg-amber-900/30 border-amber-700/50" : "bg-emerald-900/30 border-emerald-700/50"}>
                     <CardContent className="p-2 text-center">
                         <div className={`text-sm font-bold ${stats.incidentsYTD > 0 ? 'text-amber-400' : 'text-emerald-700'}`}>{stats.incidentsYTD}</div>
-                        <div className="text-xs text-white/40">Incidents YTD</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Incidents YTD</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">{stats.daysSafe}</div>
-                        <div className="text-xs text-white/40">Days Safe</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">Days Safe</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-[#242424] border-white/[0.08]">
+            <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">CSA BASIC Scores</CardTitle>
                 </CardHeader>

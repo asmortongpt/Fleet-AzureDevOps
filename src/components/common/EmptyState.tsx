@@ -41,12 +41,12 @@ export function EmptyState({
             "flex flex-col items-center justify-center py-16 px-2 text-center",
             className
         )}>
-            <div className="w-16 h-16 rounded-full bg-[#1a1a1a]/50 flex items-center justify-center mb-2">
-                {customIcon || (IconComponent && <IconComponent className="w-4 h-4 text-white/40" />)}
+            <div className="w-16 h-16 rounded-full bg-[var(--surface-3)]/50 flex items-center justify-center mb-2">
+                {customIcon || (IconComponent && <IconComponent className="w-4 h-4 text-[var(--text-tertiary)]" />)}
             </div>
-            <h3 className="text-sm font-semibold text-white/70 mb-2">{title}</h3>
+            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">{title}</h3>
             {description && (
-                <p className="text-sm text-white/70 max-w-sm mb-3">{description}</p>
+                <p className="text-sm text-[var(--text-primary)] max-w-sm mb-3">{description}</p>
             )}
             {action && (
                 <Button onClick={action.onClick} className="gap-2">

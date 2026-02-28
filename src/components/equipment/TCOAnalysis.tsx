@@ -119,7 +119,7 @@ export function TCOAnalysis({
     { label: 'Maintenance', value: costAnalysis.maintenance_cost, color: 'bg-emerald-500/50' },
     { label: 'Fuel', value: costAnalysis.fuel_cost, color: 'bg-green-500' },
     { label: 'Labor', value: costAnalysis.labor_cost, color: 'bg-yellow-500' },
-    { label: 'Insurance', value: costAnalysis.insurance_cost, color: 'bg-purple-500' },
+    { label: 'Insurance', value: costAnalysis.insurance_cost, color: 'bg-amber-500' },
     { label: 'Storage', value: costAnalysis.storage_cost, color: 'bg-orange-500' },
     { label: 'Depreciation', value: costAnalysis.depreciation, color: 'bg-red-500' }
   ].filter(item => item.value > 0)
@@ -253,7 +253,7 @@ export function TCOAnalysis({
                 </div>
                 <Progress
                   value={totalCost > 0 ? (costAnalysis.insurance_cost / totalCost) * 100 : 0}
-                  className="h-2 [&>div]:bg-purple-500"
+                  className="h-2 [&>div]:bg-amber-500"
                 />
 
                 <div className="flex justify-between items-center">

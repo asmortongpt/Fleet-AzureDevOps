@@ -98,10 +98,10 @@ const getCategoryColor = (category: ReportCategory): string => {
     case "fleet": return "bg-emerald-500/10 text-emerald-800"
     case "maintenance": return "bg-orange-500/10 text-orange-500"
     case "safety": return "bg-red-500/10 text-red-500"
-    case "compliance": return "bg-purple-500/10 text-purple-500"
+    case "compliance": return "bg-amber-500/10 text-amber-500"
     case "financial": return "bg-green-500/10 text-green-500"
-    case "operations": return "bg-cyan-500/10 text-cyan-500"
-    default: return "bg-gray-500/10 text-gray-700"
+    case "operations": return "bg-emerald-500/10 text-emerald-500"
+    default: return "bg-white/[0.05] text-[var(--text-tertiary)]"
   }
 }
 
@@ -111,7 +111,7 @@ const getStatusColor = (status: ReportStatus): string => {
     case "generating": return "bg-emerald-500/10 text-emerald-800"
     case "scheduled": return "bg-yellow-500/10 text-yellow-500"
     case "failed": return "bg-red-500/10 text-red-500"
-    default: return "bg-gray-500/10 text-gray-700"
+    default: return "bg-white/[0.05] text-[var(--text-tertiary)]"
   }
 }
 
@@ -456,7 +456,7 @@ export function ReportsHub() {
           <TabsContent value="templates" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               {filteredTemplates.map(template => (
-                <Card key={template.id} className="hover:shadow-sm transition-shadow">
+                <Card key={template.id} className="hover:border-[var(--border-strong)] transition-colors">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div>

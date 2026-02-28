@@ -62,7 +62,7 @@ export function DriverPerformanceView({
             <h3 className="text-sm font-semibold">
               Performance Metrics {driverName && `for ${driverName}`}
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
               Last updated: {formatDateTime(performance.last_updated)}
             </p>
           </div>
@@ -78,7 +78,7 @@ export function DriverPerformanceView({
                   <div className={`text-sm font-bold ${getScoreColor(performance.overall_score || 0)}`}>
                     {performance.overall_score || 0}%
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">
                     {performance.overall_score >= 90
                       ? 'Excellent'
                       : performance.overall_score >= 70
@@ -253,11 +253,11 @@ export function DriverPerformanceView({
                           <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
                           <div className="flex-1">
                             <p className="text-sm font-medium">{formatEnum(violation.type)}</p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-[var(--text-secondary)]">
                               {formatDate(violation.date)}
                             </p>
                             {violation.description && (
-                              <p className="text-xs text-muted-foreground mt-1">
+                              <p className="text-xs text-[var(--text-secondary)] mt-1">
                                 {violation.description}
                               </p>
                             )}
@@ -266,7 +266,7 @@ export function DriverPerformanceView({
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-3">
+                    <p className="text-sm text-[var(--text-secondary)] text-center py-3">
                       No violations recorded
                     </p>
                   )}

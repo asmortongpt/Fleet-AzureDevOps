@@ -14,6 +14,17 @@ router.get(
   requirePermission('compliance:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'procedures')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.json({
+          data: [],
+          pagination: { page: 1, limit: 50, total: 0, pages: 0 }
+        })
+      }
+
       const { page = 1, limit = 50, status, procedure_type, related_policy_id } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
@@ -76,6 +87,14 @@ router.get(
   requirePermission('compliance:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'procedures')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(404).json({ error: 'Procedure not found' })
+      }
+
       const result = await pool.query(
         `SELECT id, tenant_id, procedure_code, procedure_name, procedure_type,
                 description, steps, related_policy_id, frequency,

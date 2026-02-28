@@ -6,7 +6,7 @@
  *
  * Features:
  * - GPS breadcrumb trail visualization
- * - Color gradient (blue = old, red/orange = recent)
+ * - Color gradient (emerald = old, red/orange = recent)
  * - Hover tooltips with timestamp, speed, address
  * - Toggle visibility
  * - Loading states and error handling
@@ -72,18 +72,18 @@ interface LocationHistoryResponse {
 // ============================================================================
 
 /**
- * Calculate color based on timestamp age (gradient from blue to red)
+ * Calculate color based on timestamp age (gradient from emerald to red)
  */
 function getColorForTimestamp(timestamp: string, oldestTime: number, newestTime: number): string {
   const time = new Date(timestamp).getTime();
   const range = newestTime - oldestTime;
   const position = range > 0 ? (time - oldestTime) / range : 0;
 
-  // Blue (old) to Red (new) gradient
+  // Emerald (old) to Red (new) gradient
   if (position < 0.25) {
-    return '#0066cc'; // Blue
+    return '#059669'; // Emerald
   } else if (position < 0.5) {
-    return '#00aacc'; // Cyan
+    return '#14b8a6'; // Teal
   } else if (position < 0.75) {
     return '#ffaa00'; // Orange
   } else {
@@ -415,11 +415,11 @@ export function VehicleHistoryTrail({
             {/* Legend */}
             <div className="mt-2 flex items-center gap-2 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-[#0066cc]" />
+                <div className="w-4 h-4 rounded-full bg-emerald-600" />
                 <span>Oldest</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-[#00aacc]" />
+                <div className="w-4 h-4 rounded-full bg-teal-500" />
                 <span>Older</span>
               </div>
               <div className="flex items-center gap-2">

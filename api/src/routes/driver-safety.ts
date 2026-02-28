@@ -33,12 +33,12 @@ router.get(
         `
         SELECT
           d.id,
-          d.first_name,
-          d.last_name,
+          u.first_name,
+          u.last_name,
           d.license_number,
-          d.license_expiry_date,
+          d.license_expiration,
           d.cdl_class,
-          d.performance_score,
+          d.safety_score,
           COALESCE(trip.total_miles, 0) AS total_miles,
           COALESCE(trip.total_hours, 0) AS total_hours,
           COALESCE(inc.incident_count, 0) AS incident_count,
@@ -51,6 +51,7 @@ router.get(
           COALESCE(training.completed_rate, 0) AS training_compliance,
           training.latest_expiry
         FROM drivers d
+        LEFT JOIN users u ON u.id = d.user_id
         LEFT JOIN (
           SELECT driver_id,
                  SUM(total_miles) AS total_miles,
@@ -81,19 +82,18 @@ router.get(
                  COUNT(*) FILTER (WHERE event_type = 'speeding') AS speeding,
                  COUNT(*) FILTER (WHERE event_type IN ('distracted_driving', 'distraction', 'phone_use', 'phone-use')) AS distraction
           FROM driver_safety_events
-          WHERE tenant_id = $1
           GROUP BY driver_id
         ) events ON events.driver_id = d.id
         LEFT JOIN (
           SELECT driver_id,
-                 AVG(CASE WHEN status = 'completed' THEN 100 ELSE 0 END) AS completed_rate,
-                 MAX(expiry_date) AS latest_expiry
-          FROM training_records
+                 AVG(CASE WHEN completion_status = 'completed' THEN 100 ELSE 0 END) AS completed_rate,
+                 MAX(certification_expiry_date) AS latest_expiry
+          FROM driver_training_records
           WHERE tenant_id = $1
           GROUP BY driver_id
         ) training ON training.driver_id = d.id
         WHERE d.tenant_id = $1 ${driverFilter}
-        ORDER BY d.last_name, d.first_name
+        ORDER BY u.last_name, u.first_name
         `,
         params
       )
@@ -110,7 +110,7 @@ router.get(
           }
         }
 
-        const baseScore = Number(row.performance_score ?? 100)
+        const baseScore = Number(row.safety_score ?? 100)
         const clampScore = (value: number) => Math.max(0, Math.min(100, value))
         const penaltyScore = (count: number, penalty: number) => clampScore(100 - count * penalty)
 
@@ -127,7 +127,7 @@ router.get(
           )
         )
 
-        const licenseValid = row.license_expiry_date ? new Date(row.license_expiry_date) >= now : false
+        const licenseValid = row.license_expiration ? new Date(row.license_expiration) >= now : false
         const dotCompliant = licenseValid && trainingStatus !== 'expired' && row.hos_violations === 0
 
         const fmcsaScore = Math.max(

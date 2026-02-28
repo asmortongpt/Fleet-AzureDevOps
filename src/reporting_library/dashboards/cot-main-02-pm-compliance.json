@@ -79,7 +79,7 @@
           "type": "nominal",
           "scale": {
             "domain": ["Completed", "Due", "Overdue"],
-            "range": ["#10b981", "#3b82f6", "#ef4444"]
+            "range": ["#10b981", "#f59e0b", "#ef4444"]
           }
         }
       },

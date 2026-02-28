@@ -116,27 +116,27 @@ export function DrilldownCard({
 
   const colorClasses = {
     default: '',
-    primary: 'border-primary/30 bg-primary/5',
-    success: 'border-green-500/30 bg-green-500/5',
-    warning: 'border-yellow-500/30 bg-yellow-500/5',
-    danger: 'border-red-500/30 bg-red-500/5',
-    info: 'border-emerald-500/30 bg-emerald-500/5',
+    primary: 'border-[var(--accent-primary)]/30 bg-[var(--accent-primary)]/5',
+    success: 'border-[var(--status-success)]/30 bg-[var(--status-success)]/5',
+    warning: 'border-[var(--status-warning)]/30 bg-[var(--status-warning)]/5',
+    danger: 'border-[var(--status-danger)]/30 bg-[var(--status-danger)]/5',
+    info: 'border-[var(--status-info)]/30 bg-[var(--status-info)]/5',
   }
 
   const iconColorClasses = {
-    default: 'text-muted-foreground',
-    primary: 'text-primary',
-    success: 'text-green-500',
-    warning: 'text-yellow-500',
-    danger: 'text-red-500',
-    info: 'text-emerald-800',
+    default: 'text-[var(--text-tertiary)]',
+    primary: 'text-[var(--accent-primary)]',
+    success: 'text-[var(--status-success)]',
+    warning: 'text-[var(--status-warning)]',
+    danger: 'text-[var(--status-danger)]',
+    info: 'text-[var(--status-info)]',
   }
 
   const variantClasses = {
     default: '',
     compact: 'p-3',
     outlined: 'border-2',
-    filled: 'bg-muted/50',
+    filled: 'bg-[var(--surface-glass)]',
   }
 
   return (
@@ -148,9 +148,9 @@ export function DrilldownCard({
       aria-label={isDrilldownEnabled ? `View ${drilldownLabel || title}` : undefined}
       aria-disabled={!isDrilldownEnabled}
       className={cn(
-        'group transition-all duration-200',
-        isDrilldownEnabled && 'cursor-pointer hover:shadow-md hover:border-primary/50',
-        isDrilldownEnabled && 'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
+        'group transition-all duration-[var(--duration-fast)]',
+        isDrilldownEnabled && 'cursor-pointer hover:border-[var(--accent-primary)]/50',
+        isDrilldownEnabled && 'focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)]',
         colorClasses[color],
         variantClasses[variant],
         !isDrilldownEnabled && 'cursor-default',
@@ -165,7 +165,7 @@ export function DrilldownCard({
       >
         <CardTitle
           className={cn(
-            'text-sm font-medium text-muted-foreground',
+            'text-[var(--text-sm)] font-medium text-[var(--text-secondary)]',
             variant === 'compact' && 'text-xs'
           )}
         >
@@ -174,7 +174,7 @@ export function DrilldownCard({
         {icon && (
           <div
             className={cn(
-              'h-8 w-8 flex items-center justify-center rounded-lg bg-muted',
+              'h-8 w-8 flex items-center justify-center rounded-[var(--radius-md)] bg-[var(--surface-glass)]',
               iconColorClasses[color]
             )}
           >
@@ -185,8 +185,8 @@ export function DrilldownCard({
       <CardContent className={variant === 'compact' ? 'p-0' : undefined}>
         {loading ? (
           <div className="flex items-center gap-2">
-            <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Loading...</span>
+            <Loader2 className="w-3 h-3 animate-spin text-[var(--text-tertiary)]" />
+            <span className="text-sm text-[var(--text-tertiary)]">Loading...</span>
           </div>
         ) : (
           <>
@@ -202,8 +202,8 @@ export function DrilldownCard({
               {isDrilldownEnabled && (
                 <ArrowRight
                   className={cn(
-                    'w-3 h-3 text-muted-foreground',
-                    'opacity-0 group-hover:opacity-100 transition-opacity',
+                    'w-3 h-3 text-[var(--text-tertiary)]',
+                    'opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--duration-fast)]',
                     'group-focus:opacity-100'
                   )}
                 />
@@ -212,15 +212,15 @@ export function DrilldownCard({
             {(subtitle || trend) && (
               <div className="flex items-center justify-between mt-1">
                 {subtitle && (
-                  <p className="text-xs text-muted-foreground">{subtitle}</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">{subtitle}</p>
                 )}
                 {trend && (
                   <div
                     className={cn(
                       'flex items-center gap-1 text-xs',
-                      trend.direction === 'up' && 'text-green-600',
-                      trend.direction === 'down' && 'text-red-600',
-                      trend.direction === 'neutral' && 'text-muted-foreground'
+                      trend.direction === 'up' && 'text-[var(--status-success)]',
+                      trend.direction === 'down' && 'text-[var(--status-danger)]',
+                      trend.direction === 'neutral' && 'text-[var(--text-tertiary)]'
                     )}
                   >
                     {trend.direction === 'up' && <TrendingUp className="w-3 h-3" />}
@@ -230,7 +230,7 @@ export function DrilldownCard({
                       {trend.value}%
                     </span>
                     {trend.label && (
-                      <span className="text-muted-foreground">{trend.label}</span>
+                      <span className="text-[var(--text-tertiary)]">{trend.label}</span>
                     )}
                   </div>
                 )}
@@ -325,7 +325,7 @@ export function MetricCardDrilldown({
       value={
         <span>
           {value}
-          {unit && <span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span>}
+          {unit && <span className="text-sm font-normal text-[var(--text-tertiary)] ml-1">{unit}</span>}
         </span>
       }
       drilldownType={drilldownType}
@@ -385,17 +385,17 @@ export function KPICardDrilldown({
           <div className="flex items-baseline gap-2">
             <span className="text-sm font-bold">{value}</span>
             {target && (
-              <span className="text-sm text-muted-foreground">/ {target}{unit}</span>
+              <span className="text-sm text-[var(--text-tertiary)]">/ {target}{unit}</span>
             )}
           </div>
           {target && (
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div className="h-2 bg-[var(--surface-glass)] rounded-full overflow-hidden">
               <div
                 className={cn(
                   'h-full rounded-full transition-all',
-                  progress >= 90 && 'bg-green-500',
-                  progress >= 70 && progress < 90 && 'bg-yellow-500',
-                  progress < 70 && 'bg-red-500'
+                  progress >= 90 && 'bg-[var(--status-success)]',
+                  progress >= 70 && progress < 90 && 'bg-[var(--status-warning)]',
+                  progress < 70 && 'bg-[var(--status-danger)]'
                 )}
                 style={{ width: `${progress}%` }}
               />

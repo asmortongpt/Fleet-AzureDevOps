@@ -63,7 +63,7 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
 
   return (
     <nav
-      className="bg-white shadow-md"
+      className="bg-white"
       style={{
         boxShadow: shadows.md,
       }}
@@ -128,7 +128,7 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
                 'px-4 py-2 rounded-lg font-medium text-sm transition-all',
                 isActive(item.href)
                   ? 'text-white'
-                  : 'text-gray-700 hover:text-gray-900'
+                  : 'text-white/40 hover:text-white/80'
               )}
               style={{
                 backgroundColor: isActive(item.href) ? colors.primary[600] : 'transparent',
@@ -151,7 +151,7 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
         {/* Right Side Actions */}
         <div className="flex items-center gap-4">
           {/* Notifications */}
-          <button className="relative p-2 rounded-lg hover:bg-gray-100" style={{ transition: transitions.fast }} aria-label="Notifications">
+          <button className="relative p-2 rounded-lg hover:bg-white/[0.05]" style={{ transition: transitions.fast }} aria-label="Notifications">
             <Bell size={20} style={{ color: colors.neutral[600] }} />
             {notifications > 0 && (
               <span
@@ -167,7 +167,7 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
           <div className="relative">
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/[0.05]"
               style={{ transition: transitions.fast }}
             >
               <User size={18} style={{ color: colors.neutral[600] }} />
@@ -180,7 +180,7 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
             {/* User Dropdown */}
             {isUserMenuOpen && (
               <div
-                className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg z-50 overflow-hidden"
+                className="absolute right-0 mt-2 w-48 rounded-lg z-50 overflow-hidden"
                 style={{
                   backgroundColor: colors.neutral[50],
                   boxShadow: shadows.lg,
@@ -192,14 +192,14 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
                   </p>
                 </div>
 
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
+                <button className="w-full text-left px-4 py-2 hover:bg-white/[0.05] flex items-center gap-2">
                   <Settings size={16} />
                   <span className="text-sm">Settings</span>
                 </button>
 
                 <button
                   onClick={onLogout}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-white/[0.05] flex items-center gap-2"
                   style={{ color: colors.danger[600] }}
                 >
                   <LogOut size={16} />
@@ -288,17 +288,17 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
             className="p-4 border-t space-y-2"
             style={{ borderColor: colors.neutral[200] }}
           >
-            <button className="w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100">
+            <button className="w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-white/[0.05]">
               <Bell size={18} />
               <span className="text-sm">Notifications</span>
             </button>
-            <button className="w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100">
+            <button className="w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-white/[0.05]">
               <Settings size={18} />
               <span className="text-sm">Settings</span>
             </button>
             <button
               onClick={onLogout}
-              className="w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100"
+              className="w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-white/[0.05]"
               style={{ color: colors.danger[600] }}
             >
               <LogOut size={18} />

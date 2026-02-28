@@ -49,27 +49,27 @@ interface ActionToastProps {
 const VARIANT_STYLES = {
   success: {
     icon: CheckCircle2,
-    iconColor: 'text-[#10B981]',
-    bgColor: 'bg-[#10B981]/10',
-    borderColor: 'border-[#10B981]/30',
+    iconColor: 'text-green-500',
+    bgColor: 'bg-green-50 dark:bg-green-950',
+    borderColor: 'border-green-200 dark:border-green-800',
   },
   warning: {
     icon: AlertCircle,
-    iconColor: 'text-[#FDC016]',
-    bgColor: 'bg-[#FDC016]/10',
-    borderColor: 'border-[#FDC016]/30',
+    iconColor: 'text-amber-500',
+    bgColor: 'bg-amber-50 dark:bg-amber-950',
+    borderColor: 'border-amber-200 dark:border-amber-800',
   },
   error: {
     icon: XCircle,
-    iconColor: 'text-[#FF4300]',
-    bgColor: 'bg-[#FF4300]/10',
-    borderColor: 'border-[#FF4300]/30',
+    iconColor: 'text-red-500',
+    bgColor: 'bg-red-50 dark:bg-red-950',
+    borderColor: 'border-red-200 dark:border-red-800',
   },
   info: {
     icon: Info,
-    iconColor: 'text-[#00CCFE]',
-    bgColor: 'bg-[#00CCFE]/10',
-    borderColor: 'border-[#00CCFE]/30',
+    iconColor: 'text-emerald-800',
+    bgColor: 'bg-neutral-50 dark:bg-neutral-950',
+    borderColor: 'border-neutral-200 dark:border-neutral-800',
   },
 }
 
@@ -113,7 +113,7 @@ function ActionToastContent({
   return (
     <div
       className={cn(
-        'relative flex flex-col gap-3 p-2 rounded-lg border shadow-sm',
+        'relative flex flex-col gap-3 p-2 rounded-lg border',
         'min-w-[320px] max-w-[420px]',
         styles.bgColor,
         styles.borderColor
@@ -125,14 +125,14 @@ function ActionToastContent({
       <div className="flex items-start gap-3">
         <Icon className={cn('h-5 w-5 mt-0.5 shrink-0', styles.iconColor)} />
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-sm text-white">{title}</h3>
+          <h3 className="font-semibold text-sm text-foreground">{title}</h3>
           {message && (
-            <p className="text-xs text-[rgba(255,255,255,0.40)] mt-1">{message}</p>
+            <p className="text-xs text-muted-foreground mt-1">{message}</p>
           )}
         </div>
         <button
           onClick={handleDismiss}
-          className="shrink-0 text-[rgba(255,255,255,0.40)] hover:text-white transition-colors"
+          className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Dismiss notification"
         >
           <X className="h-4 w-4" />
@@ -173,14 +173,14 @@ function ActionToastContent({
 
       {/* Progress Bar */}
       {duration > 0 && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10 rounded-b-lg overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/10 dark:bg-white/10 rounded-b-lg overflow-hidden">
           <div
             className={cn(
               'h-full transition-all ease-linear',
-              variant === 'success' && 'bg-[#10B981]',
-              variant === 'warning' && 'bg-[#FDC016]',
-              variant === 'error' && 'bg-[#FF4300]',
-              variant === 'info' && 'bg-[#00CCFE]'
+              variant === 'success' && 'bg-green-500',
+              variant === 'warning' && 'bg-amber-500',
+              variant === 'error' && 'bg-red-500',
+              variant === 'info' && 'bg-neutral-500'
             )}
             style={{ width: `${progress}%` }}
           />

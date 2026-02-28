@@ -132,7 +132,7 @@ function CollaboratorCard({ collaborator, isOnline }: CollaboratorCardProps) {
           </Avatar>
           <div
             className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${
-              isOnline ? 'bg-green-500' : 'bg-gray-400'
+              isOnline ? 'bg-green-500' : 'bg-white/[0.10]'
             }`}
           />
         </div>

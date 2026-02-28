@@ -42,13 +42,13 @@ export function createFacilityPopup(facility: GISFacility): string {
 
   return `
     <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 240px;">
-      <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #111827;">
+      <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #1a1a1a;">
         ${escapeHtml(facility.name)}
       </div>
       <div style="display: grid; gap: 8px; font-size: 14px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span style="color: #6b7280; font-weight: 500;">Type:</span>
-          <span style="color: #111827;">${typeLabel}</span>
+          <span style="color: #1a1a1a;">${typeLabel}</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span style="color: #6b7280; font-weight: 500;">Status:</span>
@@ -56,11 +56,11 @@ export function createFacilityPopup(facility: GISFacility): string {
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span style="color: #6b7280; font-weight: 500;">Capacity:</span>
-          <span style="color: #111827; font-weight: 600;">${facility.capacity} vehicles</span>
+          <span style="color: #1a1a1a; font-weight: 600;">${facility.capacity} vehicles</span>
         </div>
         <div style="margin-top: 8px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
           <div style="color: #6b7280; font-weight: 500; margin-bottom: 6px; font-size: 13px;">Address:</div>
-          <div style="color: #111827; font-size: 13px; line-height: 1.4;">${escapeHtml(facility.address)}</div>
+          <div style="color: #1a1a1a; font-size: 13px; line-height: 1.4;">${escapeHtml(facility.address)}</div>
         </div>
       </div>
     </div>
@@ -76,7 +76,7 @@ export function createCameraPopup(camera: TrafficCamera): string {
 
   return `
     <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 260px; max-width: 340px;">
-      <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #111827;">
+      <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #1a1a1a;">
         ${escapeHtml(camera.name)}
       </div>
       <div style="display: grid; gap: 8px; font-size: 14px;">
@@ -85,7 +85,7 @@ export function createCameraPopup(camera: TrafficCamera): string {
             ? `
           <div>
             <div style="color: #6b7280; font-weight: 500; margin-bottom: 4px; font-size: 13px;">Address:</div>
-            <div style="color: #111827; font-size: 13px; line-height: 1.4;">${escapeHtml(camera.address)}</div>
+            <div style="color: #1a1a1a; font-size: 13px; line-height: 1.4;">${escapeHtml(camera.address)}</div>
           </div>
         `
             : ""
@@ -95,7 +95,7 @@ export function createCameraPopup(camera: TrafficCamera): string {
             ? `
           <div>
             <div style="color: #6b7280; font-weight: 500; margin-bottom: 4px; font-size: 13px;">Cross Streets:</div>
-            <div style="color: #111827; font-size: 13px; line-height: 1.4;">${escapeHtml(camera.crossStreets)}</div>
+            <div style="color: #1a1a1a; font-size: 13px; line-height: 1.4;">${escapeHtml(camera.crossStreets)}</div>
           </div>
         `
             : ""
@@ -116,7 +116,7 @@ export function createCameraPopup(camera: TrafficCamera): string {
                 display: inline-flex;
                 align-items: center;
                 gap: 6px;
-                background-color: #3b82f6;
+                background-color: #10b981;
                 color: white;
                 padding: 10px 18px;
                 border-radius: 6px;
@@ -127,8 +127,8 @@ export function createCameraPopup(camera: TrafficCamera): string {
                 width: 100%;
                 justify-content: center;
               "
-              onmouseover="this.style.backgroundColor='#2563eb'"
-              onmouseout="this.style.backgroundColor='#3b82f6'"
+              onmouseover="this.style.backgroundColor='#059669'"
+              onmouseout="this.style.backgroundColor='#10b981'"
             >
               <span role="img" aria-hidden="true">📹</span>
               <span>View Live Feed</span>

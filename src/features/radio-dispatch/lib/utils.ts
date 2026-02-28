@@ -5,23 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
-export function formatDateTime(date: string | Date): string {
-  return new Date(date).toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
+export { formatDate, formatDateTime } from '@/utils/format-helpers';
 
 export function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
@@ -46,20 +30,20 @@ export function getStatusColor(status: string): string {
   const statusColors: Record<string, string> = {
     open: 'bg-emerald-500/50',
     in_progress: 'bg-yellow-500',
-    assigned: 'bg-purple-500',
+    assigned: 'bg-amber-500',
     completed: 'bg-green-500',
-    closed: 'bg-gray-500',
+    closed: 'bg-white/[0.03]0',
     cancelled: 'bg-red-500',
     pending: 'bg-orange-500',
     active: 'bg-green-500',
-    inactive: 'bg-gray-400',
+    inactive: 'bg-white/[0.10]',
     critical: 'bg-red-600',
     high: 'bg-orange-500',
     medium: 'bg-yellow-500',
     low: 'bg-emerald-500/50',
   };
 
-  return statusColors[status.toLowerCase()] || 'bg-gray-500';
+  return statusColors[status.toLowerCase()] || 'bg-white/[0.03]0';
 }
 
 export function getPriorityColor(priority: string): string {
@@ -70,5 +54,5 @@ export function getPriorityColor(priority: string): string {
     low: 'text-emerald-800 bg-emerald-500/5',
   };
 
-  return priorityColors[priority.toLowerCase()] || 'text-white/70 bg-gray-50';
+  return priorityColors[priority.toLowerCase()] || 'text-white/70 bg-white/[0.03]';
 }

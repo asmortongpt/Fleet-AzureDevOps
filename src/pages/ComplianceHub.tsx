@@ -125,7 +125,7 @@ export default function ComplianceHub() {
           return (
             <span className={cn(
               'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
-              typeColors[type] || 'bg-muted/40 text-muted-foreground border-border/50'
+              typeColors[type] || 'bg-white/[0.04] text-[var(--text-tertiary)] border-[var(--border-subtle)]'
             )}>
               {type}
             </span>
@@ -138,7 +138,7 @@ export default function ComplianceHub() {
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <Car className="h-4 w-4 text-primary" />
-            <span className="text-foreground font-medium">{row.getValue('vehicle')}</span>
+            <span className="text-white font-medium">{row.getValue('vehicle')}</span>
           </div>
         ),
       },
@@ -148,7 +148,7 @@ export default function ComplianceHub() {
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-primary" />
-            <span className="text-muted-foreground">{row.getValue('driver')}</span>
+            <span className="text-[var(--text-tertiary)]">{row.getValue('driver')}</span>
           </div>
         ),
       },
@@ -157,8 +157,8 @@ export default function ComplianceHub() {
         header: 'Date',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="text-foreground">{row.getValue('date')}</span>
+            <Calendar className="h-4 w-4 text-[var(--text-tertiary)]" />
+            <span className="text-white">{row.getValue('date')}</span>
           </div>
         ),
       },
@@ -167,7 +167,7 @@ export default function ComplianceHub() {
         accessorKey: 'category',
         header: 'Category',
         cell: ({ row }) => (
-          <span className="text-muted-foreground text-sm">{row.getValue('category')}</span>
+          <span className="text-[var(--text-tertiary)] text-sm">{row.getValue('category')}</span>
         ),
       },
       {
@@ -175,7 +175,7 @@ export default function ComplianceHub() {
         header: 'Severity',
         cell: ({ row }) => {
           const severity = row.getValue('severity') as string | undefined
-          if (!severity) return <span className="text-muted-foreground">-</span>
+          if (!severity) return <span className="text-[var(--text-tertiary)]">-</span>
 
           const severityColors: Record<string, string> = {
             'Low': 'text-[hsl(var(--chart-2))]',
@@ -203,7 +203,7 @@ export default function ComplianceHub() {
         accessorKey: 'inspector',
         header: 'Inspector',
         cell: ({ row }) => (
-          <span className="text-muted-foreground text-sm">{row.getValue('inspector') || '-'}</span>
+          <span className="text-[var(--text-tertiary)] text-sm">{row.getValue('inspector') || '-'}</span>
         ),
       },
       {
@@ -211,13 +211,13 @@ export default function ComplianceHub() {
         header: 'Due Date',
         cell: ({ row }) => {
           const dueDate = row.getValue('dueDate') as string | undefined
-          if (!dueDate) return <span className="text-muted-foreground">-</span>
+          if (!dueDate) return <span className="text-[var(--text-tertiary)]">-</span>
 
           const isOverdue = new Date(dueDate) < new Date()
           return (
             <div className="flex items-center gap-2">
-              <Clock className={cn('h-4 w-4', isOverdue ? 'text-destructive' : 'text-muted-foreground')} />
-              <span className={cn('text-sm', isOverdue ? 'text-destructive font-semibold' : 'text-muted-foreground')}>
+              <Clock className={cn('h-4 w-4', isOverdue ? 'text-rose-400' : 'text-[var(--text-tertiary)]')} />
+              <span className={cn('text-sm', isOverdue ? 'text-rose-400 font-semibold' : 'text-[var(--text-tertiary)]')}>
                 {dueDate}
               </span>
             </div>
@@ -228,7 +228,7 @@ export default function ComplianceHub() {
         accessorKey: 'notes',
         header: 'Notes',
         cell: ({ row }) => (
-          <span className="text-muted-foreground text-xs max-w-xs truncate block">
+          <span className="text-[var(--text-tertiary)] text-xs max-w-xs truncate block">
             {row.getValue('notes') || '-'}
           </span>
         ),
@@ -261,8 +261,8 @@ export default function ComplianceHub() {
   if (fleetData.error) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-destructive font-medium">Failed to load data</p>
-        <p className="text-sm text-muted-foreground">{fleetData.error instanceof Error ? fleetData.error.message : 'An unexpected error occurred'}</p>
+        <p className="text-rose-400 font-medium">Failed to load data</p>
+        <p className="text-sm text-[var(--text-tertiary)]">{fleetData.error instanceof Error ? fleetData.error.message : 'An unexpected error occurred'}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Retry
         </Button>
@@ -272,14 +272,14 @@ export default function ComplianceHub() {
 
   return (
     <ErrorBoundary>
-    <div className="min-h-screen bg-background p-3 space-y-3">
-      {/* Header with gradient accent */}
+    <div className="min-h-screen bg-[var(--surface-1)] p-3 space-y-3">
+      {/* Header */}
       <div className="relative">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[hsl(var(--chart-3))] to-[hsl(var(--chart-6))]" />
+        <div className="absolute top-0 left-0 w-full h-px bg-white/[0.04]" />
         <div className="pt-3">
-          <h1 className="text-xl font-bold text-foreground mb-1">Compliance Management</h1>
-          <p className="text-sm text-muted-foreground">
-            Intelligent Technology. Integrated Partnership. - ArchonY: Intelligent Performance
+          <h1 className="text-xl font-bold text-white mb-1">Compliance Management</h1>
+          <p className="text-sm text-[var(--text-tertiary)]">
+            Intelligent Technology. Integrated Partnership. - CTA Fleet
           </p>
         </div>
       </div>
@@ -301,7 +301,7 @@ export default function ComplianceHub() {
         <StatCard
           label="Failed"
           value={complianceStats.failed}
-          icon={<XCircle className="h-5 w-5 text-destructive" />}
+          icon={<XCircle className="h-5 w-5 text-rose-400" />}
           trend="down"
         />
         <StatCard
@@ -313,13 +313,13 @@ export default function ComplianceHub() {
         <StatCard
           label="Expired"
           value={complianceStats.expired}
-          icon={<Calendar className="h-5 w-5 text-destructive" />}
+          icon={<Calendar className="h-5 w-5 text-rose-400" />}
           trend="down"
         />
         <StatCard
           label="Critical Issues"
           value={complianceStats.critical}
-          icon={<AlertOctagon className="h-5 w-5 text-destructive" />}
+          icon={<AlertOctagon className="h-5 w-5 text-rose-400" />}
           trend="down"
         />
         <StatCard
@@ -334,8 +334,8 @@ export default function ComplianceHub() {
       <div>
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-foreground">Compliance Records</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <h2 className="text-lg font-semibold text-white">Compliance Records</h2>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
               {selectedRecords.length > 0 && `${selectedRecords.length} selected • `}
               All records visible • Professional table layout
             </p>
@@ -343,7 +343,7 @@ export default function ComplianceHub() {
           <div className="flex gap-2">
             <Button
               variant="outline"
-              className="bg-card border-primary/20 text-foreground hover:bg-primary/10"
+              className="bg-[var(--surface-2)] border-[var(--border-subtle)] text-white hover:bg-primary/10"
               onClick={() => exportToCSV(complianceRecords.map(r => ({
                 recordType: r.recordType,
                 vehicle: r.vehicle,
@@ -365,7 +365,7 @@ export default function ComplianceHub() {
         </div>
 
         {(!fleetData.isLoading && complianceRecords.length === 0) ? (
-          <div className="rounded-lg border border-primary/20 bg-card p-6 text-sm text-muted-foreground">
+          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-6 text-sm text-[var(--text-tertiary)]">
             No compliance records found. Populate inspections/incidents for this tenant to display results.
           </div>
         ) : (
@@ -383,8 +383,8 @@ export default function ComplianceHub() {
       </div>
 
       {/* Footer */}
-      <div className="text-center text-xs text-muted-foreground pt-6 border-t border-primary/10">
-        CTA Compliance Management • ArchonY Platform • DOT & FMCSA compliant • Professional data tables
+      <div className="text-center text-xs text-[var(--text-tertiary)] pt-6 border-t border-[var(--border-subtle)]">
+        CTA Compliance Management • CTA Fleet Platform • DOT & FMCSA compliant • Professional data tables
       </div>
     </div>
     </ErrorBoundary>
@@ -401,19 +401,19 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, trend = 'neutral' }: StatCardProps) {
   return (
-    <div className="bg-card border border-primary/20 rounded-lg p-3 hover:border-primary/40 transition-all">
+    <div className="bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-3 hover:border-[var(--border-default)] transition-all">
       <div className="flex items-center justify-between mb-1.5">
-        <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+        <div className="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wide">
           {label}
         </div>
         {icon}
       </div>
       <div className="flex items-end gap-2">
-        <div className="text-xl font-bold text-foreground">{value}</div>
+        <div className="text-xl font-bold text-white">{value}</div>
         {trend !== 'neutral' && (
           <div className={cn(
             'flex items-center text-xs mb-1',
-            trend === 'up' ? 'text-[hsl(var(--chart-2))]' : 'text-destructive'
+            trend === 'up' ? 'text-[hsl(var(--chart-2))]' : 'text-rose-400'
           )}>
             {trend === 'up' ? (
               <TrendingUp className="h-3 w-3" />

@@ -1,3 +1,9 @@
+/**
+ * Section — Premium content card
+ *
+ * Glass background, colored icon badge in header,
+ * subtle bottom shadow for depth, generous padding.
+ */
 import React from 'react'
 
 import { cn } from '@/lib/utils'
@@ -24,27 +30,48 @@ export function Section({
   return (
     <section
       className={cn(
-        'flex flex-col rounded-xl border border-[rgba(0,204,254,0.08)] bg-[#221060] shadow-sm',
+        'flex flex-col rounded-2xl overflow-hidden',
         className
       )}
+      style={{
+        background: 'linear-gradient(160deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.015) 100%)',
+        border: '1px solid rgba(255,255,255,0.07)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03)',
+      }}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(0,204,254,0.06)] px-3 py-1.5">
-        <div className="flex items-center gap-2">
+      {/* Header */}
+      <div
+        className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"
+        style={{
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)',
+        }}
+      >
+        <div className="flex items-center gap-3">
           {icon ? (
-            <div className="flex h-5 w-5 items-center justify-center rounded-md bg-[#2A1878] text-[rgba(255,255,255,0.65)]">
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-xl"
+              style={{
+                background: 'rgba(16,185,129,0.10)',
+                border: '1px solid rgba(16,185,129,0.15)',
+                color: '#10b981',
+              }}
+            >
               {icon}
             </div>
           ) : null}
           <div>
-            <h3 className="font-['Montserrat',sans-serif] font-semibold text-lg text-white">{title}</h3>
+            <h3 className="text-[15px] font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
             {description ? (
-              <p className="text-[11px] text-[rgba(255,255,255,0.65)]">{description}</p>
+              <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{description}</p>
             ) : null}
           </div>
         </div>
         {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
       </div>
-      <div className={cn('p-2', contentClassName)}>{children}</div>
+
+      {/* Content */}
+      <div className={cn('p-5', contentClassName)}>{children}</div>
     </section>
   )
 }

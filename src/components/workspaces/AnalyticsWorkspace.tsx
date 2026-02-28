@@ -81,39 +81,39 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
       value: "$3.45",
       trend: "-0.8%",
       isPositive: true,
-      icon: <Fuel className="h-5 w-5 text-purple-400" />,
-      bg: "from-purple-500/10 to-purple-500/5",
-      border: "border-purple-500/20"
+      icon: <Fuel className="h-5 w-5 text-amber-400" />,
+      bg: "from-amber-500/10 to-amber-500/5",
+      border: "border-amber-500/20"
     },
     {
       title: "Total Cost/Mile",
       value: "$0.58",
       trend: "-2.3%",
       isPositive: true,
-      icon: <DollarSign className="h-5 w-5 text-indigo-400" />,
-      bg: "from-indigo-500/10 to-indigo-500/5",
-      border: "border-indigo-500/20"
+      icon: <DollarSign className="h-5 w-5 text-emerald-400" />,
+      bg: "from-emerald-500/10 to-emerald-500/5",
+      border: "border-emerald-500/20"
     },
     {
       title: "Avg Response Time",
       value: "14.2 min",
       trend: "-18%",
       isPositive: true,
-      icon: <Clock className="h-5 w-5 text-cyan-400" />,
-      bg: "from-cyan-500/10 to-cyan-500/5",
-      border: "border-cyan-500/20"
+      icon: <Clock className="h-5 w-5 text-emerald-400" />,
+      bg: "from-emerald-500/10 to-emerald-500/5",
+      border: "border-emerald-500/20"
     }
   ]
 
   return (
-    <ScrollArea className="h-full bg-[#0a0f1c]">
+    <ScrollArea className="h-full bg-[var(--surface-0)]">
       <div className="p-2 sm:p-3 space-y-2">
         <div className="flex items-end justify-between">
           <div>
             <h2 className="text-sm font-bold text-white tracking-tight">Executive Overview</h2>
-            <p className="text-sm text-white/70 mt-1">Real-time fleet performance metrics</p>
+            <p className="text-sm text-[var(--text-primary)] mt-1">Real-time fleet performance metrics</p>
           </div>
-          <Button variant="outline" className="border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white">
+          <Button variant="outline" className="border-[var(--border-default)] bg-white/5 text-[var(--text-secondary)] hover:bg-[var(--surface-glass-hover)] hover:text-white">
             <Download className="h-4 w-4 mr-2" />
             Export Report
           </Button>
@@ -121,25 +121,25 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2" data-testid="analytics-kpi-grid">
           {kpis.map((kpi) => (
-            <Card key={kpi.title} data-testid={`analytics-kpi-${kpi.title}`} className={`bg-gradient-to-br ${kpi.bg} border-white/5 backdrop-blur-sm`}>
+            <Card key={kpi.title} data-testid={`analytics-kpi-${kpi.title}`} className={`bg-[var(--surface-2)] border-[var(--border-subtle)]`}>
               <CardContent className="p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <div className={`p-2 rounded-lg bg-white/5 border ${kpi.border || 'border-white/10'}`}>
+                  <div className={`p-2 rounded-lg bg-white/5 border ${kpi.border || 'border-[var(--border-default)]'}`}>
                     {kpi.icon}
                   </div>
                   {kpi.trend && (
-                    <Badge variant="outline" className={`bg-black/20 border-white/10 ${kpi.isPositive ? "text-emerald-700" : "text-red-400"}`}>
+                    <Badge variant="outline" className={`bg-black/20 border-[var(--border-default)] ${kpi.isPositive ? "text-emerald-700" : "text-red-400"}`}>
                       {kpi.isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
                       {kpi.trend}
                     </Badge>
                   )}
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-white/70 block mb-1">{kpi.title}</span>
+                  <span className="text-sm font-medium text-[var(--text-primary)] block mb-1">{kpi.title}</span>
                   <div className="flex items-baseline gap-2">
                     <span className="text-base font-bold text-white tracking-tight">{kpi.value}</span>
                     {kpi.subtitle && (
-                      <span className="text-xs text-white/40">{kpi.subtitle}</span>
+                      <span className="text-xs text-[var(--text-tertiary)]">{kpi.subtitle}</span>
                     )}
                   </div>
                 </div>
@@ -150,12 +150,12 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
 
         {/* Charts Placeholder */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-          <Card className="bg-[#0f1526]/50 border-white/5 backdrop-blur-sm">
+          <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
             <CardHeader>
-              <CardTitle className="text-sm font-semibold text-white/70">Fleet Utilization Trend</CardTitle>
+              <CardTitle className="text-sm font-semibold text-[var(--text-primary)]">Fleet Utilization Trend</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[250px] w-full bg-gradient-to-t from-emerald-500/10 to-transparent rounded-lg border border-white/5 flex items-center justify-center text-white/40">
+              <div className="h-[250px] w-full bg-white/[0.03] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-tertiary)]">
                 <div className="flex flex-col items-center gap-2">
                   <LineChart className="h-8 w-8 opacity-50" />
                   <span className="text-sm">Utilization Data Visualization</span>
@@ -164,12 +164,12 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
             </CardContent>
           </Card>
 
-          <Card className="bg-[#0f1526]/50 border-white/5 backdrop-blur-sm">
+          <Card className="bg-[var(--surface-2)] border-[var(--border-subtle)]">
             <CardHeader>
-              <CardTitle className="text-sm font-semibold text-white/70">Cost Distribution</CardTitle>
+              <CardTitle className="text-sm font-semibold text-[var(--text-primary)]">Cost Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[250px] w-full bg-gradient-to-t from-purple-500/10 to-transparent rounded-lg border border-white/5 flex items-center justify-center text-white/40">
+              <div className="h-[250px] w-full bg-white/[0.03] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-tertiary)]">
                 <div className="flex flex-col items-center gap-2">
                   <PieChart className="h-8 w-8 opacity-50" />
                   <span className="text-sm">Cost Breakdown Visualization</span>
@@ -194,7 +194,7 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold">Data Analysis</h2>
-            <p className="text-muted-foreground">Detailed fleet analytics and insights</p>
+            <p className="text-[var(--text-secondary)]">Detailed fleet analytics and insights</p>
           </div>
           <div className="flex gap-2">
             <Select value={dateRange} onValueChange={setDateRange}>
@@ -230,7 +230,7 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                  <div className="h-[300px] flex items-center justify-center text-[var(--text-secondary)]">
                     <BarChart3 className="h-9 w-12 mr-3" />
                     <span>Utilization charts will appear here</span>
                   </div>
@@ -238,15 +238,15 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
                       <div className="text-sm font-bold">{vehicles?.length || 0}</div>
-                      <div className="text-sm text-muted-foreground">Total Vehicles</div>
+                      <div className="text-sm text-[var(--text-secondary)]">Total Vehicles</div>
                     </div>
                     <div>
                       <div className="text-sm font-bold">{vehicles?.filter((v: Vehicle) => v.status === 'active').length || 0}</div>
-                      <div className="text-sm text-muted-foreground">Active Now</div>
+                      <div className="text-sm text-[var(--text-secondary)]">Active Now</div>
                     </div>
                     <div>
                       <div className="text-sm font-bold">72%</div>
-                      <div className="text-sm text-muted-foreground">Avg Utilization</div>
+                      <div className="text-sm text-[var(--text-secondary)]">Avg Utilization</div>
                     </div>
                   </div>
                 </div>
@@ -261,7 +261,7 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
                 <CardDescription>Total cost of ownership and operating expenses</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                <div className="h-[300px] flex items-center justify-center text-[var(--text-secondary)]">
                   <DollarSign className="h-9 w-12 mr-3" />
                   <span>Cost analysis charts will appear here</span>
                 </div>
@@ -276,7 +276,7 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
                 <CardDescription>Service trends and maintenance efficiency</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                <div className="h-[300px] flex items-center justify-center text-[var(--text-secondary)]">
                   <Wrench className="h-9 w-12 mr-3" />
                   <span>Maintenance charts will appear here</span>
                 </div>
@@ -291,7 +291,7 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
                 <CardDescription>Fuel consumption and efficiency metrics</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                <div className="h-[300px] flex items-center justify-center text-[var(--text-secondary)]">
                   <Fuel className="h-9 w-12 mr-3" />
                   <span>Fuel charts will appear here</span>
                 </div>
@@ -313,7 +313,7 @@ const ReportBuilder = () => {
       <div className="p-3 space-y-2">
         <div>
           <h2 className="text-sm font-bold">Custom Report Builder</h2>
-          <p className="text-muted-foreground">Create and export custom analytics reports</p>
+          <p className="text-[var(--text-secondary)]">Create and export custom analytics reports</p>
         </div>
 
         <Card>

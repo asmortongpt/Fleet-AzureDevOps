@@ -64,7 +64,7 @@ const rejectTripSchema = z.object({
 router.post(
   '/',
   csrfProtection, requirePermission('route:create:own'),
-  auditLog({ action: 'CREATE', resourceType: 'trip_usage_classification' }),
+  auditLog({ action: 'CREATE', resourceType: 'trip_usage_classifications' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const validated = createTripUsageSchema.parse(req.body)
@@ -139,7 +139,7 @@ router.post(
 
       // Insert trip usage classification
       const result = await pool.query(
-        `INSERT INTO trip_usage_classification (
+        `INSERT INTO trip_usage_classifications (
           tenant_id, trip_id, vehicle_id, driver_id, usage_type,
           business_purpose, business_percentage, personal_notes,
           miles_total, trip_date, start_location, end_location,
@@ -255,9 +255,10 @@ router.get(
       let query = `
       SELECT t.*,
              NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as driver_name,
-             COALESCE(v.number, v.name) as vehicle_number
-      FROM trip_usage_classification t
-      LEFT JOIN users u ON t.driver_id = u.id
+             CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name
+      FROM trip_usage_classifications t
+      LEFT JOIN drivers d ON t.driver_id = d.id
+      LEFT JOIN users u ON d.user_id = u.id
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       WHERE t.tenant_id = $1
     `
@@ -363,7 +364,7 @@ router.get(
                 u.email as driver_email,
                 COALESCE(v.number, v.name) as vehicle_number,
                 v.make, v.model, v.year
-         FROM trip_usage_classification t
+         FROM trip_usage_classifications t
          JOIN users u ON t.driver_id = u.id
          JOIN vehicles v ON t.vehicle_id = v.id
          WHERE t.tenant_id = $1
@@ -374,7 +375,7 @@ router.get(
       )
 
       const countResult = await pool.query(
-        `SELECT COUNT(*) FROM trip_usage_classification WHERE tenant_id = $1 AND approval_status = $2`,
+        `SELECT COUNT(*) FROM trip_usage_classifications WHERE tenant_id = $1 AND approval_status = $2`,
         [req.user!.tenant_id ?? '', ApprovalStatus.PENDING]
       )
 
@@ -405,7 +406,7 @@ router.get(
     validateScope: async (req: AuthRequest) => {
       // Allow viewing if user is the driver or has fleet-wide access
       const result = await pool.query(
-        `SELECT driver_id FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2`,
+        `SELECT driver_id FROM trip_usage_classifications WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id ?? '']
       )
 
@@ -424,10 +425,12 @@ router.get(
       const result = await pool.query(
         `SELECT t.*,
               NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as driver_name,
-              COALESCE(v.number, v.name) as vehicle_number,
+              CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
+              v.license_plate as vehicle_number,
               NULLIF(TRIM(CONCAT(COALESCE(approver.first_name, ''), ' ', COALESCE(approver.last_name, ''))), '') as approver_name
-       FROM trip_usage_classification t
-       LEFT JOIN users u ON t.driver_id = u.id
+       FROM trip_usage_classifications t
+       LEFT JOIN drivers d ON t.driver_id = d.id
+       LEFT JOIN users u ON d.user_id = u.id
        LEFT JOIN vehicles v ON t.vehicle_id = v.id
        LEFT JOIN users approver ON t.approved_by_user_id = approver.id
        WHERE t.id = $1 AND t.tenant_id = $2`,
@@ -452,7 +455,7 @@ router.get(
 router.patch(
   '/:id',
   csrfProtection, requirePermission('route:update:own'),
-  auditLog({ action: 'UPDATE', resourceType: 'trip_usage_classification' }),
+  auditLog({ action: 'UPDATE', resourceType: 'trip_usage_classifications' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const validated = updateTripUsageSchema.parse(req.body)
@@ -463,13 +466,15 @@ router.patch(
       id,
       tenant_id,
       trip_id,
-      classification,
-      reason,
-      classified_by,
-      classified_at,
-      notes,
+      vehicle_id,
+      driver_id,
+      usage_type,
+      approval_status,
+      approved_by_user_id,
+      approved_at,
+      rejection_reason,
       created_at,
-      updated_at FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2`,
+      updated_at FROM trip_usage_classifications WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id ?? '']
       )
 
@@ -519,7 +524,7 @@ router.patch(
       }
 
       const result = await pool.query(
-        `UPDATE trip_usage_classification
+        `UPDATE trip_usage_classifications
          SET ${updates.join(`, `)}, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
@@ -548,7 +553,7 @@ router.patch(
 router.post(
   '/:id/approve',
   csrfProtection, requirePermission('route:approve:fleet'),
-  auditLog({ action: 'APPROVE', resourceType: 'trip_usage_classification' }),
+  auditLog({ action: 'APPROVE', resourceType: 'trip_usage_classifications' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const parsed = approveTripSchema.safeParse(req.body)
@@ -562,7 +567,7 @@ router.post(
       const { approver_notes } = parsed.data
 
       const result = await pool.query(
-        `UPDATE trip_usage_classification
+        `UPDATE trip_usage_classifications
          SET approval_status = $1,
              approved_by_user_id = $2,
              approved_at = NOW(),
@@ -625,7 +630,7 @@ router.post(
 router.post(
   '/:id/reject',
   csrfProtection, requirePermission('route:approve:fleet'),
-  auditLog({ action: 'REJECT', resourceType: 'trip_usage_classification' }),
+  auditLog({ action: 'REJECT', resourceType: 'trip_usage_classifications' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const parsed = rejectTripSchema.safeParse(req.body)
@@ -639,7 +644,7 @@ router.post(
       const { rejection_reason } = parsed.data
 
       const result = await pool.query(
-        `UPDATE trip_usage_classification
+        `UPDATE trip_usage_classifications
          SET approval_status = $1,
              approved_by_user_id = $2,
              approved_at = NOW(),

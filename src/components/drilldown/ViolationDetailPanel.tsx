@@ -262,7 +262,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">Violation #{violation.violation_number}</h3>
-              <p className="text-sm text-muted-foreground">{violation.violation_type}</p>
+              <p className="text-sm text-[var(--text-secondary)]">{violation.violation_type}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant={getSeverityColor(violation.severity)}>
                   {violation.severity} Severity
@@ -271,7 +271,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                   {violation.status.replace('_', ' ')}
                 </Badge>
                 {violation.override_requested && (
-                  <Badge variant="outline" className="border-purple-500 text-purple-700">
+                  <Badge variant="outline" className="border-amber-500 text-amber-700">
                     Override Requested
                   </Badge>
                 )}
@@ -296,7 +296,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                 <div className="text-sm font-bold">
                   {formatDate(violation.occurred_at)}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-[var(--text-secondary)]">
                   {formatTime(violation.occurred_at)}
                 </p>
               </CardContent>
@@ -317,7 +317,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                   )}{' '}
                   days
                 </div>
-                <p className="text-xs text-muted-foreground">Since occurrence</p>
+                <p className="text-xs text-[var(--text-secondary)]">Since occurrence</p>
               </CardContent>
             </Card>
 
@@ -336,7 +336,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                 >
                   {violation.policy_number}
                 </Button>
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="text-xs text-[var(--text-secondary)] truncate">
                   {violation.policy_name}
                 </p>
               </CardContent>
@@ -353,7 +353,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                 <div className="text-sm font-bold">
                   {enforcementActions?.length || 0}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-[var(--text-secondary)]">
                   {enforcementActions?.filter((a) => a.status === 'completed').length || 0}{' '}
                   completed
                 </p>
@@ -380,7 +380,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Description</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Description</p>
                     <p className="text-sm">{violation.description}</p>
                   </div>
 
@@ -388,13 +388,13 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Occurred At</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Occurred At</p>
                       <p className="font-medium">
                         {formatDateTime(violation.occurred_at)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Detected At</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Detected At</p>
                       <p className="font-medium">
                         {formatDateTime(violation.detected_at)}
                       </p>
@@ -406,12 +406,12 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                       <Separator />
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground">Location</p>
+                          <MapPin className="h-4 w-4 text-[var(--text-secondary)]" />
+                          <p className="text-sm text-[var(--text-secondary)]">Location</p>
                         </div>
                         <p className="text-sm">{violation.location_address}</p>
                         {violation.location_lat && violation.location_lng && (
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className="text-xs text-[var(--text-secondary)] mt-1">
                             {violation.location_lat.toFixed(6)}, {violation.location_lng.toFixed(6)}
                           </p>
                         )}
@@ -423,22 +423,22 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                     <>
                       <Separator />
                       <div>
-                        <p className="text-sm text-muted-foreground mb-2">Violation Metrics</p>
+                        <p className="text-sm text-[var(--text-secondary)] mb-2">Violation Metrics</p>
                         <div className="grid grid-cols-3 gap-2">
                           <div>
-                            <p className="text-xs text-muted-foreground">Threshold</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Threshold</p>
                             <p className="font-semibold">
                               {violation.threshold_value} {violation.unit}
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Actual</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Actual</p>
                             <p className="font-semibold">
                               {violation.actual_value} {violation.unit}
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Difference</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Difference</p>
                             <p className="font-semibold text-destructive">
                               +{violation.difference} {violation.unit}
                             </p>
@@ -461,16 +461,16 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
 
               {/* Override Request */}
               {violation.override_requested && (
-                <Card className="border-purple-500">
+                <Card className="border-amber-500">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <AlertOctagon className="h-5 w-5 text-purple-600" />
+                      <AlertOctagon className="h-5 w-5 text-amber-600" />
                       Override Request
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <p className="text-sm text-muted-foreground">Reason</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Reason</p>
                       <p className="text-sm mt-1">{violation.override_reason}</p>
                     </div>
                     {violation.override_approved !== undefined && (
@@ -478,7 +478,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                         <Separator />
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <p className="text-sm text-muted-foreground">Status</p>
+                            <p className="text-sm text-[var(--text-secondary)]">Status</p>
                             <Badge
                               variant={
                                 violation.override_approved ? 'default' : 'destructive'
@@ -490,12 +490,12 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                           {violation.override_approved_by && (
                             <>
                               <div>
-                                <p className="text-sm text-muted-foreground">Approved By</p>
+                                <p className="text-sm text-[var(--text-secondary)]">Approved By</p>
                                 <p className="font-medium">{violation.override_approved_by}</p>
                               </div>
                               {violation.override_approved_at && (
                                 <div>
-                                  <p className="text-sm text-muted-foreground">Approved At</p>
+                                  <p className="text-sm text-[var(--text-secondary)]">Approved At</p>
                                   <p className="font-medium">
                                     {formatDateTime(violation.override_approved_at)}
                                   </p>
@@ -523,11 +523,11 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                     {comments?.map((comment) => (
                       <div
                         key={comment.id}
-                        className="p-3 bg-muted/50 rounded-lg space-y-1"
+                        className="p-3 bg-[var(--surface-glass)] rounded-lg space-y-1"
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-medium text-sm">{comment.created_by}</span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-[var(--text-secondary)]">
                             {formatDateTime(comment.created_at)}
                           </span>
                         </div>
@@ -560,15 +560,15 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
             <TabsContent value="related" className="space-y-2">
               {violation.vehicle_id && (
                 <Card
-                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  className="cursor-pointer hover:border-white/[0.12] transition-colors"
                   onClick={handleViewVehicle}
                 >
                   <CardContent className="p-2 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Car className="h-8 w-8 text-muted-foreground" />
+                      <Car className="h-8 w-8 text-[var(--text-secondary)]" />
                       <div>
                         <p className="font-medium">Vehicle</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-[var(--text-secondary)]">
                           {violation.vehicle_number}
                         </p>
                       </div>
@@ -582,15 +582,15 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
 
               {violation.driver_id && (
                 <Card
-                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  className="cursor-pointer hover:border-white/[0.12] transition-colors"
                   onClick={handleViewDriver}
                 >
                   <CardContent className="p-2 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <User className="h-8 w-8 text-muted-foreground" />
+                      <User className="h-8 w-8 text-[var(--text-secondary)]" />
                       <div>
                         <p className="font-medium">Driver</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-[var(--text-secondary)]">
                           {violation.driver_name}
                         </p>
                       </div>
@@ -603,18 +603,18 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               )}
 
               <Card
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="cursor-pointer hover:border-white/[0.12] transition-colors"
                 onClick={handleViewPolicy}
               >
                 <CardContent className="p-2 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Shield className="h-8 w-8 text-muted-foreground" />
+                    <Shield className="h-8 w-8 text-[var(--text-secondary)]" />
                     <div>
                       <p className="font-medium">Policy</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         {violation.policy_name}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[var(--text-secondary)]">
                         #{violation.policy_number}
                       </p>
                     </div>
@@ -637,12 +637,12 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                           <CheckCircle2 className="h-6 w-6 text-green-500" />
                           <div>
                             <p className="font-medium">{ack.acknowledged_by}</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-[var(--text-secondary)]">
                               {formatEnum(ack.role)}
                             </p>
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-[var(--text-secondary)]">
                           {formatDateTime(ack.acknowledged_at)}
                         </p>
                       </div>
@@ -651,7 +651,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                         <>
                           <Separator />
                           <div>
-                            <p className="text-sm text-muted-foreground">Notes</p>
+                            <p className="text-sm text-[var(--text-secondary)]">Notes</p>
                             <p className="text-sm mt-1">{ack.notes}</p>
                           </div>
                         </>
@@ -661,8 +661,8 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                         <>
                           <Separator />
                           <div className="flex items-center gap-2">
-                            <PenTool className="h-4 w-4 text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">
+                            <PenTool className="h-4 w-4 text-[var(--text-secondary)]" />
+                            <p className="text-sm text-[var(--text-secondary)]">
                               Digital signature verified
                             </p>
                           </div>
@@ -674,8 +674,8 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <CheckCircle2 className="h-9 w-12 mx-auto text-muted-foreground mb-2 opacity-30" />
-                    <p className="text-sm text-muted-foreground">No acknowledgments yet</p>
+                    <CheckCircle2 className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2 opacity-30" />
+                    <p className="text-sm text-[var(--text-secondary)]">No acknowledgments yet</p>
                   </CardContent>
                 </Card>
               )}
@@ -697,11 +697,11 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                               {formatEnum(action.status)}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-[var(--text-secondary)]">
                             {action.details}
                           </p>
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-[var(--text-secondary)]">
                           {formatDate(action.action_date)}
                         </p>
                       </div>
@@ -710,10 +710,10 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
+                          <User className="h-4 w-4 text-[var(--text-secondary)]" />
                           <span className="text-sm">{action.performed_by}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-[var(--text-secondary)]">
                           {formatTime(action.action_date)}
                         </p>
                       </div>
@@ -723,8 +723,8 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <FileText className="h-9 w-12 mx-auto text-muted-foreground mb-2 opacity-30" />
-                    <p className="text-sm text-muted-foreground">No enforcement actions</p>
+                    <FileText className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2 opacity-30" />
+                    <p className="text-sm text-[var(--text-secondary)]">No enforcement actions</p>
                   </CardContent>
                 </Card>
               )}
@@ -745,28 +745,28 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                               <p className="font-medium">
                                 {formatEnum(event.event_type)}
                               </p>
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-[var(--text-secondary)]">
                                 {event.event_description}
                               </p>
                             </div>
                             <div className="text-right">
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-[var(--text-secondary)]">
                                 {formatDate(event.timestamp)}
                               </p>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-[var(--text-secondary)]">
                                 {formatTime(event.timestamp)}
                               </p>
                             </div>
                           </div>
 
                           {event.details && (
-                            <p className="text-sm text-muted-foreground border-t pt-2 mt-2">
+                            <p className="text-sm text-[var(--text-secondary)] border-t pt-2 mt-2">
                               {event.details}
                             </p>
                           )}
 
                           {event.user_name && (
-                            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2 mt-2 text-xs text-[var(--text-secondary)]">
                               <User className="h-3 w-3" />
                               {event.user_name}
                             </div>
@@ -779,8 +779,8 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <History className="h-9 w-12 mx-auto text-muted-foreground mb-2 opacity-30" />
-                    <p className="text-sm text-muted-foreground">No timeline events</p>
+                    <History className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2 opacity-30" />
+                    <p className="text-sm text-[var(--text-secondary)]">No timeline events</p>
                   </CardContent>
                 </Card>
               )}
@@ -811,7 +811,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                             </Badge>
                           </div>
                           <p className="font-medium">{action.title}</p>
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-sm text-[var(--text-secondary)] mt-1">
                             {action.description}
                           </p>
                         </div>
@@ -821,12 +821,12 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="text-xs text-muted-foreground">Assigned To</p>
+                          <p className="text-xs text-[var(--text-secondary)]">Assigned To</p>
                           <p className="text-sm font-medium">{action.assigned_to}</p>
                         </div>
                         {action.due_date && (
                           <div>
-                            <p className="text-xs text-muted-foreground">Due Date</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Due Date</p>
                             <p
                               className={cn(
                                 'text-sm font-medium',
@@ -841,7 +841,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                         )}
                         {action.completion_date && (
                           <div>
-                            <p className="text-xs text-muted-foreground">Completed</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Completed</p>
                             <p className="text-sm font-medium">
                               {formatDate(action.completion_date)}
                             </p>
@@ -853,7 +853,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                         <>
                           <Separator />
                           <div>
-                            <p className="text-xs text-muted-foreground">Notes</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Notes</p>
                             <p className="text-sm mt-1">{action.notes}</p>
                           </div>
                         </>
@@ -864,8 +864,8 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <BookOpen className="h-9 w-12 mx-auto text-muted-foreground mb-2 opacity-30" />
-                    <p className="text-sm text-muted-foreground">
+                    <BookOpen className="h-9 w-12 mx-auto text-[var(--text-secondary)] mb-2 opacity-30" />
+                    <p className="text-sm text-[var(--text-secondary)]">
                       No corrective actions assigned
                     </p>
                   </CardContent>

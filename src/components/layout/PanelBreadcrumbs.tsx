@@ -18,7 +18,7 @@ export function PanelBreadcrumbs() {
     >
       <button
         onClick={closeAll}
-        className="flex items-center gap-1 text-[--cta-blue-skies] hover:text-white transition-colors shrink-0"
+        className="flex items-center gap-1 text-[--cta-silver] hover:text-white transition-colors shrink-0"
         aria-label="Return to map"
       >
         <Home className="w-3 h-3" />
@@ -31,15 +31,15 @@ export function PanelBreadcrumbs() {
 
         return (
           <span key={entry.id} className="flex items-center gap-1 shrink-0">
-            <ChevronRight className="w-3 h-3 text-[rgba(255,255,255,0.40)]" />
+            <ChevronRight className="w-3 h-3 text-muted-foreground" />
             <button
               onClick={() => !isLast && goToPanel(idx)}
               disabled={isLast}
               className={cn(
                 'transition-colors truncate max-w-[160px]',
                 isLast
-                  ? 'text-white font-medium cursor-default'
-                  : 'text-[rgba(255,255,255,0.40)] hover:text-[--cta-blue-skies] cursor-pointer'
+                  ? 'text-foreground font-medium cursor-default'
+                  : 'text-muted-foreground hover:text-[--cta-silver] cursor-pointer'
               )}
             >
               {label}

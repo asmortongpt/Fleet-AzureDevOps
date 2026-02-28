@@ -197,7 +197,7 @@ export function ToolbarSkeleton() {
  */
 export function ContextMenuSkeleton() {
   return (
-    <div className="w-50 bg-card border rounded-lg shadow-sm p-2 space-y-1">
+    <div className="w-50 bg-card border rounded-lg p-2 space-y-1">
       {[...Array(6)].map((_, i) => (
         <div key={i} className="h-8 flex items-center gap-2 px-2">
           <Skeleton className="h-4 w-4" />
@@ -215,7 +215,7 @@ export function ContextMenuSkeleton() {
  */
 export function DropdownMenuSkeleton({ items = 5 }: { items?: number }) {
   return (
-    <div className="w-48 bg-card border rounded-lg shadow-sm p-2">
+    <div className="w-48 bg-card border rounded-lg p-2">
       <div className="space-y-1">
         {[...Array(items)].map((_, i) => (
           <Skeleton key={i} className="h-8 w-full rounded" />
@@ -231,7 +231,7 @@ export function DropdownMenuSkeleton({ items = 5 }: { items?: number }) {
  */
 export function CommandPaletteSkeleton() {
   return (
-    <div className="w-full max-w-2xl bg-card border rounded-lg shadow-sm overflow-hidden h-[400px]">
+    <div className="w-full max-w-2xl bg-card border rounded-lg overflow-hidden h-[400px]">
       {/* Search Input - Fixed Height: 64px */}
       <div className="h-16 border-b p-2">
         <Skeleton className="h-8 w-full" />

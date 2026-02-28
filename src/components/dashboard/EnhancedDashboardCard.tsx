@@ -1,22 +1,14 @@
 /**
- * Enhanced Dashboard Card Component
+ * EnhancedDashboardCard — Tesla/Rivian minimal
  *
- * Improved card design with:
- * - Better visual hierarchy
- * - Status indicators
- * - Hover effects
- * - Loading states
- * - Action buttons
- * - Responsive layout
+ * Clean metric card with status indicator.
+ * No motion, no gradients, no light-mode colors.
  */
 
-import { motion } from 'framer-motion'
 import { TrendingUp, TrendingDown, Loader } from 'lucide-react'
 import React from 'react'
 
-import { cardHoverVariants, cardTapVariants } from '@/lib/animations'
 import { cn } from '@/lib/utils'
-import { colors, transitions } from '@/theme/designSystem'
 
 interface EnhancedDashboardCardProps {
   title: string
@@ -36,11 +28,11 @@ interface EnhancedDashboardCardProps {
   onClick?: () => void
 }
 
-const statusColors = {
-  active: colors.success[500],
-  warning: colors.warning[500],
-  danger: colors.danger[500],
-  success: colors.success[500],
+const statusDotColors = {
+  active: 'bg-emerald-400',
+  warning: 'bg-amber-400',
+  danger: 'bg-rose-400',
+  success: 'bg-emerald-400',
 }
 
 export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
@@ -57,103 +49,48 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
   className,
   onClick,
 }) => {
-  const getStatusStyles = () => {
-    switch (status) {
-      case 'active':
-        return {
-          borderLeft: '4px solid #10B981',
-          boxShadow: 'inset 0 0 0 1px rgba(16, 185, 129, 0.2), 0 4px 12px rgba(16, 185, 129, 0.1)',
-        };
-      case 'warning':
-        return {
-          borderLeft: '4px solid #a0a0a0',
-          boxShadow: 'inset 0 0 0 1px rgba(160, 160, 160, 0.2), 0 4px 12px rgba(160, 160, 160, 0.1)',
-        };
-      case 'danger':
-        return {
-          borderLeft: '4px solid #f5f5f5',
-          boxShadow: 'inset 0 0 0 1px rgba(245, 245, 245, 0.2), 0 4px 12px rgba(245, 245, 245, 0.1)',
-        };
-      case 'success':
-        return {
-          borderLeft: '4px solid #10B981',
-          boxShadow: 'inset 0 0 0 1px rgba(16, 185, 129, 0.2), 0 4px 12px rgba(16, 185, 129, 0.15)',
-        };
-      default:
-        return {};
-    }
-  };
-
   return (
-    <motion.div
+    <div
       className={cn(
-        'rounded-xl overflow-hidden',
-        onClick && 'cursor-pointer',
+        'rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-2)] overflow-hidden',
+        onClick && 'cursor-pointer hover:bg-[#161616] transition-colors duration-150',
         className
       )}
-      style={{
-        backgroundColor: colors.neutral[50],
-        border: `1px solid ${colors.neutral[200]}`,
-        ...getStatusStyles(),
-      }}
-      initial="initial"
-      whileHover="hover"
-      whileTap="tap"
-      variants={{ ...cardHoverVariants, ...cardTapVariants }}
       onClick={onClick}
     >
       {/* Header */}
-      <div
-        className="p-6 flex items-start justify-between"
-        style={{ backgroundColor: colors.neutral[50] }}
-      >
+      <div className="p-4 flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium" style={{ color: colors.neutral[600] }}>
+          <p className="text-[11px] font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
             {title}
           </p>
 
           {isLoading ? (
             <div className="flex items-center gap-2 mt-2">
-              <Loader size={20} className="animate-spin" style={{ color: colors.primary[500] }} />
-              <span className="text-sm" style={{ color: colors.neutral[500] }}>
-                Loading...
-              </span>
+              <Loader size={16} className="animate-spin text-[var(--text-muted)]" />
+              <span className="text-[12px] text-[var(--text-muted)]">Loading...</span>
             </div>
           ) : (
             <>
               {value !== undefined && (
-                <div className="mt-2 flex items-baseline gap-2">
-                  <h3 className="text-3xl font-bold" style={{ color: colors.neutral[900] }}>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <h3 className="text-2xl font-semibold text-white tracking-tight tabular-nums">
                     {value}
                   </h3>
                   {unit && (
-                    <span className="text-sm" style={{ color: colors.neutral[600] }}>
-                      {unit}
-                    </span>
+                    <span className="text-[12px] text-[var(--text-muted)] font-medium">{unit}</span>
                   )}
                 </div>
               )}
 
-              {/* Trend Indicator */}
               {trend && trendValue && (
-                <div className="mt-2 flex items-center gap-1">
-                  {trend === 'up' && (
-                    <TrendingUp size={16} style={{ color: colors.success[500] }} />
-                  )}
-                  {trend === 'down' && (
-                    <TrendingDown size={16} style={{ color: colors.danger[500] }} />
-                  )}
-                  <span
-                    className="text-xs font-medium"
-                    style={{
-                      color:
-                        trend === 'up'
-                          ? colors.success[600]
-                          : trend === 'down'
-                            ? colors.danger[600]
-                            : colors.neutral[600],
-                    }}
-                  >
+                <div className="mt-1.5 flex items-center gap-1">
+                  {trend === 'up' && <TrendingUp size={14} className="text-emerald-400" />}
+                  {trend === 'down' && <TrendingDown size={14} className="text-rose-400" />}
+                  <span className={cn(
+                    'text-[11px] font-medium',
+                    trend === 'up' ? 'text-emerald-400' : trend === 'down' ? 'text-rose-400' : 'text-[var(--text-muted)]'
+                  )}>
                     {trendValue}
                   </span>
                 </div>
@@ -162,44 +99,12 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
           )}
         </div>
 
-        {/* Icon & Status */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {status && (
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{
-                backgroundColor: statusColors[status],
-                boxShadow: `0 0 8px ${statusColors[status]}40`,
-              }}
-            />
+            <div className={cn('w-2 h-2 rounded-full', statusDotColors[status])} />
           )}
           {icon && (
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{
-                background: status === 'active'
-                  ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1))'
-                  : status === 'warning'
-                  ? 'linear-gradient(135deg, rgba(160, 160, 160, 0.2), rgba(160, 160, 160, 0.1))'
-                  : status === 'danger'
-                  ? 'linear-gradient(135deg, rgba(245, 245, 245, 0.2), rgba(245, 245, 245, 0.1))'
-                  : 'linear-gradient(135deg, rgba(31, 48, 118, 0.2), rgba(31, 48, 118, 0.1))',
-                boxShadow: status === 'active'
-                  ? '0 4px 12px rgba(16, 185, 129, 0.2)'
-                  : status === 'warning'
-                  ? '0 4px 12px rgba(160, 160, 160, 0.2)'
-                  : status === 'danger'
-                  ? '0 4px 12px rgba(245, 245, 245, 0.2)'
-                  : '0 4px 12px rgba(31, 48, 118, 0.1)',
-                color: status === 'active'
-                  ? colors.success[500]
-                  : status === 'warning'
-                  ? colors.warning[500]
-                  : status === 'danger'
-                  ? colors.danger[500]
-                  : colors.primary[500],
-              }}
-            >
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/[0.04] text-[var(--text-muted)]">
               {icon}
             </div>
           )}
@@ -208,35 +113,26 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
 
       {/* Content */}
       {children && (
-        <div
-          className="px-6 pb-6"
-          style={{ borderTop: `1px solid ${colors.neutral[200]}` }}
-        >
+        <div className="px-4 pb-4 border-t border-[var(--border-subtle)]">
           {children}
         </div>
       )}
 
       {/* Action Button */}
       {actionButton && (
-        <div
-          className="px-6 pb-4"
-          style={{ borderTop: `1px solid ${colors.neutral[200]}` }}
-        >
+        <div className="px-4 pb-4">
           <button
             onClick={(e) => {
               e.stopPropagation()
               actionButton.onClick()
             }}
-            className="w-full px-4 py-2 rounded-lg text-sm font-medium text-white transition-all bg-gradient-to-r from-[#333333] to-[#555555] hover:from-[#444444] hover:to-[#666666] shadow-md shadow-black/20 hover:shadow-lg hover:shadow-black/30 hover:-translate-y-0.5"
-            style={{
-              transition: transitions.fast,
-            }}
+            className="w-full px-4 py-2 rounded-xl text-[12px] font-medium text-white bg-white/[0.06] hover:bg-white/[0.10] transition-colors duration-150"
           >
             {actionButton.label}
           </button>
         </div>
       )}
-    </motion.div>
+    </div>
   )
 }
 

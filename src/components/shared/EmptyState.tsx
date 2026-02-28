@@ -26,7 +26,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   const defaultIcon = (
     <svg
-      className="mx-auto h-9 w-12 text-gray-700"
+      className="mx-auto h-9 w-12 text-[var(--text-tertiary)]"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -46,10 +46,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       <div className="mb-2">
         {icon || defaultIcon}
       </div>
-      <h3 className="mt-2 text-sm font-semibold text-gray-900">
+      <h3 className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
         {title}
       </h3>
-      <p className="mt-1 text-sm text-gray-700 font-normal">
+      <p className="mt-1 text-sm text-[var(--text-tertiary)] font-normal">
         {description}
       </p>
       {action && (
@@ -57,7 +57,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           <button
             type="button"
             onClick={action.onClick}
-            className="inline-flex items-center h-11 px-2 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+            className="inline-flex items-center h-11 px-2 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
           >
             <svg
               className="-ml-1 mr-2 h-5 w-5"

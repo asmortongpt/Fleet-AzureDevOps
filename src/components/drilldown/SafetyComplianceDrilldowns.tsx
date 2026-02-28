@@ -158,7 +158,7 @@ export function ViolationsMatrixView() {
         <div className="text-sm">
           <div>{row.original.vehicle_name || '-'}</div>
           {row.original.driver_name && (
-            <div className="text-xs text-muted-foreground">{row.original.driver_name}</div>
+            <div className="text-xs text-[var(--text-secondary)]">{row.original.driver_name}</div>
           )}
         </div>
       ),
@@ -301,10 +301,10 @@ export function ViolationsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalViolations}</div>
-            <div className="text-xs text-white/40">Total Violations</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Violations</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -313,7 +313,7 @@ export function ViolationsMatrixView() {
               <AlertOctagon className="w-3 h-3 text-red-400" />
               <div className="text-sm font-bold text-red-400">{openCount}</div>
             </div>
-            <div className="text-xs text-white/40">Open/In Progress</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Open/In Progress</div>
           </CardContent>
         </Card>
         <Card className="bg-orange-900/30 border-orange-700/50">
@@ -322,19 +322,19 @@ export function ViolationsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-orange-400" />
               <div className="text-sm font-bold text-orange-400">{criticalCount}</div>
             </div>
-            <div className="text-xs text-white/40">Critical Severity</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Critical Severity</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-amber-400">{formatCurrency(unpaidFines)}</div>
-            <div className="text-xs text-white/40">Unpaid Fines</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Unpaid Fines</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Total Fines */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <span>Total Fines Assessment</span>
@@ -342,7 +342,7 @@ export function ViolationsMatrixView() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex justify-between text-xs text-white/40 mb-2">
+          <div className="flex justify-between text-xs text-[var(--text-tertiary)] mb-2">
             <span>Paid: {formatCurrency(totalFines - unpaidFines)}</span>
             <span>Unpaid: {formatCurrency(unpaidFines)}</span>
           </div>
@@ -351,7 +351,7 @@ export function ViolationsMatrixView() {
       </Card>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex-1 min-w-[200px]">
@@ -405,7 +405,7 @@ export function ViolationsMatrixView() {
       </Card>
 
       {/* Excel-Style Violations Matrix */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Scale className="w-3 h-3 text-amber-400" />
@@ -475,7 +475,7 @@ export function IncidentsMatrixView() {
       cell: ({ row }) => (
         <div>
           <div>{formatDate(row.original.date)}</div>
-          <div className="text-xs text-muted-foreground">{row.original.time}</div>
+          <div className="text-xs text-[var(--text-secondary)]">{row.original.time}</div>
         </div>
       ),
     },
@@ -511,7 +511,7 @@ export function IncidentsMatrixView() {
       accessorKey: 'injured',
       header: 'Injured',
       cell: ({ row }) => (
-        <div className={`text-center font-bold ${row.original.injured > 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+        <div className={`text-center font-bold ${row.original.injured > 0 ? 'text-red-500' : 'text-[var(--text-secondary)]'}`}>
           {row.original.injured}
         </div>
       ),
@@ -627,10 +627,10 @@ export function IncidentsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-[#242424] border-white/[0.08]">
+        <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalIncidents}</div>
-            <div className="text-xs text-white/40">Total Incidents</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Incidents</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -639,7 +639,7 @@ export function IncidentsMatrixView() {
               <AlertOctagon className="w-3 h-3 text-red-400" />
               <div className="text-sm font-bold text-red-400">{openCount}</div>
             </div>
-            <div className="text-xs text-white/40">Open/Investigating</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Open/Investigating</div>
           </CardContent>
         </Card>
         <Card className="bg-orange-900/30 border-orange-700/50">
@@ -648,19 +648,19 @@ export function IncidentsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-orange-400" />
               <div className="text-sm font-bold text-orange-400">{totalInjured}</div>
             </div>
-            <div className="text-xs text-white/40">Total Injuries</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Injuries</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-amber-400">{formatCurrency(totalCost)}</div>
-            <div className="text-xs text-white/40">Total Cost</div>
+            <div className="text-xs text-[var(--text-tertiary)]">Total Cost</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex-1 min-w-[200px]">
@@ -716,7 +716,7 @@ export function IncidentsMatrixView() {
       </Card>
 
       {/* Excel-Style Incidents Matrix */}
-      <Card className="bg-[#242424] border-white/[0.08]">
+      <Card className="bg-[var(--surface-primary)] border-[var(--border-subtle)]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Shield className="w-3 h-3 text-emerald-400" />

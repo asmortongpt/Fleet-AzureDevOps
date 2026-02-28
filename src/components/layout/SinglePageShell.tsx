@@ -1,17 +1,14 @@
 /**
- * SinglePageShell - Root layout for ArchonY Fleet Command
+ * SinglePageShell — Root layout for CTA Fleet application
  *
- * Fixed viewport (100vh x 100vw, overflow-hidden). No page scrolling.
- * Layout: NavRail (64px left) + CommandBar (48px top) + Content + DetailPanel (conditional)
- *         + ActivityBar (48px bottom, collapsible)
+ * Fixed viewport (100vh x 100vw, overflow-hidden).
+ * Layout: IconRail (64px left) + CompactHeader (48px top) + Content
  *
- * Responsive:
- * - Desktop (>=1024px): Nav rail + content + side/takeover panels
- * - Tablet/Mobile (<1024px): Bottom tab bar + full-width panels
+ * Map mode: TickerBar (top) + MapCanvas + VehicleRail (right, desktop) + TimelineStrip (bottom)
+ * Module mode: Full-bleed module content
  */
-import { useState, useEffect, memo, lazy, Suspense } from 'react'
+import { useState, useEffect, memo } from 'react'
 
-import { ActivityBar } from './ActivityBar'
 import { BottomDrawer } from './BottomDrawer'
 import { CommandPalette } from './CommandPalette'
 import { CompactHeader } from './CompactHeader'
@@ -23,11 +20,9 @@ import { MobileTabBar } from './MobileTabBar'
 import { PanelManager } from './PanelManager'
 
 import { AIAssistantFloatingButton } from '@/components/ai/AIAssistantButton'
+import { VehicleRail } from '@/components/ui/vehicle-rail'
 import { usePanel } from '@/contexts/PanelContext'
-import { useFeatureDiscovery } from '@/hooks/use-feature-discovery'
 import { cn } from '@/lib/utils'
-
-const FeatureTooltip = lazy(() => import('@/components/onboarding/FeatureTooltip'))
 
 interface SinglePageShellProps {
   moduleContent?: React.ReactNode
@@ -36,7 +31,6 @@ interface SinglePageShellProps {
 export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: SinglePageShellProps) {
   const [isDesktop, setIsDesktop] = useState(true)
   const { setFlyout } = usePanel()
-  const { currentTip, dismissTip, disableAll } = useFeatureDiscovery()
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>
@@ -57,8 +51,8 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
   }, [])
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex bg-[#0D0320] cta-hub">
-      {/* Left: Nav Rail (desktop only) */}
+    <div className="h-screen w-screen overflow-hidden flex bg-[#0a0a0a] cta-hub">
+      {/* Left: Icon Rail (desktop only) */}
       {isDesktop && (
         <div
           className="relative flex shrink-0"
@@ -71,60 +65,53 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
 
       {/* Main content area */}
       <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {/* Top: Command Bar */}
+        {/* Top: Header */}
         <CompactHeader />
 
-        {/* Content area with Surface-1 background */}
-        <div className={cn(
-          "flex-1 relative overflow-hidden bg-[#1A0648] rounded-tl-lg",
-          !isDesktop && "pb-14 rounded-tl-none"
-        )}>
+        {/* Content: Module content OR Map + Overlays */}
+        <div className={cn("flex-1 relative overflow-hidden", !isDesktop && "pb-14")}>
           {moduleContent ? (
             <div className="w-full h-full overflow-hidden">
               {moduleContent}
             </div>
           ) : (
-            <>
-              {/* Map (always mounted behind everything) */}
-              <MapCanvas />
+            <div className="flex flex-col h-full">
+              {/* TickerBar pinned at top of map area */}
+              <div className="shrink-0 z-10">
+                <FloatingKPIStrip />
+              </div>
 
-              {/* Floating KPI strip over map */}
-              <FloatingKPIStrip />
+              {/* Map + VehicleRail row */}
+              <div className="flex-1 flex min-h-0 relative">
+                {/* Map fills remaining space */}
+                <div className="flex-1 relative min-w-0">
+                  <MapCanvas />
+                  <PanelManager />
+                </div>
 
-              {/* Right panel system */}
-              <PanelManager />
+                {/* VehicleRail on right (desktop only, 360px) */}
+                {isDesktop && (
+                  <VehicleRail vehicles={[]} />
+                )}
+              </div>
 
-              {/* Bottom activity drawer */}
-              <BottomDrawer />
-            </>
+              {/* TimelineStrip at bottom */}
+              <div className="shrink-0 z-10">
+                <BottomDrawer />
+              </div>
+            </div>
           )}
         </div>
-
-        {/* Activity Bar (desktop only) */}
-        {isDesktop && <ActivityBar />}
       </main>
 
-      {/* Mobile/Tablet: Bottom tab bar */}
+      {/* Mobile: Bottom tab bar */}
       {!isDesktop && <MobileTabBar />}
 
-      {/* Command Palette overlay (Cmd+K) */}
+      {/* Command Palette (Cmd+K) */}
       <CommandPalette />
 
-      {/* Draggable AI Assistant floating button */}
+      {/* AI Assistant */}
       <AIAssistantFloatingButton hubType="fleet" />
-
-      {/* Progressive feature discovery tooltips */}
-      {currentTip && (
-        <Suspense fallback={null}>
-          <FeatureTooltip
-            target={currentTip.target}
-            title={currentTip.title}
-            description={currentTip.description}
-            onDismiss={dismissTip}
-            onDisableAll={disableAll}
-          />
-        </Suspense>
-      )}
     </div>
   )
 })

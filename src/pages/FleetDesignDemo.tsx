@@ -64,9 +64,9 @@ export default function FleetDesignDemo() {
         <ErrorBoundary>
         <div style={{
             padding: 24,
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
             minHeight: '100vh',
-            color: '#e2e8f0'
+            color: '#e5e5e5'
         }}>
             {/* Header */}
             <div style={{
@@ -80,13 +80,13 @@ export default function FleetDesignDemo() {
                     fontSize: 32,
                     fontWeight: 900,
                     marginBottom: 8,
-                    background: 'linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%)',
+                    background: 'linear-gradient(135deg, #10b981 0%, #f59e0b 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent'
                 }}>
                     Fleet Design System - Live Demo
                 </h1>
-                <p style={{ color: '#94a3b8', fontSize: 14 }}>
+                <p style={{ color: '#9CA3AF', fontSize: 14 }}>
                     Professional table-first navigation with EntityAvatar, StatusChip, and RowExpandPanel components
                 </p>
             </div>
@@ -112,7 +112,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Vehicle</th>
                             <th style={{
@@ -122,7 +122,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Type</th>
                             <th style={{
@@ -132,7 +132,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Odometer</th>
                             <th style={{
@@ -142,7 +142,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Fuel</th>
                             <th style={{
@@ -152,7 +152,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Health</th>
                             <th style={{
@@ -162,7 +162,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Alerts</th>
                             <th style={{
@@ -172,7 +172,7 @@ export default function FleetDesignDemo() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
-                                color: '#94a3b8',
+                                color: '#9CA3AF',
                                 borderBottom: '1px solid rgba(255,255,255,0.08)'
                             }}>Updated</th>
                         </tr>
@@ -185,7 +185,7 @@ export default function FleetDesignDemo() {
                                     onClick={() => toggleRow(vehicle.id)}
                                     style={{
                                         cursor: 'pointer',
-                                        background: expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'transparent',
+                                        background: expandedRow === vehicle.id ? 'rgba(16,185,129,0.08)' : 'transparent',
                                         borderBottom: '1px solid rgba(255,255,255,0.06)',
                                         transition: 'background 0.2s'
                                     }}
@@ -205,7 +205,7 @@ export default function FleetDesignDemo() {
                                             <EntityAvatar entity={vehicle} size={38} />
                                             <div>
                                                 <div style={{ fontWeight: 600, fontSize: 14 }}>{vehicle.displayName}</div>
-                                                <div style={{ fontSize: 12, color: '#94a3b8' }}>{vehicle.id}</div>
+                                                <div style={{ fontSize: 12, color: '#9CA3AF' }}>{vehicle.id}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -227,7 +227,7 @@ export default function FleetDesignDemo() {
                                                     transition: 'width 0.3s'
                                                 }} />
                                             </div>
-                                            <span style={{ fontSize: 12, color: '#94a3b8' }}>{vehicle.fuelPct}%</span>
+                                            <span style={{ fontSize: 12, color: '#9CA3AF' }}>{vehicle.fuelPct}%</span>
                                         </div>
                                     </td>
                                     <td style={{ padding: 16 }}>
@@ -246,7 +246,7 @@ export default function FleetDesignDemo() {
                                             <StatusChip status="good" label="No alerts" />
                                         )}
                                     </td>
-                                    <td style={{ padding: 16, fontSize: 12, color: '#94a3b8' }}>{vehicle.updatedAgo}</td>
+                                    <td style={{ padding: 16, fontSize: 12, color: '#9CA3AF' }}>{vehicle.updatedAgo}</td>
                                 </tr>
                                 {expandedRow === vehicle.id && (
                                     <tr>
@@ -293,16 +293,16 @@ export default function FleetDesignDemo() {
                 <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>Design System Components</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
                     <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#60a5fa' }}>EntityAvatar</div>
-                        <div style={{ fontSize: 12, color: '#94a3b8' }}>Status-indicating conic gradient rings around entity identifiers</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#10b981' }}>EntityAvatar</div>
+                        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Status-indicating conic gradient rings around entity identifiers</div>
                     </div>
                     <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#60a5fa' }}>StatusChip</div>
-                        <div style={{ fontSize: 12, color: '#94a3b8' }}>Semantic color-coded status indicators with labels</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#10b981' }}>StatusChip</div>
+                        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Semantic color-coded status indicators with labels</div>
                     </div>
                     <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#60a5fa' }}>RowExpandPanel</div>
-                        <div style={{ fontSize: 12, color: '#94a3b8' }}>Expandable drilldown with telemetry and nested records</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#10b981' }}>RowExpandPanel</div>
+                        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Expandable drilldown with telemetry and nested records</div>
                     </div>
                 </div>
             </div>

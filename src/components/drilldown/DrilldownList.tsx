@@ -131,14 +131,14 @@ export function DrilldownList<T extends DrilldownListItem>({
   if (loading) {
     return (
       <div className={cn('flex items-center justify-center py-3', className)}>
-        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+        <Loader2 className="w-4 h-4 animate-spin text-[var(--text-secondary)]" />
       </div>
     )
   }
 
   if (items.length === 0) {
     return (
-      <div className={cn('text-center py-3 text-muted-foreground', className)}>
+      <div className={cn('text-center py-3 text-[var(--text-secondary)]', className)}>
         {emptyMessage}
       </div>
     )
@@ -172,20 +172,19 @@ export function DrilldownList<T extends DrilldownListItem>({
                 'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary/50',
                 // Variant-specific styles
                 variant === 'default' && [
-                  'px-2 py-3 hover:bg-muted/50',
+                  'px-2 py-3 hover:bg-[var(--surface-glass)]',
                   showDividers && !isLast && 'border-b border-border/50',
                 ],
                 variant === 'compact' && [
-                  'px-3 py-2 hover:bg-muted/50',
+                  'px-3 py-2 hover:bg-[var(--surface-glass)]',
                   showDividers && !isLast && 'border-b border-border/50',
                 ],
                 variant === 'cards' && [
-                  'px-2 py-3 rounded-lg border bg-card hover:bg-muted/30',
-                  'shadow-sm hover:shadow-md',
+                  'px-2 py-3 rounded-lg border bg-card hover:bg-[var(--surface-glass)]',
                 ],
                 variant === 'striped' && [
-                  'px-2 py-3 hover:bg-muted/50',
-                  index % 2 === 0 && 'bg-muted/20',
+                  'px-2 py-3 hover:bg-[var(--surface-glass)]',
+                  index % 2 === 0 && 'bg-[var(--surface-glass)]',
                   showDividers && !isLast && 'border-b border-border/50',
                 ],
                 // Rounded corners for first/last items
@@ -208,7 +207,7 @@ export function DrilldownList<T extends DrilldownListItem>({
                 {showChevron && !disabled && (
                   <ChevronRight
                     className={cn(
-                      'w-3 h-3 text-muted-foreground flex-shrink-0 ml-2',
+                      'w-3 h-3 text-[var(--text-secondary)] flex-shrink-0 ml-2',
                       'opacity-0 group-hover:opacity-100 transition-opacity',
                       'group-focus:opacity-100'
                     )}
@@ -276,7 +275,7 @@ export function DrilldownVehicleList({
               {vehicle.name || formatVehicleName(vehicle)}
             </div>
             {vehicle.make && vehicle.model && (
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-[var(--text-secondary)]">
                 {formatVehicleShortName(vehicle)}
               </div>
             )}
@@ -288,7 +287,7 @@ export function DrilldownVehicleList({
                 vehicle.status === 'active' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
                 vehicle.status === 'idle' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
                 vehicle.status === 'service' && 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-                vehicle.status === 'offline' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
+                vehicle.status === 'offline' && 'bg-white/[0.06] text-[var(--text-secondary)]'
               )}
             >
               {formatEnum(vehicle.status)}
@@ -355,7 +354,7 @@ export function DrilldownDriverList({
               className={cn(
                 'px-2 py-1 text-xs rounded-full',
                 driver.status === 'on-duty' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-                driver.status === 'off-duty' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600',
+                driver.status === 'off-duty' && 'bg-white/[0.06] text-[var(--text-secondary)]',
                 driver.status === 'driving' && 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700'
               )}
             >
@@ -417,7 +416,7 @@ export function DrilldownWorkOrderList({
               {workOrder.title || workOrder.number || `WO-${workOrder.id}`}
             </div>
             {workOrder.number && workOrder.title && (
-              <div className="text-sm text-muted-foreground">{workOrder.number}</div>
+              <div className="text-sm text-[var(--text-secondary)]">{workOrder.number}</div>
             )}
           </div>
           <div className="flex items-center gap-2">
@@ -440,7 +439,7 @@ export function DrilldownWorkOrderList({
                   workOrder.status === 'pending' && 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700',
                   workOrder.status === 'in-progress' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
                   workOrder.status === 'completed' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-                  workOrder.status === 'cancelled' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
+                  workOrder.status === 'cancelled' && 'bg-white/[0.06] text-[var(--text-secondary)]'
                 )}
               >
                 {workOrder.status}
@@ -503,13 +502,13 @@ export function DrilldownRecordList({
               {record.name || record.title || record.label || `${recordType} ${record.id}`}
             </div>
             {record.description && (
-              <div className="text-sm text-muted-foreground truncate max-w-xs">
+              <div className="text-sm text-[var(--text-secondary)] truncate max-w-xs">
                 {record.description}
               </div>
             )}
           </div>
           {showStatus && record.status && (
-            <span className="px-2 py-1 text-xs rounded-full bg-muted">
+            <span className="px-2 py-1 text-xs rounded-full bg-[var(--surface-glass)]">
               {formatEnum(record.status)}
             </span>
           )}

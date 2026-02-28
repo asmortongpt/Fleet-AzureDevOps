@@ -63,7 +63,7 @@ export const VehicleFormExample: React.FC = () => {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-[var(--text-tertiary)]">
           VIN <span className="text-red-500">*</span>
         </label>
         <input
@@ -72,7 +72,7 @@ export const VehicleFormExample: React.FC = () => {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('vin', e.target.value)}
           onBlur={() => handleBlur('vin')}
           className={`mt-1 block w-full rounded-md border ${
-            touched.vin && errors.vin ? 'border-red-500' : 'border-gray-300'
+            touched.vin && errors.vin ? 'border-red-500' : 'border-[var(--border-default)]'
           } px-3 py-2`}
         />
         {touched.vin && errors.vin && <FieldError message={errors.vin} />}
@@ -80,7 +80,7 @@ export const VehicleFormExample: React.FC = () => {
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-[var(--text-tertiary)]">
             Make <span className="text-red-500">*</span>
           </label>
           <input
@@ -88,13 +88,13 @@ export const VehicleFormExample: React.FC = () => {
             value={values.make}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('make', e.target.value)}
             onBlur={() => handleBlur('make')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-md border border-[var(--border-default)] px-3 py-2"
           />
           {touched.make && errors.make && <FieldError message={errors.make} />}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-[var(--text-tertiary)]">
             Model <span className="text-red-500">*</span>
           </label>
           <input
@@ -102,7 +102,7 @@ export const VehicleFormExample: React.FC = () => {
             value={values.model}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('model', e.target.value)}
             onBlur={() => handleBlur('model')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-md border border-[var(--border-default)] px-3 py-2"
           />
           {touched.model && errors.model && <FieldError message={errors.model} />}
         </div>
@@ -111,7 +111,7 @@ export const VehicleFormExample: React.FC = () => {
       <button
         type="submit"
         disabled={loading}
-        className="bg-emerald-600 text-white px-3 py-2 rounded hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+        className="bg-emerald-600 text-white px-3 py-2 rounded hover:bg-emerald-700 disabled:bg-white/[0.10] disabled:cursor-not-allowed flex items-center"
       >
         {loading ? (
           <>

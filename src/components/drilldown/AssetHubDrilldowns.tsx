@@ -109,7 +109,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{asset.name}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 Asset #{asset.asset_number}
               </p>
               <div className="flex items-center gap-2 mt-2">
@@ -119,7 +119,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                 <Badge variant="outline">{asset.category}</Badge>
               </div>
             </div>
-            <Package className="h-9 w-12 text-muted-foreground" />
+            <Package className="h-9 w-12 text-[var(--text-secondary)]" />
           </div>
 
           {/* Quick Stats */}
@@ -170,27 +170,27 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Category</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Category</p>
                       <p className="font-medium">{asset.category || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Type</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Type</p>
                       <p className="font-medium">{asset.type || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Manufacturer</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Manufacturer</p>
                       <p className="font-medium">{asset.manufacturer || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Model</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Model</p>
                       <p className="font-medium">{asset.model || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Serial Number</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Serial Number</p>
                       <p className="font-medium">{asset.serial_number || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Acquisition Date</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Acquisition Date</p>
                       <p className="font-medium">
                         {formatDate(asset.acquisition_date)}
                       </p>
@@ -206,10 +206,10 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                   <CardTitle>Maintenance History</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[var(--text-secondary)]">
                     Last Service: {asset.last_service_date || 'Never'}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p className="text-sm text-[var(--text-secondary)] mt-2">
                     Next Service Due: {asset.next_service_date || 'Not scheduled'}
                   </p>
                   <Button
@@ -235,10 +235,10 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                   <CardTitle>Assignment History</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[var(--text-secondary)]">
                     Currently Assigned To: {asset.assigned_to || '—'}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p className="text-sm text-[var(--text-secondary)] mt-2">
                     Department: {asset.department || '—'}
                   </p>
                 </CardContent>
@@ -251,7 +251,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                   <CardTitle>Location History</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[var(--text-secondary)]">
                     Current Location: {asset.current_location || '—'}
                   </p>
                 </CardContent>
@@ -266,25 +266,25 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Purchase Price</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Purchase Price</p>
                       <p className="text-base font-bold">
                         {formatCurrency(asset.purchase_price ?? 0)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Current Value</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Current Value</p>
                       <p className="text-base font-bold">
                         {formatCurrency(asset.current_value ?? 0)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Depreciation</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Depreciation</p>
                       <p className="text-base font-bold text-destructive">
                         -{formatCurrency((asset.purchase_price || 0) - (asset.current_value || 0))}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Depreciation Rate</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Depreciation Rate</p>
                       <p className="text-base font-bold">
                         {asset.depreciation_rate || 0}%/yr
                       </p>
@@ -322,14 +322,14 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{equipment.name}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[var(--text-secondary)]">
                 {equipment.category} Equipment
               </p>
               <Badge variant={equipment.status === 'operational' ? 'default' : 'destructive'}>
                 {equipment.status}
               </Badge>
             </div>
-            <Wrench className="h-9 w-12 text-muted-foreground" />
+            <Wrench className="h-9 w-12 text-[var(--text-secondary)]" />
           </div>
 
           {/* Quick Stats */}
@@ -379,19 +379,19 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Type</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Type</p>
                       <p className="font-medium">{equipment.type || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Manufacturer</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Manufacturer</p>
                       <p className="font-medium">{equipment.manufacturer || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Model</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Model</p>
                       <p className="font-medium">{equipment.model || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Serial</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Serial</p>
                       <p className="font-medium">{equipment.serial_number || '—'}</p>
                     </div>
                   </div>
@@ -405,10 +405,10 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
                   <CardTitle>Operator History</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[var(--text-secondary)]">
                     Current Operator: {equipment.current_operator || 'None'}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p className="text-sm text-[var(--text-secondary)] mt-2">
                     Total Operators: {equipment.total_operators || 0}
                   </p>
                 </CardContent>
@@ -423,13 +423,13 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Hours This Month</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Hours This Month</p>
                       <p className="text-base font-bold">
                         {equipment.hours_this_month || 0} hrs
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Avg Daily Usage</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Avg Daily Usage</p>
                       <p className="text-base font-bold">
                         {equipment.avg_daily_usage || 0} hrs
                       </p>
@@ -445,10 +445,10 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
                   <CardTitle>Service Schedule</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[var(--text-secondary)]">
                     Last Service: {equipment.last_service || 'Never'}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p className="text-sm text-[var(--text-secondary)] mt-2">
                     Next Service: {equipment.next_service || 'Not scheduled'}
                   </p>
                 </CardContent>
@@ -483,7 +483,7 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{item.name}</h3>
-              <p className="text-sm text-muted-foreground">SKU: {item.sku}</p>
+              <p className="text-sm text-[var(--text-secondary)]">SKU: {item.sku}</p>
               <Badge
                 variant={
                   item.quantity > item.reorder_point ? 'default' : 'destructive'
@@ -492,7 +492,7 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
                 {item.quantity > item.reorder_point ? 'In Stock' : 'Low Stock'}
               </Badge>
             </div>
-            <Package className="h-9 w-12 text-muted-foreground" />
+            <Package className="h-9 w-12 text-[var(--text-secondary)]" />
           </div>
 
           {/* Quick Stats */}
@@ -506,7 +506,7 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">{item.quantity || 0}</div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
                   Reorder at: {item.reorder_point || 0}
                 </p>
               </CardContent>
@@ -523,7 +523,7 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
                 <div className="text-sm font-bold">
                   {formatCurrency(item.unit_cost)}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
                   Total Value: {formatCurrency((item.quantity || 0) * (item.unit_cost || 0))}
                 </p>
               </CardContent>
@@ -547,19 +547,19 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Category</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Category</p>
                       <p className="font-medium">{item.category || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Supplier</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Supplier</p>
                       <p className="font-medium">{item.supplier || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Lead Time</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Lead Time</p>
                       <p className="font-medium">{item.lead_time_days || 0} days</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Min Order Qty</p>
+                      <p className="text-sm text-[var(--text-secondary)]">Min Order Qty</p>
                       <p className="font-medium">{item.min_order_qty || 1}</p>
                     </div>
                   </div>
@@ -573,10 +573,10 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
                   <CardTitle>Usage History</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[var(--text-secondary)]">
                     Used This Month: {item.used_this_month || 0} units
                   </p>
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p className="text-sm text-[var(--text-secondary)] mt-2">
                     Avg Monthly Usage: {item.avg_monthly_usage || 0} units
                   </p>
                 </CardContent>
@@ -589,10 +589,10 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
                   <CardTitle>Reorder History</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[var(--text-secondary)]">
                     Last Ordered: {item.last_order_date || 'Never'}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p className="text-sm text-[var(--text-secondary)] mt-2">
                     Total Orders: {item.total_orders || 0}
                   </p>
                 </CardContent>
@@ -605,10 +605,10 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
                   <CardTitle>Stock Locations</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[var(--text-secondary)]">
                     Primary Location: {item.primary_location || '—'}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p className="text-sm text-[var(--text-secondary)] mt-2">
                     Total Locations: {item.total_locations || 1}
                   </p>
                 </CardContent>
@@ -673,7 +673,7 @@ export function AssetListView({ filter = 'all' }: AssetListViewProps) {
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="font-semibold">{asset.name}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-[var(--text-secondary)]">
                       {asset.category} • Asset #{asset.asset_number}
                     </p>
                   </div>
@@ -681,7 +681,7 @@ export function AssetListView({ filter = 'all' }: AssetListViewProps) {
                     <Badge variant={asset.status === 'active' ? 'default' : 'secondary'}>
                       {asset.status}
                     </Badge>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">
                       {formatCurrency(asset.current_value)}
                     </p>
                   </div>
@@ -745,7 +745,7 @@ export function EquipmentListView({ category }: EquipmentListViewProps) {
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="font-semibold">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-[var(--text-secondary)]">
                       {item.manufacturer} {item.model}
                     </p>
                   </div>
@@ -753,7 +753,7 @@ export function EquipmentListView({ category }: EquipmentListViewProps) {
                     <Badge variant={item.status === 'operational' ? 'default' : 'destructive'}>
                       {formatEnum(item.status)}
                     </Badge>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">
                       {item.operating_hours} hrs
                     </p>
                   </div>
@@ -815,7 +815,7 @@ export function InventoryListView({ filter = 'all' }: InventoryListViewProps) {
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="font-semibold">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">SKU: {item.sku}</p>
+                    <p className="text-sm text-[var(--text-secondary)]">SKU: {item.sku}</p>
                   </div>
                 </div>
               </CardContent>

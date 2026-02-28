@@ -145,10 +145,10 @@ export function AIChatbot() {
       className={`fixed ${isExpanded
         ? 'bottom-4 right-4 top-4 left-4 md:left-auto md:w-[600px]'
         : 'bottom-20 right-4 w-96 h-[500px]'
-        } flex flex-col shadow-sm z-50 transition-all duration-200`}
+        } flex flex-col z-50 transition-all duration-200 border border-[var(--border-subtle)]`}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--primary))] to-[hsl(var(--primary))] text-white px-2 py-3 rounded-t-lg flex items-center justify-between">
+      <div className="bg-[var(--surface-2)] text-white px-2 py-3 rounded-t-lg flex items-center justify-between border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
           <span className="font-semibold">Fleet AI Assistant</span>
@@ -174,7 +174,7 @@ export function AIChatbot() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-muted/40">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-[var(--surface-1)]">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -182,13 +182,13 @@ export function AIChatbot() {
           >
             <div
               className={`max-w-[80%] rounded-lg px-2 py-2 ${message.role === 'user'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-card/90 text-foreground border border-border/50'
+                ? 'bg-emerald-600 text-white'
+                : 'bg-[var(--surface-2)] text-white border border-[var(--border-subtle)]'
                 }`}
             >
               <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               {message.reportData && (
-                <div className="mt-2 pt-2 border-t border-border/50">
+                <div className="mt-2 pt-2 border-t border-[var(--border-subtle)]">
                   <Button variant="outline" size="sm" className="text-xs">
                     <Download className="h-3 w-3 mr-1" />
                     Export as Report
@@ -203,11 +203,11 @@ export function AIChatbot() {
         ))}
         {sending && (
           <div className="flex justify-start">
-            <div className="bg-card/90 border border-border/50 rounded-lg px-2 py-2">
+            <div className="bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg px-2 py-2">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" />
+                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
               </div>
             </div>
           </div>
@@ -217,14 +217,14 @@ export function AIChatbot() {
 
       {/* Example queries (show when no user messages) */}
       {messages.filter((m) => m.role === 'user').length === 0 && (
-        <div className="px-2 py-2 bg-card/90 border-t border-border/50">
-          <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
+        <div className="px-2 py-2 bg-[var(--surface-2)] border-t border-[var(--border-subtle)]">
+          <p className="text-xs text-[var(--text-tertiary)] mb-2">Try asking:</p>
           <div className="space-y-1">
             {exampleQueries.slice(0, 3).map((query) => (
               <button
                 key={query}
                 onClick={() => handleExampleClick(query)}
-                className="w-full text-left text-xs px-2 py-1 bg-muted/40 hover:bg-muted/60 rounded transition-colors text-muted-foreground"
+                className="w-full text-left text-xs px-2 py-1 bg-[var(--surface-1)] hover:bg-white/[0.06] rounded transition-colors text-[var(--text-tertiary)]"
               >
                 {query}
               </button>
@@ -234,7 +234,7 @@ export function AIChatbot() {
       )}
 
       {/* Input */}
-      <div className="border-t border-border/50 p-2 bg-card/90 rounded-b-lg">
+      <div className="border-t border-[var(--border-subtle)] p-2 bg-[var(--surface-2)] rounded-b-lg">
         <div className="flex gap-2">
           <Input
             value={input}
@@ -254,7 +254,7 @@ export function AIChatbot() {
           </Button>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-[var(--text-tertiary)]">
             Press Enter to send
           </p>
           <Button
@@ -277,14 +277,14 @@ export function AIChatbot() {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-sm bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 z-50"
+          className="fixed bottom-4 right-4 h-14 w-14 rounded-full bg-emerald-600 hover:bg-emerald-700 z-50"
           aria-label="Open AI Assistant"
         >
           <MessageCircle className="h-6 w-6" />
           {/* Notification badge */}
           <span className="absolute -top-1 -right-1 flex h-5 w-5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-5 w-5 bg-purple-500 items-center justify-center text-xs text-white font-bold">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-5 w-5 bg-amber-500 items-center justify-center text-xs text-white font-bold">
               AI
             </span>
           </span>

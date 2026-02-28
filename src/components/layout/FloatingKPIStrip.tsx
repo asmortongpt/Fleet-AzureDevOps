@@ -1,101 +1,99 @@
 /**
- * FloatingKPIStrip - Premium Cinematic Metrics Over Map
+ * FloatingKPIStrip - Dashboard metrics ticker
  *
- * Displays key intelligence indicators and opens modules on click.
- * Fetches live data from `/api/dashboard/stats` (DB-backed via backend).
+ * Fetches live data from `/api/dashboard/stats` and renders via TickerBar.
  */
 import { Truck, Activity, Wrench, AlertTriangle, Gauge, Users } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
-// motion removed - React 19 incompatible
 
 import { usePanel } from '@/contexts/PanelContext'
-import { cn } from '@/lib/utils'
+import { TickerBar, type TickerMetric } from '@/components/ui/ticker-bar'
 
-interface KPIChip {
-  label: string
-  value: string | number
-  icon: React.ReactNode
-  moduleId: string
-  color: string
-  glowColor: string
-}
-
-function buildKPIs(stats: {
-  total_vehicles?: number
-  active_vehicles?: number
-  maintenance_vehicles?: number
-  total_drivers?: number
-  total_staff?: number
-  open_work_orders?: number
-  open_incidents?: number
-}): KPIChip[] {
+function buildMetrics(
+  stats: {
+    total_vehicles?: number
+    active_vehicles?: number
+    maintenance_vehicles?: number
+    total_drivers?: number
+    total_staff?: number
+    open_work_orders?: number
+    open_incidents?: number
+  },
+  onChipClick: (moduleId: string) => void
+): TickerMetric[] {
   const total = stats.total_vehicles ?? 0
   const active = stats.active_vehicles ?? 0
   const maint = stats.maintenance_vehicles ?? 0
   const personnel = stats.total_staff ?? stats.total_drivers ?? 0
   const workOrders = stats.open_work_orders ?? 0
-  // Kept for future "Incidents" chip expansion.
-  const incidents = stats.open_incidents ?? 0
   const capacityPct = total > 0 ? Math.round((active / total) * 100) : 0
-  const capacityLabel = Number.isFinite(capacityPct) ? `${capacityPct}%` : '—'
+  const capacityLabel = Number.isFinite(capacityPct) ? `${capacityPct}%` : '\u2014'
 
   return [
     {
       label: 'Vehicles',
       value: total,
-      icon: <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-      moduleId: 'fleet',
-      color: '#f5f5f5',
-      glowColor: 'rgba(245,245,245,0.3)',
+      icon: Truck,
+      onClick: () => onChipClick('fleet'),
     },
     {
       label: 'Online',
       value: active,
-      icon: <Activity className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-      moduleId: 'live-fleet-dashboard',
-      color: '#10B981',
-      glowColor: 'rgba(16,185,129,0.3)',
+      icon: Activity,
+      trend: 'up' as const,
+      onClick: () => onChipClick('live-fleet-dashboard'),
     },
     {
       label: 'In Service',
       value: maint,
-      icon: <Wrench className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-      moduleId: 'garage',
-      color: '#f5f5f5',
-      glowColor: 'rgba(245,245,245,0.3)',
+      icon: Wrench,
+      onClick: () => onChipClick('garage'),
     },
     {
       label: 'Work Orders',
       value: workOrders,
-      icon: <AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-      moduleId: 'garage',
-      color: '#a0a0a0',
-      glowColor: 'rgba(160,160,160,0.3)',
+      icon: AlertTriangle,
+      onClick: () => onChipClick('garage'),
     },
     {
       label: 'Capacity',
       value: capacityLabel,
-      icon: <Gauge className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-      moduleId: 'fleet-optimizer',
-      color: '#A855F7',
-      glowColor: 'rgba(168,85,247,0.3)',
+      icon: Gauge,
+      trend: (capacityPct >= 70 ? 'up' : capacityPct >= 40 ? 'neutral' : 'down') as 'up' | 'down' | 'neutral',
+      onClick: () => onChipClick('fleet-optimizer'),
     },
     {
       label: 'Personnel',
       value: personnel,
-      icon: <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-      moduleId: 'driver-mgmt',
-      color: '#38BDF8',
-      glowColor: 'rgba(56,189,248,0.3)',
+      icon: Users,
+      onClick: () => onChipClick('driver-mgmt'),
     },
-    // Incidents chip can be displayed in expanded UI later; keep computed for easy swap.
-    // { label: 'Incidents', value: incidents, ... }
   ]
 }
 
 export function FloatingKPIStrip() {
-  const { openPanel, isOpen } = usePanel()
-  const [kpis, setKpis] = useState<KPIChip[]>(() => buildKPIs({}))
+  const { openPanel } = usePanel()
+
+  const handleChipClick = useCallback(
+    (moduleId: string) => {
+      import('@/config/module-registry').then(({ getModule }) => {
+        const mod = getModule(moduleId)
+        if (!mod) return
+        openPanel({
+          id: `kpi-${moduleId}-${Date.now()}`,
+          moduleId: mod.id,
+          title: mod.label,
+          width: mod.panelWidth,
+          category: mod.category,
+        })
+      })
+    },
+    [openPanel]
+  )
+
+  const [metrics, setMetrics] = useState<TickerMetric[]>(() =>
+    buildMetrics({}, handleChipClick)
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -106,7 +104,7 @@ export function FloatingKPIStrip() {
         if (!res.ok) return
         const json = await res.json()
         const data = json.data ?? json
-        if (!cancelled) setKpis(buildKPIs(data))
+        if (!cancelled) setMetrics(buildMetrics(data, handleChipClick))
       } catch {
         // Keep defaults on error.
       }
@@ -118,69 +116,7 @@ export function FloatingKPIStrip() {
       cancelled = true
       window.clearInterval(interval)
     }
-  }, [])
+  }, [handleChipClick])
 
-  const handleChipClick = useCallback(
-    (kpi: KPIChip) => {
-      import('@/config/module-registry').then(({ getModule }) => {
-        const mod = getModule(kpi.moduleId)
-        if (!mod) return
-        openPanel({
-          id: `kpi-${kpi.moduleId}-${Date.now()}`,
-          moduleId: mod.id,
-          title: mod.label,
-          width: mod.panelWidth,
-          category: mod.category,
-        })
-      })
-    },
-    [openPanel]
-  )
-
-  return (
-    <div className="absolute top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-10 pointer-events-none">
-      <div className="flex items-center gap-2 sm:gap-3 flex-nowrap sm:flex-wrap overflow-x-auto scrollbar-none pointer-events-auto">
-          {!isOpen &&
-            kpis.map((kpi, index) => (
-              <button
-                key={kpi.label}
-                onClick={() => handleChipClick(kpi)}
-                className={cn(
-                  'group relative flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl',
-                  'bg-[#1A0648]/80 backdrop-blur-2xl',
-                  'border border-[rgba(0,204,254,0.08)]',
-                  'hover:border-[rgba(0,204,254,0.15)] hover:bg-[#1A0648]/90 transition-all duration-300 shadow-2xl',
-                  'active:scale-95 shrink-0 sm:shrink'
-                )}
-              >
-                <div
-                  className="absolute inset-0 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl"
-                  style={{ backgroundColor: kpi.color }}
-                />
-
-                <div
-                  className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[#221060]/40 border border-[rgba(0,204,254,0.08)] transition-transform group-hover:scale-110"
-                  style={{ color: kpi.color }}
-                >
-                  {kpi.icon}
-                </div>
-
-                <div className="flex flex-col items-start">
-                  <span className="text-[8px] sm:text-[9px] font-black text-[rgba(255,255,255,0.40)] uppercase tracking-[0.15em] leading-none mb-0.5">
-                    {kpi.label}
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold text-white tabular-nums leading-none">
-                    {kpi.value}
-                  </span>
-                </div>
-
-                <div
-                  className="absolute bottom-0 left-3 right-3 sm:left-4 sm:right-4 h-[1.5px] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-500"
-                  style={{ backgroundColor: kpi.color, boxShadow: `0 2px 10px ${kpi.glowColor}` }}
-                />
-              </button>
-            ))}
-      </div>
-    </div>
-  )
+  return <TickerBar metrics={metrics} />
 }

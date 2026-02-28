@@ -153,8 +153,8 @@ export const CompleteUXIntegrationExample: React.FC = () => {
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-base font-bold text-gray-900">Vehicle Management</h1>
-          <p className="mt-2 text-white/70">
+          <h1 className="text-base font-bold text-[var(--text-primary)]">Vehicle Management</h1>
+          <p className="mt-2 text-[var(--text-primary)]">
             Manage your fleet vehicles and view detailed information
           </p>
         </div>
@@ -170,14 +170,14 @@ export const CompleteUXIntegrationExample: React.FC = () => {
 
       {/* Add Vehicle Form */}
       {showForm && (
-        <div className="bg-white rounded-lg shadow-md p-3">
+        <div className="bg-white rounded-lg p-3">
           <h2 className="text-base font-semibold mb-2">Add New Vehicle</h2>
 
           <form onSubmit={handleSubmit} className="space-y-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {/* VIN Field */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
                   VIN <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -186,7 +186,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                   onChange={(e) => handleChange('vin', e.target.value.toUpperCase())}
                   onBlur={() => handleBlur('vin')}
                   className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-emerald-500 ${
-                    touched.vin && errors.vin ? 'border-red-500' : 'border-gray-300'
+                    touched.vin && errors.vin ? 'border-red-500' : 'border-[var(--border-default)]'
                   }`}
                   placeholder="1HGCM82633A123456"
                   maxLength={17}
@@ -196,7 +196,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
 
               {/* Make Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
                   Make <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -205,7 +205,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                   onChange={(e) => handleChange('make', e.target.value)}
                   onBlur={() => handleBlur('make')}
                   className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-emerald-500 ${
-                    touched.make && errors.make ? 'border-red-500' : 'border-gray-300'
+                    touched.make && errors.make ? 'border-red-500' : 'border-[var(--border-default)]'
                   }`}
                   placeholder="Honda"
                 />
@@ -214,7 +214,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
 
               {/* Model Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
                   Model <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -223,7 +223,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                   onChange={(e) => handleChange('model', e.target.value)}
                   onBlur={() => handleBlur('model')}
                   className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-emerald-500 ${
-                    touched.model && errors.model ? 'border-red-500' : 'border-gray-300'
+                    touched.model && errors.model ? 'border-red-500' : 'border-[var(--border-default)]'
                   }`}
                   placeholder="Accord"
                 />
@@ -232,7 +232,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
 
               {/* Year Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
                   Year <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -241,7 +241,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                   onChange={(e) => handleChange('year', e.target.value)}
                   onBlur={() => handleBlur('year')}
                   className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-emerald-500 ${
-                    touched.year && errors.year ? 'border-red-500' : 'border-gray-300'
+                    touched.year && errors.year ? 'border-red-500' : 'border-[var(--border-default)]'
                   }`}
                   placeholder="2023"
                 />
@@ -250,7 +250,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
 
               {/* License Plate Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
                   License Plate <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -261,7 +261,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                   className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-emerald-500 ${
                     touched.license_plate && errors.license_plate
                       ? 'border-red-500'
-                      : 'border-gray-300'
+                      : 'border-[var(--border-default)]'
                   }`}
                   placeholder="ABC1234"
                 />
@@ -272,14 +272,14 @@ export const CompleteUXIntegrationExample: React.FC = () => {
 
               {/* Color Field (Optional) */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[var(--text-tertiary)] mb-1">
                   Color
                 </label>
                 <input
                   type="text"
                   value={values.color}
                   onChange={(e) => handleChange('color', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 border border-[var(--border-default)] rounded-md focus:ring-2 focus:ring-emerald-500"
                   placeholder="Black"
                 />
               </div>
@@ -291,14 +291,14 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                 type="button"
                 onClick={handleCancelForm}
                 disabled={isSubmitting}
-                className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-2 border border-[var(--border-default)] rounded-md text-[var(--text-tertiary)] hover:bg-white/[0.03] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+                className="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:bg-white/[0.10] disabled:cursor-not-allowed flex items-center"
               >
                 {isSubmitting ? (
                   <>
@@ -315,7 +315,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
       )}
 
       {/* Vehicle List */}
-      <div className="bg-white rounded-lg shadow-md">
+      <div className="bg-white rounded-lg">
         <div className="px-3 py-2 border-b">
           <h2 className="text-base font-semibold">Vehicles</h2>
         </div>
@@ -335,9 +335,9 @@ export const CompleteUXIntegrationExample: React.FC = () => {
 
           {/* Success State */}
           {!isLoadingVehicles && !loadError && vehicles.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-[var(--text-tertiary)]">
               <svg
-                className="mx-auto h-9 w-12 text-gray-400"
+                className="mx-auto h-9 w-12 text-[var(--text-tertiary)]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -356,35 +356,35 @@ export const CompleteUXIntegrationExample: React.FC = () => {
           {!isLoadingVehicles && !loadError && vehicles.length > 0 && (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-white/[0.03]">
                   <tr>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
                       VIN
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
                       Make
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
                       Model
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
                       Year
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {vehicles.map((vehicle) => (
-                    <tr key={vehicle.id} className="hover:bg-gray-50">
-                      <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <tr key={vehicle.id} className="hover:bg-white/[0.03]">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">
                         {vehicle.vin}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-[var(--text-tertiary)]">
                         {vehicle.make}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-[var(--text-tertiary)]">
                         {vehicle.model}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-[var(--text-tertiary)]">
                         {vehicle.year}
                       </td>
                     </tr>

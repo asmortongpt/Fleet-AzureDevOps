@@ -52,7 +52,7 @@ export function MetricCard({
     <Card
       className={cn(
         'relative transition-all',
-        isPrimary && 'border-primary border-2 shadow-md',
+        isPrimary && 'border-primary border-2',
         className
       )}
     >
@@ -75,7 +75,7 @@ export function MetricCard({
           isPrimary && 'text-primary'
         )}>
           {formattedValue}
-          <span className="text-sm font-normal text-muted-foreground ml-1">
+          <span className="text-sm font-normal text-[var(--text-secondary)] ml-1">
             {unit}
           </span>
         </div>
@@ -119,7 +119,7 @@ export function MetricCardWithProgress({
     <Card
       className={cn(
         'relative transition-all',
-        isPrimary && 'border-primary border-2 shadow-md',
+        isPrimary && 'border-primary border-2',
         isCritical && 'border-destructive',
         isWarning && 'border-yellow-500',
         className
@@ -158,11 +158,11 @@ export function MetricCardWithProgress({
           isWarning && 'text-yellow-600'
         )}>
           {formatNumber(value)}
-          <span className="text-sm font-normal text-muted-foreground ml-1">
+          <span className="text-sm font-normal text-[var(--text-secondary)] ml-1">
             {unit}
           </span>
         </div>
-        <div className="text-xs text-muted-foreground mt-1">
+        <div className="text-xs text-[var(--text-secondary)] mt-1">
           of {formatNumber(maxValue)} {unit} ({percentage.toFixed(0)}%)
         </div>
 

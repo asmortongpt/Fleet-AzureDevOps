@@ -11,16 +11,16 @@ import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const chargingStationSchema = z.object({
-  name: z.string().min(1).max(200),
+  station_name: z.string().min(1).max(200),
+  station_type: z.string().max(100).optional(),
   location: z.string().max(500).optional(),
   latitude: z.number().min(-90).max(90).optional(),
   longitude: z.number().min(-180).max(180).optional(),
-  status: z.enum(['active', 'inactive', 'maintenance', 'offline']).optional(),
-  connector_type: z.string().max(100).optional(),
+  number_of_ports: z.number().int().min(1).max(100).optional(),
   power_output_kw: z.number().min(0).max(1000).optional(),
-  network_provider: z.string().max(200).optional(),
   cost_per_kwh: z.number().min(0).optional(),
-  max_vehicles: z.number().int().min(1).max(100).optional(),
+  is_public: z.boolean().optional(),
+  is_operational: z.boolean().optional(),
   notes: z.string().max(2000).optional()
 }).passthrough()
 
@@ -42,21 +42,17 @@ router.get(
         `SELECT
           id,
           tenant_id,
-          name,
-          station_id,
-          type,
-          facility_id,
+          station_name,
+          station_type,
+          location,
           latitude,
           longitude,
-          address,
           number_of_ports,
-          available_ports,
-          max_power_kw,
+          power_output_kw,
           cost_per_kwh,
           is_public,
-          operating_hours,
-          status,
-          metadata,
+          is_operational,
+          notes,
           created_at,
           updated_at
          FROM charging_stations
@@ -98,21 +94,17 @@ router.get(
         `SELECT
           id,
           tenant_id,
-          name,
-          station_id,
-          type,
-          facility_id,
+          station_name,
+          station_type,
+          location,
           latitude,
           longitude,
-          address,
           number_of_ports,
-          available_ports,
-          max_power_kw,
+          power_output_kw,
           cost_per_kwh,
           is_public,
-          operating_hours,
-          status,
-          metadata,
+          is_operational,
+          notes,
           created_at,
           updated_at
          FROM charging_stations

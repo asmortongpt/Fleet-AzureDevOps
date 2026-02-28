@@ -163,7 +163,7 @@ export default function AdminHub() {
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <Mail className="h-4 w-4 text-[hsl(var(--primary))]" />
-            <span className="text-gray-200 text-sm">{row.getValue('email')}</span>
+            <span className="text-[var(--text-primary)] text-sm">{row.getValue('email')}</span>
           </div>
         ),
       },
@@ -195,7 +195,7 @@ export default function AdminHub() {
         accessorKey: 'department',
         header: 'Department',
         cell: ({ row }) => (
-          <span className="text-gray-200">{row.getValue('department')}</span>
+          <span className="text-[var(--text-primary)]">{row.getValue('department')}</span>
         ),
       },
       {
@@ -228,8 +228,8 @@ export default function AdminHub() {
         header: 'Last Login',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-400 text-xs">{row.getValue('lastLogin') || 'Never'}</span>
+            <Clock className="h-4 w-4 text-[var(--text-tertiary)]" />
+            <span className="text-[var(--text-tertiary)] text-xs">{row.getValue('lastLogin') || 'Never'}</span>
           </div>
         ),
       },
@@ -238,8 +238,8 @@ export default function AdminHub() {
         header: 'Created',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-200 text-sm">{row.getValue('createdAt')}</span>
+            <Calendar className="h-4 w-4 text-[var(--text-tertiary)]" />
+            <span className="text-[var(--text-primary)] text-sm">{row.getValue('createdAt')}</span>
           </div>
         ),
       },
@@ -327,7 +327,7 @@ export default function AdminHub() {
         accessorKey: 'resource',
         header: 'Resource',
         cell: ({ row }) => (
-          <span className="text-gray-200 text-sm">{row.getValue('resource')}</span>
+          <span className="text-[var(--text-primary)] text-sm">{row.getValue('resource')}</span>
         ),
       },
       createStatusColumn<AuditLog>('status', 'Status'),
@@ -336,7 +336,7 @@ export default function AdminHub() {
         accessorKey: 'details',
         header: 'Details',
         cell: ({ row }) => (
-          <span className="text-gray-400 text-xs">{row.getValue('details') || '-'}</span>
+          <span className="text-[var(--text-tertiary)] text-xs">{row.getValue('details') || '-'}</span>
         ),
       },
     ],
@@ -371,11 +371,11 @@ export default function AdminHub() {
     <div className="min-h-screen bg-[hsl(var(--background))] p-3 space-y-3">
       {/* Header with gradient accent */}
       <div className="relative">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[hsl(var(--warning))] to-[hsl(var(--destructive))]" />
+        <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500" />
         <div className="pt-3">
           <h1 className="text-2xl font-bold text-white mb-1">Administration</h1>
-          <p className="text-sm text-gray-300">
-            Intelligent Technology. Integrated Partnership. - ArchonY: Intelligent Performance
+          <p className="text-sm text-[var(--text-secondary)]">
+            Intelligent Technology. Integrated Partnership. - CTA Fleet
           </p>
         </div>
       </div>
@@ -434,7 +434,7 @@ export default function AdminHub() {
             'px-4 py-2 rounded-t-lg font-medium transition-all',
             activeTab === 'users'
               ? 'bg-[hsl(var(--muted))] text-white border-b-2 border-[hsl(var(--primary))]'
-              : 'text-gray-400 hover:text-white hover:bg-[hsl(var(--card))]'
+              : 'text-[var(--text-tertiary)] hover:text-white hover:bg-[hsl(var(--card))]'
           )}
         >
           <Users className="inline h-4 w-4 mr-2" />
@@ -446,7 +446,7 @@ export default function AdminHub() {
             'px-4 py-2 rounded-t-lg font-medium transition-all',
             activeTab === 'audit'
               ? 'bg-[hsl(var(--muted))] text-white border-b-2 border-[hsl(var(--primary))]'
-              : 'text-gray-400 hover:text-white hover:bg-[hsl(var(--card))]'
+              : 'text-[var(--text-tertiary)] hover:text-white hover:bg-[hsl(var(--card))]'
           )}
         >
           <Activity className="inline h-4 w-4 mr-2" />
@@ -460,7 +460,7 @@ export default function AdminHub() {
           <div className="mb-3 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-white">System Users</h2>
-              <p className="text-xs text-gray-300 mt-0.5">
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                 {selectedUsers.length > 0 && `${selectedUsers.length} selected • `}
                 All users visible • Professional table layout
               </p>
@@ -490,7 +490,7 @@ export default function AdminHub() {
           </div>
 
           {(!isLoading && adminUsers.length === 0) ? (
-            <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-gray-200">
+            <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-[var(--text-primary)]">
               No users found for this tenant.
             </div>
           ) : (
@@ -514,7 +514,7 @@ export default function AdminHub() {
           <div className="mb-3 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-white">Audit Logs</h2>
-              <p className="text-xs text-gray-300 mt-0.5">
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                 {selectedLogs.length > 0 && `${selectedLogs.length} selected • `}
                 All logs visible • Professional table layout
               </p>
@@ -536,7 +536,7 @@ export default function AdminHub() {
           </div>
 
           {(!isLoading && auditLogs.length === 0) ? (
-            <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-gray-200">
+            <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-[var(--text-primary)]">
               No audit logs available.
             </div>
           ) : (
@@ -555,8 +555,8 @@ export default function AdminHub() {
       )}
 
       {/* Footer */}
-      <div className="text-center text-xs text-gray-400 pt-3 border-t border-[hsl(var(--primary))]/10">
-        CTA Administration • ArchonY Platform • Secure access management • Professional data tables
+      <div className="text-center text-xs text-[var(--text-tertiary)] pt-3 border-t border-[hsl(var(--primary))]/10">
+        CTA Administration • CTA Fleet Platform • Secure access management • Professional data tables
       </div>
     </div>
     </ErrorBoundary>
@@ -575,7 +575,7 @@ function StatCard({ label, value, icon, trend = 'neutral' }: StatCardProps) {
   return (
     <div className="bg-[hsl(var(--muted))] border border-[hsl(var(--primary))]/20 rounded-lg p-3 hover:border-[hsl(var(--primary))]/40 transition-all">
       <div className="flex items-center justify-between mb-1.5">
-        <div className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">
+        <div className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
           {label}
         </div>
         {icon}

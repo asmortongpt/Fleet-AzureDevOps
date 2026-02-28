@@ -9,18 +9,18 @@ import { useState } from 'react'
 
 import { AnimatedMetricsVisualization } from './AnimatedMetricsVisualization'
 
-import { ArchonYLogo } from '@/components/branding/ArchonYLogo'
+import { CTAFleetLogo } from '@/components/branding'
 
 export function UltraLuxuryDashboard() {
   const [hoveredSection, setHoveredSection] = useState<string | null>(null)
 
   const colors = {
     orange: '#f5f5f5',      // Neutral white
-    blue: '#3B82F6',        // Blue Skies
+    teal: '#10b981',        // Emerald
     green: '#10B981',       // For status indicators (approved by spec)
     gold: '#a0a0a0',        // Neutral gray
     red: '#f5f5f5',         // Neutral white
-    navy: '#1F3076',        // Navy (from spec)
+    silver: '#e0e0e0',      // Silver (from spec)
   }
 
   // Premium metrics with real data
@@ -31,8 +31,8 @@ export function UltraLuxuryDashboard() {
       currentValue: 247,
       targetValue: 300,
       trend: 12,
-      icon: <MapPin className="w-5 h-5" style={{ color: colors.blue }} />,
-      color: colors.blue,
+      icon: <MapPin className="w-5 h-5" style={{ color: colors.teal }} />,
+      color: colors.teal,
       accentColor: colors.red,
     },
     {
@@ -53,7 +53,7 @@ export function UltraLuxuryDashboard() {
       trend: 3,
       icon: <Fuel className="w-5 h-5" style={{ color: colors.green }} />,
       color: colors.green,
-      accentColor: colors.blue,
+      accentColor: colors.teal,
     },
     {
       id: 'alerts',
@@ -73,17 +73,17 @@ export function UltraLuxuryDashboard() {
     size: Math.random() * 4 + 1,
     duration: Math.random() * 15 + 20,
     delay: Math.random() * 5,
-    color: [colors.blue, '#ffffff', '#a0a0a0', colors.blue][i % 4],
+    color: [colors.teal, '#ffffff', '#a0a0a0', colors.teal][i % 4],
   }))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#111] via-[#1a1a1a] to-[#111] text-white overflow-hidden relative">
+    <div className="min-h-screen bg-[var(--surface-2)] text-white overflow-hidden relative">
       {/* Ultra-premium ambient background with multi-layered particles and glows */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Dynamic gradient glows */}
         <motion.div
           className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl"
-          style={{ background: `radial-gradient(circle, ${colors.blue}30, transparent)` }}
+          style={{ background: `radial-gradient(circle, ${colors.teal}30, transparent)` }}
           animate={{
             opacity: [0.3, 0.6, 0.3],
             scale: [1, 1.2, 1],
@@ -101,7 +101,7 @@ export function UltraLuxuryDashboard() {
         />
         <motion.div
           className="absolute top-1/3 right-1/4 w-72 h-72 rounded-full blur-3xl"
-          style={{ background: `radial-gradient(circle, ${colors.blue}20, transparent)` }}
+          style={{ background: `radial-gradient(circle, ${colors.teal}20, transparent)` }}
           animate={{
             opacity: [0.2, 0.5, 0.2],
             scale: [1, 1.25, 1],
@@ -137,7 +137,7 @@ export function UltraLuxuryDashboard() {
         {/* Animated grid background */}
         <div className="absolute inset-0" style={{
           backgroundImage: `
-            linear-gradient(0deg, transparent 24%, ${colors.blue}05 25%, ${colors.blue}05 26%, transparent 27%, transparent 74%, ${colors.blue}05 75%, ${colors.blue}05 76%, transparent 77%, transparent),
+            linear-gradient(0deg, transparent 24%, ${colors.teal}05 25%, ${colors.teal}05 26%, transparent 27%, transparent 74%, ${colors.teal}05 75%, ${colors.teal}05 76%, transparent 77%, transparent),
             linear-gradient(90deg, transparent 24%, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.02) 26%, transparent 27%, transparent 74%, rgba(255,255,255,0.02) 75%, rgba(255,255,255,0.02) 76%, transparent 77%, transparent)
           `,
           backgroundSize: '50px 50px',
@@ -147,10 +147,9 @@ export function UltraLuxuryDashboard() {
 
       {/* Premium Header */}
       <motion.header
-        className="relative z-50 border-b border-white/10 backdrop-blur-3xl"
+        className="relative z-50 border-b border-[var(--border-default)]"
         style={{
-          background: 'linear-gradient(180deg, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.7) 100%)',
-          boxShadow: `0 8px 32px ${colors.blue}15, inset 0 1px 0 rgba(255,255,255,0.05)`
+          background: '#111111'
         }}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -158,11 +157,11 @@ export function UltraLuxuryDashboard() {
       >
         <div className="max-w-7xl mx-auto px-8 py-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <ArchonYLogo variant="compact" />
+            <CTAFleetLogo variant="compact" />
             <div className="flex flex-col gap-2">
               <h1 className="text-4xl font-black tracking-tight"
                 style={{
-                  background: `linear-gradient(135deg, ${colors.orange}, ${colors.blue}, ${colors.red})`,
+                  background: `linear-gradient(135deg, ${colors.orange}, ${colors.teal}, ${colors.red})`,
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -171,7 +170,7 @@ export function UltraLuxuryDashboard() {
               </h1>
               <motion.p
                 className="text-xs font-bold tracking-widest flex items-center gap-2"
-                style={{ color: colors.blue }}
+                style={{ color: colors.teal }}
                 animate={{ opacity: [0.7, 1, 0.7] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
@@ -189,7 +188,7 @@ export function UltraLuxuryDashboard() {
             </div>
           </div>
           <motion.div
-            className="px-6 py-3 rounded-xl backdrop-blur-sm border"
+            className="px-6 py-3 rounded-xl border"
             style={{
               backgroundColor: `${colors.green}15`,
               borderColor: `${colors.green}40`,
@@ -213,7 +212,7 @@ export function UltraLuxuryDashboard() {
           transition={{ delay: 0.2 }}
         >
           <h2 className="text-2xl font-black tracking-tight mb-2">
-            <span style={{ color: colors.blue }}>Real-Time</span> Performance Metrics
+            <span style={{ color: colors.teal }}>Real-Time</span> Performance Metrics
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.6)' }} className="text-sm">
             Live fleet analytics with advanced visualization
@@ -269,11 +268,10 @@ export function UltraLuxuryDashboard() {
 
         {/* Premium Footer */}
         <motion.div
-          className="mt-16 p-8 rounded-2xl backdrop-blur-2xl border"
+          className="mt-16 p-8 rounded-2xl border"
           style={{
-            border: `1px solid ${colors.blue}20`,
-            background: `linear-gradient(135deg, ${colors.blue}08, rgba(255,255,255,0.02))`,
-            boxShadow: `0 8px 32px ${colors.blue}10, inset 0 1px 0 rgba(255,255,255,0.05)`
+            border: `1px solid rgba(255,255,255,0.08)`,
+            background: `#111111`
           }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -281,7 +279,7 @@ export function UltraLuxuryDashboard() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-black mb-2">Powered by Archon-Y Intelligence</h3>
+              <h3 className="text-xl font-black mb-2">Powered by CTA Fleet Intelligence</h3>
               <p style={{ color: 'rgba(255,255,255,0.6)' }} className="text-sm">
                 Enterprise-grade fleet management with real-time analytics and AI-driven insights
               </p>
@@ -290,7 +288,7 @@ export function UltraLuxuryDashboard() {
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
             >
-              <ArchonYLogo variant="icon" />
+              <CTAFleetLogo variant="icon" />
             </motion.div>
           </div>
         </motion.div>
@@ -314,7 +312,7 @@ function PremiumInfoCard({
 
   return (
     <motion.div
-      className="group rounded-2xl backdrop-blur-2xl border p-8 transition-all duration-500 cursor-pointer"
+      className="group rounded-2xl border p-8 transition-all duration-500 cursor-pointer"
       style={{
         border: `1px solid ${color}20`,
         background: `linear-gradient(135deg, ${color}08, transparent)`,
