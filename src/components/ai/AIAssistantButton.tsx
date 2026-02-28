@@ -130,7 +130,7 @@ export function AIAssistantButton({
           }
         }}
         initial={getSavedPosition() || { x: 0, y: 0 }}
-        className="fixed bottom-6 right-6 z-[9999] pointer-events-auto"
+        className="fixed bottom-20 right-6 z-[9999] pointer-events-none"
         id="cta-ai-fab"
         style={{ touchAction: 'none' }}
       >
@@ -139,7 +139,7 @@ export function AIAssistantButton({
           title="AI Fleet Assistant - Drag to reposition"
           className={`
             group relative flex items-center justify-center
-            h-14 w-14 rounded-full
+            h-14 w-14 rounded-full pointer-events-auto
             bg-[var(--surface-3)]
             text-white
             hover:bg-[#161616]
@@ -153,7 +153,7 @@ export function AIAssistantButton({
         >
           <Bot className="h-6 w-6 group-hover:scale-110 transition-transform" />
           {/* White accent ring on hover */}
-          <div className="absolute inset-0 rounded-full border-2 border-white/0 group-hover:border-[var(--border-default)] transition-all duration-300" />
+          <div className="absolute inset-0 rounded-full border-2 border-white/0 group-hover:border-[var(--border-default)] transition-all duration-300 pointer-events-none" />
           {/* Pulse indicator */}
           <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-white border-2 border-[#1a1a1a]" />
         </button>

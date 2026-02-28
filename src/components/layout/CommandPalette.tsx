@@ -132,7 +132,7 @@ export function CommandPalette() {
               setSelectedIndex(0)
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Search modules, vehicles, drivers..."
+            placeholder="Search modules..."
             className="flex-1 bg-transparent text-[var(--text-sm)] outline-none"
             style={{ color: 'var(--text-primary)', caretColor: 'var(--accent-primary)' }}
           />

@@ -90,4 +90,54 @@ router.get(
   }
 )
 
+// GET /system/db-stats — aggregate counts for admin dashboard
+router.get(
+  '/db-stats',
+  requirePermission('system:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const tenantId = req.user!.tenant_id
+      const [vehicles, drivers, workOrders, fuelTx] = await Promise.all([
+        pool.query('SELECT COUNT(*)::int AS count FROM vehicles WHERE tenant_id = $1', [tenantId]),
+        pool.query('SELECT COUNT(*)::int AS count FROM drivers WHERE tenant_id = $1', [tenantId]),
+        pool.query('SELECT COUNT(*)::int AS count FROM work_orders WHERE tenant_id = $1', [tenantId]),
+        pool.query('SELECT COUNT(*)::int AS count FROM fuel_transactions WHERE tenant_id = $1', [tenantId]),
+      ])
+
+      res.json({
+        data: {
+          total_vehicles: vehicles.rows[0]?.count ?? 0,
+          total_drivers: drivers.rows[0]?.count ?? 0,
+          total_work_orders: workOrders.rows[0]?.count ?? 0,
+          total_fuel_transactions: fuelTx.rows[0]?.count ?? 0,
+        }
+      })
+    } catch (error) {
+      logger.error('Get db-stats error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /system/pool-status — pg connection pool metrics
+router.get(
+  '/pool-status',
+  requirePermission('system:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      res.json({
+        data: {
+          total: pool.totalCount,
+          idle: pool.idleCount,
+          busy: pool.totalCount - pool.idleCount,
+          waiting: pool.waitingCount,
+        }
+      })
+    } catch (error) {
+      logger.error('Get pool-status error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
 export default router
