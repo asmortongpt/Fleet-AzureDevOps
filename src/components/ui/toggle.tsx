@@ -5,13 +5,13 @@ import { ComponentProps } from "react"
 import { cn } from "@/lib/utils"
 
 const toggleVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium text-[rgba(255,255,255,0.65)] hover:bg-[#2A1878] hover:text-white disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-[#1F3076] data-[state=on]:text-white [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 focus-visible:border-[#00CCFE] focus-visible:ring-[#00CCFE]/50 focus-visible:ring-[3px] outline-none transition-[color,box-shadow] aria-invalid:ring-destructive/20 aria-invalid:border-destructive whitespace-nowrap",
+  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium text-[rgba(255,255,255,0.65)] hover:bg-[#242424] hover:text-white disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-[#242424] data-[state=on]:text-white [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 focus-visible:border-[#00CCFE] focus-visible:ring-[#00CCFE]/50 focus-visible:ring-[3px] outline-none transition-[color,box-shadow] aria-invalid:ring-destructive/20 aria-invalid:border-destructive whitespace-nowrap",
   {
     variants: {
       variant: {
         default: "bg-transparent",
         outline:
-          "border border-[rgba(0,204,254,0.15)] bg-transparent shadow-xs hover:bg-[#332090] hover:text-white",
+          "border border-[rgba(255,255,255,0.08)] bg-transparent shadow-xs hover:bg-[#2a2a2a] hover:text-white",
       },
       size: {
         default: "h-9 px-2 min-w-9",

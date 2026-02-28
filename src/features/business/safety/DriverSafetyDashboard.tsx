@@ -754,7 +754,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                             <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8 }} />
                             <Line type="monotone" dataKey="safety" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} name="Safety" />
                             <Line type="monotone" dataKey="attention" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} name="Attention" />
-                            <Line type="monotone" dataKey="efficiency" stroke="#6366f1" strokeWidth={2} dot={{ r: 3 }} name="Efficiency" />
+                            <Line type="monotone" dataKey="efficiency" stroke="#14b8a6" strokeWidth={2} dot={{ r: 3 }} name="Efficiency" />
                           </LineChart>
                         </ResponsiveContainer>
                       ) : (

@@ -1373,22 +1373,16 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
         { label: 'Parts Inventory', value: formatCurrency(inventoryMetrics?.totalValue || 0), icon: Package, accent: 'gray' as const },
       ]} className="border-b border-white/[0.06] bg-[#111] -mx-4" />
 
-      {/* Cost Breakdown Row */}
+      {/* Cost Breakdown Matrix */}
       {(costBreakdown.partsCost > 0 || costBreakdown.laborCost > 0) && (
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded border border-white/[0.06] bg-white/[0.03] p-4 text-center">
-            <p className="text-[10px] text-white/40">Total Cost</p>
-            <p className="text-sm font-bold text-white/80">{formatCurrency(safeMetrics.totalCost)}</p>
-          </div>
-          <div className="rounded border border-white/[0.06] bg-white/[0.03] p-4 text-center">
-            <p className="text-[10px] text-white/40">Parts Cost</p>
-            <p className="text-sm font-bold text-white/80">{formatCurrency(costBreakdown.partsCost)}</p>
-          </div>
-          <div className="rounded border border-white/[0.06] bg-white/[0.03] p-4 text-center">
-            <p className="text-[10px] text-white/40">Labor Cost</p>
-            <p className="text-sm font-bold text-white/80">{formatCurrency(costBreakdown.laborCost)}</p>
-          </div>
-        </div>
+        <HeroMetrics
+          className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
+          metrics={[
+            { label: 'Total Cost', value: formatCurrency(safeMetrics.totalCost), icon: DollarSign, accent: 'gray' },
+            { label: 'Parts Cost', value: formatCurrency(costBreakdown.partsCost), icon: Package, accent: 'gray' },
+            { label: 'Labor Cost', value: formatCurrency(costBreakdown.laborCost), icon: Tool, accent: 'gray' },
+          ]}
+        />
       )}
 
       {/* Main content */}

@@ -103,7 +103,7 @@ export function ActivityBar({ events = placeholderEvents }: ActivityBarProps) {
 
   if (collapsed) {
     return (
-      <div className="shrink-0 border-t border-[rgba(0,204,254,0.08)] bg-[#0D0320]">
+      <div className="shrink-0 border-t border-[rgba(255,255,255,0.06)] bg-[#0a0a0a]">
         <button
           onClick={() => setCollapsed(false)}
           className="flex items-center justify-center w-full h-6 text-[rgba(255,255,255,0.40)] hover:text-white transition-colors"
@@ -116,19 +116,19 @@ export function ActivityBar({ events = placeholderEvents }: ActivityBarProps) {
   }
 
   return (
-    <div className="shrink-0 border-t border-[rgba(0,204,254,0.08)] bg-[#0D0320] h-12">
+    <div className="shrink-0 border-t border-[rgba(255,255,255,0.06)] bg-[#0a0a0a] h-12">
       <div className="flex items-center h-full px-3 gap-2">
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(true)}
-          className="flex items-center justify-center w-6 h-6 rounded text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#1A0648] transition-colors shrink-0"
+          className="flex items-center justify-center w-6 h-6 rounded text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[#111111] transition-colors shrink-0"
           aria-label="Collapse activity bar"
         >
           <ChevronDown className="w-3 h-3" />
         </button>
 
         {/* Gradient divider */}
-        <div className="w-px h-5 bg-gradient-to-b from-transparent via-[rgba(0,204,254,0.15)] to-transparent shrink-0" />
+        <div className="w-px h-5 bg-gradient-to-b from-transparent via-[rgba(255,255,255,0.08)] to-transparent shrink-0" />
 
         {/* Scrollable event ticker */}
         <div className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-hide">
@@ -138,7 +138,7 @@ export function ActivityBar({ events = placeholderEvents }: ActivityBarProps) {
                 key={event.id}
                 className={cn(
                   'flex items-center gap-2 px-2.5 py-1 rounded-md transition-colors whitespace-nowrap',
-                  'hover:bg-[#1A0648] cursor-pointer'
+                  'hover:bg-[#111111] cursor-pointer'
                 )}
               >
                 <span

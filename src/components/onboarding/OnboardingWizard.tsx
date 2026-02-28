@@ -92,7 +92,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const stepLabels = ['Role', 'Dashboard', 'Notifications', 'Complete']
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#0D0320]">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#0a0a0a]">
       {/* Background effects (same as Login) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
@@ -121,8 +121,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
       {/* Card */}
       <div
-        className="relative w-full max-w-[560px] rounded-2xl border border-[rgba(0,204,254,0.15)] shadow-[0_8px_24px_rgba(26,6,72,0.5)] flex flex-col"
-        style={{ background: 'rgba(34,16,96,0.6)', backdropFilter: 'blur(20px)' }}
+        className="relative w-full max-w-[560px] rounded-2xl border border-[rgba(255,255,255,0.08)] shadow-[0_8px_24px_rgba(0,0,0,0.5)] flex flex-col"
+        style={{ background: 'rgba(17,17,17,0.85)', backdropFilter: 'blur(20px)' }}
       >
         {/* Progress dots */}
         <div className="flex items-center justify-center gap-3 pt-8 pb-2">
@@ -131,7 +131,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
               <div
                 className={[
                   'h-2.5 w-2.5 rounded-full transition-colors duration-300',
-                  i === step ? 'bg-[#00CCFE]' : 'bg-[#221060]',
+                  i === step ? 'bg-[#00CCFE]' : 'bg-[#1a1a1a]',
                 ].join(' ')}
               />
               <span
@@ -179,7 +179,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 <button
                   type="button"
                   onClick={() => setStep((s) => s - 1)}
-                  className="flex items-center gap-1.5 border border-[rgba(0,204,254,0.15)] text-[rgba(255,255,255,0.65)] hover:text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+                  className="flex items-center gap-1.5 border border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.65)] hover:text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
                   style={{ fontFamily: '"Montserrat", sans-serif' }}
                 >
                   <ArrowLeft size={16} />
@@ -205,8 +205,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
               className={[
                 'flex items-center gap-1.5 rounded-lg px-5 py-2 text-sm font-semibold transition-colors',
                 canAdvance
-                  ? 'bg-[#1F3076] hover:bg-[#2A1878] text-white'
-                  : 'bg-[#1F3076]/40 text-white/30 cursor-not-allowed',
+                  ? 'bg-[#242424] hover:bg-[#242424] text-white'
+                  : 'bg-[#242424]/40 text-white/30 cursor-not-allowed',
               ].join(' ')}
               style={{ fontFamily: '"Montserrat", sans-serif' }}
             >

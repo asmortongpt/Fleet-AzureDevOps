@@ -44,7 +44,7 @@ function Toggle({
       onClick={() => !disabled && onChange(!checked)}
       className={[
         'relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none',
-        checked ? 'bg-[#00CCFE]' : 'bg-[#221060]',
+        checked ? 'bg-[#00CCFE]' : 'bg-[#1a1a1a]',
         disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
       ].join(' ')}
     >
@@ -66,7 +66,7 @@ function RadioDot({ selected }: { selected: boolean }) {
     <span
       className={[
         'inline-flex h-4 w-4 rounded-full border-2 items-center justify-center flex-shrink-0',
-        selected ? 'border-[#00CCFE]' : 'border-[rgba(0,204,254,0.3)]',
+        selected ? 'border-[#00CCFE]' : 'border-[rgba(255,255,255,0.2)]',
       ].join(' ')}
     >
       {selected && <span className="h-2 w-2 rounded-full bg-[#00CCFE]" />}
@@ -110,7 +110,7 @@ export function NotificationPreferences({ preferences, onChange }: NotificationP
           </h3>
           <div className="space-y-2">
             {/* Critical — always on */}
-            <div className="flex items-center justify-between bg-[#1A0648] border border-[rgba(0,204,254,0.08)] rounded-lg p-3">
+            <div className="flex items-center justify-between bg-[#111111] border border-[rgba(255,255,255,0.06)] rounded-lg p-3">
               <div>
                 <span className="text-white text-sm font-medium" style={{ fontFamily: '"Montserrat", sans-serif' }}>
                   Critical
@@ -123,7 +123,7 @@ export function NotificationPreferences({ preferences, onChange }: NotificationP
             </div>
 
             {/* Warning */}
-            <div className="flex items-center justify-between bg-[#1A0648] border border-[rgba(0,204,254,0.08)] rounded-lg p-3">
+            <div className="flex items-center justify-between bg-[#111111] border border-[rgba(255,255,255,0.06)] rounded-lg p-3">
               <span className="text-white text-sm font-medium" style={{ fontFamily: '"Montserrat", sans-serif' }}>
                 Warning
               </span>
@@ -134,7 +134,7 @@ export function NotificationPreferences({ preferences, onChange }: NotificationP
             </div>
 
             {/* Info */}
-            <div className="flex items-center justify-between bg-[#1A0648] border border-[rgba(0,204,254,0.08)] rounded-lg p-3">
+            <div className="flex items-center justify-between bg-[#111111] border border-[rgba(255,255,255,0.06)] rounded-lg p-3">
               <span className="text-white text-sm font-medium" style={{ fontFamily: '"Montserrat", sans-serif' }}>
                 Info
               </span>
@@ -164,7 +164,7 @@ export function NotificationPreferences({ preferences, onChange }: NotificationP
             ).map((opt) => (
               <label
                 key={opt.value}
-                className="flex items-center gap-3 bg-[#1A0648] border border-[rgba(0,204,254,0.08)] rounded-lg p-3 cursor-pointer hover:border-[rgba(0,204,254,0.25)] transition-colors"
+                className="flex items-center gap-3 bg-[#111111] border border-[rgba(255,255,255,0.06)] rounded-lg p-3 cursor-pointer hover:border-[rgba(255,255,255,0.15)] transition-colors"
               >
                 <RadioDot selected={preferences.digestTiming === opt.value} />
                 <input
@@ -191,7 +191,7 @@ export function NotificationPreferences({ preferences, onChange }: NotificationP
           >
             Quiet Hours
           </h3>
-          <div className="bg-[#1A0648] border border-[rgba(0,204,254,0.08)] rounded-lg p-3 space-y-3">
+          <div className="bg-[#111111] border border-[rgba(255,255,255,0.06)] rounded-lg p-3 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-white text-sm font-medium" style={{ fontFamily: '"Montserrat", sans-serif' }}>
                 Enable quiet hours
@@ -207,14 +207,14 @@ export function NotificationPreferences({ preferences, onChange }: NotificationP
                   type="time"
                   value={preferences.quietHours.start}
                   onChange={(e) => updateQuietHours({ start: e.target.value })}
-                  className="bg-[#0D0320] border border-[rgba(0,204,254,0.15)] rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[#00CCFE]"
+                  className="bg-[#0a0a0a] border border-[rgba(255,255,255,0.08)] rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[#00CCFE]"
                 />
                 <span className="text-[rgba(255,255,255,0.40)] text-sm">to</span>
                 <input
                   type="time"
                   value={preferences.quietHours.end}
                   onChange={(e) => updateQuietHours({ end: e.target.value })}
-                  className="bg-[#0D0320] border border-[rgba(0,204,254,0.15)] rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[#00CCFE]"
+                  className="bg-[#0a0a0a] border border-[rgba(255,255,255,0.08)] rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[#00CCFE]"
                 />
               </div>
             )}

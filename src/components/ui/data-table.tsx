@@ -157,7 +157,7 @@ export function DataTable<TData, TValue>({
               placeholder={searchPlaceholder}
               value={globalFilter ?? ''}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              className="h-7 pl-7 text-xs bg-[#1A0648] border-[rgba(0,204,254,0.08)] focus:border-[#00CCFE] text-white placeholder:text-[rgba(255,255,255,0.40)]"
+              className="h-7 pl-7 text-xs bg-[#111111] border-[rgba(255,255,255,0.06)] focus:border-[#00CCFE] text-white placeholder:text-[rgba(255,255,255,0.40)]"
             />
             {globalFilter && (
               <button
@@ -178,14 +178,14 @@ export function DataTable<TData, TValue>({
       )}
 
       {/* Table */}
-      <div className="rounded-xl border border-[rgba(0,204,254,0.08)] overflow-hidden bg-[#221060]">
+      <div className="rounded-xl border border-[rgba(255,255,255,0.06)] overflow-hidden bg-[#1a1a1a]">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
-                  className="border-b border-[rgba(0,204,254,0.08)] bg-[#2A1878] hover:bg-[#2A1878]"
+                  className="border-b border-[rgba(255,255,255,0.06)] bg-[#242424] hover:bg-[#242424]"
                 >
                   {headerGroup.headers.map((header) => (
                     <TableHead
@@ -229,11 +229,11 @@ export function DataTable<TData, TValue>({
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
                     className={cn(
-                      'border-b border-[rgba(0,204,254,0.08)] transition-colors',
-                      'hover:bg-[#2A1878]',
+                      'border-b border-[rgba(255,255,255,0.06)] transition-colors',
+                      'hover:bg-[#242424]',
                       row.getIsSelected() && 'bg-[#00CCFE]/10',
-                      index % 2 === 0 && 'bg-[#221060]',
-                      index % 2 === 1 && 'bg-[#1A0648]/50'
+                      index % 2 === 0 && 'bg-[#1a1a1a]',
+                      index % 2 === 1 && 'bg-[#111111]/50'
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -272,15 +272,15 @@ export function DataTable<TData, TValue>({
                 table.setPageSize(Number(value))
               }}
             >
-              <SelectTrigger className="h-6 w-[60px] text-xs bg-[#1A0648] border-[rgba(0,204,254,0.08)] text-white">
+              <SelectTrigger className="h-6 w-[60px] text-xs bg-[#111111] border-[rgba(255,255,255,0.06)] text-white">
                 <SelectValue placeholder={table.getState().pagination.pageSize} />
               </SelectTrigger>
-              <SelectContent side="top" className="bg-[#221060] border-[rgba(0,204,254,0.08)]">
+              <SelectContent side="top" className="bg-[#1a1a1a] border-[rgba(255,255,255,0.06)]">
                 {[10, 25, 50, 100].map((pageSize) => (
                   <SelectItem
                     key={pageSize}
                     value={`${pageSize}`}
-                    className="text-white hover:bg-[#2A1878] text-xs"
+                    className="text-white hover:bg-[#242424] text-xs"
                   >
                     {pageSize}
                   </SelectItem>
@@ -305,7 +305,7 @@ export function DataTable<TData, TValue>({
                 size="sm"
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
-                className="h-6 px-2 text-[10px] bg-[#1A0648] border-[rgba(0,204,254,0.08)] text-white hover:bg-[#2A1878] disabled:opacity-30"
+                className="h-6 px-2 text-[10px] bg-[#111111] border-[rgba(255,255,255,0.06)] text-white hover:bg-[#242424] disabled:opacity-30"
               >
                 First
               </Button>
@@ -314,7 +314,7 @@ export function DataTable<TData, TValue>({
                 size="sm"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="h-6 px-2 text-[10px] bg-[#1A0648] border-[rgba(0,204,254,0.08)] text-white hover:bg-[#2A1878] disabled:opacity-30"
+                className="h-6 px-2 text-[10px] bg-[#111111] border-[rgba(255,255,255,0.06)] text-white hover:bg-[#242424] disabled:opacity-30"
               >
                 Prev
               </Button>
@@ -323,7 +323,7 @@ export function DataTable<TData, TValue>({
                 size="sm"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="h-6 px-2 text-[10px] bg-[#1A0648] border-[rgba(0,204,254,0.08)] text-white hover:bg-[#2A1878] disabled:opacity-30"
+                className="h-6 px-2 text-[10px] bg-[#111111] border-[rgba(255,255,255,0.06)] text-white hover:bg-[#242424] disabled:opacity-30"
               >
                 Next
               </Button>
@@ -332,7 +332,7 @@ export function DataTable<TData, TValue>({
                 size="sm"
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
-                className="h-6 px-2 text-[10px] bg-[#1A0648] border-[rgba(0,204,254,0.08)] text-white hover:bg-[#2A1878] disabled:opacity-30"
+                className="h-6 px-2 text-[10px] bg-[#111111] border-[rgba(255,255,255,0.06)] text-white hover:bg-[#242424] disabled:opacity-30"
               >
                 Last
               </Button>
@@ -358,12 +358,12 @@ export function createStatusColumn<T>(
       const status = row.getValue(accessorKey as string) as string
       const statusLower = status?.toLowerCase() || ''
 
-      let badgeClass = 'bg-[#2A1878]/30 text-[rgba(255,255,255,0.65)] border-[rgba(0,204,254,0.08)]'
+      let badgeClass = 'bg-[#242424]/30 text-[rgba(255,255,255,0.65)] border-[rgba(255,255,255,0.06)]'
 
       if (statusLower === 'active' || statusLower === 'online' || statusLower === 'available') {
         badgeClass = 'bg-[#10B981]/20 text-[#10B981] border-[#10B981]/30'
       } else if (statusLower === 'inactive' || statusLower === 'offline') {
-        badgeClass = 'bg-[#2A1878]/30 text-[rgba(255,255,255,0.65)] border-[rgba(0,204,254,0.08)]'
+        badgeClass = 'bg-[#242424]/30 text-[rgba(255,255,255,0.65)] border-[rgba(255,255,255,0.06)]'
       } else if (statusLower === 'warning' || statusLower === 'maintenance') {
         badgeClass = 'bg-[#FDC016]/20 text-[#FDC016] border-[#FDC016]/30'
       } else if (statusLower === 'critical' || statusLower === 'alert') {

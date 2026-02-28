@@ -94,7 +94,7 @@ export function FilterPill({ filter, fields, onUpdate, onRemove }: FilterPillPro
 
   return (
     <div
-      className="inline-flex items-center gap-1 bg-[#2A1878] border border-[rgba(0,204,254,0.15)] rounded-full pl-3 pr-1 py-1 text-sm"
+      className="inline-flex items-center gap-1 bg-[#242424] border border-[rgba(255,255,255,0.08)] rounded-full pl-3 pr-1 py-1 text-sm"
       style={{ fontFamily: 'Montserrat, sans-serif' }}
     >
       {/* Field selector */}
@@ -111,12 +111,12 @@ export function FilterPill({ filter, fields, onUpdate, onRemove }: FilterPillPro
           <ChevronDown className="w-3 h-3" />
         </button>
         {fieldOpen && (
-          <div className="absolute top-full left-0 mt-1 z-50 bg-[#221060] border border-[rgba(0,204,254,0.15)] rounded-xl shadow-[0_8px_24px_rgba(26,6,72,0.5)] p-1 min-w-[140px]">
+          <div className="absolute top-full left-0 mt-1 z-50 bg-[#1a1a1a] border border-[rgba(255,255,255,0.08)] rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.5)] p-1 min-w-[140px]">
             {fields.map((f) => (
               <div
                 key={f.value}
                 onClick={() => handleFieldSelect(f.value)}
-                className="px-3 py-1.5 rounded-lg hover:bg-[#2A1878] cursor-pointer text-[rgba(255,255,255,0.85)] whitespace-nowrap"
+                className="px-3 py-1.5 rounded-lg hover:bg-[#242424] cursor-pointer text-[rgba(255,255,255,0.85)] whitespace-nowrap"
               >
                 {f.label}
               </div>
@@ -139,12 +139,12 @@ export function FilterPill({ filter, fields, onUpdate, onRemove }: FilterPillPro
           <ChevronDown className="w-3 h-3" />
         </button>
         {operatorOpen && (
-          <div className="absolute top-full left-0 mt-1 z-50 bg-[#221060] border border-[rgba(0,204,254,0.15)] rounded-xl shadow-[0_8px_24px_rgba(26,6,72,0.5)] p-1 min-w-[120px]">
+          <div className="absolute top-full left-0 mt-1 z-50 bg-[#1a1a1a] border border-[rgba(255,255,255,0.08)] rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.5)] p-1 min-w-[120px]">
             {OPERATORS.map((op) => (
               <div
                 key={op.value}
                 onClick={() => handleOperatorSelect(op.value)}
-                className="px-3 py-1.5 rounded-lg hover:bg-[#2A1878] cursor-pointer text-[rgba(255,255,255,0.85)] whitespace-nowrap"
+                className="px-3 py-1.5 rounded-lg hover:bg-[#242424] cursor-pointer text-[rgba(255,255,255,0.85)] whitespace-nowrap"
               >
                 {op.label}
               </div>

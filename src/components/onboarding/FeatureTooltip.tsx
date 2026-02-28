@@ -173,7 +173,7 @@ export default function FeatureTooltip({
             height: 0,
             borderLeft: '8px solid transparent',
             borderRight: '8px solid transparent',
-            borderBottom: '8px solid #2A1878',
+            borderBottom: '8px solid #242424',
           }}
         />
       )}
@@ -181,10 +181,10 @@ export default function FeatureTooltip({
       {/* Card */}
       <div
         style={{
-          background: '#2A1878',
-          border: '1px solid rgba(0, 204, 254, 0.15)',
+          background: '#242424',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: 12,
-          boxShadow: '0 8px 24px rgba(26, 6, 72, 0.5)',
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)',
           padding: 16,
           position: 'relative',
         }}
@@ -251,7 +251,7 @@ export default function FeatureTooltip({
           <button
             onClick={handleDismiss}
             style={{
-              background: '#1F3076',
+              background: '#242424',
               color: '#fff',
               border: 'none',
               borderRadius: 8,
@@ -263,10 +263,10 @@ export default function FeatureTooltip({
               transition: 'background 150ms',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#332090'
+              e.currentTarget.style.background = '#2a2a2a'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#1F3076'
+              e.currentTarget.style.background = '#242424'
             }}
           >
             Got it
@@ -305,7 +305,7 @@ export default function FeatureTooltip({
             height: 0,
             borderLeft: '8px solid transparent',
             borderRight: '8px solid transparent',
-            borderTop: '8px solid #2A1878',
+            borderTop: '8px solid #242424',
           }}
         />
       )}

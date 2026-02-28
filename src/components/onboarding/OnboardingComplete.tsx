@@ -66,10 +66,10 @@ export function OnboardingComplete({ onComplete }: OnboardingCompleteProps) {
         {shortcuts.map((s) => (
           <div
             key={s.keys}
-            className="flex items-center gap-3 bg-[#1A0648] rounded-lg px-4 py-2"
+            className="flex items-center gap-3 bg-[#111111] rounded-lg px-4 py-2"
           >
             <kbd
-              className="bg-[#0D0320] px-2 py-0.5 rounded text-[#00CCFE] font-mono text-sm inline-block min-w-[40px] text-center"
+              className="bg-[#0a0a0a] px-2 py-0.5 rounded text-[#00CCFE] font-mono text-sm inline-block min-w-[40px] text-center"
             >
               {s.keys}
             </kbd>
@@ -87,7 +87,7 @@ export function OnboardingComplete({ onComplete }: OnboardingCompleteProps) {
       <button
         type="button"
         onClick={onComplete}
-        className="bg-[#1F3076] hover:bg-[#2A1878] text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
+        className="bg-[#242424] hover:bg-[#242424] text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
         style={{ fontFamily: '"Montserrat", sans-serif' }}
       >
         Get Started

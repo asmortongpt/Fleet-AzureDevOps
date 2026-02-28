@@ -24,7 +24,7 @@ const typeColors: Record<string, string> = {
   alert: '#f59e0b',
   maintenance: '#6b7280',
   compliance: '#ef4444',
-  info: '#3b82f6',
+  info: '#06b6d4',
 }
 
 export function TimelineStrip({ events, collapsed = true, onToggle, className }: TimelineStripProps) {

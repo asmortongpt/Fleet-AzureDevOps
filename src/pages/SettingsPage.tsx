@@ -237,8 +237,8 @@ export default function SettingsPage() {
                   onClick={() => handleTabChange(category.id)}
                   className={`w-full flex items-start gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
                     activeTab === category.id
-                      ? 'bg-[#00CCFE] text-[#0D0320]'
-                      : 'hover:bg-[#2A1878] hover:text-white'
+                      ? 'bg-[#00CCFE] text-[#0a0a0a]'
+                      : 'hover:bg-[#242424] hover:text-white'
                   }`}
                 >
                   <span className="mt-0.5">{category.icon}</span>
@@ -247,7 +247,7 @@ export default function SettingsPage() {
                     <div
                       className={`text-xs mt-0.5 ${
                         activeTab === category.id
-                          ? 'text-[#0D0320]/80'
+                          ? 'text-[#0a0a0a]/80'
                           : 'text-[rgba(255,255,255,0.40)]'
                       }`}
                     >
@@ -308,7 +308,7 @@ export default function SettingsPage() {
 
       {/* Keyboard Shortcut Hint */}
       <div className="text-xs text-[rgba(255,255,255,0.40)] text-center">
-        Press <kbd className="px-2 py-1 bg-[#221060] rounded">Cmd/Ctrl + S</kbd> to save changes
+        Press <kbd className="px-2 py-1 bg-[#1a1a1a] rounded">Cmd/Ctrl + S</kbd> to save changes
       </div>
     </div>
     </ErrorBoundary>

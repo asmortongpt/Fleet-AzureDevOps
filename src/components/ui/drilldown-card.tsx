@@ -122,7 +122,7 @@ export function DrilldownCard({
   return (
     <div
       className={cn(
-        'relative rounded-xl border border-[rgba(0,204,254,0.08)] bg-[#221060] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(26,6,72,0.4)]',
+        'relative rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#1a1a1a] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.4)]',
         className
       )}
     >
@@ -136,7 +136,7 @@ export function DrilldownCard({
                   variant="ghost"
                   size="sm"
                   onClick={drillUp}
-                  className="h-7 w-7 p-0 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-[#2A1878]"
+                  className="h-7 w-7 p-0 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-[#242424]"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
@@ -176,7 +176,7 @@ export function DrilldownCard({
           {/* Actions */}
           <div className="flex items-center gap-2">
             {currentLevel.metadata?.count !== undefined && (
-              <Badge variant="secondary" className="text-xs bg-[#2A1878] text-[rgba(255,255,255,0.65)] border-[rgba(0,204,254,0.08)]">
+              <Badge variant="secondary" className="text-xs bg-[#242424] text-[rgba(255,255,255,0.65)] border-[rgba(255,255,255,0.06)]">
                 {currentLevel.metadata.count} items
               </Badge>
             )}
@@ -187,7 +187,7 @@ export function DrilldownCard({
                   variant="outline"
                   size="sm"
                   onClick={handleExport}
-                  className="h-8 border-[rgba(0,204,254,0.08)] text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-[#2A1878]"
+                  className="h-8 border-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-[#242424]"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Export
@@ -230,7 +230,7 @@ export function DrilldownCard({
 
         {/* Navigation Hints */}
         {currentIndex < levels.length - 1 && (
-          <div className="mt-2 p-3 bg-[#2A1878]/50 rounded-lg text-sm text-[rgba(255,255,255,0.65)]">
+          <div className="mt-2 p-3 bg-[#242424]/50 rounded-lg text-sm text-[rgba(255,255,255,0.65)]">
             <p className="flex items-center gap-2">
               <ExternalLink className="h-4 w-4" />
               Click on items above to drill down into {levels[currentIndex + 1]?.title.toLowerCase()}

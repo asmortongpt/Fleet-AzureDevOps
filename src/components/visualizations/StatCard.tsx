@@ -22,14 +22,14 @@ interface StatCardProps {
   loading?: boolean
   sparklineData?: { value: number }[]
   showSparkline?: boolean
-  accentColor?: 'emerald' | 'amber' | 'rose' | 'blue'
+  accentColor?: 'emerald' | 'amber' | 'rose' | 'cyan'
 }
 
 const accents = {
   emerald: { bar: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.18)', text: '#34d399' },
   amber:   { bar: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.18)', text: '#fbbf24' },
   rose:    { bar: '#f43f5e', bg: 'rgba(244,63,94,0.08)',   border: 'rgba(244,63,94,0.18)',  text: '#fb7185' },
-  blue:    { bar: '#3b82f6', bg: 'rgba(59,130,246,0.08)',  border: 'rgba(59,130,246,0.18)', text: '#60a5fa' },
+  cyan:    { bar: '#06b6d4', bg: 'rgba(6,182,212,0.08)',   border: 'rgba(6,182,212,0.18)',  text: '#22d3ee' },
 }
 
 export function StatCard({

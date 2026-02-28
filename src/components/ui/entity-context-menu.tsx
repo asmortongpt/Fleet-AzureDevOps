@@ -86,7 +86,7 @@ export function EntityContextMenu({
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
         <ContextMenu.Content
-          className="bg-[#221060] border border-[rgba(0,204,254,0.15)] rounded-xl shadow-[0_8px_24px_rgba(26,6,72,0.5)] p-1 min-w-[200px] z-50 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
+          className="bg-[#1a1a1a] border border-[rgba(255,255,255,0.08)] rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.5)] p-1 min-w-[200px] z-50 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
         >
           <ContextMenu.Label
             className="px-3 py-1.5 text-xs font-medium text-[rgba(255,255,255,0.40)] uppercase tracking-wider"
@@ -100,7 +100,7 @@ export function EntityContextMenu({
               return (
                 <ContextMenu.Separator
                   key={`sep-${index}`}
-                  className="h-px bg-[rgba(0,204,254,0.08)] my-1 mx-2"
+                  className="h-px bg-[rgba(255,255,255,0.06)] my-1 mx-2"
                 />
               )
             }
@@ -112,8 +112,8 @@ export function EntityContextMenu({
                 key={item.action}
                 className={
                   item.destructive
-                    ? 'rounded-lg px-3 py-2 text-sm cursor-pointer outline-none flex items-center gap-3 text-[#FF4300] data-[highlighted]:bg-[#2A1878] data-[highlighted]:text-[#FF4300]'
-                    : 'rounded-lg px-3 py-2 text-sm cursor-pointer outline-none flex items-center gap-3 text-[rgba(255,255,255,0.85)] data-[highlighted]:bg-[#2A1878] data-[highlighted]:text-white'
+                    ? 'rounded-lg px-3 py-2 text-sm cursor-pointer outline-none flex items-center gap-3 text-[#FF4300] data-[highlighted]:bg-[#242424] data-[highlighted]:text-[#FF4300]'
+                    : 'rounded-lg px-3 py-2 text-sm cursor-pointer outline-none flex items-center gap-3 text-[rgba(255,255,255,0.85)] data-[highlighted]:bg-[#242424] data-[highlighted]:text-white'
                 }
                 onSelect={() => onAction?.(item.action!, entityId)}
               >

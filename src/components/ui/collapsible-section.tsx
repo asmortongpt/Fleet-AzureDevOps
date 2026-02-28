@@ -68,7 +68,7 @@ export function CollapsibleSection({
     <div
       className={cn(
         'border rounded-lg overflow-hidden transition-all',
-        'bg-[#221060]',
+        'bg-[#1a1a1a]',
         className
       )}
     >
@@ -79,7 +79,7 @@ export function CollapsibleSection({
         onClick={handleToggle}
         className={cn(
           'w-full flex items-center justify-between p-2',
-          'hover:bg-[#2A1878]/50 transition-colors',
+          'hover:bg-[#242424]/50 transition-colors',
           'rounded-none'
         )}
         aria-expanded={isExpanded}

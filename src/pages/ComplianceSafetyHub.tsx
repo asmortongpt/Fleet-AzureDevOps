@@ -43,6 +43,7 @@ import useSWR from 'swr'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { HeroMetrics, type HeroMetric } from '@/components/ui/hero-metrics'
 import { KanbanBoard } from '@/components/ui/kanban-board'
 import type { KanbanColumn, KanbanItem } from '@/components/ui/kanban-board'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -311,41 +312,16 @@ const SafetySubView = memo(function SafetySubView() {
         </Button>
       </div>
 
-      {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-3">
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Shield className="h-4 w-4 text-white/40" />
-            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Safety Score</span>
-          </div>
-          <p className="text-lg font-semibold text-white/80">{safetyScoreStats.average > 0 ? String(safetyScoreStats.average) : '\u2014'}</p>
-          <p className="text-[11px] text-white/35">Avg across {safetyScoreStats.count} drivers</p>
-        </div>
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Award className="h-4 w-4 text-white/40" />
-            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Days Since Report</span>
-          </div>
-          <p className="text-lg font-semibold text-white/80">{daysSinceIncident !== null ? String(daysSinceIncident) : '\u2014'}</p>
-          <p className="text-[11px] text-white/35">Since last incident reported</p>
-        </div>
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <AlertTriangle className="h-4 w-4 text-white/40" />
-            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Open Incidents</span>
-          </div>
-          <p className="text-lg font-semibold text-white/80">{String(openIncidents)}</p>
-          <p className="text-[11px] text-white/35">Under investigation</p>
-        </div>
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <BookOpen className="h-4 w-4 text-white/40" />
-            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Training</span>
-          </div>
-          <p className="text-lg font-semibold text-white/80">{trainingCompletion > 0 ? `${trainingCompletion}%` : '\u2014'}</p>
-          <p className="text-[11px] text-white/35">Safety training completion</p>
-        </div>
-      </div>
+      {/* KPI Matrix */}
+      <HeroMetrics
+        className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
+        metrics={[
+          { label: 'Safety Score', value: safetyScoreStats.average > 0 ? String(safetyScoreStats.average) : '\u2014', icon: Shield, accent: 'emerald' },
+          { label: 'Days Since Report', value: daysSinceIncident !== null ? String(daysSinceIncident) : '\u2014', icon: Award, accent: 'amber' },
+          { label: 'Open Incidents', value: String(openIncidents), icon: AlertTriangle, accent: openIncidents > 0 ? 'rose' : 'emerald' },
+          { label: 'Training', value: trainingCompletion > 0 ? `${trainingCompletion}%` : '\u2014', icon: BookOpen, accent: 'gray' },
+        ]}
+      />
 
       {/* Main Content: Charts row */}
       <div className="grid grid-cols-2 gap-3">
@@ -685,41 +661,16 @@ const PoliciesSubView = memo(function PoliciesSubView() {
 
   return (
     <div className="flex flex-col gap-3 overflow-y-auto">
-      {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-3">
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <FileText className="h-4 w-4 text-white/40" />
-            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Active Policies</span>
-          </div>
-          <p className="text-lg font-semibold text-white/80">{String(activePolicies.length)}</p>
-          <p className="text-[11px] text-white/35">Currently enforced</p>
-        </div>
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <CheckCircle className="h-4 w-4 text-white/40" />
-            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Adherence</span>
-          </div>
-          <p className="text-lg font-semibold text-white/80">{complianceScore > 0 ? `${complianceScore}%` : '\u2014'}</p>
-          <p className="text-[11px] text-white/35">Compliance rate</p>
-        </div>
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <ScrollText className="h-4 w-4 text-white/40" />
-            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Under Review</span>
-          </div>
-          <p className="text-lg font-semibold text-white/80">{String(underReview.length)}</p>
-          <p className="text-[11px] text-white/35">Pending approval</p>
-        </div>
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Gavel className="h-4 w-4 text-white/40" />
-            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wide">Violations</span>
-          </div>
-          <p className="text-lg font-semibold text-white/80">{String(policyViolations.length)}</p>
-          <p className="text-[11px] text-white/35">Total violations</p>
-        </div>
-      </div>
+      {/* KPI Matrix */}
+      <HeroMetrics
+        className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
+        metrics={[
+          { label: 'Active Policies', value: String(activePolicies.length), icon: FileText, accent: 'emerald' },
+          { label: 'Adherence', value: complianceScore > 0 ? `${complianceScore}%` : '\u2014', icon: CheckCircle, accent: 'emerald' },
+          { label: 'Under Review', value: String(underReview.length), icon: ScrollText, accent: 'amber' },
+          { label: 'Violations', value: String(policyViolations.length), icon: Gavel, accent: policyViolations.length > 0 ? 'rose' : 'gray' },
+        ]}
+      />
 
       {/* Main Content: Categories + Violations */}
       <div className="grid grid-cols-2 gap-3">
@@ -1535,75 +1486,31 @@ export default function ComplianceSafetyHub() {
               </div>
             ) : (
               <>
-                {/* Summary KPI strip */}
-                <div className="grid grid-cols-4 gap-3">
-                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(16,185,129,0.12)' }}>
-                      <CheckCircle className="h-4 w-4" style={{ color: '#10b981' }} />
-                    </div>
-                    <div>
-                      <p className="text-lg font-semibold text-white/80 leading-none">{complianceStats.complianceRate}%</p>
-                      <p className="text-[10px] text-white/35 uppercase tracking-wide mt-0.5">Compliance Rate</p>
-                    </div>
-                  </div>
-                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(16,185,129,0.12)' }}>
-                      <Award className="h-4 w-4" style={{ color: '#10b981' }} />
-                    </div>
-                    <div>
-                      <p className="text-lg font-semibold text-white/80 leading-none">{complianceStats.activeCerts}</p>
-                      <p className="text-[10px] text-white/35 uppercase tracking-wide mt-0.5">Active Certs</p>
-                    </div>
-                  </div>
-                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.12)' }}>
-                      <Clock className="h-4 w-4" style={{ color: '#f59e0b' }} />
-                    </div>
-                    <div>
-                      <p className="text-lg font-semibold text-white/80 leading-none">{complianceStats.expiringSoon}</p>
-                      <p className="text-[10px] text-white/35 uppercase tracking-wide mt-0.5">Expiring Soon</p>
-                    </div>
-                  </div>
-                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.12)' }}>
-                      <XCircle className="h-4 w-4" style={{ color: '#ef4444' }} />
-                    </div>
-                    <div>
-                      <p className="text-lg font-semibold text-white/80 leading-none">{complianceStats.nonCompliant}</p>
-                      <p className="text-[10px] text-white/35 uppercase tracking-wide mt-0.5">Non-Compliant</p>
-                    </div>
-                  </div>
-                </div>
+                {/* Summary KPI matrix */}
+                <HeroMetrics
+                  className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
+                  metrics={[
+                    { label: 'Compliance Rate', value: `${complianceStats.complianceRate}%`, icon: CheckCircle, accent: 'emerald' },
+                    { label: 'Active Certs', value: String(complianceStats.activeCerts), icon: Award, accent: 'emerald' },
+                    { label: 'Expiring Soon', value: String(complianceStats.expiringSoon), icon: Clock, accent: complianceStats.expiringSoon > 0 ? 'amber' : 'gray' },
+                    { label: 'Non-Compliant', value: String(complianceStats.nonCompliant), icon: XCircle, accent: complianceStats.nonCompliant > 0 ? 'rose' : 'gray' },
+                  ]}
+                />
 
                 {/* Kanban Board — urgency columns */}
                 <KanbanBoard columns={kanbanColumns} />
 
-                {/* Compliance Scores — metric bars if available */}
+                {/* Compliance Scores — compact matrix */}
                 {dashMetrics && (dashMetrics.vehicleCompliance > 0 || dashMetrics.driverCompliance > 0 || dashMetrics.safetyCompliance > 0 || dashMetrics.regulatoryCompliance > 0) && (
-                  <div className="grid grid-cols-4 gap-3">
-                    {[
-                      { label: 'Vehicle', value: dashMetrics.vehicleCompliance },
-                      { label: 'Driver', value: dashMetrics.driverCompliance },
-                      { label: 'Safety', value: dashMetrics.safetyCompliance },
-                      { label: 'Regulatory', value: dashMetrics.regulatoryCompliance },
-                    ].map((metric) => (
-                      <div key={metric.label} className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[11px] text-white/40 uppercase tracking-wide">{metric.label}</span>
-                          <span className="text-[13px] font-semibold text-white/80">{metric.value}%</span>
-                        </div>
-                        <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                          <div
-                            className="h-2 rounded-full transition-all"
-                            style={{
-                              width: `${metric.value}%`,
-                              background: metric.value >= 80 ? '#10b981' : metric.value >= 60 ? '#f59e0b' : '#ef4444',
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <HeroMetrics
+                    className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
+                    metrics={[
+                      { label: 'Vehicle', value: `${dashMetrics.vehicleCompliance}%`, icon: Shield, accent: dashMetrics.vehicleCompliance >= 80 ? 'emerald' : dashMetrics.vehicleCompliance >= 60 ? 'amber' : 'rose' },
+                      { label: 'Driver', value: `${dashMetrics.driverCompliance}%`, icon: Users, accent: dashMetrics.driverCompliance >= 80 ? 'emerald' : dashMetrics.driverCompliance >= 60 ? 'amber' : 'rose' },
+                      { label: 'Safety', value: `${dashMetrics.safetyCompliance}%`, icon: Shield, accent: dashMetrics.safetyCompliance >= 80 ? 'emerald' : dashMetrics.safetyCompliance >= 60 ? 'amber' : 'rose' },
+                      { label: 'Regulatory', value: `${dashMetrics.regulatoryCompliance}%`, icon: FileCheck, accent: dashMetrics.regulatoryCompliance >= 80 ? 'emerald' : dashMetrics.regulatoryCompliance >= 60 ? 'amber' : 'rose' },
+                    ]}
+                  />
                 )}
 
                 {/* Timeline Strip */}

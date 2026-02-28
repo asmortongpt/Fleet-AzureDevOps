@@ -36,7 +36,7 @@ export function FormFieldWithHelp({
               <div className="space-y-2">
                 <p>{helpText}</p>
                 {example && (
-                  <div className="p-2 bg-[#221060] rounded text-xs">
+                  <div className="p-2 bg-[#1a1a1a] rounded text-xs">
                     <span className="font-semibold">Example: </span>
                     {example}
                   </div>

@@ -52,7 +52,7 @@ function PaginationLink({
           variant: isActive ? "outline" : "ghost",
           size,
         }),
-        isActive && "bg-[#1F3076] text-white border-[rgba(0,204,254,0.15)]",
+        isActive && "bg-[#242424] text-white border-[rgba(255,255,255,0.08)]",
         className
       )}
       {...props}

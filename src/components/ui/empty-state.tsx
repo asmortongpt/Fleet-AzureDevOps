@@ -36,7 +36,7 @@ export function EmptyState({
       role="status"
       aria-live="polite"
     >
-      <div className="mb-2 p-2 rounded-full bg-[#2A1878]/50" aria-hidden="true">
+      <div className="mb-2 p-2 rounded-full bg-[#242424]/50" aria-hidden="true">
         {icon}
       </div>
 
@@ -58,7 +58,7 @@ export function EmptyState({
             onClick={secondaryAction.onClick}
             variant="outline"
             size="lg"
-            className="border-[rgba(0,204,254,0.08)] text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-[#2A1878]"
+            className="border-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-[#242424]"
           >
             {secondaryAction.label}
           </Button>
@@ -66,7 +66,7 @@ export function EmptyState({
       </div>
 
       {helpArticle && (
-        <div className="mt-3 p-2 border border-[rgba(0,204,254,0.08)] rounded-lg bg-[#2A1878]/30 max-w-md">
+        <div className="mt-3 p-2 border border-[rgba(255,255,255,0.06)] rounded-lg bg-[#242424]/30 max-w-md">
           <div className="flex items-center gap-2 text-sm">
             <BookOpen className="h-4 w-4 text-[#00CCFE] flex-shrink-0" />
             <span className="text-[rgba(255,255,255,0.65)]">New to this feature?</span>

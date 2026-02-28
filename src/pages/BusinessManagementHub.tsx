@@ -50,6 +50,7 @@ import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { HeroBanner, BannerMetric } from '@/components/ui/hero-banner'
+import { HeroMetrics, type HeroMetric } from '@/components/ui/hero-metrics'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   ResponsiveBarChart,
@@ -733,37 +734,16 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-3">
-        <InlineStat
-          label="Active Vendors"
-          value={activeVendors.length}
-          icon={Building}
-          detail="Approved suppliers"
-        />
-        <InlineStat
-          label="Open Purchase Orders"
-          value={openOrders.length}
-          icon={ShoppingCart}
-          detail="Pending delivery"
-        />
-        <InlineStat
-          label="Open PO Value"
-          value={formatCurrency(openPoValue)}
-          icon={CreditCard}
-          detail="Non-delivered PO total"
-        />
-        <InlineStat
-          label="Vendor Maintenance Spend"
-          value={(() => {
-            let total = 0
-            vendorWoCosts.forEach((v) => { total += v.totalCost })
-            return formatCurrency(total)
-          })()}
-          icon={Wrench}
-          detail="Work order vendor costs"
-        />
-      </div>
+      {/* KPI Matrix */}
+      <HeroMetrics
+        className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
+        metrics={[
+          { label: 'Active Vendors', value: String(activeVendors.length), icon: Building, accent: 'emerald' },
+          { label: 'Open POs', value: String(openOrders.length), icon: ShoppingCart, accent: openOrders.length > 0 ? 'amber' : 'gray' },
+          { label: 'Open PO Value', value: formatCurrency(openPoValue), icon: CreditCard, accent: 'gray' },
+          { label: 'Vendor Spend', value: (() => { let t = 0; vendorWoCosts.forEach((v) => { t += v.totalCost }); return formatCurrency(t) })(), icon: Wrench, accent: 'gray' },
+        ]}
+      />
 
       {/* Main Content: Vendors + Purchase Orders */}
       <div className="grid grid-cols-2 gap-3">
@@ -1112,35 +1092,16 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-3">
-        <InlineStat
-          label="Fleet Utilization"
-          value={`${fleetUtilization}%`}
-          icon={Activity}
-          detail={`${activeVehicles} of ${totalVehicles} vehicles active`}
-          trend={fleetUtilization >= 80 ? 'up' : fleetUtilization >= 60 ? 'neutral' : 'down'}
-        />
-        <InlineStat
-          label="Avg Cost Per Vehicle"
-          value={avgCostPerVehicle > 0 ? formatCurrency(avgCostPerVehicle) : '--'}
-          icon={DollarSign}
-          detail={`${totalVehicles} vehicles, ${fleetWorkOrders.length} work orders`}
-        />
-        <InlineStat
-          label="Fuel Efficiency"
-          value={fuelEfficiency > 0 ? `${formatNumber(fuelEfficiency, 1)} MPG` : 'No data'}
-          icon={Gauge}
-          detail={fuelTransactions.length > 0 ? `From ${fuelTransactions.length} transactions` : 'No fuel data available'}
-        />
-        <InlineStat
-          label="Maintenance Ratio"
-          value={`${maintenanceRatio}%`}
-          icon={Wrench}
-          detail="Maintenance as % of total spend"
-          trend={maintenanceRatio > 60 ? 'down' : 'neutral'}
-        />
-      </div>
+      {/* KPI Matrix */}
+      <HeroMetrics
+        className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
+        metrics={[
+          { label: 'Fleet Utilization', value: `${fleetUtilization}%`, icon: Activity, trend: fleetUtilization >= 80 ? 'up' : fleetUtilization >= 60 ? 'neutral' : 'down', accent: fleetUtilization >= 80 ? 'emerald' : fleetUtilization >= 60 ? 'amber' : 'rose' },
+          { label: 'Avg Cost / Vehicle', value: avgCostPerVehicle > 0 ? formatCurrency(avgCostPerVehicle) : '--', icon: DollarSign, accent: 'gray' },
+          { label: 'Fuel Efficiency', value: fuelEfficiency > 0 ? `${formatNumber(fuelEfficiency, 1)} MPG` : '--', icon: Gauge, accent: 'gray' },
+          { label: 'Maint. Ratio', value: `${maintenanceRatio}%`, icon: Wrench, trend: maintenanceRatio > 60 ? 'down' : 'neutral', accent: maintenanceRatio > 60 ? 'rose' : 'gray' },
+        ]}
+      />
 
       {/* Chart Row */}
       <div className="grid grid-cols-2 gap-3">
@@ -1400,33 +1361,16 @@ const ReportsTabContent = memo(function ReportsTabContent() {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-3">
-        <InlineStat
-          label="Available Reports"
-          value={templates.length}
-          icon={FileText}
-          detail="Report templates"
-        />
-        <InlineStat
-          label="Generated This Month"
-          value={generatedThisMonth}
-          icon={Download}
-          detail="Report instances"
-        />
-        <InlineStat
-          label="Scheduled Reports"
-          value={schedules.length}
-          icon={Calendar}
-          detail="Auto-generated"
-        />
-        <InlineStat
-          label="Custom Dashboards"
-          value={custom.length}
-          icon={BarChart}
-          detail="User created"
-        />
-      </div>
+      {/* KPI Matrix */}
+      <HeroMetrics
+        className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
+        metrics={[
+          { label: 'Available Reports', value: String(templates.length), icon: FileText, accent: 'emerald' },
+          { label: 'Generated', value: String(generatedThisMonth), icon: Download, accent: 'gray' },
+          { label: 'Scheduled', value: String(schedules.length), icon: Calendar, accent: 'gray' },
+          { label: 'Custom Dashboards', value: String(custom.length), icon: BarChart, accent: 'gray' },
+        ]}
+      />
 
       {/* Main Content: Report Library + Recent Reports */}
       <div className="grid grid-cols-2 gap-3">

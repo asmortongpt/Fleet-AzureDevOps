@@ -3,8 +3,8 @@
 
 :root {
   /* === Brand Colors === */
-  --cta-midnight: #1A0648;
-  --cta-daytime: #1F3076;
+  --cta-midnight: #242424;
+  --cta-daytime: #e0e0e0;
   --cta-blue-skies: #00CCFE;
   --cta-noon: #FF4300;
   --cta-golden-hour: #FDC016;
@@ -16,8 +16,8 @@
   --info: #00CCFE;
 
   /* === Gradients === */
-  --gradient-brand: linear-gradient(135deg, #1A0648 0%, #1F3076 25%, #00CCFE 50%, #FF4300 75%, #FDC016 100%);
-  --gradient-bar: linear-gradient(90deg, #1F3076, #00CCFE, #FF4300, #FDC016);
+  --gradient-brand: linear-gradient(135deg, #111111 0%, #242424 25%, #10b981 50%, #FF4300 75%, #FDC016 100%);
+  --gradient-bar: linear-gradient(90deg, #10b981, #34d399, #FF4300, #FDC016);
 
   /* === Typography === */
   --font-display: 'Cinzel', 'Times New Roman', serif;
@@ -85,25 +85,25 @@
 /* === Dark Mode (Default) === */
 :root,
 [data-theme="dark"] {
-  --surface-0: #0D0320;
-  --surface-1: #1A0648;
-  --surface-2: #221060;
-  --surface-3: #2A1878;
-  --surface-4: #332090;
+  --surface-0: #0a0a0a;
+  --surface-1: #111111;
+  --surface-2: #1a1a1a;
+  --surface-3: #242424;
+  --surface-4: #2a2a2a;
 
   --text-primary: #FFFFFF;
   --text-secondary: rgba(255, 255, 255, 0.65);
   --text-muted: rgba(255, 255, 255, 0.40);
-  --text-inverse: #1A0648;
+  --text-inverse: #111111;
 
-  --border-subtle: rgba(0, 204, 254, 0.08);
-  --border-default: rgba(0, 204, 254, 0.15);
-  --border-strong: rgba(0, 204, 254, 0.25);
-  --border-focus: rgba(0, 204, 254, 0.50);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.20);
+  --border-focus: rgba(16, 185, 129, 0.50);
 
-  --shadow-sm: 0 1px 3px rgba(26, 6, 72, 0.3);
-  --shadow-md: 0 4px 12px rgba(26, 6, 72, 0.4);
-  --shadow-lg: 0 8px 24px rgba(26, 6, 72, 0.5);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 20px rgba(0, 204, 254, 0.15);
   --shadow-glow-strong: 0 0 30px rgba(0, 204, 254, 0.25);
 
@@ -118,14 +118,14 @@
   --surface-3: #F0F0F2;
   --surface-4: #E8E8EC;
 
-  --text-primary: #1A0648;
-  --text-secondary: rgba(26, 6, 72, 0.65);
-  --text-muted: rgba(26, 6, 72, 0.40);
+  --text-primary: #111111;
+  --text-secondary: rgba(17, 17, 17, 0.65);
+  --text-muted: rgba(17, 17, 17, 0.40);
   --text-inverse: #FFFFFF;
 
-  --border-subtle: rgba(26, 6, 72, 0.06);
-  --border-default: rgba(26, 6, 72, 0.12);
-  --border-strong: rgba(26, 6, 72, 0.20);
+  --border-subtle: rgba(17, 17, 17, 0.06);
+  --border-default: rgba(17, 17, 17, 0.12);
+  --border-strong: rgba(17, 17, 17, 0.20);
   --border-focus: rgba(31, 48, 118, 0.50);
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -244,7 +244,7 @@
 
 /* Glass morphism */
 .archony-glass {
-  background: rgba(34, 16, 96, 0.6);
+  background: rgba(17, 17, 17, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);

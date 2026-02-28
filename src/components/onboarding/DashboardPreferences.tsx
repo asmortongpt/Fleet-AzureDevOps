@@ -44,13 +44,13 @@ export function DashboardPreferences({ widgets, onToggle }: DashboardPreferences
           return (
             <label
               key={w.id}
-              className="flex items-center gap-3 bg-[#1A0648] border border-[rgba(0,204,254,0.08)] rounded-lg p-3 cursor-pointer hover:border-[rgba(0,204,254,0.25)] transition-colors"
+              className="flex items-center gap-3 bg-[#111111] border border-[rgba(255,255,255,0.06)] rounded-lg p-3 cursor-pointer hover:border-[rgba(255,255,255,0.15)] transition-colors"
             >
               <input
                 type="checkbox"
                 checked={checked}
                 onChange={() => onToggle(w.id)}
-                className="h-4 w-4 rounded border-[rgba(0,204,254,0.3)] bg-[#0D0320] accent-[#00CCFE] flex-shrink-0"
+                className="h-4 w-4 rounded border-[rgba(255,255,255,0.2)] bg-[#0a0a0a] accent-[#00CCFE] flex-shrink-0"
               />
               <div className="min-w-0">
                 <span

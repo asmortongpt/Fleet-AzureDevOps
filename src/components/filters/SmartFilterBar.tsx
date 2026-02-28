@@ -108,7 +108,7 @@ export function SmartFilterBar({ fields, onFiltersChange, className }: SmartFilt
 
   return (
     <div
-      className={`flex items-center gap-2 flex-wrap py-2 px-3 bg-[#1A0648] border border-[rgba(0,204,254,0.08)] rounded-xl ${className ?? ''}`}
+      className={`flex items-center gap-2 flex-wrap py-2 px-3 bg-[#111111] border border-[rgba(255,255,255,0.06)] rounded-xl ${className ?? ''}`}
       style={{ fontFamily: 'Montserrat, sans-serif' }}
     >
       {/* Active filter pills */}
@@ -126,7 +126,7 @@ export function SmartFilterBar({ fields, onFiltersChange, className }: SmartFilt
       <button
         type="button"
         onClick={handleAddFilter}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-[rgba(0,204,254,0.15)] text-[rgba(255,255,255,0.40)] hover:border-[#00CCFE] hover:text-[#00CCFE] text-sm transition-colors"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.40)] hover:border-[#00CCFE] hover:text-[#00CCFE] text-sm transition-colors"
       >
         <Plus className="w-3.5 h-3.5" />
         Add filter
@@ -145,13 +145,13 @@ export function SmartFilterBar({ fields, onFiltersChange, className }: SmartFilt
               setSaveOpen(!saveOpen)
               setLoadOpen(false)
             }}
-            className="p-1.5 rounded-lg hover:bg-[#221060] text-[rgba(255,255,255,0.40)] hover:text-[#00CCFE] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[#1a1a1a] text-[rgba(255,255,255,0.40)] hover:text-[#00CCFE] transition-colors"
             title="Save View"
           >
             <Save className="w-4 h-4" />
           </button>
           {saveOpen && (
-            <div className="absolute top-full right-0 mt-1 z-50 bg-[#221060] border border-[rgba(0,204,254,0.15)] rounded-xl shadow-[0_8px_24px_rgba(26,6,72,0.5)] p-3 min-w-[220px]">
+            <div className="absolute top-full right-0 mt-1 z-50 bg-[#1a1a1a] border border-[rgba(255,255,255,0.08)] rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.5)] p-3 min-w-[220px]">
               <label className="block text-xs text-[rgba(255,255,255,0.40)] mb-1.5">
                 View name
               </label>
@@ -163,7 +163,7 @@ export function SmartFilterBar({ fields, onFiltersChange, className }: SmartFilt
                   onKeyDown={handleSaveKeyDown}
                   autoFocus
                   placeholder="e.g. Active trucks"
-                  className="flex-1 bg-[#1A0648] border border-[rgba(0,204,254,0.15)] rounded-lg px-2.5 py-1.5 text-sm text-white placeholder-[rgba(255,255,255,0.20)] outline-none focus:border-[#00CCFE] transition-colors"
+                  className="flex-1 bg-[#111111] border border-[rgba(255,255,255,0.08)] rounded-lg px-2.5 py-1.5 text-sm text-white placeholder-[rgba(255,255,255,0.20)] outline-none focus:border-[#00CCFE] transition-colors"
                   style={{ fontFamily: 'Montserrat, sans-serif' }}
                 />
                 <button
@@ -192,13 +192,13 @@ export function SmartFilterBar({ fields, onFiltersChange, className }: SmartFilt
               setLoadOpen(!loadOpen)
               setSaveOpen(false)
             }}
-            className="p-1.5 rounded-lg hover:bg-[#221060] text-[rgba(255,255,255,0.40)] hover:text-[#00CCFE] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[#1a1a1a] text-[rgba(255,255,255,0.40)] hover:text-[#00CCFE] transition-colors"
             title="Load View"
           >
             <FolderOpen className="w-4 h-4" />
           </button>
           {loadOpen && (
-            <div className="absolute top-full right-0 mt-1 z-50 bg-[#221060] border border-[rgba(0,204,254,0.15)] rounded-xl shadow-[0_8px_24px_rgba(26,6,72,0.5)] p-1 min-w-[200px]">
+            <div className="absolute top-full right-0 mt-1 z-50 bg-[#1a1a1a] border border-[rgba(255,255,255,0.08)] rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.5)] p-1 min-w-[200px]">
               {views.length === 0 ? (
                 <div className="px-3 py-2 text-sm text-[rgba(255,255,255,0.30)]">
                   No saved views
@@ -207,7 +207,7 @@ export function SmartFilterBar({ fields, onFiltersChange, className }: SmartFilt
                 views.map((view) => (
                   <div
                     key={view.id}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#2A1878] cursor-pointer group"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#242424] cursor-pointer group"
                   >
                     <span
                       onClick={() => handleLoadView(view.id)}
@@ -237,7 +237,7 @@ export function SmartFilterBar({ fields, onFiltersChange, className }: SmartFilt
         <button
           type="button"
           onClick={handleClearAll}
-          className="p-1.5 rounded-lg hover:bg-[#221060] text-[rgba(255,255,255,0.40)] hover:text-[#FF4300] transition-colors"
+          className="p-1.5 rounded-lg hover:bg-[#1a1a1a] text-[rgba(255,255,255,0.40)] hover:text-[#FF4300] transition-colors"
           title="Clear All Filters"
         >
           <RotateCcw className="w-4 h-4" />

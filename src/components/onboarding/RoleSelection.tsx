@@ -77,10 +77,10 @@ export function RoleSelection({ selectedRole, onSelect }: RoleSelectionProps) {
               onClick={() => onSelect(role.id)}
               className={[
                 'flex flex-col items-start rounded-xl p-4 cursor-pointer transition-all text-left',
-                'bg-[#1A0648] border',
+                'bg-[#111111] border',
                 isSelected
-                  ? 'border-[#00CCFE] bg-[#221060] ring-1 ring-[#00CCFE]/30'
-                  : 'border-[rgba(0,204,254,0.08)] hover:border-[#00CCFE] hover:bg-[#221060]',
+                  ? 'border-[#00CCFE] bg-[#1a1a1a] ring-1 ring-[#00CCFE]/30'
+                  : 'border-[rgba(255,255,255,0.06)] hover:border-[#00CCFE] hover:bg-[#1a1a1a]',
               ].join(' ')}
             >
               <Icon className="text-[#00CCFE] mb-2" size={24} />

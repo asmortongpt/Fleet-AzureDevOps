@@ -3,18 +3,18 @@
  * Custom theme overrides for the ArchonY Fleet Command design system.
  */
 .ag-theme-archony {
-  --ag-background-color: #1A0648;
-  --ag-header-background-color: #2A1878;
-  --ag-odd-row-background-color: #1A0648;
-  --ag-row-hover-color: #2A1878;
-  --ag-selected-row-background-color: #332090;
-  --ag-range-selection-background-color: rgba(0, 204, 254, 0.1);
-  --ag-border-color: rgba(0, 204, 254, 0.08);
-  --ag-secondary-border-color: rgba(0, 204, 254, 0.05);
+  --ag-background-color: #111111;
+  --ag-header-background-color: #242424;
+  --ag-odd-row-background-color: #111111;
+  --ag-row-hover-color: #242424;
+  --ag-selected-row-background-color: rgba(16, 185, 129, 0.08);
+  --ag-range-selection-background-color: rgba(16, 185, 129, 0.1);
+  --ag-border-color: rgba(255, 255, 255, 0.08);
+  --ag-secondary-border-color: rgba(255, 255, 255, 0.05);
   --ag-header-foreground-color: rgba(255, 255, 255, 0.65);
   --ag-foreground-color: #FFFFFF;
   --ag-secondary-foreground-color: rgba(255, 255, 255, 0.65);
-  --ag-accent-color: #00CCFE;
+  --ag-accent-color: #10b981;
   --ag-font-family: 'Montserrat', sans-serif;
   --ag-font-size: 13px;
   --ag-header-font-family: 'Montserrat', sans-serif;
@@ -24,11 +24,11 @@
   --ag-header-height: 40px;
   --ag-cell-horizontal-padding: 16px;
   --ag-border-radius: 8px;
-  --ag-input-focus-border-color: #00CCFE;
-  --ag-checkbox-checked-color: #00CCFE;
-  --ag-modal-overlay-background-color: rgba(13, 3, 32, 0.6);
-  --ag-card-shadow: 0 8px 24px rgba(26, 6, 72, 0.5);
-  --ag-popup-shadow: 0 8px 24px rgba(26, 6, 72, 0.5);
+  --ag-input-focus-border-color: #10b981;
+  --ag-checkbox-checked-color: #10b981;
+  --ag-modal-overlay-background-color: rgba(0, 0, 0, 0.6);
+  --ag-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --ag-popup-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 /* Header cell styling */
@@ -40,29 +40,29 @@
 
 /* Row borders */
 .ag-theme-archony .ag-row {
-  border-bottom-color: rgba(0, 204, 254, 0.05);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
 }
 
 /* Cell focus ring */
 .ag-theme-archony .ag-cell-focus {
-  border-color: #00CCFE !important;
+  border-color: #10b981 !important;
 }
 
 /* Filter panel */
 .ag-theme-archony .ag-filter-toolpanel,
 .ag-theme-archony .ag-column-panel {
-  background-color: #221060;
+  background-color: #1a1a1a;
 }
 
 /* Context menu */
 .ag-theme-archony .ag-menu {
-  background-color: #221060;
-  border: 1px solid rgba(0, 204, 254, 0.15);
+  background-color: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
 }
 
 .ag-theme-archony .ag-menu-option-active {
-  background-color: #2A1878;
+  background-color: #242424;
 }
 
 /* Scrollbar styling */
@@ -72,26 +72,26 @@
 }
 
 .ag-theme-archony ::-webkit-scrollbar-track {
-  background: #1A0648;
+  background: #111111;
 }
 
 .ag-theme-archony ::-webkit-scrollbar-thumb {
-  background: rgba(0, 204, 254, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 3px;
 }
 
 .ag-theme-archony ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 204, 254, 0.35);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* Pagination */
 .ag-theme-archony .ag-paging-panel {
-  border-top-color: rgba(0, 204, 254, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.65);
 }
 
 /* Status bar */
 .ag-theme-archony .ag-status-bar {
-  border-top-color: rgba(0, 204, 254, 0.08);
-  background-color: #1A0648;
+  border-top-color: rgba(255, 255, 255, 0.08);
+  background-color: #111111;
 }

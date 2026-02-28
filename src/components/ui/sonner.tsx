@@ -8,15 +8,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       style={
         {
-          "--normal-bg": "#2A1878",
+          "--normal-bg": "#242424",
           "--normal-text": "#FFFFFF",
-          "--normal-border": "rgba(0, 204, 254, 0.15)",
+          "--normal-border": "rgba(255, 255, 255, 0.08)",
         } as CSSProperties
       }
       toastOptions={{
         style: {
-          background: '#2A1878',
-          border: '1px solid rgba(0, 204, 254, 0.15)',
+          background: '#242424',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
           color: '#FFFFFF',
           fontFamily: "'Montserrat', sans-serif",
         },

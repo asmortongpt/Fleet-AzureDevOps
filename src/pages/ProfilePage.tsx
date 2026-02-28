@@ -229,7 +229,7 @@ export default function ProfilePage() {
             {isEditing && (
               <div>
                 <Label htmlFor="avatar" className="cursor-pointer">
-                  <div className="flex items-center gap-2 px-2 py-2 bg-[#221060] rounded-md hover:bg-[#2A1878] transition-colors">
+                  <div className="flex items-center gap-2 px-2 py-2 bg-[#1a1a1a] rounded-md hover:bg-[#242424] transition-colors">
                     <Upload className="h-4 w-4" />
                     <span className="text-sm font-medium">Upload Photo</span>
                   </div>
@@ -263,7 +263,7 @@ export default function ProfilePage() {
                   id="firstName"
                   {...register('firstName')}
                   disabled={!isEditing}
-                  className={!isEditing ? 'bg-[#221060]' : ''}
+                  className={!isEditing ? 'bg-[#1a1a1a]' : ''}
                 />
                 {errors.firstName && (
                   <p className="text-sm text-[#FF4300]">{errors.firstName.message}</p>
@@ -276,7 +276,7 @@ export default function ProfilePage() {
                   id="lastName"
                   {...register('lastName')}
                   disabled={!isEditing}
-                  className={!isEditing ? 'bg-[#221060]' : ''}
+                  className={!isEditing ? 'bg-[#1a1a1a]' : ''}
                 />
                 {errors.lastName && (
                   <p className="text-sm text-[#FF4300]">{errors.lastName.message}</p>
@@ -290,7 +290,7 @@ export default function ProfilePage() {
                 id="displayName"
                 {...register('displayName')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-[#221060]' : ''}
+                className={!isEditing ? 'bg-[#1a1a1a]' : ''}
               />
               {errors.displayName && (
                 <p className="text-sm text-[#FF4300]">{errors.displayName.message}</p>
@@ -312,7 +312,7 @@ export default function ProfilePage() {
                 type="email"
                 {...register('email')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-[#221060]' : ''}
+                className={!isEditing ? 'bg-[#1a1a1a]' : ''}
               />
               {errors.email && (
                 <p className="text-sm text-[#FF4300]">{errors.email.message}</p>
@@ -327,7 +327,7 @@ export default function ProfilePage() {
                 placeholder="+1 (555) 000-0000"
                 {...register('phone')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-[#221060]' : ''}
+                className={!isEditing ? 'bg-[#1a1a1a]' : ''}
               />
               {errors.phone && (
                 <p className="text-sm text-[#FF4300]">{errors.phone.message}</p>
@@ -349,7 +349,7 @@ export default function ProfilePage() {
                   id="jobTitle"
                   {...register('jobTitle')}
                   disabled={!isEditing}
-                  className={!isEditing ? 'bg-[#221060]' : ''}
+                  className={!isEditing ? 'bg-[#1a1a1a]' : ''}
                 />
               </div>
 
@@ -359,7 +359,7 @@ export default function ProfilePage() {
                   id="department"
                   {...register('department')}
                   disabled={!isEditing}
-                  className={!isEditing ? 'bg-[#221060]' : ''}
+                  className={!isEditing ? 'bg-[#1a1a1a]' : ''}
                 />
               </div>
             </div>
@@ -372,7 +372,7 @@ export default function ProfilePage() {
                 placeholder="Tell us about yourself..."
                 {...register('bio')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-[#221060] resize-none' : 'resize-none'}
+                className={!isEditing ? 'bg-[#1a1a1a] resize-none' : 'resize-none'}
               />
               {errors.bio && (
                 <p className="text-sm text-[#FF4300]">{errors.bio.message}</p>
@@ -398,7 +398,7 @@ export default function ProfilePage() {
                 placeholder="https://linkedin.com/in/username"
                 {...register('linkedin')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-[#221060]' : ''}
+                className={!isEditing ? 'bg-[#1a1a1a]' : ''}
               />
               {errors.linkedin && (
                 <p className="text-sm text-[#FF4300]">{errors.linkedin.message}</p>
@@ -416,7 +416,7 @@ export default function ProfilePage() {
                 placeholder="https://github.com/username"
                 {...register('github')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-[#221060]' : ''}
+                className={!isEditing ? 'bg-[#1a1a1a]' : ''}
               />
               {errors.github && (
                 <p className="text-sm text-[#FF4300]">{errors.github.message}</p>
@@ -434,7 +434,7 @@ export default function ProfilePage() {
                 placeholder="https://twitter.com/username"
                 {...register('twitter')}
                 disabled={!isEditing}
-                className={!isEditing ? 'bg-[#221060]' : ''}
+                className={!isEditing ? 'bg-[#1a1a1a]' : ''}
               />
               {errors.twitter && (
                 <p className="text-sm text-[#FF4300]">{errors.twitter.message}</p>

@@ -39,7 +39,7 @@ export const tokens = {
     muted: 'var(--accent-muted)',
   },
   chart: {
-    colors: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6', '#14b8a6', '#f97316', '#ec4899'],
+    colors: ['#10b981', '#f59e0b', '#06b6d4', '#ef4444', '#14b8a6', '#f97316', '#ec4899', '#a3e635'],
     grid: 'var(--border-subtle)',
     axis: 'var(--text-tertiary)',
     tooltip: {

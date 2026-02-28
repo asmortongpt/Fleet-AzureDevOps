@@ -56,7 +56,7 @@ export function SmartTooltip({
             {shortcut && (
               <div className="flex items-center gap-1.5 pt-1 border-t text-xs text-[rgba(255,255,255,0.40)]">
                 <Keyboard className="h-3 w-3" aria-hidden="true" />
-                <kbd className="px-1.5 py-0.5 text-[10px] font-semibold bg-[#0D0320] border border-[rgba(0,204,254,0.15)] rounded text-[#00CCFE]">
+                <kbd className="px-1.5 py-0.5 text-[10px] font-semibold bg-[#0a0a0a] border border-[rgba(255,255,255,0.08)] rounded text-[#00CCFE]">
                   {shortcut}
                 </kbd>
               </div>
