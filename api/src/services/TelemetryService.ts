@@ -197,8 +197,8 @@ return
         SELECT
           v.id,
           v.tenant_id,
-          v.number as vehicle_number,
-          v.name,
+          v.registration_number as vehicle_number,
+          CONCAT(v.year, ' ', v.make, ' ', v.model) as name,
           v.make,
           v.model,
           v.year,
@@ -208,10 +208,9 @@ return
           v.odometer as mileage,
           v.fuel_type,
           v.latitude,
-          v.longitude,
-          v.metadata
+          v.longitude
         FROM vehicles v
-        WHERE v.is_active = true AND v.status != 'retired'
+        WHERE v.status != 'retired'
         ORDER BY v.created_at, v.id
       `)
 
@@ -233,35 +232,28 @@ return
    * Map database row to TelemetryVehicle
    */
   private mapDatabaseVehicle(row: any, sequence: number): TelemetryVehicle {
-    const specs = row.metadata?.specifications || row.specifications || {}
     const fallbackCoords = { lat: 30.4383, lng: -84.2807 }
     const coords =
       row.latitude !== null && row.latitude !== undefined && row.longitude !== null && row.longitude !== undefined
         ? { lat: Number(row.latitude), lng: Number(row.longitude) }
         : fallbackCoords
-    const driverBehavior =
-      row.metadata?.driverBehavior === 'aggressive' ||
-      row.metadata?.driverBehavior === 'cautious' ||
-      row.metadata?.driverBehavior === 'normal'
-        ? row.metadata.driverBehavior
-        : 'normal'
 
     return {
       id: `VEH-${String(sequence).padStart(3, '0')}`,
       dbId: String(row.id),
       tenantId: String(row.tenant_id),
-      vehicleNumber: row.vehicle_number,
-      name: row.name,
+      vehicleNumber: row.vehicle_number || row.license_plate || `VEH-${sequence}`,
+      name: row.name || `${row.year} ${row.make} ${row.model}`,
       make: row.make,
       model: row.model,
       year: row.year,
       type: this.inferVehicleType(row.make, row.model),
       vin: row.vin,
       licensePlate: row.license_plate,
-      tankSize: specs.tankSize || this.getDefaultTankSize(row.fuel_type),
-      fuelEfficiency: specs.fuelEfficiency || this.getDefaultFuelEfficiency(row.make, row.model),
-      batteryCapacity: specs.batteryCapacity,
-      electricRange: specs.electricRange,
+      tankSize: this.getDefaultTankSize(row.fuel_type),
+      fuelEfficiency: this.getDefaultFuelEfficiency(row.make, row.model),
+      batteryCapacity: undefined,
+      electricRange: undefined,
       startingLocation: {
         lat: coords.lat,
         lng: coords.lng
@@ -269,9 +261,9 @@ return
       homeBase: {
         lat: coords.lat,
         lng: coords.lng,
-        name: row.metadata?.homeBaseName || 'Fleet Center'
+        name: 'Fleet Center'
       },
-      driverBehavior,
+      driverBehavior: 'normal',
       features: this.inferFeatures(row.make, row.model, row.fuel_type),
       mileage: row.mileage || 0,
       status: row.status

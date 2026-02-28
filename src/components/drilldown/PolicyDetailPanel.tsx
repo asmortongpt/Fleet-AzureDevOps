@@ -105,11 +105,38 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('overview')
 
-  // Main policy data
-  const { data: policy, error, isLoading, mutate } = useSWR<PolicyData>(
+  // Main policy data - normalize API response fields
+  const { data: rawPolicy, error, isLoading, mutate } = useSWR<Record<string, unknown>>(
     `/api/policies/${policyId}`,
     apiFetcher
   )
+
+  // Normalize API fields to match component interface
+  const policy: PolicyData | undefined = rawPolicy ? {
+    id: String(rawPolicy.id || ''),
+    policy_number: String(rawPolicy.policy_number || rawPolicy.id || ''),
+    name: String(rawPolicy.name || rawPolicy.policy_name || ''),
+    description: String(rawPolicy.description || ''),
+    category: String(rawPolicy.category || rawPolicy.policy_type || ''),
+    type: (rawPolicy.type || rawPolicy.policy_type || 'compliance') as PolicyData['type'],
+    status: (rawPolicy.is_active === false ? 'inactive' : rawPolicy.status || 'active') as PolicyData['status'],
+    priority: (['low', 'medium', 'high', 'critical'].includes(String(rawPolicy.priority))
+      ? String(rawPolicy.priority)
+      : typeof rawPolicy.priority === 'number'
+        ? (rawPolicy.priority <= 1 ? 'low' : rawPolicy.priority <= 2 ? 'medium' : rawPolicy.priority <= 3 ? 'high' : 'critical')
+        : 'medium') as PolicyData['priority'],
+    effective_date: String(rawPolicy.effective_date || rawPolicy.created_at || ''),
+    expiry_date: rawPolicy.expiry_date ? String(rawPolicy.expiry_date) : undefined,
+    created_by: rawPolicy.created_by ? String(rawPolicy.created_by) : undefined,
+    created_date: String(rawPolicy.created_date || rawPolicy.created_at || ''),
+    last_updated: rawPolicy.last_updated || rawPolicy.updated_at ? String(rawPolicy.last_updated || rawPolicy.updated_at) : undefined,
+    compliance_score: typeof rawPolicy.compliance_score === 'number' ? rawPolicy.compliance_score : undefined,
+    enforcement_level: (rawPolicy.enforcement_level || 'mandatory') as PolicyData['enforcement_level'],
+    applies_to: (rawPolicy.applies_to || 'all') as PolicyData['applies_to'],
+    violation_count: typeof rawPolicy.violation_count === 'number' ? rawPolicy.violation_count : undefined,
+    execution_count: typeof rawPolicy.execution_count === 'number' ? rawPolicy.execution_count : undefined,
+    success_rate: typeof rawPolicy.success_rate === 'number' ? rawPolicy.success_rate : undefined,
+  } : undefined
 
   // Execution history
   const { data: executionHistory } = useSWR<ExecutionHistory[]>(

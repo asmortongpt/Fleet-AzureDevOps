@@ -22,9 +22,9 @@ router.get(
       let query = `
         SELECT
           pm.*,
-          v.unit_number as vehicle_unit,
-          v.name as vehicle_name,
-          a.name as asset_name
+          v.license_plate as vehicle_unit,
+          CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
+          a.asset_name as asset_name
         FROM predictive_maintenance pm
         LEFT JOIN vehicles v ON pm.vehicle_id = v.id
         LEFT JOIN assets a ON pm.asset_id = a.id

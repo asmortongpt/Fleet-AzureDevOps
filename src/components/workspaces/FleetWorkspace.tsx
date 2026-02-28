@@ -62,7 +62,7 @@ interface Telemetry {
 }
 
 // Vehicle Telemetry Panel
-const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle | null; telemetry: Telemetry | null }) => {
+const VehicleTelemetryPanel = ({ vehicle, telemetry, onDrilldown }: { vehicle: FleetVehicle | null; telemetry: Telemetry | null; onDrilldown?: (type: string, data: any) => void }) => {
   if (!vehicle) {
     return (
       <div className="p-2 text-center text-muted-foreground">
@@ -224,10 +224,10 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
 
         {/* Actions */}
         <div className="space-y-2">
-          <Button className="w-full">View Full Details</Button>
-          <Button variant="outline" className="w-full">View 3D Model</Button>
-          <Button variant="outline" className="w-full">Schedule Maintenance</Button>
-          <Button variant="outline" className="w-full">View History</Button>
+          <Button className="w-full" onClick={() => onDrilldown?.('vehicle', { vehicleId: vehicle.id, vehicleName: formatVehicleName(vehicle) })}>View Full Details</Button>
+          <Button variant="outline" className="w-full" onClick={() => onDrilldown?.('vehicle-3d', { vehicleId: vehicle.id })}>View 3D Model</Button>
+          <Button variant="outline" className="w-full" onClick={() => onDrilldown?.('workOrder', { vehicleId: vehicle.id, createMode: true, description: 'Scheduled Maintenance' })}>Schedule Maintenance</Button>
+          <Button variant="outline" className="w-full" onClick={() => onDrilldown?.('vehicle-history', { vehicleId: vehicle.id })}>View History</Button>
         </div>
       </div>
     </ScrollArea>
@@ -515,7 +515,7 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
 
         {/* Right: Detail panel */}
         <div className="border-l overflow-hidden">
-          <VehicleTelemetryPanel vehicle={selectedVehicle} telemetry={null} />
+          <VehicleTelemetryPanel vehicle={selectedVehicle} telemetry={null} onDrilldown={(type, data) => _push({ type: type as any, label: data?.vehicleName || `Vehicle ${data?.vehicleId}`, data })} />
         </div>
       </div>
     </div>

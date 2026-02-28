@@ -257,29 +257,39 @@ const OverviewTabContent = memo(function OverviewTabContent() {
 
   // Sorted vehicle rows for the data table
   const sortedVehicles = useMemo(() => {
-    const rows = vehicles.map((v: any) => ({
-      id: v.id,
-      name: formatVehicleName(v),
-      status: (v.status || 'unknown').toLowerCase(),
-      mileage: v.mileage ?? v.odometer ?? 0,
-      fuel: v.fuel_level ?? v.fuelLevel ?? v.battery_percent ?? v.batteryPercent ?? null,
-      location: (() => {
-        const loc = v.location ?? v.current_location ?? v.lastKnownLocation
-        if (!loc) return '--'
-        if (typeof loc === 'string') return loc
-        if (typeof loc === 'object' && loc !== null) {
-          if (loc.address) return loc.address
-          if (loc.name) return loc.name
-          if (loc.city) return loc.city
-          if (loc.formatted_address) return loc.formatted_address
-          if (loc.lat != null && loc.lng != null) return `${Number(loc.lat).toFixed(4)}, ${Number(loc.lng).toFixed(4)}`
-          if (loc.latitude != null && loc.longitude != null) return `${Number(loc.latitude).toFixed(4)}, ${Number(loc.longitude).toFixed(4)}`
+    const rows = vehicles.map((v: any) => {
+      // Check for live GPS update (Smartcar syncs every 5 min)
+      const lastGps = v.lastGpsUpdate ?? v.last_gps_update ?? v.last_sync_at ?? v.updated_at
+      const isLive = lastGps ? (Date.now() - new Date(lastGps).getTime()) < 10 * 60 * 1000 : false
+
+      return {
+        id: v.id,
+        name: formatVehicleName(v),
+        status: (v.status || 'unknown').toLowerCase(),
+        mileage: v.mileage ?? v.odometer ?? 0,
+        fuel: v.fuel_level ?? v.fuelLevel ?? v.battery_percent ?? v.batteryPercent ?? null,
+        isLive,
+        location: (() => {
+          // Priority 1: Top-level lat/lng (Smartcar writes these directly)
+          if (v.latitude != null && v.longitude != null) return `${Number(v.latitude).toFixed(4)}, ${Number(v.longitude).toFixed(4)}`
+          // Priority 2: Nested location object
+          const loc = v.location ?? v.current_location ?? v.lastKnownLocation
+          if (!loc) return '--'
+          if (typeof loc === 'string') return loc
+          if (typeof loc === 'object' && loc !== null) {
+            if (loc.address) return loc.address
+            if (loc.name) return loc.name
+            if (loc.city) return loc.city
+            if (loc.formatted_address) return loc.formatted_address
+            if (loc.lat != null && loc.lng != null) return `${Number(loc.lat).toFixed(4)}, ${Number(loc.lng).toFixed(4)}`
+            if (loc.latitude != null && loc.longitude != null) return `${Number(loc.latitude).toFixed(4)}, ${Number(loc.longitude).toFixed(4)}`
+            return '--'
+          }
           return '--'
-        }
-        return String(loc)
-      })(),
-      raw: v,
-    }))
+        })(),
+        raw: v,
+      }
+    })
     rows.sort((a, b) => {
       let cmp = 0
       if (sortKey === 'vehicle') cmp = a.name.localeCompare(b.name)
@@ -422,7 +432,10 @@ const OverviewTabContent = memo(function OverviewTabContent() {
                     )}
                   </td>
                   <td className="px-4 py-2.5">
-                    <span className="text-[12px] text-white/40 truncate max-w-[140px] inline-block">{row.location}</span>
+                    <span className="text-[12px] text-white/40 truncate max-w-[140px] inline-flex items-center gap-1">
+                      {row.isLive && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" title="Live GPS" />}
+                      {row.location}
+                    </span>
                   </td>
                 </tr>
               ))}

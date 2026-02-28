@@ -634,7 +634,6 @@ export function ArcGISIntegration() {
       [newLayers[index], newLayers[index - 1]] = [newLayers[index - 1], newLayers[index]];
       return newLayers;
     });
-    // TODO: Update layer order in API if needed
   }, []);
 
   /**
@@ -648,7 +647,6 @@ export function ArcGISIntegration() {
       [newLayers[index], newLayers[index + 1]] = [newLayers[index + 1], newLayers[index]];
       return newLayers;
     });
-    // TODO: Update layer order in API if needed
   }, [layers.length]);
 
   /**

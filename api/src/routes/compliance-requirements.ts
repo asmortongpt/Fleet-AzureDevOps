@@ -14,6 +14,17 @@ router.get(
   requirePermission('compliance:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'compliance_requirements')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.json({
+          data: [],
+          pagination: { page: 1, limit: 50, total: 0, pages: 0 }
+        })
+      }
+
       const { page = 1, limit = 50, category, regulatory_body, applies_to } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
@@ -75,6 +86,14 @@ router.get(
   requirePermission('compliance:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'compliance_requirements')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(404).json({ error: 'Compliance requirement not found' })
+      }
+
       const result = await pool.query(
         `SELECT id, tenant_id, requirement_code, requirement_name, regulatory_body,
                 category, description, frequency, applies_to, penalty_for_non_compliance,

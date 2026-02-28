@@ -93,6 +93,17 @@
 
 <body>
     <div id="root"></div>
+    <!-- Clear stale PWA service worker cache on load -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          regs.forEach(function(r) { r.unregister(); });
+        });
+        caches.keys().then(function(keys) {
+          keys.forEach(function(k) { caches.delete(k); });
+        });
+      }
+    </script>
     <!-- Runtime configuration loaded by Vite plugin - DO NOT ADD MANUALLY -->
     <script type="module" src="/src/main.tsx"></script>
 

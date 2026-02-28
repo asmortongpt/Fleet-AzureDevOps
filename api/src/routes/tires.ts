@@ -162,6 +162,20 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({
+        data: [],
+        total: 0,
+        page: 1,
+        pageSize: 50,
+        totalPages: 0
+      });
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const {
       status,
@@ -249,6 +263,14 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(400).json({ error: 'Tire inventory table not available' });
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const parsed = createTireInventorySchema.safeParse(req.body);
     if (!parsed.success) {
@@ -311,6 +333,14 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(404).json({ error: 'Tire not found' });
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const { id } = req.params;
 
@@ -361,6 +391,14 @@ router.put(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(404).json({ error: 'Tire not found' });
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const { id } = req.params;
     const parsed = updateTireInventorySchema.safeParse(req.body);
@@ -437,6 +475,14 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(400).json({ error: 'Tire inventory table not available' });
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
     const parsed = mountTireSchema.safeParse(req.body);
@@ -501,6 +547,14 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(404).json({ error: 'No tire found at specified position' });
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
     const parsed = unmountTireSchema.safeParse(req.body);
@@ -573,6 +627,14 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(400).json({ error: 'Tire inventory table not available' });
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
     const parsed = rotateTiresSchema.safeParse(req.body);
@@ -598,6 +660,14 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json([]);
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
 
@@ -639,6 +709,14 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(400).json({ error: 'Tire inventory table not available' });
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
     const parsed = createTireInspectionSchema.safeParse(req.body);
@@ -692,6 +770,14 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(404).json({ error: 'No rotation schedule found for this vehicle' });
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
 
@@ -721,6 +807,14 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.status(400).json({ error: 'Tire inventory table not available' });
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const parsed = createPressureLogSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -812,6 +906,19 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
+    // Check if table exists
+    const tableCheck = await db.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tire_inventory')`
+    );
+    if (!tableCheck.rows[0].exists) {
+      return res.json({
+        rotation_alerts: [],
+        tread_alerts: [],
+        pressure_alerts: [],
+        summary: { total: 0, critical: 0, warning: 0 }
+      });
+    }
+
     const tenantId = req.user?.tenant_id ?? '';
     const { alert_level } = req.query;
 

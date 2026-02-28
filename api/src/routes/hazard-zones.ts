@@ -13,7 +13,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const tenantId = req.user?.tenant_id
     const result = await pool.query(
-      `SELECT id, name, type, center_lat, center_lng, radius, metadata, created_at, updated_at
+      `SELECT id, name, geofence_type, center_latitude, center_longitude, radius, notes, created_at, updated_at
        FROM geofences
        WHERE tenant_id = $1 AND is_active = true
        ORDER BY created_at DESC
@@ -22,26 +22,20 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     )
 
     const zones = result.rows.map((row: any) => {
-      const metadata = row.metadata || {}
-      const hazardType = metadata.hazard_type || 'environmental'
-      const severity = metadata.severity || 'medium'
-
       return {
         id: row.id,
         name: row.name,
-        type: hazardType,
-        severity,
+        type: row.geofence_type || 'environmental',
+        severity: 'medium',
         location: {
-          lat: Number(row.center_lat),
-          lng: Number(row.center_lng),
-          address: metadata.address
+          lat: Number(row.center_latitude),
+          lng: Number(row.center_longitude),
         },
         radius: row.radius ? Number(row.radius) : 0,
-        restrictions: metadata.restrictions || [],
-        activeFrom: metadata.active_from || row.created_at,
-        activeTo: metadata.active_to,
-        description: metadata.description,
-        createdBy: metadata.created_by,
+        restrictions: [],
+        activeFrom: row.created_at,
+        activeTo: null,
+        description: row.notes,
         createdDate: row.created_at,
         lastUpdated: row.updated_at
       }
@@ -78,7 +72,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     const { id } = req.params
 
     const result = await pool.query(
-      `SELECT id, name, type, center_lat, center_lng, radius, metadata, created_at, updated_at
+      `SELECT id, name, geofence_type, center_latitude, center_longitude, radius, notes, created_at, updated_at
        FROM geofences
        WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
@@ -89,27 +83,22 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     const row = result.rows[0]
-    const metadata = row.metadata || {}
-    const hazardType = metadata.hazard_type || 'environmental'
-    const severity = metadata.severity || 'medium'
 
     res.json({
       data: {
         id: row.id,
         name: row.name,
-        type: hazardType,
-        severity,
+        type: row.geofence_type || 'environmental',
+        severity: 'medium',
         location: {
-          lat: Number(row.center_lat),
-          lng: Number(row.center_lng),
-          address: metadata.address
+          lat: Number(row.center_latitude),
+          lng: Number(row.center_longitude),
         },
         radius: row.radius ? Number(row.radius) : 0,
-        restrictions: metadata.restrictions || [],
-        activeFrom: metadata.active_from || row.created_at,
-        activeTo: metadata.active_to,
-        description: metadata.description,
-        createdBy: metadata.created_by,
+        restrictions: [],
+        activeFrom: row.created_at,
+        activeTo: null,
+        description: row.notes,
         createdDate: row.created_at,
         lastUpdated: row.updated_at
       }
@@ -129,7 +118,7 @@ router.get('/:id/affected-vehicles', async (req: AuthRequest, res: Response) => 
     const { id } = req.params
 
     const zoneResult = await pool.query(
-      `SELECT center_lat, center_lng, radius, metadata
+      `SELECT center_latitude, center_longitude, radius
        FROM geofences
        WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
@@ -163,8 +152,8 @@ router.get('/:id/affected-vehicles', async (req: AuthRequest, res: Response) => 
     const affected = vehiclesResult.rows
       .map((vehicle: any) => {
         const distance = haversineDistanceMeters(
-          Number(zone.center_lat),
-          Number(zone.center_lng),
+          Number(zone.center_latitude),
+          Number(zone.center_longitude),
           Number(vehicle.latitude),
           Number(vehicle.longitude)
         )

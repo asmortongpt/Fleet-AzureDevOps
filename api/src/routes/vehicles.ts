@@ -183,10 +183,11 @@ router.get("/:id/trips",
         mt.end_location,
         mt.distance_miles,
         mt.metadata,
-        d.first_name,
-        d.last_name
+        u.first_name,
+        u.last_name
       FROM mobile_trips mt
       LEFT JOIN drivers d ON mt.driver_id = d.id
+      LEFT JOIN users u ON d.user_id = u.id
       WHERE mt.tenant_id = $1 AND mt.vehicle_id = $2
       ORDER BY mt.start_time DESC
       LIMIT 200`,
@@ -281,15 +282,13 @@ router.get("/:id/maintenance",
     const result = await pool.query(
       `SELECT
         id,
-        number,
-        scheduled_start_date,
+        work_order_number as number,
+        scheduled_start as scheduled_start_date,
         type,
-        work_type,
         description,
-        total_cost,
-        actual_cost,
+        (COALESCE(labor_cost, 0) + COALESCE(parts_cost, 0)) as total_cost,
         status,
-        odometer_at_start
+        odometer_reading as odometer_at_start
       FROM work_orders
       WHERE vehicle_id = $1 AND tenant_id = $2
       ORDER BY scheduled_start_date DESC NULLS LAST
@@ -301,9 +300,9 @@ router.get("/:id/maintenance",
       id: row.id,
       work_order_number: row.number || '',
       date: row.scheduled_start_date || row.created_at || '',
-      type: row.work_type || row.type || 'general',
+      type: row.type || 'general',
       description: row.description || '',
-      cost: row.total_cost != null ? Number(row.total_cost) : (row.actual_cost != null ? Number(row.actual_cost) : 0),
+      cost: row.total_cost != null ? Number(row.total_cost) : 0,
       status: row.status || 'unknown',
       mileage: row.odometer_at_start != null ? Number(row.odometer_at_start) : undefined,
     }))
@@ -311,6 +310,55 @@ router.get("/:id/maintenance",
     await cacheService.set(cacheKey, records, 300)
 
     logger.info('Fetched vehicle maintenance', { vehicleId, tenantId, count: records.length })
+    res.json({ data: records })
+  })
+)
+
+// GET vehicle maintenance-history (alias for /maintenance used by work order detail panel)
+router.get("/:id/maintenance-history",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.VEHICLE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  validateParams(vehicleIdSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = req.user?.tenant_id
+    const vehicleId = req.params.id
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    const result = await pool.query(
+      `SELECT
+        id,
+        work_order_number as number,
+        scheduled_start as scheduled_start_date,
+        type,
+        description,
+        (COALESCE(labor_cost, 0) + COALESCE(parts_cost, 0)) as total_cost,
+        status,
+        odometer_reading as odometer_at_start
+      FROM work_orders
+      WHERE vehicle_id = $1 AND tenant_id = $2
+      ORDER BY scheduled_start_date DESC NULLS LAST
+      LIMIT 200`,
+      [vehicleId, tenantId]
+    )
+
+    const records = result.rows.map((row: Record<string, unknown>) => ({
+      id: row.id,
+      work_order_number: row.number || '',
+      date: row.scheduled_start_date || row.created_at || '',
+      type: row.type || 'general',
+      description: row.description || '',
+      cost: row.total_cost != null ? Number(row.total_cost) : 0,
+      status: row.status || 'unknown',
+      mileage: row.odometer_at_start != null ? Number(row.odometer_at_start) : undefined,
+    }))
+
     res.json({ data: records })
   })
 )
@@ -343,13 +391,12 @@ router.get("/:id/incidents",
     const result = await pool.query(
       `SELECT
         id,
-        number,
+        incident_number as number,
         incident_date,
-        type,
+        incident_type as type,
         severity,
         description,
         estimated_cost,
-        actual_cost,
         status
       FROM incidents
       WHERE vehicle_id = $1 AND tenant_id = $2
@@ -365,7 +412,7 @@ router.get("/:id/incidents",
       type: row.type || 'unknown',
       severity: row.severity || 'unknown',
       description: row.description || '',
-      cost: row.actual_cost != null ? Number(row.actual_cost) : (row.estimated_cost != null ? Number(row.estimated_cost) : undefined),
+      cost: row.estimated_cost != null ? Number(row.estimated_cost) : undefined,
       status: row.status || 'unknown',
     }))
 
@@ -404,28 +451,26 @@ router.get("/:id/inspections",
     const result = await pool.query(
       `SELECT
         id,
-        type,
+        inspection_type as type,
         status,
-        started_at,
-        completed_at,
-        inspector_name,
-        passed_inspection,
+        inspection_date as started_at,
         defects_found,
         notes,
         created_at
       FROM inspections
       WHERE vehicle_id = $1 AND tenant_id = $2
-      ORDER BY started_at DESC NULLS LAST
+      ORDER BY inspection_date DESC NULLS LAST
       LIMIT 200`,
       [vehicleId, tenantId]
     )
 
     const records = result.rows.map((row: Record<string, unknown>) => {
-      // Derive result from passed_inspection boolean and defects_found count
+      // Derive result from status and defects_found
       let inspectionResult: 'passed' | 'failed' | 'warning' = 'passed'
-      if (row.passed_inspection === false) {
+      const status = String(row.status || '').toLowerCase()
+      if (status === 'fail' || status === 'failed') {
         inspectionResult = 'failed'
-      } else if (row.defects_found != null && Number(row.defects_found) > 0) {
+      } else if (row.defects_found) {
         inspectionResult = 'warning'
       }
 
@@ -435,7 +480,6 @@ router.get("/:id/inspections",
         date: row.started_at || row.created_at || '',
         type: row.type || 'general',
         result: inspectionResult,
-        inspector_name: row.inspector_name || undefined,
         notes: row.notes || undefined,
       }
     })
@@ -477,11 +521,9 @@ router.get("/:id/fuel",
         id,
         transaction_date,
         gallons,
-        quantity_gallons,
         total_cost,
         location,
-        location_name,
-        odometer
+        odometer_reading as odometer
       FROM fuel_transactions
       WHERE vehicle_id = $1 AND tenant_id = $2
       ORDER BY transaction_date DESC NULLS LAST
@@ -492,9 +534,9 @@ router.get("/:id/fuel",
     const records = result.rows.map((row: Record<string, unknown>) => ({
       id: row.id,
       date: row.transaction_date || '',
-      gallons: row.gallons != null ? Number(row.gallons) : (row.quantity_gallons != null ? Number(row.quantity_gallons) : 0),
+      gallons: row.gallons != null ? Number(row.gallons) : 0,
       cost: row.total_cost != null ? Number(row.total_cost) : 0,
-      location: row.location_name || row.location || undefined,
+      location: row.location || undefined,
       odometer: row.odometer != null ? Number(row.odometer) : undefined,
     }))
 

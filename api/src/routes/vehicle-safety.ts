@@ -33,24 +33,20 @@ router.get(
         `
         SELECT
           v.id,
-          v.name,
+          v.make || ' ' || v.model || ' ' || v.year AS vehicle_name,
           v.license_plate,
           v.status,
-          v.last_service_date,
-          v.next_service_date,
-          v.metadata,
+          v.health_score,
           insp.last_inspection_date,
-          COALESCE(insp.defects_found, 0) AS defects_found,
           COALESCE(insp.failed_count, 0) AS failed_count,
           COALESCE(inc.crash_30, 0) AS crash_30,
           COALESCE(inc.crash_12, 0) AS crash_12,
-          COALESCE(recalls.active_recalls, 0) AS active_recalls
+          0 AS active_recalls
         FROM vehicles v
         LEFT JOIN (
           SELECT vehicle_id,
-                 MAX(completed_at) AS last_inspection_date,
-                 MAX(defects_found) AS defects_found,
-                 SUM(CASE WHEN passed_inspection = false THEN 1 ELSE 0 END) AS failed_count
+                 MAX(inspection_date) AS last_inspection_date,
+                 SUM(CASE WHEN out_of_service = true THEN 1 ELSE 0 END) AS failed_count
           FROM inspections
           WHERE tenant_id = $1
           GROUP BY vehicle_id
@@ -63,13 +59,8 @@ router.get(
           WHERE tenant_id = $1
           GROUP BY vehicle_id
         ) inc ON inc.vehicle_id = v.id
-        LEFT JOIN (
-          SELECT COUNT(*) AS active_recalls
-          FROM recall_notices
-          WHERE tenant_id = $1 AND status = 'ACTIVE'
-        ) recalls ON true
         WHERE v.tenant_id = $1 AND v.status != 'retired' ${vehicleFilter}
-        ORDER BY v.name
+        ORDER BY v.make, v.model, v.year
         `,
         params
       )
@@ -94,8 +85,9 @@ router.get(
           }
         }
 
-        const defectsCount = Number(row.defects_found || 0)
-        const criticalDefects = defectsCount >= 3 || row.failed_count > 0 ? Math.max(1, Math.floor(defectsCount / 3)) : 0
+        const failedCount = Number(row.failed_count || 0)
+        const defectsCount = failedCount
+        const criticalDefects = failedCount > 0 ? Math.max(1, failedCount) : 0
 
         let safetyEquipmentStatus: 'compliant' | 'needs_attention' | 'critical' = 'compliant'
         if (criticalDefects > 0) {
@@ -124,7 +116,7 @@ return 60
 
         return {
           vehicleId: row.id,
-          vehicleName: row.name,
+          vehicleName: row.vehicle_name,
           licensePlate: row.license_plate,
           inspectionStatus,
           safetyRating,

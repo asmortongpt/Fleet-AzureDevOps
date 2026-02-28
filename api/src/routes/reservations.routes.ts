@@ -35,9 +35,9 @@ import { flexUuid } from '../middleware/validation'
 
 const router = express.Router();
 
-// Database pool and service (will be set via setDatabasePool)
+// Database pool and service
 let pool: Pool = dbPool as unknown as Pool;
-let reservationsService: ReservationsService | undefined;
+let reservationsService: ReservationsService = new ReservationsService(pool);
 
 export function setDatabasePool(dbPool: Pool) {
   pool = dbPool;
@@ -176,12 +176,13 @@ return res.status(401).json({ success: false, error: 'Missing tenant context' })
         r.status,
         r.created_at,
         r.updated_at,
-        COALESCE(v.name, v.unit_number) AS vehicle_name,
-        NULLIF(TRIM(CONCAT(COALESCE(d.first_name, ''), ' ', COALESCE(d.last_name, ''))), '') AS driver_name,
-        d.email AS driver_email
+        CONCAT(v.year, ' ', v.make, ' ', v.model) AS vehicle_name,
+        NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') AS driver_name,
+        u.email AS driver_email
       FROM reservations r
       LEFT JOIN vehicles v ON r.vehicle_id = v.id
       LEFT JOIN drivers d ON r.driver_id = d.id
+      LEFT JOIN users u ON d.user_id = u.id
       WHERE ${where.join(' AND ')}
       ORDER BY r.start_time DESC NULLS LAST, r.created_at DESC
       LIMIT $${++p}
@@ -240,23 +241,54 @@ router.get('/pending', authenticateJWT, async (req: AuthRequest, res: Response) 
 router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const userContext = getUserContext(req);
-
-    const reservation = await reservationsService!.getReservationById(id, userContext);
-    res.json(reservation);
-  } catch (error: unknown) {
-    logger.error('Error fetching reservation:', error);
-    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
-
-    if (errMsg.includes('not found') || errMsg.includes('access denied')) {
-      return res.status(404).json({
-        error: 'Reservation not found',
-      });
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
+    if (!tenantId) {
+      return res.status(401).json({ success: false, error: 'Missing tenant context' });
     }
 
-    res.status(500).json({
-      error: 'Failed to fetch reservation',
-    });
+    const result = await pool.query(
+      `SELECT
+        r.id,
+        r.vehicle_id,
+        r.driver_id,
+        r.user_id,
+        r.start_time AS start_date,
+        r.end_time AS end_date,
+        r.purpose,
+        r.destination,
+        r.status,
+        r.approved_by,
+        r.approved_at,
+        r.checked_out_at,
+        r.checked_in_at,
+        r.start_odometer,
+        r.end_odometer,
+        r.notes,
+        r.metadata,
+        r.created_at,
+        r.updated_at,
+        CONCAT(v.year, ' ', v.make, ' ', v.model) AS vehicle_name,
+        v.license_plate,
+        NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') AS driver_name,
+        u.email AS driver_email,
+        NULLIF(TRIM(CONCAT(COALESCE(approver.first_name, ''), ' ', COALESCE(approver.last_name, ''))), '') AS approved_by_name
+      FROM reservations r
+      LEFT JOIN vehicles v ON r.vehicle_id = v.id
+      LEFT JOIN drivers d ON r.driver_id = d.id
+      LEFT JOIN users u ON d.user_id = u.id
+      LEFT JOIN users approver ON r.approved_by = approver.id
+      WHERE r.id = $1 AND r.tenant_id = $2`,
+      [id, tenantId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Reservation not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error: unknown) {
+    logger.error('Error fetching reservation:', error);
+    res.status(500).json({ error: 'Failed to fetch reservation' });
   }
 });
 

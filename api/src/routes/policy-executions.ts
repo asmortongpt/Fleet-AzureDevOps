@@ -20,6 +20,12 @@ router.get(
       } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
+      // Check if policy_executions table exists
+      const tableCheck = await pool.query(`SELECT to_regclass('public.policy_executions') as table_name`)
+      if (!tableCheck.rows[0]?.table_name) {
+        return res.json({ data: [], pagination: { page: Number(page), limit: Number(limit), total: 0, pages: 0 } })
+      }
+
       let query = `SELECT pe.id, pe.tenant_id, pe.policy_id, pe.trigger_type, pe.trigger_event,
                           pe.trigger_data, pe.trigger_timestamp, pe.conditions_met,
                           pe.conditions_evaluated, pe.evaluation_details,
@@ -100,6 +106,12 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const { policy_id } = req.query
+
+      // Check if policy_executions table exists
+      const tableCheck = await pool.query(`SELECT to_regclass('public.policy_executions') as table_name`)
+      if (!tableCheck.rows[0]?.table_name) {
+        return res.json({ data: { total_executions: 0, successful: 0, failed: 0, pending: 0, running: 0, conditions_met: 0, avg_duration_ms: 0, total_actions_successful: 0, total_actions_failed: 0, last_execution: null } })
+      }
 
       let whereClause = 'WHERE pe.tenant_id = $1'
       const params: unknown[] = [req.user!.tenant_id]

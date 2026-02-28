@@ -4,9 +4,17 @@
  *
  * Handles:
  * - Cost/benefit analysis creation and management
- * - Quantifiable cost tracking
- * - Non-quantifiable factor assessment
- * - Analysis approval workflow
+ * - Current vs proposed cost comparison
+ * - ROI and NPV calculations
+ * - Analysis status workflow
+ *
+ * Actual DB columns (cost_benefit_analyses):
+ *   id, tenant_id, analysis_name, analysis_type, analysis_date,
+ *   evaluation_period_months, current_annual_cost, current_fuel_cost,
+ *   current_maintenance_cost, proposed_annual_cost, proposed_fuel_cost,
+ *   proposed_maintenance_cost, proposed_upfront_cost, annual_savings,
+ *   total_savings, payback_period_months, roi_percentage, npv,
+ *   status, assumptions, metadata, created_at, updated_at, created_by
  */
 
 
@@ -23,8 +31,6 @@ import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
 
 
-import { flexUuid } from '../middleware/validation'
-
 const router = express.Router()
 
 let pool: Pool = dbPool
@@ -37,41 +43,41 @@ export function setDatabasePool(newPool: Pool) {
 // =====================================================
 
 const createCostBenefitSchema = z.object({
-  vehicle_assignment_id: flexUuid.optional(),
-  department_id: flexUuid,
-  requesting_position: z.string(),
+  analysis_name: z.string().min(1).max(255),
+  analysis_type: z.string().min(1).max(50), // ev_conversion, vehicle_replacement, route_optimization
+  analysis_date: z.string().optional(), // defaults to CURRENT_DATE in DB
+  evaluation_period_months: z.number().int().positive().optional().default(60),
 
-  // Quantifiable costs
-  annual_fuel_cost: z.number().nonnegative().default(0),
-  annual_maintenance_cost: z.number().nonnegative().default(0),
-  annual_insurance_cost: z.number().nonnegative().default(0),
-  annual_parking_cost: z.number().nonnegative().default(0),
-  vehicle_elimination_savings: z.number().nonnegative().default(0),
+  // Current state costs
+  current_annual_cost: z.number().nonnegative().optional(),
+  current_fuel_cost: z.number().nonnegative().optional(),
+  current_maintenance_cost: z.number().nonnegative().optional(),
 
-  // Quantifiable benefits
-  productivity_impact_hours: z.number().nonnegative().default(0),
-  productivity_impact_dollars: z.number().nonnegative().default(0),
-  on_call_expense_reduction: z.number().nonnegative().default(0),
-  mileage_reimbursement_reduction: z.number().nonnegative().default(0),
-  labor_cost_savings: z.number().nonnegative().default(0),
+  // Proposed state costs
+  proposed_annual_cost: z.number().nonnegative().optional(),
+  proposed_fuel_cost: z.number().nonnegative().optional(),
+  proposed_maintenance_cost: z.number().nonnegative().optional(),
+  proposed_upfront_cost: z.number().nonnegative().optional(),
 
-  // Non-quantifiable factors
-  public_safety_impact: z.string().optional(),
-  visibility_requirement: z.string().optional(),
-  response_time_impact: z.string().optional(),
-  employee_identification_need: z.string().optional(),
-  specialty_equipment_need: z.string().optional(),
-  other_non_quantifiable_factors: z.string().optional(),
+  // Savings & ROI
+  annual_savings: z.number().optional(),
+  total_savings: z.number().optional(),
+  payback_period_months: z.number().nonnegative().optional(),
+  roi_percentage: z.number().optional(),
+  npv: z.number().optional(),
 
-  // Overall
-  recommendation: z.string().optional(),
+  // Status
+  status: z.string().optional(), // draft, under_review, approved, rejected
+
+  // Metadata
+  assumptions: z.record(z.string(), z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 const updateCostBenefitSchema = createCostBenefitSchema.partial()
 
 const reviewCostBenefitSchema = z.object({
-  approval_status: z.enum(['pending', 'approved', 'rejected']),
-  notes: z.string().optional(),
+  status: z.enum(['draft', 'under_review', 'approved', 'rejected']),
 })
 
 // =====================================================
@@ -85,7 +91,7 @@ router.get(
   requirePermission('cost_benefit:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { page = '1', limit = '50', department_id, approval_status } = req.query
+      const { page = '1', limit = '50', analysis_type, status } = req.query
 
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string)
       const tenant_id = req.user!.tenant_id
@@ -94,13 +100,13 @@ router.get(
       const params: any[] = [tenant_id]
       let paramIndex = 2
 
-      if (department_id) {
-        whereConditions.push(`cba.department_id = $${paramIndex++}`)
-        params.push(department_id)
+      if (analysis_type) {
+        whereConditions.push(`cba.analysis_type = $${paramIndex++}`)
+        params.push(analysis_type)
       }
-      if (approval_status) {
-        whereConditions.push(`cba.approval_status = $${paramIndex++}`)
-        params.push(approval_status)
+      if (status) {
+        whereConditions.push(`cba.status = $${paramIndex++}`)
+        params.push(status)
       }
 
       const whereClause = whereConditions.join(` AND `)
@@ -108,19 +114,10 @@ router.get(
       const query = `
         SELECT
           cba.*,
-          dept.name AS department_name,
-          va.id AS assignment_id, va.assignment_type,
-          v.unit_number, v.make, v.model,
-          prep_user.first_name AS prepared_by_first_name,
-          prep_user.last_name AS prepared_by_last_name,
-          rev_user.first_name AS reviewed_by_first_name,
-          rev_user.last_name AS reviewed_by_last_name
+          u.first_name AS created_by_first_name,
+          u.last_name AS created_by_last_name
         FROM cost_benefit_analyses cba
-        LEFT JOIN departments dept ON cba.department_id = dept.id
-        LEFT JOIN vehicle_assignments va ON cba.vehicle_assignment_id = va.id
-        LEFT JOIN vehicles v ON va.vehicle_id = v.id
-        LEFT JOIN users prep_user ON cba.prepared_by_user_id = prep_user.id
-        LEFT JOIN users rev_user ON cba.reviewed_by_user_id = rev_user.id
+        LEFT JOIN users u ON cba.created_by = u.id
         WHERE ${whereClause}
         ORDER BY cba.created_at DESC
         LIMIT $${paramIndex++} OFFSET $${paramIndex}
@@ -148,7 +145,7 @@ router.get(
         },
       })
     } catch (error: unknown) {
-      logger.error(`Error fetching cost/benefit analyses:`, error) // Wave 32: Winston logger;
+      logger.error(`Error fetching cost/benefit analyses:`, error)
       res.status(500).json({
         error: 'Failed to fetch cost/benefit analyses',
         details: getErrorMessage(error),
@@ -174,24 +171,11 @@ router.get(
       const query = `
         SELECT
           cba.*,
-          dept.name AS department_name,
-          va.id AS assignment_id, va.assignment_type, va.lifecycle_state,
-          v.unit_number, v.make, v.model, v.year,
-          dr.employee_number, dr.position_title,
-          u.first_name AS driver_first_name, u.last_name AS driver_last_name,
-          prep_user.first_name AS prepared_by_first_name,
-          prep_user.last_name AS prepared_by_last_name,
-          prep_user.email AS prepared_by_email,
-          rev_user.first_name AS reviewed_by_first_name,
-          rev_user.last_name AS reviewed_by_last_name
+          u.first_name AS created_by_first_name,
+          u.last_name AS created_by_last_name,
+          u.email AS created_by_email
         FROM cost_benefit_analyses cba
-        LEFT JOIN departments dept ON cba.department_id = dept.id
-        LEFT JOIN vehicle_assignments va ON cba.vehicle_assignment_id = va.id
-        LEFT JOIN vehicles v ON va.vehicle_id = v.id
-        LEFT JOIN drivers dr ON va.driver_id = dr.id
-        LEFT JOIN users u ON dr.user_id = u.id
-        LEFT JOIN users prep_user ON cba.prepared_by_user_id = prep_user.id
-        LEFT JOIN users rev_user ON cba.reviewed_by_user_id = rev_user.id
+        LEFT JOIN users u ON cba.created_by = u.id
         WHERE cba.id = $1 AND cba.tenant_id = $2
       `
 
@@ -203,7 +187,12 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error: unknown) {
-      logger.error('Error fetching cost/benefit analysis:', error) // Wave 32: Winston logger;
+      logger.error('Error fetching cost/benefit analysis:', error)
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({
+          error: 'Cost/benefit analysis not found',
+        })
+      }
       res.status(500).json({
         error: 'Failed to fetch cost/benefit analysis',
         details: getErrorMessage(error),
@@ -229,68 +218,53 @@ router.post(
 
       const query = `
         INSERT INTO cost_benefit_analyses (
-          tenant_id, vehicle_assignment_id, department_id,
-          requesting_position, prepared_by_user_id,
-          annual_fuel_cost, annual_maintenance_cost, annual_insurance_cost,
-          annual_parking_cost, vehicle_elimination_savings,
-          productivity_impact_hours, productivity_impact_dollars,
-          on_call_expense_reduction, mileage_reimbursement_reduction,
-          labor_cost_savings,
-          public_safety_impact, visibility_requirement, response_time_impact,
-          employee_identification_need, specialty_equipment_need,
-          other_non_quantifiable_factors, recommendation,
-          created_by_user_id
+          tenant_id, analysis_name, analysis_type, analysis_date,
+          evaluation_period_months,
+          current_annual_cost, current_fuel_cost, current_maintenance_cost,
+          proposed_annual_cost, proposed_fuel_cost, proposed_maintenance_cost,
+          proposed_upfront_cost,
+          annual_savings, total_savings, payback_period_months,
+          roi_percentage, npv,
+          status, assumptions, metadata, created_by
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
-          $16, $17, $18, $19, $20, $21, $22, $23
+          $16, $17, $18, $19, $20, $21
         )
         RETURNING *
       `
 
       const params = [
         tenant_id,
-        data.vehicle_assignment_id || null,
-        data.department_id,
-        data.requesting_position,
-        user_id,
-        data.annual_fuel_cost,
-        data.annual_maintenance_cost,
-        data.annual_insurance_cost,
-        data.annual_parking_cost,
-        data.vehicle_elimination_savings,
-        data.productivity_impact_hours,
-        data.productivity_impact_dollars,
-        data.on_call_expense_reduction,
-        data.mileage_reimbursement_reduction,
-        data.labor_cost_savings,
-        data.public_safety_impact || null,
-        data.visibility_requirement || null,
-        data.response_time_impact || null,
-        data.employee_identification_need || null,
-        data.specialty_equipment_need || null,
-        data.other_non_quantifiable_factors || null,
-        data.recommendation || null,
+        data.analysis_name,
+        data.analysis_type,
+        data.analysis_date || null,
+        data.evaluation_period_months,
+        data.current_annual_cost || null,
+        data.current_fuel_cost || null,
+        data.current_maintenance_cost || null,
+        data.proposed_annual_cost || null,
+        data.proposed_fuel_cost || null,
+        data.proposed_maintenance_cost || null,
+        data.proposed_upfront_cost || null,
+        data.annual_savings || null,
+        data.total_savings || null,
+        data.payback_period_months || null,
+        data.roi_percentage || null,
+        data.npv || null,
+        data.status || 'draft',
+        JSON.stringify(data.assumptions || {}),
+        JSON.stringify(data.metadata || {}),
         user_id,
       ]
 
       const result = await pool.query(query, params)
-
-      // If linked to a vehicle assignment, update the assignment
-      if (data.vehicle_assignment_id) {
-        await pool.query(
-          `UPDATE vehicle_assignments
-           SET cost_benefit_analysis_id = $1
-           WHERE id = $2 AND tenant_id = $3`,
-          [result.rows[0].id, data.vehicle_assignment_id, tenant_id]
-        )
-      }
 
       res.status(201).json({
         message: `Cost/benefit analysis created successfully`,
         analysis: result.rows[0],
       })
     } catch (error: unknown) {
-      logger.error('Error creating cost/benefit analysis:', error) // Wave 32: Winston logger;
+      logger.error('Error creating cost/benefit analysis:', error)
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -320,16 +294,36 @@ router.put(
       const data = updateCostBenefitSchema.parse(req.body)
       const tenant_id = req.user!.tenant_id
 
+      // Only allow updating actual DB columns
+      const allowedFields = [
+        'analysis_name', 'analysis_type', 'analysis_date', 'evaluation_period_months',
+        'current_annual_cost', 'current_fuel_cost', 'current_maintenance_cost',
+        'proposed_annual_cost', 'proposed_fuel_cost', 'proposed_maintenance_cost',
+        'proposed_upfront_cost', 'annual_savings', 'total_savings',
+        'payback_period_months', 'roi_percentage', 'npv', 'status',
+      ]
+
       const updates: string[] = []
       const params: any[] = []
       let paramIndex = 1
 
-      Object.entries(data).forEach(([key, value]) => {
+      for (const field of allowedFields) {
+        const value = (data as Record<string, unknown>)[field]
         if (value !== undefined) {
-          updates.push(`${key} = $${paramIndex++}`)
+          updates.push(`${field} = $${paramIndex++}`)
           params.push(value)
         }
-      })
+      }
+
+      // Handle JSONB fields separately
+      if (data.assumptions !== undefined) {
+        updates.push(`assumptions = $${paramIndex++}`)
+        params.push(JSON.stringify(data.assumptions))
+      }
+      if (data.metadata !== undefined) {
+        updates.push(`metadata = $${paramIndex++}`)
+        params.push(JSON.stringify(data.metadata))
+      }
 
       if (updates.length === 0) {
         return res.status(400).json({ error: `No fields to update` })
@@ -356,7 +350,7 @@ router.put(
         analysis: result.rows[0],
       })
     } catch (error: unknown) {
-      logger.error('Error updating cost/benefit analysis:', error) // Wave 32: Winston logger;
+      logger.error('Error updating cost/benefit analysis:', error)
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -385,31 +379,28 @@ router.post(
       const { id } = req.params
       const data = reviewCostBenefitSchema.parse(req.body)
       const tenant_id = req.user!.tenant_id
-      const user_id = req.user!.id
 
       const query = `
         UPDATE cost_benefit_analyses
         SET
-          approval_status = $1,
-          reviewed_by_user_id = $2,
-          reviewed_at = NOW(),
+          status = $1,
           updated_at = NOW()
-        WHERE id = $3 AND tenant_id = $4
+        WHERE id = $2 AND tenant_id = $3
         RETURNING *
       `
 
-      const result = await pool.query(query, [data.approval_status, user_id, id, tenant_id])
+      const result = await pool.query(query, [data.status, id, tenant_id])
 
       if (result.rows.length === 0) {
         return res.status(404).json({ error: `Cost/benefit analysis not found` })
       }
 
       res.json({
-        message: `Cost/benefit analysis ${data.approval_status}`,
+        message: `Cost/benefit analysis ${data.status}`,
         analysis: result.rows[0],
       })
     } catch (error: unknown) {
-      logger.error(`Error reviewing cost/benefit analysis:`, error) // Wave 32: Winston logger;
+      logger.error(`Error reviewing cost/benefit analysis:`, error)
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -454,7 +445,12 @@ router.delete(
         message: 'Cost/benefit analysis deleted successfully',
       })
     } catch (error: unknown) {
-      logger.error('Error deleting cost/benefit analysis:', error) // Wave 32: Winston logger;
+      logger.error('Error deleting cost/benefit analysis:', error)
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({
+          error: 'Cost/benefit analysis not found',
+        })
+      }
       res.status(500).json({
         error: 'Failed to delete cost/benefit analysis',
         details: getErrorMessage(error),

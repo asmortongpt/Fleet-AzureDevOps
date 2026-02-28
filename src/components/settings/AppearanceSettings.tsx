@@ -9,6 +9,7 @@ import { Moon, Sun, Wand2, Palette, Type, Sidebar } from 'lucide-react'
 import { ThemeSelector } from './ThemeSelector'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ThemeProvider as AdvancedThemeProvider } from '@/lib/themes/theme-context'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Switch } from '@/components/ui/switch'
@@ -49,11 +50,13 @@ export function AppearanceSettings() {
   return (
     <div className="space-y-2">
       {/* New Theme System */}
-      <ThemeSelector
-        onThemeChange={(theme) => {
-          setHasUnsavedChanges(true)
-        }}
-      />
+      <AdvancedThemeProvider>
+        <ThemeSelector
+          onThemeChange={(theme) => {
+            setHasUnsavedChanges(true)
+          }}
+        />
+      </AdvancedThemeProvider>
 
       {/* Legacy Theme Settings (kept for backward compatibility) */}
       {/* Theme */}

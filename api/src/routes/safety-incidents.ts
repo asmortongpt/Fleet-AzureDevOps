@@ -68,23 +68,26 @@ router.get(
            id,
            tenant_id,
            vehicle_id,
-           type as incident_type,
+           driver_id,
+           incident_number,
+           incident_type,
            severity,
            description,
            location,
            incident_date,
-           reported_by_id as reporter_id,
+           reported_by as reporter_id,
+           status,
            created_at,
            updated_at
-         FROM incidents
+         FROM safety_incidents
          WHERE tenant_id = $1
-         ORDER BY created_at DESC
+         ORDER BY incident_date DESC
          LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        `SELECT COUNT(*) FROM incidents WHERE tenant_id = $1`,
+        `SELECT COUNT(*) FROM safety_incidents WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -114,19 +117,38 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT
-           id,
-           tenant_id,
-           vehicle_id,
-           type as incident_type,
-           severity,
-           description,
-           location,
-           incident_date,
-           reported_by_id as reporter_id,
-           created_at,
-           updated_at
-         FROM incidents
-         WHERE id = $1 AND tenant_id = $2`,
+           si.id,
+           si.tenant_id,
+           si.incident_number,
+           si.vehicle_id,
+           si.driver_id,
+           si.incident_type,
+           si.severity,
+           si.description,
+           si.location,
+           si.latitude,
+           si.longitude,
+           si.incident_date,
+           si.injuries_count,
+           si.fatalities_count,
+           si.property_damage_cost,
+           si.vehicle_damage_cost,
+           si.at_fault,
+           si.reported_to_osha,
+           si.status,
+           si.reported_by,
+           si.root_cause,
+           si.corrective_actions,
+           si.created_at,
+           si.updated_at,
+           CONCAT(v.year, ' ', v.make, ' ', v.model) as vehicle_name,
+           v.license_plate,
+           CONCAT(u.first_name, ' ', u.last_name) as driver_name
+         FROM safety_incidents si
+         LEFT JOIN vehicles v ON si.vehicle_id = v.id
+         LEFT JOIN drivers d ON si.driver_id = d.id
+         LEFT JOIN users u ON d.user_id = u.id
+         WHERE si.id = $1 AND si.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -157,19 +179,23 @@ router.post(
 
       // Auto-generate incident number (shared with incidents table)
       const numberResult = await pool.query(
-        `SELECT COALESCE(MAX(CAST(SUBSTRING(number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_num
+        `SELECT COALESCE(MAX(CAST(SUBSTRING(incident_number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_num
          FROM incidents WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
-      const number = `INC-${String(numberResult.rows[0].next_num).padStart(4, '0')}`
+      const incident_number = `INC-${String(numberResult.rows[0].next_num).padStart(4, '0')}`
 
+      // Map safety-incident fields to incidents table columns
+      const { type: _type, resolution: _resolution, notes: _notes, corrective_action: _ca, root_cause: _rc, metadata: _meta, ...rest } = data as any
+      const incidentType = data.incident_type || data.type || 'other'
       const { columnNames, placeholders, values } = buildInsertClause(
         {
-          ...data,
-          number,
-          type: data.incident_type || data.type || 'other',
+          ...rest,
+          incident_number,
+          incident_type: incidentType,
+          title: `Safety Incident - ${incidentType}`,
           incident_date: data.incident_date || new Date().toISOString(),
-          reported_by_id: req.user!.id,
+          created_by: req.user!.id,
         },
         ['tenant_id'],
         1
@@ -214,9 +240,9 @@ router.put(
       }
 
       res.json(result.rows[0])
-    } catch (error) {
+    } catch (error: any) {
       logger.error(`Update safety-incidents error:`, error) // Wave 17: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: error?.message || `Internal server error` })
     }
   }
 )

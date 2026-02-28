@@ -222,19 +222,19 @@ router.get(
         ),
         pool.query(
           `SELECT COUNT(*)::int AS count
-           FROM training_records
+           FROM driver_training_records
            WHERE tenant_id = $1
-             AND expiry_date IS NOT NULL
-             AND expiry_date <= NOW() + INTERVAL '30 days'
-             AND expiry_date > NOW()`,
+             AND certification_expiry_date IS NOT NULL
+             AND certification_expiry_date <= NOW() + INTERVAL '30 days'
+             AND certification_expiry_date > NOW()`,
           [tenantId]
         ),
         pool.query(
           `SELECT COUNT(*)::int AS count
-           FROM training_records
+           FROM driver_training_records
            WHERE tenant_id = $1
-             AND expiry_date IS NOT NULL
-             AND expiry_date <= NOW()`,
+             AND certification_expiry_date IS NOT NULL
+             AND certification_expiry_date <= NOW()`,
           [tenantId]
         ),
         pool.query(
@@ -253,13 +253,13 @@ router.get(
           `SELECT COUNT(*)::int AS count
            FROM documents
            WHERE tenant_id = $1
-             AND (expires_at IS NOT NULL OR expiry_date IS NOT NULL)
-             AND COALESCE(expires_at, expiry_date) <= NOW() + INTERVAL '30 days'
-             AND COALESCE(expires_at, expiry_date) > NOW()`,
+             AND expires_at IS NOT NULL
+             AND expires_at <= NOW() + INTERVAL '30 days'
+             AND expires_at > NOW()`,
           [tenantId]
         ),
         pool.query(
-          `SELECT id, type, status, started_at as timestamp, vehicle_id
+          `SELECT id, inspection_type as type, status, started_at as timestamp, vehicle_id
            FROM inspections
            WHERE tenant_id = $1
            ORDER BY started_at DESC
@@ -267,7 +267,7 @@ router.get(
           [tenantId]
         ),
         pool.query(
-          `SELECT id, type, severity, status, incident_date as timestamp, vehicle_id
+          `SELECT id, incident_type AS type, severity, status, incident_date as timestamp, vehicle_id
            FROM incidents
            WHERE tenant_id = $1
            ORDER BY incident_date DESC
@@ -275,8 +275,8 @@ router.get(
           [tenantId]
         ),
         pool.query(
-          `SELECT id, training_name, status, completion_date as timestamp, driver_id
-           FROM training_records
+          `SELECT id, training_title as training_name, completion_status as status, completion_date as timestamp, driver_id
+           FROM driver_training_records
            WHERE tenant_id = $1
            ORDER BY completion_date DESC NULLS LAST
            LIMIT 5`,

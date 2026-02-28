@@ -44,7 +44,7 @@ export class ReservationsService {
    */
   private canViewAllReservations(user: UserContext): boolean {
     const roles = user.roles || [];
-    return roles.includes('Admin') || roles.includes('FleetManager') || roles.includes('Auditor');
+    return roles.includes('Admin') || roles.includes('FleetManager') || roles.includes('Auditor') || roles.includes('SuperAdmin');
   }
 
   /**
@@ -52,7 +52,7 @@ export class ReservationsService {
    */
   private canApproveReservations(user: UserContext): boolean {
     const roles = user.roles || [];
-    return roles.includes('Admin') || roles.includes('FleetManager');
+    return roles.includes('Admin') || roles.includes('FleetManager') || roles.includes('SuperAdmin');
   }
 
   /**

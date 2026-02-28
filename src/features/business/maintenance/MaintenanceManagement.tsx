@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+import { formatCurrency, formatNumber } from '@/utils/format-helpers';
 
 import { MaintenanceRecord } from '../../services/maintenanceService';
 
@@ -11,10 +13,66 @@ interface MaintenanceManagementProps {
 
 type TabType = 'schedule' | 'history' | 'upcoming';
 
+interface QuickStats {
+  scheduled: number;
+  completed: number;
+  totalSpend: number;
+  avgCost: number;
+}
+
 const MaintenanceManagement: React.FC<MaintenanceManagementProps> = ({ currentTheme }) => {
   const [activeTab, setActiveTab] = useState<TabType>('schedule');
   const [refresh, setRefresh] = useState(0);
   const [editingRecord, setEditingRecord] = useState<MaintenanceRecord | null>(null);
+  const [stats, setStats] = useState<QuickStats>({ scheduled: 0, completed: 0, totalSpend: 0, avgCost: 0 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [woRes, costRes] = await Promise.all([
+          fetch('/api/work-orders?limit=200', { credentials: 'include' }),
+          fetch('/api/costs?limit=200', { credentials: 'include' }),
+        ]);
+
+        let scheduled = 0;
+        let completed = 0;
+        if (woRes.ok) {
+          const woJson = await woRes.json();
+          const workOrders = woJson.data ?? woJson ?? [];
+          const now = new Date();
+          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+          scheduled = workOrders.filter((wo: any) =>
+            ['open', 'pending', 'scheduled', 'in_progress'].includes((wo.status || '').toLowerCase())
+          ).length;
+          completed = workOrders.filter((wo: any) => {
+            const isComplete = (wo.status || '').toLowerCase() === 'completed';
+            const completedAt = wo.completed_at || wo.completedAt || wo.updated_at;
+            return isComplete && completedAt && new Date(completedAt) >= monthStart;
+          }).length;
+        }
+
+        let totalSpend = 0;
+        if (costRes.ok) {
+          const costJson = await costRes.json();
+          const costs = costJson.data ?? costJson ?? [];
+          const now = new Date();
+          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+          const monthCosts = costs.filter((c: any) => {
+            const date = c.date || c.created_at || c.createdAt;
+            return date && new Date(date) >= monthStart;
+          });
+          totalSpend = monthCosts.reduce((sum: number, c: any) => sum + (Number(c.amount) || Number(c.total) || 0), 0);
+        }
+
+        const avgCost = completed > 0 ? totalSpend / completed : 0;
+        setStats({ scheduled, completed, totalSpend, avgCost });
+      } catch {
+        // Stats are best-effort; leave defaults
+      }
+    };
+
+    fetchStats();
+  }, [refresh]);
 
   const handleScheduleSuccess = () => {
     setRefresh(prev => prev + 1);
@@ -26,18 +84,11 @@ const MaintenanceManagement: React.FC<MaintenanceManagementProps> = ({ currentTh
     setActiveTab('schedule');
   }
 
-  const tabButtonStyle = (isActive: boolean) => ({
-    padding: '12px 24px',
-    border: 'none',
-    background: isActive ? currentTheme.primary : 'transparent',
-    color: isActive ? 'hsl(var(--primary-foreground))' : currentTheme.text,
-    fontSize: '14px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    borderRadius: '8px 8px 0 0',
-    transition: 'all 0.2s',
-    borderBottom: isActive ? 'none' : `2px solid transparent`
-  });
+  const tabs: { id: TabType; label: string; icon: string }[] = [
+    { id: 'schedule', label: 'Schedule Maintenance', icon: '📅' },
+    { id: 'upcoming', label: 'Upcoming', icon: '⏰' },
+    { id: 'history', label: 'All Records', icon: '📋' },
+  ];
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -59,33 +110,14 @@ const MaintenanceManagement: React.FC<MaintenanceManagementProps> = ({ currentTh
 
       case 'upcoming':
         return (
-          <div style={{
-            backgroundColor: currentTheme.card,
-            borderRadius: '12px',
-            padding: '24px',
-            border: `1px solid ${currentTheme.border}`
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h2 style={{
-                fontSize: '20px',
-                fontWeight: '600',
-                color: currentTheme.text
-              }}>
+          <div className="bg-[#1a1a1a] rounded-xl p-6 border border-white/[0.08]">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-white/80">
                 Upcoming Maintenance
               </h2>
               <button
                 onClick={() => setRefresh(prev => prev + 1)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  border: `1px solid ${currentTheme.border}`,
-                  backgroundColor: currentTheme.surface,
-                  color: currentTheme.text,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
+                className="px-4 py-2 rounded-md text-sm font-semibold border border-white/[0.08] bg-white/[0.03] text-white/80 hover:bg-white/[0.06] transition-all cursor-pointer"
               >
                 🔄 Refresh
               </button>
@@ -102,86 +134,41 @@ const MaintenanceManagement: React.FC<MaintenanceManagementProps> = ({ currentTh
     }
   };
 
+  const statCards = [
+    { icon: '🔧', label: 'Scheduled', value: formatNumber(stats.scheduled), color: 'text-amber-400', sub: 'Pending maintenance tasks' },
+    { icon: '✅', label: 'Completed', value: formatNumber(stats.completed), color: 'text-emerald-400', sub: 'This month' },
+    { icon: '💰', label: 'Total Spend', value: formatCurrency(stats.totalSpend), color: 'text-emerald-400', sub: 'This month' },
+    { icon: '📊', label: 'Avg Cost', value: formatCurrency(stats.avgCost), color: 'text-white/80', sub: 'Per maintenance' },
+  ];
+
   return (
-    <div style={{
-      padding: '24px',
-      maxWidth: '1400px',
-      margin: '0 auto'
-    }}>
+    <div className="p-6 max-w-[1400px] mx-auto">
       {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{
-          fontSize: '28px',
-          fontWeight: '700',
-          color: currentTheme.text,
-          marginBottom: '8px'
-        }}>
+      <div className="mb-6">
+        <h1 className="text-[28px] font-bold text-white/80 mb-2">
           Maintenance Management
         </h1>
-        <p style={{
-          fontSize: '14px',
-          color: currentTheme.textMuted
-        }}>
+        <p className="text-sm text-white/40">
           Schedule, track, and manage vehicle maintenance operations
         </p>
       </div>
 
       {/* Tabs */}
-      <div style={{
-        borderBottom: `2px solid ${currentTheme.border}`,
-        marginBottom: '24px'
-      }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={() => setActiveTab('schedule')}
-            style={tabButtonStyle(activeTab === 'schedule')}
-            onMouseEnter={(e) => {
-              if (activeTab !== 'schedule') {
-                e.currentTarget.style.backgroundColor = currentTheme.surface
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== 'schedule') {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }
-            }}
-          >
-            📅 Schedule Maintenance
-          </button>
-
-          <button
-            onClick={() => setActiveTab('upcoming')}
-            style={tabButtonStyle(activeTab === 'upcoming')}
-            onMouseEnter={(e) => {
-              if (activeTab !== 'upcoming') {
-                e.currentTarget.style.backgroundColor = currentTheme.surface;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== 'upcoming') {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }
-            }}
-          >
-            ⏰ Upcoming
-          </button>
-
-          <button
-            onClick={() => setActiveTab('history')}
-            style={tabButtonStyle(activeTab === 'history')}
-            onMouseEnter={(e) => {
-              if (activeTab !== 'history') {
-                e.currentTarget.style.backgroundColor = currentTheme.surface;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== 'history') {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }
-            }}
-          >
-            📋 All Records
-          </button>
+      <div className="border-b-2 border-white/[0.08] mb-6">
+        <div className="flex gap-2">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-6 py-3 text-sm font-semibold rounded-t-lg transition-all cursor-pointer ${
+                activeTab === tab.id
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-transparent text-white/60 hover:bg-white/[0.03]'
+              }`}
+            >
+              {tab.icon} {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -190,120 +177,18 @@ const MaintenanceManagement: React.FC<MaintenanceManagementProps> = ({ currentTh
         {renderTabContent()}
       </div>
 
-      {/* Quick Stats Panel */}
-      <div style={{
-        marginTop: '24px',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '16px'
-      }}>
-        <div style={{
-          backgroundColor: currentTheme.card,
-          borderRadius: '12px',
-          padding: '20px',
-          border: `1px solid ${currentTheme.border}`
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '12px'
-          }}>
-            <span style={{ fontSize: '32px' }}>🔧</span>
-            <div>
-              <p style={{ fontSize: '14px', color: currentTheme.textMuted, marginBottom: '4px' }}>
-                Scheduled
-              </p>
-              <p style={{ fontSize: '24px', fontWeight: '600', color: currentTheme.warning }}>
-                -
-              </p>
+      {/* Quick Stats — inline metrics matrix */}
+      <div className="mt-6 flex items-center gap-0 bg-[#1a1a1a] rounded-lg border border-white/[0.08] overflow-hidden divide-x divide-white/[0.06]">
+        {statCards.map(card => (
+          <div key={card.label} className="flex-1 flex items-center gap-3 px-4 py-3 min-w-0">
+            <span className="text-xl flex-shrink-0">{card.icon}</span>
+            <div className="min-w-0">
+              <div className="text-[10px] text-white/40 uppercase tracking-wide">{card.label}</div>
+              <div className={`text-base font-semibold ${card.color} truncate`}>{card.value}</div>
+              <div className="text-[10px] text-white/30">{card.sub}</div>
             </div>
           </div>
-          <p style={{ fontSize: '12px', color: currentTheme.textMuted }}>
-            Pending maintenance tasks
-          </p>
-        </div>
-
-        <div style={{
-          backgroundColor: currentTheme.card,
-          borderRadius: '12px',
-          padding: '20px',
-          border: `1px solid ${currentTheme.border}`
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '12px'
-          }}>
-            <span style={{ fontSize: '32px' }}>✅</span>
-            <div>
-              <p style={{ fontSize: '14px', color: currentTheme.textMuted, marginBottom: '4px' }}>
-                Completed
-              </p>
-              <p style={{ fontSize: '24px', fontWeight: '600', color: currentTheme.success }}>
-                -
-              </p>
-            </div>
-          </div>
-          <p style={{ fontSize: '12px', color: currentTheme.textMuted }}>
-            This month
-          </p>
-        </div>
-
-        <div style={{
-          backgroundColor: currentTheme.card,
-          borderRadius: '12px',
-          padding: '20px',
-          border: `1px solid ${currentTheme.border}`
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '12px'
-          }}>
-            <span style={{ fontSize: '32px' }}>💰</span>
-            <div>
-              <p style={{ fontSize: '14px', color: currentTheme.textMuted, marginBottom: '4px' }}>
-                Total Spend
-              </p>
-              <p style={{ fontSize: '24px', fontWeight: '600', color: currentTheme.primary }}>
-                -
-              </p>
-            </div>
-          </div>
-          <p style={{ fontSize: '12px', color: currentTheme.textMuted }}>
-            This month
-          </p>
-        </div>
-
-        <div style={{
-          backgroundColor: currentTheme.card,
-          borderRadius: '12px',
-          padding: '20px',
-          border: `1px solid ${currentTheme.border}`
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '12px'
-          }}>
-            <span style={{ fontSize: '32px' }}>📊</span>
-            <div>
-              <p style={{ fontSize: '14px', color: currentTheme.textMuted, marginBottom: '4px' }}>
-                Avg Cost
-              </p>
-              <p style={{ fontSize: '24px', fontWeight: '600', color: currentTheme.info }}>
-                -
-              </p>
-            </div>
-          </div>
-          <p style={{ fontSize: '12px', color: currentTheme.textMuted }}>
-            Per maintenance
-          </p>
-        </div>
+        ))}
       </div>
     </div>
   )

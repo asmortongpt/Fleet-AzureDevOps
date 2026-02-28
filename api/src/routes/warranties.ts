@@ -157,6 +157,14 @@ router.get('/',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranties')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.json({ data: [], count: 0 });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { status, vehicle_id, warranty_type } = req.query;
 
@@ -202,6 +210,14 @@ router.get('/expiring',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranties')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.json({ data: [], count: 0 });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
         const daysThreshold = parseInt(req.query.days as string) || 30;
 
@@ -226,6 +242,14 @@ router.get('/statistics',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranties')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.json({ data: { total: 0, active: 0, expired: 0, claims: 0 } });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
 
         const stats = await warrantyRecoveryService.getWarrantyStatistics(tenantId);
@@ -247,6 +271,14 @@ router.get('/:id',
     }),
     validateParams(warrantyIdSchema),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranties')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.status(404).json({ error: 'Warranty not found' });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
 
@@ -277,6 +309,14 @@ router.post('/',
     }),
     validateBody(createWarrantySchema),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranties')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.status(400).json({ error: 'Warranties table not available' });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
         const data: CreateWarrantyRequest = req.body;
 
@@ -336,6 +376,14 @@ router.put('/:id',
     validateParams(warrantyIdSchema),
     validateBody(updateWarrantySchema),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranties')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.status(404).json({ error: 'Warranty not found' });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
         const data: UpdateWarrantyRequest = req.body;
@@ -394,6 +442,14 @@ router.get('/claims/all',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranty_claims')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.json({ data: [], count: 0 });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { status, warranty_id } = req.query;
 
@@ -434,6 +490,14 @@ router.get('/claims/pending',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranty_claims')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.json({ data: [], count: 0 });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
 
         const pending = await warrantyRecoveryService.getPendingClaims(tenantId);
@@ -458,6 +522,14 @@ router.get('/claims/:id',
     }),
     validateParams(claimIdSchema),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranty_claims')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.status(404).json({ error: 'Warranty claim not found' });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
 
@@ -488,6 +560,14 @@ router.post('/claims',
     }),
     validateBody(createClaimSchema),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranty_claims')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.status(400).json({ error: 'Warranty claims table not available' });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
         const userId = req.user?.id ?? '';
         const data: CreateWarrantyClaimRequest = req.body;
@@ -550,6 +630,14 @@ router.put('/claims/:id/status',
     validateParams(claimIdSchema),
     validateBody(updateClaimStatusSchema),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranty_claims')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.status(404).json({ error: 'Warranty claim not found' });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
         const data: UpdateWarrantyClaimStatusRequest = req.body;
@@ -589,6 +677,14 @@ router.get('/work-orders/:workOrderId/eligibility',
     }),
     validateParams(workOrderIdParamSchema),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranties')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.json({ data: { eligible: false, warranties: [] } });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { workOrderId } = req.params;
 
@@ -639,6 +735,14 @@ router.get('/recovery/report',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
+        // Check if table exists
+        const tableCheck = await pool.query(
+            `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'warranties')`
+        );
+        if (!tableCheck.rows[0].exists) {
+            return res.json({ data: { total_claims: 0, total_recovered: 0, recovery_rate: 0 } });
+        }
+
         const tenantId = req.user?.tenant_id || req.user?.id || '';
         const periodStart = req.query.start_date ? new Date(req.query.start_date as string) : new Date(new Date().getFullYear(), 0, 1);
         const periodEnd = req.query.end_date ? new Date(req.query.end_date as string) : new Date();

@@ -14,6 +14,17 @@ router.get(
   requirePermission('compliance:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'compliance_records')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.json({
+          data: [],
+          pagination: { page: 1, limit: 50, total: 0, pages: 0 }
+        })
+      }
+
       const { page = 1, limit = 50, status, vehicle_id, driver_id, requirement_id } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
@@ -84,6 +95,14 @@ router.get(
   requirePermission('compliance:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'compliance_records')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(404).json({ error: 'Compliance record not found' })
+      }
+
       const result = await pool.query(
         `SELECT cr.id, cr.tenant_id, cr.requirement_id, cr.vehicle_id, cr.driver_id,
                 cr.due_date, cr.completion_date, cr.completed_by, cr.status,

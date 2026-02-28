@@ -100,7 +100,7 @@ router.get('/', asyncHandler(async (req, res) => {
       params.push(vehicleId)
     }
     if (department && typeof department === 'string') {
-      conditions.push(`subcategory = $${paramIndex++}`)
+      conditions.push(`cost_subcategory = $${paramIndex++}`)
       params.push(department)
     }
     if (startDate && typeof startDate === 'string') {
@@ -129,7 +129,7 @@ router.get('/', asyncHandler(async (req, res) => {
       date: 'transaction_date',
       amount: 'amount',
       category: 'cost_category',
-      vendor: 'vendor_name'
+      vendor: 'vendor_id'
     }
     const sortColumn = sortColumnMap[String(sortBy)] || 'transaction_date'
     const order = sortOrder === 'asc' ? 'ASC' : 'DESC'
@@ -157,14 +157,14 @@ router.get('/', asyncHandler(async (req, res) => {
       `SELECT
         source_id AS id,
         cost_category AS category,
-        subcategory,
+        cost_subcategory AS subcategory,
         vehicle_id,
         driver_id,
-        vendor_name AS vendor_id,
+        vendor_id,
         amount,
         description,
         transaction_date AS date,
-        reference_number AS invoice_number,
+        invoice_number,
         source_table
       FROM unified_costs
       ${whereClause}
@@ -540,7 +540,7 @@ router.get('/analysis', asyncHandler(async (req, res) => {
         amount,
         description,
         vehicle_id,
-        vendor_name
+        vendor_id
       FROM unified_costs ${whereClause}
       ORDER BY amount DESC
       LIMIT 10`,

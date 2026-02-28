@@ -107,104 +107,70 @@ const PredictiveReorderingDashboard: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
+    loadRealData();
     loadRecommendations();
-    loadSampleData();
   }, []);
 
-  const loadSampleData = () => {
-    // Load sample usage patterns
-    const samplePatterns: PartUsagePattern[] = [
-      {
-        partId: 'P001',
-        partNumber: 'OF-2234',
-        name: 'Oil Filter',
-        category: 'Filters',
-        averageMonthlyUsage: 25,
-        usageVariability: 5,
-        seasonalityFactor: 1.1,
-        trendDirection: 'stable',
-        currentStock: 15,
-        safetyStock: 10,
-        reorderPoint: 20,
-        economicOrderQuantity: 50,
-        averageLeadTime: 3,
-        leadTimeVariability: 1,
-        supplierReliability: 0.95,
-        associatedVehicles: ['V001', 'V002', 'V003'],
-        criticalityScore: 8,
-        unitCost: 25.99,
-        carryingCostRate: 0.25,
-        stockoutCostEstimate: 500
-      },
-      {
-        partId: 'P002',
-        partNumber: 'BP-5567',
-        name: 'Brake Pads Set',
-        category: 'Brakes',
-        averageMonthlyUsage: 12,
-        usageVariability: 3,
-        seasonalityFactor: 1.0,
-        trendDirection: 'increasing',
-        currentStock: 8,
-        safetyStock: 5,
-        reorderPoint: 15,
-        economicOrderQuantity: 30,
-        averageLeadTime: 5,
-        leadTimeVariability: 2,
-        supplierReliability: 0.92,
-        associatedVehicles: ['V001', 'V004', 'V005'],
-        criticalityScore: 9,
-        unitCost: 45.99,
-        carryingCostRate: 0.25,
-        stockoutCostEstimate: 1200
-      },
-      {
-        partId: 'P003',
-        partNumber: 'TR-225-65R17',
-        name: '225/65R17 All-Season Tire',
-        category: 'Tires',
-        averageMonthlyUsage: 8,
-        usageVariability: 4,
-        seasonalityFactor: 1.3,
-        trendDirection: 'stable',
-        currentStock: 12,
-        safetyStock: 4,
-        reorderPoint: 10,
-        economicOrderQuantity: 20,
-        averageLeadTime: 7,
-        leadTimeVariability: 3,
-        supplierReliability: 0.88,
-        associatedVehicles: ['V002', 'V003'],
-        criticalityScore: 7,
-        unitCost: 125.99,
-        carryingCostRate: 0.20,
-        stockoutCostEstimate: 800
-      }
-    ];
+  const loadRealData = async () => {
+    try {
+      const [partsRes, schedRes] = await Promise.all([
+        fetch('/api/parts?limit=100', { credentials: 'include' }),
+        fetch('/api/maintenance-schedules?limit=100', { credentials: 'include' }),
+      ]);
 
-    // Load sample maintenance schedule
-    const sampleSchedule: MaintenanceScheduleInput[] = [
-      {
-        vehicleId: 'V001',
-        scheduledMaintenanceDate: new Date('2024-02-15'),
-        maintenanceType: 'Regular Service',
-        requiredParts: [
-          { partNumber: 'OF-2234', quantity: 1, criticality: 'critical' },
-          { partNumber: 'AF-8901', quantity: 1, criticality: 'routine' }
-        ]
-      },
-      {
-        vehicleId: 'V002',
-        scheduledMaintenanceDate: new Date('2024-02-20'),
-        maintenanceType: 'Brake Service',
-        requiredParts: [
-          { partNumber: 'BP-5567', quantity: 1, criticality: 'critical' }
-        ]
+      if (partsRes.ok) {
+        const partsJson = await partsRes.json();
+        const parts = partsJson.data ?? partsJson ?? [];
+        const patterns: PartUsagePattern[] = parts.map((p: any) => ({
+          partId: String(p.id),
+          partNumber: p.part_number || p.partNumber || `P-${p.id}`,
+          name: p.name || p.description || 'Unknown Part',
+          category: p.category || 'General',
+          averageMonthlyUsage: Number(p.average_monthly_usage) || 10,
+          usageVariability: Number(p.usage_variability) || 3,
+          seasonalityFactor: Number(p.seasonality_factor) || 1.0,
+          trendDirection: (p.trend_direction || 'stable') as 'increasing' | 'decreasing' | 'stable',
+          currentStock: Number(p.quantity_on_hand ?? p.quantity ?? p.stock_level) || 0,
+          safetyStock: Number(p.safety_stock ?? p.min_quantity) || 5,
+          reorderPoint: Number(p.reorder_point ?? p.reorder_level) || 10,
+          economicOrderQuantity: Number(p.economic_order_quantity) || 25,
+          averageLeadTime: Number(p.lead_time ?? p.average_lead_time) || 5,
+          leadTimeVariability: Number(p.lead_time_variability) || 2,
+          supplierReliability: Number(p.supplier_reliability) || 0.9,
+          associatedVehicles: p.associated_vehicles ?? [],
+          criticalityScore: Number(p.criticality_score) || 5,
+          unitCost: Number(p.unit_cost ?? p.cost ?? p.price) || 0,
+          carryingCostRate: Number(p.carrying_cost_rate) || 0.25,
+          stockoutCostEstimate: Number(p.stockout_cost) || 500,
+        }));
+        if (patterns.length > 0) {
+          predictiveReorderingService.updateUsagePatterns(patterns);
+        }
       }
-    ];
 
-    predictiveReorderingService.updateUsagePatterns(samplePatterns);
-    predictiveReorderingService.loadMaintenanceSchedule(sampleSchedule);
+      if (schedRes.ok) {
+        const schedJson = await schedRes.json();
+        const schedules = schedJson.data ?? schedJson ?? [];
+        const maintenanceInputs: MaintenanceScheduleInput[] = schedules.map((s: any) => ({
+          vehicleId: String(s.vehicle_id ?? s.vehicleId ?? ''),
+          scheduledMaintenanceDate: new Date(s.scheduled_date ?? s.scheduledDate ?? s.due_date ?? new Date()),
+          maintenanceType: s.maintenance_type ?? s.type ?? s.service_type ?? 'General Service',
+          requiredParts: (s.required_parts ?? s.parts ?? []).map((rp: any) => ({
+            partNumber: rp.part_number ?? rp.partNumber ?? '',
+            quantity: Number(rp.quantity) || 1,
+            criticality: (rp.criticality || 'routine') as 'critical' | 'routine',
+          })),
+        }));
+        if (maintenanceInputs.length > 0) {
+          predictiveReorderingService.loadMaintenanceSchedule(maintenanceInputs);
+        }
+      }
+
+      // Regenerate recommendations with real data
+      loadRecommendations();
+    } catch (err) {
+      logger.error('Error loading real parts/maintenance data:', err);
+    }
   };
 
   const loadRecommendations = async () => {

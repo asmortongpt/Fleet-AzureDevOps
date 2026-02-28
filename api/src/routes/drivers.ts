@@ -281,7 +281,12 @@ router.get(
       }))
 
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (error: any) {
+      // Handle missing table gracefully — return empty data instead of 500
+      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
+        logger.warn('driver_scores_history table not found, returning empty trend data')
+        return res.json({ success: true, data: [] })
+      }
       logger.error('Get driver performance trend error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }

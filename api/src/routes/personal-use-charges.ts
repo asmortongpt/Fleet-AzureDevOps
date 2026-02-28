@@ -28,14 +28,6 @@ const createChargeSchema = z.object({
   miles_charged: z.number().nonnegative(),
   rate_per_mile: z.number().nonnegative(),
   notes: z.string().optional(),
-  is_reimbursement: z.boolean().optional(),
-  actual_cost_breakdown: z.object({
-    fuel: z.number().optional(),
-    maintenance: z.number().optional(),
-    insurance: z.number().optional(),
-    depreciation: z.number().optional(),
-    other: z.number().optional()
-  }).optional()
 });
 
 const updateChargeSchema = z.object({
@@ -54,7 +46,6 @@ const updateChargeSchema = z.object({
   invoice_date: z.string().optional(),
   due_date: z.string().optional(),
   notes: z.string().optional(),
-  driver_notes: z.string().optional()
 });
 
 const calculateChargesSchema = z.object({
@@ -77,19 +68,17 @@ router.get(
         charge_status,
         start_date,
         end_date,
-        is_reimbursement,
         limit = 50,
         offset = 0
       } = req.query as Record<string, string | undefined>;
 
       let query = `
         SELECT c.*,
-               dr.first_name || ' ' || dr.last_name as driver_name,
-               dr.email as driver_email,
-               COALESCE(v.number, v.name) as vehicle_number
-        FROM personal_use_data c
+               CONCAT(u.first_name, ' ', u.last_name) as driver_name,
+               u.email as driver_email
+        FROM personal_use_charges c
         LEFT JOIN drivers dr ON c.driver_id = dr.id
-        LEFT JOIN vehicles v ON c.vehicle_id = v.id
+        LEFT JOIN users u ON dr.user_id = u.id
         WHERE c.tenant_id = $1
       `;
       const params: unknown[] = [req.user!.tenant_id];
@@ -103,32 +92,29 @@ router.get(
 
       if (charge_period) {
         paramCount++;
-        // Map YYYY-MM to period_start/period_end
-        query += ` AND TO_CHAR(c.period_start, 'YYYY-MM') = $${paramCount}`;
+        query += ` AND c.charge_period = $${paramCount}`;
         params.push(charge_period);
       }
 
       if (charge_status) {
         paramCount++;
-        query += ` AND c.status = $${paramCount}`;
+        query += ` AND c.charge_status = $${paramCount}`;
         params.push(charge_status);
       }
 
       if (start_date) {
         paramCount++;
-        query += ` AND c.period_start >= $${paramCount}`;
+        query += ` AND c.charge_period_start >= $${paramCount}`;
         params.push(start_date);
       }
 
       if (end_date) {
         paramCount++;
-        query += ` AND c.period_end <= $${paramCount}`;
+        query += ` AND c.charge_period_end <= $${paramCount}`;
         params.push(end_date);
       }
 
-      // `personal_use_data` does not model reimbursements; ignore the filter for now.
-
-      query += ` ORDER BY c.period_start DESC, c.created_at DESC`;
+      query += ` ORDER BY c.charge_period_start DESC, c.created_at DESC`;
 
       // Get total count
       const countResult = await pool.query(`SELECT COUNT(*) FROM (${query}) q`, params);
@@ -203,12 +189,11 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT c.*,
-                u.first_name || ' ' || u.last_name as driver_name,
-                u.email as driver_email,
-                t.trip_date, t.usage_type, t.miles_total
+                CONCAT(u.first_name, ' ', u.last_name) as driver_name,
+                u.email as driver_email
          FROM personal_use_charges c
-         LEFT JOIN users u ON c.driver_id = u.id
-         LEFT JOIN trip_usage_classification t ON c.trip_usage_id = t.id
+         LEFT JOIN drivers dr ON c.driver_id = dr.id
+         LEFT JOIN users u ON dr.user_id = u.id
          WHERE c.id = $1 AND c.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       );
@@ -260,10 +245,9 @@ router.post(
           tenant_id, driver_id, trip_usage_id,
           charge_period, charge_period_start, charge_period_end,
           miles_charged, rate_per_mile, total_charge,
-          charge_status, is_reimbursement,
-          actual_cost_breakdown, notes,
+          charge_status, notes,
           created_by_user_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING *`,
         [
           req.user!.tenant_id,
@@ -276,8 +260,6 @@ router.post(
           validated.rate_per_mile,
           total_charge,
           ChargeStatus.PENDING,
-          validated.is_reimbursement || false,
-          validated.actual_cost_breakdown ? JSON.stringify(validated.actual_cost_breakdown) : null,
           validated.notes || null,
           req.user!.id
         ]
@@ -376,12 +358,6 @@ router.put(
         paramCount++;
         updates.push(`notes = $${paramCount}`);
         values.push(validated.notes);
-      }
-
-      if (validated.driver_notes !== undefined) {
-        paramCount++;
-        updates.push(`driver_notes = $${paramCount}`);
-        values.push(validated.driver_notes);
       }
 
       if (updates.length === 0) {

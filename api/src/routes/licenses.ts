@@ -22,6 +22,14 @@ router.get(
     try {
       const tenantId = req.user!.tenant_id
 
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'certifications')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.json({ success: true, data: [] })
+      }
+
       const result = await pool.query(
         `SELECT
           c.type as id,
@@ -58,6 +66,14 @@ router.get(
     try {
       const tenantId = req.user!.tenant_id
       const idParam = req.params.id
+
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'certifications')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(404).json({ success: false, error: 'License not found' })
+      }
 
       // Try lookup by UUID first, then by type name
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idParam)

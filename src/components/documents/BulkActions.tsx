@@ -140,7 +140,7 @@ export function BulkActions({
               Download
             </Button>
 
-            <Button variant="outline" size="sm" onClick={() => toast.info(`Sharing ${selectedDocuments.length} document(s)...`)} disabled={isExecuting}>
+            <Button variant="outline" size="sm" onClick={() => { setCurrentOperation('share'); setShowConfirm(true); }} disabled={isExecuting}>
               <Share2 className="mr-2 h-4 w-4" />
               Share
             </Button>
@@ -160,7 +160,7 @@ export function BulkActions({
             )}
 
             {canEdit && (
-              <Button variant="outline" size="sm" onClick={() => toast.info(`Archiving ${selectedDocuments.length} document(s)...`)} disabled={isExecuting}>
+              <Button variant="outline" size="sm" onClick={() => { setCurrentOperation('archive'); setShowConfirm(true); }} disabled={isExecuting}>
                 <Archive className="mr-2 h-4 w-4" />
                 Archive
               </Button>
@@ -189,6 +189,8 @@ export function BulkActions({
               {currentOperation === 'delete' && 'Delete Documents'}
               {currentOperation === 'move' && 'Move Documents'}
               {currentOperation === 'tag' && 'Tag Documents'}
+              {currentOperation === 'share' && 'Share Documents'}
+              {currentOperation === 'archive' && 'Archive Documents'}
             </DialogTitle>
           </DialogHeader>
 

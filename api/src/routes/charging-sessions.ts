@@ -14,16 +14,16 @@ import { flexUuid } from '../middleware/validation'
 
 const chargingSessionSchema = z.object({
   vehicle_id: flexUuid,
+  charging_station_id: flexUuid.optional(),
   driver_id: flexUuid.optional(),
-  station_id: flexUuid.optional(),
   start_time: z.string().datetime().optional(),
   end_time: z.string().datetime().optional(),
-  energy_kwh: z.number().min(0).max(10000).optional(),
+  energy_delivered_kwh: z.number().min(0).max(10000).optional(),
   cost: z.number().min(0).optional(),
+  start_battery_level: z.number().min(0).max(100).optional(),
+  end_battery_level: z.number().min(0).max(100).optional(),
+  session_duration: z.number().int().min(0).optional(),
   status: z.enum(['active', 'completed', 'failed', 'cancelled']).optional(),
-  connector_type: z.string().max(100).optional(),
-  start_soc: z.number().min(0).max(100).optional(),
-  end_soc: z.number().min(0).max(100).optional(),
   notes: z.string().max(2000).optional()
 }).passthrough()
 
@@ -46,30 +46,28 @@ router.get(
           cs.id,
           cs.tenant_id,
           cs.vehicle_id,
+          cs.charging_station_id,
           cs.driver_id,
-          cs.station_id,
           cs.start_time,
           cs.end_time,
-          cs.duration_minutes,
           cs.energy_delivered_kwh,
-          cs.start_soc_percent,
-          cs.end_soc_percent,
           cs.cost,
-          cs.payment_method,
+          cs.start_battery_level,
+          cs.end_battery_level,
+          cs.session_duration,
           cs.status,
-          cs.metadata,
+          cs.notes,
           cs.created_at,
           cs.updated_at,
-          v.unit_number AS vehicle_number,
-          v.make,
-          v.model,
-          d.first_name,
-          d.last_name,
-          s.name as station_name
+          CONCAT(v.year, ' ', v.make, ' ', v.model) AS vehicle_name,
+          v.license_plate,
+          CONCAT(u.first_name, ' ', u.last_name) AS driver_name,
+          s.station_name
          FROM charging_sessions cs
          LEFT JOIN vehicles v ON cs.vehicle_id = v.id
          LEFT JOIN drivers d ON cs.driver_id = d.id
-         LEFT JOIN charging_stations s ON cs.station_id = s.id
+         LEFT JOIN users u ON d.user_id = u.id
+         LEFT JOIN charging_stations s ON cs.charging_station_id = s.id
          WHERE cs.tenant_id = $1
          ORDER BY cs.start_time DESC NULLS LAST, cs.created_at DESC
          LIMIT $2 OFFSET $3`,
@@ -108,30 +106,28 @@ router.get(
         `SELECT cs.id,
                 cs.tenant_id,
                 cs.vehicle_id,
+                cs.charging_station_id,
                 cs.driver_id,
-                cs.station_id,
                 cs.start_time,
                 cs.end_time,
-                cs.duration_minutes,
                 cs.energy_delivered_kwh,
-                cs.start_soc_percent,
-                cs.end_soc_percent,
                 cs.cost,
-                cs.payment_method,
+                cs.start_battery_level,
+                cs.end_battery_level,
+                cs.session_duration,
                 cs.status,
-                cs.metadata,
+                cs.notes,
                 cs.created_at,
                 cs.updated_at,
-                v.unit_number AS vehicle_number,
-                v.make,
-                v.model,
-                d.first_name,
-                d.last_name,
-                s.name as station_name
+                CONCAT(v.year, ' ', v.make, ' ', v.model) AS vehicle_name,
+                v.license_plate,
+                CONCAT(u.first_name, ' ', u.last_name) AS driver_name,
+                s.station_name
          FROM charging_sessions cs
          LEFT JOIN vehicles v ON cs.vehicle_id = v.id
          LEFT JOIN drivers d ON cs.driver_id = d.id
-         LEFT JOIN charging_stations s ON cs.station_id = s.id
+         LEFT JOIN users u ON d.user_id = u.id
+         LEFT JOIN charging_stations s ON cs.charging_station_id = s.id
          WHERE cs.id = $1 AND cs.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )

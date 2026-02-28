@@ -104,8 +104,9 @@ const PeopleTabContent = memo(function PeopleTabContent() {
     { shouldRetryOnError: false }
   )
 
-  const peopleError = usersError || teamsError || trainingCoursesError || trainingProgressError
-  const peopleLoading = usersLoading || teamsLoading || trainingCoursesLoading || trainingProgressLoading
+  // Only block on critical data — training is supplementary
+  const peopleError = usersError
+  const peopleLoading = usersLoading || teamsLoading
 
   const userRows = Array.isArray(users) ? users : []
   const teamRows = Array.isArray(teams) ? teams : []
@@ -471,10 +472,10 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
           ) : (
             <div className="divide-y divide-white/[0.05]">
               {messages.slice(0, 15).map((msg: any) => {
-                const senderName = msg.sender_name || 'System'
+                const senderName = msg.sender_name || msg.from_user_id || 'System'
                 const isUnread = msg.status === 'pending'
-                const preview = msg.subject || msg.message_body || 'Message'
-                const timestamp = msg.created_at || msg.createdAt || msg.timestamp
+                const preview = msg.subject || msg.body || msg.message_body || 'Message'
+                const timestamp = msg.timestamp || msg.created_at || msg.createdAt
 
                 return (
                   <div

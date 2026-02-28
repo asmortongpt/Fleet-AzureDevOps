@@ -219,6 +219,11 @@ async function secureFetch<T>(
       throw error
     }
     if ((error as Error).name === 'AbortError') {
+      // Distinguish between query cancellation (React Query unmount) and real timeouts
+      if (signal?.aborted) {
+        // Query was cancelled by React Query (e.g., component unmount, tab switch) — not a real error
+        throw error // Re-throw as-is so React Query handles it silently
+      }
       throw new ApiError('Request timeout', 408, endpoint)
     }
     throw new ApiError(`Network error: ${(error as Error).message}`, undefined, endpoint)
@@ -445,8 +450,8 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
 
         return RoutesResponseSchema.parse(normalized)
       } catch (error) {
+        if ((error as Error).name === 'AbortError') throw error // Let React Query handle cancellation
         logger.error('[Operations] Failed to fetch routes:', error)
-        // Return empty array instead of throwing to prevent UI crashes
         return []
       }
     },
@@ -492,6 +497,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
         })
         return FuelTransactionsResponseSchema.parse(normalized)
       } catch (error) {
+        if ((error as Error).name === 'AbortError') throw error
         logger.error('[Operations] Failed to fetch fuel transactions:', error)
         return []
       }
@@ -549,6 +555,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
 
         return TasksResponseSchema.parse(tasks)
       } catch (error) {
+        if ((error as Error).name === 'AbortError') throw error
         logger.error('[Operations] Failed to fetch tasks:', error)
         return []
       }

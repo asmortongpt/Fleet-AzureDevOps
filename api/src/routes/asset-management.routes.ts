@@ -68,32 +68,29 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
       SELECT
         a.id,
         a.asset_number as asset_tag,
-        a.name as asset_name,
+        a.asset_name,
         a.description,
-        a.type as asset_type,
-        a.category,
+        a.asset_type,
         a.manufacturer,
         a.model,
         a.serial_number,
-        a.purchase_date,
-        a.purchase_price,
-        a.current_value,
+        a.ownership_type,
+        a.acquisition_date,
+        a.acquisition_cost,
         a.status,
         a.condition,
-        a.assigned_to_id as assigned_to,
+        a.assigned_to,
         u.first_name || ' ' || u.last_name as assigned_to_name,
-        a.assigned_facility_id as assigned_facility_id,
+        a.facility_id,
         f.name as location,
-        a.warranty_expiry_date as warranty_expiration,
-        a.last_maintenance_date as last_maintenance,
-        a.next_maintenance_date as next_maintenance,
+        a.current_location,
         a.metadata,
         COUNT(DISTINCT mr.id) as maintenance_count,
         a.created_at,
         a.updated_at
       FROM assets a
-      LEFT JOIN users u ON a.assigned_to_id = u.id
-      LEFT JOIN facilities f ON a.assigned_facility_id = f.id
+      LEFT JOIN users u ON a.assigned_to = u.id
+      LEFT JOIN facilities f ON a.facility_id = f.id
       LEFT JOIN maintenance_requests mr ON mr.asset_id = a.id
       WHERE a.tenant_id = $1
     `
@@ -103,7 +100,7 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
 
     if (type) {
       paramCount++
-      query += ` AND a.type = $${paramCount}`
+      query += ` AND a.asset_type = $${paramCount}`
       params.push(type)
     }
 
@@ -121,14 +118,14 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
 
     if (assigned_to) {
       paramCount++
-      query += ` AND a.assigned_to_id = $${paramCount}`
+      query += ` AND a.assigned_to = $${paramCount}`
       params.push(assigned_to)
     }
 
     if (search) {
       paramCount++
       query += ` AND (
-        a.name ILIKE $${paramCount} OR
+        a.asset_name ILIKE $${paramCount} OR
         a.asset_number ILIKE $${paramCount} OR
         a.serial_number ILIKE $${paramCount} OR
         a.description ILIKE $${paramCount}
@@ -136,7 +133,7 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
       params.push(`%${search}%`)
     }
 
-    query += ` GROUP BY a.id, u.first_name, u.last_name, f.name ORDER BY a.created_at DESC`
+    query += ` GROUP BY a.id, u.first_name, u.last_name, f.name, f.id ORDER BY a.created_at DESC`
 
     const result = await db.query(query, params)
 
@@ -166,17 +163,16 @@ router.get('/analytics', requirePermission('vehicle:view:fleet'), async (req: Au
       `SELECT
         a.id,
         a.asset_number as asset_tag,
-        a.name as asset_name,
-        a.type as asset_type,
+        a.asset_name,
+        a.asset_type,
         a.status,
         a.condition,
-        a.purchase_date,
-        a.purchase_price,
-        a.current_value,
-        a.assigned_facility_id,
+        a.acquisition_date,
+        a.acquisition_cost,
+        a.facility_id,
         f.name as facility_name,
-        f.latitude as facility_latitude,
-        f.longitude as facility_longitude,
+        a.gps_latitude as facility_latitude,
+        a.gps_longitude as facility_longitude,
         aa.utilization_percentage,
         aa.maintenance_cost,
         aa.total_cost,
@@ -190,7 +186,7 @@ router.get('/analytics', requirePermission('vehicle:view:fleet'), async (req: Au
         ORDER BY period_end DESC
         LIMIT 1
       ) aa ON true
-      LEFT JOIN facilities f ON a.assigned_facility_id = f.id
+      LEFT JOIN facilities f ON a.facility_id = f.id
       WHERE a.tenant_id = $1
       ORDER BY a.created_at DESC`,
       [tenantId]
@@ -223,30 +219,33 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
       `SELECT
         a.id,
         a.asset_number,
-        a.name,
+        a.asset_name,
         a.description,
-        a.type,
-        a.category,
+        a.asset_type,
         a.manufacturer,
         a.model,
         a.serial_number,
-        a.purchase_date as acquisition_date,
-        a.purchase_price,
-        a.current_value,
+        a.ownership_type,
+        a.acquisition_date,
+        a.acquisition_cost,
         a.status,
         a.condition as condition_score,
-        COALESCE(u.first_name || ' ' || u.last_name, '') as assigned_to,
-        f.name as current_location,
-        a.assigned_facility_id as department,
-        a.warranty_expiry_date as warranty_expiration,
-        a.last_maintenance_date as last_service_date,
-        a.next_maintenance_date as next_service_date,
+        COALESCE(u.first_name || ' ' || u.last_name, '') as assigned_to_name,
+        a.assigned_to,
+        a.current_location,
+        f.name as facility_name,
+        a.facility_id,
+        a.gps_latitude,
+        a.gps_longitude,
+        a.depreciation_method,
+        a.useful_life_years,
+        a.salvage_value,
         a.metadata,
         a.created_at,
         a.updated_at
       FROM assets a
-      LEFT JOIN users u ON a.assigned_to_id = u.id
-      LEFT JOIN facilities f ON a.assigned_facility_id = f.id
+      LEFT JOIN users u ON a.assigned_to = u.id
+      LEFT JOIN facilities f ON a.facility_id = f.id
       WHERE a.id = $1 AND a.tenant_id = $2`,
       [id, tenantId]
     )
@@ -297,27 +296,26 @@ router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async
       asset_number,
       name,
       type,
-      category,
       serial_number,
       manufacturer,
       model,
-      purchase_date,
-      purchase_price,
-      current_value,
-      warranty_expiration,
-      warranty_expiry_date,
+      acquisition_date,
+      acquisition_cost,
+      ownership_type,
       assigned_to,
       assigned_to_id,
+      facility_id,
       assigned_facility_id,
       condition,
       status,
       description,
-      notes,
       metadata,
-      location
+      location,
+      current_location
     } = req.body
 
     const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
 
     const resolvedAssetNumber = asset_tag || asset_number || `AST-${Date.now()}`
     const resolvedName = name || asset_name || resolvedAssetNumber
@@ -325,7 +323,7 @@ router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async
     const resolvedStatus = status || 'active'
     const resolvedAssignedTo = assigned_to_id || assigned_to || null
 
-    let resolvedFacilityId = assigned_facility_id || null
+    let resolvedFacilityId = facility_id || assigned_facility_id || null
     if (!resolvedFacilityId && location) {
       const facilityResult = await client.query(
         `SELECT id FROM facilities WHERE tenant_id = $1 AND name ILIKE $2 LIMIT 1`,
@@ -338,11 +336,11 @@ router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async
 
     const result = await client.query(
       `INSERT INTO assets (
-        tenant_id, asset_number, name, description, type, category, serial_number,
-        manufacturer, model, purchase_date, purchase_price, current_value,
-        warranty_expiry_date, assigned_to_id, assigned_facility_id,
-        condition, status, notes, metadata
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+        tenant_id, asset_number, asset_name, description, asset_type, serial_number,
+        manufacturer, model, ownership_type, acquisition_date, acquisition_cost,
+        assigned_to, facility_id, current_location,
+        condition, status, metadata, created_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       RETURNING id`,
       [
         tenantId,
@@ -350,20 +348,19 @@ router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async
         resolvedName,
         description || null,
         resolvedType,
-        category || null,
         serial_number || null,
         manufacturer || null,
         model || null,
-        purchase_date || null,
-        purchase_price || null,
-        current_value || null,
-        warranty_expiry_date || warranty_expiration || null,
+        ownership_type || 'owned',
+        acquisition_date || null,
+        acquisition_cost || null,
         resolvedAssignedTo,
         resolvedFacilityId,
+        current_location || location || null,
         condition || null,
         resolvedStatus,
-        notes || null,
-        metadata || {}
+        metadata || {},
+        userId || null
       ]
     )
 
@@ -371,31 +368,28 @@ router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async
       `SELECT
         a.id,
         a.asset_number as asset_tag,
-        a.name as asset_name,
+        a.asset_name,
         a.description,
-        a.type as asset_type,
-        a.category,
+        a.asset_type,
         a.manufacturer,
         a.model,
         a.serial_number,
-        a.purchase_date,
-        a.purchase_price,
-        a.current_value,
+        a.ownership_type,
+        a.acquisition_date,
+        a.acquisition_cost,
         a.status,
         a.condition,
-        a.assigned_to_id as assigned_to,
+        a.assigned_to,
         u.first_name || ' ' || u.last_name as assigned_to_name,
-        a.assigned_facility_id as assigned_facility_id,
+        a.facility_id,
         f.name as location,
-        a.warranty_expiry_date as warranty_expiration,
-        a.last_maintenance_date as last_maintenance,
-        a.next_maintenance_date as next_maintenance,
+        a.current_location,
         a.metadata,
         a.created_at,
         a.updated_at
       FROM assets a
-      LEFT JOIN users u ON a.assigned_to_id = u.id
-      LEFT JOIN facilities f ON a.assigned_facility_id = f.id
+      LEFT JOIN users u ON a.assigned_to = u.id
+      LEFT JOIN facilities f ON a.facility_id = f.id
       WHERE a.id = $1`,
       [result.rows[0].id]
     )
@@ -423,29 +417,25 @@ router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async
  *     tags: [Assets]
  */
 const updateAssetSchema = z.object({
-  asset_name: z.string().max(200).optional(),
+  asset_name: z.string().max(255).optional(),
   asset_type: z.string().max(100).optional(),
   asset_tag: z.string().max(100).optional(),
   asset_number: z.string().max(100).optional(),
-  category: z.string().max(100).optional(),
   description: z.string().max(2000).optional(),
-  manufacturer: z.string().max(200).optional(),
-  model: z.string().max(200).optional(),
-  serial_number: z.string().max(200).optional(),
-  purchase_date: z.string().optional(),
-  purchase_price: z.number().min(0).optional(),
-  current_value: z.number().min(0).optional(),
+  manufacturer: z.string().max(255).optional(),
+  model: z.string().max(255).optional(),
+  serial_number: z.string().max(255).optional(),
+  ownership_type: z.string().max(50).optional(),
+  acquisition_date: z.string().optional(),
+  acquisition_cost: z.number().min(0).optional(),
   status: z.string().max(50).optional(),
   condition: z.string().max(50).optional(),
-  notes: z.string().max(2000).optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
   assigned_to: z.string().optional(),
   assigned_to_id: flexUuid.optional(),
   assigned_facility_id: flexUuid.optional(),
-  warranty_expiration: z.string().optional(),
-  warranty_expiry_date: z.string().optional(),
-  last_maintenance: z.string().optional(),
-  next_maintenance: z.string().optional(),
+  facility_id: flexUuid.optional(),
+  current_location: z.string().max(255).optional(),
   location: z.string().max(500).optional(),
 }).partial()
 
@@ -465,29 +455,25 @@ router.put('/:id',csrfProtection, requirePermission('vehicle:update:fleet'), asy
     const tenantId = req.user?.tenant_id
 
     const fieldMap: Record<string, string> = {
-      asset_name: 'name',
-      asset_type: 'type',
+      asset_name: 'asset_name',
+      asset_type: 'asset_type',
       asset_tag: 'asset_number',
       asset_number: 'asset_number',
-      category: 'category',
       description: 'description',
       manufacturer: 'manufacturer',
       model: 'model',
       serial_number: 'serial_number',
-      purchase_date: 'purchase_date',
-      purchase_price: 'purchase_price',
-      current_value: 'current_value',
+      acquisition_date: 'acquisition_date',
+      acquisition_cost: 'acquisition_cost',
+      ownership_type: 'ownership_type',
       status: 'status',
       condition: 'condition',
-      notes: 'notes',
       metadata: 'metadata',
-      assigned_to: 'assigned_to_id',
-      assigned_to_id: 'assigned_to_id',
-      assigned_facility_id: 'assigned_facility_id',
-      warranty_expiration: 'warranty_expiry_date',
-      warranty_expiry_date: 'warranty_expiry_date',
-      last_maintenance: 'last_maintenance_date',
-      next_maintenance: 'next_maintenance_date'
+      assigned_to: 'assigned_to',
+      assigned_to_id: 'assigned_to',
+      assigned_facility_id: 'facility_id',
+      facility_id: 'facility_id',
+      current_location: 'current_location',
     }
 
     // Build dynamic update query with mapping
@@ -519,7 +505,7 @@ router.put('/:id',csrfProtection, requirePermission('vehicle:update:fleet'), asy
         [tenantId, `%${updates.location}%`]
       )
       if (facilityResult.rows.length > 0) {
-        setClauses.push(`assigned_facility_id = $${paramCount}`)
+        setClauses.push(`facility_id = $${paramCount}`)
         values.push(facilityResult.rows[0].id)
         paramCount++
       }
@@ -580,7 +566,7 @@ router.post('/:id/assign',csrfProtection, requirePermission('vehicle:update:flee
 
     const result = await client.query(
       `UPDATE assets
-       SET assigned_to_id = $1, updated_at = NOW()
+       SET assigned_to = $1, assigned_at = NOW(), updated_at = NOW()
        WHERE id = $2 AND tenant_id = $3
        RETURNING *`,
       [resolvedAssignee, id, tenantId]
@@ -636,7 +622,7 @@ router.post('/:id/transfer',csrfProtection, requirePermission('vehicle:update:fl
 
     const result = await client.query(
       `UPDATE assets
-       SET assigned_facility_id = $1, updated_at = NOW()
+       SET facility_id = $1, updated_at = NOW()
        WHERE id = $2 AND tenant_id = $3
        RETURNING *`,
       [resolvedFacilityId, id, tenantId]
@@ -676,11 +662,13 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
     const tenantId = req.user?.tenant_id
 
     const result = await db.query(
-      `SELECT 
+      `SELECT
         id,
-        purchase_date,
-        purchase_price,
-        current_value,
+        acquisition_date,
+        acquisition_cost,
+        depreciation_method,
+        useful_life_years,
+        salvage_value,
         metadata
        FROM assets
        WHERE id = $1 AND tenant_id = $2`,
@@ -692,10 +680,10 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
     }
 
     const asset = result.rows[0]
-    const purchasePrice = parseFloat(asset.purchase_price) || 0
-    const metaRate = asset.metadata?.depreciation_rate
-    const depreciationRate = metaRate ? parseFloat(metaRate) : 10
-    const purchaseDate = asset.purchase_date ? new Date(asset.purchase_date) : new Date()
+    const purchasePrice = parseFloat(asset.acquisition_cost) || 0
+    const usefulLife = parseFloat(asset.useful_life_years) || 10
+    const depreciationRate = usefulLife > 0 ? (100 / usefulLife) : 10
+    const purchaseDate = asset.acquisition_date ? new Date(asset.acquisition_date) : new Date()
     const currentDate = new Date()
 
     // Calculate years since purchase
@@ -755,16 +743,15 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
         [tenantId]
       ),
       db.query(
-        `SELECT type as asset_type, COUNT(*) as count
+        `SELECT asset_type, COUNT(*) as count
          FROM assets
          WHERE tenant_id = $1
-         GROUP BY type`,
+         GROUP BY asset_type`,
         [tenantId]
       ),
       db.query(
         `SELECT
-           SUM(CAST(purchase_price AS DECIMAL)) as total_purchase_value,
-           SUM(CAST(current_value AS DECIMAL)) as total_current_value,
+           SUM(CAST(acquisition_cost AS DECIMAL)) as total_purchase_value,
            COUNT(*) as total_assets
          FROM assets
          WHERE tenant_id = $1 AND status != 'disposed'`,
@@ -772,7 +759,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
       ),
       db.query(
         `SELECT
-           SUM(CAST(purchase_price AS DECIMAL) - CAST(current_value AS DECIMAL) as total_depreciation
+           SUM(COALESCE(CAST(acquisition_cost AS DECIMAL), 0) - COALESCE(CAST(salvage_value AS DECIMAL), 0)) as total_depreciation
          FROM assets
          WHERE tenant_id = $1`,
         [tenantId]
@@ -782,10 +769,9 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
     res.json({
       by_status: statusCounts.rows,
       by_type: typeCounts.rows,
-      total_assets: totalValue.rows[0].total_assets || 0,
-      total_purchase_value: totalValue.rows[0].total_purchase_value || 0,
-      total_current_value: totalValue.rows[0].total_current_value || 0,
-      total_depreciation: depreciationSum.rows[0].total_depreciation || 0
+      total_assets: totalValue.rows[0]?.total_assets || 0,
+      total_purchase_value: totalValue.rows[0]?.total_purchase_value || 0,
+      total_depreciation: depreciationSum.rows[0]?.total_depreciation || 0
     })
   } catch (error) {
     logger.error(`Error fetching asset analytics:`, error) // Wave 28: Winston logger
@@ -814,27 +800,17 @@ router.delete('/:id',csrfProtection, requirePermission('vehicle:delete:fleet'), 
     const result = await client.query(
       `UPDATE assets
        SET status = 'disposed',
-           disposal_date = NOW(),
-           disposal_reason = $1,
-           disposal_value = $2,
+           metadata = COALESCE(metadata, '{}'::jsonb) || jsonb_build_object('disposal_date', NOW()::text, 'disposal_reason', $1::text, 'disposal_value', $2::text),
            updated_at = NOW()
        WHERE id = $3 AND tenant_id = $4
        RETURNING *`,
-      [disposal_reason, disposal_value, id, tenantId]
+      [disposal_reason || '', disposal_value || '0', id, tenantId]
     )
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
       throw new NotFoundError("Asset not found")
     }
-
-    // Log disposal
-    await client.query(
-      `INSERT INTO asset_history (
-        asset_id, action, performed_by, notes
-      ) VALUES ($1, $2, $3, $4)`,
-      [id, 'disposed', userId, `Disposed: ${disposal_reason}`]
-    )
 
     await client.query(`COMMIT`)
 

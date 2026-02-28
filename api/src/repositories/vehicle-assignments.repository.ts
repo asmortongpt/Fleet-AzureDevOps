@@ -164,14 +164,14 @@ export class VehicleAssignmentsRepository {
         va.created_by AS created_by_user_id,
         va.created_at,
         va.updated_at,
-        v.unit_number, v.number AS vehicle_number, v.name AS vehicle_name,
+        v.license_plate AS vehicle_number, CONCAT(v.year, ' ', v.make, ' ', v.model) AS vehicle_name,
         v.make, v.model, v.year, v.vin, v.license_plate,
-        dr.employee_number,
-        dr.first_name AS driver_first_name, dr.last_name AS driver_last_name,
-        dr.email AS driver_email, dr.phone AS driver_phone
+        u.first_name AS driver_first_name, u.last_name AS driver_last_name,
+        u.email AS driver_email, u.phone AS driver_phone
       FROM vehicle_assignments va
       JOIN vehicles v ON va.vehicle_id = v.id
       JOIN drivers dr ON va.driver_id = dr.id
+      LEFT JOIN users u ON dr.user_id = u.id
       WHERE ${whereClause}
       ORDER BY va.assigned_date DESC NULLS LAST, va.created_at DESC
       LIMIT $${paramIndex++} OFFSET $${paramIndex}

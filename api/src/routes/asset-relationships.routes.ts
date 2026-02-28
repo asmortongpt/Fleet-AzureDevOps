@@ -19,6 +19,7 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { setTenantContext } from '../middleware/tenant-context'
 import { NotFoundError, ValidationError } from '../utils/errors'
 
 // ── Zod Schemas ──────────────────────────────────────────────────────────────
@@ -45,6 +46,7 @@ const router = Router()
 
 // Apply authentication to all routes
 router.use(authenticateJWT)
+router.use(setTenantContext)
 
 /**
  * @openapi
@@ -89,17 +91,30 @@ router.get(
 
       let query = `
         SELECT
-          ar.*,
-          vp.make || ' ' || vp.model || ' (' || vp.vin || ')' as parent_asset_name,
-          vp.asset_type as parent_asset_type,
-          vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
-          vc.asset_type as child_asset_type,
+          ar.id,
+          ar.parent_asset_id,
+          ar.child_asset_id,
+          ar.relationship_type,
+          ar.connection_point,
+          ar.is_primary,
+          ar.effective_from,
+          ar.effective_to,
+          ar.notes,
+          ar.created_at,
+          ar.created_by,
+          ar.updated_at,
+          ap.asset_name as parent_asset_name,
+          ap.asset_type as parent_asset_type,
+          ap.asset_number as parent_asset_number,
+          ac.asset_name as child_asset_name,
+          ac.asset_type as child_asset_type,
+          ac.asset_number as child_asset_number,
           u.first_name || ' ' || u.last_name as created_by_name
         FROM asset_relationships ar
-        LEFT JOIN vehicles vp ON ar.parent_asset_id = vp.id
-        LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
+        LEFT JOIN assets ap ON ar.parent_asset_id = ap.id
+        LEFT JOIN assets ac ON ar.child_asset_id = ac.id
         LEFT JOIN users u ON ar.created_by = u.id
-        WHERE vp.tenant_id = $1
+        WHERE ap.tenant_id = $1
       `
 
       const params: any[] = [req.user!.tenant_id]
@@ -157,11 +172,26 @@ router.get(
   async (req: AuthRequest, res) => {
     try {
       const result = await pool.query(
-        `SELECT vw.*
-         FROM vw_active_asset_combos vw
-         JOIN vehicles v ON vw.parent_id = v.id
-         WHERE v.tenant_id = $1
-         ORDER BY vw.parent_make, vw.parent_model`,
+        `SELECT
+           ar.id as relationship_id,
+           ar.relationship_type,
+           ar.parent_asset_id,
+           ap.asset_name as parent_asset_name,
+           ap.asset_type as parent_asset_type,
+           ap.asset_number as parent_asset_number,
+           ar.child_asset_id,
+           ac.asset_name as child_asset_name,
+           ac.asset_type as child_asset_type,
+           ac.asset_number as child_asset_number,
+           ar.effective_from,
+           ar.connection_point,
+           ar.is_primary
+         FROM asset_relationships ar
+         JOIN assets ap ON ar.parent_asset_id = ap.id
+         LEFT JOIN assets ac ON ar.child_asset_id = ac.id
+         WHERE ap.tenant_id = $1
+           AND (ar.effective_to IS NULL OR ar.effective_to > NOW())
+         ORDER BY ap.asset_name, ac.asset_name`,
         [req.user!.tenant_id]
       )
 
@@ -201,18 +231,20 @@ router.get(
           ar.relationship_type,
           ar.parent_asset_id,
           ar.child_asset_id,
-          vc.make as child_make,
-          vc.model as child_model,
-          vc.vin as child_vin,
-          vc.asset_type as child_type,
-          vc.make || ' ' || vc.model as child_asset_name,
+          ac.asset_name as child_asset_name,
+          ac.asset_type as child_type,
+          ac.asset_number as child_asset_number,
+          ac.manufacturer as child_manufacturer,
+          ac.model as child_model,
           ar.effective_from,
           ar.effective_to,
-          ar.notes
+          ar.notes,
+          ar.connection_point,
+          ar.is_primary
         FROM asset_relationships ar
-        JOIN vehicles vp ON ar.parent_asset_id = vp.id
-        LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
-        WHERE vp.tenant_id = $1
+        JOIN assets ap ON ar.parent_asset_id = ap.id
+        LEFT JOIN assets ac ON ar.child_asset_id = ac.id
+        WHERE ap.tenant_id = $1
           AND (ar.effective_to IS NULL OR ar.effective_to > NOW())
       `
 
@@ -254,17 +286,30 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT
-          ar.*,
-          vp.make || ' ' || vp.model || ' (' || vp.vin || ')' as parent_asset_name,
-          vp.asset_type as parent_asset_type,
-          vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
-          vc.asset_type as child_asset_type,
+          ar.id,
+          ar.parent_asset_id,
+          ar.child_asset_id,
+          ar.relationship_type,
+          ar.connection_point,
+          ar.is_primary,
+          ar.effective_from,
+          ar.effective_to,
+          ar.notes,
+          ar.created_at,
+          ar.created_by,
+          ar.updated_at,
+          ap.asset_name as parent_asset_name,
+          ap.asset_type as parent_asset_type,
+          ap.asset_number as parent_asset_number,
+          ac.asset_name as child_asset_name,
+          ac.asset_type as child_asset_type,
+          ac.asset_number as child_asset_number,
           u.first_name || ' ' || u.last_name as created_by_name
         FROM asset_relationships ar
-        LEFT JOIN vehicles vp ON ar.parent_asset_id = vp.id
-        LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
+        LEFT JOIN assets ap ON ar.parent_asset_id = ap.id
+        LEFT JOIN assets ac ON ar.child_asset_id = ac.id
         LEFT JOIN users u ON ar.created_by = u.id
-        WHERE ar.id = $1 AND vp.tenant_id = $2`,
+        WHERE ar.id = $1 AND ap.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -313,12 +358,12 @@ router.post(
       } = parsed.data
 
       // Validation: Verify both assets exist and belong to tenant
-      const vehicleCheck = await client.query(
-        `SELECT id FROM vehicles WHERE id IN ($1, $2) AND tenant_id = $3`,
+      const assetCheck = await client.query(
+        `SELECT id FROM assets WHERE id IN ($1, $2) AND tenant_id = $3`,
         [parent_asset_id, child_asset_id, req.user!.tenant_id]
       )
 
-      if (vehicleCheck.rows.length !== 2) {
+      if (assetCheck.rows.length !== 2) {
         await client.query('ROLLBACK')
         return res.status(400).json({
           error: 'One or both assets not found or do not belong to your organization'
@@ -406,8 +451,8 @@ router.put(
       // Verify relationship exists and belongs to tenant
       const existsCheck = await client.query(
         `SELECT ar.id FROM asset_relationships ar
-         LEFT JOIN vehicles v ON ar.parent_asset_id = v.id
-         WHERE ar.id = $1 AND v.tenant_id = $2`,
+         LEFT JOIN assets a ON ar.parent_asset_id = a.id
+         WHERE ar.id = $1 AND a.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -460,8 +505,8 @@ router.patch(
       const result = await pool.query(
         `UPDATE asset_relationships ar
          SET effective_to = NOW(), updated_at = NOW()
-         FROM vehicles v
-         WHERE ar.id = $1 AND ar.parent_asset_id = v.id AND v.tenant_id = $2
+         FROM assets a
+         WHERE ar.id = $1 AND ar.parent_asset_id = a.id AND a.tenant_id = $2
          RETURNING ar.*`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -496,8 +541,8 @@ router.delete(
     try {
       const result = await pool.query(
         `DELETE FROM asset_relationships ar
-         USING vehicles v
-         WHERE ar.id = $1 AND ar.parent_asset_id = v.id AND v.tenant_id = $2
+         USING assets a
+         WHERE ar.id = $1 AND ar.parent_asset_id = a.id AND a.tenant_id = $2
          RETURNING ar.id`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -530,16 +575,29 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT
-          ar.*,
-          vp.make || ' ' || vp.model || ' (' || vp.vin || ')' as parent_asset_name,
-          vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
+          ar.id,
+          ar.parent_asset_id,
+          ar.child_asset_id,
+          ar.relationship_type,
+          ar.connection_point,
+          ar.is_primary,
+          ar.effective_from,
+          ar.effective_to,
+          ar.notes,
+          ar.created_at,
+          ar.created_by,
+          ar.updated_at,
+          ap.asset_name as parent_asset_name,
+          ap.asset_type as parent_asset_type,
+          ac.asset_name as child_asset_name,
+          ac.asset_type as child_asset_type,
           u.first_name || ' ' || u.last_name as created_by_name
         FROM asset_relationships ar
-        LEFT JOIN vehicles vp ON ar.parent_asset_id = vp.id
-        LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
+        LEFT JOIN assets ap ON ar.parent_asset_id = ap.id
+        LEFT JOIN assets ac ON ar.child_asset_id = ac.id
         LEFT JOIN users u ON ar.created_by = u.id
         WHERE (ar.parent_asset_id = $1 OR ar.child_asset_id = $1)
-        AND vp.tenant_id = $2
+        AND ap.tenant_id = $2
         ORDER BY ar.effective_from DESC`,
         [req.params.assetId, req.user!.tenant_id]
       )

@@ -645,7 +645,7 @@ const PoliciesSubView = memo(function PoliciesSubView() {
   const policyCategories = useMemo(() => {
     const categoryMap = new Map<string, { active: number; total: number }>()
     policyRows.forEach((policy: any) => {
-      const category = policy.category || 'General'
+      const category = policy.category || policy.policy_type || 'General'
       const existing = categoryMap.get(category) || { active: 0, total: 0 }
       existing.total += 1
       if (policy.is_active) existing.active += 1
@@ -859,15 +859,15 @@ const PoliciesSubView = memo(function PoliciesSubView() {
                     onClick={() => push({
                       id: policy.id,
                       type: 'policy',
-                      label: policy.name || policy.title || 'Policy',
+                      label: policy.name || policy.policy_name || policy.title || 'Policy',
                       data: { policyId: policy.id, category: policy.category },
                     })}
                     role="button"
                     tabIndex={0}
-                    aria-label={`View policy: ${policy.name || policy.title}`}
+                    aria-label={`View policy: ${policy.name || policy.policy_name || policy.title}`}
                   >
-                    <td className="py-1.5 px-2 text-xs text-white/80 font-medium">{policy.name || policy.title || '\u2014'}</td>
-                    <td className="py-1.5 px-2 text-xs text-white/40">{formatEnum(policy.category || 'General')}</td>
+                    <td className="py-1.5 px-2 text-xs text-white/80 font-medium">{policy.name || policy.policy_name || policy.title || '\u2014'}</td>
+                    <td className="py-1.5 px-2 text-xs text-white/40">{formatEnum(policy.category || policy.policy_type || 'General')}</td>
                     <td className="py-1.5 px-2 text-right">
                       <Badge variant="default">Active</Badge>
                     </td>
@@ -1130,10 +1130,10 @@ export default function ComplianceSafetyHub() {
     const totalDrivers = activeDrivers.length
 
     const compliantDrivers = activeDrivers.filter((d: any) => {
-      const drugTestCurrent = dateHelpers.isWithinMonths(d.drug_test_date, 12)
+      const drugTestCurrent = dateHelpers.isWithinMonths(d.last_drug_test_date, 12)
       const bgCheckCleared = (d.background_check_status || '').toLowerCase() === 'cleared'
-      const mvrCurrent = (d.mvr_check_status || '').toLowerCase() === 'satisfactory'
-      const medicalCardValid = !dateHelpers.isExpired(d.medical_card_expiry)
+      const mvrCurrent = (d.mvr_status || '').toLowerCase() === 'satisfactory'
+      const medicalCardValid = !dateHelpers.isExpired(d.medical_card_expiration)
       return drugTestCurrent && bgCheckCleared && mvrCurrent && medicalCardValid
     })
 
@@ -1141,10 +1141,10 @@ export default function ComplianceSafetyHub() {
       ? Math.round((compliantDrivers.length / totalDrivers) * 100)
       : 0
 
-    const activeCerts = activeDrivers.filter((d: any) => !dateHelpers.isExpired(d.medical_card_expiry)).length
+    const activeCerts = activeDrivers.filter((d: any) => !dateHelpers.isExpired(d.medical_card_expiration)).length
 
     const driverExpiring = activeDrivers.filter((d: any) =>
-      dateHelpers.isExpiringSoon(d.medical_card_expiry, 30)
+      dateHelpers.isExpiringSoon(d.medical_card_expiration, 30)
     ).length
     const vehicleExpiring = vehicles.filter((v: any) =>
       dateHelpers.isExpiringSoon(v.registration_expiry, 30)
@@ -1152,8 +1152,8 @@ export default function ComplianceSafetyHub() {
     const expiringSoon = driverExpiring + vehicleExpiring
 
     const nonCompliant = activeDrivers.filter((d: any) => {
-      const medExpired = dateHelpers.isExpired(d.medical_card_expiry)
-      const drugOverdue = !dateHelpers.isWithinMonths(d.drug_test_date, 12)
+      const medExpired = dateHelpers.isExpired(d.medical_card_expiration)
+      const drugOverdue = !dateHelpers.isWithinMonths(d.last_drug_test_date, 12)
       return medExpired || drugOverdue
     }).length
 
@@ -1165,7 +1165,7 @@ export default function ComplianceSafetyHub() {
     const activeDrivers = drivers.filter((d: any) => d.status === 'active')
     let count = 0
     activeDrivers.forEach((d: any) => {
-      if (dateHelpers.isExpiringSoon(d.medical_card_expiry, 7)) count++
+      if (dateHelpers.isExpiringSoon(d.medical_card_expiration, 7)) count++
     })
     vehicles.forEach((v: any) => {
       if (dateHelpers.isExpiringSoon((v as any).registration_expiry, 7)) count++
@@ -1183,11 +1183,11 @@ export default function ComplianceSafetyHub() {
 
     activeDrivers.forEach((d: any) => {
       const driverName = d.name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || 'Unknown'
-      const medExpiry = d.medical_card_expiry
-      const drugTestDate = d.drug_test_date
+      const medExpiry = d.medical_card_expiration
+      const drugTestDate = d.last_drug_test_date
       const drugTestCurrent = dateHelpers.isWithinMonths(drugTestDate, 12)
       const bgCleared = (d.background_check_status || '').toLowerCase() === 'cleared'
-      const mvrOk = (d.mvr_check_status || '').toLowerCase() === 'satisfactory'
+      const mvrOk = (d.mvr_status || '').toLowerCase() === 'satisfactory'
       const medValid = medExpiry && !dateHelpers.isExpired(medExpiry)
 
       if (medExpiry && dateHelpers.isExpired(medExpiry)) {
@@ -1245,7 +1245,7 @@ export default function ComplianceSafetyHub() {
           subtitle: issue,
           badge: 'Review',
           badgeColor: '#ef4444',
-          meta: `Status: ${!bgCleared ? formatEnum(d.background_check_status || 'pending') : formatEnum(d.mvr_check_status || 'pending')}`,
+          meta: `Status: ${!bgCleared ? formatEnum(d.background_check_status || 'pending') : formatEnum(d.mvr_status || 'pending')}`,
           onClick: () => push({
             id: d.id,
             type: 'driver',
@@ -1328,27 +1328,27 @@ export default function ComplianceSafetyHub() {
 
     activeDrivers.forEach((d: any) => {
       const driverName = d.name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || 'Unknown'
-      if (d.medical_card_expiry && dateHelpers.isExpired(d.medical_card_expiry)) {
+      if (d.medical_card_expiration && dateHelpers.isExpired(d.medical_card_expiration)) {
         events.push({
           id: `expired-med-${d.id}`,
           label: `${driverName} medical card expired`,
-          time: formatDate(d.medical_card_expiry),
+          time: formatDate(d.medical_card_expiration),
           type: 'compliance',
         })
       }
-      if (d.medical_card_expiry && dateHelpers.isExpiringSoon(d.medical_card_expiry, 30)) {
+      if (d.medical_card_expiration && dateHelpers.isExpiringSoon(d.medical_card_expiration, 30)) {
         events.push({
           id: `expiring-med-${d.id}`,
           label: `${driverName} medical card expiring`,
-          time: `${dateHelpers.daysUntil(d.medical_card_expiry)}d left`,
+          time: `${dateHelpers.daysUntil(d.medical_card_expiration)}d left`,
           type: 'alert',
         })
       }
-      if (d.drug_test_date && dateHelpers.isWithinMonths(d.drug_test_date, 1)) {
+      if (d.last_drug_test_date && dateHelpers.isWithinMonths(d.last_drug_test_date, 1)) {
         events.push({
           id: `drug-test-${d.id}`,
           label: `${driverName} drug test completed`,
-          time: formatDate(d.drug_test_date),
+          time: formatDate(d.last_drug_test_date),
           type: 'dispatch',
         })
       }
@@ -1415,9 +1415,9 @@ export default function ComplianceSafetyHub() {
 
     const activeDrivers = drivers.filter((d: any) => d.status === 'active')
     const nonCompliant = activeDrivers.filter((d: any) => {
-      return dateHelpers.isExpired(d.medical_card_expiry) || !dateHelpers.isWithinMonths(d.drug_test_date, 12)
+      return dateHelpers.isExpired(d.medical_card_expiration) || !dateHelpers.isWithinMonths(d.last_drug_test_date, 12)
     }).length
-    const driverExpiring = activeDrivers.filter((d: any) => dateHelpers.isExpiringSoon(d.medical_card_expiry, 30)).length
+    const driverExpiring = activeDrivers.filter((d: any) => dateHelpers.isExpiringSoon(d.medical_card_expiration, 30)).length
     const vehicleExpiring = vehicles.filter((v: any) => dateHelpers.isExpiringSoon((v as any).registration_expiry, 30)).length
     const complianceAlertCount = nonCompliant + driverExpiring + vehicleExpiring
 

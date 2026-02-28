@@ -93,6 +93,43 @@ return res.status(401).json({ error: 'Authentication required' })
   }
 })
 
+router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+  try {
+    const tenantId = req.user?.tenant_id
+    if (!tenantId) {
+return res.status(401).json({ error: 'Authentication required' })
+}
+
+    const { id } = req.params
+    const result = await pool.query(
+      `SELECT
+        he.id, he.tenant_id, he.asset_id, he.equipment_type, he.model_year,
+        he.engine_hours, he.engine_type, he.weight_capacity_lbs, he.load_capacity,
+        he.reach_distance_ft, he.inspection_required, he.last_inspection_date,
+        he.next_inspection_date, he.certification_number, he.requires_certification,
+        he.operator_license_type, he.metadata, he.created_at, he.updated_at,
+        a.asset_number, a.asset_name, a.manufacturer, a.model AS asset_model,
+        a.serial_number, a.status AS asset_status, a.condition, a.current_location,
+        a.acquisition_date, a.acquisition_cost,
+        f.name AS facility_name
+      FROM heavy_equipment he
+      LEFT JOIN assets a ON a.id = he.asset_id
+      LEFT JOIN facilities f ON f.id = a.facility_id
+      WHERE he.id = $1 AND he.tenant_id = $2`,
+      [id, tenantId]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Heavy equipment not found' })
+    }
+
+    res.json({ data: result.rows[0] })
+  } catch (error) {
+    logger.error('Error fetching heavy equipment by id:', { error: getErrorMessage(error) })
+    res.status(500).json({ error: 'Failed to fetch heavy equipment' })
+  }
+})
+
 router.get('/:id/cost-analysis', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id

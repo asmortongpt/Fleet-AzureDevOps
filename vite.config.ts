@@ -44,7 +44,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       // Phase 2 Optimization: Re-enabled PWA for offline support & caching
-      disable: false, // ENABLED: Provides offline support and improved caching
+      disable: process.env.NODE_ENV !== 'production', // Only enable in production — prevents stale SW in dev
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: [

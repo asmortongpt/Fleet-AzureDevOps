@@ -450,6 +450,7 @@ function App() {
 
       // FLEET OPERATIONS HUB - Consolidates: Fleet, Drivers, Operations, Maintenance, Assets
       case "fleet-hub-consolidated":
+      case "fleet-operations":
       case "operations-hub-consolidated":
       case "maintenance-hub-consolidated":
       case "drivers-hub-consolidated":
@@ -465,6 +466,7 @@ function App() {
       case "compliance-hub-consolidated":
       case "safety-hub-consolidated":
       case "safety-compliance-hub":
+      case "compliance-safety":
       case "policy-hub":
       case "safety":
       case "compliance":
@@ -479,12 +481,14 @@ function App() {
       case "financial":
       case "procurement":
       case "business":
+      case "business-management":
       case "reports":
         return <BusinessManagementHub />
 
       // PEOPLE & COMMUNICATION HUB - Consolidates: People, Communication, Work
       case "communication-hub-consolidated":
       case "people-hub":
+      case "people-communication":
       case "work-hub":
       case "communication":
       case "people":
@@ -499,6 +503,7 @@ function App() {
       case "configuration-hub":
       case "configuration":
       case "admin":
+      case "admin-configuration":
       case "integrations":
         return <AdminConfigurationHub />
 

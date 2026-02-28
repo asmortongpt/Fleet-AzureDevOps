@@ -195,8 +195,8 @@ router.get(
       const query = `
         SELECT
           vc.*,
-          v.vehicle_number,
-          vn.name as vendor_name
+          v.license_plate AS vehicle_number,
+          vn.vendor_name as vendor_name
         FROM vehicle_contracts vc
         LEFT JOIN vehicles v ON vc.vehicle_id = v.id
         LEFT JOIN vendors vn ON vc.vendor_id = vn.id
@@ -369,12 +369,12 @@ router.get(
       const query = `
         SELECT
           vc.*,
-          v.vehicle_number,
+          v.license_plate AS vehicle_number,
           v.vin,
           v.make,
           v.model,
           v.year,
-          vn.name as vendor_name,
+          vn.vendor_name as vendor_name,
           vn.contact_name as vendor_contact_name,
           vn.contact_phone as vendor_contact_phone,
           vn.contact_email as vendor_contact_email
@@ -523,7 +523,7 @@ router.get(
       if (percentageUsed >= 100) {
         alerts.push({
           vehicle_id: vehicleId,
-          vehicle_number: vehicle.vehicle_number,
+          vehicle_number: vehicle.license_plate,
           contract_id: vehicle.contract_id,
           contract_number: vehicle.contract_number,
           alert_type: 'mileage_100',
@@ -537,7 +537,7 @@ router.get(
       } else if (percentageUsed >= 90) {
         alerts.push({
           vehicle_id: vehicleId,
-          vehicle_number: vehicle.vehicle_number,
+          vehicle_number: vehicle.license_plate,
           contract_id: vehicle.contract_id,
           contract_number: vehicle.contract_number,
           alert_type: 'mileage_90',
@@ -551,7 +551,7 @@ router.get(
       } else if (percentageUsed >= 80) {
         alerts.push({
           vehicle_id: vehicleId,
-          vehicle_number: vehicle.vehicle_number,
+          vehicle_number: vehicle.license_plate,
           contract_id: vehicle.contract_id,
           contract_number: vehicle.contract_number,
           alert_type: 'mileage_80',
@@ -572,7 +572,7 @@ router.get(
       if (daysUntilExpiry >= 0 && daysUntilExpiry <= 60) {
         alerts.push({
           vehicle_id: vehicleId,
-          vehicle_number: vehicle.vehicle_number,
+          vehicle_number: vehicle.license_plate,
           contract_id: vehicle.contract_id,
           contract_number: vehicle.contract_number,
           alert_type: 'lease_expiring',
@@ -600,7 +600,7 @@ router.get(
 
       res.json({
         vehicle_id: vehicleId,
-        vehicle_number: vehicle.vehicle_number,
+        vehicle_number: vehicle.license_plate,
         contract: {
           id: vehicle.contract_id,
           contract_number: vehicle.contract_number,
@@ -710,12 +710,12 @@ router.get(
           lei.*,
           vc.contract_number,
           vc.vendor_id,
-          v.vehicle_number,
+          v.license_plate AS vehicle_number,
           v.vin,
           v.make,
           v.model,
           v.year,
-          vn.name as vendor_name
+          vn.vendor_name as vendor_name
         FROM lease_end_inspections lei
         INNER JOIN vehicle_contracts vc ON lei.contract_id = vc.id
         INNER JOIN vehicles v ON lei.vehicle_id = v.id

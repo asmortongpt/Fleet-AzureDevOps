@@ -104,58 +104,38 @@ router.get(
       const { page = 1, limit = 50, category, status } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
-      let query = `SELECT 
+      let query = `SELECT
       id,
-      policy_code,
-      policy_name,
-      policy_category,
-      sub_category,
-      policy_objective,
-      policy_scope,
-      policy_content,
-      procedures,
-      regulatory_references,
-      industry_standards,
-      responsible_roles,
-      approval_required_from,
-      version,
-      effective_date,
-      review_cycle_months,
-      next_review_date,
-      expiration_date,
-      supersedes_policy_id,
-      status,
+      template_name as policy_name,
+      template_category as policy_category,
+      description as policy_objective,
+      policy_text as policy_content,
+      policy_version as version,
+      CASE WHEN is_active THEN 'active' ELSE 'draft' END as status,
       is_mandatory,
-      applies_to_roles,
-      requires_training,
-      requires_test,
-      test_questions,
-      related_forms,
-      attachments,
-      times_acknowledged,
-      last_acknowledged_at,
+      applies_to as applies_to_roles,
+      is_system_template,
+      metadata,
       created_at,
       created_by,
-      updated_at,
-      updated_by,
-      approved_at,
-      approved_by FROM policy_templates WHERE 1=1`
+      updated_at
+      FROM policy_templates WHERE 1=1`
       const params: unknown[] = []
       let paramIndex = 1
 
       if (category) {
-        query += ` AND policy_category = $${paramIndex}`
+        query += ` AND template_category = $${paramIndex}`
         params.push(category)
         paramIndex++
       }
 
       if (status) {
-        query += ` AND status = $${paramIndex}`
-        params.push(status)
+        query += ` AND is_active = $${paramIndex}`
+        params.push(status === 'active')
         paramIndex++
       }
 
-      query += ` ORDER BY policy_category, policy_name LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      query += ` ORDER BY template_category, template_name LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)

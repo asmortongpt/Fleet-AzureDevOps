@@ -165,13 +165,13 @@ router.post('/parts/scan', requirePermission('inventory:view:global'), async (re
         part_number,
         name,
         description,
-        manufacturer,
+        supplier,
         unit_cost,
         quantity_on_hand,
-        location_in_warehouse,
+        location,
         metadata
        FROM parts_inventory
-       WHERE tenant_id = $1 AND part_number = $2 AND is_active = true
+       WHERE tenant_id = $1 AND part_number = $2
        LIMIT 1`,
       [tenantId, validated.barcode]
     )
@@ -187,11 +187,11 @@ router.post('/parts/scan', requirePermission('inventory:view:global'), async (re
         partNumber: row.part_number,
         name: row.name,
         description: row.description,
-        manufacturer: row.manufacturer,
+        supplier: row.supplier,
         price: row.unit_cost ? Number(row.unit_cost) : null,
         inStock: Number(row.quantity_on_hand ?? 0) > 0,
         quantity: Number(row.quantity_on_hand ?? 0),
-        location: row.location_in_warehouse,
+        location: row.location,
         imageUrl: row.metadata?.image_url ?? null,
       }
     })
@@ -248,13 +248,13 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
         part_number,
         name,
         description,
-        manufacturer,
+        supplier,
         unit_cost,
         quantity_on_hand,
-        location_in_warehouse,
+        location,
         metadata
        FROM parts_inventory
-       WHERE tenant_id = $1 AND is_active = true
+       WHERE tenant_id = $1
          AND (part_number ILIKE $2 OR name ILIKE $2 OR description ILIKE $2)
        ORDER BY name ASC
        LIMIT 25`,
@@ -266,11 +266,11 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
       partNumber: row.part_number,
       name: row.name,
       description: row.description,
-      manufacturer: row.manufacturer,
+      supplier: row.supplier,
       price: row.unit_cost ? Number(row.unit_cost) : null,
       inStock: Number((row.quantity_on_hand as number | null) ?? 0) > 0,
       quantity: Number((row.quantity_on_hand as number | null) ?? 0),
-      location: row.location_in_warehouse,
+      location: row.location,
       imageUrl: (row.metadata as Record<string, unknown> | null)?.image_url ?? null,
     }))
 
@@ -342,7 +342,7 @@ router.post(
     const partResult = await client.query(
       `SELECT id, part_number, name, unit_cost, metadata
        FROM parts_inventory
-       WHERE tenant_id = $1 AND part_number = $2 AND is_active = true
+       WHERE tenant_id = $1 AND part_number = $2
        LIMIT 1`,
       [tenantId, validated.partNumber]
     )
@@ -1184,7 +1184,7 @@ router.post('/work-orders/:workOrderId/parts', requirePermission(`work_order:upd
 
     // Try to find the part name from parts_inventory, fall back to the part number
     const partLookup = await client.query(
-      `SELECT name FROM parts_inventory WHERE tenant_id = $1 AND part_number = $2 AND is_active = true LIMIT 1`,
+      `SELECT name FROM parts_inventory WHERE tenant_id = $1 AND part_number = $2 LIMIT 1`,
       [tenantId, validated.partNumber]
     )
     const partName = partLookup.rows.length > 0 ? partLookup.rows[0].name : validated.partNumber
@@ -1293,7 +1293,7 @@ router.post('/work-orders/:workOrderId/parts/batch', requirePermission(`work_ord
 
         // Try to look up part name from inventory
         const partLookup = await client.query(
-          `SELECT name FROM parts_inventory WHERE tenant_id = $1 AND part_number = $2 AND is_active = true LIMIT 1`,
+          `SELECT name FROM parts_inventory WHERE tenant_id = $1 AND part_number = $2 LIMIT 1`,
           [tenantId, part.partNumber]
         )
         const partName = partLookup.rows.length > 0 ? partLookup.rows[0].name : part.partNumber

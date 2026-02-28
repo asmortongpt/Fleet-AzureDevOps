@@ -45,7 +45,11 @@ router.get(
           pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit))
         }
       })
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
+        logger.warn('training_courses table not found, returning empty data')
+        return res.json({ data: [], pagination: { page: 1, limit: 50, total: 0, pages: 0 } })
+      }
       logger.error('Get training courses error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
@@ -88,7 +92,11 @@ router.get(
       )
 
       res.json({ data: result.rows })
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
+        logger.warn('training_progress table not found, returning empty data')
+        return res.json({ data: [] })
+      }
       logger.error('Get training progress error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }

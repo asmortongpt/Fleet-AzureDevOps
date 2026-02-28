@@ -41,7 +41,7 @@ router.get('/pm-schedules/:scheduleId', async (req: Request, res: Response) => {
       `SELECT
         ms.id,
         ms.vehicle_id AS "vehicleId",
-        v.number AS "vehicleNumber",
+        v.license_plate AS "vehicleNumber",
         v.make AS "vehicleMake",
         v.model AS "vehicleModel",
         v.year AS "vehicleYear",
@@ -238,7 +238,7 @@ router.get('/repairs/:repairId', async (req: Request, res: Response) => {
         wo.id,
         wo.number AS "workOrderNumber",
         wo.vehicle_id AS "vehicleId",
-        v.number AS "vehicleNumber",
+        v.license_plate AS "vehicleNumber",
         v.make AS "vehicleMake",
         v.model AS "vehicleModel",
         v.year AS "vehicleYear",
@@ -251,8 +251,8 @@ router.get('/repairs/:repairId', async (req: Request, res: Response) => {
         wo.scheduled_end_date AS "scheduledEndDate",
         wo.actual_start_date AS "startDate",
         wo.actual_end_date AS "completionDate",
-        wo.estimated_cost AS "estimatedCost",
-        wo.actual_cost AS "actualCost",
+        wo.estimated_total_cost AS "estimatedCost",
+        wo.total_cost AS "actualCost",
         wo.labor_hours AS "laborHours",
         wo.odometer_at_start AS "odometerAtStart",
         wo.odometer_at_end AS "odometerAtEnd",
@@ -398,7 +398,7 @@ router.get('/inspections/:inspectionId', async (req: Request, res: Response) => 
       `SELECT
         i.id,
         i.vehicle_id AS "vehicleId",
-        v.number AS "vehicleNumber",
+        v.license_plate AS "vehicleNumber",
         v.make AS "vehicleMake",
         v.model AS "vehicleModel",
         v.year AS "vehicleYear",
@@ -624,7 +624,7 @@ router.get('/service-records/:serviceRecordId', async (req: Request, res: Respon
         u.last_name AS "techLastName",
         u.phone AS "technicianPhone",
         u.email AS "technicianEmail",
-        v.number AS "vehicleNumber",
+        v.license_plate AS "vehicleNumber",
         v.make AS "vehicleMake",
         v.model AS "vehicleModel",
         v.year AS "vehicleYear",
@@ -783,7 +783,7 @@ router.get('/vendors/:vendorId', async (req: Request, res: Response) => {
     const servicesResult = await pool.query(
       `SELECT
         COUNT(*) AS "totalServicesYTD",
-        COALESCE(SUM(actual_cost), 0) AS "totalCostYTD"
+        COALESCE(SUM(total_cost), 0) AS "totalCostYTD"
       FROM work_orders
       WHERE assigned_vendor_id::text = $1
         AND actual_start_date >= date_trunc('year', CURRENT_DATE)`,
@@ -841,111 +841,98 @@ router.get('/vendors/:vendorId', async (req: Request, res: Response) => {
 
 /**
  * GET /garage-bays/:bayNumber/work-order
- * Fetch the current work order assigned to a garage/service bay.
- * Tables: service_bays, work_orders (via maintenanceRecords FK), vehicles,
- *         work_order_parts, work_order_labor, technicians/users
+ * Fetch the current work order assigned to a garage bay.
+ * Tables: garage_bays, work_orders (via garage_bay_id FK), vehicles,
+ *         work_order_parts, work_order_labor, users
  */
 router.get('/garage-bays/:bayNumber/work-order', async (req: Request, res: Response) => {
   try {
     const { bayNumber } = req.params
 
-    // Look up the service bay and its current work order
+    // Look up the garage bay by bay_number
     const bayResult = await pool.query(
       `SELECT
-        sb.id AS "bayId",
-        sb.bay_number AS "bayNumber",
-        sb.bay_name AS "bayName",
-        sb.bay_type AS "bayType",
-        sb.is_available AS "isAvailable",
-        sb.is_operational AS "isOperational",
-        sb.current_work_order_id AS "currentWorkOrderId",
-        sb.current_vehicle_id AS "currentVehicleId",
-        sb.occupied_since AS "occupiedSince",
-        sb.notes AS "bayNotes"
-      FROM service_bays sb
-      WHERE sb.bay_number = $1
+        gb.id AS "bayId",
+        gb.bay_number AS "bayNumber",
+        gb.bay_name AS "bayName",
+        gb.location,
+        gb.capacity,
+        gb.equipment,
+        gb.status
+      FROM garage_bays gb
+      WHERE gb.bay_number = $1
       LIMIT 1`,
       [bayNumber]
     )
 
     if (bayResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Service bay not found' })
+      return res.status(404).json({ error: 'Garage bay not found' })
     }
 
     const bay = bayResult.rows[0]
 
-    if (!bay.currentWorkOrderId) {
-      return res.json({
-        bayNumber: bay.bayNumber,
-        bayName: bay.bayName,
-        bayType: bay.bayType,
-        isAvailable: bay.isAvailable,
-        isOperational: bay.isOperational,
-        workOrder: null,
-        message: 'No active work order in this bay',
-      })
-    }
-
-    // Fetch the work order details
+    // Find the most recent active work order assigned to this garage bay
     const woResult = await pool.query(
       `SELECT
         wo.id,
-        wo.number AS "workOrderNumber",
+        wo.work_order_number AS "workOrderNumber",
         wo.title,
         wo.description,
         wo.type AS "workOrderType",
         wo.priority,
         wo.status,
-        wo.scheduled_start_date AS "scheduledStartDate",
-        wo.scheduled_end_date AS "estimatedCompletion",
-        wo.actual_start_date AS "startDate",
-        wo.actual_end_date AS "completionDate",
+        wo.scheduled_start AS "scheduledStartDate",
+        wo.scheduled_end AS "estimatedCompletion",
+        wo.actual_start AS "startDate",
+        wo.actual_end AS "completionDate",
         wo.estimated_cost AS "estimatedCost",
         wo.actual_cost AS "actualCost",
-        wo.labor_hours AS "laborHours",
-        wo.odometer_at_start AS "odometerAtStart",
-        wo.assigned_technician AS "assignedTechnician",
+        wo.progress_percentage AS "progressPercentage",
         wo.notes,
         wo.vehicle_id AS "vehicleId",
-        v.number AS "vehicleNumber",
+        v.license_plate AS "vehicleNumber",
         v.make AS "vehicleMake",
         v.model AS "vehicleModel",
         v.year AS "vehicleYear",
         v.odometer AS "mileage",
         v.license_plate AS "licensePlate",
-        v.name AS "vehicleName"
+        CONCAT(v.year, ' ', v.make, ' ', v.model) AS "vehicleName"
       FROM work_orders wo
       LEFT JOIN vehicles v ON wo.vehicle_id = v.id
-      WHERE wo.id = $1
+      WHERE wo.garage_bay_id = $1
+        AND wo.status IN ('pending', 'in_progress', 'on_hold')
+      ORDER BY wo.created_date DESC
       LIMIT 1`,
-      [bay.currentWorkOrderId]
+      [bay.bayId]
     )
 
     if (woResult.rows.length === 0) {
       return res.json({
         bayNumber: bay.bayNumber,
         bayName: bay.bayName,
+        status: bay.status,
+        location: bay.location,
         workOrder: null,
-        message: 'Referenced work order not found',
+        message: 'No active work order in this bay',
       })
     }
 
     const wo = woResult.rows[0]
 
-    // Calculate progress percentage based on labor hours
-    const hoursEstimated = wo.laborHours ? Number(wo.laborHours) : null
-
     // Get actual logged hours from work_order_labor
     const laborLogResult = await pool.query(
-      `SELECT COALESCE(SUM(hours), 0) AS "hoursLogged"
+      `SELECT COALESCE(SUM(hours_logged), 0) AS "hoursLogged",
+             COALESCE(SUM(hours_estimated), 0) AS "hoursEstimated"
       FROM work_order_labor
       WHERE work_order_id = $1`,
-      [bay.currentWorkOrderId]
+      [wo.id]
     )
     const hoursLogged = Number(laborLogResult.rows[0]?.hoursLogged || 0)
+    const hoursEstimated = Number(laborLogResult.rows[0]?.hoursEstimated || 0)
 
-    const progressPercentage =
-      hoursEstimated && hoursEstimated > 0
+    const progressPercentage = wo.progressPercentage != null
+      ? Number(wo.progressPercentage)
+      : hoursEstimated > 0
         ? Math.min(Math.round((hoursLogged / hoursEstimated) * 100), 100)
         : wo.status === 'completed'
           ? 100
@@ -954,24 +941,26 @@ router.get('/garage-bays/:bayNumber/work-order', async (req: Request, res: Respo
     // Fetch parts for this work order
     const partsResult = await pool.query(
       `SELECT
-        wop.part_number AS "partNumber",
-        wop.name AS "description",
+        p.part_number AS "partNumber",
+        p.name AS "description",
         wop.quantity,
-        CASE WHEN wop.quantity > 0 THEN 'in-stock' ELSE 'ordered' END AS "status"
+        wop.status
       FROM work_order_parts wop
+      JOIN parts_inventory p ON wop.part_id = p.id
       WHERE wop.work_order_id = $1
-      ORDER BY wop.created_at`,
-      [bay.currentWorkOrderId]
+      ORDER BY p.name ASC`,
+      [wo.id]
     )
 
     // Fetch technicians assigned (from work_order_labor)
     const techResult = await pool.query(
       `SELECT DISTINCT
         wol.technician_id AS "id",
-        wol.technician_name AS "name"
+        TRIM(COALESCE(u.first_name, '') || ' ' || COALESCE(u.last_name, '')) AS "name"
       FROM work_order_labor wol
+      LEFT JOIN users u ON u.id = wol.technician_id
       WHERE wol.work_order_id = $1`,
-      [bay.currentWorkOrderId]
+      [wo.id]
     )
 
     const workOrder = {
@@ -983,24 +972,24 @@ router.get('/garage-bays/:bayNumber/work-order', async (req: Request, res: Respo
       description: wo.description || null,
       priority: wo.priority || null,
       status: wo.status || null,
-      startDate: wo.startDate || bay.occupiedSince || null,
+      startDate: wo.startDate || null,
       estimatedCompletion: wo.estimatedCompletion || null,
       hoursLogged,
-      hoursEstimated,
+      hoursEstimated: hoursEstimated || null,
       progressPercentage,
       vehicleId: wo.vehicleId ? String(wo.vehicleId) : null,
       vehicleNumber: wo.vehicleNumber || null,
       vehicleMake: wo.vehicleMake || null,
       vehicleModel: wo.vehicleModel || null,
       vehicleYear: wo.vehicleYear || null,
-      mileage: wo.mileage !== null && wo.mileage !== undefined ? Number(wo.mileage) : wo.odometerAtStart || null,
+      mileage: wo.mileage !== null && wo.mileage !== undefined ? Number(wo.mileage) : null,
       licensePlate: wo.licensePlate || null,
       vehicleName: wo.vehicleName || null,
-      assignedTechnicians: techResult.rows.map((t) => ({
+      assignedTechnicians: techResult.rows.map((t: { id: string | null; name: string | null }) => ({
         id: t.id ? String(t.id) : null,
         name: t.name || null,
       })),
-      parts: partsResult.rows.map((p) => ({
+      parts: partsResult.rows.map((p: { partNumber: string | null; description: string | null; quantity: number | null; status: string | null }) => ({
         partNumber: p.partNumber || null,
         description: p.description || null,
         quantity: p.quantity !== null && p.quantity !== undefined ? Number(p.quantity) : null,

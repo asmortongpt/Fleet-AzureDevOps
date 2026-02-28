@@ -6,7 +6,7 @@ import { BaseRepository } from './base/BaseRepository';
 export class CommunicationsRepository extends BaseRepository<any> {
 
   constructor(pool: Pool) {
-    super(pool, 'communications');
+    super(pool, 'communication_logs');
   }
 
   async createCommunication(
@@ -17,7 +17,7 @@ export class CommunicationsRepository extends BaseRepository<any> {
     recipient_id: string
   ): Promise<QueryResult> {
     const query = `
-      INSERT INTO communications (tenant_id, type, content, sender_id, recipient_id)
+      INSERT INTO communication_logs (tenant_id, communication_type, body, user_id, to_address)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING id, created_at
     `;
@@ -27,7 +27,7 @@ export class CommunicationsRepository extends BaseRepository<any> {
 
   async getCommunicationById(tenant_id: string, id: string): Promise<QueryResult> {
     const query = `
-      SELECT id, tenant_id, created_at, updated_at FROM communications
+      SELECT id, tenant_id, created_at, updated_at FROM communication_logs
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
@@ -36,7 +36,7 @@ export class CommunicationsRepository extends BaseRepository<any> {
 
   async getAllCommunications(tenant_id: string): Promise<QueryResult> {
     const query = `
-      SELECT id, tenant_id, created_at, updated_at FROM communications
+      SELECT id, tenant_id, created_at, updated_at FROM communication_logs
       WHERE tenant_id = $1
     `;
     const values = [tenant_id];
@@ -50,8 +50,8 @@ export class CommunicationsRepository extends BaseRepository<any> {
     content: string
   ): Promise<QueryResult> {
     const query = `
-      UPDATE communications
-      SET type = $1, content = $2
+      UPDATE communication_logs
+      SET communication_type = $1, body = $2, updated_at = NOW()
       WHERE id = $3 AND tenant_id = $4
       RETURNING id, updated_at
     `;
@@ -61,7 +61,7 @@ export class CommunicationsRepository extends BaseRepository<any> {
 
   async deleteCommunication(tenant_id: string, id: string): Promise<QueryResult> {
     const query = `
-      DELETE FROM communications
+      DELETE FROM communication_logs
       WHERE id = $1 AND tenant_id = $2
       RETURNING id
     `;

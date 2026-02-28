@@ -12,7 +12,7 @@ import { flexUuid } from '../middleware/validation'
 
 const createInvoiceSchema = z.object({
   invoiceNumber: z.string().min(1).max(100),
-  invoiceType: z.enum(['standard', 'credit', 'debit', 'proforma', 'recurring']),
+  invoiceType: z.enum(['fuel', 'parts', 'service', 'lease', 'insurance', 'maintenance', 'repair', 'equipment', 'software', 'utilities', 'other']),
   vendorId: flexUuid.optional(),
   poId: flexUuid.optional(),
   poNumber: z.string().optional(),

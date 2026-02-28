@@ -451,7 +451,7 @@ export const moduleRegistry: ModuleDefinition[] = [
     component: ComplianceSafetyHub,
     panelWidth: 'wide',
     keywords: ['safety', 'compliance', 'hub'],
-    aliases: ['compliance', 'compliance-hub-consolidated', 'safety-hub-consolidated', 'safety-compliance-hub', 'policy-hub'],
+    aliases: ['compliance', 'compliance-hub-consolidated', 'safety-hub-consolidated', 'safety-compliance-hub', 'compliance-safety', 'policy-hub'],
   },
   {
     id: 'osha-forms',

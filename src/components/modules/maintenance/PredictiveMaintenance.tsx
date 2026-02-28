@@ -6,11 +6,11 @@ import {
   Zap
 } from "lucide-react"
 import { useMemo } from "react"
-import { toast } from "sonner"
 import useSWR from "swr"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { apiFetcher } from "@/lib/api-fetcher"
 import { formatCurrency } from "@/utils/format-helpers"
@@ -38,6 +38,7 @@ interface PredictiveRecord {
 const fetcher = apiFetcher
 
 export function PredictiveMaintenance() {
+  const { push } = useDrilldown()
   const data = useFleetData()
   const vehicles = data.vehicles || []
   const { data: predictionsRaw } = useSWR<PredictiveRecord[]>(
@@ -191,7 +192,11 @@ export function PredictiveMaintenance() {
                       </p>
                     </div>
 
-                    <Button size="sm" variant="outline" onClick={() => toast.success(`Scheduling service for: ${vehicle.predictedIssue}`)}>
+                    <Button size="sm" variant="outline" onClick={() => push({
+                      type: 'workOrder' as any,
+                      label: `Schedule: ${vehicle.predictedIssue}`,
+                      data: { vehicleId: vehicle.id, description: vehicle.predictedIssue, createMode: true }
+                    })}>
                       Schedule Service
                     </Button>
                   </div>

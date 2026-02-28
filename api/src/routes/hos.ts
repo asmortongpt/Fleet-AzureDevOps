@@ -3,11 +3,11 @@
  * DOT/FMCSA compliance tracking for commercial fleet operations
  */
 
-import { Router, Request, Response } from 'express'
+import { Router, Response } from 'express'
 import { pool } from '../db/connection'
 import { z } from 'zod'
 import { logger } from '../utils/logger'
-import { authenticateJWT } from '../middleware/auth'
+import { authenticateJWT, AuthRequest } from '../middleware/auth'
 
 import { flexUuid } from '../middleware/validation'
 
@@ -92,20 +92,21 @@ const createDVIRSchema = z.object({
  * GET /api/hos/logs
  * Get HOS logs with filters
  */
-router.get('/logs', async (req: Request, res: Response) => {
+router.get('/logs', async (req: AuthRequest, res: Response) => {
   try {
     const { driver_id, vehicle_id, start_date, end_date, duty_status, show_violations } = req.query
-    const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
+    const tenant_id = req.user?.tenant_id
 
     let query = `
       SELECT
         hl.*,
-        CONCAT(d.first_name, ' ', d.last_name) as driver_name,
+        CONCAT(u.first_name, ' ', u.last_name) as driver_name,
         d.license_number as driver_license,
         v.license_plate as vehicle_license_plate,
         EXTRACT(EPOCH FROM (hl.end_time - hl.start_time)) / 60 as duration_minutes
       FROM hos_logs hl
       LEFT JOIN drivers d ON hl.driver_id = d.id
+      LEFT JOIN users u ON d.user_id = u.id
       LEFT JOIN vehicles v ON hl.vehicle_id = v.id
       WHERE hl.tenant_id = $1::uuid
     `
@@ -168,9 +169,9 @@ router.get('/logs', async (req: Request, res: Response) => {
  * POST /api/hos/logs
  * Create a new HOS log entry
  */
-router.post('/logs', async (req: Request, res: Response) => {
+router.post('/logs', async (req: AuthRequest, res: Response) => {
   try {
-    const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
+    const tenant_id = req.user?.tenant_id
     const validatedData = createHOSLogSchema.parse(req.body)
 
     // Calculate duration if end_time provided
@@ -254,10 +255,10 @@ router.post('/logs', async (req: Request, res: Response) => {
  * PATCH /api/hos/logs/:id
  * Update an HOS log (with restrictions per FMCSA rules)
  */
-router.patch('/logs/:id', async (req: Request, res: Response) => {
+router.patch('/logs/:id', async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
-    const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
+    const tenant_id = req.user?.tenant_id
 
     // Validate request body
     const parsed = updateHOSLogSchema.safeParse(req.body)
@@ -308,11 +309,11 @@ router.patch('/logs/:id', async (req: Request, res: Response) => {
  * GET /api/hos/logs/driver/:driver_id/summary
  * Get driver's HOS summary for a date range
  */
-router.get('/logs/driver/:driver_id/summary', async (req: Request, res: Response) => {
+router.get('/logs/driver/:driver_id/summary', async (req: AuthRequest, res: Response) => {
   try {
     const { driver_id } = req.params
     const { start_date, end_date } = req.query
-    const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
+    const tenant_id = req.user?.tenant_id
 
     const result = await pool.query(
       `SELECT
@@ -354,19 +355,20 @@ router.get('/logs/driver/:driver_id/summary', async (req: Request, res: Response
  * GET /api/hos/dvir
  * Get DVIR reports
  */
-router.get('/dvir', async (req: Request, res: Response) => {
+router.get('/dvir', async (req: AuthRequest, res: Response) => {
   try {
     const { driver_id, vehicle_id, start_date, end_date, defects_only } = req.query
-    const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
+    const tenant_id = req.user?.tenant_id
 
     let query = `
       SELECT
         dr.*,
-        CONCAT(d.first_name, ' ', d.last_name) as driver_name,
+        CONCAT(u.first_name, ' ', u.last_name) as driver_name,
         v.license_plate as vehicle_license_plate,
         v.make, v.model, v.year
       FROM dvir_reports dr
       LEFT JOIN drivers d ON dr.driver_id = d.id
+      LEFT JOIN users u ON d.user_id = u.id
       LEFT JOIN vehicles v ON dr.vehicle_id = v.id
       WHERE dr.tenant_id = $1::uuid
     `
@@ -432,9 +434,9 @@ router.get('/dvir', async (req: Request, res: Response) => {
  * POST /api/hos/dvir
  * Create a new DVIR report
  */
-router.post('/dvir', async (req: Request, res: Response) => {
+router.post('/dvir', async (req: AuthRequest, res: Response) => {
   try {
-    const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
+    const tenant_id = req.user?.tenant_id
     const validatedData = createDVIRSchema.parse(req.body)
 
     // Create DVIR report
@@ -511,18 +513,19 @@ router.post('/dvir', async (req: Request, res: Response) => {
  * GET /api/hos/violations
  * Get HOS violations
  */
-router.get('/violations', async (req: Request, res: Response) => {
+router.get('/violations', async (req: AuthRequest, res: Response) => {
   try {
     const { driver_id, status, start_date, end_date } = req.query
-    const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
+    const tenant_id = req.user?.tenant_id
 
     let query = `
       SELECT
         hv.*,
-        CONCAT(d.first_name, ' ', d.last_name) as driver_name,
+        CONCAT(u.first_name, ' ', u.last_name) as driver_name,
         d.license_number as driver_license
       FROM hos_violations hv
       LEFT JOIN drivers d ON hv.driver_id = d.id
+      LEFT JOIN users u ON d.user_id = u.id
       WHERE hv.tenant_id = $1::uuid
     `
     const params: any[] = [tenant_id]
@@ -574,10 +577,10 @@ router.get('/violations', async (req: Request, res: Response) => {
  * POST /api/hos/violations/:id/resolve
  * Resolve a violation
  */
-router.post('/violations/:id/resolve', async (req: Request, res: Response) => {
+router.post('/violations/:id/resolve', async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
-    const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
+    const tenant_id = req.user?.tenant_id
 
     // Validate request body
     const parsed = resolveViolationSchema.safeParse(req.body)

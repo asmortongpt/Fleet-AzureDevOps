@@ -14,6 +14,17 @@ router.get(
   requirePermission('fleet:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tracking_devices')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.json({
+          data: [],
+          pagination: { page: 1, limit: 50, total: 0, pages: 0 }
+        })
+      }
+
       const { page = 1, limit = 50, status, device_type } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
@@ -70,6 +81,14 @@ router.get(
   requirePermission('fleet:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Check if table exists
+      const tableCheck = await pool.query(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tracking_devices')`
+      )
+      if (!tableCheck.rows[0].exists) {
+        return res.status(404).json({ error: 'Tracking device not found' })
+      }
+
       const result = await pool.query(
         `SELECT id, tenant_id, device_type, manufacturer, model_number,
                 serial_number, hardware_version, firmware_version,

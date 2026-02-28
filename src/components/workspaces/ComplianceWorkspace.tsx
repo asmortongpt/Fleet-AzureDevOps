@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
-import { useVehicles, useDrivers, useWorkOrders } from "@/hooks/use-api"
+import { useVehicles, useDrivers, useWorkOrders, secureFetch } from "@/hooks/use-api"
 import { apiFetcher } from "@/lib/api-fetcher"
 import { cn } from "@/lib/utils"
 import { formatEnum } from "@/utils/format-enum"
@@ -40,6 +40,7 @@ import { formatDate } from "@/utils/format-helpers"
 
 // Document Management Panel
 const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: any[] }) => {
+  const { push } = useDrilldown()
   const [searchQuery, setSearchQuery] = useState('')
   const [documentType, setDocumentType] = useState('all')
   const [sortBy, setSortBy] = useState('date')
@@ -252,16 +253,42 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" aria-label="View document" onClick={() => toast.info(`Viewing document: ${doc.name}`)}>
+                      <Button variant="ghost" size="icon" aria-label="View document" onClick={() => push({ type: 'document' as any, label: doc.name, data: { documentId: doc.id } })}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" aria-label="Download document" onClick={() => toast.success(`Downloading: ${doc.name}`)}>
+                      <Button variant="ghost" size="icon" aria-label="Download document" onClick={async () => {
+                        try {
+                          const res = await secureFetch(`/api/documents/${doc.id}`)
+                          if (!res.ok) throw new Error('Download failed')
+                          const json = await res.json()
+                          const fileUrl = json.data?.file_url || json.data?.url || json.file_url || json.url
+                          if (fileUrl) {
+                            window.open(fileUrl, '_blank')
+                          } else {
+                            toast.info(`No download URL available for: ${doc.name}`)
+                          }
+                        } catch {
+                          toast.error(`Failed to download: ${doc.name}`)
+                        }
+                      }}>
                         <Download className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" aria-label="Edit document" onClick={() => toast.info(`Edit document: ${doc.name}`)}>
+                      <Button variant="ghost" size="icon" aria-label="Edit document" onClick={() => push({ type: 'document-edit' as any, label: `Edit: ${doc.name}`, data: { documentId: doc.id, editMode: true } })}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" aria-label="Delete document" onClick={() => toast.warning(`Delete document: ${doc.name}`)}>
+                      <Button variant="ghost" size="icon" aria-label="Delete document" onClick={async () => {
+                        if (!window.confirm(`Delete "${doc.name}"? This action cannot be undone.`)) return
+                        try {
+                          const res = await secureFetch(`/api/documents/${doc.id}`, { method: 'DELETE' })
+                          if (res.ok) {
+                            toast.success(`Deleted: ${doc.name}`)
+                          } else {
+                            toast.error(`Failed to delete: ${doc.name}`)
+                          }
+                        } catch {
+                          toast.error(`Failed to delete: ${doc.name}`)
+                        }
+                      }}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

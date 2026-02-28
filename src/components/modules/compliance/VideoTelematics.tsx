@@ -613,7 +613,17 @@ export function VideoTelematics() {
             <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
               Close
             </Button>
-            <Button onClick={() => toast.success(`Downloading video clip for event: ${selectedEvent?.vehicleNumber || 'unknown'}`)}>
+            <Button onClick={() => {
+              if (selectedEvent?.videoUrl) {
+                const a = document.createElement('a')
+                a.href = selectedEvent.videoUrl
+                a.download = `clip-${selectedEvent.vehicleNumber}-${selectedEvent.id}.mp4`
+                a.target = '_blank'
+                a.click()
+              } else {
+                toast.info('No video clip available for this event')
+              }
+            }}>
               <Download className="w-4 h-4 mr-2" />
               Download Clip
             </Button>

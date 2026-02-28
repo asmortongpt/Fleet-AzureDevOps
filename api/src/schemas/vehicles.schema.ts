@@ -106,6 +106,10 @@ export const vehicleCreateSchema = z.object({
 
   fuelType: fuelTypeEnum,
 
+  type: z.string()
+    .max(100, 'Vehicle type must be 100 characters or less')
+    .optional(),
+
   location: z.string()
     .max(255, 'Location must be 255 characters or less')
     .optional(),
@@ -229,6 +233,10 @@ export const vehicleUpdateSchema = z.object({
     .optional(),
 
   fuelType: fuelTypeEnum.optional(),
+
+  type: z.string()
+    .max(100, 'Vehicle type must be 100 characters or less')
+    .optional(),
 
   location: z.string()
     .max(255, 'Location must be 255 characters or less')

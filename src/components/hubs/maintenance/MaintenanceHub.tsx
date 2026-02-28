@@ -616,7 +616,7 @@ export function MaintenanceHub() {
                       </div>
                     )}
 
-                    <Button className="w-full" size="sm">
+                    <Button className="w-full" size="sm" onClick={() => handleWorkOrderClick(wo)}>
                       View Full Details
                     </Button>
                   </div>

@@ -228,8 +228,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
   const relatedArr = Array.isArray(relatedRecords) ? relatedRecords : []
   const historyArr = Array.isArray(maintenanceHistory) ? maintenanceHistory : []
 
-  const calculatedPartsCost = partsArr.reduce((sum, part) => sum + (part.quantity * part.unit_cost || 0), 0)
-  const calculatedLaborCost = laborArr.reduce((sum, entry) => sum + (entry.hours * entry.rate || 0), 0)
+  const calculatedPartsCost = partsArr.reduce((sum, part) => sum + ((Number(part.quantity) || 0) * (Number(part.unit_cost) || 0)), 0)
+  const calculatedLaborCost = laborArr.reduce((sum, entry) => sum + ((Number(entry.hours) || 0) * (Number(entry.rate) || 0)), 0)
   // Prefer direct cost fields from the work order over calculated sums
   const totalPartsCost = Number(workOrder?.parts_cost) || calculatedPartsCost
   const totalLaborCost = Number(workOrder?.labor_cost) || calculatedLaborCost
@@ -312,7 +312,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 </div>
                 {laborArr.length > 0 && (
                   <p className="text-xs text-[var(--text-secondary)] mt-1">
-                    {laborArr.reduce((sum, entry) => sum + entry.hours, 0).toFixed(1)} hrs
+                    {Number(laborArr.reduce((sum, entry) => sum + (Number(entry.hours) || 0), 0)).toFixed(1)} hrs
                   </p>
                 )}
               </CardContent>
@@ -423,7 +423,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                           <Timer className="h-3 w-3" />
                           Downtime
                         </p>
-                        <p className="font-medium">{Number(workOrder.downtime_hours).toFixed(1)} hours</p>
+                        <p className="font-medium">{Number(workOrder.downtime_hours || 0).toFixed(1)} hours</p>
                       </div>
                     )}
                     {workOrder.driver_id && (
@@ -730,7 +730,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                             <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                               <div>
                                 <p className="text-xs text-[var(--text-secondary)]">Hours</p>
-                                <p className="font-medium">{entry.hours?.toFixed(1) || '0.0'}</p>
+                                <p className="font-medium">{Number(entry.hours || 0).toFixed(1)}</p>
                               </div>
                               <div>
                                 <p className="text-xs text-[var(--text-secondary)]">Rate</p>
@@ -761,7 +761,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                         <div className="flex items-center justify-between">
                           <span className="text-sm">Total Hours</span>
                           <span className="font-semibold">
-                            {laborArr.reduce((sum, entry) => sum + entry.hours, 0).toFixed(1)} hrs
+                            {Number(laborArr.reduce((sum, entry) => sum + (Number(entry.hours) || 0), 0)).toFixed(1)} hrs
                           </span>
                         </div>
                         <div className="flex items-center justify-between pt-2 border-t">

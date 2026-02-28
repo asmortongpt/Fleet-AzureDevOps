@@ -22,8 +22,8 @@ const statusConfig: Record<FleetStatus, { color: string; bg: string; label: stri
     label: 'Idle',
   },
   maintenance: {
-    color: 'bg-blue-400',
-    bg: 'bg-blue-400/10 text-blue-400 border-blue-400/20',
+    color: 'bg-amber-400',
+    bg: 'bg-amber-400/10 text-amber-400 border-amber-400/20',
     label: 'Maintenance',
   },
   offline: {
