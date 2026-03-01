@@ -58,22 +58,27 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       }
 
       ws.onclose = () => {
-        logger.info('WebSocket disconnected')
         setIsConnected(false)
         wsRef.current = null
         onClose?.()
 
-        // Attempt to reconnect
-        if (reconnectCountRef.current < reconnectAttempts) {
+        // Attempt to reconnect with exponential backoff, only if we previously connected
+        if (reconnectCountRef.current < reconnectAttempts && reconnectCountRef.current > 0) {
           reconnectCountRef.current++
-          logger.info(`Reconnecting... (${reconnectCountRef.current}/${reconnectAttempts})`)
-          setTimeout(connect, reconnectInterval)
+          const delay = reconnectInterval * Math.min(reconnectCountRef.current, 5)
+          setTimeout(connect, delay)
+        } else if (reconnectCountRef.current === 0) {
+          // First connection failed — WS endpoint likely not available, don't retry
+          logger.debug('WebSocket endpoint not available, skipping reconnect')
         }
       }
 
-      ws.onerror = (error) => {
-        logger.error('WebSocket error:', { error })
-        onError?.(error)
+      ws.onerror = () => {
+        // Only log on first attempt to avoid console spam
+        if (reconnectCountRef.current === 0) {
+          logger.debug('WebSocket unavailable (this is normal if WS is not configured)')
+        }
+        onError?.(new Event('error'))
       }
 
       ws.onmessage = (event) => {
