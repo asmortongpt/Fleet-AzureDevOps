@@ -26,6 +26,7 @@ import useSWR from 'swr'
 
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
+import { GlowCard } from '@/components/ui/glow-card'
 import { HeroMetrics, type HeroMetric } from '@/components/ui/hero-metrics'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -33,6 +34,20 @@ import { useDrilldown } from '@/contexts/DrilldownContext'
 import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  BarChart as RechartsBarChart,
+  Bar,
+} from 'recharts'
 
 const fetcher = apiFetcher
 
@@ -182,27 +197,93 @@ const PeopleTabContent = memo(function PeopleTabContent() {
     )
   }, [people, searchQuery])
 
+  // Role distribution
+  const roleDistribution = useMemo(() => {
+    const counts: Record<string, number> = {}
+    people.forEach((p) => {
+      const r = p.role || 'Unknown'
+      counts[r] = (counts[r] || 0) + 1
+    })
+    return Object.entries(counts)
+      .sort(([, a], [, b]) => b - a)
+      .map(([role, count]) => ({ role, count, pct: people.length > 0 ? Math.round((count / people.length) * 100) : 0 }))
+  }, [people])
+
+  // Department distribution
+  const deptDistribution = useMemo(() => {
+    const counts: Record<string, number> = {}
+    people.forEach((p) => {
+      const d = p.department || 'Unassigned'
+      counts[d] = (counts[d] || 0) + 1
+    })
+    return Object.entries(counts)
+      .sort(([, a], [, b]) => b - a)
+      .map(([dept, count]) => ({ dept, count, pct: people.length > 0 ? Math.round((count / people.length) * 100) : 0 }))
+  }, [people])
+
+  // Recent hires (users created in last 90 days)
+  const recentHires = useMemo(() => {
+    const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
+    return people
+      .filter((p) => {
+        const user = userRows.find((u: any) => u.id === p.id)
+        if (!user?.created_at) return false
+        return new Date(user.created_at).getTime() > ninetyDaysAgo
+      })
+      .slice(0, 5)
+  }, [people, userRows])
+
+  // Headcount trend — monthly new hires over last 6 months
+  const headcountTrend = useMemo(() => {
+    const now = new Date()
+    const months: { label: string; month: number; year: number }[] = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      months.push({ label: d.toLocaleString('default', { month: 'short' }), month: d.getMonth(), year: d.getFullYear() })
+    }
+    return months.map((m) => {
+      const count = userRows.filter((u: any) => {
+        if (!u.created_at) return false
+        const d = new Date(u.created_at)
+        return d.getMonth() === m.month && d.getFullYear() === m.year
+      }).length
+      return { name: m.label, hires: count }
+    })
+  }, [userRows])
+
   // HeroMetrics data
   const heroMetrics: HeroMetric[] = useMemo(() => [
     {
       label: 'Total Employees',
-      value: formatNumber(userRows.length),
+      value: userRows.length,
       icon: Users,
       accent: 'emerald' as const,
+      trend: 'up' as const,
+      change: userRows.length > 0 ? Math.round((activeUsers.length / userRows.length) * 100) : 0,
     },
     {
       label: 'On Duty',
-      value: formatNumber(activeUsers.length),
+      value: activeUsers.length,
       icon: UserCheck,
       accent: 'emerald' as const,
+      trend: activeUsers.length > userRows.length * 0.5 ? 'up' as const : 'down' as const,
+      change: userRows.length > 0 ? Math.round((activeUsers.length / userRows.length) * 100) : 0,
+    },
+    {
+      label: 'Teams',
+      value: teamRows.length,
+      icon: Users,
+      accent: 'gray' as const,
     },
     {
       label: 'Avg Tenure',
       value: avgTenureYears > 0 ? `${avgTenureYears.toFixed(1)} yrs` : '\u2014',
       icon: Award,
       accent: 'amber' as const,
+      trend: avgTenureYears >= 1 ? 'up' as const : 'neutral' as const,
+      change: avgTenureYears > 0 ? Math.round(avgTenureYears * 10) : undefined,
     },
-  ], [userRows.length, activeUsers.length, avgTenureYears])
+  ], [userRows.length, activeUsers.length, teamRows.length, avgTenureYears])
 
   const handlePersonClick = (person: typeof people[0]) => {
     push({
@@ -246,21 +327,133 @@ const PeopleTabContent = memo(function PeopleTabContent() {
       {/* Hero Metrics Strip */}
       <HeroMetrics metrics={heroMetrics} className="border-b border-white/[0.08]" />
 
+      {/* Workforce Analytics Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border-b border-white/[0.08]">
+        {/* Role Distribution — Donut Chart */}
+        <div className="px-6 py-4 border-r border-white/[0.08]">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Role Distribution</h3>
+            <span className="text-[11px] text-white/25">{roleDistribution.length} roles</span>
+          </div>
+          {roleDistribution.length > 0 ? (
+            <div className="flex items-center gap-4">
+              <ResponsiveContainer width={110} height={110}>
+                <RechartsPieChart>
+                  <Pie
+                    data={roleDistribution.slice(0, 5).map(r => ({ name: r.role, value: r.count }))}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={30}
+                    outerRadius={48}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {roleDistribution.slice(0, 5).map((_, idx) => (
+                      <Cell key={idx} fill={['#10b981', '#f59e0b', '#ef4444', '#6b7280', '#14b8a6'][idx % 5]} opacity={0.7} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#fff' }}
+                  />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+              <div className="flex-1 space-y-1">
+                {roleDistribution.slice(0, 5).map(({ role, count, pct }, idx) => (
+                  <div key={role} className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: ['#10b981', '#f59e0b', '#ef4444', '#6b7280', '#14b8a6'][idx % 5] }} />
+                    <span className="text-[11px] text-white/50 truncate flex-1">{role}</span>
+                    <span className="text-[11px] text-white/30 tabular-nums">{count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-white/25">No role data</p>
+          )}
+        </div>
+
+        {/* Workforce Stats */}
+        <div className="px-6 py-4 border-r border-white/[0.08]">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Workforce</h3>
+          </div>
+          <div className="space-y-3">
+            {/* Active rate bar */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs text-white/60">Active Rate</span>
+                <span className="text-xs font-semibold text-emerald-400">{people.length > 0 ? '100%' : '0%'}</span>
+              </div>
+              <div className="w-full h-4 rounded bg-white/[0.04] overflow-hidden">
+                <div className="h-full rounded" style={{ width: '100%', background: 'linear-gradient(90deg, rgba(16,185,129,0.6) 0%, rgba(16,185,129,0.3) 100%)' }} />
+              </div>
+            </div>
+            {/* Role breakdown with gradient bars */}
+            {roleDistribution.slice(0, 3).map(({ role, count, pct }) => (
+              <div key={role}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-white/60">{role}</span>
+                  <span className="text-xs text-white/40">{count} ({pct}%)</span>
+                </div>
+                <div className="w-full h-4 rounded bg-white/[0.04] overflow-hidden">
+                  <div className="h-full rounded" style={{
+                    width: `${Math.max(pct, 3)}%`,
+                    background: 'linear-gradient(90deg, rgba(245,158,11,0.6) 0%, rgba(245,158,11,0.3) 100%)',
+                  }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Headcount Trend — AreaChart */}
+        <div className="px-6 py-4">
+          <GlowCard accent="#10b981">
+          <div className="p-3">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Headcount Trend</h3>
+            <span className="text-[11px] text-white/25">Last 6 months</span>
+          </div>
+          {headcountTrend.some(d => d.hires > 0) ? (
+            <ResponsiveContainer width="100%" height={130}>
+              <AreaChart data={headcountTrend} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                <defs>
+                  <linearGradient id="peopleGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} width={24} />
+                <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#fff' }} />
+                <Area type="monotone" dataKey="hires" stroke="#10b981" strokeWidth={2} fill="url(#peopleGrad)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[130px] text-white/25 text-xs">No hire data available</div>
+          )}
+          </div>
+          </GlowCard>
+        </div>
+      </div>
+
       {/* Search Bar */}
-      <div className="px-6 py-4">
-        <div className="relative max-w-md">
+      <div className="px-6 py-3 border-b border-white/[0.08] flex items-center justify-between">
+        <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
           <Input
             placeholder="Search people by name, role, or department..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/30 focus:border-emerald-500/50"
+            className="pl-10 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/30 focus:border-emerald-500/50 h-9 text-sm"
           />
         </div>
+        <span className="text-xs text-white/30">{filteredPeople.length} of {people.length} people</span>
       </div>
 
       {/* People Directory Grid */}
-      <div className="px-6 pb-6 overflow-y-auto">
+      <div className="px-6 py-4 overflow-y-auto">
         {filteredPeople.length === 0 ? (
           <div className="flex items-center justify-center h-32 text-white/40 text-sm">
             {searchQuery ? 'No people match your search.' : 'No people found.'}
@@ -270,7 +463,16 @@ const PeopleTabContent = memo(function PeopleTabContent() {
             {filteredPeople.map((person) => (
               <div
                 key={person.id}
-                className="group flex items-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.03] p-3 cursor-pointer hover:bg-white/[0.07] transition-colors"
+                className="group flex items-center gap-3 rounded-lg p-3 cursor-pointer hover:bg-white/[0.07] hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(16,185,129,0.08)] transition-all duration-200"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderLeft: `3px solid ${
+                    person.role === 'Admin' ? '#f59e0b'
+                    : person.role === 'Fleet Manager' ? '#a855f7'
+                    : '#10b981'
+                  }`,
+                }}
                 onClick={() => handlePersonClick(person)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -285,7 +487,6 @@ const PeopleTabContent = memo(function PeopleTabContent() {
                 {/* Avatar circle */}
                 <div className={`relative flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold ${avatarColor(person.name)}`}>
                   {getInitials(person.name)}
-                  {/* Status dot */}
                   <span
                     className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#242424] ${person.isActive ? 'bg-emerald-400' : 'bg-white/20'}`}
                   />
@@ -296,47 +497,26 @@ const PeopleTabContent = memo(function PeopleTabContent() {
                   <p className="text-sm font-medium text-white/80 truncate group-hover:text-white transition-colors">
                     {person.name}
                   </p>
-                  <p className="text-xs text-white/40 truncate">{person.role}</p>
-                  <p className="text-xs text-white/30 truncate">{person.department}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span
+                      className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                      style={{
+                        background: person.role === 'Admin' ? 'rgba(245,158,11,0.15)'
+                          : person.role === 'Fleet Manager' ? 'rgba(168,85,247,0.15)'
+                          : 'rgba(16,185,129,0.1)',
+                        color: person.role === 'Admin' ? '#f59e0b'
+                          : person.role === 'Fleet Manager' ? '#a855f7'
+                          : '#10b981',
+                      }}
+                    >{person.role}</span>
+                    <span className="text-[10px] text-white/25">{person.department}</span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Training & Development section below directory */}
-        {trainingProgressData.length > 0 && (
-          <div className="mt-6 rounded-lg border border-white/[0.08] bg-white/[0.03] p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <BookOpen className="h-4 w-4 text-white/40" />
-              <h3 className="text-sm font-semibold text-white/60">Training & Development</h3>
-            </div>
-            <div className="space-y-2.5">
-              {trainingProgressData.map((training) => {
-                const completionPct = training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0
-                return (
-                  <div key={training.program}>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-white/60">{training.program}</p>
-                      <p className="text-[11px] text-white/35">
-                        {formatNumber(training.completed)}/{formatNumber(training.enrolled)} ({Math.round(completionPct)}%)
-                      </p>
-                    </div>
-                    <div className="w-full bg-white/[0.06] rounded-full h-1.5 mt-1">
-                      <div
-                        className={`rounded-full h-1.5 ${
-                          completionPct > 75 ? 'bg-emerald-500' :
-                          completionPct > 50 ? 'bg-amber-500' : 'bg-rose-500'
-                        }`}
-                        style={{ width: `${completionPct}%` }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
@@ -425,6 +605,28 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
     },
   ], [unreadCount, channelRows.length, announcementRows.length, avgResponseTime])
 
+  // Message volume by day (last 7 days)
+  const messageVolume = useMemo(() => {
+    const now = new Date()
+    const days: { label: string; date: string }[] = []
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now)
+      d.setDate(d.getDate() - i)
+      days.push({
+        label: d.toLocaleString('default', { weekday: 'short' }),
+        date: d.toISOString().slice(0, 10)
+      })
+    }
+    return days.map(day => {
+      const count = messages.filter((m: any) => {
+        const ts = m.timestamp || m.created_at || m.createdAt
+        if (!ts) return false
+        return new Date(ts).toISOString().slice(0, 10) === day.date
+      }).length
+      return { name: day.label, messages: count }
+    })
+  }, [messages])
+
   if (communicationError) {
     return (
       <div className="flex items-center justify-center h-32 text-white/40 text-sm">
@@ -455,6 +657,23 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
     <div className="flex flex-col gap-0">
       {/* Hero Metrics Strip */}
       <HeroMetrics metrics={commMetrics} className="border-b border-white/[0.08]" />
+
+      {/* Message Volume Chart */}
+      {messageVolume.some(d => d.messages > 0) && (
+        <div className="px-6 py-3 border-b border-white/[0.08]">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Message Volume</h3>
+            <span className="text-[11px] text-white/25">Last 7 days</span>
+          </div>
+          <ResponsiveContainer width="100%" height={80}>
+            <RechartsBarChart data={messageVolume} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+              <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#fff' }} />
+              <Bar dataKey="messages" fill="#10b981" radius={[3, 3, 0, 0]} opacity={0.7} />
+            </RechartsBarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Two-column layout: threads + sidebar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 min-h-0">

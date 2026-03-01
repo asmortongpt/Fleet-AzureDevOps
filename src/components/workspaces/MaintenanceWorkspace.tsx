@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { GlowCard } from "@/components/ui/glow-card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
@@ -30,6 +31,12 @@ import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { apiFetcher } from "@/lib/api-fetcher"
 import { Vehicle, Facility, WorkOrder } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import {
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+} from 'recharts'
 import { formatEnum } from "@/utils/format-enum"
 import { formatNumber } from "@/utils/format-helpers"
 import { formatVehicleName } from "@/utils/vehicle-display"
@@ -619,103 +626,240 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
   const stats = useMemo(() => {
     const safeDisplay: Vehicle[] = Array.isArray(displayVehicles) ? displayVehicles as Vehicle[] : []
     const safeWO: any[] = Array.isArray(workOrders) ? workOrders : []
+    const openWOs = safeWO.filter((w: WorkOrder) => w.status !== 'completed' && w.status !== 'cancelled')
+    const urgentWOs = safeWO.filter((w: WorkOrder) => w.priority === 'emergency' || w.priority === 'urgent')
     return {
-      inService: safeDisplay.filter((v: Vehicle) => v.status === 'service').length,
-      alertsPending: safeDisplay.filter((v: Vehicle) => v.alerts && v.alerts.length > 0).length,
-      serviceDue: safeDisplay.filter((v: Vehicle) =>
-        v.nextService && (Number(v.nextService) - (v.mileage || 0)) < 500
-      ).length,
+      inService: safeDisplay.filter((v: Vehicle) => v.status === 'active' || v.status === 'service' || v.status === 'in_service').length,
+      alertsPending: urgentWOs.length,
+      serviceDue: openWOs.filter((w: any) => w.priority === 'high' || w.scheduled_date).length,
       workOrdersPending: safeWO.filter((w: WorkOrder) => w.status === 'pending').length
     }
   }, [displayVehicles, workOrders])
 
+  const safeWorkOrders: any[] = Array.isArray(workOrders) ? workOrders : safeArray<any>(workOrders)
+  const completedWOs = safeWorkOrders.filter((w: any) => w.status === 'completed').length
+  const avgCompletionDays = useMemo(() => {
+    const completed = safeWorkOrders.filter((w: any) => w.status === 'completed' && w.actual_end_date && w.created_at)
+    if (completed.length === 0) return null
+    const totalDays = completed.reduce((sum: number, w: any) => {
+      const start = new Date(w.created_at).getTime()
+      const end = new Date(w.actual_end_date).getTime()
+      return sum + Math.max(0, (end - start) / (1000 * 60 * 60 * 24))
+    }, 0)
+    return Math.round(totalDays / completed.length)
+  }, [safeWorkOrders])
+
+  const totalFacilityCapacity = useMemo(() => {
+    const safeFac = Array.isArray(facilities) ? facilities : []
+    return safeFac.reduce((sum: number, f: any) => sum + (f.capacity || 0), 0)
+  }, [facilities])
+
+  // Work order cost breakdown by type
+  const woCostBreakdown = useMemo(() => {
+    const costMap = new Map<string, number>()
+    safeWorkOrders.forEach((wo: any) => {
+      const type = formatEnum(wo.type || wo.priority || 'general')
+      const cost = Number(wo.total_cost || wo.cost || 0)
+      costMap.set(type, (costMap.get(type) || 0) + cost)
+    })
+    return Array.from(costMap.entries())
+      .map(([name, cost]) => ({ name, cost }))
+      .filter(d => d.cost > 0)
+      .sort((a, b) => b.cost - a.cost)
+      .slice(0, 6)
+  }, [safeWorkOrders])
+
+  const woCostMax = woCostBreakdown.length > 0 ? woCostBreakdown[0].cost : 1
+
+  // Work order status distribution for donut
+  const woStatusDistribution = useMemo(() => {
+    const statusMap = new Map<string, number>()
+    safeWorkOrders.forEach((wo: any) => {
+      const status = wo.status || 'pending'
+      statusMap.set(status, (statusMap.get(status) || 0) + 1)
+    })
+    return Array.from(statusMap.entries())
+      .map(([status, count]) => ({ name: formatEnum(status), value: count }))
+      .filter(d => d.value > 0)
+      .sort((a, b) => b.value - a.value)
+  }, [safeWorkOrders])
+
   return (
-    <div className="h-screen grid grid-cols-[1fr_400px]" data-testid="maintenance-workspace">
-      {/* Map Section */}
-      <div className="relative h-full">
-        <ProfessionalFleetMap
-          vehicles={maintenanceVehicles as Vehicle[]}
-          facilities={facilities as unknown as import('@/lib/types').GISFacility[]}
-          height="100vh"
-          onVehicleSelect={handleVehicleSelect}
-          showLegend={true}
-          enableRealTime={isRealtimeConnected}
-          forceSimulatedView={viewMode === 'tactical'}
-        />
-
-        {/* Maintenance Status Overlay */}
-        <div className="absolute top-4 left-4 bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-lg z-10 flex gap-2">
-          {/* View Mode Toggle */}
-          <div className="p-1 bg-white/[0.04] rounded-md flex">
-            <Button
-              variant={viewMode === 'map' ? 'secondary' : 'ghost'}
-              size="sm"
-              className="h-8 px-3"
-              onClick={() => setViewMode('map')}
-            >
-              Map
-            </Button>
-            <Button
-              variant={viewMode === 'tactical' ? 'secondary' : 'ghost'}
-              size="sm"
-              className="h-8 px-3"
-              onClick={() => setViewMode('tactical')}
-            >
-              <Grid className="h-4 w-4 mr-2" />
-              Tactical
-            </Button>
-          </div>
-
-          <div className="p-1">
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-48" data-testid="maint-filter">
-                <SelectValue placeholder="Filter vehicles" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Vehicles</SelectItem>
-                <SelectItem value="service">In Service</SelectItem>
-                <SelectItem value="alerts">With Alerts</SelectItem>
-                <SelectItem value="due">Service Due Soon</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Stats Bar */}
-        <div className="absolute bottom-4 left-4 right-[420px] bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-lg p-3 z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2">
-                <Truck className="h-4 w-4 text-[var(--text-secondary)]" />
-                <span className="text-sm">In Service: {stats.inService}</span>
+    <div className="h-screen flex flex-col" data-testid="maintenance-workspace">
+      {/* Hero Metrics Strip — Premium */}
+      <div className="flex-shrink-0 border-b border-white/[0.08] bg-[#111]">
+        <div className="flex items-stretch">
+          {[
+            { icon: Wrench, label: 'In Service', value: stats.inService, color: '#10b981', trend: stats.inService > 0 ? '\u2191' : undefined, trendColor: 'text-emerald-400' },
+            { icon: AlertTriangle, label: 'Alerts', value: stats.alertsPending, color: '#f59e0b', trend: stats.alertsPending > 0 ? `\u2193${stats.alertsPending}` : undefined, trendColor: 'text-rose-400' },
+            { icon: Calendar, label: 'Due Soon', value: stats.serviceDue, color: '#ef4444', trend: stats.serviceDue > 0 ? '\u26A0' : undefined, trendColor: 'text-amber-400' },
+            { icon: CheckCircle2, label: 'Work Orders', value: safeWorkOrders.length, color: '#10b981', trend: completedWOs > 0 ? `${completedWOs} done` : undefined, trendColor: 'text-emerald-400/60' },
+            { icon: Building2, label: 'Facilities', value: (Array.isArray(facilities) ? facilities : []).length, color: '#6b7280' },
+            { icon: Clock, label: 'Avg Turnaround', value: avgCompletionDays !== null ? `${avgCompletionDays}d` : '\u2014', color: '#6b7280' },
+            { icon: Truck, label: 'Bay Capacity', value: formatNumber(totalFacilityCapacity), color: '#6b7280', trend: totalFacilityCapacity > 0 ? 'bays' : undefined, trendColor: 'text-white/25' },
+          ].map((m, i) => {
+            const Icon = m.icon
+            return (
+              <div key={i} className={cn('flex-1 flex items-center gap-3 px-4 py-3 relative overflow-hidden', i > 0 && 'border-l border-white/[0.06]')}>
+                <div className="absolute left-0 top-[15%] bottom-[15%] w-[3px] rounded-full" style={{ background: m.color, boxShadow: `0 0 12px ${m.color}80, 0 0 4px ${m.color}40` }} />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg shrink-0" style={{ background: `${m.color}12`, border: `1px solid ${m.color}25` }}>
+                  <Icon className="h-3.5 w-3.5" style={{ color: m.color }} />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-white/40 leading-none mb-0.5">{m.label}</span>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-[18px] font-bold leading-none tabular-nums text-white/95">{m.value}</span>
+                    {m.trend && <span className={`text-[10px] font-medium ${m.trendColor || 'text-white/30'}`}>{m.trend}</span>}
+                  </div>
+                </div>
+                <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ background: `linear-gradient(135deg, ${m.color} 0%, transparent 60%)` }} />
               </div>
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm">Alerts: {stats.alertsPending}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-red-500" />
-                <span className="text-sm">Due Soon: {stats.serviceDue}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Wrench className="h-4 w-4 text-[var(--text-secondary)]" />
-                <span className="text-sm">Work Orders: {stats.workOrdersPending}</span>
-              </div>
-            </div>
-          </div>
+            )
+          })}
         </div>
       </div>
 
-      {/* Sidebar */}
-      <div className="border-l h-full">
-        <Tabs defaultValue="facility" value={activePanel} onValueChange={setActivePanel} className="w-full h-full">
+      {/* Main content */}
+      <div className="flex-1 min-h-0 grid grid-cols-[1fr_400px]">
+        {/* Map Section */}
+        <div className="flex flex-col h-full">
+          <div className="relative flex-1 min-h-0">
+            <ProfessionalFleetMap
+              vehicles={maintenanceVehicles as Vehicle[]}
+              facilities={facilities as unknown as import('@/lib/types').GISFacility[]}
+              height="100%"
+              onVehicleSelect={handleVehicleSelect}
+              showLegend={true}
+              enableRealTime={isRealtimeConnected}
+              forceSimulatedView={viewMode === 'tactical'}
+            />
+
+            {/* Maintenance Status Overlay */}
+            <div className="absolute top-4 left-4 bg-[#111] border border-white/[0.08] rounded-lg z-10 flex gap-2">
+              {/* View Mode Toggle */}
+              <div className="p-1 bg-white/[0.04] rounded-md flex">
+                <Button
+                  variant={viewMode === 'map' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-8 px-3"
+                  onClick={() => setViewMode('map')}
+                >
+                  Map
+                </Button>
+                <Button
+                  variant={viewMode === 'tactical' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-8 px-3"
+                  onClick={() => setViewMode('tactical')}
+                >
+                  <Grid className="h-4 w-4 mr-2" />
+                  Tactical
+                </Button>
+              </div>
+
+              <div className="p-1">
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-48" data-testid="maint-filter">
+                    <SelectValue placeholder="Filter vehicles" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Vehicles</SelectItem>
+                    <SelectItem value="service">In Service</SelectItem>
+                    <SelectItem value="alerts">With Alerts</SelectItem>
+                    <SelectItem value="due">Service Due Soon</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Cost Breakdown */}
+          {woCostBreakdown.length > 0 && (
+            <div className="flex-shrink-0 px-4 py-3 border-t border-white/[0.08] bg-[#111]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-semibold text-white/40 uppercase tracking-wider">Cost Breakdown</span>
+                <span className="text-[10px] text-white/25">By work order type</span>
+              </div>
+              <div className="space-y-2">
+                {woCostBreakdown.map((item, idx) => {
+                  const colors = ['#10b981', '#14b8a6', '#f59e0b', '#a855f7', '#3b82f6', '#ef4444']
+                  const color = colors[idx % colors.length]
+                  return (
+                    <div key={item.name} className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: color, boxShadow: `0 0 4px ${color}60` }} />
+                      <span className="text-[11px] text-white/50 w-20 truncate shrink-0">{item.name}</span>
+                      <div className="flex-1 h-4 rounded-full bg-white/[0.04] overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{
+                            width: `${Math.max((item.cost / woCostMax) * 100, 3)}%`,
+                            background: `linear-gradient(90deg, ${color}90 0%, ${color}30 100%)`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-semibold w-16 text-right tabular-nums shrink-0" style={{ color: `${color}cc` }}>${formatNumber(Math.round(item.cost))}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <div className="border-l border-white/[0.08] h-full flex flex-col">
+          {/* WO Distribution Donut */}
+          {woStatusDistribution.length > 0 && (
+            <div className="px-4 py-3 border-b border-white/[0.08] flex-shrink-0">
+              <GlowCard accent="#10b981">
+              <div className="p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-semibold text-white/40 uppercase tracking-wider">Work Orders</span>
+                <span className="text-[10px] text-white/25">{safeWorkOrders.length} total</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <ResponsiveContainer width={80} height={80}>
+                  <RechartsPieChart>
+                    <Pie
+                      data={woStatusDistribution}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={22}
+                      outerRadius={36}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {woStatusDistribution.map((_, idx) => (
+                        <Cell key={idx} fill={['#10b981', '#f59e0b', '#ef4444', '#6b7280', '#14b8a6'][idx % 5]} opacity={0.7} />
+                      ))}
+                    </Pie>
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+                <div className="flex-1 space-y-1.5">
+                  {woStatusDistribution.slice(0, 4).map((item, idx) => {
+                    const color = ['#10b981', '#f59e0b', '#ef4444', '#6b7280', '#14b8a6'][idx % 5]
+                    return (
+                      <div key={item.name} className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full shrink-0" style={{ background: color, boxShadow: `0 0 6px ${color}60` }} />
+                        <span className="text-[10px] text-white/50 truncate flex-1">{item.name}</span>
+                        <span className="text-[11px] font-semibold tabular-nums" style={{ color: `${color}cc` }}>{item.value}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              </div>
+              </GlowCard>
+            </div>
+          )}
+        <Tabs defaultValue="facility" value={activePanel} onValueChange={setActivePanel} className="w-full flex-1 min-h-0">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="facility">Facilities</TabsTrigger>
             <TabsTrigger value="vehicle">Vehicle</TabsTrigger>
             <TabsTrigger value="work">Work Orders</TabsTrigger>
             <TabsTrigger value="parts">Parts</TabsTrigger>
           </TabsList>
-          <TabsContent value="facility" className="h-[calc(100vh-48px)] mt-0">
+          <TabsContent value="facility" className="h-[calc(100vh-100px)] mt-0">
             <FacilityPanel
               facilities={facilities as unknown as Facility[]}
               onFacilitySelect={(facility) => {
@@ -724,13 +868,13 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
               }}
             />
           </TabsContent>
-          <TabsContent value="vehicle" className="h-[calc(100vh-48px)] mt-0">
+          <TabsContent value="vehicle" className="h-[calc(100vh-100px)] mt-0">
             <VehicleMaintenancePanel
               vehicle={selectedEntity?.type === 'vehicle' ? selectedEntity.data as Vehicle : null}
               _maintenanceHistory={null}
             />
           </TabsContent>
-          <TabsContent value="work" className="h-[calc(100vh-48px)] mt-0">
+          <TabsContent value="work" className="h-[calc(100vh-100px)] mt-0">
             <WorkOrdersPanel
               workOrders={workOrders as unknown as WorkOrder[]}
               onWorkOrderSelect={(order) => {
@@ -739,10 +883,11 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
               }}
             />
           </TabsContent>
-          <TabsContent value="parts" className="h-[calc(100vh-48px)] mt-0">
+          <TabsContent value="parts" className="h-[calc(100vh-100px)] mt-0">
             <PartsPanel parts={parts} technicians={technicians} />
           </TabsContent>
         </Tabs>
+        </div>
       </div>
     </div>
   )

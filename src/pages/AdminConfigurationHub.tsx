@@ -47,9 +47,16 @@ import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { GlowCard } from '@/components/ui/glow-card'
 import { HeroMetrics, type HeroMetric } from '@/components/ui/hero-metrics'
 import { Skeleton } from '@/components/ui/skeleton'
 import { VerticalTabs, type VTab } from '@/components/ui/vertical-tabs'
+import {
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+} from 'recharts'
 import { ResponsiveLineChart } from '@/components/visualizations'
 import { useTenant } from '@/contexts'
 import { useDrilldown } from '@/contexts/DrilldownContext'
@@ -160,24 +167,32 @@ const AdminTabContent = memo(function AdminTabContent() {
       value: userRows.length,
       icon: Users,
       accent: 'emerald' as const,
+      trend: 'up' as const,
+      change: userRows.length > 0 ? userRows.length : undefined,
     },
     {
       label: 'Active',
-      value: `${activeUserPercent}%`,
+      value: activeUserPercent,
+      suffix: '%',
       icon: Activity,
       trend: activeUserPercent >= 50 ? 'up' as const : 'down' as const,
+      change: activeUserPercent,
       accent: activeUserPercent >= 50 ? 'emerald' as const : 'amber' as const,
     },
     {
       label: 'Integrations',
       value: integrationCount,
       icon: Plug,
-      accent: 'gray' as const,
+      accent: integrationCount > 0 ? 'emerald' as const : 'gray' as const,
+      trend: integrationCount > 0 ? 'up' as const : 'neutral' as const,
     },
     {
       label: 'Uptime',
-      value: systemHealthPercent > 0 ? `${systemHealthPercent}%` : '\u2014',
+      value: systemHealthPercent > 0 ? systemHealthPercent : 0,
+      suffix: systemHealthPercent > 0 ? '%' : '',
       icon: Server,
+      trend: systemHealthPercent >= 75 ? 'up' as const : systemHealthPercent > 0 ? 'down' as const : undefined,
+      change: systemHealthPercent > 0 ? systemHealthPercent : undefined,
       accent: systemHealthPercent >= 75 ? 'emerald' as const : systemHealthPercent >= 50 ? 'amber' as const : 'rose' as const,
     },
   ], [userRows.length, activeUserPercent, integrationCount, systemHealthPercent])
@@ -283,34 +298,228 @@ const AdminTabContent = memo(function AdminTabContent() {
 
   return (
     <div className="flex flex-col gap-0 overflow-y-auto h-full">
-      {/* Hero Metrics Strip */}
-      <HeroMetrics metrics={heroMetrics} className="border-b border-white/[0.08] bg-[#1a1a1a]" />
+      {/* Hero Metrics Strip + System Health Gauge */}
+      <div className="flex items-stretch border-b border-white/[0.08] bg-[#1a1a1a]">
+        <GlowCard accent={systemHealthPercent >= 75 ? '#10b981' : systemHealthPercent >= 50 ? '#f59e0b' : '#ef4444'} className="shrink-0">
+          <div className="flex flex-col items-center justify-center px-5 py-3" style={{ minWidth: 110 }}>
+            <svg viewBox="0 0 70 70" className="w-[60px] h-[60px]">
+              <circle cx="35" cy="35" r="28" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+              <circle cx="35" cy="35" r="28" fill="none"
+                stroke={systemHealthPercent >= 75 ? '#10b981' : systemHealthPercent >= 50 ? '#f59e0b' : '#ef4444'}
+                strokeWidth="5" strokeLinecap="round"
+                strokeDasharray={`${(systemHealthPercent / 100) * 175.93} 175.93`}
+                transform="rotate(-90 35 35)"
+                style={{ filter: `drop-shadow(0 0 6px ${systemHealthPercent >= 75 ? '#10b98180' : systemHealthPercent >= 50 ? '#f59e0b80' : '#ef444480'})`, transition: 'stroke-dasharray 0.8s ease-out' }}
+              />
+              <text x="35" y="32" textAnchor="middle" className="text-[14px] font-bold" fill="rgba(255,255,255,0.9)">{systemHealthPercent}%</text>
+              <text x="35" y="44" textAnchor="middle" className="text-[7px]" fill="rgba(255,255,255,0.35)">SYSTEM</text>
+            </svg>
+          </div>
+        </GlowCard>
+        <HeroMetrics metrics={heroMetrics} className="flex-1" />
+      </div>
 
-      {/* System Status — horizontal health bar */}
+      {/* System Status — enhanced health panel */}
       <div className="px-6 py-4 border-b border-white/[0.08]">
         <div className="flex items-center gap-2 mb-3">
           <Server className="h-4 w-4 text-white/40" />
           <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/35">System Status</span>
+          {systemStatusItems.length > 0 && (
+            <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-medium ${
+              systemStatusItems.every(s => s.status === 'healthy') ? 'bg-emerald-500/20 text-emerald-400' :
+              systemStatusItems.some(s => s.status === 'unhealthy') ? 'bg-rose-500/20 text-rose-400' :
+              'bg-amber-500/20 text-amber-400'
+            }`}>
+              {systemStatusItems.every(s => s.status === 'healthy') ? 'All Systems Operational' :
+               systemStatusItems.some(s => s.status === 'unhealthy') ? 'Degraded' : 'Partial'}
+            </span>
+          )}
         </div>
+        <div className="shimmer-line mb-3" />
         {systemStatusItems.length === 0 ? (
           <div className="flex items-center gap-2 text-white/30 text-xs">
             <CheckCircle className="h-3.5 w-3.5" />
             <span>Health checks will appear once the health endpoint responds.</span>
           </div>
         ) : (
-          <div className="flex items-center gap-4 flex-wrap">
+          <>
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
             {systemStatusItems.map((service) => (
               <div
                 key={service.service}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/[0.03] border border-white/[0.08]"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/[0.03] border border-white/[0.08]"
                 title={`${formatEnum(service.service)}: ${service.uptime}`}
               >
-                <div className={`h-2 w-2 rounded-full ${statusDotColor(service.status)}`} />
-                <span className="text-xs text-white/60 font-medium">{formatEnum(service.service)}</span>
+                <div className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${statusDotColor(service.status)}`} />
+                <div className="min-w-0">
+                  <span className="text-xs text-white/70 font-medium block">{formatEnum(service.service)}</span>
+                  <span className="text-[10px] text-white/30 block truncate">{service.uptime}</span>
+                </div>
               </div>
             ))}
           </div>
+          {/* Stacked Health Bar */}
+          {systemStatusItems.length > 0 && (() => {
+            const healthy = systemStatusItems.filter(s => s.status === 'healthy').length
+            const degraded = systemStatusItems.filter(s => s.status === 'degraded' || s.status === 'warning').length
+            const unhealthy = systemStatusItems.filter(s => s.status === 'unhealthy' || s.status === 'error').length
+            const total = systemStatusItems.length
+            return (
+              <div className="mt-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-white/30">System Health</span>
+                  <span className="text-[10px] text-white/30">{healthy}/{total} healthy</span>
+                </div>
+                <div className="h-3 rounded-full bg-white/[0.04] overflow-hidden flex">
+                  {healthy > 0 && (
+                    <div className="h-full" style={{ width: `${(healthy / total) * 100}%`, background: 'linear-gradient(90deg, rgba(16,185,129,0.7) 0%, rgba(16,185,129,0.4) 100%)' }} />
+                  )}
+                  {degraded > 0 && (
+                    <div className="h-full" style={{ width: `${(degraded / total) * 100}%`, background: 'linear-gradient(90deg, rgba(245,158,11,0.7) 0%, rgba(245,158,11,0.4) 100%)' }} />
+                  )}
+                  {unhealthy > 0 && (
+                    <div className="h-full" style={{ width: `${(unhealthy / total) * 100}%`, background: 'linear-gradient(90deg, rgba(239,68,68,0.7) 0%, rgba(239,68,68,0.4) 100%)' }} />
+                  )}
+                </div>
+              </div>
+            )
+          })()}
+          </>
         )}
+      </div>
+
+      {/* Analytics Row — 3-column breakdown */}
+      <div className="px-6 py-4 border-b border-white/[0.08]">
+        <div className="grid grid-cols-3 gap-4">
+          {/* Left: Role Distribution */}
+          <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-4">
+            <h4 className="text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-3">Role Distribution</h4>
+            {userGroups.length === 0 ? (
+              <p className="text-xs text-white/25">No users loaded</p>
+            ) : (
+              <div className="space-y-2.5">
+                {userGroups.slice(0, 6).map((group, idx) => {
+                  const pct = userRows.length > 0 ? Math.round((group.count / userRows.length) * 100) : 0
+                  const colors = ['#10b981', '#34d399', '#f59e0b', '#a855f7', '#3b82f6', '#ef4444']
+                  const color = colors[idx % colors.length]
+                  return (
+                    <div key={group.role}>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full" style={{ background: color, boxShadow: `0 0 4px ${color}60` }} />
+                          <span className="text-xs text-white/60">{formatEnum(group.role)}</span>
+                        </div>
+                        <span className="text-[10px] font-semibold tabular-nums" style={{ color: `${color}cc` }}>{group.count} ({pct}%)</span>
+                      </div>
+                      <div className="w-full h-4 rounded-full bg-white/[0.04] overflow-hidden">
+                        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.max(pct, 3)}%`, background: `linear-gradient(90deg, ${color}90 0%, ${color}30 100%)` }} />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Middle: User Status — Donut */}
+          <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-4">
+            <h4 className="text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-3">User Status</h4>
+            {(() => {
+              const activeCount = userRows.filter((u: any) => u.status === 'active' || u.is_active).length
+              const inactiveCount = userRows.length - activeCount
+              const statusData = [
+                { name: 'Active', value: activeCount },
+                { name: 'Inactive', value: inactiveCount },
+              ].filter(d => d.value > 0)
+              const recentLogins = userRows.filter((u: any) => {
+                const lastLogin = u.last_login || u.last_active
+                if (!lastLogin) return false
+                return Date.now() - new Date(lastLogin).getTime() < 7 * 24 * 60 * 60 * 1000
+              }).length
+              return (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4">
+                    <ResponsiveContainer width={100} height={100}>
+                      <RechartsPieChart>
+                        <Pie
+                          data={statusData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={28}
+                          outerRadius={44}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          {statusData.map((entry, idx) => (
+                            <Cell key={idx} fill={idx === 0 ? '#10b981' : '#6b7280'} opacity={0.7} />
+                          ))}
+                        </Pie>
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                    <div className="flex-1 space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
+                        <span className="text-xs text-white/60">Active</span>
+                        <span className="text-xs text-white/30 ml-auto tabular-nums">{activeCount}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full bg-white/20" />
+                        <span className="text-xs text-white/60">Inactive</span>
+                        <span className="text-xs text-white/30 ml-auto tabular-nums">{inactiveCount}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5 pt-2 border-t border-white/[0.06]">
+                    <div className="flex items-center justify-between px-1">
+                      <span className="text-xs text-white/40">Active past 7 days</span>
+                      <span className="text-xs font-medium text-white/60">{recentLogins}</span>
+                    </div>
+                    <div className="flex items-center justify-between px-1">
+                      <span className="text-xs text-white/40">Active sessions</span>
+                      <span className="text-xs font-medium text-white/60">{activeSessionCount}</span>
+                    </div>
+                    <div className="flex items-center justify-between px-1">
+                      <span className="text-xs text-white/40">Utilization</span>
+                      <span className={`text-xs font-medium ${semanticPercentColor(activeUserPercent)}`}>{activeUserPercent}%</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+
+          {/* Right: Recent Activity Summary */}
+          <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-4">
+            <h4 className="text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-3">Recent Activity</h4>
+            {filteredAuditRows.length === 0 ? (
+              <p className="text-xs text-white/25">No audit activity recorded</p>
+            ) : (
+              <div className="space-y-1.5">
+                {filteredAuditRows.slice(0, 6).map((log: any) => {
+                  const action = (log.action || '').toLowerCase()
+                  const dotColor = action.includes('create') || action.includes('add') ? 'bg-emerald-400'
+                    : action.includes('delete') || action.includes('remove') ? 'bg-rose-400'
+                    : action.includes('update') || action.includes('edit') || action.includes('modify') ? 'bg-amber-400'
+                    : 'bg-white/30'
+                  return (
+                    <div key={log.id} className="flex items-start gap-2 py-1 px-2 rounded-md hover:bg-white/[0.03] transition-colors">
+                      <div className={`mt-1.5 h-2 w-2 rounded-full ${dotColor} shrink-0`} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs text-white/70 font-medium truncate">{formatEnum(log.action)}</p>
+                          <p className="text-[10px] text-white/20 shrink-0">{formatDateTime(log.timestamp || log.created_at)}</p>
+                        </div>
+                        {log.resource && (
+                          <p className="text-[10px] text-white/30 truncate">{formatEnum(log.resource)}</p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* User Management — full-width data table */}

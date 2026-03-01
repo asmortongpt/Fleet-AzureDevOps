@@ -49,6 +49,7 @@ import useSWR from 'swr'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { GlowCard } from '@/components/ui/glow-card'
 import { HeroBanner, BannerMetric } from '@/components/ui/hero-banner'
 import { HeroMetrics, type HeroMetric } from '@/components/ui/hero-metrics'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -365,13 +366,8 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       {/* 3-column layout: Cost Trend (40%) | Cost Breakdown (30%) | Recent Transactions (30%) */}
       <div className="grid gap-4" style={{ gridTemplateColumns: '4fr 3fr 3fr' }}>
         {/* Column 1: Cost Trend AreaChart */}
-        <div
-          className="rounded-xl p-4 flex flex-col"
-          style={{
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.06)',
-          }}
-        >
+        <GlowCard accent="#10b981">
+          <div className="p-4 flex flex-col h-full">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="text-sm font-semibold text-white">Cost Trend</h3>
@@ -447,6 +443,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             )}
           </div>
         </div>
+        </GlowCard>
 
         {/* Column 2: Cost Breakdown - Horizontal bar chart */}
         <div

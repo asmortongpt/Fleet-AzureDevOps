@@ -7,10 +7,11 @@ import rateLimit from 'express-rate-limit'
  * Complies with FedRAMP SI-10 (Information Input Validation)
  */
 
-// Global API rate limiter - reduced from 100 to 30 requests per minute
+// Global API rate limiter
+const isDevMode = process.env.NODE_ENV !== 'production' && (process.env.SKIP_AUTH === 'true' || process.env.VITE_SKIP_AUTH === 'true')
 export const globalLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 30, // 30 requests per minute per IP
+  max: isDevMode ? 300 : 30, // 300 in dev, 30 in production
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Too many requests from this IP, please try again later',

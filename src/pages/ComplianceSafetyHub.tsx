@@ -43,12 +43,23 @@ import useSWR from 'swr'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { GlowCard } from '@/components/ui/glow-card'
 import { HeroMetrics, type HeroMetric } from '@/components/ui/hero-metrics'
 import { KanbanBoard } from '@/components/ui/kanban-board'
 import type { KanbanColumn, KanbanItem } from '@/components/ui/kanban-board'
 import { Skeleton } from '@/components/ui/skeleton'
 import { TimelineStrip } from '@/components/ui/timeline-strip'
 import type { TimelineEvent } from '@/components/ui/timeline-strip'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts'
+
 import {
   ResponsiveBarChart,
   ResponsiveLineChart,
@@ -316,10 +327,10 @@ const SafetySubView = memo(function SafetySubView() {
       <HeroMetrics
         className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
         metrics={[
-          { label: 'Safety Score', value: safetyScoreStats.average > 0 ? String(safetyScoreStats.average) : '\u2014', icon: Shield, accent: 'emerald' },
-          { label: 'Days Since Report', value: daysSinceIncident !== null ? String(daysSinceIncident) : '\u2014', icon: Award, accent: 'amber' },
-          { label: 'Open Incidents', value: String(openIncidents), icon: AlertTriangle, accent: openIncidents > 0 ? 'rose' : 'emerald' },
-          { label: 'Training', value: trainingCompletion > 0 ? `${trainingCompletion}%` : '\u2014', icon: BookOpen, accent: 'gray' },
+          { label: 'Safety Score', value: safetyScoreStats.average > 0 ? safetyScoreStats.average : 0, icon: Shield, accent: 'emerald', trend: safetyScoreStats.average >= 80 ? 'up' as const : safetyScoreStats.average > 0 ? 'down' as const : undefined, change: safetyScoreStats.average > 0 ? safetyScoreStats.average : undefined, sparkline: safetyScoreStats.average > 0 },
+          { label: 'Days Since Report', value: daysSinceIncident !== null ? daysSinceIncident : 0, icon: Award, accent: 'amber', trend: daysSinceIncident !== null && daysSinceIncident > 30 ? 'up' as const : 'down' as const, sparkline: daysSinceIncident !== null && daysSinceIncident > 0 },
+          { label: 'Open Incidents', value: openIncidents, icon: AlertTriangle, accent: openIncidents > 0 ? 'rose' : 'emerald', trend: openIncidents > 0 ? 'down' as const : 'up' as const, change: openIncidents > 0 ? -openIncidents : 0 },
+          { label: 'Training', value: trainingCompletion > 0 ? trainingCompletion : 0, suffix: trainingCompletion > 0 ? '%' : '', icon: BookOpen, accent: 'gray', trend: trainingCompletion >= 80 ? 'up' as const : trainingCompletion > 0 ? 'down' as const : undefined, change: trainingCompletion > 0 ? trainingCompletion : undefined },
         ]}
       />
 
@@ -449,8 +460,14 @@ const SafetySubView = memo(function SafetySubView() {
                           {training.completed}/{training.total} ({pct}%)
                         </span>
                       </div>
-                      <div className="h-2 bg-white/10 rounded-full">
-                        <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${pct}%` }} />
+                      <div className="w-full h-4 rounded bg-white/[0.04] overflow-hidden">
+                        <div
+                          className="h-full rounded"
+                          style={{
+                            width: `${pct}%`,
+                            background: 'linear-gradient(90deg, rgba(16,185,129,0.6) 0%, rgba(16,185,129,0.3) 100%)',
+                          }}
+                        />
                       </div>
                     </div>
                   )
@@ -462,20 +479,29 @@ const SafetySubView = memo(function SafetySubView() {
 
         {/* Right: Incident Trends + Recent Incidents */}
         <div className="flex flex-col gap-3 min-h-0">
-          <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
+          <GlowCard accent="#ef4444">
+            <div className="p-3">
             <div className="flex items-center gap-2 mb-1">
               <TrendingDown className="h-4 w-4 text-white/40" />
               <h3 className="text-sm font-semibold text-white/80">Incident Trends</h3>
             </div>
-            <ResponsiveLineChart
-              title=""
-              data={incidentTrendData}
-              dataKeys={['incidents']}
-              colors={['#ef4444']}
-              height={140}
-              compact
-            />
-          </div>
+            <ResponsiveContainer width="100%" height={140}>
+              <AreaChart data={incidentTrendData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                <defs>
+                  <linearGradient id="incidentGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} width={24} />
+                <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#fff' }} />
+                <Area type="monotone" dataKey="incidents" stroke="#ef4444" strokeWidth={2} fill="url(#incidentGrad)" />
+              </AreaChart>
+            </ResponsiveContainer>
+            </div>
+          </GlowCard>
 
           <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2">
@@ -665,10 +691,10 @@ const PoliciesSubView = memo(function PoliciesSubView() {
       <HeroMetrics
         className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
         metrics={[
-          { label: 'Active Policies', value: String(activePolicies.length), icon: FileText, accent: 'emerald' },
-          { label: 'Adherence', value: complianceScore > 0 ? `${complianceScore}%` : '\u2014', icon: CheckCircle, accent: 'emerald' },
-          { label: 'Under Review', value: String(underReview.length), icon: ScrollText, accent: 'amber' },
-          { label: 'Violations', value: String(policyViolations.length), icon: Gavel, accent: policyViolations.length > 0 ? 'rose' : 'gray' },
+          { label: 'Active Policies', value: activePolicies.length, icon: FileText, accent: 'emerald' },
+          { label: 'Adherence', value: complianceScore > 0 ? complianceScore : 0, suffix: complianceScore > 0 ? '%' : '', icon: CheckCircle, accent: 'emerald' },
+          { label: 'Under Review', value: underReview.length, icon: ScrollText, accent: 'amber' },
+          { label: 'Violations', value: policyViolations.length, icon: Gavel, accent: policyViolations.length > 0 ? 'rose' : 'gray' },
         ]}
       />
 
@@ -700,8 +726,14 @@ const PoliciesSubView = memo(function PoliciesSubView() {
                       <td className="py-1.5 px-2 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <div className="w-12">
-                            <div className="h-2 bg-white/10 rounded-full">
-                              <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${item.adherence}%` }} />
+                            <div className="w-full h-4 rounded bg-white/[0.04] overflow-hidden">
+                              <div
+                                className="h-full rounded"
+                                style={{
+                                  width: `${item.adherence}%`,
+                                  background: 'linear-gradient(90deg, rgba(16,185,129,0.6) 0%, rgba(16,185,129,0.3) 100%)',
+                                }}
+                              />
                             </div>
                           </div>
                           <span className="text-xs text-white/80">{item.adherence}%</span>
@@ -1486,29 +1518,182 @@ export default function ComplianceSafetyHub() {
               </div>
             ) : (
               <>
-                {/* Summary KPI matrix */}
-                <HeroMetrics
-                  className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
-                  metrics={[
-                    { label: 'Compliance Rate', value: `${complianceStats.complianceRate}%`, icon: CheckCircle, accent: 'emerald' },
-                    { label: 'Active Certs', value: String(complianceStats.activeCerts), icon: Award, accent: 'emerald' },
-                    { label: 'Expiring Soon', value: String(complianceStats.expiringSoon), icon: Clock, accent: complianceStats.expiringSoon > 0 ? 'amber' : 'gray' },
-                    { label: 'Non-Compliant', value: String(complianceStats.nonCompliant), icon: XCircle, accent: complianceStats.nonCompliant > 0 ? 'rose' : 'gray' },
-                  ]}
-                />
+                {/* Hero Row: Radial Gauge + KPI Metrics */}
+                <div className="flex items-stretch gap-3">
+                  {/* Radial Compliance Gauge */}
+                  <div className="flex flex-col items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] px-6 py-3 shrink-0" style={{ minWidth: 140 }}>
+                    <svg viewBox="0 0 80 80" className="w-[72px] h-[72px]">
+                      {/* Track */}
+                      <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                      {/* Value arc */}
+                      <circle
+                        cx="40" cy="40" r="32"
+                        fill="none"
+                        stroke={complianceStats.complianceRate >= 80 ? '#10b981' : complianceStats.complianceRate >= 50 ? '#f59e0b' : '#ef4444'}
+                        strokeWidth="6"
+                        strokeLinecap="round"
+                        strokeDasharray={`${(complianceStats.complianceRate / 100) * 201.06} 201.06`}
+                        transform="rotate(-90 40 40)"
+                        style={{
+                          filter: `drop-shadow(0 0 6px ${complianceStats.complianceRate >= 80 ? '#10b98180' : complianceStats.complianceRate >= 50 ? '#f59e0b80' : '#ef444480'})`,
+                          transition: 'stroke-dasharray 0.8s ease-out',
+                        }}
+                      />
+                      {/* Center text */}
+                      <text x="40" y="36" textAnchor="middle" className="text-[16px] font-bold" fill="rgba(255,255,255,0.9)">{complianceStats.complianceRate}%</text>
+                      <text x="40" y="50" textAnchor="middle" className="text-[8px]" fill="rgba(255,255,255,0.35)">COMPLIANCE</text>
+                    </svg>
+                  </div>
+                  {/* KPI Metrics */}
+                  <HeroMetrics
+                    className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.03]"
+                    metrics={[
+                      { label: 'Active Certs', value: complianceStats.activeCerts, icon: Award, accent: 'emerald', trend: complianceStats.activeCerts > 0 ? 'up' as const : undefined },
+                      { label: 'Expiring Soon', value: complianceStats.expiringSoon, icon: Clock, accent: complianceStats.expiringSoon > 0 ? 'amber' : 'gray', trend: complianceStats.expiringSoon > 0 ? 'down' as const : 'up' as const, change: complianceStats.expiringSoon > 0 ? -complianceStats.expiringSoon : 0 },
+                      { label: 'Non-Compliant', value: complianceStats.nonCompliant, icon: XCircle, accent: complianceStats.nonCompliant > 0 ? 'rose' : 'gray', trend: complianceStats.nonCompliant > 0 ? 'down' as const : 'up' as const, change: complianceStats.nonCompliant > 0 ? -complianceStats.nonCompliant : 0 },
+                    ]}
+                  />
+                </div>
 
-                {/* Kanban Board — urgency columns */}
-                <KanbanBoard columns={kanbanColumns} />
+                {/* Side-by-side: Kanban left, Analytics right */}
+                <div className="flex gap-3 min-h-0">
+                  {/* LEFT — Kanban Board */}
+                  <div className="flex-[6] min-w-0">
+                    <KanbanBoard columns={kanbanColumns} />
+                  </div>
+
+                  {/* RIGHT — Analytics Sidebar */}
+                  <div className="flex-[4] flex flex-col gap-3 min-w-0">
+                  {/* Cert Type Breakdown */}
+                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Award className="h-4 w-4 text-white/40" />
+                      <h3 className="text-sm font-semibold text-white/80">By Certification Type</h3>
+                    </div>
+                    {(() => {
+                      const certTypes = [
+                        { label: 'Drug Test', items: kanbanColumns.flatMap(c => c.items.filter(i => i.subtitle === 'Drug Test')) },
+                        { label: 'Medical Card', items: kanbanColumns.flatMap(c => c.items.filter(i => i.subtitle === 'Medical Card')) },
+                        { label: 'Background Check', items: kanbanColumns.flatMap(c => c.items.filter(i => i.subtitle === 'Background Check')) },
+                        { label: 'MVR Check', items: kanbanColumns.flatMap(c => c.items.filter(i => i.subtitle === 'MVR Check')) },
+                        { label: 'Registration', items: kanbanColumns.flatMap(c => c.items.filter(i => i.subtitle === 'Registration')) },
+                      ].filter(ct => ct.items.length > 0)
+                      const totalItems = certTypes.reduce((s, c) => s + c.items.length, 0)
+                      return (
+                        <div className="space-y-2.5">
+                          {certTypes.map(ct => {
+                            const pct = totalItems > 0 ? Math.round((ct.items.length / totalItems) * 100) : 0
+                            return (
+                              <div key={ct.label}>
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-xs text-white/60">{ct.label}</span>
+                                  <span className="text-xs text-white/40">{ct.items.length}</span>
+                                </div>
+                                <div className="w-full h-4 rounded bg-white/[0.04] overflow-hidden">
+                                  <div
+                                    className="h-full rounded"
+                                    style={{
+                                      width: `${pct}%`,
+                                      background: 'linear-gradient(90deg, rgba(239,68,68,0.6) 0%, rgba(239,68,68,0.3) 100%)',
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            )
+                          })}
+                          {certTypes.length === 0 && (
+                            <p className="text-xs text-white/30 text-center py-4">All certifications current</p>
+                          )}
+                        </div>
+                      )
+                    })()}
+                  </div>
+
+                  {/* Column Distribution */}
+                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <BarChart className="h-4 w-4 text-white/40" />
+                      <h3 className="text-sm font-semibold text-white/80">Status Distribution</h3>
+                    </div>
+                    <div className="shimmer-line mb-3" />
+                    <div className="space-y-2.5">
+                      {kanbanColumns.map(col => {
+                        const total = kanbanColumns.reduce((s, c) => s + c.items.length, 0)
+                        const pct = total > 0 ? Math.round((col.items.length / total) * 100) : 0
+                        const barGradient = col.title === 'Compliant'
+                          ? 'linear-gradient(90deg, rgba(16,185,129,0.6) 0%, rgba(16,185,129,0.3) 100%)'
+                          : col.title === 'Expiring Soon'
+                          ? 'linear-gradient(90deg, rgba(245,158,11,0.6) 0%, rgba(245,158,11,0.3) 100%)'
+                          : 'linear-gradient(90deg, rgba(239,68,68,0.6) 0%, rgba(239,68,68,0.3) 100%)'
+                        return (
+                          <div key={col.title}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs text-white/60">{col.title}</span>
+                              <span className="text-xs text-white/40">{col.items.length} ({pct}%)</span>
+                            </div>
+                            <div className="w-full h-4 rounded bg-white/[0.04] overflow-hidden">
+                              <div
+                                className="h-full rounded"
+                                style={{
+                                  width: `${Math.max(pct, 2)}%`,
+                                  background: barGradient,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Non-Compliant Summary */}
+                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <AlertTriangle className="h-4 w-4 text-white/40" />
+                      <h3 className="text-sm font-semibold text-white/80">Action Required</h3>
+                    </div>
+                    {(() => {
+                      const actionItems = [...kanbanColumns.find(c => c.title === 'Non-Compliant')?.items || [], ...kanbanColumns.find(c => c.title === 'Overdue')?.items || []]
+                      const uniqueDrivers = new Set(actionItems.map(i => i.title))
+                      return (
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="rounded-md bg-white/[0.04] p-2 text-center">
+                              <p className="text-lg font-semibold text-rose-400">{actionItems.length}</p>
+                              <p className="text-[10px] text-white/40 uppercase">Items</p>
+                            </div>
+                            <div className="rounded-md bg-white/[0.04] p-2 text-center">
+                              <p className="text-lg font-semibold text-amber-400">{uniqueDrivers.size}</p>
+                              <p className="text-[10px] text-white/40 uppercase">People</p>
+                            </div>
+                          </div>
+                          <div className="space-y-1.5 max-h-[120px] overflow-y-auto">
+                            {Array.from(uniqueDrivers).slice(0, 6).map(name => {
+                              const count = actionItems.filter(i => i.title === name).length
+                              return (
+                                <div key={name} className="flex items-center justify-between text-xs">
+                                  <span className="text-white/60 truncate mr-2">{name}</span>
+                                  <Badge variant="destructive" className="text-[10px] px-1.5 py-0">{count} issue{count > 1 ? 's' : ''}</Badge>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                </div>
+                </div>
 
                 {/* Compliance Scores — compact matrix */}
                 {dashMetrics && (dashMetrics.vehicleCompliance > 0 || dashMetrics.driverCompliance > 0 || dashMetrics.safetyCompliance > 0 || dashMetrics.regulatoryCompliance > 0) && (
                   <HeroMetrics
                     className="rounded-lg border border-white/[0.08] bg-white/[0.03]"
                     metrics={[
-                      { label: 'Vehicle', value: `${dashMetrics.vehicleCompliance}%`, icon: Shield, accent: dashMetrics.vehicleCompliance >= 80 ? 'emerald' : dashMetrics.vehicleCompliance >= 60 ? 'amber' : 'rose' },
-                      { label: 'Driver', value: `${dashMetrics.driverCompliance}%`, icon: Users, accent: dashMetrics.driverCompliance >= 80 ? 'emerald' : dashMetrics.driverCompliance >= 60 ? 'amber' : 'rose' },
-                      { label: 'Safety', value: `${dashMetrics.safetyCompliance}%`, icon: Shield, accent: dashMetrics.safetyCompliance >= 80 ? 'emerald' : dashMetrics.safetyCompliance >= 60 ? 'amber' : 'rose' },
-                      { label: 'Regulatory', value: `${dashMetrics.regulatoryCompliance}%`, icon: FileCheck, accent: dashMetrics.regulatoryCompliance >= 80 ? 'emerald' : dashMetrics.regulatoryCompliance >= 60 ? 'amber' : 'rose' },
+                      { label: 'Vehicle', value: dashMetrics.vehicleCompliance, suffix: '%', icon: Shield, accent: dashMetrics.vehicleCompliance >= 80 ? 'emerald' : dashMetrics.vehicleCompliance >= 60 ? 'amber' : 'rose' },
+                      { label: 'Driver', value: dashMetrics.driverCompliance, suffix: '%', icon: Users, accent: dashMetrics.driverCompliance >= 80 ? 'emerald' : dashMetrics.driverCompliance >= 60 ? 'amber' : 'rose' },
+                      { label: 'Safety', value: dashMetrics.safetyCompliance, suffix: '%', icon: Shield, accent: dashMetrics.safetyCompliance >= 80 ? 'emerald' : dashMetrics.safetyCompliance >= 60 ? 'amber' : 'rose' },
+                      { label: 'Regulatory', value: dashMetrics.regulatoryCompliance, suffix: '%', icon: FileCheck, accent: dashMetrics.regulatoryCompliance >= 80 ? 'emerald' : dashMetrics.regulatoryCompliance >= 60 ? 'amber' : 'rose' },
                     ]}
                   />
                 )}

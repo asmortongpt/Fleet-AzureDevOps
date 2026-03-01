@@ -914,6 +914,27 @@
   }
 }
 
+@keyframes glowSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes borderShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 200% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 @keyframes neonGlow {
   0%, 100% {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
@@ -925,12 +946,92 @@
   }
 }
 
+/* Sparkline draw-on animation */
+@keyframes sparkDraw {
+  from {
+    stroke-dashoffset: 300;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sparkFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sparkDotPop {
+  from {
+    r: 0;
+    opacity: 0;
+  }
+  to {
+    r: 2;
+    opacity: 1;
+  }
+}
+
+/* Ambient mesh gradient pulse */
+@keyframes ambientDrift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.07;
+  }
+  33% {
+    transform: translate(2%, -1%) scale(1.02);
+    opacity: 0.09;
+  }
+  66% {
+    transform: translate(-1%, 1%) scale(0.98);
+    opacity: 0.06;
+  }
+}
+
+@keyframes shimmerSweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+    box-shadow: 0 0 4px currentColor;
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 12px currentColor, 0 0 24px currentColor;
+  }
+}
+
 /* ============================================================================
  * UTILITY ANIMATION CLASSES
  * Ready-to-use animation classes with common timing functions and durations
  * ============================================================================ */
 
 @layer utilities {
+  /* Shimmer accent underline — animated gradient sweep */
+  .shimmer-line {
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.6), transparent);
+    background-size: 200% 100%;
+    animation: shimmerSweep 3s ease-in-out infinite;
+  }
+
+  /* Pulse glow for live indicators */
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
   /* Page transition animations */
   .animate-page-enter {
     animation: fadeInPageEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1);

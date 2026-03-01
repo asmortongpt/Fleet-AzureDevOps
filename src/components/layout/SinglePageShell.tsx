@@ -52,6 +52,30 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
 
   return (
     <div className="h-screen w-screen overflow-hidden flex bg-[#0a0a0a] cta-hub">
+      {/* Ambient background mesh — subtle gradient orbs for depth */}
+      <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
+        <div
+          className="absolute -top-[15%] -left-[8%] w-[45%] h-[45%] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 65%)',
+            animation: 'ambientDrift 20s ease-in-out infinite',
+          }}
+        />
+        <div
+          className="absolute -bottom-[15%] -right-[8%] w-[35%] h-[35%] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(16,185,129,0.04) 0%, transparent 65%)',
+            animation: 'ambientDrift 25s ease-in-out infinite reverse',
+          }}
+        />
+        <div
+          className="absolute top-[25%] right-[15%] w-[25%] h-[25%] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255,255,255,0.015) 0%, transparent 60%)',
+            animation: 'ambientDrift 18s ease-in-out infinite 5s',
+          }}
+        />
+      </div>
       {/* Left: Icon Rail (desktop only) */}
       {isDesktop && (
         <div

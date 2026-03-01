@@ -29,7 +29,7 @@ import {
   LineChart,
   Clock,
   Award,
-  Map,
+  Map as MapIcon,
   CheckSquare,
   Calendar,
   Truck,
@@ -60,6 +60,7 @@ import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { GlowCard } from '@/components/ui/glow-card'
 import { HeroMetrics, type HeroMetric } from '@/components/ui/hero-metrics'
 import { Section } from '@/components/ui/section'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -69,6 +70,15 @@ import {
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts'
 import { useAuth } from '@/contexts'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useReactiveAssetsData } from '@/hooks/use-reactive-assets-data'
@@ -247,6 +257,49 @@ const OverviewTabContent = memo(function OverviewTabContent() {
     return { expiringRegistrations, expiringMedicalCards, overdueDrugTests, totalAlerts: expiringRegistrations + expiringMedicalCards + overdueDrugTests }
   }, [vehicles, drivers])
 
+  // Fleet activity trend — monthly work order + maintenance activity over last 6 months
+  const fleetActivityTrend = useMemo(() => {
+    const now = new Date()
+    const months: { label: string; month: number; year: number }[] = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      months.push({ label: d.toLocaleString('default', { month: 'short' }), month: d.getMonth(), year: d.getFullYear() })
+    }
+    return months.map((m) => {
+      // Count work orders created in this month
+      const woCount = workOrders.filter((wo: any) => {
+        const created = wo.created_at || wo.createdAt
+        if (!created) return false
+        const d = new Date(created)
+        return d.getMonth() === m.month && d.getFullYear() === m.year
+      }).length
+      // Count vehicles active by this month (cumulative fleet size)
+      const fleetSize = vehicles.filter((v: any) => {
+        const created = v.created_at || v.createdAt || v.purchase_date
+        if (!created) return true
+        const d = new Date(created)
+        return (d.getFullYear() < m.year || (d.getFullYear() === m.year && d.getMonth() <= m.month))
+      }).length
+      return { name: m.label, orders: woCount, fleet: fleetSize }
+    })
+  }, [vehicles, workOrders])
+
+  // Maintenance cost by type
+  const maintenanceCostBars = useMemo(() => {
+    const costMap = new Map<string, number>()
+    workOrders.forEach((wo: any) => {
+      const type = formatEnum(wo.type || wo.category || 'maintenance')
+      const cost = Number(wo.total_cost || wo.cost || 0)
+      if (cost > 0) costMap.set(type, (costMap.get(type) || 0) + cost)
+    })
+    return Array.from(costMap.entries())
+      .map(([name, cost]) => ({ name, cost }))
+      .sort((a, b) => b.cost - a.cost)
+      .slice(0, 6)
+  }, [workOrders])
+
+  const costBarMax = maintenanceCostBars.length > 0 ? maintenanceCostBars[0].cost : 1
+
   // Chart data
   const healthDistributionData = [
     { name: 'Excellent (90+)', value: fleetHealth.excellent, fill: '#10B981' },
@@ -333,7 +386,8 @@ const OverviewTabContent = memo(function OverviewTabContent() {
   const heroMetrics: HeroMetric[] = [
     {
       label: 'Fleet Utilization',
-      value: `${utilizationPct}%`,
+      value: utilizationPct,
+      suffix: '%',
       icon: Gauge,
       change: utilizationPct >= 70 ? 3 : -2,
       trend: utilizationPct >= 70 ? 'up' : 'down',
@@ -371,120 +425,336 @@ const OverviewTabContent = memo(function OverviewTabContent() {
 
       {/* ── 60 / 40 Split Layout ──────────────────────────────── */}
       <div className="flex gap-0 min-h-0 flex-1">
-        {/* LEFT 60% — Vehicle Data Table */}
+        {/* LEFT 60% — Vehicle Cards or Table */}
         <div className="flex-[6] border-r border-white/[0.06] overflow-y-auto">
-          <table className="w-full text-left">
-            <thead className="sticky top-0 z-10 bg-[#1a1a1a]">
-              <tr className="border-b border-white/[0.06]">
-                {([
-                  ['vehicle', 'Vehicle'],
-                  ['status', 'Status'],
-                  ['mileage', 'Mileage'],
-                  ['fuel', 'Fuel / Battery'],
-                  ['location', 'Location'],
-                ] as const).map(([key, label]) => (
-                  <th
-                    key={key}
-                    className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35 cursor-pointer select-none hover:text-white/60 transition-colors${key === 'mileage' ? ' text-right' : ''}`}
-                    onClick={() => handleSort(key)}
-                  >
-                    {label}{sortArrow(key)}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sortedVehicles.slice(0, 25).map(row => (
-                <tr
+          {sortedVehicles.length <= 10 ? (
+            /* Rich vehicle cards for small fleets */
+            <div className="p-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35">{sortedVehicles.length} Vehicle{sortedVehicles.length !== 1 ? 's' : ''}</span>
+              </div>
+              {sortedVehicles.map(row => (
+                <button
                   key={row.id}
-                  className="border-b border-white/[0.04] hover:bg-white/[0.03] cursor-pointer transition-colors"
+                  className="w-full text-left rounded-xl p-4 transition-all duration-200 hover:scale-[1.01] hover:bg-white/[0.06] hover:shadow-[0_0_24px_rgba(16,185,129,0.1)] hover:border-emerald-500/20 group"
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                  }}
                   onClick={() => push({
                     type: 'vehicle-details',
                     label: row.name,
                     data: { vehicleId: String(row.id), vehicle: row.raw },
                   })}
                 >
-                  <td className="px-4 py-2.5">
-                    <span className="text-[13px] font-medium text-white/80">{row.name}</span>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <span className="inline-flex items-center gap-1.5 text-[12px] text-white/60">
-                      <span className={`inline-block h-2 w-2 rounded-full ${statusDotColor(row.status)}`} />
-                      {formatEnum(row.status)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2.5 text-right">
-                    <span className="text-[12px] text-white/60 tabular-nums">{formatNumber(row.mileage)} mi</span>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    {row.fuel != null ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${row.fuel > 30 ? 'bg-emerald-400' : row.fuel > 15 ? 'bg-amber-400' : 'bg-rose-400'}`}
-                            style={{ width: `${Math.min(100, row.fuel)}%` }}
-                          />
-                        </div>
-                        <span className="text-[11px] text-white/40 tabular-nums">{row.fuel}%</span>
+                  <div className="flex items-start gap-4">
+                    {/* Vehicle icon */}
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <Car className="h-6 w-6 text-emerald-400" />
+                    </div>
+                    {/* Main info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="text-[15px] font-semibold text-white/90 group-hover:text-white truncate">{row.name}</span>
+                        <span
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0"
+                          style={{
+                            background: row.status === 'active' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
+                            color: row.status === 'active' ? '#10b981' : '#f59e0b',
+                            boxShadow: row.status === 'active' ? '0 0 8px rgba(16,185,129,0.3)' : '0 0 8px rgba(245,158,11,0.3)',
+                          }}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${row.status === 'active' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                          {formatEnum(row.status)}
+                        </span>
                       </div>
-                    ) : (
-                      <span className="text-[11px] text-white/20">--</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <span className="text-[12px] text-white/40 truncate max-w-[140px] inline-flex items-center gap-1">
-                      {row.isLive && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" title="Live GPS" />}
-                      {row.location}
-                    </span>
-                  </td>
-                </tr>
+                      {/* Stats row */}
+                      <div className="flex items-center gap-5 mt-2">
+                        {/* Mileage */}
+                        <div className="flex items-center gap-1.5">
+                          <Gauge className="h-3.5 w-3.5 text-white/30" />
+                          <span className="text-[12px] text-white/60 tabular-nums">{formatNumber(row.mileage)} mi</span>
+                        </div>
+                        {/* Fuel */}
+                        <div className="flex items-center gap-2">
+                          <Fuel className="h-3.5 w-3.5 text-white/30" />
+                          {row.fuel != null ? (
+                            <>
+                              <div className="w-20 h-2 bg-white/[0.08] rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full transition-all"
+                                  style={{
+                                    width: `${Math.min(100, row.fuel)}%`,
+                                    background: row.fuel > 30
+                                      ? 'linear-gradient(90deg, #10b981 0%, #34d399 100%)'
+                                      : row.fuel > 15
+                                      ? 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)'
+                                      : 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)',
+                                  }}
+                                />
+                              </div>
+                              <span className="text-[11px] text-white/40 tabular-nums">{row.fuel}%</span>
+                            </>
+                          ) : (
+                            <span className="text-[11px] text-white/20">No data</span>
+                          )}
+                        </div>
+                        {/* Location */}
+                        <div className="flex items-center gap-1.5">
+                          {row.isLive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+                          <MapPin className="h-3.5 w-3.5 text-white/30" />
+                          <span className="text-[11px] text-white/40 truncate max-w-[160px]">{row.location}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </button>
               ))}
               {sortedVehicles.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-white/30 text-sm">No vehicles found</td>
-                </tr>
+                <div className="py-10 text-center text-white/30 text-sm">No vehicles found</div>
               )}
-            </tbody>
-          </table>
-          {sortedVehicles.length > 25 && (
-            <div className="px-4 py-2 border-t border-white/[0.04] text-center">
-              <button
-                className="text-[11px] text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
-                onClick={() => push({ type: 'vehicles-list', label: 'All Vehicles', data: {} })}
-              >
-                View all {sortedVehicles.length} vehicles
-              </button>
+
+              {/* Fleet Quick Stats */}
+              {sortedVehicles.length > 0 && (
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="rounded-lg p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Gauge className="h-4 w-4 text-emerald-400/60" />
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35">Total Fleet Mileage</span>
+                    </div>
+                    <p className="text-xl font-bold text-white/90 tabular-nums">{formatNumber(sortedVehicles.reduce((sum, v) => sum + (v.mileage || 0), 0))} mi</p>
+                    <p className="text-[10px] text-white/30 mt-1">Avg {formatNumber(Math.round(sortedVehicles.reduce((sum, v) => sum + (v.mileage || 0), 0) / sortedVehicles.length))} mi per vehicle</p>
+                  </div>
+                  <div className="rounded-lg p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Activity className="h-4 w-4 text-emerald-400/60" />
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35">Fleet Status</span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1">
+                      {(() => {
+                        const active = sortedVehicles.filter(v => v.status === 'active').length
+                        const total = sortedVehicles.length
+                        return (
+                          <>
+                            <div className="flex-1">
+                              <div className="w-full h-3 rounded-full bg-white/[0.06] overflow-hidden">
+                                <div className="h-full rounded-full" style={{
+                                  width: `${(active / total) * 100}%`,
+                                  background: 'linear-gradient(90deg, #10b981 0%, #34d399 100%)',
+                                }} />
+                              </div>
+                            </div>
+                            <span className="text-sm font-semibold text-emerald-400">{active}/{total}</span>
+                            <span className="text-[10px] text-white/30">active</span>
+                          </>
+                        )
+                      })()}
+                    </div>
+                    <p className="text-[10px] text-white/30 mt-2">All vehicles model year {sortedVehicles[0]?.raw?.year || 'N/A'}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Recent Work Orders */}
+              {workOrders.length > 0 && (
+                <div className="mt-3 rounded-lg p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Wrench className="h-4 w-4 text-amber-400/60" />
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35">Recent Work Orders</span>
+                    <span className="text-[10px] text-white/20 ml-auto">{workOrders.length} total</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {workOrders.slice(0, 5).map((wo: any) => (
+                      <div
+                        key={wo.id}
+                        className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/[0.04] cursor-pointer transition-colors"
+                        style={{ borderLeft: `3px solid ${wo.priority === 'emergency' ? '#ef4444' : wo.priority === 'urgent' ? '#f59e0b' : '#10b981'}` }}
+                        onClick={() => push({ type: 'work-order-details', label: wo.description || `WO #${wo.id}`, data: { workOrderId: String(wo.id), workOrder: wo } })}
+                      >
+                        <span className="text-[12px] text-white/70 truncate flex-1">{wo.description || wo.wo_type || `Work Order #${wo.id}`}</span>
+                        <span className="text-[10px] text-white/30 shrink-0">{formatCurrency(Number(wo.total_cost) || 0)}</span>
+                        <span
+                          className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"
+                          style={{
+                            background: wo.status === 'completed' ? 'rgba(16,185,129,0.15)' : wo.status === 'in_progress' ? 'rgba(59,130,246,0.15)' : 'rgba(245,158,11,0.15)',
+                            color: wo.status === 'completed' ? '#10b981' : wo.status === 'in_progress' ? '#3b82f6' : '#f59e0b',
+                          }}
+                        >{formatEnum(wo.status)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+          ) : (
+            /* Standard table for larger fleets */
+            <>
+              <table className="w-full text-left">
+                <thead className="sticky top-0 z-10 bg-[#1a1a1a]">
+                  <tr className="border-b border-white/[0.06]">
+                    {([
+                      ['vehicle', 'Vehicle'],
+                      ['status', 'Status'],
+                      ['mileage', 'Mileage'],
+                      ['fuel', 'Fuel / Battery'],
+                      ['location', 'Location'],
+                    ] as const).map(([key, label]) => (
+                      <th
+                        key={key}
+                        className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35 cursor-pointer select-none hover:text-white/60 transition-colors${key === 'mileage' ? ' text-right' : ''}`}
+                        onClick={() => handleSort(key)}
+                      >
+                        {label}{sortArrow(key)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedVehicles.slice(0, 25).map(row => (
+                    <tr
+                      key={row.id}
+                      className="border-b border-white/[0.04] hover:bg-white/[0.04] hover:shadow-[inset_3px_0_0_#10b981] cursor-pointer transition-all duration-150"
+                      onClick={() => push({
+                        type: 'vehicle-details',
+                        label: row.name,
+                        data: { vehicleId: String(row.id), vehicle: row.raw },
+                      })}
+                    >
+                      <td className="px-4 py-2.5">
+                        <span className="text-[13px] font-medium text-white/80">{row.name}</span>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <span className="inline-flex items-center gap-1.5 text-[12px] text-white/60">
+                          <span className={`inline-block h-2 w-2 rounded-full ${statusDotColor(row.status)}`} />
+                          {formatEnum(row.status)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5 text-right">
+                        <span className="text-[12px] text-white/60 tabular-nums">{formatNumber(row.mileage)} mi</span>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        {row.fuel != null ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-16 h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${row.fuel > 30 ? 'bg-emerald-400' : row.fuel > 15 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                                style={{ width: `${Math.min(100, row.fuel)}%` }}
+                              />
+                            </div>
+                            <span className="text-[11px] text-white/40 tabular-nums">{row.fuel}%</span>
+                          </div>
+                        ) : (
+                          <span className="text-[11px] text-white/20">--</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <span className="text-[12px] text-white/40 truncate max-w-[140px] inline-flex items-center gap-1">
+                          {row.isLive && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" title="Live GPS" />}
+                          {row.location}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {sortedVehicles.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-10 text-center text-white/30 text-sm">No vehicles found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              {sortedVehicles.length > 25 && (
+                <div className="px-4 py-2 border-t border-white/[0.04] text-center">
+                  <button
+                    className="text-[11px] text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                    onClick={() => push({ type: 'vehicles-list', label: 'All Vehicles', data: {} })}
+                  >
+                    View all {sortedVehicles.length} vehicles
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 
         {/* RIGHT 40% — Stacked Info Panels */}
         <div className="flex-[4] overflow-y-auto flex flex-col">
-          {/* Fleet Health Donut (120px compact) */}
+          {/* Fleet Health — Radial Gauge + Distribution */}
           <div className="px-5 py-4 border-b border-white/[0.06]">
+            <GlowCard accent={fleetHealth.avgScore >= 80 ? '#10b981' : fleetHealth.avgScore >= 60 ? '#f59e0b' : '#ef4444'}>
+            <div className="p-4">
             <div className="flex items-center gap-2 mb-3">
               <HeartPulse className="h-4 w-4 text-white/40" />
               <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35">Fleet Health</span>
-              <span className="ml-auto text-[24px] font-bold text-white tabular-nums leading-none">{fleetHealth.avgScore}</span>
             </div>
-            {healthDistributionData.length > 0 ? (
-              <ResponsivePieChart title="" data={healthDistributionData} height={120} innerRadius={35} showPercentages compact />
+            <div className="shimmer-line mb-3" />
+            <div className="flex items-center gap-4">
+              {/* Radial Score Ring */}
+              <div className="shrink-0">
+                <svg viewBox="0 0 80 80" className="w-[80px] h-[80px]">
+                  <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                  <circle cx="40" cy="40" r="32" fill="none"
+                    stroke={fleetHealth.avgScore >= 80 ? '#10b981' : fleetHealth.avgScore >= 60 ? '#f59e0b' : '#ef4444'}
+                    strokeWidth="6" strokeLinecap="round"
+                    strokeDasharray={`${(fleetHealth.avgScore / 100) * 201.06} 201.06`}
+                    transform="rotate(-90 40 40)"
+                    style={{ filter: `drop-shadow(0 0 6px ${fleetHealth.avgScore >= 80 ? '#10b98180' : fleetHealth.avgScore >= 60 ? '#f59e0b80' : '#ef444480'})`, transition: 'stroke-dasharray 0.8s ease-out' }}
+                  />
+                  <text x="40" y="36" textAnchor="middle" className="text-[16px] font-bold" fill="rgba(255,255,255,0.9)">{fleetHealth.avgScore}</text>
+                  <text x="40" y="50" textAnchor="middle" className="text-[8px]" fill="rgba(255,255,255,0.35)">HEALTH</text>
+                </svg>
+              </div>
+              {/* Distribution Grid */}
+              <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-2">
+                {[
+                  { label: 'Excellent', count: fleetHealth.excellent, color: '#10b981' },
+                  { label: 'Good', count: fleetHealth.good, color: '#34d399' },
+                  { label: 'Fair', count: fleetHealth.fair, color: '#f59e0b' },
+                  { label: 'Poor', count: fleetHealth.poor, color: '#ef4444' },
+                ].map(item => (
+                  <div key={item.label} className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: item.color, boxShadow: `0 0 6px ${item.color}60` }} />
+                    <span className="text-[11px] text-white/50">{item.label}</span>
+                    <span className="text-[12px] font-semibold ml-auto tabular-nums" style={{ color: item.color }}>{item.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            </div>
+            </GlowCard>
+          </div>
+
+          {/* Fleet Activity Trend */}
+          <div className="px-5 py-4 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-3">
+              <Activity className="h-4 w-4 text-white/40" />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35">Fleet Activity</span>
+              <span className="ml-auto text-[11px] text-white/25">6-month trend</span>
+            </div>
+            <div className="shimmer-line mb-2" />
+            {fleetActivityTrend.length > 0 ? (
+              <ResponsiveContainer width="100%" height={120}>
+                <AreaChart data={fleetActivityTrend} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                  <defs>
+                    <linearGradient id="fleetActivityGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                    <linearGradient id="fleetOrdersGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.2} />
+                      <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} width={30} />
+                  <RechartsTooltip contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#fff' }} />
+                  <Area type="monotone" dataKey="orders" name="Work Orders" stroke="#f59e0b" strokeWidth={2} fill="url(#fleetOrdersGrad)" />
+                  <Area type="monotone" dataKey="fleet" name="Fleet Size" stroke="#10b981" strokeWidth={2} fill="url(#fleetActivityGrad)" />
+                </AreaChart>
+              </ResponsiveContainer>
             ) : (
-              <div className="h-[120px] flex items-center justify-center text-white/20 text-xs">No health data</div>
+              <div className="h-[120px] flex items-center justify-center text-white/20 text-xs">No activity data</div>
             )}
-            <div className="grid grid-cols-4 gap-2 mt-2">
-              {[
-                { label: 'Excellent', count: fleetHealth.excellent, color: 'text-emerald-400' },
-                { label: 'Good', count: fleetHealth.good, color: 'text-emerald-300' },
-                { label: 'Fair', count: fleetHealth.fair, color: 'text-amber-400' },
-                { label: 'Poor', count: fleetHealth.poor, color: 'text-rose-400' },
-              ].map(item => (
-                <div key={item.label} className="text-center">
-                  <p className={`text-sm font-semibold ${item.color}`}>{item.count}</p>
-                  <p className="text-[10px] text-white/30">{item.label}</p>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Active Alerts (3-5 most urgent, clickable) */}
@@ -580,6 +850,34 @@ const OverviewTabContent = memo(function OverviewTabContent() {
               ))}
             </div>
           </div>
+
+          {/* Maintenance Costs */}
+          {maintenanceCostBars.length > 0 && (
+            <div className="px-5 py-4 border-t border-white/[0.06]">
+              <div className="flex items-center gap-2 mb-3">
+                <DollarSign className="h-4 w-4 text-white/40" />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35">Maintenance Costs</span>
+                <span className="ml-auto text-[11px] text-white/25">By type</span>
+              </div>
+              <div className="space-y-2">
+                {maintenanceCostBars.map((item) => (
+                  <div key={item.name} className="flex items-center gap-2">
+                    <span className="text-[11px] text-white/50 w-24 truncate shrink-0">{item.name}</span>
+                    <div className="flex-1 h-3.5 rounded bg-white/[0.04] overflow-hidden">
+                      <div
+                        className="h-full rounded"
+                        style={{
+                          width: `${Math.max((item.cost / costBarMax) * 100, 2)}%`,
+                          background: 'linear-gradient(90deg, rgba(16,185,129,0.6) 0%, rgba(16,185,129,0.3) 100%)',
+                        }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-white/40 w-20 text-right tabular-nums shrink-0">{formatCurrency(item.cost)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1161,7 +1459,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
         <Section
           title={`Active Routes (${routes.length})`}
           description="Real-time route tracking"
-          icon={<Map className="h-4 w-4" />}
+          icon={<MapIcon className="h-4 w-4" />}
         >
           {routes.length > 0 ? (
             <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
