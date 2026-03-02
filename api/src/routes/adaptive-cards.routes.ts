@@ -629,52 +629,40 @@ router.get('/preview/:cardType', authenticateJWT, async (req: Request, res: Resp
   try {
     const { cardType } = req.params
 
-    // Sample data for preview
-    const sampleData: Record<string, any> = {
-      'vehicle-maintenance': {
-        vehicle: {
-          id: 'sample-vehicle-id',
-          vehicle_number: 'V-001',
-          make: 'Ford',
-          model: 'F-150',
-          vin: '1FTFW1ET5BFC12345',
-          current_mileage: 85000
-        },
-        maintenance: {
-          id: 'sample-maintenance-id',
-          type: 'Oil Change',
-          priority: 'high',
-          due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          estimated_cost: 150,
-          description: 'Regular oil change and filter replacement',
-          recommended_action: 'Schedule service within the next week'
-        }
-      },
-      'work-order': {
-        id: 'sample-wo-id',
-        work_order_number: 'WO-12345',
-        status: 'pending',
-        assigned_to_name: 'John Mechanic',
-        vehicle_number: 'V-001',
-        vehicle_make: 'Ford',
-        vehicle_model: 'F-150',
-        work_type: 'Tire Replacement',
-        priority: 'high',
-        due_date: new Date(),
-        location: 'Main Shop',
-        estimated_duration: '2 hours',
-        description: 'Replace all four tires - tread depth below safety threshold'
-      }
-    }
+    const tenantId = (req as any).tenantId
+    const dbClient = (req as any).dbClient || pool
 
     let card
     switch (cardType) {
-      case 'vehicle-maintenance':
-        card = await createVehicleMaintenanceCard(sampleData[cardType].vehicle, sampleData[cardType].maintenance)
+      case 'vehicle-maintenance': {
+        const vRes = await dbClient.query(
+          `SELECT id, vehicle_number, make, model, vin, current_mileage FROM vehicles WHERE tenant_id = $1 LIMIT 1`,
+          [tenantId]
+        )
+        const mRes = await dbClient.query(
+          `SELECT id, maintenance_type AS type, priority, due_date, estimated_cost, description FROM maintenance_schedules WHERE tenant_id = $1 ORDER BY due_date ASC LIMIT 1`,
+          [tenantId]
+        )
+        if (!vRes.rows[0] || !mRes.rows[0]) throw new NotFoundError('No vehicle or maintenance data found for preview')
+        card = await createVehicleMaintenanceCard(vRes.rows[0], mRes.rows[0])
         break
-      case 'work-order':
-        card = await createWorkOrderCard(sampleData[cardType])
+      }
+      case 'work-order': {
+        const woRes = await dbClient.query(
+          `SELECT wo.id, wo.work_order_number, wo.status, wo.work_type, wo.priority, wo.due_date, wo.location, wo.estimated_duration, wo.description,
+                  d.first_name || ' ' || d.last_name AS assigned_to_name,
+                  v.vehicle_number, v.make AS vehicle_make, v.model AS vehicle_model
+           FROM work_orders wo
+           LEFT JOIN drivers d ON d.id = wo.assigned_to AND d.tenant_id = $1
+           LEFT JOIN vehicles v ON v.id = wo.vehicle_id AND v.tenant_id = $1
+           WHERE wo.tenant_id = $1
+           ORDER BY wo.created_at DESC LIMIT 1`,
+          [tenantId]
+        )
+        if (!woRes.rows[0]) throw new NotFoundError('No work order data found for preview')
+        card = await createWorkOrderCard(woRes.rows[0])
         break
+      }
       default:
         throw new NotFoundError("Card type not found")
     }
